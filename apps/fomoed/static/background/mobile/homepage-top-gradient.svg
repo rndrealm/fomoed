@@ -1,0 +1,38 @@
+<svg width="1101" height="1101" viewBox="0 0 1101 1101" fill="none"
+    xmlns="http://www.w3.org/2000/svg">
+    <g filter="url(#filter0_f_37_436)">
+        <ellipse cx="150.117" cy="149.998" rx="150.117" ry="149.998"
+            transform="matrix(1 1.74846e-07 1.74846e-07 -1 400.467 700.565)"
+            fill="url(#paint0_linear_37_436)" />
+    </g>
+    <g filter="url(#filter1_f_37_436)">
+        <rect width="144.259" height="204.509"
+            transform="matrix(1 1.74846e-07 1.74846e-07 -1 478.454 561.909)"
+            fill="url(#paint1_linear_37_436)" />
+    </g>
+    <defs>
+        <filter id="filter0_f_37_436" x="0.466888" y="0.569946" width="1100.23" height="1100"
+            filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+            <feFlood flood-opacity="0" result="BackgroundImageFix" />
+            <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+            <feGaussianBlur stdDeviation="200" result="effect1_foregroundBlur_37_436" />
+        </filter>
+        <filter id="filter1_f_37_436" x="278.454" y="157.4" width="544.259" height="604.509"
+            filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+            <feFlood flood-opacity="0" result="BackgroundImageFix" />
+            <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+            <feGaussianBlur stdDeviation="100" result="effect1_foregroundBlur_37_436" />
+        </filter>
+        <linearGradient id="paint0_linear_37_436" x1="150.117" y1="0" x2="150.117" y2="299.995"
+            gradientUnits="userSpaceOnUse">
+            <stop offset="0.252213" stop-color="#0A2463" />
+            <stop offset="1" stop-color="#FF3B10" />
+        </linearGradient>
+        <linearGradient id="paint1_linear_37_436" x1="72.1295" y1="0" x2="72.1295" y2="204.509"
+            gradientUnits="userSpaceOnUse">
+            <stop stop-color="#18FF9E" stop-opacity="0" />
+            <stop offset="1" stop-color="#FF9700" />
+        </linearGradient>
+    </defs>
+</svg>
+    

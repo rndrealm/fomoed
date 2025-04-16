@@ -1,0 +1,84 @@
+<script lang="ts">
+	import NewsFilterChips from '../NewsFilterChips/NewsFilterChips.svelte';
+	import NewsHeadlineCardCompact from '../NewsHeadlineCardCompact/NewsHeadlineCardCompact.svelte';
+	import type { AppNewsItem } from '$ts/client/services/NewsService.client.svelte';
+	import PaginationBar from '$lib/comps/PaginationBar/PaginationBar.svelte';
+	import { newsService } from '$ts/client/services/NewsService.client.svelte';
+
+	let { articles } = $props<{ articles: AppNewsItem[] }>();
+
+	let innerWidth = $state(0);
+
+	// Function to chunk articles into the specified pattern
+	function chunkArticles(articles: AppNewsItem[], width: number) {
+		// For smaller screens, put each article in its own chunk (single column)
+		if (width < 1400) {
+			return articles.map((article) => [article]);
+		}
+
+		// For larger screens, use the alternating pattern
+		const pattern = [3, 2];
+		const chunks = [];
+		let currentIndex = 0;
+
+		while (currentIndex < articles.length) {
+			const patternIndex = chunks.length % pattern.length;
+			const chunkSize = pattern[patternIndex];
+			const endIndex = Math.min(currentIndex + chunkSize, articles.length);
+
+			chunks.push(articles.slice(currentIndex, endIndex));
+			currentIndex = endIndex;
+		}
+
+		return chunks;
+	}
+
+	let articleRows = $derived.by(() => chunkArticles(articles, innerWidth));
+
+	function handlePageChange(page: number) {
+		newsService.setPage(page);
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+	}
+</script>
+
+<svelte:window bind:innerWidth />
+
+<div
+	class="bg-[#110F0E] border-[0.5px] border-[#2B2B2B] py-3 px-4 rounded-[20px] -desktop:rounded-none"
+>
+	<h2
+		class="text-new-white text-2xl font-semibold -desktop:font-black -desktop:text-3xl -desktop:py-2"
+	>
+		Latest News
+	</h2>
+
+	<div class="pt-3">
+		<NewsFilterChips
+			active={newsService.filter}
+			onChange={(value) => {
+				newsService.filter = value;
+				newsService.fetchNews();
+			}}
+		/>
+	</div>
+
+	<!-- Article Grid -->
+	<div class="mt-6 space-y-4">
+		{#each articleRows as row, rowIndex}
+			<!-- Article Row -->
+			<div class="grid gap-4" style="grid-template-columns: repeat({row.length}, minmax(0, 1fr));">
+				{#each row as article}
+					<NewsHeadlineCardCompact {article} />
+				{/each}
+			</div>
+		{/each}
+	</div>
+
+	<div class="pt-5">
+		<PaginationBar
+			currentPage={newsService.currentPage}
+			totalPages={newsService.totalPages}
+			onPageChange={handlePageChange}
+		/>
+	</div>
+</div>

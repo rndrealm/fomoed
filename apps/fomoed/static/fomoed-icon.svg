@@ -1,0 +1,75 @@
+<svg width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g clip-path="url(#clip0_1_31)">
+        <g filter="url(#filter0_i_1_31)">
+            <path
+                d="M35 0H15C6.71573 0 0 6.71573 0 15V35C0 43.2843 6.71573 50 15 50H35C43.2843 50 50 43.2843 50 35V15C50 6.71573 43.2843 0 35 0Z"
+                fill="url(#paint0_radial_1_31)" />
+        </g>
+        <mask id="mask0_1_31" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0"
+            width="50" height="50">
+            <path
+                d="M35 0H15C6.71573 0 0 6.71573 0 15V35C0 43.2843 6.71573 50 15 50H35C43.2843 50 50 43.2843 50 35V15C50 6.71573 43.2843 0 35 0Z"
+                fill="#D9D9D9" />
+        </mask>
+        <g mask="url(#mask0_1_31)">
+            <g filter="url(#filter1_f_1_31)">
+                <path
+                    d="M25 2C35.4934 2 44 -0.0147185 44 -2.5C44 -4.98528 35.4934 -7 25 -7C14.5066 -7 6 -4.98528 6 -2.5C6 -0.0147185 14.5066 2 25 2Z"
+                    fill="#BF340A" fill-opacity="0.5" />
+            </g>
+        </g>
+        <g filter="url(#filter2_d_1_31)">
+            <path
+                d="M34.7759 13.4677L33.1313 13.2072C29.5937 12.6469 26.2717 15.0605 25.7114 18.5981L23.5453 32.2744C22.985 35.812 19.663 38.2256 16.1254 37.6653L15.0002 37.4871"
+                stroke="white" stroke-width="4.20662" />
+            <path d="M19.0312 21.4492L30.7167 23.3" stroke="white" stroke-width="4.20662" />
+            <path
+                d="M27.0312 23.2402L26.3732 27.3951C26.3732 27.3951 26.5726 26.1363 27.6883 25.5133C28.7337 24.9296 30.3243 25.4181 30.3243 25.4181L30.5802 23.8023L27.0312 23.2402Z"
+                fill="white" stroke="white" stroke-width="0.175276" />
+        </g>
+    </g>
+    <defs>
+        <filter id="filter0_i_1_31" x="0" y="-6" width="50" height="56" filterUnits="userSpaceOnUse"
+            color-interpolation-filters="sRGB">
+            <feFlood flood-opacity="0" result="BackgroundImageFix" />
+            <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+            <feColorMatrix in="SourceAlpha" type="matrix"
+                values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
+            <feOffset dy="-8" />
+            <feGaussianBlur stdDeviation="3" />
+            <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
+            <feColorMatrix type="matrix"
+                values="0 0 0 0 0.921569 0 0 0 0 0.584314 0 0 0 0 0.333333 0 0 0 0.3 0" />
+            <feBlend mode="normal" in2="shape" result="effect1_innerShadow_1_31" />
+        </filter>
+        <filter id="filter1_f_1_31" x="-7.2" y="-20.2" width="64.4" height="35.4"
+            filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+            <feFlood flood-opacity="0" result="BackgroundImageFix" />
+            <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+            <feGaussianBlur stdDeviation="6.6" result="effect1_foregroundBlur_1_31" />
+        </filter>
+        <filter id="filter2_d_1_31" x="14.3207" y="11.0228" width="21.836" height="30.5797"
+            filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+            <feFlood flood-opacity="0" result="BackgroundImageFix" />
+            <feColorMatrix in="SourceAlpha" type="matrix"
+                values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
+            <feOffset dx="0.350552" dy="1.05166" />
+            <feGaussianBlur stdDeviation="0.350552" />
+            <feComposite in2="hardAlpha" operator="out" />
+            <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" />
+            <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1_31" />
+            <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1_31" result="shape" />
+        </filter>
+        <radialGradient id="paint0_radial_1_31" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
+            gradientTransform="translate(25 9.61538) rotate(90) scale(44.2308 62.0626)">
+            <stop offset="0.339415" stop-color="#020100" />
+            <stop offset="0.631104" stop-color="#631B06" />
+            <stop offset="0.719585" stop-color="#8B2505" />
+            <stop offset="0.835125" stop-color="#BD4618" />
+            <stop offset="0.91044" stop-color="#F7984B" />
+        </radialGradient>
+        <clipPath id="clip0_1_31">
+            <rect width="50" height="50" fill="white" />
+        </clipPath>
+    </defs>
+</svg>

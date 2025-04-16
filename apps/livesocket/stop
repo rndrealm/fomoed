@@ -1,0 +1,5 @@
+echo "Stopping Livesocket."
+
+pm2 stop livesocket
+
+echo "Stopped Livesocket."
