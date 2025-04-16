@@ -15,7 +15,7 @@
 	import type { ParsedArticle } from '$ts/common/types';
 	import type { SupabaseClient } from '@supabase/supabase-js';
 	import { getContext, onMount, tick } from 'svelte';
-	import toast from 'svelte-french-toast';
+	import toast from 'svelte-5-french-toast';
 	import NewsPath from '$lib/comps/NewsPath/NewsPath.svelte';
 
 	const { base64originalUrl } = page.params;

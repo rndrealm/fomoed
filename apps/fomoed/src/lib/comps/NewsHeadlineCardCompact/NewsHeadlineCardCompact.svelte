@@ -4,7 +4,7 @@
 	import SentimentPill from '$lib/comps/custom/SentimentPill/SentimentPill.svelte';
 	import AssetPricePill from '../custom/AssetPricePill/AssetPricePill.svelte';
 	import { likesService } from '$ts/client/services/LikesService.client.svelte';
-	import toast from 'svelte-french-toast';
+	import toast from 'svelte-5-french-toast';
 	import NewsHeadlineBottomBar from '../NewsHeadlineBottomBar/NewsHeadlineBottomBar.svelte';
 	import LikeIcon from '$lib/icons/LikeIcon.svelte';
 	import LikeIconFull from '$lib/icons/LikeIconFull.svelte';

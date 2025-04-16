@@ -72,7 +72,7 @@
 		"resize-observer-polyfill": "^1.5.1",
 		"simplebar": "^6.3.0",
 		"stripe": "^15.12.0",
-		"svelte-french-toast": "^1.2.0",
+		"svelte-5-french-toast": "^2.0.4",
 		"svelte-inview": "^4.0.4",
 		"svelte-loading-spinners": "^0.3.6",
 		"svelte-meta-tags": "^3.1.4",

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { ModeWatcher } from 'mode-watcher';
 	import NewNavbar from '$lib/comps/NewNavbar/NewNavbar.svelte';
-	import { Toaster } from 'svelte-french-toast';
+	import { Toaster } from 'svelte-5-french-toast';
 	import { innerWidth } from '$lib/stores/ui';
 </script>
 

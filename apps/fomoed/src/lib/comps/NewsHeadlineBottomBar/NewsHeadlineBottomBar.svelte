@@ -8,7 +8,7 @@
 	import SharePopupButton from '$lib/comps/SharePopup/SharePopupButton.svelte';
 	import { likesService } from '$ts/client/services/LikesService.client.svelte';
 	import { bookmarksService } from '$ts/client/services/BookmarksService.client.svelte';
-	import toast from 'svelte-french-toast';
+	import toast from 'svelte-5-french-toast';
 	import { Bookmark } from 'lucide-svelte';
 	import { goto } from '$app/navigation';
 

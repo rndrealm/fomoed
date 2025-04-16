@@ -7,7 +7,7 @@
 	import CfgiWidget from '$lib/comps/CfgiWidget/CfgiWidget.svelte';
 	import PopularNewsWidget from '$lib/comps/PopularNewsWidget/PopularNewsWidget.svelte';
 	import { DESKTOP_BREAKPOINT, innerWidth } from '$lib/stores/ui';
-	import toast from 'svelte-french-toast';
+	import toast from 'svelte-5-french-toast';
 
 	onMount(async () => {
 		if (newsService.news.length > 0) {

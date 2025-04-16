@@ -7,7 +7,7 @@
 	import ShareIcon from '$lib/icons/ShareIcon.svelte';
 	import * as Popover from '$lib/components/ui/popover';
 	import { type Component } from 'svelte';
-	import toast from 'svelte-french-toast';
+	import toast from 'svelte-5-french-toast';
 
 	let { postUrl }: { postUrl: string } = $props();
 
