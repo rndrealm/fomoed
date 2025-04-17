@@ -1,28 +1,25 @@
-import { createOrLinkUserFromOAuth } from '$ts/utils/server/user.js';
-import { redirect } from '@sveltejs/kit';
+import { createSupabaseServerClient } from '@/lib/utils/supabase/server-client';
+import { NextResponse } from 'next/server';
 
-export const GET = async (event) => {
-	const {
-		url,
-		locals: { supabase }
-	} = event;
-	const code = url.searchParams.get('code') as string;
-	const next = url.searchParams.get('next') ?? '/';
+export async function GET(request: Request) {
+	const { searchParams, origin } = new URL(request.url);
+
+	const code = searchParams.get('code');
+
+	// if "next" is in param, use it in the redirect URL
+	const next = searchParams.get('next') ?? '/';
 
 	if (code) {
-		const { error, data } = await supabase.auth.exchangeCodeForSession(code);
+		const supabase = createSupabaseServerClient();
 
-		if (!data.user) {
-			throw redirect(303, '/auth/auth-code-error');
-		}
-
-		createOrLinkUserFromOAuth(supabase, data.user);
+		const { error } = await supabase.auth.exchangeCodeForSession(code);
 
 		if (!error) {
-			throw redirect(303, `/${next.slice(1)}`);
+			return NextResponse.redirect(`${origin}${next}`);
 		}
 	}
 
+	// TODO: Create this page
 	// return the user to an error page with instructions
-	throw redirect(303, '/auth/auth-code-error');
-};
+	return NextResponse.redirect(`${origin}/auth/auth-error`);
+}

@@ -1,9 +1,15 @@
 import { User } from "lucide-react";
-import Image from "next/image";
+import { useAtomValue } from "jotai";
+import { authUserAtom } from "@/lib/atoms/userAtom";
+import { useEffect } from "react";
 
 const NavbarProfileButton = () => {
-    // Hardcoded to false as requested
-    const hasUser = false;
+    const user = useAtomValue(authUserAtom);
+    const hasUser = !!user;
+    
+    useEffect(() => {
+        console.log("User value changed:", user);
+    }, [user]);
 
     return (
         <button
@@ -14,14 +20,8 @@ const NavbarProfileButton = () => {
             }}
         >
             <div className="border border-[#2B2B2B] bg-[#110F0E] rounded-full size-full grid place-items-center">
-                {hasUser ? (
-                    <Image
-                        src="https://picsum.photos/200/200"
-                        alt="User avatar"
-                        width={40}
-                        height={40}
-                        className="rounded-full object-cover"
-                    />
+                {hasUser && user?.user_metadata?.avatar_url ? (
+                    <img src={user.user_metadata.avatar_url} alt="User avatar" className="rounded-full object-cover" />
                 ) : (
                     <User className="text-white/70" />
                 )}
