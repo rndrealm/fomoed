@@ -7,11 +7,8 @@ export const publicUserDataAtom = atom<PublicUserDataRow | null>(null);
 export const isLoadingUserAtom = atom<boolean>(false);
 
 // Add a reset action to your atoms
-export const resetAuthState = atom(
-  null,
-  (get, set) => {
+export const resetAuthState = atom(null, (get, set) => {
     set(authUserAtom, null);
     set(publicUserDataAtom, null);
     // Reset any other auth-related atoms
-  }
-);
+});

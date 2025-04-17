@@ -6,7 +6,7 @@ import { useEffect } from "react";
 const NavbarProfileButton = () => {
     const user = useAtomValue(authUserAtom);
     const hasUser = !!user;
-    
+
     useEffect(() => {
         console.log("User value changed:", user);
     }, [user]);
