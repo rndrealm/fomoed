@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React from "react";
 
 export function BorderedProfileImage() {
@@ -14,11 +15,19 @@ export function BorderedProfileImage() {
                     : undefined,
             }}
         >
-            <img src="/deprecated/indicator-meme-5.png" className="w-[65%]" alt="Arrow right" />
+            <Image
+                width={184}
+                height={248}
+                src="/deprecated/indicator-meme-5.png"
+                className="w-[65%]"
+                alt="Arrow right"
+            />
 
             {premium && (
                 <>
-                    <img
+                    <Image
+                        width={20}
+                        height={20}
                         className="absolute left-[2.5%] bottom-[2.5%] w-[20%] aspect-square z-10"
                         src="/icons/star.svg"
                         alt=""

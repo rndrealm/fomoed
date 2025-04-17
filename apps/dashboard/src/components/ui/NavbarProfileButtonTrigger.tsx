@@ -21,6 +21,7 @@ const NavbarProfileButton = () => {
         >
             <div className="border border-[#2B2B2B] bg-[#110F0E] rounded-full size-full grid place-items-center">
                 {hasUser && user?.user_metadata?.avatar_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img src={user.user_metadata.avatar_url} alt="User avatar" className="rounded-full object-cover" />
                 ) : (
                     <User className="text-white/70" />

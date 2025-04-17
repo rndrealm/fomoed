@@ -9,10 +9,7 @@ interface GoogleLoginButtonProps {
     className?: string;
 }
 
-export function GoogleLoginButton({
-    redirectTo = `${window.location.origin}/auth/callback`,
-    className,
-}: GoogleLoginButtonProps) {
+export function GoogleLoginButton({ className }: GoogleLoginButtonProps) {
     const [isLoading, setIsLoading] = useState(false);
 
     const handleSignIn = async () => {
@@ -21,7 +18,7 @@ export function GoogleLoginButton({
         await supabase.auth.signInWithOAuth({
             provider: "google",
             options: {
-                redirectTo,
+                redirectTo: `${window.location.origin}/auth/callback`,
                 queryParams: {
                     access_type: "offline",
                     prompt: "consent",

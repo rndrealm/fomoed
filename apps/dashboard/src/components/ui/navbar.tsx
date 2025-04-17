@@ -2,6 +2,7 @@ import React from "react";
 import ProfileButton from "./NavbarProfileButton";
 import DashboardButton from "./dashboardButton";
 import NewNavbarLogo from "./newNavbarLogo";
+import Link from "next/link";
 
 const Navbar: React.FC = () => {
     const navStyle = {
@@ -15,9 +16,9 @@ const Navbar: React.FC = () => {
             <div className="px-4 lg:px-12 mx-auto flex justify-between items-center w-full">
                 {/* Logo section */}
                 <div className="flex items-center">
-                    <a href="/" className="">
+                    <Link href="/">
                         <NewNavbarLogo />
-                    </a>
+                    </Link>
                 </div>
 
                 {/* Navigation buttons */}
