@@ -20,7 +20,7 @@ export function SelectLayoutBtn() {
     <DropdownMenu open={expanded} onOpenChange={setExpanded}>
       <DropdownMenuTrigger>
         <NavActionButton
-          label="Saved Layout"
+          label="Select Layout"
           leftIcon={<LayoutIcon />}
           rightIcon={<CaretDown open={expanded} />}
         />
