@@ -15,9 +15,9 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   // protects the "/account" route and its sub-routes
-  if (!user && request.nextUrl.pathname.startsWith("/dashboard")) {
-    return NextResponse.redirect(new URL("/", request.url));
-  }
+  // if (!user && request.nextUrl.pathname.startsWith("/dashboard")) {
+  //   return NextResponse.redirect(new URL("/", request.url));
+  // }
 
   return response;
 }

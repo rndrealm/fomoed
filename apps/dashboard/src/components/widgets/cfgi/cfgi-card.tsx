@@ -15,7 +15,7 @@ import dayjs from "dayjs";
 import { commaFormatNumber } from "@/charts/helpers";
 import type { _DeepPartialObject } from "chart.js/dist/types/utils";
 import { CfgiDataResponse } from "@/services/queries/charts/types";
-import { FakeCgiData } from "@/constant/fake-cgi-data";
+
 import {
   CrosshairPluginConfig,
   CrosshairPlugin,
@@ -40,7 +40,7 @@ const CfgiCard = ({ cfgiData }: ICfgiCard) => {
           : "#05A5A6";
   }
   function chart_init(ctx: CanvasRenderingContext2D) {
-    const data = FakeCgiData.filter((d) => d.price && d.cfgi);
+    const data = cfgiData.filter((d) => d.price && d.cfgi);
 
     const prices_data = data.map((d) => {
       return { x: d.date, y: Math.round(d.price) };
