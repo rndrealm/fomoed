@@ -49,3 +49,10 @@ export interface CoinDataInterface {
   slug: string;
   is_free: boolean;
 }
+
+export enum CFGIEnum {
+  E_FEAR = "Extreme Fear",
+  FEAR = "Fear",
+  GREED = "Greed",
+  E_GREED = "Extreme Greed",
+}

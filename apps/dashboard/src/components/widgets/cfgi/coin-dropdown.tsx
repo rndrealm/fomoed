@@ -21,7 +21,7 @@ const CoinDropdown = (props: ICoinDropdownProps) => {
   const { options, value, setValue } = props;
 
   const activeCoin = options.find((coin) => coin.symbol === value);
-  console.log(value);
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

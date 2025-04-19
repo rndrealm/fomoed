@@ -11,11 +11,17 @@ import type {
 } from "chart.js/auto";
 import "chartjs-adapter-dayjs-4/dist/chartjs-adapter-dayjs-4.esm";
 import type { ZoomPluginOptions } from "chartjs-plugin-zoom/types/options";
-import { CrosshairPluginConfig } from "@/charts/types";
 import dayjs from "dayjs";
 import { commaFormatNumber } from "@/charts/helpers";
 import type { _DeepPartialObject } from "chart.js/dist/types/utils";
 import { CfgiDataResponse } from "@/services/queries/charts/types";
+import { FakeCgiData } from "@/constant/fake-cgi-data";
+import {
+  CrosshairPluginConfig,
+  CrosshairPlugin,
+} from "@/charts/plugins/CrosshairPlugin";
+
+Chart.register(CrosshairPlugin);
 
 interface ICfgiCard {
   cfgiData: CfgiDataResponse[];
@@ -24,7 +30,6 @@ interface ICfgiCard {
 const CfgiCard = ({ cfgiData }: ICfgiCard) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
-
   function get_data_color(data: number) {
     return data <= 25
       ? "#FF3B10"
@@ -34,9 +39,8 @@ const CfgiCard = ({ cfgiData }: ICfgiCard) => {
           ? "#399F57"
           : "#05A5A6";
   }
-
   function chart_init(ctx: CanvasRenderingContext2D) {
-    const data = cfgiData.filter((d) => d.price && d.cfgi);
+    const data = FakeCgiData.filter((d) => d.price && d.cfgi);
 
     const prices_data = data.map((d) => {
       return { x: d.date, y: Math.round(d.price) };
@@ -143,7 +147,7 @@ const CfgiCard = ({ cfgiData }: ICfgiCard) => {
         priceY: {
           beginAtZero: false,
           ticks: {
-            font: { family: "Manrope", size: 10 },
+            font: { family: "Arial", size: 10 },
             source: "data",
             stepSize: 5000,
             callback: (value: number) => {
@@ -169,7 +173,7 @@ const CfgiCard = ({ cfgiData }: ICfgiCard) => {
             drawTicks: true,
           },
           ticks: {
-            font: { family: "Manrope", size: 10 },
+            font: { family: "Arial", size: 10 },
             stepSize: 25,
             color: function (value: any, data: any) {
               return value.tick.value === 0
@@ -189,7 +193,7 @@ const CfgiCard = ({ cfgiData }: ICfgiCard) => {
             source: "data",
             padding: 10,
             sampleSize: 1,
-            font: { family: "Manrope", size: 10 },
+            font: { family: "Arial", size: 10 },
           },
           time: {
             unit: "month",

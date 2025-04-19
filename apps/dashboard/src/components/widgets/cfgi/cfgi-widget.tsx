@@ -3,7 +3,7 @@
 import CfgiCard from "@/components/widgets/cfgi/cfgi-card";
 import { useReadCfgiData, useReadCoinList } from "@/services/queries/charts";
 import CoinDropdown from "./coin-dropdown";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import CifTab from "./cfgi-tab";
 import PeriodDropdown from "./period-dropdown";
 import { CfgiPeriods } from "@/constant/cfgi-data";
@@ -21,9 +21,16 @@ export default function CfgiWidget() {
     CfgiPeriods[0].value
   );
   const [activeCoin, setActiveCoin] = useState<string>("BTC");
-  const { data } = useReadCfgiData(activeCoin, activePeriod);
-
   const { data: coinData } = useReadCoinList();
+
+  const activeCoinSlug = useMemo(() => {
+    return coinData?.find((coin) => coin.symbol === activeCoin)?.slug;
+  }, [activeCoin, coinData]);
+  const { data } = useReadCfgiData(
+    activeCoin,
+    activePeriod,
+    activeCoinSlug || ""
+  );
 
   return (
     <>
