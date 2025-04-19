@@ -3,16 +3,17 @@ import { useQuery } from "@tanstack/react-query";
 import api from "../../api";
 import { CfgiDataResponse, CoinListResponse } from "./types";
 
-export const useReadCfgiData = () => {
-  const hash = ["cfgi"];
+export const useReadCfgiData = (token: string, period: string) => {
+  const hash = ["cfgi", token, period];
   const { data, isPending, error, isSuccess } = useQuery<CfgiDataResponse[]>({
     queryKey: hash,
     queryFn: async () => {
       const response = await api.get({
-        url: "/api/cfgi?token=BTC&period=4&values=1200",
+        url: `/api/cfgi?token=${token}&period=${period}&values=1200`,
       });
       return response.data;
     },
+    enabled: !!token && !!period,
   });
   return {
     data,

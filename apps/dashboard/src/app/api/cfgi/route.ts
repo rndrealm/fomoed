@@ -19,9 +19,8 @@ export async function GET(request: Request) {
     );
 
     const resText = await response.text();
-
+    console.log("resText", resText.toString().length);
     if (resText.toString().length) {
-      console.log("seend");
       const data = JSON.parse(resText.toString()) as CfgiDataResponse[];
       const retData = data
         .map((d) => ({

@@ -1,52 +1,64 @@
 "use client";
 
 import * as React from "react";
-import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
-
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { CoinDataInterface } from "@/services/queries/charts/types";
+import Image from "next/image";
+import { ChevronDown } from "lucide-react";
 
-type Checked = DropdownMenuCheckboxItemProps["checked"];
+interface ICoinDropdownProps {
+  options: CoinDataInterface[];
+  value: string;
+  setValue: (coin: string) => void;
+}
 
-const CoinDropdown = () => {
-  const [showStatusBar, setShowStatusBar] = React.useState<Checked>(true);
-  const [showActivityBar, setShowActivityBar] = React.useState<Checked>(false);
-  const [showPanel, setShowPanel] = React.useState<Checked>(false);
+const CoinDropdown = (props: ICoinDropdownProps) => {
+  const { options, value, setValue } = props;
 
+  const activeCoin = options.find((coin) => coin.symbol === value);
+  console.log(value);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline">Open</Button>
+        <button className="flex items-center gap-2 cursor-pointer">
+          <div>
+            <Image
+              width={32}
+              height={32}
+              src={activeCoin?.icon || ""}
+              alt="Coin Icon"
+            />
+          </div>
+          <div>
+            <h1 className="text-base font-medium text-white font-inter">
+              Fear and Greed Chart
+            </h1>
+            <div className="flex items-center gap-2">
+              <p className="text-xs font-light text-left text-white font-inter">
+                {value}
+              </p>
+              <ChevronDown color="white" className="w-4 h-4" />
+            </div>
+          </div>
+        </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56">
-        <DropdownMenuLabel>Appearance</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuCheckboxItem
-          checked={showStatusBar}
-          onCheckedChange={setShowStatusBar}
-        >
-          Status Bar
-        </DropdownMenuCheckboxItem>
-        <DropdownMenuCheckboxItem
-          checked={showActivityBar}
-          onCheckedChange={setShowActivityBar}
-          disabled
-        >
-          Activity Bar
-        </DropdownMenuCheckboxItem>
-        <DropdownMenuCheckboxItem
-          checked={showPanel}
-          onCheckedChange={setShowPanel}
-        >
-          Panel
-        </DropdownMenuCheckboxItem>
+      <DropdownMenuContent className="w-56 max-h-[200px]">
+        {options.map((coin, i) => (
+          <DropdownMenuCheckboxItem
+            key={i}
+            checked={value === coin.symbol}
+            onCheckedChange={() => {
+              setValue(coin.symbol);
+            }}
+          >
+            {coin.name}
+          </DropdownMenuCheckboxItem>
+        ))}
       </DropdownMenuContent>
     </DropdownMenu>
   );

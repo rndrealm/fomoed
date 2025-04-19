@@ -36,3 +36,16 @@ export interface CoinListResponse {
     c?: string;
   }>;
 }
+
+export interface CoinDataInterface {
+  price: number;
+  priceChange: number;
+  marketCap: number;
+  volume: number;
+  icon: string;
+  symbol: string;
+  name: string;
+  color: string | undefined;
+  slug: string;
+  is_free: boolean;
+}

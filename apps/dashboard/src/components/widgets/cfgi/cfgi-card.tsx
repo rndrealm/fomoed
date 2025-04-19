@@ -1,4 +1,3 @@
-import { FakeCgiData } from "@/constant/fake-cgi-data";
 import React, { useEffect, useRef } from "react";
 import Chart from "chart.js/auto";
 import type {
@@ -237,7 +236,7 @@ const CfgiCard = ({ cfgiData }: ICfgiCard) => {
     if (!ctx) return;
     chart_init(ctx);
   }, []);
-  return <canvas width="400" ref={canvasRef}></canvas>;
+  return <canvas width="400" height={0} ref={canvasRef}></canvas>;
 };
 
 export default CfgiCard;

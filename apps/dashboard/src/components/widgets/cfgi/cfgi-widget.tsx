@@ -3,6 +3,11 @@
 import CfgiCard from "@/components/widgets/cfgi/cfgi-card";
 import { useReadCfgiData, useReadCoinList } from "@/services/queries/charts";
 import CoinDropdown from "./coin-dropdown";
+import { useState } from "react";
+import CifTab from "./cfgi-tab";
+import PeriodDropdown from "./period-dropdown";
+import { CfgiPeriods } from "@/constant/cfgi-data";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const colorToCfgi = {
   25: "#FF3B10",
@@ -12,33 +17,62 @@ const colorToCfgi = {
 };
 
 export default function CfgiWidget() {
-  const { data } = useReadCfgiData();
+  const [activePeriod, setActivePeriod] = useState<string>(
+    CfgiPeriods[0].value
+  );
+  const [activeCoin, setActiveCoin] = useState<string>("BTC");
+  const { data } = useReadCfgiData(activeCoin, activePeriod);
+
   const { data: coinData } = useReadCoinList();
 
   return (
     <>
-      {data ? (
-        <div className="w-[670px] h-full flex flex-col justify-center ">
-          <div className="mb-5">
-            <CoinDropdown />
-          </div>
-          <CfgiCard cfgiData={data} />
-
-          <div className="flex items-center justify-center gap-5 border-t border-t-[grey] mt-1">
-            {Object.entries(colorToCfgi).map(([cfgi, color], index) => (
-              <div className="flex items-center mt-2" key={index}>
-                <div
-                  className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: color }}
-                ></div>
-                <div className="ml-2 text-[#A0A0A0] text-xs">
-                  {index * 25}-{(index + 1) * 25}
-                </div>
+      <div className="w-[670px] h-[380px] flex flex-col justify-center bg-widget-background rounded-sm">
+        <div className="px-3 py-4">
+          {coinData ? (
+            <div className="flex items-center justify-between">
+              <CoinDropdown
+                options={coinData || []}
+                value={activeCoin}
+                setValue={(coin: string) => {
+                  setActiveCoin(coin);
+                }}
+              />
+              <div className="flex items-center gap-2">
+                <CifTab />
+                <PeriodDropdown
+                  options={CfgiPeriods}
+                  value={activePeriod}
+                  setValue={(value: string) => {
+                    setActivePeriod(value);
+                  }}
+                />
               </div>
-            ))}
-          </div>
+            </div>
+          ) : null}
         </div>
-      ) : null}
+        <div className="flex-grow mx-3 ">
+          {data ? (
+            <CfgiCard cfgiData={data} />
+          ) : (
+            <Skeleton className="w-full h-full bg-widget-background-200" />
+          )}
+        </div>
+
+        <div className="flex items-center justify-center gap-5 border-t border-t-[#333] py-3">
+          {Object.entries(colorToCfgi).map(([_, color], index) => (
+            <div className="flex items-center gap-2" key={index}>
+              <div
+                className="w-4 h-4 rounded-full"
+                style={{ backgroundColor: color }}
+              ></div>
+              <div className="text-xs text-grey">
+                {index * 25}-{(index + 1) * 25}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </>
   );
 }
