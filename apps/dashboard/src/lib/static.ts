@@ -22,6 +22,17 @@ export const layoutClassMap = {
   FourGridPanes: "grid-rows-2 grid-cols-2",
 };
 
+export const layoutCountMap = {
+  SinglePane: 1,
+  TwoVerticalPanes: 2,
+  TwoHorizontalPanes: 2,
+  ThreeVerticalPanes: 3,
+  ThreeHorizontalPanes: 3,
+  FourVerticalPanes: 4,
+  FourHorizontalPanes: 4,
+  FourGridPanes: 4,
+};
+
 type LayoutName = keyof typeof layoutClassMap;
 
 type LayoutOptions = {

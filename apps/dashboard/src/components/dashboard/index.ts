@@ -1,4 +1,13 @@
+export { AddTab } from "./add-tab";
+export { AddTabModal } from "./add-tab-modal";
+export { AddWidgetModal } from "./add-widget-modal";
+export { EditLayoutBtn } from "./edit-layout-btn";
+export { EmptyTab } from "./empty-tab";
 export { Nav } from "./nav";
 export { NavActionButton } from "./nav-action-button";
+export { NewWidgetBtn } from "./new-widget-btn";
+export { SaveChangesBtn } from "./save-changes-btn";
 export { SelectLayoutBtn } from "./select-layout-btn";
+export { Tabs } from "./tabs";
 export { WidgetContainer } from "./widget-container";
+export { WidgetPlaceholder } from "./widget-placeholder";
