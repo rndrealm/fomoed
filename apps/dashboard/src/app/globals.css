@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -42,18 +43,17 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 
-  /* Legacy platform colors */
-  --color-platform-background: #0d0d0d;
-  --color-platform-red: #f02834;
-  --color-platform-orange: #f07d29;
-  --color-platform-light-green: #99cb81;
-  --color-platform-green: #34b348;
-  --color-platform-primary: #FF3B10;
-  --color-platform-yellow: #F3C111;
-  --color-platform-red-alt: #FF3B10;
-  --color-platform-green-alt: #399F57;
-  --color-platform-skeleton: rgba(255,255,255,0.1);
-  --color-platform-new-white: #F3F4FA;
+  /* App Specific variables */
+  --color-widget-background: #171a1c;
+  --color-widget-background-200: #202427;
+  --color-grey: #d3d3d3;
+  --color-grey-200: #a6a6a6;
+  --color-grey-300: #d9d9d9;
+  --color-grey-400: #f3f4fa;
+
+  --color-border: rgba(255, 255, 255, 0.1);
+
+  --font-inter: "Inter", sans-serif;
 }
 
 :root {
@@ -89,7 +89,6 @@
   --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: oklch(0.705 0.015 286.067);
-
 }
 
 .dark {
@@ -124,6 +123,8 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.552 0.016 285.938);
+
+  --widget-background: #171a1c;
 }
 
 @layer base {
