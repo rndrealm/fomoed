@@ -32,9 +32,10 @@ const PeriodDropdown = (props: ICoinDropdownProps) => {
           </div>
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56 max-h-[200px]">
+      <DropdownMenuContent className="w-56 max-h-[200px] bg-widget-background-200">
         {options.map((coin, i) => (
           <DropdownMenuCheckboxItem
+            className="text-white focus:bg-widget-background focus:text-white"
             key={i}
             checked={value === coin.value}
             onCheckedChange={() => {

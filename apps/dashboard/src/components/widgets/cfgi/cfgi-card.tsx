@@ -12,7 +12,10 @@ import type {
 import "chartjs-adapter-dayjs-4/dist/chartjs-adapter-dayjs-4.esm";
 import type { ZoomPluginOptions } from "chartjs-plugin-zoom/types/options";
 import dayjs from "dayjs";
-import { commaFormatNumber } from "@/charts/helpers";
+import {
+  commaFormatNumber,
+  registerChartPluginZoomInBrowser,
+} from "@/charts/helpers";
 import type { _DeepPartialObject } from "chart.js/dist/types/utils";
 import { CfgiDataResponse } from "@/services/queries/charts/types";
 
@@ -20,14 +23,19 @@ import {
   CrosshairPluginConfig,
   CrosshairPlugin,
 } from "@/charts/plugins/CrosshairPlugin";
+import { TabOptions } from "@/constant/cfgi-data";
+
+registerChartPluginZoomInBrowser();
 
 Chart.register(CrosshairPlugin);
 
 interface ICfgiCard {
   cfgiData: CfgiDataResponse[];
+  viewOption: string;
 }
 
-const CfgiCard = ({ cfgiData }: ICfgiCard) => {
+const CfgiCard = (props: ICfgiCard) => {
+  const { cfgiData, viewOption } = props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
   function get_data_color(data: number) {
@@ -147,7 +155,7 @@ const CfgiCard = ({ cfgiData }: ICfgiCard) => {
         priceY: {
           beginAtZero: false,
           ticks: {
-            font: { family: "Arial", size: 10 },
+            font: { family: "sans-serif", size: 10 },
             source: "data",
             stepSize: 5000,
             callback: (value: number) => {
@@ -173,7 +181,7 @@ const CfgiCard = ({ cfgiData }: ICfgiCard) => {
             drawTicks: true,
           },
           ticks: {
-            font: { family: "Arial", size: 10 },
+            font: { family: "sans-serif", size: 10 },
             stepSize: 25,
             color: function (value: any, data: any) {
               return value.tick.value === 0
@@ -193,7 +201,7 @@ const CfgiCard = ({ cfgiData }: ICfgiCard) => {
             source: "data",
             padding: 10,
             sampleSize: 1,
-            font: { family: "Arial", size: 10 },
+            font: { family: "sans-serif", size: 10 },
           },
           time: {
             unit: "month",
@@ -223,10 +231,13 @@ const CfgiCard = ({ cfgiData }: ICfgiCard) => {
     };
 
     chartRef.current?.destroy();
-
+    const chartType =
+      viewOption === TabOptions[0].value
+        ? [chart_bar_data]
+        : [chart_bar_data, chart_line_data];
     if (canvasRef.current) {
       chartRef.current = new Chart(canvasRef.current, {
-        data: { datasets: [chart_bar_data, chart_line_data] },
+        data: { datasets: chartType },
         options,
       });
     }
@@ -239,7 +250,7 @@ const CfgiCard = ({ cfgiData }: ICfgiCard) => {
     const ctx = canvasRef.current?.getContext("2d");
     if (!ctx) return;
     chart_init(ctx);
-  }, []);
+  }, [cfgiData, viewOption]);
   return <canvas width="400" height={0} ref={canvasRef}></canvas>;
 };
 

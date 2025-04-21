@@ -6,7 +6,7 @@ import CoinDropdown from "./coin-dropdown";
 import { useMemo, useState } from "react";
 import CifTab from "./cfgi-tab";
 import PeriodDropdown from "./period-dropdown";
-import { CfgiPeriods } from "@/constant/cfgi-data";
+import { CfgiPeriods, TabOptions } from "@/constant/cfgi-data";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const colorToCfgi = {
@@ -32,6 +32,8 @@ export default function CfgiWidget() {
     activeCoinSlug || ""
   );
 
+  const [chartViewOptions, setChartViewOptions] = useState(TabOptions[1].value);
+
   return (
     <>
       <div className="w-[670px] h-[380px] flex flex-col justify-center bg-widget-background rounded-sm">
@@ -46,7 +48,12 @@ export default function CfgiWidget() {
                 }}
               />
               <div className="flex items-center gap-2">
-                <CifTab />
+                <CifTab
+                  value={chartViewOptions}
+                  setValue={(val) => {
+                    setChartViewOptions(val);
+                  }}
+                />
                 <PeriodDropdown
                   options={CfgiPeriods}
                   value={activePeriod}
@@ -60,7 +67,7 @@ export default function CfgiWidget() {
         </div>
         <div className="flex-grow mx-3 ">
           {data ? (
-            <CfgiCard cfgiData={data} />
+            <CfgiCard cfgiData={data} viewOption={chartViewOptions} />
           ) : (
             <Skeleton className="w-full h-full bg-widget-background-200" />
           )}
@@ -73,7 +80,7 @@ export default function CfgiWidget() {
                 className="w-4 h-4 rounded-full"
                 style={{ backgroundColor: color }}
               ></div>
-              <div className="text-xs text-grey">
+              <div className="text-xs text-grey font-inter">
                 {index * 25}-{(index + 1) * 25}
               </div>
             </div>

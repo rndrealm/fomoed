@@ -35,6 +35,8 @@ export const cfgi_supported_tokens = [
   "EGLD",
   "XTZ",
   "THETA",
+  "XTZ",
+  "THETA",
   "HNT",
   "FIL",
   "BSV",
@@ -60,9 +62,10 @@ export const cfgi_supported_tokens = [
   "TON",
   "NEIRO",
   "BABYDOGE",
+  "SUI",
   "FET",
   "EIGEN",
-  "OG",
+  "DOG",
   "POLY",
   "APU",
   "SPX",
@@ -120,4 +123,9 @@ export const CfgiPeriods: CfgiPeriodOption[] = [
     value: CFGI_SUPPORTED_PERIODS_ENUM.MIN15,
     periodInSeconds: 15 * 60,
   },
+];
+
+export const TabOptions = [
+  { value: "sentiment", label: "Sentiment" },
+  { value: "both", label: "Price and Sentiment" },
 ];

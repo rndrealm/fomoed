@@ -68,7 +68,7 @@ function renderXCrosshairLabel(
 
   ctx.save();
   ctx.fillStyle = "#272626";
-  ctx.font = "14px Arial";
+  ctx.font = "14px Inter";
   ctx.textAlign = "center";
   ctx.textBaseline = "top";
 

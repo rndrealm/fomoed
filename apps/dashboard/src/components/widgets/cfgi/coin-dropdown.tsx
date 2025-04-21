@@ -10,6 +10,7 @@ import {
 import { CoinDataInterface } from "@/services/queries/charts/types";
 import Image from "next/image";
 import { ChevronDown } from "lucide-react";
+import { cfgi_supported_tokens } from "@/constant/cfgi-data";
 
 interface ICoinDropdownProps {
   options: CoinDataInterface[];
@@ -48,17 +49,19 @@ const CoinDropdown = (props: ICoinDropdownProps) => {
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56 max-h-[200px]">
-        {options.map((coin, i) => (
-          <DropdownMenuCheckboxItem
-            key={i}
-            checked={value === coin.symbol}
-            onCheckedChange={() => {
-              setValue(coin.symbol);
-            }}
-          >
-            {coin.name}
-          </DropdownMenuCheckboxItem>
-        ))}
+        {options
+          .filter((fl) => cfgi_supported_tokens.includes(fl.symbol))
+          .map((coin, i) => (
+            <DropdownMenuCheckboxItem
+              key={i}
+              checked={value === coin.symbol}
+              onCheckedChange={() => {
+                setValue(coin.symbol);
+              }}
+            >
+              {coin.name}
+            </DropdownMenuCheckboxItem>
+          ))}
       </DropdownMenuContent>
     </DropdownMenu>
   );
