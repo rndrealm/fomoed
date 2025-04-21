@@ -8,10 +8,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
-import { CfgiPeriodOption, CfgiPeriods } from "@/constant/cfgi-data";
+import { OptionsType } from "@/constant/cfgi-data";
 
 interface ICoinDropdownProps {
-  options: CfgiPeriodOption[];
+  options: OptionsType[];
   value: string;
   setValue: (coin: string) => void;
 }
@@ -19,7 +19,8 @@ interface ICoinDropdownProps {
 const PeriodDropdown = (props: ICoinDropdownProps) => {
   const { options, value, setValue } = props;
 
-  const activePeriod = CfgiPeriods.find((coin) => coin.value === value);
+  const activePeriod = options.find((coin) => coin.value === value);
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

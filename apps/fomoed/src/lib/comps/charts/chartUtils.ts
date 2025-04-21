@@ -316,7 +316,6 @@ export async function fetchLiqMapDataMerged(
 			maxBy([...cumulativeLongLiqLeverage, ...cumulativeShortLiqLeverage], (i) => i.y)?.y || 0
 	};
 }
-
 export type InstrumentOption = {
 	label: string;
 	value: InstrumentInfo;

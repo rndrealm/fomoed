@@ -1,14 +1,14 @@
 "use client";
 
-import CfgiCard from "@/components/widgets/cfgi/detailed-cfgi/detailed-cfgi-chart";
 import { useReadCfgiData, useReadCoinList } from "@/services/queries/charts";
-import CoinDropdown from "../coin-dropdown";
+import CoinDropdown from "../../shared/coin-dropdown";
 import { useMemo, useState } from "react";
-import CifTab from "../cfgi-tab";
-import PeriodDropdown from "../period-dropdown";
+import PeriodDropdown from "../../shared/period-dropdown";
 import { CfgiPeriods, TabOptions } from "@/constant/cfgi-data";
 import { Skeleton } from "@/components/ui/skeleton";
-import ChartLegend from "../chart-legend";
+import ChartLegend from "../../shared/chart-legend";
+import DetailedCfgiChart from "@/components/widgets/cfgi/detailed-cfgi/detailed-cfgi-chart";
+import ChartTab from "../../shared/chart-tab";
 
 // const colorToCfgi = {
 //   25: "#FF3B10",
@@ -69,7 +69,7 @@ export default function DetailedCfgiWidget() {
                 title="Fear and Greed Chart"
               />
               <div className="flex items-center gap-2">
-                <CifTab
+                <ChartTab
                   value={chartViewOptions}
                   setValue={(val) => {
                     setChartViewOptions(val);
@@ -88,7 +88,7 @@ export default function DetailedCfgiWidget() {
         </div>
         <div className="flex-grow mx-3 ">
           {data ? (
-            <CfgiCard cfgiData={data} viewOption={chartViewOptions} />
+            <DetailedCfgiChart cfgiData={data} viewOption={chartViewOptions} />
           ) : (
             <Skeleton className="w-full h-full bg-widget-background-200" />
           )}

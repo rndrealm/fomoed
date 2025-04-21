@@ -7,7 +7,7 @@ interface IProps {
   setValue: (value: string) => void;
 }
 
-const CifTab = (props: IProps) => {
+const ChartTab = (props: IProps) => {
   const { value, setValue } = props;
   return (
     <Tabs value={value}>
@@ -29,4 +29,4 @@ const CifTab = (props: IProps) => {
   );
 };
 
-export default CifTab;
+export default ChartTab;

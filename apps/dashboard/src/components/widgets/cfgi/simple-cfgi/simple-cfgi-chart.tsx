@@ -12,10 +12,7 @@ import type {
 import "chartjs-adapter-dayjs-4/dist/chartjs-adapter-dayjs-4.esm";
 import type { ZoomPluginOptions } from "chartjs-plugin-zoom/types/options";
 import dayjs from "dayjs";
-import {
-  commaFormatNumber,
-  registerChartPluginZoomInBrowser,
-} from "@/charts/helpers";
+import { registerChartPluginZoomInBrowser } from "@/charts/helpers";
 import type { _DeepPartialObject } from "chart.js/dist/types/utils";
 import { CfgiDataResponse } from "@/services/queries/charts/types";
 
@@ -23,7 +20,6 @@ import {
   CrosshairPluginConfig,
   CrosshairPlugin,
 } from "@/charts/plugins/CrosshairPlugin";
-import { TabOptions } from "@/constant/cfgi-data";
 
 registerChartPluginZoomInBrowser();
 
@@ -34,66 +30,34 @@ interface ICfgiCard {
   viewOption: string;
 }
 
+const color = "#47A663";
+
 const SimpleCfgiChart = (props: ICfgiCard) => {
-  const { cfgiData, viewOption } = props;
+  const { cfgiData: data, viewOption } = props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
-  function get_data_color(data: number) {
-    return data <= 25
-      ? "#FF3B10"
-      : data <= 50
-        ? "#EA9924"
-        : data <= 75
-          ? "#399F57"
-          : "#05A5A6";
-  }
+  const containerRef = useRef<HTMLDivElement>(null);
+
   function chart_init(ctx: CanvasRenderingContext2D) {
-    const data = cfgiData.filter((d) => d.price && d.cfgi);
+    const formatted_data = data.filter((d) => d.cfgi);
+    const cfgi_data = formatted_data.map((c) => c.cfgi);
 
-    const prices_data = data.map((d) => {
-      return { x: d.date, y: Math.round(d.price) };
-    });
-    const cfgi_data = data.map((c) => {
-      return { x: c.date, y: c.cfgi };
-    });
-
-    const gradient = ctx.createLinearGradient(0, 0, 0, 200);
-    gradient.addColorStop(0, "rgba(71, 166, 99, 0.4)");
-    gradient.addColorStop(1, "rgba(71, 166, 99, 0)");
-
-    const chart_bar_data: ChartDataset<"bar"> = {
-      type: "bar",
-      data: cfgi_data,
-      backgroundColor: cfgi_data.map((c) => get_data_color(c.y)),
-      yAxisID: "indexY",
-      xAxisID: "x",
-      label: "Fear and Greed Index",
-      order: 2,
-      categoryPercentage: 1,
-      barPercentage: 1,
-      barThickness: "flex",
-      parsing: false,
-    };
-
-    const chart_line_data: ChartDataset<"line"> = {
+    const cfgiData: ChartDataset<"line"> = {
       type: "line",
-      data: prices_data,
-      yAxisID: "priceY",
-      xAxisID: "x",
-      label: "Price",
+      data: cfgi_data,
+      label: "Fear and Greed Index",
       order: 1,
-      spanGaps: true,
+      fill: true,
+      borderColor: color,
+      borderWidth: 1,
       pointRadius: 0,
-      borderColor: "white",
-      borderWidth: 2,
-      parsing: false,
+      xAxisID: "x",
     };
 
-    const minDate = data[0].date;
-    const maxDate = data[data.length - 1].date;
+    const labels = formatted_data.map((d) => d.date);
 
-    // On homepage, period of 24 hours is fetched
-    const periodSeconds = 24 * 60 * 60;
+    const minDate = formatted_data[0].date;
+    const maxDate = formatted_data[formatted_data.length - 1].date;
 
     const zoomPluginOptions: ZoomPluginOptions = {
       zoom: {
@@ -104,14 +68,16 @@ const SimpleCfgiChart = (props: ICfgiCard) => {
           enabled: true,
         },
         mode: "x",
+        scaleMode: "y",
       },
       pan: {
         enabled: true,
-        mode: "x",
+        mode: "xy",
         threshold: 0,
       },
       limits: {
-        x: { minRange: periodSeconds * 1000, min: minDate, max: maxDate },
+        x: { minRange: 1000 * 60 * 60 * 24 * 1, min: minDate, max: maxDate },
+        y: { min: 0 },
       },
     };
 
@@ -125,15 +91,10 @@ const SimpleCfgiChart = (props: ICfgiCard) => {
           },
         },
         {
-          scaleId: "indexY",
+          scaleId: "y",
           label: "CFGI",
           getText: () => (val) => val.toFixed(0),
-          getTextColor: () => (val) => get_data_color(val),
-        },
-        {
-          scaleId: "priceY",
-          label: "Price",
-          getText: () => (val) => "$" + commaFormatNumber(Math.round(val)),
+          getTextColor: () => (val) => "white",
         },
       ],
       crosshairEnableDelay: 200,
@@ -147,102 +108,92 @@ const SimpleCfgiChart = (props: ICfgiCard) => {
         ScaleChartOptions<"bar"> &
         LineControllerChartOptions
     > = {
-      interaction: false,
+      animation: {
+        duration: 0,
+      },
       responsive: false,
       maintainAspectRatio: false,
-      animations: false,
+      interaction: false,
       scales: {
-        priceY: {
-          beginAtZero: false,
-          ticks: {
-            font: { family: "sans-serif", size: 10 },
-            source: "data",
-            stepSize: 5000,
-            callback: (value: number) => {
-              return `$${Math.round(value / 1000)}k`;
-            },
-          },
-          // Uncomment this to make the price scale fixed
-          // min: minPrice,
-          // max: maxPrice,
-          position: "left",
-        },
-        indexY: {
+        y: {
           beginAtZero: true,
           grid: {
             display: true,
-            drawOnChartArea: true,
-            color: function (value: any, data: any) {
-              return value.tick.value === 0
-                ? "rgba(255, 255, 255, 0.3)"
-                : get_data_color(value.tick.value);
-            },
-            lineWidth: 0.1,
-            drawTicks: true,
+            color: "#272525",
+            offset: false,
           },
           ticks: {
-            font: { family: "sans-serif", size: 10 },
-            stepSize: 25,
-            color: function (value: any, data: any) {
-              return value.tick.value === 0
-                ? "rgba(255, 255, 255, 0.3)"
-                : get_data_color(value.tick.value);
-            },
             display: true,
+            callback: (val: any) => {
+              return Math.round(val);
+            },
           },
+          border: {
+            display: false,
+          },
+          min: 0,
           max: 100,
-          position: "right",
+          step: 20,
+          color: "#FFFFFF",
         },
         x: {
-          ticks: {
-            minRotation: 0,
-            maxRotation: 0,
-            offset: false,
-            source: "data",
-            padding: 10,
-            sampleSize: 1,
-            font: { family: "sans-serif", size: 10 },
-          },
-          time: {
-            unit: "month",
-            displayFormats: {
-              day: "DD MMM YY",
-            },
-            min: minDate,
-            max: maxDate,
-          },
-          offset: false,
           type: "time",
+          // beginAtZero: true,
+          grid: {
+            display: true,
+            color: "#272525",
+            offset: false,
+          },
+          ticks: {
+            maxRotation: 0,
+            minRotation: 0,
+            // autoSkipPadding: 10
+          },
+          border: {
+            display: false,
+          },
+          // beforeFit: function (axis: any) {
+          // 	var l = axis.getLabels();
+          // 	axis.ticks.push({ value: axis.max, label: l[axis.max] });
+          // }
         },
       },
       plugins: {
         legend: {
           display: false,
         },
-        zoom: zoomPluginOptions,
         tooltip: {
           enabled: false,
-          mode: "nearest",
-          intersect: false,
         },
+        zoom: zoomPluginOptions,
         crosshair: crosshairPluginOptions,
-        doubleTapResetZoom: true,
       },
     };
 
+    if (!canvasRef.current) return;
     chartRef.current?.destroy();
-    const chartType =
-      viewOption === TabOptions[0].value
-        ? [chart_bar_data]
-        : [chart_bar_data, chart_line_data];
-    if (canvasRef.current) {
-      chartRef.current = new Chart(canvasRef.current, {
-        data: { datasets: chartType },
-        options,
-      });
-    }
+    chartRef.current = new Chart(canvasRef.current, {
+      data: {
+        labels,
+        datasets: [cfgiData],
+      },
+      options,
+    });
+    if (!containerRef.current) return;
+    const gradient = ctx.createLinearGradient(
+      0,
+      0,
+      0,
+      Math.round(containerRef.current.clientHeight)
+    );
 
-    chartRef.current?.resize();
+    gradient.addColorStop(0, "rgba(71, 166, 99, 0.4)");
+    gradient.addColorStop(1, "rgba(71, 166, 99, 0)");
+
+    chartRef.current.data.datasets[0].backgroundColor = gradient;
+    chartRef.current.update();
+
+    chartRef.current.resize();
   }
 
   useEffect(() => {
@@ -250,8 +201,12 @@ const SimpleCfgiChart = (props: ICfgiCard) => {
     const ctx = canvasRef.current?.getContext("2d");
     if (!ctx) return;
     chart_init(ctx);
-  }, [cfgiData, viewOption]);
-  return <canvas width="400" height={0} ref={canvasRef}></canvas>;
+  }, [data, viewOption]);
+  return (
+    <div ref={containerRef} className="w-full h-full pb-1">
+      <canvas width="400" height={0} ref={canvasRef}></canvas>
+    </div>
+  );
 };
 
 export default SimpleCfgiChart;

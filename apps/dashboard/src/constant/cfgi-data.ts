@@ -125,7 +125,21 @@ export const CfgiPeriods: CfgiPeriodOption[] = [
   },
 ];
 
+export interface OptionsType {
+  value: string;
+  label: string;
+}
+
+export const liquidTimeframeOptions = [
+  { label: "1 day", value: "1d" },
+  { label: "7 days", value: "7d" },
+];
+
 export const TabOptions = [
   { value: "sentiment", label: "Sentiment" },
   { value: "both", label: "Price and Sentiment" },
+];
+export const LiquidTabOptions = [
+  { value: "volume", label: "Volume Only" },
+  { value: "cummulative", label: "Cummulative Only" },
 ];

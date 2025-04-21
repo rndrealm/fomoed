@@ -1,3 +1,5 @@
+import { InstrumentInfo } from "@/services/queries/charts/types";
+
 interface LabelingOptions {
   scaleId: string;
   label: string;
@@ -14,4 +16,9 @@ export interface CrosshairPluginConfig {
   labels: LabelingOptions[];
   crosshairEnableDelay?: number;
   labelStackDirection: "horizontal" | "vertical";
+}
+
+export interface ExchangePairOption {
+  label: string;
+  value: InstrumentInfo;
 }

@@ -56,3 +56,68 @@ export enum CFGIEnum {
   GREED = "Greed",
   E_GREED = "Extreme Greed",
 }
+
+export type ForeignInstrument = {
+  instrumentId: string;
+  baseAsset: string;
+  quoteAsset: string;
+};
+
+type ExchangeName = string;
+
+export type SupportedPairsData = Record<ExchangeName, ForeignInstrument[]>;
+
+export type InstrumentInfo = ForeignInstrument & {
+  exchange: string;
+  symbol: string;
+};
+
+export interface LiquidMapDataResponse {
+  liquidationData: {
+    code: string;
+    msg: string;
+    data: {
+      data: Record<string, Array<Array<number | undefined>>>;
+    };
+    success: boolean;
+  };
+  pairMarketData: {
+    instrumentId: string;
+    exName: string;
+    symbol: string;
+    longVolUsd: number;
+    shortVolUsd: number;
+    longNumber: number;
+    shortNumber: number;
+    volUsd: number;
+    volUsdChangePercent24h: number;
+    price: number;
+    indexPrice: number;
+    priceChangePercent24h: number;
+    openInterestAmount: number;
+    openInterest: number;
+    oiChangePercent24h: number;
+    longLiquidationUsd24h: number;
+    shortLiquidationUsd24h: number;
+    fundingRate: number;
+    nextFundingTime: number;
+    oiVolRadio: number;
+    oiVolRadioChangePercent24h: number;
+  };
+}
+
+export type LiquidationBar = {
+  x: number;
+  y: number;
+  color: string;
+};
+
+export interface FormatLiquidationDataResult {
+  liqBars: LiquidationBar[];
+  currentPrice: number | null;
+  cumulativeLongLiqLeverage: { x: number; y: number }[];
+  cumulativeShortLiqLeverage: { x: number; y: number }[];
+  maxCumulativeValue: number;
+  minPrice: number;
+  maxPrice: number;
+}

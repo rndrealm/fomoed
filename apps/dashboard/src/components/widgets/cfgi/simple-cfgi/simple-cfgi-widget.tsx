@@ -2,12 +2,13 @@
 
 import CfgiCard from "@/components/widgets/cfgi/detailed-cfgi/detailed-cfgi-chart";
 import { useReadCfgiData, useReadCoinList } from "@/services/queries/charts";
-import CoinDropdown from "../coin-dropdown";
+import CoinDropdown from "../../shared/coin-dropdown";
 import { useMemo, useState } from "react";
-import PeriodDropdown from "../period-dropdown";
+import PeriodDropdown from "../../shared/period-dropdown";
 import { CfgiPeriods, TabOptions } from "@/constant/cfgi-data";
 import { Skeleton } from "@/components/ui/skeleton";
-import ChartLegend from "../chart-legend";
+import ChartLegend from "../../shared/chart-legend";
+import SimpleCfgiChart from "./simple-cfgi-chart";
 
 const colorToCfgi = [
   {
@@ -62,7 +63,7 @@ export default function SimpleCfgiWidget() {
         </div>
         <div className="flex-grow mx-3 ">
           {data ? (
-            <CfgiCard cfgiData={data} viewOption={chartViewOptions} />
+            <SimpleCfgiChart cfgiData={data} viewOption={chartViewOptions} />
           ) : (
             <Skeleton className="w-full h-full bg-widget-background-200" />
           )}
