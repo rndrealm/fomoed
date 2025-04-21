@@ -16,10 +16,11 @@ interface ICoinDropdownProps {
   options: CoinDataInterface[];
   value: string;
   setValue: (coin: string) => void;
+  title: string;
 }
 
 const CoinDropdown = (props: ICoinDropdownProps) => {
-  const { options, value, setValue } = props;
+  const { options, value, setValue, title } = props;
 
   const activeCoin = options.find((coin) => coin.symbol === value);
 
@@ -37,7 +38,7 @@ const CoinDropdown = (props: ICoinDropdownProps) => {
           </div>
           <div>
             <h1 className="text-base font-medium text-white font-inter">
-              Fear and Greed Chart
+              {title}
             </h1>
             <div className="flex items-center gap-2">
               <p className="text-xs font-light text-left text-white font-inter">

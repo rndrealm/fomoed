@@ -34,7 +34,7 @@ interface ICfgiCard {
   viewOption: string;
 }
 
-const CfgiCard = (props: ICfgiCard) => {
+const SimpleCfgiChart = (props: ICfgiCard) => {
   const { cfgiData, viewOption } = props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
@@ -254,4 +254,4 @@ const CfgiCard = (props: ICfgiCard) => {
   return <canvas width="400" height={0} ref={canvasRef}></canvas>;
 };
 
-export default CfgiCard;
+export default SimpleCfgiChart;

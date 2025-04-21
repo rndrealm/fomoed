@@ -1,22 +1,22 @@
 "use client";
 
-import CfgiCard from "@/components/widgets/cfgi/cfgi-card";
+import CfgiCard from "@/components/widgets/cfgi/detailed-cfgi/detailed-cfgi-chart";
 import { useReadCfgiData, useReadCoinList } from "@/services/queries/charts";
-import CoinDropdown from "./coin-dropdown";
+import CoinDropdown from "../coin-dropdown";
 import { useMemo, useState } from "react";
-import CifTab from "./cfgi-tab";
-import PeriodDropdown from "./period-dropdown";
+import PeriodDropdown from "../period-dropdown";
 import { CfgiPeriods, TabOptions } from "@/constant/cfgi-data";
 import { Skeleton } from "@/components/ui/skeleton";
+import ChartLegend from "../chart-legend";
 
-const colorToCfgi = {
-  25: "#FF3B10",
-  50: "#EA9924",
-  75: "#399F57",
-  100: "#05A5A6",
-};
+const colorToCfgi = [
+  {
+    label: "Crypto Fear & Greed Index",
+    color: "#008000",
+  },
+];
 
-export default function CfgiWidget() {
+export default function SimpleCfgiWidget() {
   const [activePeriod, setActivePeriod] = useState<string>(
     CfgiPeriods[0].value
   );
@@ -32,7 +32,7 @@ export default function CfgiWidget() {
     activeCoinSlug || ""
   );
 
-  const [chartViewOptions, setChartViewOptions] = useState(TabOptions[1].value);
+  const [chartViewOptions] = useState(TabOptions[1].value);
 
   return (
     <>
@@ -46,14 +46,9 @@ export default function CfgiWidget() {
                 setValue={(coin: string) => {
                   setActiveCoin(coin);
                 }}
+                title="Fear and Greed Chart"
               />
               <div className="flex items-center gap-2">
-                <CifTab
-                  value={chartViewOptions}
-                  setValue={(val) => {
-                    setChartViewOptions(val);
-                  }}
-                />
                 <PeriodDropdown
                   options={CfgiPeriods}
                   value={activePeriod}
@@ -74,17 +69,7 @@ export default function CfgiWidget() {
         </div>
 
         <div className="flex items-center justify-center gap-5 border-t border-t-[#333] py-3">
-          {Object.entries(colorToCfgi).map(([_, color], index) => (
-            <div className="flex items-center gap-2" key={index}>
-              <div
-                className="w-4 h-4 rounded-full"
-                style={{ backgroundColor: color }}
-              ></div>
-              <div className="text-xs text-grey font-inter">
-                {index * 25}-{(index + 1) * 25}
-              </div>
-            </div>
-          ))}
+          <ChartLegend colorOptions={colorToCfgi} />
         </div>
       </div>
     </>
