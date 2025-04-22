@@ -5,6 +5,9 @@ import Navbar from "@/components/ui/navbar";
 import { UserProvider } from "@/components/providers/UserProvider";
 import QueryProvider from "@/components/providers/QueryProvider";
 
+import "../../node_modules/react-grid-layout/css/styles.css";
+// import '../../node_modules/react'
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
