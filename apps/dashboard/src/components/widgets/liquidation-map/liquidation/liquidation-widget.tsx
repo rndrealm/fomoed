@@ -14,6 +14,7 @@ import ChartLegend from "../../shared/chart-legend";
 import LiquidationChart from "./liquidation-chart";
 import PairDropdown from "./pair-dropdown";
 import { ExchangePairOption } from "@/charts/types";
+import { cn } from "@/lib/utils";
 
 const colorToCfgi = [
   {
@@ -30,11 +31,11 @@ const colorToCfgi = [
   },
 ];
 
-export default function DetailedCfgiWidget() {
+export default function DetailedCfgiWidget({isEmbed, symbol = null}: {isEmbed?: boolean, symbol?: string | null}) {
   const [activePeriod, setActivePeriod] = useState<string>(
     liquidTimeframeOptions[0].value
   );
-  const [activeCoin, setActiveCoin] = useState<string>("BTC");
+  const [activeCoin, setActiveCoin] = useState<string>(symbol || "BTC");
   const { data: coinData } = useReadCoinList();
 
   const { data: pairsData } = useGetSupportedxchangePairs();
@@ -65,7 +66,7 @@ export default function DetailedCfgiWidget() {
 
   return (
     <>
-      <div className="w-[670px] h-[380px] flex flex-col justify-center bg-widget-background rounded-sm">
+      <div className={cn("flex flex-col justify-center bg-widget-background", isEmbed ?  "w-full h-full" : "w-[670px] h-[380px] rounded-sm")}>
         <div className="px-3 py-4">
           {coinData ? (
             <div className="flex items-center justify-between">
