@@ -1,10 +1,10 @@
 import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
 // import { createUserRow, userWithEmailExists } from "./helpers";
-import { RegisterUserPayload, SignUpResponse } from "./types";
+import { LoginUserFunctionResponse, RegisterUserPayload } from "./types";
 
 export async function signUpNewUser(
   body: RegisterUserPayload
-): Promise<SignUpResponse> {
+): Promise<LoginUserFunctionResponse> {
   const supabase = createSupabaseBrowserClient();
 
   const { email, password } = body;
@@ -12,7 +12,7 @@ export async function signUpNewUser(
     email,
     password,
     options: {
-      emailRedirectTo: `${window.location.origin}/auth/callback`,
+      emailRedirectTo: `http://localhost:3000/auth/login`,
     },
   });
 
@@ -21,19 +21,26 @@ export async function signUpNewUser(
     authRes.data.user.identities &&
     authRes.data.user.identities.length === 0
   ) {
-    throw new Error("User with this email already exists");
+    return {
+      success: false,
+      message: "User with this email already exists",
+    };
   }
 
   if (authRes.error) {
-    console.error("Failed to create a new supabase user!", authRes.error);
-    throw new Error(authRes.error.message);
+    return {
+      success: false,
+      message: authRes.error.message || "Failed to create user account",
+    };
   }
 
   const supabaseUserId = authRes.data.user?.id;
 
   if (!supabaseUserId) {
-    console.error("Did not receive new auth user ID from supabase!");
-    throw new Error("Failed to create user account");
+    return {
+      success: false,
+      message: "Failed to create user account",
+    };
   }
 
   //   const isUserExists = await userWithEmailExists(email);
@@ -64,31 +71,42 @@ export async function signUpNewUser(
   //   }
 
   return {
-    userId: supabaseUserId,
+    success: true,
+    message: "Successfully created user account",
     email,
   };
 }
 
 export async function loginUser(
   body: Omit<RegisterUserPayload, "username">
-): Promise<{ email: string }> {
+): Promise<LoginUserFunctionResponse> {
   const supabase = createSupabaseBrowserClient();
+  try {
+    const { email, password } = body;
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-  const { email, password } = body;
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
+    if (error) {
+      return {
+        success: false,
+        message: error.message,
+      };
+    }
 
-  if (error) {
-    console.error("Login Error: ", error);
-
-    throw new Error(error.message);
+    return {
+      email,
+      success: true,
+      message: "Successfully logged in",
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Something went wrong",
+    };
   }
-
-  return {
-    email,
-  };
 }
 
 export async function forgotPassword(body: {
@@ -100,8 +118,6 @@ export async function forgotPassword(body: {
 
   // const redirectTo = `${url.protocol}//${url.host}`;
   const redirectTo = `https://localhost:3000`;
-
-  console.log("Redirecting to: ", redirectTo);
 
   await supabase.auth.resetPasswordForEmail(email, { redirectTo });
 
