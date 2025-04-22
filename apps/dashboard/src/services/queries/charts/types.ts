@@ -121,3 +121,29 @@ export interface FormatLiquidationDataResult {
   minPrice: number;
   maxPrice: number;
 }
+
+export interface LiquidHeatmapResponse {
+  y: Array<number>;
+  liq: Array<Array<number>>;
+  prices: Array<[number, string, string, string, string, string]>;
+  updateTime: number;
+}
+
+export interface LiquidExchangeResponse {
+  currentPriceUsd: number;
+  exLiqData: {
+    Binance: Record<string, number>;
+    Bybit: Record<string, number>;
+    OKX: Record<string, number>;
+  };
+}
+
+// export type FormatMergetLiquidMapDataResponse = {
+//   cumulativeLongLiqLeverage: { x: number; y: number }[];
+//   cumulativeShortLiqLeverage: { x: number; y: number }[];
+//   liqBars: LiquidationBar[];
+//   currentPrice: number;
+//   minPrice: number;
+//   maxPrice: number;
+//   maxCumulativeValue: number;
+// };
