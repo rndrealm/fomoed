@@ -43,6 +43,8 @@ export function TextInput(props: React.HTMLProps<HTMLInputElement>) {
           transition
           font-medium text-base leading-[1.35] text-white w-full
           rounded-2xl
+          selection:bg-white/20
+          selection:text-white
         "
         value={value}
         {...rest}

@@ -17,7 +17,7 @@ export function SubmitButton(props: IProps) {
   return (
     <Button
       className={cn(
-        `w-full h-[50px] font-medium text-base leading-[1.35] text-[#373737] bg-white hover:bg-white rounded-2xl disabled:opacity-100`,
+        `w-full h-[45px] font-medium text-base leading-[1.35] text-[#373737] bg-white hover:bg-white rounded-2xl disabled:opacity-100`,
         isLoading ? "disabled:bg-white" : "disabled:bg-[#0c0c0c]"
       )}
       type="submit"
