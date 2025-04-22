@@ -103,7 +103,7 @@ const fetchFallbackData = async (
   return fallBackData;
 };
 
-//! REQUEST HANDLER
+//! REQUEST HANDLER FOR /api/cfgi
 export async function GET(request: Request) {
   try {
     // API key is safely stored on server

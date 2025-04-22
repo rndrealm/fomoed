@@ -50,7 +50,7 @@ export async function fetchPairMarkets(symbol: string) {
   return data;
 }
 
-//! REQUEST HANDLER
+//! REQUEST HANDLER FOR /api/liq-map
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -89,7 +89,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ data: { liquidationData, pairMarketData } });
   } catch (error) {
     // Handle errors gracefully
-    console.error("Error fetching CFGI data:", error);
+    console.error("Error fetching liquidation data:", error);
     return NextResponse.json(
       { error: "Failed to fetch Liquidation data" },
       { status: 500 }

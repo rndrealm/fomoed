@@ -1,19 +1,19 @@
 "use client";
 
 import {
-  useFetchLiquidMapData,
+  useFetchLiquidDataMerged,
   useGetSupportedxchangePairs,
   useReadCoinList,
 } from "@/services/queries/charts";
 import CoinDropdown from "../../shared/coin-dropdown";
 import { useEffect, useMemo, useState } from "react";
 import PeriodDropdown from "../../shared/period-dropdown";
-import { LiquidTabOptions, liquidTimeframeOptions } from "@/constant/cfgi-data";
+import { liquidTimeframeOptions } from "@/constant/cfgi-data";
 import { Skeleton } from "@/components/ui/skeleton";
 import ChartLegend from "../../shared/chart-legend";
-import LiquidationChart from "./liquidation-chart";
 import { ExchangePairOption } from "@/charts/types";
 import PairDropdown from "../../shared/pair-dropdown";
+import LiquidationChart from "../liquidation/liquidation-chart";
 
 const colorToCfgi = [
   {
@@ -30,7 +30,7 @@ const colorToCfgi = [
   },
 ];
 
-export default function LiquidationWidget() {
+export default function LiquidationExchangeWidget() {
   const [activePeriod, setActivePeriod] = useState<string>(
     liquidTimeframeOptions[0].value
   );
@@ -53,15 +53,11 @@ export default function LiquidationWidget() {
     return pairsData.filter((i) => i.value.baseAsset === activeCoin);
   }, [pairsData, activeCoin]);
 
-  const { data: liquidationData } = useFetchLiquidMapData(
+  const { data: liquidationData } = useFetchLiquidDataMerged(
     activePeriod,
-    selectedPair?.value.exchange,
-    selectedPair?.value.instrumentId,
-    selectedPair?.value.baseAsset,
-    selectedPair?.value.quoteAsset
+    selectedPair?.value.baseAsset
   );
-
-  const [chartViewOptions] = useState(LiquidTabOptions[1].value);
+  console.log(liquidationData);
 
   return (
     <>
@@ -79,15 +75,9 @@ export default function LiquidationWidget() {
                   );
                   setSelectedPair(newPairs[0]);
                 }}
-                title="Liquidation Map"
+                title="Exchange Liquidation Map"
               />
               <div className="flex items-center gap-2">
-                {/* <ChartTab
-                  value={chartViewOptions}
-                  setValue={(val) => {
-                    setChartViewOptions(val);
-                  }}
-                /> */}
                 <PeriodDropdown
                   options={liquidTimeframeOptions}
                   value={activePeriod}
@@ -108,10 +98,7 @@ export default function LiquidationWidget() {
         </div>
         <div className="flex-grow mx-3 ">
           {liquidationData ? (
-            <LiquidationChart
-              liquidationData={liquidationData}
-              viewOption={chartViewOptions}
-            />
+            <LiquidationChart liquidationData={liquidationData} />
           ) : (
             <Skeleton className="w-full h-full bg-widget-background-200" />
           )}

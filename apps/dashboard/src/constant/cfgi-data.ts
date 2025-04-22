@@ -130,6 +130,17 @@ export interface OptionsType {
   label: string;
 }
 
+export const liquidHeatMapTimeframeOptions = [
+  { label: "12 hours", value: "12h" },
+  { label: "24 hours", value: "24h" },
+  { label: "3 days", value: "3d" },
+  { label: "1 week", value: "7d" },
+  { label: "1 month", value: "30d" },
+  { label: "3 months", value: "90d" },
+  { label: "6 months", value: "180d" },
+  { label: "1 year", value: "1y" },
+];
+
 export const liquidTimeframeOptions = [
   { label: "1 day", value: "1d" },
   { label: "7 days", value: "7d" },

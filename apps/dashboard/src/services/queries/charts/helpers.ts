@@ -1,5 +1,9 @@
-import { LiquidationBar, LiquidMapDataResponse } from "./types";
-import { range } from "lodash-es";
+import {
+  LiquidationBar,
+  LiquidExchangeResponse,
+  LiquidMapDataResponse,
+} from "./types";
+import { range, maxBy, sumBy } from "lodash-es";
 
 function getLiqBarColorFromLevRatio(leverage: number) {
   if (leverage === 100) {
@@ -128,5 +132,116 @@ export const formatLiquidationData = (
     ),
     minPrice,
     maxPrice,
+  };
+};
+
+export const formatMergetLiquidMapData = (resData: LiquidExchangeResponse) => {
+  const exLiqData = resData.exLiqData;
+  const currentPriceUsd = resData.currentPriceUsd;
+
+  const minPrices = [];
+  const maxPrices = [];
+
+  for (const ex in exLiqData) {
+    const exPrices = Object.keys(exLiqData[ex as keyof typeof exLiqData]).map(
+      (i) => parseInt(i)
+    );
+
+    minPrices.push(Math.min(...exPrices));
+    maxPrices.push(Math.max(...exPrices));
+  }
+
+  const minPrice = Math.min(...minPrices);
+  const maxPrice = Math.max(...maxPrices);
+
+  if (minPrice === Infinity) {
+    // No data
+    return null;
+  }
+
+  const cumulativeLongLiqLeverage: { x: number; y: number }[] = [];
+  const cumulativeShortLiqLeverage: { x: number; y: number }[] = [];
+
+  let cumulativeLongLiqLeverageAcc = 0;
+
+  for (const price of range(currentPriceUsd, maxPrice + 1)) {
+    const accBefore = cumulativeLongLiqLeverageAcc;
+
+    for (const ex in exLiqData) {
+      cumulativeLongLiqLeverageAcc +=
+        exLiqData[ex as keyof typeof exLiqData][price] || 0;
+    }
+
+    if (cumulativeLongLiqLeverageAcc === accBefore) {
+      continue;
+    }
+
+    cumulativeLongLiqLeverage.push({
+      x: price,
+      y: Math.round(cumulativeLongLiqLeverageAcc),
+    });
+  }
+
+  let cumulativeShortLiqLeverageAcc = 0;
+
+  for (const price of range(currentPriceUsd, minPrice - 1, -1)) {
+    const accBefore = cumulativeShortLiqLeverageAcc;
+
+    for (const ex in exLiqData) {
+      cumulativeShortLiqLeverageAcc +=
+        exLiqData[ex as keyof typeof exLiqData][price] || 0;
+    }
+
+    if (cumulativeShortLiqLeverageAcc === accBefore) {
+      continue;
+    }
+
+    cumulativeShortLiqLeverage.push({
+      x: price,
+      y: Math.round(cumulativeShortLiqLeverageAcc),
+    });
+  }
+
+  const exToBarColor: Record<string, string> = {
+    Binance: "#FF8300",
+    OKX: "#FFC403",
+    Bybit: "#73D8DA",
+  };
+
+  const combinedLiqBars: LiquidationBar[] = [];
+
+  for (const price of range(minPrice, maxPrice + 1)) {
+    const liqValues = [
+      { ex: "Binance", liqValue: exLiqData["Binance"][price] },
+      { ex: "OKX", liqValue: exLiqData["OKX"][price] },
+      { ex: "Bybit", liqValue: exLiqData["Bybit"][price] },
+    ];
+    const maxLiq = maxBy(liqValues, (i) => i.liqValue);
+
+    if (!maxLiq) {
+      continue;
+    }
+
+    const color = exToBarColor[maxLiq.ex];
+
+    combinedLiqBars.push({
+      color,
+      x: price,
+      y: sumBy(liqValues, (i) => i.liqValue),
+    });
+  }
+
+  return {
+    cumulativeLongLiqLeverage,
+    cumulativeShortLiqLeverage,
+    liqBars: combinedLiqBars,
+    currentPrice: currentPriceUsd,
+    minPrice,
+    maxPrice,
+    maxCumulativeValue:
+      maxBy(
+        [...cumulativeLongLiqLeverage, ...cumulativeShortLiqLeverage],
+        (i) => i.y
+      )?.y || 0,
   };
 };

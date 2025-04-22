@@ -5,12 +5,14 @@ import {
   CfgiDataResponse,
   CoinListResponse,
   FormatLiquidationDataResult,
+  LiquidExchangeResponse,
+  LiquidHeatmapResponse,
   LiquidMapDataResponse,
   SupportedPairsData,
 } from "./types";
 import { supportedExchangePairsToOptions } from "@/lib/utils";
 import { ExchangePairOption } from "@/charts/types";
-import { formatLiquidationData } from "./helpers";
+import { formatLiquidationData, formatMergetLiquidMapData } from "./helpers";
 
 export const useReadCfgiData = (
   token: string,
@@ -132,6 +134,60 @@ export const useFetchLiquidMapData = (
   }
   return {
     data: returnData,
+    isPending,
+    isSuccess,
+    error,
+  };
+};
+
+export const useFetchLiquidHeatMapData = (
+  timeframe: string,
+  exchange: string,
+  symbol: string
+) => {
+  const hash = ["get-liquid-heat-map", timeframe, exchange, symbol];
+  const { data, isPending, error, isSuccess } = useQuery<LiquidHeatmapResponse>(
+    {
+      queryKey: hash,
+      queryFn: async () => {
+        const response = await api.get({
+          url: `/api/liq-heatmap?timeframe=${timeframe}&exchange=${exchange}&symbol=${symbol}`,
+        });
+        console.log("response", response);
+        return response.data;
+      },
+      enabled: !!timeframe && !!exchange && !!symbol,
+    }
+  );
+
+  return {
+    data,
+    isPending,
+    isSuccess,
+    error,
+  };
+};
+export const useFetchLiquidDataMerged = (timeframe: string, asset: string) => {
+  const hash = ["get-liquid-exchange-map", timeframe, asset];
+  const { data, isPending, error, isSuccess } =
+    useQuery<LiquidExchangeResponse>({
+      queryKey: hash,
+      queryFn: async () => {
+        const response = await api.get({
+          url: `/api/ex-liq-map?timeframe=${timeframe}&asset=${asset}`,
+        });
+        console.log("response", response);
+        return response.data;
+      },
+      enabled: !!timeframe && !!asset,
+    });
+  let resData: FormatLiquidationDataResult | null = null;
+  if (data) {
+    resData = formatMergetLiquidMapData(data);
+  }
+
+  return {
+    data: resData,
     isPending,
     isSuccess,
     error,

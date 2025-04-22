@@ -21,11 +21,11 @@ Chart.register(CrosshairPlugin);
 
 interface ICfgiCard {
   liquidationData: FormatLiquidationDataResult;
-  viewOption?: string;
+  viewOption: string;
 }
 
-const LiquidationChart = (props: ICfgiCard) => {
-  const { liquidationData, viewOption } = props;
+const LiquidationExchangeChart = (props: ICfgiCard) => {
+  const { liquidationData } = props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
 
@@ -231,7 +231,7 @@ const LiquidationChart = (props: ICfgiCard) => {
     const ctx = canvasRef.current?.getContext("2d");
     if (!ctx) return;
     chart_init(ctx);
-  }, [liquidationData, viewOption]);
+  }, [liquidationData]);
   return (
     <div className="relative w-full h-full pb-1">
       <canvas width="400" height={0} ref={canvasRef}></canvas>
@@ -239,4 +239,4 @@ const LiquidationChart = (props: ICfgiCard) => {
   );
 };
 
-export default LiquidationChart;
+export default LiquidationExchangeChart;
