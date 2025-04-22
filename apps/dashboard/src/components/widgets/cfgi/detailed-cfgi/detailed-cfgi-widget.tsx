@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import ChartLegend from "../../shared/chart-legend";
 import DetailedCfgiChart from "@/components/widgets/cfgi/detailed-cfgi/detailed-cfgi-chart";
 import ChartTab from "../../shared/chart-tab";
+import { cn } from "@/lib/utils";
 
 // const colorToCfgi = {
 //   25: "#FF3B10",
@@ -36,11 +37,11 @@ const colorToCfgi = [
   },
 ];
 
-export default function DetailedCfgiWidget() {
+export default function DetailedCfgiWidget({isEmbed, symbol = null}: {isEmbed?: boolean, symbol?: string | null}) {
   const [activePeriod, setActivePeriod] = useState<string>(
     CfgiPeriods[0].value
   );
-  const [activeCoin, setActiveCoin] = useState<string>("BTC");
+  const [activeCoin, setActiveCoin] = useState<string>(symbol || "BTC");
   const { data: coinData } = useReadCoinList();
 
   const activeCoinSlug = useMemo(() => {
@@ -56,7 +57,7 @@ export default function DetailedCfgiWidget() {
 
   return (
     <>
-      <div className="w-[670px] h-[380px] flex flex-col justify-center bg-widget-background rounded-sm">
+      <div className={cn("flex flex-col justify-center bg-widget-background", isEmbed ?  "w-full h-full" : "w-[670px] h-[380px] rounded-sm")}>
         <div className="px-3 py-4">
           {coinData ? (
             <div className="flex items-center justify-between">
