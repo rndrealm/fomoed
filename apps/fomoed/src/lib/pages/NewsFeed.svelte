@@ -8,18 +8,22 @@
 	import PopularNewsWidget from '$lib/comps/PopularNewsWidget/PopularNewsWidget.svelte';
 	import { DESKTOP_BREAKPOINT, innerWidth } from '$lib/stores/ui';
 	import toast from 'svelte-5-french-toast';
+	import NewsLabPostsWidget from '$lib/comps/NewsLabPostsWidget/NewsLabPostsWidget.svelte';
+	import { newsLabPostsService } from '$ts/client/services/NewsLabPostsService.client.svelte';
 
 	onMount(async () => {
-		if (newsService.news.length > 0) {
-			return;
+		if (!newsService.news.length) {
+			newsService.fetchNews();
+			newsService.fetchPopularNews().then((ok) => {
+				if (!ok) {
+					toast.error('Failed to fetch popular news');
+				}
+			});
 		}
 
-		newsService.fetchNews();
-		newsService.fetchPopularNews().then((ok) => {
-			if (!ok) {
-				toast.error('Failed to fetch popular news');
-			}
-		});
+		if (!newsLabPostsService.posts.length) {
+			newsLabPostsService.fetchPosts();
+		}
 	});
 </script>
 
@@ -47,6 +51,10 @@
 			<div class="w-[500px] flex-grow-0">
 				<div class="pt-20 max-w-lg w-full">
 					<CfgiWidget />
+				</div>
+
+				<div class="pt-4 max-w-lg w-full">
+					<NewsLabPostsWidget posts={newsLabPostsService.posts} />
 				</div>
 
 				<div class="pt-4 max-w-lg w-full">
