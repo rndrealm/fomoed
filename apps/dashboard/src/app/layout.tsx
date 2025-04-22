@@ -5,6 +5,9 @@ import Navbar from "@/components/ui/navbar";
 import { UserProvider } from "@/components/providers/UserProvider";
 import QueryProvider from "@/components/providers/QueryProvider";
 
+import "../../node_modules/react-grid-layout/css/styles.css";
+// import '../../node_modules/react'
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -32,9 +35,7 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
           <QueryProvider>
-            <div className="absolute inset-x-0 top-0">
-              <Navbar />
-            </div>
+            <div className="absolute inset-x-0 top-0">{/* <Navbar /> */}</div>
             {children}
           </QueryProvider>
         </body>
