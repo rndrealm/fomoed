@@ -50,6 +50,9 @@ importers:
       chartjs-adapter-dayjs-4:
         specifier: ^1.0.4
         version: 1.0.4(chart.js@4.4.9)(dayjs@1.11.13)
+      chartjs-chart-financial:
+        specifier: ^0.2.1
+        version: 0.2.1(chart.js@4.4.9)
       chartjs-plugin-zoom:
         specifier: ^2.2.0
         version: 2.2.0(chart.js@4.4.9)
