@@ -35,9 +35,7 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
           <QueryProvider>
-            <div className="absolute inset-x-0 top-0">
-              <Navbar />
-            </div>
+            <div className="absolute inset-x-0 top-0">{/* <Navbar /> */}</div>
             {children}
           </QueryProvider>
         </body>
