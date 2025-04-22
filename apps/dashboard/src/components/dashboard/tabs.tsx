@@ -33,7 +33,7 @@ export function Tabs() {
                 activeTab.id === item.id ? "text-white" : "text-[#7A7A7A]"
               )}
             >
-              {item.label}
+              {item.name}
             </p>
           </button>
         );

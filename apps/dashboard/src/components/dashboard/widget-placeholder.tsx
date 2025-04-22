@@ -1,18 +1,20 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment } from "react";
 import AddWidgetIcon from "../icons/AddWidgetIcon";
-import { ModalContainer } from "../shared";
-import { AddWidgetModal } from "./add-widget-modal";
 
-export function WidgetPlaceholder() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+interface IProps {
+  handleShowModal: () => void;
+}
 
-  function handleShowModal() {
-    setIsModalOpen(true);
-  }
+export function WidgetPlaceholder(props: IProps) {
+  const { handleShowModal } = props;
 
   return (
     <Fragment>
-      <div className="p-4 flex flex-col justify-center items-center gap-5 w-full h-full">
+      <div
+        className={
+          "p-4 flex flex-col justify-center items-center gap-5 w-full h-full"
+        }
+      >
         <div className="flex flex-col gap-2 items-center max-w-[256px]">
           <button onClick={handleShowModal}>
             <div className="flex flex-col gap-2 items-center">
@@ -40,17 +42,6 @@ export function WidgetPlaceholder() {
           </button>
         </div>
       </div>
-
-      <ModalContainer
-        open={isModalOpen}
-        handleClose={() => {
-          setIsModalOpen(false);
-        }}
-        className="h-full"
-        title="Add New Widget"
-      >
-        <AddWidgetModal />
-      </ModalContainer>
     </Fragment>
   );
 }

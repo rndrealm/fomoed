@@ -50,6 +50,7 @@ export function Nav() {
           handleTabAdded={() => {
             setIsModalOpen(false);
           }}
+          newTab
         />
       </ModalContainer>
     </Fragment>

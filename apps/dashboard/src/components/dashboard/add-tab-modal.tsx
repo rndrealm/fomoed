@@ -1,27 +1,27 @@
 import React from "react";
 import { Input } from "../ui/input";
 import SearchIcon from "../icons/SearchIcon";
-import PlusIcon from "../icons/PlusIcon";
 import Image from "next/image";
 import dashboard from "@/lib/assets/dashboard";
 import { useSetAtom } from "jotai";
 import { activeTabAtom, tabsAtom } from "@/lib/atoms/layoutAtom";
 
 const tempLayouts = [
-  { id: 1, label: "Current Layout" },
-  { id: 2, label: "Untitled Tab" },
-  { id: 3, label: "Untitled Tab" },
-  { id: 4, label: "Untitled Tab" },
-  { id: 5, label: "Untitled Tab" },
-  { id: 6, label: "Untitled Tab" },
+  { id: 1, label: "Current Layout", name: "new tab" },
+  // { id: 2, label: "Untitled Tab" },
+  // { id: 3, label: "Untitled Tab" },
+  // { id: 4, label: "Untitled Tab" },
+  // { id: 5, label: "Untitled Tab" },
+  // { id: 6, label: "Untitled Tab" },
 ];
 
 interface IProps {
   handleTabAdded?: () => void;
+  newTab?: boolean;
 }
 
 export function AddTabModal(props: IProps) {
-  const { handleTabAdded = () => {} } = props;
+  const { handleTabAdded = () => {}, newTab = false } = props;
 
   const setTabAtom = useSetAtom(tabsAtom);
   const setActiveTabAtom = useSetAtom(activeTabAtom);
@@ -41,13 +41,6 @@ export function AddTabModal(props: IProps) {
     [&:focus-visible]:outline-none [&:focus]:outline-none transition-all w-full"
             />
           </div>
-
-          <button type="button">
-            <div className="flex gap-2 items-center px-2 bg-[#171A1C] rounded-sm h-[32px]">
-              <p className="text-[#717a7a] text-xs">Create New Tab</p>
-              <PlusIcon />
-            </div>
-          </button>
         </div>
 
         <p className="text-white text-xs">
@@ -62,15 +55,20 @@ export function AddTabModal(props: IProps) {
               key={item.id}
               type="button"
               onClick={() => {
-                const newTab = {
+                if (!newTab) {
+                  handleTabAdded();
+                  return;
+                }
+                const currentTab = {
                   id: Date.now(),
                   label: item.label,
                   editMode: false,
+                  name: "New Tab",
                 };
                 setTabAtom((prev) => {
-                  return [...prev, newTab];
+                  return [...prev, currentTab];
                 });
-                setActiveTabAtom(newTab);
+                setActiveTabAtom(currentTab);
                 handleTabAdded();
               }}
             >
