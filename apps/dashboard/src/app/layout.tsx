@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/ui/navbar";
 import { UserProvider } from "@/components/providers/UserProvider";
+import QueryProvider from "@/components/providers/QueryProvider";
 
 import "../../node_modules/react-grid-layout/css/styles.css";
 // import '../../node_modules/react'
@@ -33,10 +34,12 @@ export default function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
-          <div className="absolute top-0 inset-x-0">
-            <Navbar />
-          </div>
-          {children}
+          <QueryProvider>
+            <div className="absolute inset-x-0 top-0">
+              <Navbar />
+            </div>
+            {children}
+          </QueryProvider>
         </body>
       </UserProvider>
     </html>
