@@ -7,6 +7,7 @@ import type { ParsedArticle } from '$ts/common/types';
 import type { NewsFeedResponseData, TypedServerResponse } from '$ts/common/api.types';
 import { BaseService } from './BaseService.client.svelte';
 import type { NewsRow } from '$ts/server/db/NewsTable';
+import type { PostLike, PostUserInteractionMixin } from '$ts/client/types/posts';
 
 export type NewsTokenOption = { value: string; label: string; icon: string | null };
 
@@ -50,25 +51,19 @@ export const newsKindOpts: NewsKindOption[] = [
 	{ value: 'media', label: 'Media' }
 ];
 
-interface NewsLikesMixin {
+export interface PostLikesMixin {
 	// This contains only the likes on the post of the current user
 	// -- zero or one items
 	news_likes: { id: number }[];
 }
 
-interface NewsBookmarksMixin {
+export interface PostBookmarksMixin {
 	// This contains only the bookmarks on the post of the current user
 	// -- zero or one items
 	news_bookmarks: { id: number }[];
 }
 
-export type AppNewsItem = {
-	detailUrl: string;
-	userLiked: boolean;
-	userBookmarked: boolean;
-} & NewsRow &
-	NewsLikesMixin &
-	NewsBookmarksMixin;
+export type AppNewsItem = NewsRow & PostLike;
 
 export class NewsService extends BaseService {
 	news = $state<AppNewsItem[]>([]);
@@ -91,7 +86,7 @@ export class NewsService extends BaseService {
 		this.#page = 1;
 	}
 
-	#transformNewsItem(item: NewsRow & NewsLikesMixin & NewsBookmarksMixin): AppNewsItem {
+	#transformNewsItem(item: NewsRow & PostLikesMixin & PostBookmarksMixin): AppNewsItem {
 		let detailUrl: string;
 
 		if (item.source.toLowerCase().includes('twitter')) {
@@ -104,7 +99,8 @@ export class NewsService extends BaseService {
 			...item,
 			detailUrl,
 			userLiked: item.news_likes?.length > 0,
-			userBookmarked: item.news_bookmarks?.length > 0
+			userBookmarked: item.news_bookmarks?.length > 0,
+			allowInteraction: true
 		};
 
 		return appNewsItem;

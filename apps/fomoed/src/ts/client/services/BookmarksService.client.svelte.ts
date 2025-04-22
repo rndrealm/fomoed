@@ -1,10 +1,10 @@
 import type { InsertOmit, NewsBookmarkRow } from '$ts/common/db.types';
+import type { PostLike } from '../types/posts';
 import { BaseService } from './BaseService.client.svelte';
-import type { AppNewsItem } from './NewsService.client.svelte';
 import { userService } from './UserService.svelte';
 
 class BookmarksService extends BaseService {
-	async toggleBookmarkNewsPost(appNewsItem: AppNewsItem): Promise<boolean> {
+	async toggleBookmarkNewsPost(appNewsItem: PostLike): Promise<boolean> {
 		if (!userService.authUser) {
 			return false;
 		}
@@ -16,7 +16,7 @@ class BookmarksService extends BaseService {
 		}
 	}
 
-	async bookmarkNewsPost(appNewsItem: AppNewsItem): Promise<boolean> {
+	async bookmarkNewsPost(appNewsItem: PostLike): Promise<boolean> {
 		if (!userService.authUser) {
 			return false;
 		}
@@ -39,7 +39,7 @@ class BookmarksService extends BaseService {
 		return true;
 	}
 
-	async unbookmarkNewsPost(appNewsItem: AppNewsItem): Promise<boolean> {
+	async unbookmarkNewsPost(appNewsItem: PostLike): Promise<boolean> {
 		if (!userService.authUser) {
 			return false;
 		}
