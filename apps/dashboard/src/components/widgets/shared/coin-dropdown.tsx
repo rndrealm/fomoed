@@ -27,8 +27,8 @@ const CoinDropdown = (props: ICoinDropdownProps) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center gap-2 cursor-pointer">
-          <div>
+        <button className="flex items-center gap-2 cursor-pointer whitespace-nowrap">
+          <div className="flex-shrink-0">
             <Image
               width={32}
               height={32}
