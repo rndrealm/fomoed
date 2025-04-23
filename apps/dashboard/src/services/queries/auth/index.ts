@@ -1,17 +1,27 @@
 import { useMutation } from "@tanstack/react-query";
-import { RegisterUserPayload, SignUpResponse } from "./types";
+import { LoginUserFunctionResponse, RegisterUserPayload } from "./types";
 import { forgotPassword, loginUser, signUpNewUser } from "./mutationFunctions";
+import { useRouter } from "next/navigation";
+import { AppRoutes } from "@/lib/routes";
+import { toast } from "sonner";
 
 export const useRegisterUser = () => {
+  const router = useRouter();
   const { mutate, isPending, isError } = useMutation({
-    mutationFn: async (body: RegisterUserPayload): Promise<SignUpResponse> => {
+    mutationFn: async (
+      body: RegisterUserPayload
+    ): Promise<LoginUserFunctionResponse> => {
       return await signUpNewUser(body);
     },
     onSuccess: async (data) => {
-      console.log("response", data);
+      if (data.success) {
+        router.push(AppRoutes.auth.mailAuthenticate.path);
+      } else {
+        toast(data.message || "Something went wrong!", {});
+      }
     },
     onError: (data) => {
-      console.log("error:", data.message);
+      toast(data.message || "Something went wrong!", {});
     },
   });
   return {
@@ -22,17 +32,22 @@ export const useRegisterUser = () => {
 };
 
 export const useLoginUser = () => {
+  const router = useRouter();
   const { mutate, isPending, isError } = useMutation({
     mutationFn: async (
       body: Omit<RegisterUserPayload, "username">
-    ): Promise<{ email: string }> => {
+    ): Promise<LoginUserFunctionResponse> => {
       return await loginUser(body);
     },
     onSuccess: async (data) => {
-      console.log("response", data);
+      if (data.success) {
+        router.push(AppRoutes.dashboard.path);
+      } else {
+        toast(data.message || "Something went wrong!", {});
+      }
     },
     onError: (data) => {
-      console.log("error:", data.message);
+      toast(data.message || "Something went wrong!", {});
     },
   });
   return {
@@ -49,11 +64,9 @@ export const useForgotPassword = () => {
     ): Promise<{ email: string }> => {
       return await forgotPassword(body);
     },
-    onSuccess: async (data) => {
-      console.log("response", data);
-    },
+    onSuccess: async (data) => {},
     onError: (data) => {
-      console.log("error:", data.message);
+      toast(data.message || "Something went wrong!", {});
     },
   });
   return {

@@ -5,6 +5,7 @@ import * as Yup from "yup";
 import { SubmitButton, TextInput } from "@/components/auth";
 import ArrowRight from "@/components/icons/ArrowRight";
 import FormLogo from "@/components/icons/FormLogo";
+import { useRegisterUser } from "@/services/queries/auth";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string()
@@ -24,8 +25,10 @@ const initialValues = {
 type InitialValues = ReturnType<() => typeof initialValues>;
 
 export default function Page() {
+  const { mutate, isPending } = useRegisterUser();
   const onSubmit = (_values: InitialValues) => {
-    console.log(_values);
+    console.log("vall:", _values);
+    mutate(_values);
   };
 
   return (
@@ -83,7 +86,7 @@ export default function Page() {
                       onBlur={handleBlur}
                     />
                     <div className="">
-                      <SubmitButton isLoading={false} disabled={false}>
+                      <SubmitButton isLoading={isPending} disabled={isPending}>
                         Continue
                         <ArrowRight />
                       </SubmitButton>

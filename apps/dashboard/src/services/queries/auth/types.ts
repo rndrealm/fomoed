@@ -14,3 +14,12 @@ export type SignUpResponse = {
   userId: string;
   email: string;
 };
+
+export type SuperbaseFunctionsBaseType = {
+  success: boolean;
+  message: string;
+};
+
+export interface LoginUserFunctionResponse extends SuperbaseFunctionsBaseType {
+  email?: string;
+}

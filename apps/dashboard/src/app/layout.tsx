@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
+import { Toaster } from "@/components/ui/sonner";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/ui/navbar";
 import { UserProvider } from "@/components/providers/UserProvider";
 import QueryProvider from "@/components/providers/QueryProvider";
 
@@ -37,6 +37,7 @@ export default function RootLayout({
           <QueryProvider>
             <div className="absolute inset-x-0 top-0">{/* <Navbar /> */}</div>
             {children}
+            <Toaster />
           </QueryProvider>
         </body>
       </UserProvider>

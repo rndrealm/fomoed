@@ -5,6 +5,7 @@ import * as Yup from "yup";
 import { FormBottomLink, SubmitButton, TextInput } from "@/components/auth";
 import ArrowRight from "@/components/icons/ArrowRight";
 import FormLogo from "@/components/icons/FormLogo";
+import { useLoginUser } from "@/services/queries/auth";
 import { GoogleLogin } from "@/components/auth/google-login";
 import FormBottomDivider from "@/components/icons/FormBottomDivider";
 import Link from "next/link";
@@ -25,13 +26,15 @@ const initialValues = {
 type InitialValues = ReturnType<() => typeof initialValues>;
 
 export default function Page() {
+  const { mutate, isPending } = useLoginUser();
   const onSubmit = (_values: InitialValues) => {
-    console.log(_values);
+    console.log("hola:", _values);
+    mutate(_values);
   };
 
   return (
     <div className="min-h-screen w-full bg-[#000] flex flex-col pb-8 px-4">
-      <div className="flex-1 flex items-center justify-center h-full">
+      <div className="flex items-center justify-center flex-1 h-full">
         <div className="max-w-[418px] w-full  flex flex-col gap-5">
           <div className="flex justify-center">
             <FormLogo />
