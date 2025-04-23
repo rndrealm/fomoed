@@ -16,7 +16,7 @@ export function FormBottomLink(props: IProps) {
   const { href, linkText, infoText = _infoText } = props;
 
   return (
-    <div className="flex items-center gap-[2px]">
+    <div className="flex items-center gap-[4px]">
       <p className={cln}>{infoText}</p>
       <Link href={href}>
         <p className={cn(cln, "text-white")}>{linkText}.</p>

@@ -9,6 +9,7 @@ import { useLoginUser } from "@/services/queries/auth";
 import { GoogleLogin } from "@/components/auth/google-login";
 import FormBottomDivider from "@/components/icons/FormBottomDivider";
 import Link from "next/link";
+import { AppRoutes } from "@/lib/routes";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string()
@@ -100,7 +101,7 @@ export default function Page() {
               <p className="text-center font-medium text-sm leading-[1.35] text-[#5c5c5c]">
                 Forgot Password?{" "}
               </p>
-              <Link href={"#"}>
+              <Link href={AppRoutes.auth.forgotPassword.path}>
                 <p className="text-center font-medium text-sm leading-[1.35] text-white">
                   Reset
                 </p>
@@ -113,7 +114,7 @@ export default function Page() {
         <div className="flex w-full">
           <FormBottomDivider />
         </div>
-        <FormBottomLink href="#" linkText="Sign Up" />
+        <FormBottomLink href={AppRoutes.auth.path} linkText="Sign Up" />
       </div>
     </div>
   );

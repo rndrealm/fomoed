@@ -12,13 +12,15 @@ interface IProps {
   onClick?: () => void;
 }
 
+// text-[#7d7d7d]
+
 export function SubmitButton(props: IProps) {
   const { children, isLoading = false, disabled = false, onClick } = props;
   return (
     <Button
       className={cn(
         `w-full h-[45px] font-medium text-base leading-[1.35] text-[#373737] bg-white hover:bg-white rounded-2xl disabled:opacity-100`,
-        isLoading ? "disabled:bg-white" : "disabled:bg-[#0c0c0c]"
+        isLoading ? "disabled:bg-white" : "disabled:bg-[#2a2a2a]"
       )}
       type="submit"
       disabled={disabled || isLoading}
