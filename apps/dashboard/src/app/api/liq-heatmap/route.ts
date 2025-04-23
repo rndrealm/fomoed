@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-export async function fetchCoinglassHeatmap(
+async function fetchCoinglassHeatmap(
   range: string,
   exchange: string,
   symbol: string
@@ -10,7 +10,7 @@ export async function fetchCoinglassHeatmap(
     method: "GET",
     headers: {
       accept: "application/json",
-      "CG-API-KEY": process.env.PRIVATE_COINGLASS_KEY,
+      "CG-API-KEY": process.env.PRIVATE_COINGLASS_KEY as string,
     },
   };
 

@@ -4,7 +4,6 @@
 	import LikeIconFull from '$lib/icons/LikeIconFull.svelte';
 	import SentimentPill from '$lib/comps/custom/SentimentPill/SentimentPill.svelte';
 	import { timeAgo } from '$ts/client/utils';
-	import type { AppNewsItem } from '$ts/client/services/NewsService.client.svelte';
 	import SharePopupButton from '$lib/comps/SharePopup/SharePopupButton.svelte';
 	import { likesService } from '$ts/client/services/LikesService.client.svelte';
 	import { bookmarksService } from '$ts/client/services/BookmarksService.client.svelte';
@@ -13,9 +12,11 @@
 	import { goto } from '$app/navigation';
 	import BookmarkIcon from '$lib/icons/social/BookmarkIcon.svelte';
 	import BookmarkIconFilled from '$lib/icons/social/BookmarkIconFilled.svelte';
+	import type { PostLike } from '$ts/client/types/posts';
+	import { userService } from '$ts/client/services/UserService.svelte';
 
 	type Props = {
-		article: AppNewsItem;
+		article: PostLike;
 		showSourceAndTime?: boolean;
 		skeleton?: boolean;
 		compact?: boolean;
@@ -82,6 +83,7 @@
 	>
 		<!-- Likes -->
 		<button
+			disabled={!userService.isLoggedIn}
 			onclick={handleLikeToggle}
 			class="flex items-center justify-start flex-shrink-0 gap-2 group"
 		>

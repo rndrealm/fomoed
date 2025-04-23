@@ -1,10 +1,10 @@
 import type { InsertOmit, NewsLikeRow } from '$ts/common/db.types';
+import type { PostLike } from '../types/posts';
 import { BaseService } from './BaseService.client.svelte';
-import type { AppNewsItem } from './NewsService.client.svelte';
 import { userService } from './UserService.svelte';
 
 class LikesService extends BaseService {
-	async toggleLikeNewsPost(appNewsItem: AppNewsItem): Promise<boolean> {
+	async toggleLikeNewsPost(appNewsItem: PostLike): Promise<boolean> {
 		if (!userService.authUser) {
 			return false;
 		}
@@ -16,7 +16,7 @@ class LikesService extends BaseService {
 		}
 	}
 
-	async likeNewsPost(appNewsItem: AppNewsItem): Promise<boolean> {
+	async likeNewsPost(appNewsItem: PostLike): Promise<boolean> {
 		if (!userService.authUser) {
 			return false;
 		}
@@ -41,7 +41,7 @@ class LikesService extends BaseService {
 		return true;
 	}
 
-	async unlikeNewsPost(appNewsItem: AppNewsItem): Promise<boolean> {
+	async unlikeNewsPost(appNewsItem: PostLike): Promise<boolean> {
 		if (!userService.authUser) {
 			return false;
 		}

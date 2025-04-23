@@ -6,6 +6,7 @@ import type { PublicUserDataRow } from '$ts/common/db.types';
 class UserService extends BaseService {
 	authUser: User | null = $state(null);
 	publicUserData: PublicUserDataRow | null = $state(null);
+	isLoggedIn: boolean = $derived(!!this.authUser);
 
 	constructor() {
 		super();

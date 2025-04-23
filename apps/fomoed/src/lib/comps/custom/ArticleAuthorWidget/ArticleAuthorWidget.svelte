@@ -15,7 +15,7 @@
 		authorImageUrl,
 		socialLinks = {}
 	} = $props<{
-		authorName?: string;
+		authorName?: string | null;
 		authorTitle?: string;
 		authorBio?: string;
 		authorImageUrl?: string;

@@ -352,7 +352,7 @@ export const CrosshairPlugin: Plugin = {
         chart._crosshairCache.crosshairEnabledInLastTouchSeq = true;
 
         // In crosshair mode, disable panning
-        // @ts-ignore
+        // @ts-expect-error Idk
         chart.options.plugins.zoom.pan.enabled = false;
 
         chart.render();
@@ -376,8 +376,7 @@ export const CrosshairPlugin: Plugin = {
       ) {
         chart._crosshairCache.enabledByTouch = false;
 
-        // @ts-ignore
-        console.log("enabling pan");
+        // @ts-expect-error Idk
         chart.options.plugins.zoom.pan.enabled = true;
         chart.pan(0);
 

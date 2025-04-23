@@ -2,11 +2,9 @@ import type { Metadata } from "next";
 import { Toaster } from "@/components/ui/sonner";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { UserProvider } from "@/components/providers/UserProvider";
 import QueryProvider from "@/components/providers/QueryProvider";
 
 import "../../node_modules/react-grid-layout/css/styles.css";
-// import '../../node_modules/react'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,20 +27,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <UserProvider>
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
-          <QueryProvider>
-            <div className="absolute inset-x-0 top-0 font-inter">
-              {/* <Navbar /> */}
-            </div>
-            {children}
-            <Toaster />
-          </QueryProvider>
-        </body>
-      </UserProvider>
+    // Keep h-full for filling vertical space in iframes.
+    <html lang="en" className="h-full">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full`}
+      >
+        <QueryProvider>{children}</QueryProvider>
+        <Toaster />
+      </body>
     </html>
   );
 }

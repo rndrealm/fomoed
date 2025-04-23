@@ -1,11 +1,10 @@
 <script lang="ts">
-	import type { AppNewsItem } from '$ts/client/services/NewsService.client.svelte';
 	import NewsHeadlineBottomBar from '$lib/comps/NewsHeadlineBottomBar/NewsHeadlineBottomBar.svelte';
 	import TextSkeleton from '../skeletons/TextSkeleton.svelte';
-	import { fade } from 'svelte/transition';
+	import type { PostLike } from '$ts/client/types/posts';
 
 	type Props = {
-		article: AppNewsItem;
+		article: PostLike;
 		skeleton?: boolean;
 	};
 

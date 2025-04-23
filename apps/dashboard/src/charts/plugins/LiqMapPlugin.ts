@@ -12,6 +12,7 @@ export class LiqHeatmapController extends ScatterController {
     const dataset = chart.data.datasets[_cachedMeta.index];
     const unparsedData = dataset.data; // Original unparsed data
 
+    // @ts-expect-error HOTFIX
     const barWidth = (chart.getDatasetMeta(0).data[0].width || 5) * 2;
 
     ctx.save();
@@ -23,7 +24,9 @@ export class LiqHeatmapController extends ScatterController {
       const p = points[i];
       const { x, y } = p.getProps(["x", "y"]);
 
+      // @ts-expect-error HOTFIX
       ctx.fillStyle = unparsedData[i].backgroundColor;
+      // @ts-expect-error HOTFIX
       const prevYVal = unparsedData[i].prevYVal;
 
       const height = y - yScale.getPixelForValue(prevYVal);
