@@ -27,11 +27,11 @@
 	<NewsAssetPriceRow />
 
 	<div
-		class="flex justify-center px-16 overflow-hidden transition-opacity duration-1000 opacity-0 gap-x-4 -desktop:flex-col -desktop:px-0"
+		class="flex justify-center px-16 transition-opacity duration-1000 opacity-0 gap-x-4 -desktop:flex-col -desktop:px-0"
 		class:!opacity-100={$innerWidth}
 	>
 		<div
-			class="w-full max-w-screen-lg pb-16 mx-auto overflow-hidden duration-500  pt-7 -desktop:pb-0"
+			class="w-full max-w-screen-lg pb-16 mx-auto overflow-hidden duration-500 pt-7 -desktop:pb-0"
 			class:opacity-50={newsService.isFetching}
 		>
 			<div class="-desktop:px-4">
@@ -44,7 +44,7 @@
 		</div>
 
 		{#if $innerWidth && $innerWidth > DESKTOP_BREAKPOINT}
-			<div class="w-[500px]">
+			<div class="w-[700px]">
 				<div class="w-full max-w-lg pt-20">
 					<CfgiWidget />
 				</div>

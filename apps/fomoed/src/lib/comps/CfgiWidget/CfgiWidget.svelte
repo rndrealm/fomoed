@@ -2,7 +2,7 @@
 	import CfgiIcon from '$lib/icons/CfgiIcon.svelte';
 	import { cfgiDataService } from '$ts/client/services/CfgiDataService.client.svelte';
 	import { liveDataService } from '$ts/client/services/LiveSymbolDataService.client.svelte';
-	import IndicatorCard from '../IndicatorCard.svelte';
+	import IndicatorCardV2 from '../IndicatorCardV2.svelte';
 	import CfgiAssetDropdown from './CfgiAssetDropdown.svelte';
 	import GaugeFrag from './GaugeFrag.svelte';
 
@@ -81,7 +81,7 @@
 			v24={liveSymbolData?.volume24h}
 			dominance={symbolDominance !== null ? symbolDominance.toFixed(2) : null}
 		/> -->
-		<!-- <IndicatorCard /> -->
+		<IndicatorCardV2 />
 	</div>
 </div>
 
