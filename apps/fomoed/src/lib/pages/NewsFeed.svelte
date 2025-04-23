@@ -23,7 +23,7 @@
 	});
 </script>
 
-<main class="pt-[80px] bg-[#0c0c0c]">
+<main class="pt-[7rem] bg-[#090909]">
 	<NewsAssetPriceRow />
 
 	<div
