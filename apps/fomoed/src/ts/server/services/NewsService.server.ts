@@ -93,6 +93,11 @@ export class NewsService {
 		for (const post of json) {
 			const originalUrl = PUBLIC_NEWSLAB_URL + '/api/newslab-posts/' + post.id;
 
+			const contentWithoutTitle = post.content.replace(/<h1[^>]*>.*?<\/h1>/, '');
+			const contentWithoutMarkup = contentWithoutTitle.replace(/<[^>]+>/g, '');
+			const contentWithoutNewlines = contentWithoutMarkup.replace(/\n/g, ' ').trim();
+			const briefContent = contentWithoutNewlines.substring(0, 200) + '...';
+
 			const rowInsert: Partial<NewsRowInsert> = {
 				id: post.id,
 				original_url: originalUrl,
@@ -100,7 +105,7 @@ export class NewsService {
 				source: 'NewsLab',
 				image_url: null,
 				sentiment: 'neutral',
-				summary: 'No summary',
+				summary: briefContent,
 				symbols: post.metadata.ref_tokens,
 				title: post.title
 			};
