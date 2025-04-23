@@ -6,7 +6,7 @@ async function fetchPairMarkets(symbol: string) {
     method: "GET",
     headers: {
       accept: "application/json",
-      "CG-API-KEY": process.env.PRIVATE_COINGLASS_KEY,
+      "CG-API-KEY": process.env.PRIVATE_COINGLASS_KEY as string,
     },
   };
 
@@ -41,7 +41,7 @@ async function fetchCoinglassSupportedPairs() {
     method: "GET",
     headers: {
       accept: "application/json",
-      "CG-API-KEY": process.env.PRIVATE_COINGLASS_KEY,
+      "CG-API-KEY": process.env.PRIVATE_COINGLASS_KEY as string,
     },
   };
 
@@ -58,7 +58,7 @@ async function fetchCoinglassSupportedPairs() {
   return data;
 }
 
-export async function fetchCoinglassLiqMap(
+async function fetchCoinglassLiqMap(
   range: string,
   exchange: string,
   symbol: string
@@ -68,7 +68,7 @@ export async function fetchCoinglassLiqMap(
     method: "GET",
     headers: {
       accept: "application/json",
-      "CG-API-KEY": process.env.PRIVATE_COINGLASS_KEY,
+      "CG-API-KEY": process.env.PRIVATE_COINGLASS_KEY as string,
     },
   };
 

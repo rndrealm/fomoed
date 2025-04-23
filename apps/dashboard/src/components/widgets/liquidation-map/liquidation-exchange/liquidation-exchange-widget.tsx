@@ -46,7 +46,7 @@ export default function LiquidationExchangeWidget() {
   useEffect(() => {
     if (!pairsData || selectedPair) return;
     setSelectedPair(pairsData[0]);
-  }, [pairsData]);
+  }, [pairsData, selectedPair]);
 
   const filteredData = useMemo(() => {
     if (!pairsData) return [];

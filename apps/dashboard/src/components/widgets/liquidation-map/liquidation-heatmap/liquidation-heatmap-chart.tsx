@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useCallback } from "react";
 import Chart from "chart.js/auto";
 
 import "chartjs-adapter-dayjs-4/dist/chartjs-adapter-dayjs-4.esm";
@@ -29,7 +29,7 @@ const LiquidationHeatmapChart = (props: ICfgiCard) => {
   const chartRef = useRef<Chart | null>(null);
   const [maxValue, setMaxValue] = React.useState(0);
 
-  function chart_init(ctx: CanvasRenderingContext2D) {
+  const chart_init = useCallback((ctx: CanvasRenderingContext2D) => {
     const y = liquidationData.y;
     const prices = liquidationData.prices;
     const liq = liquidationData.liq;
@@ -58,6 +58,7 @@ const LiquidationHeatmapChart = (props: ICfgiCard) => {
       const pointsWithYVal = liqHeatmapData.filter((i) => i.y == yVal);
 
       for (const p of pointsWithYVal) {
+        // @ts-expect-error HOTFIX
         p.prevYVal = prevYVal;
       }
     }
@@ -135,7 +136,8 @@ const LiquidationHeatmapChart = (props: ICfgiCard) => {
 
     if (canvasRef.current) {
       chartRef.current = new Chart(canvasRef.current, {
-        data: { datasets },
+        data: { datasets: datasets as any },
+        // @ts-expect-error HOTFIX
         layout: { padding: 0 },
         options: {
           animation: false,
@@ -153,7 +155,11 @@ const LiquidationHeatmapChart = (props: ICfgiCard) => {
                 display: false,
               },
               ticks: {
-                callback: (value: number) => {
+                callback: (value: string | number) => {
+                  if (typeof value === "string") {
+                    return value;
+                  }
+
                   if (value < 0) {
                     return "";
                   }
@@ -199,14 +205,14 @@ const LiquidationHeatmapChart = (props: ICfgiCard) => {
     }
 
     chartRef.current?.resize();
-  }
+  }, [liquidationData, setMaxValue]);
 
   useEffect(() => {
     if (!canvasRef.current) return;
     const ctx = canvasRef.current?.getContext("2d");
     if (!ctx) return;
     chart_init(ctx);
-  }, [liquidationData]);
+  }, [liquidationData, chart_init]);
 
   const humanizedMaxLiqValue = humanizeNumber(maxValue);
   return (

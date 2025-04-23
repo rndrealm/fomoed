@@ -11,7 +11,7 @@ export async function GET() {
       method: "GET",
       headers: {
         accept: "application/json",
-        "CG-API-KEY": process.env.PRIVATE_COINGLASS_KEY,
+        "CG-API-KEY": process.env.PRIVATE_COINGLASS_KEY as string,
       },
       cache: "no-store",
     });

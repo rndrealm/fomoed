@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-export async function fetchCoinglassLiqMap(
+async function fetchCoinglassLiqMap(
   range: string,
   exchange: string,
   symbol: string
@@ -10,7 +10,7 @@ export async function fetchCoinglassLiqMap(
     method: "GET",
     headers: {
       accept: "application/json",
-      "CG-API-KEY": process.env.PRIVATE_COINGLASS_KEY,
+      "CG-API-KEY": process.env.PRIVATE_COINGLASS_KEY as string,
     },
   };
 
@@ -27,13 +27,13 @@ export async function fetchCoinglassLiqMap(
   return data;
 }
 
-export async function fetchPairMarkets(symbol: string) {
+async function fetchPairMarkets(symbol: string) {
   const url = `https://open-api-v3.coinglass.com/api/futures/pairs-markets?symbol=${symbol}`;
   const options = {
     method: "GET",
     headers: {
       accept: "application/json",
-      "CG-API-KEY": process.env.PRIVATE_COINGLASS_KEY,
+      "CG-API-KEY": process.env.PRIVATE_COINGLASS_KEY as string,
     },
   };
 
