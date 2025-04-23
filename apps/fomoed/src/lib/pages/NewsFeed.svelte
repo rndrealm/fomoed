@@ -53,9 +53,9 @@
 					<CfgiWidget />
 				</div>
 
-				<div class="pt-4 max-w-lg w-full">
+				<!-- <div class="pt-4 max-w-lg w-full">
 					<NewsLabPostsWidget posts={newsService.newsLabPosts} />
-				</div>
+				</div> -->
 
 				<div class="pt-4 max-w-lg w-full">
 					<PopularNewsWidget articles={newsService.popularNews} />
