@@ -3,6 +3,7 @@
 		liveDataService,
 		type LiveSymbolData
 	} from '$ts/client/services/LiveSymbolDataService.client.svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { type SymbolData, symbols } from '.';
 	import { fade } from 'svelte/transition';
 
@@ -26,10 +27,77 @@
 			dayDelta: data.change24h
 		}));
 	});
+
+	let scrollContainer: HTMLDivElement;
+	let isPaused = false;
+	let animationId: number;
+	let isScrollInitialized = false;
+
+	function startAutoScroll() {
+		let scrollPosition = 0;
+		// Direction: 1 = right, -1 = left
+		let direction = 1;
+
+		const scroll = () => {
+			if (!isPaused && scrollContainer) {
+				// Adjust scrolling speed here (0.5 is a moderate speed)
+				scrollPosition += 0.5 * direction;
+
+				// Change direction when reaching either end
+				if (scrollPosition >= scrollContainer.scrollWidth - scrollContainer.clientWidth) {
+					direction = -1; // Start scrolling left
+				} else if (scrollPosition <= 0) {
+					direction = 1; // Start scrolling right
+				}
+
+				scrollContainer.scrollLeft = scrollPosition;
+			}
+			animationId = requestAnimationFrame(scroll);
+		};
+
+		animationId = requestAnimationFrame(scroll);
+		isScrollInitialized = true;
+	}
+
+	// Watch for changes to symbolDatas and start scrolling when data is available
+	$effect(() => {
+		if (symbolDatas.length > 0 && scrollContainer && !isScrollInitialized) {
+			setTimeout(() => startAutoScroll(), 100); // Small delay to ensure DOM is ready
+		}
+	});
+
+	onMount(() => {
+		// Start automatic scrolling after component is mounted
+		console.log('mounted');
+		if (symbolDatas.length > 0) {
+			startAutoScroll();
+		}
+	});
+
+	onDestroy(() => {
+		// Clean up animation frame on component destruction
+		if (animationId) {
+			cancelAnimationFrame(animationId);
+		}
+	});
+
+	function handleMouseEnter() {
+		isPaused = true;
+	}
+
+	function handleMouseLeave() {
+		isPaused = false;
+	}
 </script>
 
 <!-- Asset price row -->
-<div class="flex overflow-x-auto gap-x-1 no-scrollbar h-[72px]">
+<div
+	bind:this={scrollContainer}
+	class="flex h-16 mt-5 overflow-x-auto gap-x-4 no-scrollbar"
+	onmouseenter={handleMouseEnter}
+	onmouseleave={handleMouseLeave}
+	role="list"
+>
 	{#each symbolDatas as asset (asset.id)}
 		{@render assetBlock(asset)}
 	{/each}
@@ -37,43 +105,43 @@
 
 {#snippet assetBlock(asset: SymbolData)}
 	<!-- Asset block -->
-	<div
-		class="flex justify-between bg-[#1C1C1C] p-4 min-w-[240px] shadow-sm flex-1 font-inter"
-		in:fade
-	>
-		<div class="flex gap-3">
-			<!-- Asset icon -->
-			<div class="flex-shrink-0">
-				<img
-					src={asset.iconUrl}
-					alt=""
-					class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 object-cover"
-				/>
+	<div class="min-w-[15.875rem] flex-1 rounded-[15px] relative overflow-hidden p-[1px]" in:fade>
+		<div class="gradient_border z-[1]"></div>
+		<div
+			class="flex relative bg-[#1C1C1C] w-full h-full py-3 px-4 rounded-[15px] justify-between font-inter z-[2]"
+		>
+			<div class="flex gap-[18px]">
+				<!-- Asset icon -->
+				<div class="flex-shrink-0">
+					<img
+						src={asset.iconUrl}
+						alt=""
+						class="object-cover w-6 h-6 bg-gray-100 rounded-full dark:bg-gray-700"
+					/>
+				</div>
+
+				<!-- Symbol and name -->
+				<div class="flex flex-col justify-center text-sm font-medium">
+					<span class="text-gray-900 dark:text-gray-100">{asset.symbol}</span>
+					<span class=" text-[#878787] truncate max-w-[80px]">{asset.name}</span>
+				</div>
 			</div>
 
-			<!-- Symbol and name -->
-			<div class="flex flex-col justify-center">
-				<span class="font-semibold text-gray-900 dark:text-gray-100">{asset.symbol}</span>
-				<span class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[80px]"
-					>{asset.name}</span
+			<!-- Price and day delta -->
+			<div class="flex flex-col items-end justify-center">
+				<span class="text-sm font-medium text-gray-900 dark:text-gray-100">
+					${typeof asset.price === 'number' ? asset.price.toFixed(2) : 'N/A'}
+				</span>
+				<span
+					class="font-normal {`text-sm ${typeof asset.dayDelta !== 'number' ? 'text-gray-500' : asset.dayDelta >= 0 ? 'text-[#1FC16B]' : 'text-[#FB3748]'}`}"
 				>
+					{#if typeof asset.dayDelta === 'number'}
+						{asset.dayDelta >= 0 ? '+' : '-'}{Math.abs(asset.dayDelta).toFixed(2)}%
+					{:else}
+						--
+					{/if}
+				</span>
 			</div>
-		</div>
-
-		<!-- Price and day delta -->
-		<div class="flex flex-col items-end justify-center">
-			<span class="font-bold text-gray-900 dark:text-gray-100">
-				${typeof asset.price === 'number' ? asset.price.toFixed(2) : 'N/A'}
-			</span>
-			<span
-				class="font-semibold {`text-xs font-medium ${typeof asset.dayDelta !== 'number' ? 'text-gray-500' : asset.dayDelta >= 0 ? 'text-[#1FC16B]' : 'text-[#FB3748]'}`}"
-			>
-				{#if typeof asset.dayDelta === 'number'}
-					{asset.dayDelta >= 0 ? '+' : '-'}{Math.abs(asset.dayDelta).toFixed(2)}%
-				{:else}
-					--
-				{/if}
-			</span>
 		</div>
 	</div>
 {/snippet}

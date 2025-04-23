@@ -39,7 +39,7 @@ export default function Page() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#000] flex flex-col pb-8 px-4">
+    <div className="min-h-screen w-full bg-[#000] flex flex-col pb-8 px-4 font-inter">
       <div className="flex items-center justify-center flex-1 h-full">
         <div className="max-w-[418px] w-full  flex flex-col gap-5">
           <div className="flex justify-center">

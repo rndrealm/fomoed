@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { monthDay } from '$ts/client/utils';
 	import type { AppNewsItem } from '$ts/client/services/NewsService.client.svelte';
-	import SentimentPillV2 from '$lib/comps/custom/SentimentPill/SentimentPillV2.svelte';
+	import SentimentPill from '$lib/comps/custom/SentimentPill/SentimentPill.svelte';
 	import AssetPricePill from '../custom/AssetPricePill/AssetPricePill.svelte';
 	import { likesService } from '$ts/client/services/LikesService.client.svelte';
 	import toast from 'svelte-5-french-toast';
@@ -31,7 +31,7 @@
 
 <a href={article.detailUrl} class="block h-full" in:fade>
 	<div
-		class="font-inter bg-[#121212] text-white px-0 border-[0.5px] border-[#1E1E1E] pt-6 pb-1 rounded-[20px] flex flex-col h-full"
+		class="font-inter bg-[#121212] text-white px-0 border-[0.5px] border-[#1E1E1E] py-6 rounded-[20px] flex flex-col h-full"
 	>
 		<!-- Top Row: Source, Published Time, Sentiment -->
 		<div class="flex items-center justify-between gap-4 pl-5 pr-[1.875rem] pb-6 text-sm">
@@ -71,21 +71,15 @@
 
 		<!-- Filler, keep -->
 		<div class="flex-grow"></div>
+		<button class="flex gap-[5px] overflow-auto px-6 z-[100] no-scrollbar">
+			{#each article.symbols as symbol}
+				<AssetPricePill {symbol} />
+			{/each}
+		</button>
 
-		<div class="flex flex-col gap-4">
-			<button class="flex gap-[5px] overflow-auto px-6 z-[100] no-scrollbar">
-				{#each article.symbols as symbol}
-					<AssetPricePill {symbol} />
-				{/each}
-			</button>
-			<!-- Sentiment Pill -->
-			{#if article?.sentiment}
-				<SentimentPillV2 sentiment={article.sentiment} />
-			{/if}
-		</div>
 		<!-- Bottom Row: Engagement Metrics -->
 		{#if !hideBottomBar}
-			<div class="mt-[0px]">
+			<div class="mt-0">
 				<NewsHeadlineBottomBar {article} showSourceAndTime={false} compact={true} />
 			</div>
 		{/if}

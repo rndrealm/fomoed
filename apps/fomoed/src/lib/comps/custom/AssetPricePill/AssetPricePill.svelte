@@ -52,13 +52,13 @@
 
 <!-- Asset price pill -->
 <div
-	class="inline-flex items-center px-3 py-1.5 rounded-full bg-[#333333] text-white font-sans font-medium text-xs"
+	class="flex min-w-[10.75rem] max-w-[12.5rem] items-center px-[7px] py-[3px] my-1 rounded-[31px] bg-[#1D1D1D] text-white font-sans font-normal text-[13px]"
 >
-	<span class="text-[#A4A4A4]">{symbol}:</span>
-	<span class="font-medium text-[#BBBBBB]">&nbsp;{formattedPrice}</span>
-	<span class="mx-1.5 text-[#A6A6A6]">•</span>
+	<span class="pr-1">{symbol} </span>
+	<span class="font-medium "> -{formattedPrice}</span>
+	<span class="mx-1">•</span>
 	{#if symbolData?.change24h !== undefined}
-		<span class="font-semibold" style="color: {textColor};">
+		<span class="font-medium" style="color: {textColor};">
 			{symbolData.change24h >= 0 ? '+' : ''}{symbolData.change24h.toFixed(2)}%
 		</span>
 	{:else}

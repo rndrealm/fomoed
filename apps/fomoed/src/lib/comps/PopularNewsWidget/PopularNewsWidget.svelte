@@ -1,30 +1,34 @@
 <script lang="ts">
 	import NewsIcon from '$lib/icons/NewsIcon.svelte';
 	import type { AppNewsItem } from '$ts/client/services/NewsService.client.svelte';
-	import NewsHeadlineCardCompact from '../NewsHeadlineCardCompact/NewsHeadlineCardCompact.svelte';
+	import NewsHeadlineCardCompactV2 from '../NewsHeadlineCardCompact/NewsHeadlineCardCompactV2.svelte';
 
 	let { articles } = $props<{ articles: AppNewsItem[] }>();
 </script>
 
-<div
-	class="innerShadow max-w-lg mx-auto border-[0.5px] border-[#2B2B2B] py-3 px-2 bg-[#110F0E] rounded-[20px]"
->
-	<!-- Header Section -->
-	<div class="flex items-center justify-between">
-		<div class="flex items-center gap-x-2 pl-2">
-			<div class="size-5">
-				<NewsIcon />
+<div class="px-[0px] relative rounded-[20px]">
+	<div class="news_border"></div>
+	<div
+		class=" max-w-lg mx-auto border-[0.5px] border-[#2B2B2B] py-8 px-6 bg-[#070707] rounded-[20px] relative"
+	>
+		<!-- Header Section -->
+		<div class="flex items-center justify-between">
+			<div class="flex items-center pl-2 gap-x-2">
+				<div class="size-5">
+					<NewsIcon />
+				</div>
+
+				<h2 class="text-xl font-medium whitespace-nowrap">Popular News</h2>
 			</div>
-
-			<h2 class="text-lg font-bold whitespace-nowrap">Popular News</h2>
 		</div>
-	</div>
 
-	<!-- Articles -->
-	<div class="grid gap-y-4 pt-4">
-		{#each articles as article}
-			<NewsHeadlineCardCompact {article} hideBottomBar showLikeCountInHeadline />
-		{/each}
+		<!-- Articles -->
+
+		<div class=" grid pt-4 gap-y-4 bg-[#070707]">
+			{#each articles as article}
+				<NewsHeadlineCardCompactV2 {article} hideBottomBar showLikeCountInHeadline />
+			{/each}
+		</div>
 	</div>
 </div>
 

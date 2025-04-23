@@ -30,8 +30,8 @@
 
 <nav class="relative w-full z-10 flex-shrink-0 px-4 {cls} pt-3">
 	<div class="flex items-center max-w-[1050px] w-full mx-auto">
-		<div class="h-full top-0 z-10 flex items-center gap-x-4 flex-grow">
-			<a href="https://fomoed.io" class="h-10 flex items-center flex-shrink-0">
+		<div class="top-0 z-10 flex items-center flex-grow h-full gap-x-4">
+			<a href="https://fomoed.io" class="flex items-center flex-shrink-0 h-10">
 				<img src="/fomoed2.svg" alt="Fomoed." class="h-full" />
 			</a>
 
