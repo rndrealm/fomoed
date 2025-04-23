@@ -111,17 +111,63 @@ export async function loginUser(
 
 export async function forgotPassword(body: {
   email: string;
-}): Promise<{ email: string }> {
+}): Promise<LoginUserFunctionResponse> {
+  const { email } = body;
   const supabase = createSupabaseBrowserClient();
 
-  const { email } = body;
+  try {
+    const redirectTo = `https://localhost:3000/auth/forgot-password/new-password`;
 
-  // const redirectTo = `${url.protocol}//${url.host}`;
-  const redirectTo = `https://localhost:3000`;
+    const resSupabase = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo,
+    });
 
-  await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+    if (resSupabase.error) {
+      return {
+        success: false,
+        message:
+          resSupabase.error.message || "Failed to send password reset email",
+      };
+    }
 
-  return {
-    email,
-  };
+    return {
+      email,
+      success: true,
+      message: "Successfully sent password reset email",
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Something went wrong",
+    };
+  }
+}
+
+export async function setNewPassword(body: {
+  password: string;
+}): Promise<LoginUserFunctionResponse> {
+  const { password } = body;
+  const supabase = createSupabaseBrowserClient();
+
+  try {
+    const { error } = await supabase.auth.updateUser({ password });
+    if (error) {
+      return {
+        success: false,
+        message: error.message,
+      };
+    }
+
+    return {
+      success: true,
+      message: "Successfully sent password reset email",
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Something went wrong",
+    };
+  }
 }

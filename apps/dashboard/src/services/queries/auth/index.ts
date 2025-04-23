@@ -1,6 +1,11 @@
 import { useMutation } from "@tanstack/react-query";
 import { LoginUserFunctionResponse, RegisterUserPayload } from "./types";
-import { forgotPassword, loginUser, signUpNewUser } from "./mutationFunctions";
+import {
+  forgotPassword,
+  loginUser,
+  setNewPassword,
+  signUpNewUser,
+} from "./mutationFunctions";
 import { useRouter } from "next/navigation";
 import { AppRoutes } from "@/lib/routes";
 import { toast } from "sonner";
@@ -58,13 +63,46 @@ export const useLoginUser = () => {
 };
 
 export const useForgotPassword = () => {
+  const router = useRouter();
   const { mutate, isPending, isError } = useMutation({
-    mutationFn: async (
-      body: Omit<RegisterUserPayload, "username">
-    ): Promise<{ email: string }> => {
+    mutationFn: async (body: {
+      email: string;
+    }): Promise<LoginUserFunctionResponse> => {
       return await forgotPassword(body);
     },
-    onSuccess: async (data) => {},
+    onSuccess: async (data) => {
+      if (data.success) {
+        router.push(AppRoutes.auth.forgotPassword.passwordMessage.path);
+      } else {
+        toast(data.message || "Something went wrong!", {});
+      }
+    },
+    onError: (data) => {
+      toast(data.message || "Something went wrong!", {});
+    },
+  });
+  return {
+    mutate,
+    isPending,
+    isError,
+  };
+};
+
+export const useSetNewPassword = () => {
+  const router = useRouter();
+  const { mutate, isPending, isError } = useMutation({
+    mutationFn: async (body: {
+      password: string;
+    }): Promise<LoginUserFunctionResponse> => {
+      return await setNewPassword(body);
+    },
+    onSuccess: async (data) => {
+      if (data.success) {
+        router.push(AppRoutes.dashboard.path);
+      } else {
+        toast(data.message || "Something went wrong!", {});
+      }
+    },
     onError: (data) => {
       toast(data.message || "Something went wrong!", {});
     },
