@@ -31,7 +31,7 @@
 		class:!opacity-100={$innerWidth}
 	>
 		<div
-			class="flex-grow w-full max-w-screen-lg pb-16 mx-auto overflow-hidden duration-500 pt-7 -desktop:pb-0"
+			class="w-full max-w-screen-lg pb-16 mx-auto overflow-hidden duration-500  pt-7 -desktop:pb-0"
 			class:opacity-50={newsService.isFetching}
 		>
 			<div class="-desktop:px-4">
@@ -44,7 +44,7 @@
 		</div>
 
 		{#if $innerWidth && $innerWidth > DESKTOP_BREAKPOINT}
-			<div class="w-[500px] flex-grow-0">
+			<div class="w-[500px]">
 				<div class="w-full max-w-lg pt-20">
 					<CfgiWidget />
 				</div>

@@ -21,12 +21,12 @@
 {#key cfgiDataService.availableSymbols}
 	<Select.Root type="single" bind:value>
 		<Select.Trigger
-			class="w-[140px] rounded-full font-inter font-semibold !ring-0 whitespace-nowrap truncate"
+			class="w-[115px] rounded-[6px] text-[#C3C3C3] font-inter font-medium text-[13px] whitespace-nowrap truncate h-[34px]"
 		>
 			{value}
 		</Select.Trigger>
 
-		<Select.Content class="w-[140px]">
+		<Select.Content class="w-[140px] h-[174px]">
 			<Select.Group>
 				<!-- <Select.GroupHeading>Assets</Select.GroupHeading> -->
 
