@@ -141,7 +141,7 @@
 	{#if $isDesktop === true}
 		<div
 			bind:this={chartCardContainer}
-			class="inset-0 z-40"
+			class="inset-0 z-10"
 			class:absolute={!isFullscreen}
 			class:fixed={isFullscreen}
 			transition:fade={{ duration: 200 }}
@@ -150,7 +150,7 @@
 		</div>
 
 		<div
-			class="absolute inset-0 flex items-center h-full z-50 pointer-events-none duration-200"
+			class="absolute inset-0 flex items-center h-full z-10 pointer-events-none duration-200"
 			class:opacity-0={isFullscreen}
 		>
 			<div class="flex w-full relative">
@@ -198,7 +198,7 @@
 
 	<button
 		id="fullscreen-btn"
-		class="opacity-75 hover:opacity-100 duration-200 z-50 {isFullscreen && $isDesktop
+		class="opacity-75 hover:opacity-100 duration-200 z-10 {isFullscreen && $isDesktop
 			? 'translate-y-3'
 			: ''}"
 		on:click={() => (isFullscreen ? goOutFullscreen() : goInFullscreen())}

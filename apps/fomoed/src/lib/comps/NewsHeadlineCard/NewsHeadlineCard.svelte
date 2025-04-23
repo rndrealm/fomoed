@@ -11,17 +11,13 @@
 	let { article, skeleton = false }: Props = $props();
 </script>
 
-<a
-	href={article?.detailUrl}
-	class="block duration-500 max-h-[400px] -desktop:max-h-[500px] ease-in-out"
-	class:skeletoned={skeleton}
->
+<a href={article?.detailUrl} class="block duration-500 ease-in-out" class:skeletoned={skeleton}>
 	<div
-		class="font-inter bg-[#110F0E] text-white p-4 border-[0.5px] border-[#2B2B2B] rounded-[20px]"
+		class="font-inter bg-[#070707] text-white pt-10 border-[0.5px] border-[#1E1E1E] rounded-[20px]"
 	>
 		<!-- Headline -->
 		<h2
-			class="text-3xl font-bold text-white leading-snug mb-2 relative"
+			class="text-[28px] font-semibold tracking-[-0.02em] text-white leading-snug mb-[14px] relative px-8"
 			class:whitespace-pre={skeleton}
 		>
 			<TextSkeleton absolute {skeleton} wrap={false} />
@@ -30,14 +26,19 @@
 		</h2>
 
 		<!-- Summary -->
-		<p class="text-[#A6A6A6] mb-4 relative" class:whitespace-pre={skeleton}>
+		<p
+			class="text-[#919191] mb-0 relative text-[18px] leading-[135%] font-semibold tracking-[-0.02em] px-8"
+			class:whitespace-pre={skeleton}
+		>
 			<TextSkeleton absolute {skeleton} wrap={false} />
 
 			{@html article?.summary || ' '}
 		</p>
 
 		<!-- Bottom Row -->
-		<NewsHeadlineBottomBar {article} {skeleton} />
+		<div class="mt-16">
+			<NewsHeadlineBottomBar {article} {skeleton} />
+		</div>
 	</div>
 </a>
 

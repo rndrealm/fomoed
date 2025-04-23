@@ -8,7 +8,7 @@
 </script>
 
 <nav class="shadow-md px-4 -desktop:px-0 bg-[#131313] h-[80px] flex items-center">
-	<div class="px-4 lg:px-12 mx-auto flex justify-between items-center w-full">
+	<div class="flex items-center justify-between w-full px-4 mx-auto lg:px-12">
 		<!-- Logo section -->
 		<div class="flex items-center">
 			<a href="/" class="">

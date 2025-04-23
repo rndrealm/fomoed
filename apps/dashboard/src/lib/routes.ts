@@ -37,4 +37,8 @@ export const AppRoutes = {
     name: "Dashboard",
     path: "/dashboard",
   },
+  pricing: {
+    name: "Pricing",
+    path: "/pricing",
+  },
 };

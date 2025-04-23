@@ -54,6 +54,12 @@
   --color-border: rgba(255, 255, 255, 0.1);
 
   --font-inter: "Inter", sans-serif;
+
+  --background-image-gradient-100: linear-gradient(
+    180deg,
+    #121212 -22.5%,
+    #1e1e1e 217.5%
+  );
 }
 
 :root {
@@ -133,5 +139,28 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+.gradient_border {
+  position: absolute;
+
+  border-radius: inherit;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    #000000 0%,
+    #666666 50%,
+    #000000 100%
+  );
+  animation: animate_gradient 5s linear infinite;
+  inset: -10000%;
+}
+
+@keyframes animate_gradient {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }

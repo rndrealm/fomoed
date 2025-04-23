@@ -27,15 +27,15 @@
 	});
 </script>
 
-<main class="pt-[80px] bg-[#090909]">
+<main class="pt-[7rem] bg-[#090909]">
 	<NewsAssetPriceRow />
 
 	<div
-		class="flex justify-center gap-x-4 px-16 -desktop:flex-col -desktop:px-0 opacity-0 transition-opacity duration-1000 overflow-hidden"
+		class="flex justify-center px-16 transition-opacity duration-1000 opacity-0 gap-x-4 -desktop:flex-col -desktop:px-0"
 		class:!opacity-100={$innerWidth}
 	>
 		<div
-			class="max-w-screen-lg mx-auto pt-7 pb-16 -desktop:pb-0 flex-grow duration-500 w-full overflow-hidden"
+			class="w-full max-w-screen-lg pb-16 mx-auto overflow-hidden duration-500 pt-7 -desktop:pb-0"
 			class:opacity-50={newsService.isFetching}
 		>
 			<div class="-desktop:px-4">
@@ -48,16 +48,12 @@
 		</div>
 
 		{#if $innerWidth && $innerWidth > DESKTOP_BREAKPOINT}
-			<div class="w-[500px] flex-grow-0">
-				<div class="pt-20 max-w-lg w-full">
+			<div class="w-[700px]">
+				<div class="w-full max-w-lg pt-20">
 					<CfgiWidget />
 				</div>
 
-				<!-- <div class="pt-4 max-w-lg w-full">
-					<NewsLabPostsWidget posts={newsService.newsLabPosts} />
-				</div> -->
-
-				<div class="pt-4 max-w-lg w-full">
+				<div class="w-full max-w-lg pt-4">
 					<PopularNewsWidget articles={newsService.popularNews} />
 				</div>
 			</div>

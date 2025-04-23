@@ -33,7 +33,7 @@ export const newsTokenOpts = derived(
 export type NewsFilterOption = { value: NewsFilterVal; label: string };
 
 export const newsFilterOpts: NewsFilterOption[] = [
-	{ value: 'all', label: 'ALL' },
+	{ value: 'all', label: 'All' },
 	{ value: 'rising', label: 'Rising' },
 	{ value: 'hot', label: 'Hot' },
 	{ value: 'bullish', label: 'Bullish' },

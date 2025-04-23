@@ -100,7 +100,7 @@ export default function Page() {
               <GoogleLogin />
             </div>
 
-            <div className="flex items-center justify-center gap-[2px]">
+            <div className="flex items-center justify-center gap-[3px]">
               <p className="text-center font-medium text-sm leading-[1.35] text-[#5c5c5c]">
                 Forgot Password?{" "}
               </p>

@@ -36,20 +36,20 @@
 </nav> -->
 
 <nav class="relative flex h-[75px] items-center justify-center w-full z-10">
-	<div class="absolute h-full left-4 top-0 flex items-center">
+	<div class="absolute top-0 flex items-center h-full left-4">
 		<img src="/fomoed2.svg" alt="Fomoed." class="h-10 -xs:hidden" />
 
 		<img src="/fomoed-icon.svg" alt="Fomoed." class="h-10 xs:hidden" />
 	</div>
 
-	<div class="font-paralucent font-medium flex gap-x-8 -sm:hidden">
+	<div class="flex font-medium font-paralucent gap-x-8 -sm:hidden">
 		<!-- <Navlink href="/about">About</Navlink> -->
 		<Navlink href="/plans">Plans</Navlink>
 		<Navlink href="/dashboard">Dashboard</Navlink>
 		<Navlink href="/news">News</Navlink>
 	</div>
 
-	<div class="absolute right-4 items-center flex">
+	<div class="absolute flex items-center right-4">
 		<div class="sm:hidden">
 			<DashboardButton />
 		</div>
