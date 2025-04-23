@@ -9,6 +9,7 @@
 	import DashboardCarousel from '$lib/comps/dashboard/DashboardCarousel.svelte';
 	import { disableDashboardScroll, innerHeight, isDesktop, isMobile } from '$lib/stores/ui';
 	import NewsCardContent from '$lib/comps/dashboard/NewsCardContent.svelte';
+	import NavBar from '$lib/comps/NewNavbar/NavBar.svelte';
 
 	let smallChartsCointainer: HTMLElement;
 	let scrollY = 0;
@@ -22,17 +23,17 @@
 	style="height: {$innerHeight}px;"
 	onscroll={(e) => (scrollY = e.target?.scrollTop)}
 >
-	<div
+	<!-- <div
 		class="fixed top-0 w-full z-40 -desktop:bg-[50%_50%]"
 		style="backdrop-filter: brightness({1 - Math.min(0.7, scrollY / 100)}) blur(16px);"
-	>
-		<AppNav showCurrencyDropdown showsAllNewsLinkOnDesktop />
-	</div>
+	> -->
+	<NavBar />
+	<!-- <AppNav showCurrencyDropdown showsAllNewsLinkOnDesktop /> -->
 
 	<div class="bg-[url(/background/dashboard.svg)] inset-0 fixed min-h-screen bg-cover -z-10"></div>
 
 	<div
-		class="flex-grow grid place-items-center desktop:pb-8 desktop:mx-4 duration-200 pt-20 snap-start"
+		class="flex-grow grid place-items-center desktop:pb-8 desktop:mx-4 duration-200 pt-[7rem] snap-start"
 		class:opacity-0={$isDesktop === null}
 	>
 		<div
