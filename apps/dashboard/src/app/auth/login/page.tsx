@@ -117,7 +117,7 @@ export default function Page() {
         <div className="flex w-full">
           <FormBottomDivider />
         </div>
-        <FormBottomLink href="#" linkText="Sign Up" />
+        <FormBottomLink href={AppRoutes.auth.path} linkText="Sign Up" />
       </div>
     </div>
   );

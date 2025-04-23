@@ -23,6 +23,14 @@ export const AppRoutes = {
       name: "Authenticate Mail",
       path: "/auth/mail-authenticate",
     },
+    forgotPassword: {
+      name: "Forgot Password",
+      path: "/auth/forgot-password",
+      newPassword: {
+        name: "New Password",
+        path: "/auth/forgot-password/new-password",
+      },
+    },
   },
   dashboard: {
     name: "Dashboard",
