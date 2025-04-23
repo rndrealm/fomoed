@@ -6,6 +6,7 @@ import { FormBottomLink, SubmitButton, TextInput } from "@/components/auth";
 import ArrowRight from "@/components/icons/ArrowRight";
 import FormLogo from "@/components/icons/FormLogo";
 import FormBottomDivider from "@/components/icons/FormBottomDivider";
+import { AppRoutes } from "@/lib/routes";
 
 const validationSchema = Yup.object().shape({
   password: Yup.string().required("Please enter your password"),
@@ -89,7 +90,11 @@ export default function Page() {
         <div className="flex w-full">
           <FormBottomDivider />
         </div>
-        <FormBottomLink href="#" infoText="Return To" linkText="Sign In" />
+        <FormBottomLink
+          href={AppRoutes.auth.login.path}
+          infoText="Return To"
+          linkText="Sign In"
+        />
       </div>
     </div>
   );
