@@ -4,16 +4,17 @@
 	import LikeIconFull from '$lib/icons/LikeIconFull.svelte';
 	import SentimentPill from '$lib/comps/custom/SentimentPill/SentimentPill.svelte';
 	import { timeAgo } from '$ts/client/utils';
-	import type { AppNewsItem } from '$ts/client/services/NewsService.client.svelte';
 	import SharePopupButton from '$lib/comps/SharePopup/SharePopupButton.svelte';
 	import { likesService } from '$ts/client/services/LikesService.client.svelte';
 	import { bookmarksService } from '$ts/client/services/BookmarksService.client.svelte';
 	import toast from 'svelte-5-french-toast';
 	import { Bookmark } from 'lucide-svelte';
 	import { goto } from '$app/navigation';
+	import type { PostLike } from '$ts/client/types/posts';
+	import { userService } from '$ts/client/services/UserService.svelte';
 
 	type Props = {
-		article: AppNewsItem;
+		article: PostLike;
 		showSourceAndTime?: boolean;
 		skeleton?: boolean;
 	};
@@ -78,6 +79,7 @@
 	<div class="flex flex-shrink-0 -desktop:w-full items-center gap-x-2 w-full">
 		<!-- Likes -->
 		<button
+			disabled={!userService.isLoggedIn}
 			onclick={handleLikeToggle}
 			class="flex items-center gap-1 flex-shrink-0 justify-start group py-2 pr-1"
 		>

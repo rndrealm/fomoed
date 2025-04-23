@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useCallback } from "react";
 import Chart from "chart.js/auto";
 
 import "chartjs-adapter-dayjs-4/dist/chartjs-adapter-dayjs-4.esm";
@@ -29,7 +29,7 @@ const LiquidationChart = (props: ICfgiCard) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
 
-  function chart_init(ctx: CanvasRenderingContext2D) {
+  const chart_init = useCallback((ctx: CanvasRenderingContext2D) => {
     const gradientLong = ctx.createLinearGradient(0, 0, 0, 400);
     gradientLong.addColorStop(0, "#22AB9422");
     gradientLong.addColorStop(1, "#22AB9400");
@@ -184,8 +184,10 @@ const LiquidationChart = (props: ICfgiCard) => {
               },
             },
           },
+          // @ts-expect-error HOTFIX
           interaction: false,
           plugins: {
+            // @ts-expect-error HOTFIX
             crosshair: crosshairPluginOptions,
             legend: {
               display: false,
@@ -224,14 +226,15 @@ const LiquidationChart = (props: ICfgiCard) => {
     }
 
     chartRef.current?.resize();
-  }
+  }, [liquidationData]);
 
   useEffect(() => {
     if (!canvasRef.current) return;
     const ctx = canvasRef.current?.getContext("2d");
     if (!ctx) return;
     chart_init(ctx);
-  }, [liquidationData, viewOption]);
+  }, [liquidationData, viewOption, chart_init]);
+  
   return (
     <div className="relative w-full h-full pb-1">
       <canvas width="400" height={0} ref={canvasRef}></canvas>

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useCallback } from "react";
 import Chart from "chart.js/auto";
 import type {
   ChartDataset,
@@ -13,7 +13,6 @@ import "chartjs-adapter-dayjs-4/dist/chartjs-adapter-dayjs-4.esm";
 import type { ZoomPluginOptions } from "chartjs-plugin-zoom/types/options";
 import dayjs from "dayjs";
 import { registerChartPluginZoomInBrowser } from "@/charts/helpers";
-import type { _DeepPartialObject } from "chart.js/dist/types/utils";
 import { CfgiDataResponse } from "@/services/queries/charts/types";
 
 import {
@@ -38,7 +37,7 @@ const SimpleCfgiChart = (props: ICfgiCard) => {
   const chartRef = useRef<Chart | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  function chart_init(ctx: CanvasRenderingContext2D) {
+  const chart_init = useCallback((ctx: CanvasRenderingContext2D) => {
     const formatted_data = data.filter((d) => d.cfgi);
     const cfgi_data = formatted_data.map((c) => c.cfgi);
 
@@ -76,7 +75,7 @@ const SimpleCfgiChart = (props: ICfgiCard) => {
         threshold: 0,
       },
       limits: {
-        x: { minRange: 1000 * 60 * 60 * 24 * 1, min: minDate, max: maxDate },
+        x: { minRange: 1000 * 60 * 60 * 24 * 1, min: minDate as any, max: maxDate as any },
         y: { min: 0 },
       },
     };
@@ -98,16 +97,10 @@ const SimpleCfgiChart = (props: ICfgiCard) => {
         },
       ],
       crosshairEnableDelay: 200,
+      labelStackDirection: "vertical",
     };
 
-    const options: _DeepPartialObject<
-      CoreChartOptions<"bar"> &
-        ElementChartOptions<"bar"> &
-        PluginChartOptions<"bar"> &
-        DatasetChartOptions<"bar"> &
-        ScaleChartOptions<"bar"> &
-        LineControllerChartOptions
-    > = {
+    const options = {
       animation: {
         duration: 0,
       },
@@ -178,7 +171,7 @@ const SimpleCfgiChart = (props: ICfgiCard) => {
         datasets: [cfgiData],
       },
       options,
-    });
+    } as any);
     if (!containerRef.current) return;
     const gradient = ctx.createLinearGradient(
       0,
@@ -194,14 +187,14 @@ const SimpleCfgiChart = (props: ICfgiCard) => {
     chartRef.current.update();
 
     chartRef.current.resize();
-  }
+  }, [data]);
 
   useEffect(() => {
     if (!canvasRef.current) return;
     const ctx = canvasRef.current?.getContext("2d");
     if (!ctx) return;
     chart_init(ctx);
-  }, [data, viewOption]);
+  }, [data, viewOption, chart_init]);
   return (
     <div ref={containerRef} className="w-full h-full pb-1">
       <canvas width="400" height={0} ref={canvasRef}></canvas>

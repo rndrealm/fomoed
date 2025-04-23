@@ -1,13 +1,7 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useCallback } from "react";
 import Chart from "chart.js/auto";
 import type {
   ChartDataset,
-  CoreChartOptions,
-  DatasetChartOptions,
-  ElementChartOptions,
-  LineControllerChartOptions,
-  PluginChartOptions,
-  ScaleChartOptions,
 } from "chart.js/auto";
 import "chartjs-adapter-dayjs-4/dist/chartjs-adapter-dayjs-4.esm";
 import type { ZoomPluginOptions } from "chartjs-plugin-zoom/types/options";
@@ -16,7 +10,6 @@ import {
   commaFormatNumber,
   registerChartPluginZoomInBrowser,
 } from "@/charts/helpers";
-import type { _DeepPartialObject } from "chart.js/dist/types/utils";
 import { CfgiDataResponse } from "@/services/queries/charts/types";
 
 import {
@@ -47,7 +40,8 @@ const DetailedCfgiChart = (props: ICfgiCard) => {
           ? "#399F57"
           : "#05A5A6";
   }
-  function chart_init(ctx: CanvasRenderingContext2D) {
+
+  const chart_init = useCallback((ctx: CanvasRenderingContext2D) => {
     const data = cfgiData.filter((d) => d.price && d.cfgi);
 
     const prices_data = data.map((d) => {
@@ -63,7 +57,7 @@ const DetailedCfgiChart = (props: ICfgiCard) => {
 
     const chart_bar_data: ChartDataset<"bar"> = {
       type: "bar",
-      data: cfgi_data,
+      data: cfgi_data as any,
       backgroundColor: cfgi_data.map((c) => get_data_color(c.y)),
       yAxisID: "indexY",
       xAxisID: "x",
@@ -77,7 +71,7 @@ const DetailedCfgiChart = (props: ICfgiCard) => {
 
     const chart_line_data: ChartDataset<"line"> = {
       type: "line",
-      data: prices_data,
+      data: prices_data as any,
       yAxisID: "priceY",
       xAxisID: "x",
       label: "Price",
@@ -111,7 +105,7 @@ const DetailedCfgiChart = (props: ICfgiCard) => {
         threshold: 0,
       },
       limits: {
-        x: { minRange: periodSeconds * 1000, min: minDate, max: maxDate },
+        x: { minRange: periodSeconds * 1000, min: minDate as any, max: maxDate as any },
       },
     };
 
@@ -137,16 +131,10 @@ const DetailedCfgiChart = (props: ICfgiCard) => {
         },
       ],
       crosshairEnableDelay: 200,
+      labelStackDirection: "vertical",
     };
 
-    const options: _DeepPartialObject<
-      CoreChartOptions<"bar"> &
-        ElementChartOptions<"bar"> &
-        PluginChartOptions<"bar"> &
-        DatasetChartOptions<"bar"> &
-        ScaleChartOptions<"bar"> &
-        LineControllerChartOptions
-    > = {
+    const options = {
       interaction: false,
       responsive: false,
       maintainAspectRatio: false,
@@ -237,20 +225,21 @@ const DetailedCfgiChart = (props: ICfgiCard) => {
         : [chart_bar_data, chart_line_data];
     if (canvasRef.current) {
       chartRef.current = new Chart(canvasRef.current, {
-        data: { datasets: chartType },
-        options,
+        data: { datasets: chartType as any },
+        options: options as any,
       });
     }
 
     chartRef.current?.resize();
-  }
+  }, [cfgiData, viewOption]);
 
   useEffect(() => {
     if (!canvasRef.current) return;
     const ctx = canvasRef.current?.getContext("2d");
     if (!ctx) return;
     chart_init(ctx);
-  }, [cfgiData, viewOption]);
+  }, [cfgiData, viewOption, chart_init]);
+
   return <canvas width="400" height={0} ref={canvasRef}></canvas>;
 };
 

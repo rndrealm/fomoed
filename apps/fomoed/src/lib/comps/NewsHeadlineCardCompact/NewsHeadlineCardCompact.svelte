@@ -9,9 +9,11 @@
 	import LikeIcon from '$lib/icons/LikeIcon.svelte';
 	import LikeIconFull from '$lib/icons/LikeIconFull.svelte';
 	import { fade } from 'svelte/transition';
+	import type { PostLike } from '$ts/client/types/posts';
+	import { userService } from '$ts/client/services/UserService.svelte';
 
 	type Props = {
-		article: AppNewsItem;
+		article: PostLike;
 		hideBottomBar?: boolean;
 		showLikeCountInHeadline?: boolean;
 	};
@@ -59,8 +61,9 @@
 			<!-- Like Button -->
 			{#if showLikeCountInHeadline}
 				<button
+					disabled={!userService.isLoggedIn}
 					onclick={handleLikeToggle}
-					class="text-[#A6A6A6] font-medium flex items-center"
+					class="text-[#A6A6A6] font-medium flex items-center disabled:opacity-50"
 					title="Like this article"
 				>
 					<div class="px-2">

@@ -4,13 +4,13 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import type { AppComment } from '$ts/client/services/CommentsService.client.svelte';
-	import type { AppNewsItem } from '$ts/client/services/NewsService.client.svelte';
+	import type { PostLike } from '$ts/client/types/posts';
 
 	let {
 		newsItem,
 		onCommentAdded = () => {}
 	}: {
-		newsItem: AppNewsItem;
+		newsItem: PostLike;
 		onCommentAdded?: (comment: AppComment) => void;
 	} = $props();
 

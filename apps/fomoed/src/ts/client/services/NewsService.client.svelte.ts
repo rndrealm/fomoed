@@ -1,5 +1,5 @@
 import { coinstats_coin_list } from '$lib/stores';
-import type { NewsFilterVal, NewsItem, NewsKindVal } from '$ts/types';
+import type { NewsFilterVal, NewsKindVal } from '$ts/types';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { derived, writable } from 'svelte/store';
 import { getArticleDetailHref } from '../utils/ui';
@@ -7,6 +7,7 @@ import type { ParsedArticle } from '$ts/common/types';
 import type { NewsFeedResponseData, TypedServerResponse } from '$ts/common/api.types';
 import { BaseService } from './BaseService.client.svelte';
 import type { NewsRow } from '$ts/server/db/NewsTable';
+import type { PostLike } from '$ts/client/types/posts';
 
 export type NewsTokenOption = { value: string; label: string; icon: string | null };
 
@@ -50,29 +51,24 @@ export const newsKindOpts: NewsKindOption[] = [
 	{ value: 'media', label: 'Media' }
 ];
 
-interface NewsLikesMixin {
+export interface PostLikesMixin {
 	// This contains only the likes on the post of the current user
 	// -- zero or one items
 	news_likes: { id: number }[];
 }
 
-interface NewsBookmarksMixin {
+export interface PostBookmarksMixin {
 	// This contains only the bookmarks on the post of the current user
 	// -- zero or one items
 	news_bookmarks: { id: number }[];
 }
 
-export type AppNewsItem = {
-	detailUrl: string;
-	userLiked: boolean;
-	userBookmarked: boolean;
-} & NewsRow &
-	NewsLikesMixin &
-	NewsBookmarksMixin;
+export type AppNewsItem = NewsRow & PostLike;
 
 export class NewsService extends BaseService {
 	news = $state<AppNewsItem[]>([]);
 	popularNews = $state<AppNewsItem[]>([]);
+	newsLabPosts = $state<PostLike[]>([]);
 
 	hasNextPage = writable(true);
 	currentPage = $state(1);
@@ -91,7 +87,7 @@ export class NewsService extends BaseService {
 		this.#page = 1;
 	}
 
-	#transformNewsItem(item: NewsRow & NewsLikesMixin & NewsBookmarksMixin): AppNewsItem {
+	#transformNewsItem(item: NewsRow & PostLikesMixin & PostBookmarksMixin): AppNewsItem {
 		let detailUrl: string;
 
 		if (item.source.toLowerCase().includes('twitter')) {
@@ -188,6 +184,26 @@ export class NewsService extends BaseService {
 		}
 
 		this.popularNews = data.map(this.#transformNewsItem);
+
+		return true;
+	}
+
+	async fetchNewsLabPosts(): Promise<boolean> {
+		const { data, error } = await this.supabase
+			.from('news')
+			.select('*, news_likes(id), news_bookmarks(id)')
+			.eq('source', 'NewsLab')
+			.order('published_at', { ascending: false })
+			.limit(3);
+
+		if (error) {
+			console.error('Error fetching news lab posts:', error);
+
+			this.newsLabPosts = [];
+			return false;
+		}
+
+		this.newsLabPosts = data.map(this.#transformNewsItem);
 
 		return true;
 	}

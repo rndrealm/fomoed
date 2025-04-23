@@ -1,9 +1,10 @@
 <script lang="ts">
 	import ArticleBelowHeadingBar from '$lib/comps/ArticleBelowHeadingBar/ArticleBelowHeadingBar.svelte';
-	import type { AppNewsItem } from '$ts/client/services/NewsService.client.svelte';
+	import type { PostLike } from '$ts/client/types/posts';
+	import { embedWidgets } from '$ts/client/utils/posts';
 
 	let { article, articleContent } = $props<{
-		article: AppNewsItem;
+		article: PostLike;
 		articleContent: string;
 	}>();
 </script>
@@ -17,7 +18,7 @@
 <div
 	class="_article_content_container font-inter pt-8 text-new-white leading-relaxed -desktop:text-justify"
 >
-	{@html articleContent}
+	{@html embedWidgets(articleContent)}
 </div>
 
 <ArticleBelowHeadingBar {article} />

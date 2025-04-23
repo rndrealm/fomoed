@@ -3,6 +3,7 @@
 	import Comment from './Comment.svelte';
 	import CommentInput from '$lib/comps/CommentInput/CommentInput.svelte';
 	import type { AppNewsItem } from '$ts/client/services/NewsService.client.svelte';
+	import type { PostLike } from '$ts/client/types/posts';
 
 	let {
 		comments: initialComments = [],
@@ -10,7 +11,7 @@
 		onCommentAdded = (comment: AppComment) => {}
 	}: {
 		comments: AppComment[];
-		newsItem: AppNewsItem;
+		newsItem: PostLike;
 		onCommentAdded?: (comment: AppComment) => void;
 	} = $props();
 
