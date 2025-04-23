@@ -9,7 +9,6 @@
 	import { DESKTOP_BREAKPOINT, innerWidth } from '$lib/stores/ui';
 	import toast from 'svelte-5-french-toast';
 	import NewsLabPostsWidget from '$lib/comps/NewsLabPostsWidget/NewsLabPostsWidget.svelte';
-	import { newsLabPostsService } from '$ts/client/services/NewsLabPostsService.client.svelte';
 
 	onMount(async () => {
 		if (!newsService.news.length) {
@@ -19,10 +18,11 @@
 					toast.error('Failed to fetch popular news');
 				}
 			});
-		}
-
-		if (!newsLabPostsService.posts.length) {
-			newsLabPostsService.fetchPosts();
+			newsService.fetchNewsLabPosts().then((ok) => {
+				if (!ok) {
+					toast.error('Failed to fetch news lab posts');
+				}
+			});
 		}
 	});
 </script>
@@ -54,7 +54,7 @@
 				</div>
 
 				<div class="pt-4 max-w-lg w-full">
-					<NewsLabPostsWidget posts={newsLabPostsService.posts} />
+					<NewsLabPostsWidget posts={newsService.newsLabPosts} />
 				</div>
 
 				<div class="pt-4 max-w-lg w-full">

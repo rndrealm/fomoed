@@ -15,10 +15,9 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import Self from './Comment.svelte';
-	import type { AppNewsItem } from '$ts/client/services/NewsService.client.svelte';
 	import { slide } from 'svelte/transition';
-	import { EditIcon, HeartIcon, PencilIcon, ReplyIcon, TrashIcon, UserIcon } from 'lucide-svelte';
-	import { min } from 'lodash-es';
+	import { HeartIcon, PencilIcon, ReplyIcon, TrashIcon, UserIcon } from 'lucide-svelte';
+	import type { PostLike } from '$ts/client/types/posts';
 
 	let {
 		comment,
@@ -28,7 +27,7 @@
 		onDelete = (oldComment: AppComment) => {}
 	}: {
 		comment: AppComment;
-		newsItem: AppNewsItem;
+		newsItem: PostLike;
 		showReplies?: boolean;
 		isReply?: boolean;
 		onDelete?: (oldComment: AppComment) => void;

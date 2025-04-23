@@ -6,7 +6,7 @@
 	import ArticleRenderer from '$lib/comps/custom/ArticleRenderer/ArticleRenderer.svelte';
 	import { DESKTOP_BREAKPOINT, innerWidth } from '$lib/stores/ui';
 	import { cfgi_supported_tokens } from '$lib/utils/cfgi_data';
-	import { newsService, type AppNewsItem } from '$ts/client/services/NewsService.client.svelte.ts';
+	import { newsService } from '$ts/client/services/NewsService.client.svelte.ts';
 	import {
 		commentsService,
 		type AppComment
@@ -17,6 +17,7 @@
 	import { getContext, onMount, tick } from 'svelte';
 	import toast from 'svelte-5-french-toast';
 	import NewsPath from '$lib/comps/NewsPath/NewsPath.svelte';
+	import type { PostLike } from '$ts/client/types/posts';
 
 	const { base64originalUrl } = page.params;
 
@@ -25,7 +26,7 @@
 	let isLoading = $state(true);
 	let isLoadingComments = $state(true);
 
-	let article: AppNewsItem | null = $state(null);
+	let article: PostLike | null = $state(null);
 	let parsedArticle: ParsedArticle | null = $state(null);
 	let comments: AppComment[] = $state([]);
 
@@ -33,7 +34,10 @@
 		const originalUrl = decodeFromBase64(base64originalUrl);
 
 		parsedArticle = await newsService.getParsedArticleUsingProxy(originalUrl);
-		article = await newsService.getArticleByOriginalUrl(supabase, originalUrl);
+
+		if (!article) {
+			article = await newsService.getArticleByOriginalUrl(supabase, originalUrl);
+		}
 
 		isLoading = false;
 
@@ -71,7 +75,7 @@
 		</div>
 	</div>
 
-	<div class="max-w-screen-xl mx-auto pt-12 pb-16 px-4 overflow-hidden">
+	<div class="max-w-screen-xl mx-auto pt-14 pb-16 px-4 overflow-hidden">
 		{#if isLoading}
 			<!-- Loading state -->
 			<div class="flex justify-center items-center h-64">
@@ -80,7 +84,7 @@
 		{:else if article && parsedArticle}
 			<!-- Article content -->
 			<div class="mx-auto flex gap-x-8 overflow-hidden">
-				<div class="max-w-screen-lg flex-shrink w-full">
+				<div class="max-w-screen-lg flex-shrink w-full overflow-hidden">
 					<ArticleRenderer {article} articleContent={parsedArticle.htmlContent} />
 
 					<div class="pt-6 w-full">

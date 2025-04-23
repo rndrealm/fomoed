@@ -1,7 +1,7 @@
 import { BaseService } from './BaseService.client.svelte';
 import type { CommentLikesRow, CommentRow, PublicUserDataRow } from '$ts/common/db.types';
 import { userService } from './UserService.svelte';
-import type { AppNewsItem } from './NewsService.client.svelte';
+import type { PostLike } from '$ts/client/types/posts';
 
 export type AppComment = CommentRow & {
 	public_user_data: PublicUserDataRow;
@@ -97,7 +97,7 @@ export class CommentsService extends BaseService {
 	}
 
 	async addComment(
-		newsItem: AppNewsItem,
+		newsItem: PostLike,
 		content: string,
 		parentId: number | null = null
 	): Promise<AppComment | null> {
@@ -171,7 +171,7 @@ export class CommentsService extends BaseService {
 		return updatedComment;
 	}
 
-	async deleteComment(commentId: number, newsItem: AppNewsItem): Promise<boolean> {
+	async deleteComment(commentId: number, newsItem: PostLike): Promise<boolean> {
 		if (!this.supabase || !userService.authUser) {
 			console.error('Supabase client not available or user not logged in');
 			return false;

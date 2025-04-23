@@ -24,6 +24,5 @@ export type PostLike = {
 	symbols: string[];
 	likes_count: number;
 	comments_count: number;
-	allowInteraction: boolean;
 } & DetailUrlMixin &
 	PostUserInteractionMixin;
