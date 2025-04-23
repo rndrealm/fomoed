@@ -6,6 +6,17 @@ import type { CryptopanicNewsApiResponse } from '$ts/server/types/api/cryptopani
 import { Readability } from '@mozilla/readability';
 import { JSDOM } from 'jsdom';
 import type { NewsFeedResponseData } from '$ts/common/api.types';
+import { PUBLIC_NEWSLAB_URL } from '$env/static/public';
+
+type ApiNewsLabPost = {
+	id: string;
+	title: string;
+	content: string;
+	created_at: string;
+	metadata: {
+		ref_tokens: string[];
+	};
+};
 
 export class NewsService {
 	/**
@@ -52,6 +63,52 @@ export class NewsService {
 		const json: CryptopanicNewsApiResponse = await res.json();
 
 		return json;
+	}
+
+	async fetchRowsFromNewsLab(): Promise<Partial<NewsRowInsert>[]> {
+		console.log('Fetching newslab posts');
+
+		const newsRows: Partial<NewsRowInsert>[] = [];
+
+		const url = new URL('/api/newslab-posts', PUBLIC_NEWSLAB_URL);
+
+		let res: Response;
+
+		try {
+			res = await fetch(url);
+		} catch (error) {
+			console.error('Failed to fetch newslab posts:', error);
+			return [];
+		}
+
+		let json: ApiNewsLabPost[];
+
+		try {
+			json = await res.json();
+		} catch (error) {
+			console.error('Failed to parse newslab posts:', error);
+			return [];
+		}
+
+		for (const post of json) {
+			const originalUrl = PUBLIC_NEWSLAB_URL + '/api/newslab-posts/' + post.id;
+
+			const rowInsert: Partial<NewsRowInsert> = {
+				id: post.id,
+				original_url: originalUrl,
+				published_at: post.created_at,
+				source: 'NewsLab',
+				image_url: null,
+				sentiment: 'neutral',
+				summary: 'No summary',
+				symbols: post.metadata.ref_tokens,
+				title: post.title
+			};
+
+			newsRows.push(rowInsert);
+		}
+
+		return newsRows;
 	}
 
 	async fetchNewsV2({
@@ -121,7 +178,14 @@ export class NewsService {
 			ids.push(appId);
 		}
 
-		await NewsTable.upsert(newsRows);
+		// Append news from newslab from
+		const newsLabPosts = await this.fetchRowsFromNewsLab();
+
+		const concatPostUpserts = [...newsRows, ...newsLabPosts];
+
+		await NewsTable.upsert(concatPostUpserts);
+
+		console.log(newsLabPosts);
 
 		const responseData: NewsFeedResponseData = {
 			count: json.count,

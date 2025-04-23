@@ -11,6 +11,7 @@
 	import { Bookmark } from 'lucide-svelte';
 	import { goto } from '$app/navigation';
 	import type { PostLike } from '$ts/client/types/posts';
+	import { userService } from '$ts/client/services/UserService.svelte';
 
 	type Props = {
 		article: PostLike;
@@ -78,7 +79,7 @@
 	<div class="flex flex-shrink-0 -desktop:w-full items-center gap-x-2 w-full">
 		<!-- Likes -->
 		<button
-			disabled={!article?.allowInteraction}
+			disabled={!userService.isLoggedIn}
 			onclick={handleLikeToggle}
 			class="flex items-center gap-1 flex-shrink-0 justify-start group py-2 pr-1"
 		>

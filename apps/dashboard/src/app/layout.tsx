@@ -27,8 +27,9 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en">
-            <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        // Keep h-full for filling vertical space in iframes.
+        <html lang="en" className="h-full">
+            <body className={`${geistSans.variable} ${geistMono.variable} antialiased h-full`}>
                 <QueryProvider>{children}</QueryProvider>
                 <Toaster />
             </body>
