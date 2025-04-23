@@ -81,7 +81,10 @@ export default function Page() {
                         onBlur={handleBlur}
                       />
                       <div className="">
-                        <SubmitButton isLoading={false} disabled={false}>
+                        <SubmitButton
+                          isLoading={isPending}
+                          disabled={isPending}
+                        >
                           Login
                           <ArrowRight />
                         </SubmitButton>

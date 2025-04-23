@@ -6,6 +6,19 @@ export const AppRoutes = {
       name: "Login",
       path: "/auth/login",
     },
+    forgotPassword: {
+      name: "Forgot Password",
+      path: "/auth/forgot-password",
+      passwordMessage: {
+        name: "Password Message",
+        path: "/auth/forgot-password/password-message",
+      },
+      newPassword: {
+        name: "New Password",
+        path: "/auth/forgot-password/new-password",
+      },
+    },
+
     mailAuthenticate: {
       name: "Authenticate Mail",
       path: "/auth/mail-authenticate",

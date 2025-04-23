@@ -6,6 +6,7 @@ import { FormBottomLink, SubmitButton, TextInput } from "@/components/auth";
 import ArrowRight from "@/components/icons/ArrowRight";
 import FormLogo from "@/components/icons/FormLogo";
 import FormBottomDivider from "@/components/icons/FormBottomDivider";
+import { useForgotPassword } from "@/services/queries/auth";
 import { AppRoutes } from "@/lib/routes";
 
 const validationSchema = Yup.object().shape({
@@ -21,13 +22,15 @@ const initialValues = {
 type InitialValues = ReturnType<() => typeof initialValues>;
 
 export default function Page() {
+  const { mutate, isPending } = useForgotPassword();
   const onSubmit = (_values: InitialValues) => {
+    mutate(_values);
     console.log(_values);
   };
 
   return (
     <div className="min-h-screen w-full bg-[#000] flex flex-col pb-8 px-4">
-      <div className="flex-1 flex items-center justify-center h-full">
+      <div className="flex items-center justify-center flex-1 h-full">
         <div className="max-w-[418px] w-full  flex flex-col gap-5">
           <div className="flex justify-center">
             <FormLogo />
@@ -64,7 +67,10 @@ export default function Page() {
                       />
 
                       <div className="">
-                        <SubmitButton isLoading={false} disabled={false}>
+                        <SubmitButton
+                          isLoading={isPending}
+                          disabled={isPending}
+                        >
                           Continue
                           <ArrowRight />
                         </SubmitButton>
