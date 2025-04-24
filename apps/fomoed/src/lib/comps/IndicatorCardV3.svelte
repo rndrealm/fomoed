@@ -19,11 +19,14 @@
 	import Copy from '$lib/icons/social/Copy.svelte';
 	import { fade } from 'svelte/transition';
 	import LoadingAnim from './animations/LoadingAnim.svelte';
-	import GaugeV2 from './indicator/GaugeV2.svelte';
+	import GaugeV3 from './indicator/GaugeV3.svelte';
 	import { enableXmas } from '$ts/utils/client/ui';
 	import Meta from '$lib/icons/social/Meta.svelte';
 	import Send from '$lib/icons/social/Send.svelte';
 	import CopyV2 from '$lib/icons/social/CopyV2.svelte';
+	import FearLogo from '$lib/icons/FearLogo.svelte';
+	import { tweened } from 'svelte/motion';
+	import { cubicOut } from 'svelte/easing';
 
 	export let onHomepage = false;
 	export let prev = 0;
@@ -171,6 +174,17 @@
 	});
 
 	let loadingIsOut = false;
+
+	// Create a tweened store for smooth animation of the gradient intensity
+	const gradientIntensity = tweened(0.3, {
+		duration: 800,
+		easing: cubicOut
+	});
+
+	// Update the gradient intensity whenever percentage changes
+	$: {
+		gradientIntensity.set(0.3 + (percentage * 0.7) / 100);
+	}
 </script>
 
 <div
@@ -179,7 +193,7 @@
 >
 	<div class="flex flex-col">
 		<div class="relative w-full">
-			<div class="relative flex items-center justify-center">
+			<div class="relative flex items-center justify-center px-[52px] mb-4">
 				<!-- <div
 					class="absolute top-0 left-0 flex flex-col justify-center pl-[51px] gap-1 h-full duration-500"
 					class:opacity-0={!$cfgi_summary}
@@ -194,40 +208,31 @@
 						<div class="opacity-80 font-paralucent text-[10px]">{average}</div>
 					</div>
 				</div> -->
-				<GaugeV2 percentage={$cfgi_summary ? percentage : 0} />
+				<GaugeV3 percentage={$cfgi_summary ? percentage : 0} />
 			</div>
 
-			<div class="absolute inset-x-0 flex items-center justify-center bottom-8">
+			<div class="absolute inset-x-0 flex items-center justify-center -bottom-9">
 				<div class="relative">
-					<!-- <img
-						class:opacity-0={!$cfgi_summary}
-						src="/images/{icons[iconIdx]}"
-						alt=""
-						class="max-w-[92px] max-h-[124px]"
-					/> -->
-					<div></div>
+					<div
+						class="py-2 pl-2 pr-1"
+						style="background: radial-gradient(49.81% 49.81% at 50% 50%, rgba(50, 15, 1, {$gradientIntensity}) 0%, rgba(25, 7, 0, {$gradientIntensity}) 100%); 
+					border-radius: 50%; 
+					
+					backdrop-filter: blur(5.947214126586914px)"
+					>
+						<FearLogo />
+					</div>
 
-					<div class="text-[48px] leading-[40px] font-mono font-normal" style:color>
+					<div
+						class="text-[48px] leading-[40px] font-mono font-normal text-white mt-6 flex justify-center"
+					>
 						{percentage}
 					</div>
-
-					<!-- {#if enableXmas}
-						<div
-							style="background-image: url(/images/xmas/hat.svg); aspect-ratio: 97/59;"
-							class="absolute inset-x-0 z-30 -translate-x-3 -top-5"
-						></div>
-					{/if} -->
 				</div>
-
-				<!-- {#if !$cfgi_summary}
-					<div class="absolute w-full">
-						<LoadingAnim />
-					</div>
-				{/if} -->
 			</div>
 
 			<div
-				class="flex justify-between duration-500 max-w-[169px] w-full mx-auto absolute inset-x-0 -bottom-5"
+				class="flex justify-between duration-500 max-w-[230px] w-full mx-auto absolute inset-x-0 -bottom-5"
 				class:opacity-0={!$cfgi_summary}
 			>
 				<div>
@@ -265,7 +270,7 @@
 			</div>
 		</div> -->
 
-		<div class="mt-10">
+		<div class="mt-20">
 			<div class="h-[1px] bg-white opacity-10"></div>
 		</div>
 
@@ -334,26 +339,46 @@
 				</div>
 			{:else if !$loading && !$has_voted && loadingIsOut}
 				<div in:fade>
-					<div class="font-medium text-sm text-center mt-[11px] opacity-80">
+					<div class="font-medium text-sm text-center mt-[21px] opacity-80">
 						How do you feel about the market today?
 					</div>
 
 					<div class="flex gap-x-[10px] justify-center mt-[14px] relative z-10">
-						<TintedSecondaryButton
+						<!-- <TintedSecondaryButton
 							disabled={$loading || $has_voted}
 							on:click={() => vote('bearish')}
 							color="red"
 						>
 							Bearish
-						</TintedSecondaryButton>
+						</TintedSecondaryButton> -->
+						<div class=" relative rounded-[7px]">
+							<div class="bullish_border"></div>
+							<button
+								disabled={$loading || $has_voted}
+								on:click={() => vote('bearish')}
+								class="relative rounded-[7px] px-6 py-[10px] bg-[#0E0E0E]"
+							>
+								<p class="text-[13px] font-medium text-[#C3C3C3]">Bearish</p>
+							</button>
+						</div>
+						<div class=" relative rounded-[7px]">
+							<div class="bullish_border"></div>
+							<button
+								disabled={$loading || $has_voted}
+								on:click={() => vote('bullish')}
+								class="relative rounded-[7px] px-6 py-[10px] bg-[#0E0E0E]"
+							>
+								<p class="text-[13px] font-medium text-[#C3C3C3]">Bullish</p>
+							</button>
+						</div>
 
-						<TintedSecondaryButton
+						<!-- <TintedSecondaryButton
 							disabled={$loading || $has_voted}
 							on:click={() => vote('bullish')}
 							color="green"
 						>
 							Bullish
-						</TintedSecondaryButton>
+						</TintedSecondaryButton> -->
 					</div>
 				</div>
 			{/if}

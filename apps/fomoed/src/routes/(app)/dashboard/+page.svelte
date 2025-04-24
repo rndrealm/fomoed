@@ -31,10 +31,10 @@
 	<NavBar />
 	<!-- <AppNav showCurrencyDropdown showsAllNewsLinkOnDesktop /> -->
 
-	<div class="bg-[url(/background/dashboard.svg)] inset-0 fixed min-h-screen bg-cover -z-10"></div>
+	<!-- <div class="bg-[url(/background/dashboard.svg)] inset-0 fixed min-h-screen bg-cover -z-10"></div> -->
 
 	<div
-		class="flex-grow grid place-items-center desktop:pb-8 desktop:mx-4 duration-200 pt-[7rem] snap-start"
+		class="flex-grow grid place-items-center desktop:pb-8 desktop:mx-4 duration-200 pt-[7rem] snap-start bg-[#0c0c0c]"
 		class:opacity-0={$isDesktop === null}
 	>
 		<div
@@ -104,7 +104,8 @@
 						<DashboardCarousel />
 					</div>
 
-					<div class="max-h-[500px] col-span-2 h-[450px]">
+					<div class="max-h-[500px] col-span-2 h-[450px] bg-[#070707] rounded-[20px] py-7">
+						<h3 class="pb-2 text-xl font-medium text-center">Fear and Greed Index</h3>
 						<IndicatorCardV3 />
 					</div>
 				</div>
