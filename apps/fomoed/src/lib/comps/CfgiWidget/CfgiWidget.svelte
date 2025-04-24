@@ -57,10 +57,10 @@
 </script>
 
 <div
-	class=" max-w-lg mx-auto border-[0.5px] border-[#1E1E1E] py-[30px] px-[27px] bg-[#070707] rounded-[20px] w-full"
+	class="  border-[0.5px] border-[#1E1E1E] pt-[30px] pb-[22px] bg-[#070707] rounded-[20px] w-full h-full"
 >
 	<!-- Header Section -->
-	<div class="flex items-center justify-between">
+	<div class="flex items-center justify-between px-[27px]">
 		<div class="flex items-center pl-2 gap-x-2">
 			<div class="size-5">
 				<CfgiIcon />
@@ -69,11 +69,11 @@
 			<h2 class="text-xl font-medium whitespace-nowrap">Fear and Greed Index</h2>
 		</div>
 
-		<CfgiAssetDropdown bind:value={selectedSymbol} />
+		<!-- <CfgiAssetDropdown bind:value={selectedSymbol} /> -->
 	</div>
 
 	<!-- Gauge Section -->
-	<div class="pt-3">
+	<div class="pt-2">
 		<!-- <GaugeFrag
 			gaugeValue={lastCfgiData?.cfgi || null}
 			symbol={selectedSymbol}
@@ -84,9 +84,3 @@
 		<IndicatorCardV2 />
 	</div>
 </div>
-
-<style>
-	.innerShadow {
-		box-shadow: 0px 0px 16px 1px #ffffff14 inset;
-	}
-</style>

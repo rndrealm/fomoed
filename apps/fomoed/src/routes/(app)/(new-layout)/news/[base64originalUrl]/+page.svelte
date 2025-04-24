@@ -75,49 +75,52 @@
 		</div>
 	</div>
 
-	<div class="max-w-screen-xl mx-auto pt-14 pb-16 px-4 overflow-hidden">
+	<div class="max-w-screen-xl px-4 pb-16 mx-auto overflow-hidden pt-14">
 		{#if isLoading}
 			<!-- Loading state -->
-			<div class="flex justify-center items-center h-64">
-				<div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+			<div class="flex items-center justify-center h-64">
+				<div class="w-12 h-12 border-t-2 border-b-2 rounded-full animate-spin border-primary"></div>
 			</div>
 		{:else if article && parsedArticle}
 			<!-- Article content -->
-			<div class="mx-auto flex gap-x-8 overflow-hidden">
-				<div class="max-w-screen-lg flex-shrink w-full overflow-hidden">
+			<div class="flex mx-auto overflow-hidden gap-x-8">
+				<div class="w-full max-w-screen-lg overflow-hidden">
 					<ArticleRenderer {article} articleContent={parsedArticle.htmlContent} />
 
-					<div class="pt-6 w-full">
+					<div class="w-full pt-6">
 						<ArticleAuthorWidget authorName={parsedArticle.author.name} />
 					</div>
 
 					<!-- Comments section -->
 					{#if isLoadingComments}
-						<div class="mt-8 flex justify-center items-center h-32">
+						<div class="flex items-center justify-center h-32 mt-8">
 							<div
-								class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"
+								class="w-8 h-8 border-t-2 border-b-2 rounded-full animate-spin border-primary"
 							></div>
 						</div>
 					{:else}
-						<div class="pt-4 w-full overflow-hidden">
+						<div class="w-full pt-4 overflow-hidden">
 							<CommentThread {comments} newsItem={article} />
 						</div>
 					{/if}
 				</div>
 
-				{#if $innerWidth && $innerWidth > DESKTOP_BREAKPOINT}
-					<div class="w-full max-w-md flex flex-col gap-y-4">
+				<!-- {#if $innerWidth && $innerWidth > DESKTOP_BREAKPOINT}
+					<div class="flex flex-col w-full max-w-md gap-y-4">
 						{#each article.symbols as symbol}
 							{#if cfgi_supported_tokens.includes(symbol)}
 								<CfgiWidget {symbol}></CfgiWidget>
 							{/if}
 						{/each}
 					</div>
-				{/if}
+				{/if} -->
+				<div class="h-full w-[700px] lg:block hidden">
+					<CfgiWidget />
+				</div>
 			</div>
 		{:else}
 			<!-- Error state -->
-			<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+			<div class="px-4 py-3 text-red-700 bg-red-100 border border-red-400 rounded">
 				<p>Error loading article.</p>
 			</div>
 		{/if}
