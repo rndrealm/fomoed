@@ -13,8 +13,8 @@ import {
 import { ChevronDown, Trash2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import React from "react";
-import { ConditionRenderer, deleteAtPath } from "./ConditionRenderer"; // Import the extracted components
+import React, { useEffect } from "react";
+import { ConditionRenderer, deleteAtPath, updateAtPath } from "./ConditionRenderer"; // Added updateAtPath import
 
 // --- Configuration Components ---
 
@@ -184,7 +184,12 @@ export function AddSmartSignalPopup({ trigger }: AddSmartSignalPopupProps) {
     const [open, setOpen] = useAtom(addSmartSignalOpenAtom);
     const [, setDataConfigOpen] = useAtom(dataConfigOpenAtom);
     const [selectedDataType, setSelectedDataType] = useAtom(selectedDataTypeAtom);
-    const [condition, setCondition] = useAtom(conditionAtom); // Now using both the getter and setter
+    const [condition, setCondition] = useAtom(conditionAtom);
+
+    // Log condition changes
+    useEffect(() => {
+        console.log('Condition changed:', condition);
+    }, [condition]);
 
     const handleDataItemClick = (dataType: DataType) => {
         setSelectedDataType(dataType);
@@ -203,6 +208,11 @@ export function AddSmartSignalPopup({ trigger }: AddSmartSignalPopupProps) {
 
         const updatedCondition = deleteAtPath(condition, path);
         setCondition(updatedCondition);
+    };
+
+    // Function to handle updating the condition when a new operator is added
+    const handleUpdateCondition = (newCondition: object) => {
+        setCondition(newCondition);
     };
 
     return (
@@ -266,8 +276,12 @@ export function AddSmartSignalPopup({ trigger }: AddSmartSignalPopupProps) {
                     <Card className="flex-grow flex flex-col p-4 bg-[#222222] border-[#333333] min-h-0">
                         <p className="text-sm text-gray-400 mb-2 flex-shrink-0">Condition</p>
                         <div className="flex-grow overflow-y-auto p-3 rounded bg-[#2A2A2A] border border-[#3A3A3A] text-gray-300 font-mono text-sm">
-                            {/* Now passing the delete handler to ConditionRenderer */}
-                            <ConditionRenderer condition={condition} onDelete={handleDeleteConditionPart} />
+                            {/* Now passing both onDelete and onUpdate handlers */}
+                            <ConditionRenderer 
+                                condition={condition} 
+                                onDelete={handleDeleteConditionPart} 
+                                onUpdate={handleUpdateCondition}
+                            />
                         </div>
                     </Card>
 

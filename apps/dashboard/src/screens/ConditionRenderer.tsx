@@ -1,6 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Trash2, Plus } from "lucide-react";
+import { Trash2, Plus, ChevronRight } from "lucide-react";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 // Action button component to eliminate repetition
 interface ActionButtonProps {
@@ -72,11 +81,41 @@ export function deleteAtPath(obj: any, path: (string | number)[]): any {
     return result;
 }
 
+// Helper function to update a value at a specific path in an object
+export function updateAtPath(obj: any, path: (string | number)[], value: any): any {
+    if (!obj || path.length === 0) return obj;
+
+    // Create a deep copy to avoid direct mutation
+    const result = JSON.parse(JSON.stringify(obj));
+
+    let current = result;
+    const pathToParent = path.slice(0, path.length - 1);
+    const lastKey = path[path.length - 1];
+
+    // Navigate to the parent of the item to update
+    for (const key of pathToParent) {
+        if (current[key] === undefined) {
+            current[key] = typeof key === "number" ? [] : {};
+        }
+        current = current[key];
+    }
+
+    // Update the item
+    if (Array.isArray(current)) {
+        current.splice(lastKey as number, 0, value);
+    } else {
+        current[lastKey] = value;
+    }
+
+    return result;
+}
+
 // Helper function to render individual parts of the condition
 function renderConditionPart(
     part: any,
     path: (string | number)[] = [],
-    onDelete?: (path: (string | number)[]) => void
+    onDelete?: (path: (string | number)[]) => void,
+    onUpdate?: (newCondition: object) => void
 ): React.ReactNode {
     if (typeof part === "object" && part !== null) {
         if ("topic" in part) {
@@ -88,8 +127,8 @@ function renderConditionPart(
                 </ActionButton>
             );
         } else {
-            // Recursively render nested conditions/operators
-            return <ConditionRenderer condition={part} path={path} onDelete={onDelete} />;
+            // Recursively render nested conditions/operators - now passing onUpdate too
+            return <ConditionRenderer condition={part} path={path} onDelete={onDelete} onUpdate={onUpdate} />;
         }
     } else if (typeof part === "number" || typeof part === "boolean") {
         // Render primitive values
@@ -108,9 +147,10 @@ export interface ConditionRendererProps {
     depth?: number;
     path?: (string | number)[];
     onDelete?: (path: (string | number)[]) => void;
+    onUpdate?: (newCondition: object) => void;
 }
 
-export function ConditionRenderer({ condition, path = [], onDelete }: ConditionRendererProps) {
+export function ConditionRenderer({ condition, path = [], onDelete, onUpdate }: ConditionRendererProps) {
     if (!condition || typeof condition !== "object" || Object.keys(condition).length === 0) {
         return <span className="text-gray-500 italic">Build your signal using the buttons above</span>;
     }
@@ -126,19 +166,96 @@ export function ConditionRenderer({ condition, path = [], onDelete }: ConditionR
     const isLogicalOperator = ["and", "or"].includes(operator.toLowerCase());
     const isComparisonOperator = [">", "<", ">=", "<=", "="].includes(operator);
 
+    const handleAddCondition = (operatorType: string) => {
+        if (!condition || !onUpdate) return;
+
+        let newItem;
+        if (operatorType === "and" || operatorType === "or") {
+            newItem = { [operatorType]: [] };
+        } else {
+            // For relational operators, create a placeholder comparison
+            newItem = { [operatorType]: [{ topic: ["placeholder", "value"] }, 0] };
+        }
+
+        const newPath = [...path, operator, operands.length];
+        const updatedCondition = updateAtPath(condition, newPath, newItem);
+        onUpdate(updatedCondition);
+    };
+
     if (isLogicalOperator) {
         return (
             <div className="flex flex-col">
                 <div className="flex items-center gap-2 group">
                     <div className="text-white font-medium bg-[#333333] px-3 py-1 rounded-md w-fit relative flex items-center">
                         {operator.toUpperCase()}
-                        <Button
-                            size="sm"
-                            variant="ghost"
-                            className="p-0 h-5 w-5 text-gray-400 hover:text-gray-100 hover:bg-[#444444] ml-2"
-                        >
-                            <Plus size={14} />
-                        </Button>
+
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="p-0 h-5 w-5 text-gray-400 hover:text-gray-100 hover:bg-[#444444] ml-2"
+                                >
+                                    <Plus size={14} />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="w-48 bg-[#222222] border-[#444444]">
+                                <DropdownMenuLabel className="text-xs text-gray-400">
+                                    Logical Operators
+                                </DropdownMenuLabel>
+                                <DropdownMenuGroup>
+                                    <DropdownMenuItem
+                                        onClick={() => handleAddCondition("and")}
+                                        className="cursor-pointer hover:bg-[#333333]"
+                                    >
+                                        <span className="text-white">AND</span>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                        onClick={() => handleAddCondition("or")}
+                                        className="cursor-pointer hover:bg-[#333333]"
+                                    >
+                                        <span className="text-white">OR</span>
+                                    </DropdownMenuItem>
+                                </DropdownMenuGroup>
+                                <DropdownMenuSeparator className="bg-[#444444]" />
+                                <DropdownMenuLabel className="text-xs text-gray-400">
+                                    Relational Operators
+                                </DropdownMenuLabel>
+                                <DropdownMenuGroup>
+                                    <DropdownMenuItem
+                                        onClick={() => handleAddCondition(">")}
+                                        className="cursor-pointer hover:bg-[#333333]"
+                                    >
+                                        <span className="text-white">Greater Than (&gt;)</span>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                        onClick={() => handleAddCondition("<")}
+                                        className="cursor-pointer hover:bg-[#333333]"
+                                    >
+                                        <span className="text-white">Less Than (&lt;)</span>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                        onClick={() => handleAddCondition(">=")}
+                                        className="cursor-pointer hover:bg-[#333333]"
+                                    >
+                                        <span className="text-white">Greater Than or Equal (≥)</span>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                        onClick={() => handleAddCondition("<=")}
+                                        className="cursor-pointer hover:bg-[#333333]"
+                                    >
+                                        <span className="text-white">Less Than or Equal (≤)</span>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                        onClick={() => handleAddCondition("=")}
+                                        className="cursor-pointer hover:bg-[#333333]"
+                                    >
+                                        <span className="text-white">Equal (=)</span>
+                                    </DropdownMenuItem>
+                                </DropdownMenuGroup>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+
                         {onDelete && (
                             <Button
                                 size="sm"
@@ -165,7 +282,7 @@ export function ConditionRenderer({ condition, path = [], onDelete }: ConditionR
                             {/* Horizontal connector line */}
                             <div className="absolute left-0 top-4 h-px w-4 bg-[#444444] -translate-x-4"></div>
                             <div className="pt-1">
-                                {renderConditionPart(operand, [...path, operator, index], onDelete)}
+                                {renderConditionPart(operand, [...path, operator, index], onDelete, onUpdate)}
                             </div>
                         </div>
                     ))}
@@ -187,8 +304,7 @@ export function ConditionRenderer({ condition, path = [], onDelete }: ConditionR
                 )}
                 {operands.map((operand: any, index: number) => (
                     <React.Fragment key={index}>
-                        {/* Don't pass onDelete to the individual operands, only to the entire comparison block */}
-                        {renderConditionPart(operand, [...path, operator, index])}
+                        {renderConditionPart(operand, [...path, operator, index], undefined, onUpdate)}
                         {index === 0 && <span className="text-white font-bold">{operator}</span>}
                     </React.Fragment>
                 ))}
@@ -201,7 +317,7 @@ export function ConditionRenderer({ condition, path = [], onDelete }: ConditionR
                 <span className="text-gray-400">{operator}</span>
                 {operands.map((operand: any, index: number) => (
                     <React.Fragment key={index}>
-                        {renderConditionPart(operand, [...path, operator, index], onDelete)}
+                        {renderConditionPart(operand, [...path, operator, index], onDelete, onUpdate)}
                     </React.Fragment>
                 ))}
             </div>
