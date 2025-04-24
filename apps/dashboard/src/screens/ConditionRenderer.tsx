@@ -135,14 +135,57 @@ function NumberInputDialog({ onUpdate }: { onUpdate?: (newCondition: object) => 
             let updateObj: any = {};
             let current = updateObj;
 
-            // Build the nested structure
-            for (let i = 0; i < path.length - 1; i++) {
-                const key = path[i];
-                current[key] = i === path.length - 2 ? numValue : {};
-                current = current[key];
+            // Process the path and build the correct structure
+            for (let i = 0; i < path.length; i += 2) {
+                const operator = path[i];
+
+                // Last item in the path
+                if (i === path.length - 1) {
+                    current[operator] = numValue;
+                    break;
+                }
+
+                const index = path[i + 1] as number;
+
+                if (i === path.length - 2) {
+                    // We're at the last operator, set the value directly at the specified index
+                    if (!current[operator]) {
+                        current[operator] = [];
+                    }
+
+                    // Make sure the operator has an array if it doesn't exist
+                    if (!Array.isArray(current[operator])) {
+                        current[operator] = [];
+                    }
+
+                    // Ensure the array is long enough
+                    while (current[operator].length <= index) {
+                        current[operator].push(undefined);
+                    }
+
+                    current[operator][index] = numValue;
+                } else {
+                    // We're at an intermediate operator
+                    if (!current[operator]) {
+                        current[operator] = [];
+                    }
+
+                    // Make sure the operator has an array
+                    if (!Array.isArray(current[operator])) {
+                        current[operator] = [];
+                    }
+
+                    // Ensure the array is long enough
+                    while (current[operator].length <= index) {
+                        current[operator].push({});
+                    }
+
+                    // Move to the next level
+                    current = current[operator][index];
+                }
             }
 
-            // Update the condition with the number value
+            // Update the condition with the correctly structured object
             onUpdate(updateObj);
         }
 
