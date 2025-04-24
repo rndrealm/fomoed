@@ -19,7 +19,7 @@
 	let scrollY = 0;
 </script>
 
-<div class="fixed top-0 w-full z-[999] -desktop:bg-[50%_50%]">
+<div class="fixed top-0 w-full z-[999] -desktop:bg-[50%_50%] bg-[#000]">
 	<div class="relative overflow-hidden p-[1px] max-w-[550px] mx-auto w-full mt-3 rounded-2xl">
 		<div class="gradient_border_tab"></div>
 
