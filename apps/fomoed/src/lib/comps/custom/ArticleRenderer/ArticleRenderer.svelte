@@ -16,7 +16,7 @@
 <ArticleBelowHeadingBar {article} />
 
 <div
-	class="_article_content_container font-inter pt-8 text-new-white leading-relaxed -desktop:text-justify"
+	class="_article_content_container font-inter pt-0 text-new-white leading-relaxed -desktop:text-justify"
 >
 	{@html embedWidgets(articleContent)}
 </div>
@@ -34,6 +34,7 @@
 
 	._article_content_container :global(img) {
 		@apply my-8 min-w-[400px];
+		width: 100%;
 	}
 
 	._article_content_container :global(iframe) {

@@ -11,20 +11,20 @@
 
 <div
 	class="flex items-center justify-between
-            bg-neutral-800 text-white
-            px-4 py-2 rounded-md w-full mt-5 font-inter -desktop:flex-wrap gap-y-2"
+             text-white
+            px-0 py-0 rounded-md w-full mt-5 mb-2 font-inter -desktop:flex-wrap gap-y-2"
 >
 	<!-- Left section: Source, Time, Status -->
-	<div class="flex items-center space-x-2">
+	<div class="flex items-center gap-3">
 		<!-- Source -->
-		<span class="font-semibold text-[#FF9256] pr-1">
+		<span class="font-semibold text-[#ffffff]">
 			{article.source}
 		</span>
 
 		<div class="separator-dot"></div>
 
 		<!-- Time Ago -->
-		<span class="text-gray-400 font-medium pl-1 whitespace-nowrap">
+		<span class="text-[#A5A5A5] font-normal whitespace-nowrap">
 			{timeAgo(article.published_at)}
 		</span>
 
@@ -34,7 +34,7 @@
 	</div>
 
 	<!-- Right section: Like, Comment, Share -->
-	<div class="flex items-center space-x-4 text-gray-400">
+	<div class="flex items-center gap-3 text-gray-400">
 		<!-- Likes -->
 		<button
 			class="flex items-center space-x-1 hover:text-gray-200 transition-colors"
