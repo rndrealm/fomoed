@@ -6,6 +6,9 @@
 - When creating icons, default to lucide-react
 - Never add try/catch unless told to.
 
+## Frontend writing instructions
+- Prefer to use padding instead of margin
+
 ## Monorepo structure
 
 - You are working inside a monorepo.
