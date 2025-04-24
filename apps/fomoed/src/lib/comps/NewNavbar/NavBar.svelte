@@ -3,10 +3,13 @@
 	import ProfileButton from './ProfileButton.svelte';
 	import DashboardButton from './DashboardButton.svelte';
 	import NewNavbarLogo from '../NewNavbarLogo/NewNavbarLogo.svelte';
-	import { toast } from '@zerodevx/svelte-toast';
+	// import { toast } from '@zerodevx/svelte-toast';
+	import toast from 'svelte-5-french-toast';
 
 	function handleComingSoon() {
-		toast.push('Coming soon!');
+		toast('Coming Soon', {
+			icon: '⏳'
+		});
 	}
 
 	// You can add props here if needed, for example:
@@ -17,20 +20,20 @@
 </script>
 
 <div
-	class="fixed top-0 w-full z-40 -desktop:bg-[50%_50%]"
-	style="backdrop-filter: brightness({1 - Math.min(0.7, scrollY / 100)}) blur(16px);"
+	class="fixed top-0 w-full z-[999] bg-[rgba(0,0,0,0.7)] -desktop:bg-[50%_50%]"
+	style="backdrop-filter: brightness({1 - Math.min(0.7, scrollY / 100)}) blur(8px);"
 >
-	<div class="relative overflow-hidden p-[1px] max-w-[456px] mx-auto w-full my-3 rounded-2xl">
+	<div class="relative overflow-hidden p-[1px] max-w-[550px] mx-auto w-full mt-3 rounded-2xl">
 		<div class="gradient_border_tab"></div>
 
-		<nav class="max-w-[456px] mx-auto px-6 py-[14px] bg-[#000] relative rounded-2xl">
+		<nav class="mx-auto px-6 py-[14px] bg-[#000] relative rounded-2xl">
 			<div class="flex w-full justify-between items-center">
 				<div class="flex items-center gap-6">
 					<a href="/">
 						<img src="/icons/small-logo.svg" alt="" />
 					</a>
 
-					<div class="flex items-center gap-2">
+					<div class="flex items-center gap-4">
 						<a href="/dashboard">
 							<p
 								class={`text-base font-semibold leading-[135%] ${currentPath === '/dashboard' ? 'text-white' : 'text-[#9b9b9b]'}`}
@@ -49,7 +52,7 @@
 
 						<button type="button" on:click={handleComingSoon}>
 							<p class="text-[#9b9b9b] text-base font-semibold leading-[135%] cursor-pointer">
-								- -
+								Signals
 							</p>
 						</button>
 					</div>
@@ -73,15 +76,15 @@
 		border-radius: inherit;
 		/* background: conic-gradient(from 0deg at 50% 50%, #000000 0%, #666666 50%, #000000 100%); */
 		/* background: conic-gradient(
-			from 0deg at 50% 50%,
-			#020100 0%,
-			#342828 17%,
-			#8b4332 35%,
-			#8b2505 55%,
-			#bd4618 72%,
-			#f7984b 84%,
-			#f7984b 100%
-		); */
+      from 0deg at 50% 50%,
+      #020100 0%,
+      #342828 17%,
+      #8b4332 35%,
+      #8b2505 55%,
+      #bd4618 72%,
+      #f7984b 84%,
+      #f7984b 100%
+    ); */
 		background: conic-gradient(
 			from 0deg at 50% 50%,
 			#020100 0%,

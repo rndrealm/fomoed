@@ -66,14 +66,14 @@
 	});
 </script>
 
-<main class="pt-[80px] bg-[#0E0E0E] min-h-screen">
-	<div
+<main class="pt-[80px] bg-[#000] min-h-screen">
+	<!-- <div
 		class="pb-4 pt-4 fixed bg-[#0e0e0e55] w-full shadow-xl backdrop-blur-xl backdrop-brightness-[0.3] z-50"
 	>
 		<div class="max-w-screen-xl mx-auto">
 			<NewsPath />
 		</div>
-	</div>
+	</div> -->
 
 	<div class="max-w-screen-xl mx-auto pt-14 pb-16 px-4 overflow-hidden">
 		{#if isLoading}

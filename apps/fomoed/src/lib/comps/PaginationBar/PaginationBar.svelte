@@ -73,55 +73,67 @@
 </script>
 
 <div
-	class="flex items-center justify-between gap-x-2 -desktop:gap-x-0 w-full py-2 bg-black rounded-lg p-2 -desktop:text-xs"
+	class="flex items-center justify-center gap-3 -desktop:gap-x-0 w-full py-2 bg-black rounded-lg p-2 -desktop:text-xs"
 >
 	<!-- Previous button -->
 	<button
-		class="pagination-nav-button"
+		class="pagination-nav-button w-[32px] h-[32px] flex items-center justify-center"
+		class:disabled={currentPage === 1}
 		disabled={currentPage === 1}
 		onclick={() => changePage(currentPage - 1)}
 	>
-		<div class="rotate-180">
+		<!-- <div class="rotate-180">
 			<NextPageIcon />
 		</div>
 
-		<div class="-desktop:hidden">Previous</div>
+		<div class="-desktop:hidden">Previous</div> -->
+		<img src="/icons/left-pagination.svg" alt="icon" />
 	</button>
 
 	<!-- Page numbers -->
-	<div class="flex items-center space-x-1">
+	<div class="flex items-center gap-1">
 		{#each visiblePages as page}
 			{#if typeof page === 'number'}
 				<button
-					class="page-button px-3 py-1 rounded-md text-sm font-medium border border-transparent hover:border-white/20"
+					class="page-button w-[32px] h-[32px] rounded-md text-sm font-medium border border-transparent hover:border-white/20"
 					class:selected={currentPage === page}
 					onclick={() => changePage(page)}
 				>
 					{page}
 				</button>
 			{:else}
-				<span class="px-2 text-gray-500">...</span>
+				<div class="w-[32px] h-[32px] flex items-center justify-center">
+					<span class="text-gray-500">...</span>
+				</div>
 			{/if}
 		{/each}
 	</div>
 
 	<!-- Next button -->
+
 	<button
-		class="pagination-nav-button"
+		class="pagination-nav-button w-[32px] h-[32px] flex items-center justify-center"
+		class:disabled={currentPage === totalPages}
 		disabled={currentPage === totalPages}
 		onclick={() => changePage(currentPage + 1)}
 	>
-		<div class="-desktop:hidden">Next</div>
-		<NextPageIcon />
+		<div class="rotate-180">
+			<img src="/icons/left-pagination.svg" alt="icon" />
+		</div>
 	</button>
 </div>
 
 <style>
 	.pagination-nav-button {
-		@apply px-5 py-2 rounded-full border border-[#414141] disabled:opacity-50 transition-all duration-200 cursor-pointer text-white bg-[#2C2C2C] font-mono font-medium inline-flex items-center gap-x-2 text-sm;
+		/* @apply px-5 py-2 rounded-full border border-[#414141] disabled:opacity-50 transition-all duration-200 cursor-pointer text-white bg-[#2C2C2C] font-mono font-medium inline-flex items-center gap-x-2 text-sm; */
+	}
+
+	.pagination-nav-button.disabled {
+		opacity: 0.4;
 	}
 
 	.page-button.selected {
-		@apply border border-orange-500;
+		/* @apply border border-orange-500; */
+		background-color: #232323;
 	}
 </style>
