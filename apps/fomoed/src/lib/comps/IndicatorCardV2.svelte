@@ -19,17 +19,18 @@
 	import Copy from '$lib/icons/social/Copy.svelte';
 	import { fade } from 'svelte/transition';
 	import LoadingAnim from './animations/LoadingAnim.svelte';
-	import Gauge from './indicator/Gauge.svelte';
+	import GaugeV2 from './indicator/GaugeV2.svelte';
 	import { enableXmas } from '$ts/utils/client/ui';
+	import Meta from '$lib/icons/social/Meta.svelte';
+	import Send from '$lib/icons/social/Send.svelte';
+	import CopyV2 from '$lib/icons/social/CopyV2.svelte';
 
 	export let onHomepage = false;
 	export let prev = 0;
 	export let percentage = 0;
 	export let average = 0;
 
-	$: background = onHomepage
-		? `linear-gradient(180deg, #000000 0%, rgba(0, 0, 0, 0.3) 135.93%) padding-box, linear-gradient(180deg, rgba(255, 59, 16, 0.4) -4.26%, rgba(255, 59, 16, 0) 100%) border-box`
-		: 'rgba(15, 13, 13, 1)';
+	$: background = 'transparent';
 
 	$: marketSentiment = get_data_label(percentage);
 	$: color = get_data_color(percentage);
@@ -81,7 +82,7 @@
 			method: 'POST',
 			body: JSON.stringify({
 				sentiment: num_rating,
-				device_id: $device_id
+				device_id: '$device_id'
 			})
 		});
 
@@ -174,43 +175,71 @@
 
 <div
 	style:background
-	class="w-full h-full {onHomepage
-		? 'rounded-[30px]'
-		: 'rounded-[26px]'} backdrop-blur-xl flex flex-col {onHomepage &&
-		'border-2 border-transparent'} {!onHomepage && 'border border-[#FFFFFF1A]'}"
+	class="w-ful {onHomepage ? 'rounded-[30px]' : 'rounded-[26px]'}  flex flex-col"
 >
-	<div class="flex flex-col h-full mx-auto">
-		<div class="relative max-h-[220px] w-full">
-			<div class="inset-x-0 grid px-2 mt-4 place-items-center">
-				<Gauge percentage={$cfgi_summary ? percentage : 0} />
+	<div class="flex flex-col">
+		<div class="relative w-full">
+			<div class="relative flex items-center justify-center">
+				<div
+					class="absolute top-0 left-0 flex flex-col justify-center pl-[51px] gap-1 h-full duration-500"
+					class:opacity-0={!$cfgi_summary}
+				>
+					<div class="font-medium text-center">
+						<div class="text-[9px] opacity-60">Prev</div>
+						<div class="opacity-80 font-paralucent font-medium text-[10px]">{prev}</div>
+					</div>
+
+					<div class="font-medium text-center">
+						<div class="text-[9px] opacity-60">Average</div>
+						<div class="opacity-80 font-paralucent text-[10px]">{average}</div>
+					</div>
+				</div>
+				<GaugeV2 percentage={$cfgi_summary ? percentage : 0} />
 			</div>
 
-			<div class="absolute inset-x-0 flex items-center justify-center bottom-4">
+			<div class="absolute inset-x-0 flex items-center justify-center bottom-8">
 				<div class="relative">
-					<img
+					<!-- <img
 						class:opacity-0={!$cfgi_summary}
 						src="/images/{icons[iconIdx]}"
 						alt=""
 						class="max-w-[92px] max-h-[124px]"
-					/>
+					/> -->
 
-					{#if enableXmas}
+					<div class="text-[48px] leading-[40px] font-mono font-normal" style:color>
+						{percentage}
+					</div>
+
+					<!-- {#if enableXmas}
 						<div
 							style="background-image: url(/images/xmas/hat.svg); aspect-ratio: 97/59;"
 							class="absolute inset-x-0 z-30 -translate-x-3 -top-5"
 						></div>
-					{/if}
+					{/if} -->
 				</div>
 
-				{#if !$cfgi_summary}
+				<!-- {#if !$cfgi_summary}
 					<div class="absolute w-full">
 						<LoadingAnim />
 					</div>
-				{/if}
+				{/if} -->
+			</div>
+
+			<div
+				class="flex justify-between duration-500 max-w-[169px] w-full mx-auto absolute inset-x-0 bottom-0"
+				class:opacity-0={!$cfgi_summary}
+			>
+				<div>
+					<div class="text-xs font-medium opacity-60">Fear</div>
+				</div>
+
+				<div class="">
+					<div class="text-xs font-medium opacity-60">Greed</div>
+				</div>
 			</div>
 		</div>
 
-		<div
+		<!-- <div
 			class="grid grid-cols-[1fr_2fr_1fr] justify-between px-[28px] duration-500"
 			class:opacity-0={!$cfgi_summary}
 		>
@@ -220,9 +249,6 @@
 			</div>
 
 			<div class="text-center">
-				<div class="text-[40px] leading-[40px] font-paralucent font-medium" style:color>
-					{percentage}
-				</div>
 				<div class="text-lg font-medium opacity-80 font-paralucent">{marketSentiment}</div>
 			</div>
 
@@ -230,13 +256,13 @@
 				<div class="text-xs opacity-60">Average</div>
 				<div class="opacity-80 font-paralucent font-medium text-[18px]">{average}</div>
 			</div>
+		</div> -->
+
+		<div class="mt-10">
+			<div class="h-[1px] bg-white opacity-10"></div>
 		</div>
 
-		<div class="px-[12px]">
-			<div class="h-[1px] bg-white opacity-10 mt-[20px]"></div>
-		</div>
-
-		<div class="flex flex-col flex-grow mb-4 justify-evenly h-28">
+		<div class="flex flex-col mb-0 justify-evenly">
 			{#if $loading}
 				<div
 					in:fade
@@ -248,61 +274,64 @@
 					Loading...
 				</div>
 			{:else if $has_voted && loadingIsOut}
-				<div in:fade class="flex flex-col items-center">
-					<div
-						class="text-[40px] leading-[40px] font-paralucent font-medium mt-2"
-						style:color={fomoed_score_color}
-					>
-						{~~$aped_score}
-					</div>
-
-					<div
-						class="text-sm font-medium text-transparent font-paralucent max-w-max bg-gradient-to-r from-primary to-yellow bg-clip-text"
-					>
-						Fomoed score
-					</div>
-
-					<div class="text-sm font-medium text-center opacity-80">Share your polls on</div>
-
-					<div class="flex gap-x-2 justify-center mt-[10px]">
-						<a href={copy_social_link('twitter', getLink())} target="_blank">
-							<SocialButton>
-								<X />
-							</SocialButton>
-						</a>
-
-						<a href={copy_social_link('facebook', getLink())} target="_blank">
-							<SocialButton>
-								<Facebook />
-							</SocialButton>
-						</a>
-
-						<a href={copy_social_link('telegram', getLink())} target="_blank">
-							<SocialButton>
-								<Telegram />
-							</SocialButton>
-						</a>
-
-						<SocialButton
-							on:click={() => {
-								navigator.clipboard.writeText(
-									copy_social_link('copy', `${$page.url.origin}?score=${+$aped_score.toFixed(2)}`)
-								);
-								success('Success: Copied Share Link to Clipboard');
-								return;
-							}}
+				<div in:fade class="flex items-center justify-between px-9 mt-[14px]">
+					<div>
+						<div
+							class="text-[40px] leading-[40px] font-paralucent font-medium"
+							style:color={fomoed_score_color}
 						>
-							<Copy />
-						</SocialButton>
+							{~~$aped_score}
+						</div>
+
+						<div
+							class="text-sm font-medium text-transparent font-paralucent max-w-max bg-gradient-to-r from-primary to-yellow bg-clip-text"
+						>
+							Fomoed score
+						</div>
+					</div>
+
+					<div class="flex flex-col items-end gap-3">
+						<div class="text-xs font-medium text-center opacity-80">Share your polls on</div>
+
+						<div class="flex justify-center gap-x-2">
+							<a href={copy_social_link('facebook', getLink())} target="_blank">
+								<SocialButton>
+									<Meta />
+								</SocialButton>
+							</a>
+
+							<a href={copy_social_link('telegram', getLink())} target="_blank">
+								<SocialButton>
+									<Send />
+								</SocialButton>
+							</a>
+
+							<SocialButton
+								on:click={() => {
+									navigator.clipboard.writeText(
+										copy_social_link('copy', `${$page.url.origin}?score=${+$aped_score.toFixed(2)}`)
+									);
+									success('Success: Copied Share Link to Clipboard');
+									return;
+								}}
+							>
+								<CopyV2 />
+							</SocialButton>
+							<a href={copy_social_link('twitter', getLink())} target="_blank">
+								<SocialButton>
+									<X />
+								</SocialButton>
+							</a>
+						</div>
 					</div>
 				</div>
 			{:else if !$loading && !$has_voted && loadingIsOut}
 				<div in:fade>
-					<div class="font-medium text-sm text-center mt-[20px] opacity-80">
+					<div class="font-medium text-sm text-center mt-[11px] opacity-80">
 						How do you feel about the market today?
 					</div>
 
-					<div class="flex gap-x-[10px] justify-center mt-4 relative z-10">
+					<div class="flex gap-x-[10px] justify-center mt-[14px] relative z-10">
 						<TintedSecondaryButton
 							disabled={$loading || $has_voted}
 							on:click={() => vote('bearish')}

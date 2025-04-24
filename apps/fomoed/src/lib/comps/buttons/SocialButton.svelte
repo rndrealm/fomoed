@@ -1,6 +1,6 @@
 <button
 	on:click
-	class="w-[44px] h-[41px] rounded-[11px] border-[#FFFFFF1A] border grid place-items-center"
+	class="w-6 h-6 rounded-[6px] border-[#101010] border flex items-center justify-center px-1"
 >
 	<slot></slot>
 </button>

@@ -48,8 +48,8 @@
 		</div>
 
 		{#if $innerWidth && $innerWidth > DESKTOP_BREAKPOINT}
-			<div class="w-[700px]">
-				<div class="w-full max-w-lg pt-20">
+			<div class="w-[700px] pt-[84px]">
+				<div class="w-full max-w-lg h-[365px]">
 					<CfgiWidget />
 				</div>
 

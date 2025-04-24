@@ -27,7 +27,7 @@
 
 		<!-- Summary -->
 		<p
-			class="text-[#919191] mb-0 relative text-[18px] leading-[135%] font-semibold tracking-[-0.02em] px-8"
+			class="text-[#919191] mb-0 relative text-[18px] leading-[135%] font-semibold tracking-[-0.02em] px-8 line-clamp-4"
 			class:whitespace-pre={skeleton}
 		>
 			<TextSkeleton absolute {skeleton} wrap={false} />
