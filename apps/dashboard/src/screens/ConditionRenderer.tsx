@@ -11,6 +11,25 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+// Delete button component to eliminate repetition
+interface DeleteButtonProps {
+    onDelete: () => void;
+    className?: string;
+}
+
+function DeleteButton({ onDelete, className }: DeleteButtonProps) {
+    return (
+        <Button
+            size="sm"
+            variant="ghost"
+            onClick={onDelete}
+            className={`absolute -right-2 -top-2 p-1 h-5 w-5 rounded-full bg-[#2A2A2A] text-gray-400 hover:text-red-500 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity ${className || ""}`}
+        >
+            <Trash2 size={10} />
+        </Button>
+    );
+}
+
 // Action button component to eliminate repetition
 interface ActionButtonProps {
     children: React.ReactNode;
@@ -27,18 +46,7 @@ function ActionButton({ children, onClick, onDelete, canDelete = false }: Action
                 className="flex items-center justify-center px-3 py-1 text-sm rounded-md border border-[#333333] bg-[#222222] hover:bg-[#2A2A2A] hover:text-white relative"
             >
                 {children}
-                {canDelete && (
-                    <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={(e) => {
-                            onDelete?.();
-                        }}
-                        className="absolute -right-2 -top-2 p-1 h-5 w-5 rounded-full bg-[#2A2A2A] text-gray-400 hover:text-red-500 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                        <Trash2 size={10} />
-                    </Button>
-                )}
+                {canDelete && onDelete && <DeleteButton onDelete={(e) => onDelete?.()} />}
             </div>
         </div>
     );
@@ -110,6 +118,46 @@ export function updateAtPath(obj: any, path: (string | number)[], value: any): a
     return result;
 }
 
+// OperatorDropdownContent component to eliminate duplication
+interface OperatorDropdownContentProps {
+    onSelect: (operatorType: string) => void;
+}
+
+function OperatorDropdownContent({ onSelect }: OperatorDropdownContentProps) {
+    return (
+        <DropdownMenuContent className="w-48 bg-[#222222] border-[#444444]">
+            <DropdownMenuLabel className="text-xs text-gray-400">Logical Operators</DropdownMenuLabel>
+            <DropdownMenuGroup>
+                <DropdownMenuItem onClick={() => onSelect("and")} className="cursor-pointer hover:bg-[#333333]">
+                    <span className="text-white">AND</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onSelect("or")} className="cursor-pointer hover:bg-[#333333]">
+                    <span className="text-white">OR</span>
+                </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator className="bg-[#444444]" />
+            <DropdownMenuLabel className="text-xs text-gray-400">Relational Operators</DropdownMenuLabel>
+            <DropdownMenuGroup>
+                <DropdownMenuItem onClick={() => onSelect(">")} className="cursor-pointer hover:bg-[#333333]">
+                    <span className="text-white">Greater Than (&gt;)</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onSelect("<")} className="cursor-pointer hover:bg-[#333333]">
+                    <span className="text-white">Less Than (&lt;)</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onSelect(">=")} className="cursor-pointer hover:bg-[#333333]">
+                    <span className="text-white">Greater Than or Equal (≥)</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onSelect("<=")} className="cursor-pointer hover:bg-[#333333]">
+                    <span className="text-white">Less Than or Equal (≤)</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onSelect("=")} className="cursor-pointer hover:bg-[#333333]">
+                    <span className="text-white">Equal (=)</span>
+                </DropdownMenuItem>
+            </DropdownMenuGroup>
+        </DropdownMenuContent>
+    );
+}
+
 // Helper function to render individual parts of the condition
 function renderConditionPart(
     part: any,
@@ -150,9 +198,141 @@ export interface ConditionRendererProps {
     onUpdate?: (newCondition: object) => void;
 }
 
+// Component to render empty condition state
+function EmptyCondition({ onUpdate }: { onUpdate?: (newCondition: object) => void }) {
+    const handleSelect = (operatorType: string) => {
+        if (!onUpdate) return;
+
+        if (operatorType === "and" || operatorType === "or") {
+            onUpdate({ [operatorType]: [] });
+        } else {
+            onUpdate({ [operatorType]: [{ topic: ["placeholder", "value"] }, 0] });
+        }
+    };
+
+    return (
+        <div className="flex items-center gap-2">
+            <span className="text-gray-500 italic">Build your signal using the buttons above</span>
+            {onUpdate && (
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            className="p-1 h-7 w-7 rounded-full bg-[#2A2A2A] text-gray-400 hover:text-gray-100 hover:bg-[#444444]"
+                        >
+                            <Plus size={14} />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <OperatorDropdownContent onSelect={handleSelect} />
+                </DropdownMenu>
+            )}
+        </div>
+    );
+}
+
+// Component to render logical operators (AND, OR)
+function LogicalOperatorRenderer({
+    operator,
+    operands,
+    path,
+    onDelete,
+    onUpdate,
+}: {
+    operator: string;
+    operands: any[];
+    path: (string | number)[];
+    onDelete?: (path: (string | number)[]) => void;
+    onUpdate?: (newCondition: object) => void;
+}) {
+    const handleAddCondition = (operatorType: string) => {
+        if (!onUpdate) return;
+
+        let newItem;
+        if (operatorType === "and" || operatorType === "or") {
+            newItem = { [operatorType]: [] };
+        } else {
+            newItem = { [operatorType]: [{ topic: ["placeholder", "value"] }, 0] };
+        }
+
+        const newPath = [...path, operator, operands.length];
+        const updatedCondition = updateAtPath({ [operator]: operands }, newPath, newItem);
+        onUpdate(updatedCondition);
+    };
+
+    return (
+        <div className="flex flex-col">
+            <div className="flex items-center gap-2 group">
+                <div className="text-white font-medium bg-[#333333] px-3 py-1 rounded-md w-fit relative flex items-center">
+                    {operator.toUpperCase()}
+
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button
+                                size="sm"
+                                variant="ghost"
+                                className="p-0 h-5 w-5 text-gray-400 hover:text-gray-100 hover:bg-[#444444] ml-2"
+                            >
+                                <Plus size={14} />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <OperatorDropdownContent onSelect={handleAddCondition} />
+                    </DropdownMenu>
+
+                    {onDelete && <DeleteButton onDelete={() => onDelete(path)} />}
+                </div>
+            </div>
+            <div className="relative flex flex-col pl-8 pt-2">
+                <div
+                    className="absolute left-4 top-0 w-px bg-[#444444]"
+                    style={{
+                        height: operands.length > 0 ? "calc(100% - 1.5rem)" : "0px",
+                    }}
+                ></div>
+
+                {operands.map((operand: any, index: number) => (
+                    <div key={index} className="relative pb-3 last:pb-0">
+                        <div className="absolute left-0 top-4 h-px w-4 bg-[#444444] -translate-x-4"></div>
+                        <div className="pt-1">
+                            {renderConditionPart(operand, [...path, operator, index], onDelete, onUpdate)}
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
+// Component to render comparison operators (>, <, >=, <=, =)
+function ComparisonOperatorRenderer({
+    operator,
+    operands,
+    path,
+    onDelete,
+    onUpdate,
+}: {
+    operator: string;
+    operands: any[];
+    path: (string | number)[];
+    onDelete?: (path: (string | number)[]) => void;
+    onUpdate?: (newCondition: object) => void;
+}) {
+    return (
+        <div className="flex items-center gap-2 p-2 bg-[#222222] rounded-md border border-[#444444] max-w-max group relative">
+            {onDelete && <DeleteButton onDelete={() => onDelete(path)} />}
+            {operands.map((operand: any, index: number) => (
+                <React.Fragment key={index}>
+                    {renderConditionPart(operand, [...path, operator, index], undefined, onUpdate)}
+                    {index === 0 && <span className="text-white font-bold">{operator}</span>}
+                </React.Fragment>
+            ))}
+        </div>
+    );
+}
+
 export function ConditionRenderer({ condition, path = [], onDelete, onUpdate }: ConditionRendererProps) {
     if (!condition || typeof condition !== "object" || Object.keys(condition).length === 0) {
-        return <span className="text-gray-500 italic">Build your signal using the buttons above</span>;
+        return <EmptyCondition onUpdate={onUpdate} />;
     }
 
     // Assuming the top level is always an operator object like { "and": [...] } or { ">": [...] }
@@ -166,149 +346,25 @@ export function ConditionRenderer({ condition, path = [], onDelete, onUpdate }: 
     const isLogicalOperator = ["and", "or"].includes(operator.toLowerCase());
     const isComparisonOperator = [">", "<", ">=", "<=", "="].includes(operator);
 
-    const handleAddCondition = (operatorType: string) => {
-        if (!condition || !onUpdate) return;
-
-        let newItem;
-        if (operatorType === "and" || operatorType === "or") {
-            newItem = { [operatorType]: [] };
-        } else {
-            // For relational operators, create a placeholder comparison
-            newItem = { [operatorType]: [{ topic: ["placeholder", "value"] }, 0] };
-        }
-
-        const newPath = [...path, operator, operands.length];
-        const updatedCondition = updateAtPath(condition, newPath, newItem);
-        onUpdate(updatedCondition);
-    };
-
     if (isLogicalOperator) {
         return (
-            <div className="flex flex-col">
-                <div className="flex items-center gap-2 group">
-                    <div className="text-white font-medium bg-[#333333] px-3 py-1 rounded-md w-fit relative flex items-center">
-                        {operator.toUpperCase()}
-
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    className="p-0 h-5 w-5 text-gray-400 hover:text-gray-100 hover:bg-[#444444] ml-2"
-                                >
-                                    <Plus size={14} />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-48 bg-[#222222] border-[#444444]">
-                                <DropdownMenuLabel className="text-xs text-gray-400">
-                                    Logical Operators
-                                </DropdownMenuLabel>
-                                <DropdownMenuGroup>
-                                    <DropdownMenuItem
-                                        onClick={() => handleAddCondition("and")}
-                                        className="cursor-pointer hover:bg-[#333333]"
-                                    >
-                                        <span className="text-white">AND</span>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                        onClick={() => handleAddCondition("or")}
-                                        className="cursor-pointer hover:bg-[#333333]"
-                                    >
-                                        <span className="text-white">OR</span>
-                                    </DropdownMenuItem>
-                                </DropdownMenuGroup>
-                                <DropdownMenuSeparator className="bg-[#444444]" />
-                                <DropdownMenuLabel className="text-xs text-gray-400">
-                                    Relational Operators
-                                </DropdownMenuLabel>
-                                <DropdownMenuGroup>
-                                    <DropdownMenuItem
-                                        onClick={() => handleAddCondition(">")}
-                                        className="cursor-pointer hover:bg-[#333333]"
-                                    >
-                                        <span className="text-white">Greater Than (&gt;)</span>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                        onClick={() => handleAddCondition("<")}
-                                        className="cursor-pointer hover:bg-[#333333]"
-                                    >
-                                        <span className="text-white">Less Than (&lt;)</span>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                        onClick={() => handleAddCondition(">=")}
-                                        className="cursor-pointer hover:bg-[#333333]"
-                                    >
-                                        <span className="text-white">Greater Than or Equal (≥)</span>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                        onClick={() => handleAddCondition("<=")}
-                                        className="cursor-pointer hover:bg-[#333333]"
-                                    >
-                                        <span className="text-white">Less Than or Equal (≤)</span>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                        onClick={() => handleAddCondition("=")}
-                                        className="cursor-pointer hover:bg-[#333333]"
-                                    >
-                                        <span className="text-white">Equal (=)</span>
-                                    </DropdownMenuItem>
-                                </DropdownMenuGroup>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-
-                        {onDelete && (
-                            <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => onDelete(path)}
-                                className="absolute -right-2 -top-2 p-1 h-5 w-5 rounded-full bg-[#2A2A2A] text-gray-400 hover:text-red-500 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity"
-                            >
-                                <Trash2 size={10} />
-                            </Button>
-                        )}
-                    </div>
-                </div>
-                <div className="relative flex flex-col pl-8 pt-2">
-                    {/* Vertical connecting line - height set to stop at the last child */}
-                    <div
-                        className="absolute left-4 top-0 w-px bg-[#444444]"
-                        style={{
-                            height: operands.length > 0 ? "calc(100% - 1.5rem)" : "0px",
-                        }}
-                    ></div>
-
-                    {operands.map((operand: any, index: number) => (
-                        <div key={index} className="relative pb-3 last:pb-0">
-                            {/* Horizontal connector line */}
-                            <div className="absolute left-0 top-4 h-px w-4 bg-[#444444] -translate-x-4"></div>
-                            <div className="pt-1">
-                                {renderConditionPart(operand, [...path, operator, index], onDelete, onUpdate)}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
+            <LogicalOperatorRenderer
+                operator={operator}
+                operands={operands}
+                path={path}
+                onDelete={onDelete}
+                onUpdate={onUpdate}
+            />
         );
     } else if (isComparisonOperator) {
         return (
-            <div className="flex items-center gap-2 p-2 bg-[#222222] rounded-md border border-[#444444] max-w-max group relative">
-                {onDelete && (
-                    <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => onDelete(path)}
-                        className="absolute -right-2 -top-2 p-1 h-5 w-5 rounded-full bg-[#2A2A2A] text-gray-400 hover:text-red-500 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                        <Trash2 size={10} />
-                    </Button>
-                )}
-                {operands.map((operand: any, index: number) => (
-                    <React.Fragment key={index}>
-                        {renderConditionPart(operand, [...path, operator, index], undefined, onUpdate)}
-                        {index === 0 && <span className="text-white font-bold">{operator}</span>}
-                    </React.Fragment>
-                ))}
-            </div>
+            <ComparisonOperatorRenderer
+                operator={operator}
+                operands={operands}
+                path={path}
+                onDelete={onDelete}
+                onUpdate={onUpdate}
+            />
         );
     } else {
         // Fallback rendering for unknown operators
