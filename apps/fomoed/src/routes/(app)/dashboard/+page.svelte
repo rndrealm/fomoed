@@ -1,9 +1,7 @@
 <script lang="ts">
 	import AppNav from '$lib/comps/AppNav.svelte';
 	import DashboardCard from '$lib/comps/DashboardCard.svelte';
-	import HomepageSmallChart from '$lib/comps/HomepageSmallChart.svelte';
 	import IndicatorCardV3 from '$lib/comps/IndicatorCardV3.svelte';
-	import IndicatorCard from '$lib/comps/IndicatorCard.svelte';
 	import { coinstats_global_data, coinstats_selected_coin } from '$lib/stores';
 	import ScrollerDots from '$lib/comps/ScrollerDots.svelte';
 	import Footer from '$lib/comps/Footer.svelte';
@@ -11,6 +9,13 @@
 	import { disableDashboardScroll, innerHeight, isDesktop, isMobile } from '$lib/stores/ui';
 	import NewsCardContent from '$lib/comps/dashboard/NewsCardContent.svelte';
 	import NavBar from '$lib/comps/NewNavbar/NavBar.svelte';
+	import TokenDetails from '$lib/comps/TokenDetails.svelte';
+	import TokenDominace from '$lib/comps/TokenDominace.svelte';
+	import SelectToken from '$lib/comps/SelectToken.svelte';
+
+	console.log($coinstats_selected_coin, 'btincc');
+
+	console.log($coinstats_global_data, 'testeerrrr');
 
 	let smallChartsCointainer: HTMLElement;
 	let scrollY = 0;
@@ -28,7 +33,9 @@
 		class="fixed top-0 w-full z-40 -desktop:bg-[50%_50%]"
 		style="backdrop-filter: brightness({1 - Math.min(0.7, scrollY / 100)}) blur(16px);"
 	> -->
+
 	<NavBar />
+
 	<!-- <AppNav showCurrencyDropdown showsAllNewsLinkOnDesktop /> -->
 
 	<!-- <div class="bg-[url(/background/dashboard.svg)] inset-0 fixed min-h-screen bg-cover -z-10"></div> -->
@@ -37,6 +44,10 @@
 		class="flex-grow grid place-items-center desktop:pb-8 desktop:mx-4 duration-200 pt-[7rem] snap-start bg-[#0c0c0c]"
 		class:opacity-0={$isDesktop === null}
 	>
+		<div class="flex desktop:col-span-6 mb-3 w-full max-w-[1050px] mx-auto px-3 md:px-0">
+			<SelectToken />
+		</div>
+
 		<div
 			class="grid grid-cols-6 gap-[7px] mx-auto h-full desktop:pb-6 w-full max-w-[1050px] desktop:grid-rows-[1fr_3fr]"
 		>
@@ -45,43 +56,51 @@
 				class="-desktop:flex -desktop:gap-x-2 -desktop:h-[148px] -desktop:overflow-x-scroll desktop:grid grid-cols-subgrid col-span-6 no-scrollbar -desktop:snap-x -desktop:snap-mandatory -desktop:px-3"
 			>
 				<div class="-desktop:flex-shrink-0 -desktop:w-5/6 desktop:col-span-2">
-					<DashboardCard>
-						<HomepageSmallChart
-							change={$coinstats_global_data?.marketCapChange}
-							value={$coinstats_selected_coin?.marketCap.toLocaleString()}
-							title="{$coinstats_selected_coin?.symbol} Market Cap"
-							prefix="$"
-							postfix=""
-							hideChange
-						/>
-					</DashboardCard>
+					<TokenDetails
+						change={$coinstats_global_data?.marketCapChange}
+						value={$coinstats_selected_coin?.marketCap.toLocaleString()}
+						title={$coinstats_selected_coin?.symbol}
+						titleLabel="Market Cap"
+						prefix="$"
+						postfix=""
+					/>
 				</div>
 
 				<div class="-desktop:flex-shrink-0 -desktop:w-5/6 desktop:col-span-2">
-					<DashboardCard>
-						<HomepageSmallChart
-							value={$coinstats_selected_coin?.volume.toLocaleString()}
-							title="{$coinstats_selected_coin?.symbol} Volume 24H"
-							prefix="$"
-							postfix=""
-							hideChange
-						/>
-					</DashboardCard>
+					<TokenDetails
+						value={$coinstats_selected_coin?.volume.toLocaleString()}
+						title={$coinstats_selected_coin?.symbol}
+						titleLabel="Volume 24H"
+						prefix="$"
+						postfix=""
+					/>
 				</div>
 
-				<div class="-desktop:flex-shrink-0 -desktop:w-5/6">
-					<DashboardCard>
-						<HomepageSmallChart
+				<div class="flex flex-col gap-2 -desktop:flex-shrink-0 -desktop:w-5/6 desktop:col-span-2">
+					<div class="flex-1">
+						<TokenDominace
 							change={$coinstats_global_data?.btcDominanceChange}
 							value={$coinstats_global_data?.btcDominance.toLocaleString()}
-							title="BTC Dominance"
+							title="BTC"
+							titleLabel="Dominance"
 							prefix=""
 							postfix="%"
 						/>
-					</DashboardCard>
+					</div>
+
+					<div class="flex-1">
+						<TokenDominace
+							change={$coinstats_selected_coin?.priceChange}
+							value={$coinstats_selected_coin?.price.toLocaleString()}
+							title={$coinstats_selected_coin?.symbol}
+							titleLabel="Price"
+							prefix="$"
+							postfix=""
+						/>
+					</div>
 				</div>
 
-				<div class="-desktop:flex-shrink-0 -desktop:w-5/6">
+				<!-- <div class="-desktop:flex-shrink-0 -desktop:w-5/6">
 					<DashboardCard>
 						<HomepageSmallChart
 							change={$coinstats_selected_coin?.priceChange}
@@ -91,7 +110,7 @@
 							postfix=""
 						/>
 					</DashboardCard>
-				</div>
+				</div> -->
 			</div>
 
 			<div class="col-span-6 mt-2 mb-6 -desktop:mb-2 desktop:hidden">

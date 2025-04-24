@@ -3,7 +3,7 @@
 	import ProfileButton from './ProfileButton.svelte';
 	import DashboardButton from './DashboardButton.svelte';
 	import NewNavbarLogo from '../NewNavbarLogo/NewNavbarLogo.svelte';
-	// import { toast } from '@zerodevx/svelte-toast';
+	// import { toast as tost } from '@zerodevx/svelte-toast';
 	import toast from 'svelte-5-french-toast';
 
 	function handleComingSoon() {
