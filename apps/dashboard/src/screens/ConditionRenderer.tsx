@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
-import { Trash2, Plus, ChevronRight } from "lucide-react";
+import { Trash2, Plus, ChevronRight, ChevronDown } from "lucide-react";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -10,6 +10,242 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { atom, useAtom } from "jotai";
+
+// --- Data Types and Configuration Components ---
+
+// Define the type for a data type configuration object
+interface DataType {
+    id: string;
+    label: string;
+    component: React.FC;
+}
+
+// Price Configuration
+function PriceConfig() {
+    // Example symbols, replace with actual data source if needed
+    const symbols = ["ETH", "BTC"];
+
+    return (
+        <div className="space-y-4 p-4">
+            <div className="space-y-2">
+                <Label htmlFor="symbol" className="text-gray-400">
+                    Symbol
+                </Label>
+                <Select>
+                    <SelectTrigger id="symbol" className="w-full bg-[#2A2A2A] border-[#3A3A3A] text-white">
+                        <SelectValue placeholder="Select symbol" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#222222] border-[#333333] text-white">
+                        {symbols.map((symbol) => (
+                            <SelectItem key={symbol} value={symbol} className="hover:bg-[#2A2A2A] cursor-pointer">
+                                {symbol}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+            {/* Add more price-specific configurations here */}
+        </div>
+    );
+}
+
+// Fear & Greed Configuration (Placeholder)
+function FearGreedConfig() {
+    return <div className="p-4 text-gray-400">Fear & Greed configuration options will be added here.</div>;
+}
+
+// Streaming Status Configuration (Placeholder)
+function StreamingStatusConfig() {
+    return <div className="p-4 text-gray-400">Streaming Status configuration options will be added here.</div>;
+}
+
+// Define data types with associated components using the defined type
+const DATA_TYPES: DataType[] = [
+    { id: "price", label: "Price", component: PriceConfig },
+    { id: "fear_greed", label: "Fear & Greed", component: FearGreedConfig },
+    { id: "streaming_status", label: "Streaming status", component: StreamingStatusConfig },
+];
+
+// Atoms to manage data config dialogs
+const dataConfigOpenAtom = atom(false);
+const selectedDataTypeAtom = atom<DataType | null>(null);
+
+// Atoms to manage number input dialog
+const numberInputDialogOpenAtom = atom(false);
+const numberInputValueAtom = atom("");
+const numberInputPathAtom = atom<(string | number)[] | null>(null);
+
+// --- DataConfig Dialog Component ---
+function DataConfigDialog({ dataType }: { dataType: DataType }) {
+    const [open, setOpen] = useAtom(dataConfigOpenAtom);
+
+    const renderConfigComponent = () => {
+        const Component = dataType.component;
+        return <Component />;
+    };
+
+    return (
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogContent className="sm:max-w-[650px] h-[600px] bg-[#1A1A1A] border-[#333333] text-white flex flex-col p-0">
+                {/* Header section - fixed height */}
+                <DialogHeader className="p-6 pb-4">
+                    <DialogTitle className="text-white">
+                        Configure <span className="px-2 py-1 bg-white/10 rounded">{dataType.label}</span> Data
+                    </DialogTitle>
+                    <DialogDescription className="text-gray-400 pt-1">
+                        Add a data source to your smart signal.
+                    </DialogDescription>
+                </DialogHeader>
+
+                {/* Scrollable content area */}
+                <div className="flex-grow overflow-y-auto px-6">{renderConfigComponent()}</div>
+
+                {/* Footer section - fixed height */}
+                <div className="flex justify-end gap-2 p-4 border-t border-[#333333]">
+                    <Button
+                        variant="outline"
+                        onClick={() => setOpen(false)}
+                        className="border-[#333333] bg-[#222222] text-gray-400 hover:bg-[#2A2A2A] hover:text-white"
+                    >
+                        Cancel
+                    </Button>
+                    <Button className="bg-blue-500 text-white hover:bg-blue-600">Add</Button>
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
+// Number Input Dialog Component
+function NumberInputDialog({ onUpdate }: { onUpdate?: (newCondition: object) => void }) {
+    const [open, setOpen] = useAtom(numberInputDialogOpenAtom);
+    const [inputValue, setInputValue] = useAtom(numberInputValueAtom);
+    const [path, setPath] = useAtom(numberInputPathAtom);
+
+    const handleSave = () => {
+        if (path && onUpdate) {
+            const numValue = parseFloat(inputValue);
+
+            // Create an object with the structure needed for updating
+            let updateObj: any = {};
+            let current = updateObj;
+
+            // Build the nested structure
+            for (let i = 0; i < path.length - 1; i++) {
+                const key = path[i];
+                current[key] = i === path.length - 2 ? numValue : {};
+                current = current[key];
+            }
+
+            // Update the condition with the number value
+            onUpdate(updateObj);
+        }
+
+        // Reset and close
+        setOpen(false);
+        setInputValue("");
+        setPath(null);
+    };
+
+    const handleCancel = () => {
+        setOpen(false);
+        setInputValue("");
+        setPath(null);
+    };
+
+    return (
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogContent className="sm:max-w-[400px] bg-[#1A1A1A] border-[#333333] text-white p-6">
+                <DialogHeader>
+                    <DialogTitle className="text-white">Enter a number</DialogTitle>
+                    <DialogDescription className="text-gray-400 pt-1">
+                        Please enter a numeric value for this operand.
+                    </DialogDescription>
+                </DialogHeader>
+
+                <div className="py-4">
+                    <Label htmlFor="number-input" className="text-gray-400 mb-2 block">
+                        Number value
+                    </Label>
+                    <Input
+                        id="number-input"
+                        type="number"
+                        step="any"
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        className="bg-[#2A2A2A] border-[#3A3A3A] text-white"
+                        placeholder="Enter a number"
+                        autoFocus
+                    />
+                </div>
+
+                <div className="flex justify-end gap-2">
+                    <Button
+                        variant="outline"
+                        onClick={handleCancel}
+                        className="border-[#333333] bg-[#222222] text-gray-400 hover:bg-[#2A2A2A] hover:text-white"
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        className="bg-blue-500 text-white hover:bg-blue-600"
+                        onClick={handleSave}
+                        disabled={inputValue === "" || isNaN(parseFloat(inputValue))}
+                    >
+                        Save
+                    </Button>
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
+// Value Dropdown Component
+export function ValueDropdown() {
+    const [, setDataConfigOpen] = useAtom(dataConfigOpenAtom);
+    const [selectedDataType, setSelectedDataType] = useAtom(selectedDataTypeAtom);
+
+    const handleDataItemClick = (dataType: DataType) => {
+        setSelectedDataType(dataType);
+        setDataConfigOpen(true);
+    };
+
+    return (
+        <>
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-[#333333] bg-[#222222] hover:bg-[#2A2A2A] hover:text-white cursor-pointer flex items-center gap-1"
+                    >
+                        Data <ChevronDown size={14} />
+                    </Button>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent className="bg-[#222222] border-[#333333] text-white">
+                    {DATA_TYPES.map((dataType) => (
+                        <DropdownMenuItem
+                            key={dataType.id}
+                            className="hover:bg-[#2A2A2A] cursor-pointer"
+                            onClick={() => handleDataItemClick(dataType)}
+                        >
+                            {dataType.label}
+                        </DropdownMenuItem>
+                    ))}
+                </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Render the dialog conditionally */}
+            {selectedDataType && <DataConfigDialog dataType={selectedDataType} />}
+        </>
+    );
+}
 
 // Delete button component to eliminate repetition
 interface DeleteButtonProps {
@@ -36,18 +272,76 @@ interface ActionButtonProps {
     onClick?: () => void;
     onDelete?: () => void;
     canDelete?: boolean;
+    path?: (string | number)[];
 }
 
-function ActionButton({ children, onClick, onDelete, canDelete = false }: ActionButtonProps) {
+function OperandButton({ children, onClick, onDelete, canDelete = false, path }: ActionButtonProps) {
+    const [, setDataConfigOpen] = useAtom(dataConfigOpenAtom);
+    const [, setSelectedDataType] = useAtom(selectedDataTypeAtom);
+    const [, setNumberInputDialogOpen] = useAtom(numberInputDialogOpenAtom);
+    const [, setNumberInputValue] = useAtom(numberInputValueAtom);
+    const [, setNumberInputPath] = useAtom(numberInputPathAtom);
+
+    const handleDataItemClick = (dataType: DataType) => {
+        setSelectedDataType(dataType);
+        setDataConfigOpen(true);
+    };
+
+    const handleNumberClick = () => {
+        if (path) {
+            // If the child is already a number, pre-fill the input with its value
+            if (typeof children === "string" && !isNaN(parseFloat(children))) {
+                setNumberInputValue(children);
+            } else {
+                setNumberInputValue("");
+            }
+
+            setNumberInputPath(path);
+            setNumberInputDialogOpen(true);
+        }
+    };
+
     return (
         <div className="flex items-center gap-1 group">
-            <div
-                onClick={onClick}
-                className="flex items-center justify-center px-3 py-1 text-sm rounded-md border border-[#333333] bg-[#222222] hover:bg-[#2A2A2A] hover:text-white relative"
-            >
-                {children}
-                {canDelete && onDelete && <DeleteButton onDelete={(e) => onDelete?.()} />}
-            </div>
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <div
+                        onClick={onClick}
+                        className="flex items-center justify-center px-3 py-1 text-sm rounded-md border border-[#333333] bg-[#222222] hover:bg-[#2A2A2A] hover:text-white relative cursor-pointer"
+                    >
+                        {children}
+                        {canDelete && onDelete && <DeleteButton onDelete={() => onDelete?.()} />}
+                    </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="bg-[#222222] border-[#333333] text-white">
+                    {/* Direct options */}
+                    <DropdownMenuItem className="hover:bg-[#2A2A2A] cursor-pointer" onClick={handleNumberClick}>
+                        Number
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="hover:bg-[#2A2A2A] cursor-pointer">Boolean</DropdownMenuItem>
+
+                    <DropdownMenuSeparator className="bg-[#444444]" />
+
+                    {/* Data source submenu */}
+                    <DropdownMenu>
+                        <DropdownMenuTrigger className="flex items-center justify-between w-full px-2 py-1.5 text-sm hover:bg-[#2A2A2A] cursor-pointer rounded-sm">
+                            <span>Data source</span>
+                            <ChevronRight size={14} />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent side="right" className="bg-[#222222] border-[#333333] text-white">
+                            {DATA_TYPES.map((dataType) => (
+                                <DropdownMenuItem
+                                    key={dataType.id}
+                                    className="hover:bg-[#2A2A2A] cursor-pointer"
+                                    onClick={() => handleDataItemClick(dataType)}
+                                >
+                                    {dataType.label}
+                                </DropdownMenuItem>
+                            ))}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </DropdownMenuContent>
+            </DropdownMenu>
         </div>
     );
 }
@@ -170,20 +464,20 @@ function renderConditionPart(
             // Render topic placeholder
             const [source, type] = part.topic;
             return (
-                <ActionButton canDelete={!!onDelete} onDelete={() => onDelete && onDelete(path)}>
+                <OperandButton canDelete={!!onDelete} onDelete={() => onDelete && onDelete(path)} path={path}>
                     {`${source} (${type})`}
-                </ActionButton>
+                </OperandButton>
             );
         } else {
-            // Recursively render nested conditions/operators - now passing onUpdate too
+            // Recursively render nested conditions/operators
             return <ConditionRenderer condition={part} path={path} onDelete={onDelete} onUpdate={onUpdate} />;
         }
     } else if (typeof part === "number" || typeof part === "boolean") {
-        // Render primitive values
+        // Render primitive values with path for editing
         return (
-            <ActionButton canDelete={!!onDelete} onDelete={() => onDelete && onDelete(path)}>
+            <OperandButton canDelete={!!onDelete} onDelete={() => onDelete && onDelete(path)} path={path}>
                 {String(part)}
-            </ActionButton>
+            </OperandButton>
         );
     }
     // Handle other types or invalid parts if necessary
@@ -346,37 +640,38 @@ export function ConditionRenderer({ condition, path = [], onDelete, onUpdate }: 
     const isLogicalOperator = ["and", "or"].includes(operator.toLowerCase());
     const isComparisonOperator = [">", "<", ">=", "<=", "="].includes(operator);
 
-    if (isLogicalOperator) {
-        return (
-            <LogicalOperatorRenderer
-                operator={operator}
-                operands={operands}
-                path={path}
-                onDelete={onDelete}
-                onUpdate={onUpdate}
-            />
-        );
-    } else if (isComparisonOperator) {
-        return (
-            <ComparisonOperatorRenderer
-                operator={operator}
-                operands={operands}
-                path={path}
-                onDelete={onDelete}
-                onUpdate={onUpdate}
-            />
-        );
-    } else {
-        // Fallback rendering for unknown operators
-        return (
-            <div className="flex items-center gap-2">
-                <span className="text-gray-400">{operator}</span>
-                {operands.map((operand: any, index: number) => (
-                    <React.Fragment key={index}>
-                        {renderConditionPart(operand, [...path, operator, index], onDelete, onUpdate)}
-                    </React.Fragment>
-                ))}
-            </div>
-        );
-    }
+    // Add the NumberInputDialog at the top level
+    return (
+        <>
+            <NumberInputDialog onUpdate={onUpdate} />
+
+            {isLogicalOperator ? (
+                <LogicalOperatorRenderer
+                    operator={operator}
+                    operands={operands}
+                    path={path}
+                    onDelete={onDelete}
+                    onUpdate={onUpdate}
+                />
+            ) : isComparisonOperator ? (
+                <ComparisonOperatorRenderer
+                    operator={operator}
+                    operands={operands}
+                    path={path}
+                    onDelete={onDelete}
+                    onUpdate={onUpdate}
+                />
+            ) : (
+                // Fallback rendering for unknown operators
+                <div className="flex items-center gap-2">
+                    <span className="text-gray-400">{operator}</span>
+                    {operands.map((operand: any, index: number) => (
+                        <React.Fragment key={index}>
+                            {renderConditionPart(operand, [...path, operator, index], onDelete, onUpdate)}
+                        </React.Fragment>
+                    ))}
+                </div>
+            )}
+        </>
+    );
 }
