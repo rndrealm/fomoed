@@ -62,9 +62,9 @@
 	<!-- Header Section -->
 	<div class="flex items-center justify-between px-[27px]">
 		<div class="flex items-center pl-2 gap-x-2">
-			<div class="size-5">
+			<!-- <div class="size-5">
 				<CfgiIcon />
-			</div>
+			</div> -->
 
 			<h2 class="text-xl font-medium whitespace-nowrap">Fear and Greed Index</h2>
 		</div>

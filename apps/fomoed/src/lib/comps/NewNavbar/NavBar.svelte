@@ -19,15 +19,12 @@
 	let scrollY = 0;
 </script>
 
-<div
-	class="fixed top-0 w-full z-[999] bg-[rgba(0,0,0,0.7)] -desktop:bg-[50%_50%]"
-	style="backdrop-filter: brightness({1 - Math.min(0.7, scrollY / 100)}) blur(8px);"
->
+<div class="fixed top-0 w-full z-[999] -desktop:bg-[50%_50%]">
 	<div class="relative overflow-hidden p-[1px] max-w-[550px] mx-auto w-full mt-3 rounded-2xl">
 		<div class="gradient_border_tab"></div>
 
 		<nav class="mx-auto px-6 py-[14px] bg-[#000] relative rounded-2xl">
-			<div class="flex w-full justify-between items-center">
+			<div class="flex items-center justify-between w-full">
 				<div class="flex items-center gap-6">
 					<a href="/">
 						<img src="/icons/small-logo.svg" alt="" />

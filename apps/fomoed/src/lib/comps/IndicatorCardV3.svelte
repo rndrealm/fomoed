@@ -205,6 +205,7 @@
 						alt=""
 						class="max-w-[92px] max-h-[124px]"
 					/> -->
+					<div></div>
 
 					<div class="text-[48px] leading-[40px] font-mono font-normal" style:color>
 						{percentage}

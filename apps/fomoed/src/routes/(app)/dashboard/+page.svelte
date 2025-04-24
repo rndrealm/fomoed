@@ -2,6 +2,7 @@
 	import AppNav from '$lib/comps/AppNav.svelte';
 	import DashboardCard from '$lib/comps/DashboardCard.svelte';
 	import HomepageSmallChart from '$lib/comps/HomepageSmallChart.svelte';
+	import IndicatorCardV3 from '$lib/comps/IndicatorCardV3.svelte';
 	import IndicatorCard from '$lib/comps/IndicatorCard.svelte';
 	import { coinstats_global_data, coinstats_selected_coin } from '$lib/stores';
 	import ScrollerDots from '$lib/comps/ScrollerDots.svelte';
@@ -18,7 +19,7 @@
 </script>
 
 <main
-	class="-desktop:snap-y overflow-y-scroll no-scrollbar snap-mandatory relative z-0"
+	class="relative z-0 overflow-y-scroll -desktop:snap-y no-scrollbar snap-mandatory"
 	class:!overflow-hidden={$disableDashboardScroll}
 	style="height: {$innerHeight}px;"
 	onscroll={(e) => (scrollY = e.target?.scrollTop)}
@@ -93,18 +94,18 @@
 				</div>
 			</div>
 
-			<div class="col-span-6 mb-6 -desktop:mb-2 mt-2 desktop:hidden">
+			<div class="col-span-6 mt-2 mb-6 -desktop:mb-2 desktop:hidden">
 				<ScrollerDots pages={4} container={smallChartsCointainer}></ScrollerDots>
 			</div>
 
 			{#if $isDesktop}
-				<div class="col-span-6 grid grid-cols-subgrid">
-					<div class="col-span-4 -desktop:col-span-6 h-full flex-grow relative">
+				<div class="grid col-span-6 grid-cols-subgrid">
+					<div class="relative flex-grow h-full col-span-4 -desktop:col-span-6">
 						<DashboardCarousel />
 					</div>
 
 					<div class="max-h-[500px] col-span-2 h-[450px]">
-						<IndicatorCard />
+						<IndicatorCardV3 />
 					</div>
 				</div>
 
@@ -119,7 +120,7 @@
 
 	{#if $isMobile}
 		<div class="px-3 h-[450px] pb-2 pt-2">
-			<IndicatorCard />
+			<IndicatorCardV3 />
 		</div>
 
 		<div
