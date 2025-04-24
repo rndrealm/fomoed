@@ -24,7 +24,7 @@
 </script>
 
 <main
-	class="relative z-0 overflow-y-scroll -desktop:snap-y no-scrollbar snap-mandatory"
+	class="relative z-0 overflow-y-scroll -desktop:snap-y no-scrollbar snap-mandatory bg-[#0c0c0c]"
 	class:!overflow-hidden={$disableDashboardScroll}
 	style="height: {$innerHeight}px;"
 	onscroll={(e) => (scrollY = e.target?.scrollTop)}
@@ -40,14 +40,15 @@
 
 	<!-- <div class="bg-[url(/background/dashboard.svg)] inset-0 fixed min-h-screen bg-cover -z-10"></div> -->
 
-	<div
-		class="flex-grow grid place-items-center desktop:pb-8 desktop:mx-4 duration-200 pt-[7rem] snap-start bg-[#0c0c0c]"
-		class:opacity-0={$isDesktop === null}
-	>
+	<div class="pt-[7rem]">
 		<div class="flex desktop:col-span-6 mb-3 w-full max-w-[1050px] mx-auto px-3 md:px-0">
 			<SelectToken />
 		</div>
-
+	</div>
+	<div
+		class="flex-grow grid place-items-center desktop:pb-8 desktop:mx-4 duration-200 snap-start"
+		class:opacity-0={$isDesktop === null}
+	>
 		<div
 			class="grid grid-cols-6 gap-[7px] mx-auto h-full desktop:pb-6 w-full max-w-[1050px] desktop:grid-rows-[1fr_3fr]"
 		>
