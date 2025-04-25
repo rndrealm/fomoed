@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Bell, Plus, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AddSmartSignalPopup from "./AddSmartSignalPopup";
+import NotificationList from "./NotificationList";
 
 // Placeholder component for smart signal items
 const SmartSignalItem = ({
@@ -19,37 +20,6 @@ const SmartSignalItem = ({
         </div>
         <div className="flex-1">
             <h3 className="font-medium text-white">{title}</h3>
-            <p className="text-gray-400 text-sm mt-1">{description}</p>
-            <span className="text-xs text-gray-500 mt-2 block">{timestamp}</span>
-        </div>
-    </div>
-);
-
-// Placeholder component for notification items
-const NotificationItem = ({
-    title,
-    description,
-    timestamp,
-    isNew = false,
-}: {
-    title: string;
-    description: string;
-    timestamp: string;
-    isNew?: boolean;
-}) => (
-    <div className="flex items-start p-4 rounded-md border border-[#333333] mb-3 bg-[#222222] hover:bg-[#2A2A2A] transition-colors">
-        <div className="h-8 w-8 rounded-full bg-orange-500/20 text-orange-500 flex items-center justify-center mr-3">
-            <Bell size={16} />
-        </div>
-        <div className="flex-1">
-            <div className="flex items-center">
-                <h3 className="font-medium text-white">{title}</h3>
-                {isNew && (
-                    <span className="ml-2 px-1.5 py-0.5 text-xs bg-orange-500/20 text-orange-500 rounded-full">
-                        New
-                    </span>
-                )}
-            </div>
             <p className="text-gray-400 text-sm mt-1">{description}</p>
             <span className="text-xs text-gray-500 mt-2 block">{timestamp}</span>
         </div>
@@ -107,28 +77,7 @@ export default function SmartSignalsMvp() {
 
                     {/* Notifications Section */}
                     <div>
-                        <h2 className="text-lg font-semibold mb-4 flex items-center text-white">
-                            <Bell size={18} className="mr-2 text-orange-500" />
-                            Notifications
-                        </h2>
-                        <div className="space-y-2">
-                            <NotificationItem
-                                title="New Feature Available"
-                                description="Smart Signals Pro tier is now available for early access."
-                                timestamp="1 hour ago"
-                                isNew={true}
-                            />
-                            <NotificationItem
-                                title="Watchlist Update"
-                                description="A token in your watchlist has new activity."
-                                timestamp="3 hours ago"
-                            />
-                            <NotificationItem
-                                title="System Maintenance"
-                                description="Scheduled maintenance completed successfully."
-                                timestamp="1 day ago"
-                            />
-                        </div>
+                        <NotificationList />
                     </div>
                 </div>
             </CardContent>

@@ -15,54 +15,10 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useAtom } from "jotai";
-import { DataType, DATA_TYPES } from "./types";
+import { DataType, DATA_TYPES, OperandValue, ConditionObject } from "./types";
 import { DataConfigDialog, selectedDataTypeAtom } from "./DataConfigDialog";
 
-// We are using JSON logic. Example JSON structure:
-/**
- * {
-    or: [
-        {
-            and: [
-                { ">": [{ topic: ["ETHUSDT", "price"] }, 100000] },
-                { "=": [false, { topic: ["youtube_streaming_DiscoverCrypto", "isStreaming"] }] },
-                { "=": [false, { topic: ["youtube_streaming_DiscoverCrypto", "isStreaming"] }] },
-            ],
-        },
-        {
-            and: [
-                { ">": [{ topic: ["ETHUSDT", "price"] }, 100000] },
-                { "=": [false, { topic: ["youtube_streaming_DiscoverCrypto", "isStreaming"] }] },
-                { "=": [false, { topic: ["youtube_streaming_DiscoverCrypto", "isStreaming"] }] },
-            ],
-        },
-    ],
-}
-*/
-
-// Define types for your condition structure
-interface DataStream {
-    topic: [string, string]; // [topicName, field]
-}
-
-type OperandValue = DataStream | number | boolean | ConditionObject;
-
-interface LogicalCondition {
-    and?: OperandValue[];
-    or?: OperandValue[];
-}
-
-interface ComparisonCondition {
-    ">": [OperandValue, OperandValue];
-    "<": [OperandValue, OperandValue];
-    ">=": [OperandValue, OperandValue];
-    "<=": [OperandValue, OperandValue];
-    "=": [OperandValue, OperandValue];
-}
-
-type ConditionObject = LogicalCondition | ComparisonCondition;
-
-function updateCondition(condition: object, path: (string | number)[], value: any): object {
+function updateCondition(condition: ConditionObject, path: (string | number)[], value: any): ConditionObject {
     const updatedCondition = JSON.parse(JSON.stringify(condition)); // Create a deep copy
     update(updatedCondition, path, () => value);
     return updatedCondition;
@@ -70,8 +26,8 @@ function updateCondition(condition: object, path: (string | number)[], value: an
 
 interface DeleteButtonProps {
     path: (string | number)[];
-    wholeCondition: any;
-    onUpdate: (newCondition: object) => void;
+    wholeCondition: ConditionObject;
+    onUpdate: (newCondition: ConditionObject) => void;
     className?: string;
 }
 
@@ -86,7 +42,7 @@ function DeleteButton({ path, wholeCondition, onUpdate, className }: DeleteButto
         unset(updatedCondition, path);
 
         // Call onUpdate with the modified condition
-        onUpdate(updatedCondition);
+        onUpdate(updatedCondition as ConditionObject);
     };
 
     return (
@@ -105,8 +61,8 @@ interface ActionButtonProps {
     children: React.ReactNode;
     onClick?: () => void;
     path?: (string | number)[];
-    wholeCondition?: object;
-    onUpdate: (newCondition: object) => void;
+    wholeCondition?: ConditionObject;
+    onUpdate: (newCondition: ConditionObject) => void;
 }
 
 interface NumberInputDialogProps {
@@ -392,8 +348,8 @@ function ConditionPart({
 }: {
     part: OperandValue;
     path?: (string | number)[];
-    onUpdate: (newCondition: object) => void;
-    wholeCondition: object;
+    onUpdate: (newCondition: ConditionObject) => void;
+    wholeCondition: ConditionObject;
 }) {
     if (typeof part === "object" && part !== null) {
         if ("topic" in part) {
@@ -419,15 +375,15 @@ function ConditionPart({
 }
 
 export interface ConditionRendererProps {
-    condition: object | null;
-    wholeCondition: object;
+    condition: ConditionObject | null;
+    wholeCondition: ConditionObject;
     depth?: number;
     path?: (string | number)[];
-    onUpdate: (newCondition: object) => void;
+    onUpdate: (newCondition: ConditionObject) => void;
 }
 
 // Component to render empty condition state
-function EmptyCondition({ onUpdate }: { onUpdate: (newCondition: object) => void }) {
+function EmptyCondition({ onUpdate }: { onUpdate: (newCondition: ConditionObject) => void }) {
     const handleSelect = (operatorType: string) => {
         if (operatorType === "and" || operatorType === "or") {
             onUpdate({ [operatorType]: [] });
@@ -466,8 +422,8 @@ function LogicalOperatorRenderer({
     operator: string;
     operands: any[];
     path: (string | number)[];
-    onUpdate: (newCondition: object) => void;
-    wholeCondition: object;
+    onUpdate: (newCondition: ConditionObject) => void;
+    wholeCondition: ConditionObject;
 }) {
     const handleAddCondition = (operatorType: string) => {
         let newItem;
@@ -482,7 +438,7 @@ function LogicalOperatorRenderer({
         const newPath = [...path, operator, operands.length];
         update(updatedWholeCondition, newPath, () => newItem);
 
-        onUpdate(updatedWholeCondition);
+        onUpdate(updatedWholeCondition as ConditionObject);
     };
 
     return (
@@ -544,8 +500,8 @@ function ComparisonOperatorRenderer({
     operator: string;
     operands: any[];
     path: (string | number)[];
-    onUpdate: (newCondition: object) => void;
-    wholeCondition: object;
+    onUpdate: (newCondition: ConditionObject) => void;
+    wholeCondition: ConditionObject;
 }) {
     return (
         <div className="flex items-center gap-2 p-2 bg-[#222222] rounded-md border border-[#444444] max-w-max group relative">
@@ -575,7 +531,7 @@ export function ConditionRenderer({ condition, wholeCondition, path = [], onUpda
 
     // Assuming the top level is always an operator object like { "and": [...] } or { ">": [...] }
     const operator = Object.keys(safeCondition)[0];
-    const operands = safeCondition[operator];
+    const operands = (safeCondition as any)[operator];
 
     if (!Array.isArray(operands)) {
         return <span className="text-red-500 italic">Invalid condition structure</span>;

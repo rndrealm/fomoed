@@ -6,8 +6,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Card } from "@/components/ui/card";
 import React, { useEffect } from "react";
 import { ConditionRenderer } from "./ConditionRenderer";
-import { unset } from "lodash-es"; // Import unset from lodash-es
-import { DataConfigDialog } from "./DataConfigDialog";
+import { useSmartSignals } from "./hooks/use-smart-signals";
 
 // Atom to manage the dialog open state
 const addSmartSignalOpenAtom = atomWithStorage("addSmartSignalOpen", false);
@@ -37,15 +36,23 @@ interface AddSmartSignalPopupProps {
 export function AddSmartSignalPopup({ trigger }: AddSmartSignalPopupProps) {
     const [open, setOpen] = useAtom(addSmartSignalOpenAtom);
     const [condition, setCondition] = useAtom(conditionAtom);
+    const { saveSmartSignal } = useSmartSignals();
 
-    // Log condition changes
     useEffect(() => {
         console.log("Condition changed:", condition);
     }, [condition]);
 
-    // Function to handle updating the condition (now handles both updates and deletions)
     const handleUpdateCondition = (newCondition: object) => {
         setCondition(newCondition);
+    };
+
+    const handleCreateSignal = async () => {
+        try {
+            await saveSmartSignal(condition);
+            setOpen(false);
+        } catch (error) {
+            console.error("Error creating smart signal:", error);
+        }
     };
 
     return (
@@ -79,12 +86,12 @@ export function AddSmartSignalPopup({ trigger }: AddSmartSignalPopupProps) {
                         >
                             Cancel
                         </Button>
-                        <Button className="bg-blue-500 text-white hover:bg-blue-600">Create Signal</Button>
+                        <Button className="bg-blue-500 text-white hover:bg-blue-600" onClick={handleCreateSignal}>
+                            Create Signal
+                        </Button>
                     </div>
                 </DialogContent>
             </Dialog>
-
-            <DataConfigDialog />
         </>
     );
 }
