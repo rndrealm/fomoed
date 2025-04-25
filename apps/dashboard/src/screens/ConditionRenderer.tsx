@@ -17,6 +17,28 @@ import { Input } from "@/components/ui/input";
 import { atom, useAtom } from "jotai";
 import { DataType, DATA_TYPES, selectedDataTypeAtom } from "./DataConfigDialog";
 
+// We are using JSON logic. Example JSON structure:
+/**
+ * {
+    or: [
+        {
+            and: [
+                { ">": [{ topic: ["ETHUSDT", "price"] }, 100000] },
+                { "=": [false, { topic: ["youtube_streaming_DiscoverCrypto", "isStreaming"] }] },
+                { "=": [false, { topic: ["youtube_streaming_DiscoverCrypto", "isStreaming"] }] },
+            ],
+        },
+        {
+            and: [
+                { ">": [{ topic: ["ETHUSDT", "price"] }, 100000] },
+                { "=": [false, { topic: ["youtube_streaming_DiscoverCrypto", "isStreaming"] }] },
+                { "=": [false, { topic: ["youtube_streaming_DiscoverCrypto", "isStreaming"] }] },
+            ],
+        },
+    ],
+}
+*/
+
 // Define types for your condition structure
 interface Topic {
     topic: [string, string]; // [source, type]
@@ -464,13 +486,12 @@ function LogicalOperatorRenderer({
             newItem = { [operatorType]: [{ topic: ["placeholder", "value"] }, 0] };
         }
 
+        // Copy the wholeCondition and update the appropriate part
+        const updatedWholeCondition = JSON.parse(JSON.stringify(wholeCondition));
         const newPath = [...path, operator, operands.length];
+        update(updatedWholeCondition, newPath, () => newItem);
 
-        // Use lodash update instead of custom updateAtPath
-        const updatedCondition = JSON.parse(JSON.stringify({ [operator]: operands }));
-        update(updatedCondition, newPath, () => newItem);
-
-        onUpdate(updatedCondition);
+        onUpdate(updatedWholeCondition);
     };
 
     return (
