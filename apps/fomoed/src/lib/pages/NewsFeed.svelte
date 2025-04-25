@@ -11,6 +11,7 @@
 	import NewsLabPostsWidget from '$lib/comps/NewsLabPostsWidget/NewsLabPostsWidget.svelte';
 
 	onMount(async () => {
+		newsService.setCurrency('');
 		if (!newsService.news.length) {
 			newsService.fetchNews();
 			newsService.fetchPopularNews().then((ok) => {
