@@ -23,11 +23,16 @@
 		</div>
 	</div>
 
-	<!-- {#if loading}
+	{#if loading}
 		<div out:fade class="absolute inset-0 grid place-items-center">
-			<LoadingAnim />
+			<!-- <p class="text-[15px] font-semibold text-[#FFFFFF]">Fetching Charts...</p> -->
+			<p
+				class="text-[15px] font-semibold bg-gradient-to-r from-[#FFFFFF] to-[#999999] text-transparent bg-clip-text"
+			>
+				Fetching Charts...
+			</p>
 		</div>
-	{/if} -->
+	{/if}
 </div>
 
 <style>

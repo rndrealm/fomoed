@@ -121,7 +121,9 @@
 						<DashboardCarousel />
 					</div>
 
-					<div class="max-h-[500px] col-span-2 h-[450px] bg-[#070707] rounded-[20px] py-7">
+					<div
+						class="max-h-[500px] col-span-2 h-[450px] bg-[#070707] rounded-[15px] py-7 border border-[#1E1E1E]"
+					>
 						<h3 class="pb-2 text-xl font-medium text-center">Fear and Greed Index</h3>
 						<IndicatorCardV3 />
 					</div>
@@ -138,12 +140,14 @@
 	</div>
 
 	{#if $isMobile}
-		<div class="px-3 h-[450px] pb-2 pt-2">
+		<div
+			class="px-0 mx-3 mt-3 mb-3 h-[400px] pt-7 pb-6 border border-[#1E1E1E] rounded-[15px] bg-[#070707]"
+		>
 			<IndicatorCardV3 />
 		</div>
 
 		<div
-			class="snap-end flex flex-col justify-end pb-4 pt-20 -translate-y-20 relative {isCarouselFullscreen &&
+			class="snap-end mx-3 flex flex-col justify-end pb-4 pt-20 -translate-y-20 relative {isCarouselFullscreen &&
 				'z-50'}"
 			style="height: {$innerHeight}px"
 		>
@@ -153,7 +157,9 @@
 		<!-- <DashboardCard disablePadding hideCard={!$isDesktop}>
 			<NewsCardContent />
 		</DashboardCard> -->
-		<DashboardNews />
+		<div class="mx-3">
+			<DashboardNews />
+		</div>
 	{/if}
 
 	<div class="snap-end">

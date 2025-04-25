@@ -14,13 +14,7 @@
 	import _ from 'lodash-es';
 	import SocialButton from './buttons/SocialButton.svelte';
 	import X from '$lib/icons/social/X.svelte';
-	import Facebook from '$lib/icons/social/Facebook.svelte';
-	import Telegram from '$lib/icons/social/Telegram.svelte';
-	import Copy from '$lib/icons/social/Copy.svelte';
 	import { fade } from 'svelte/transition';
-	import LoadingAnim from './animations/LoadingAnim.svelte';
-	import GaugeV2 from './indicator/GaugeV2.svelte';
-	import { enableXmas } from '$ts/utils/client/ui';
 	import Meta from '$lib/icons/social/Meta.svelte';
 	import Send from '$lib/icons/social/Send.svelte';
 	import CopyV2 from '$lib/icons/social/CopyV2.svelte';
