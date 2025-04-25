@@ -266,9 +266,6 @@ function OperandButton({ children, onClick, path, wholeCondition, onUpdate }: Ac
                         className="flex items-center justify-center px-3 py-1 text-sm rounded-md border border-[#333333] bg-[#222222] hover:bg-[#2A2A2A] hover:text-white relative cursor-pointer"
                     >
                         {children}
-                        {path && wholeCondition && onUpdate && (
-                            <DeleteButton path={path} wholeCondition={wholeCondition} onUpdate={onUpdate} />
-                        )}
                     </div>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="bg-[#222222] border-[#333333] text-white">
