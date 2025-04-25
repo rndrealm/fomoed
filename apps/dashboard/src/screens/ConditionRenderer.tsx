@@ -14,8 +14,9 @@ import {
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { atom, useAtom } from "jotai";
-import { DataType, DATA_TYPES, selectedDataTypeAtom } from "./DataConfigDialog";
+import { useAtom } from "jotai";
+import { DataType, DATA_TYPES } from "./types";
+import { DataConfigDialog, selectedDataTypeAtom } from "./DataConfigDialog";
 
 // We are using JSON logic. Example JSON structure:
 /**
@@ -40,11 +41,11 @@ import { DataType, DATA_TYPES, selectedDataTypeAtom } from "./DataConfigDialog";
 */
 
 // Define types for your condition structure
-interface Topic {
-    topic: [string, string]; // [source, type]
+interface DataStream {
+    topic: [string, string]; // [topicName, field]
 }
 
-type OperandValue = Topic | number | boolean | ConditionObject;
+type OperandValue = DataStream | number | boolean | ConditionObject;
 
 interface LogicalCondition {
     and?: OperandValue[];
@@ -61,29 +62,22 @@ interface ComparisonCondition {
 
 type ConditionObject = LogicalCondition | ComparisonCondition;
 
-// Atoms to manage number input dialog
-const numberInputDialogOpenAtom = atom(false);
-const numberInputValueAtom = atom("");
-const numberInputPathAtom = atom<(string | number)[] | null>(null);
-
-// Function to update condition
 function updateCondition(condition: object, path: (string | number)[], value: any): object {
     const updatedCondition = JSON.parse(JSON.stringify(condition)); // Create a deep copy
     update(updatedCondition, path, () => value);
     return updatedCondition;
 }
 
-// Delete button component to eliminate repetition
 interface DeleteButtonProps {
     path: (string | number)[];
     wholeCondition: any;
-    onUpdate?: (newCondition: object) => void;
+    onUpdate: (newCondition: object) => void;
     className?: string;
 }
 
 function DeleteButton({ path, wholeCondition, onUpdate, className }: DeleteButtonProps) {
     const handleDelete = () => {
-        if (!path || !onUpdate || !wholeCondition) return;
+        if (!path || !wholeCondition) return;
 
         // Create a deep copy of the condition to avoid mutating the original
         const updatedCondition = JSON.parse(JSON.stringify(wholeCondition));
@@ -112,10 +106,9 @@ interface ActionButtonProps {
     onClick?: () => void;
     path?: (string | number)[];
     wholeCondition?: object;
-    onUpdate?: (newCondition: object) => void;
+    onUpdate: (newCondition: object) => void;
 }
 
-// NumberInputDialog component
 interface NumberInputDialogProps {
     open: boolean;
     value: string;
@@ -196,7 +189,7 @@ function OperandButton({ children, onClick, path, wholeCondition, onUpdate }: Ac
     };
 
     const handleBooleanClick = (value: boolean) => {
-        if (path && onUpdate && wholeCondition) {
+        if (path && wholeCondition) {
             // Use the updateCondition function to safely update the condition
             const updatedCondition = updateCondition(wholeCondition, path, value);
             // Pass the fully updated condition object back to the parent
@@ -206,8 +199,8 @@ function OperandButton({ children, onClick, path, wholeCondition, onUpdate }: Ac
     };
 
     const handleNumberSave = () => {
-        // Ensure path, onUpdate, and wholeCondition are valid before proceeding
-        if (path && onUpdate && wholeCondition) {
+        // Ensure path and wholeCondition are valid before proceeding
+        if (path && wholeCondition) {
             const numValue = parseFloat(numberInputValue);
 
             // Check if the parsed value is a valid number
@@ -231,6 +224,14 @@ function OperandButton({ children, onClick, path, wholeCondition, onUpdate }: Ac
     const handleNumberCancel = () => {
         setNumberDialogOpen(false);
         setNumberInputValue("");
+    };
+
+    const handleDataConfigSet = (dataObject: object) => {
+        if (path && wholeCondition) {
+            const updatedCondition = updateCondition(wholeCondition, path, dataObject);
+            onUpdate(updatedCondition);
+        }
+        setSelectedDataType(null);
     };
 
     return (
@@ -303,6 +304,9 @@ function OperandButton({ children, onClick, path, wholeCondition, onUpdate }: Ac
                 onSave={handleNumberSave}
                 onCancel={handleNumberCancel}
             />
+
+            {/* DataConfigDialog with callback for setting data */}
+            <DataConfigDialog onSet={handleDataConfigSet} />
         </div>
     );
 }
@@ -395,7 +399,7 @@ function ConditionPart({
 }: {
     part: OperandValue;
     path?: (string | number)[];
-    onUpdate?: (newCondition: object) => void;
+    onUpdate: (newCondition: object) => void;
     wholeCondition: object;
 }) {
     if (typeof part === "object" && part !== null) {
@@ -426,14 +430,12 @@ export interface ConditionRendererProps {
     wholeCondition: object;
     depth?: number;
     path?: (string | number)[];
-    onUpdate?: (newCondition: object) => void;
+    onUpdate: (newCondition: object) => void;
 }
 
 // Component to render empty condition state
-function EmptyCondition({ onUpdate }: { onUpdate?: (newCondition: object) => void }) {
+function EmptyCondition({ onUpdate }: { onUpdate: (newCondition: object) => void }) {
     const handleSelect = (operatorType: string) => {
-        if (!onUpdate) return;
-
         if (operatorType === "and" || operatorType === "or") {
             onUpdate({ [operatorType]: [] });
         } else {
@@ -444,20 +446,18 @@ function EmptyCondition({ onUpdate }: { onUpdate?: (newCondition: object) => voi
     return (
         <div className="flex items-center gap-2">
             <span className="text-gray-500 italic">Build your signal using the buttons above</span>
-            {onUpdate && (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button
-                            size="sm"
-                            variant="outline"
-                            className="p-1 h-7 w-7 rounded-full bg-[#2A2A2A] text-gray-400 hover:text-gray-100 hover:bg-[#444444]"
-                        >
-                            <Plus size={14} />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <OperatorDropdownContent onSelect={handleSelect} />
-                </DropdownMenu>
-            )}
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        className="p-1 h-7 w-7 rounded-full bg-[#2A2A2A] text-gray-400 hover:text-gray-100 hover:bg-[#444444]"
+                    >
+                        <Plus size={14} />
+                    </Button>
+                </DropdownMenuTrigger>
+                <OperatorDropdownContent onSelect={handleSelect} />
+            </DropdownMenu>
         </div>
     );
 }
@@ -473,12 +473,10 @@ function LogicalOperatorRenderer({
     operator: string;
     operands: any[];
     path: (string | number)[];
-    onUpdate?: (newCondition: object) => void;
+    onUpdate: (newCondition: object) => void;
     wholeCondition: object;
 }) {
     const handleAddCondition = (operatorType: string) => {
-        if (!onUpdate) return;
-
         let newItem;
         if (operatorType === "and" || operatorType === "or") {
             newItem = { [operatorType]: [] };
@@ -513,7 +511,7 @@ function LogicalOperatorRenderer({
                         <OperatorDropdownContent onSelect={handleAddCondition} />
                     </DropdownMenu>
 
-                    {onUpdate && <DeleteButton path={path} wholeCondition={wholeCondition} onUpdate={onUpdate} />}
+                    <DeleteButton path={path} wholeCondition={wholeCondition} onUpdate={onUpdate} />
                 </div>
             </div>
             <div className="relative flex flex-col pl-8 pt-2">
@@ -553,12 +551,12 @@ function ComparisonOperatorRenderer({
     operator: string;
     operands: any[];
     path: (string | number)[];
-    onUpdate?: (newCondition: object) => void;
+    onUpdate: (newCondition: object) => void;
     wholeCondition: object;
 }) {
     return (
         <div className="flex items-center gap-2 p-2 bg-[#222222] rounded-md border border-[#444444] max-w-max group relative">
-            {onUpdate && <DeleteButton path={path} wholeCondition={wholeCondition} onUpdate={onUpdate} />}
+            <DeleteButton path={path} wholeCondition={wholeCondition} onUpdate={onUpdate} />
             {operands.map((operand: any, index: number) => (
                 <React.Fragment key={index}>
                     <ConditionPart
