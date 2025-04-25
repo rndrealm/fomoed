@@ -16,18 +16,18 @@
 	let container: HTMLElement;
 </script>
 
-<div class="px-1 h-full relative">
+<div class="relative h-full px-1">
 	<div bind:this={container} class="w-full h-full no-scrollbar" class:opacity-0={loading}>
 		<div class="-desktop:h-full desktop:h-full -desktop:pb-3">
 			<slot />
 		</div>
 	</div>
 
-	{#if loading}
+	<!-- {#if loading}
 		<div out:fade class="absolute inset-0 grid place-items-center">
 			<LoadingAnim />
 		</div>
-	{/if}
+	{/if} -->
 </div>
 
 <style>

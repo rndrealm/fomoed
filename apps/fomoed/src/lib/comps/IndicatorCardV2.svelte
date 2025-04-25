@@ -24,6 +24,10 @@
 	import Meta from '$lib/icons/social/Meta.svelte';
 	import Send from '$lib/icons/social/Send.svelte';
 	import CopyV2 from '$lib/icons/social/CopyV2.svelte';
+	import FearLogo from '$lib/icons/FearLogo.svelte';
+	import GaugeV3 from './indicator/GaugeV3.svelte';
+	import { tweened } from 'svelte/motion';
+	import { cubicOut } from 'svelte/easing';
 
 	export let onHomepage = false;
 	export let prev = 0;
@@ -171,62 +175,51 @@
 	});
 
 	let loadingIsOut = false;
+
+	// Create a tweened store for smooth animation of the gradient intensity
+	const gradientIntensity = tweened(0.3, {
+		duration: 800,
+		easing: cubicOut
+	});
+
+	// Update the gradient intensity whenever percentage changes
+	$: {
+		gradientIntensity.set(0.3 + (percentage * 0.7) / 100);
+	}
 </script>
 
 <div
 	style:background
-	class="w-ful {onHomepage ? 'rounded-[30px]' : 'rounded-[26px]'}  flex flex-col"
+	class="w-full {onHomepage ? 'rounded-[30px]' : 'rounded-[26px]'}  flex flex-col"
 >
 	<div class="flex flex-col">
 		<div class="relative w-full">
 			<div class="relative flex items-center justify-center">
-				<!-- <div
-					class="absolute top-0 left-0 flex flex-col justify-center pl-[51px] gap-1 h-full duration-500"
-					class:opacity-0={!$cfgi_summary}
-				>
-					<div class="font-medium text-center">
-						<div class="text-[9px] opacity-60">Prev</div>
-						<div class="opacity-80 font-paralucent font-medium text-[10px]">{prev}</div>
-					</div>
-
-					<div class="font-medium text-center">
-						<div class="text-[9px] opacity-60">Average</div>
-						<div class="opacity-80 font-paralucent text-[10px]">{average}</div>
-					</div>
-				</div> -->
-				<GaugeV2 percentage={$cfgi_summary ? percentage : 0} />
+				<GaugeV3 percentage={$cfgi_summary ? percentage : 0} />
 			</div>
 
-			<div class="absolute inset-x-0 flex items-center justify-center bottom-8">
+			<div class="absolute inset-x-0 flex items-center justify-center -bottom-[70px]">
 				<div class="relative">
-					<!-- <img
-						class:opacity-0={!$cfgi_summary}
-						src="/images/{icons[iconIdx]}"
-						alt=""
-						class="max-w-[92px] max-h-[124px]"
-					/> -->
+					<div
+						class="py-2 pl-2 pr-1"
+						style="background: radial-gradient(49.81% 49.81% at 50% 50%, rgba(50, 15, 1, {$gradientIntensity}) 0%, rgba(25, 7, 0, {$gradientIntensity}) 100%); 
+					border-radius: 50%; 
+					
+					backdrop-filter: blur(5.947214126586914px)"
+					>
+						<FearLogo />
+					</div>
 
-					<div class="text-[48px] leading-[40px] font-mono font-normal" style:color>
+					<div
+						class="text-[48px] leading-[40px] font-mono font-normal text-white mt-6 flex justify-center"
+					>
 						{percentage}
 					</div>
-
-					<!-- {#if enableXmas}
-						<div
-							style="background-image: url(/images/xmas/hat.svg); aspect-ratio: 97/59;"
-							class="absolute inset-x-0 z-30 -translate-x-3 -top-5"
-						></div>
-					{/if} -->
 				</div>
-
-				<!-- {#if !$cfgi_summary}
-					<div class="absolute w-full">
-						<LoadingAnim />
-					</div>
-				{/if} -->
 			</div>
 
 			<div
-				class="flex justify-between duration-500 max-w-[169px] w-full mx-auto absolute inset-x-0 -bottom-5"
+				class="flex justify-between duration-500 max-w-[290px] w-full mx-auto absolute inset-x-0 -bottom-14"
 				class:opacity-0={!$cfgi_summary}
 			>
 				<div>
@@ -245,30 +238,11 @@
 			</div>
 		</div>
 
-		<!-- <div
-			class="grid grid-cols-[1fr_2fr_1fr] justify-between px-[28px] duration-500"
-			class:opacity-0={!$cfgi_summary}
-		>
-			<div>
-				<div class="text-xs opacity-60">Prev</div>
-				<div class="opacity-80 font-paralucent font-medium text-[18px]">{prev}</div>
-			</div>
-
-			<div class="text-center">
-				<div class="text-lg font-medium opacity-80 font-paralucent">{marketSentiment}</div>
-			</div>
-
-			<div class="text-right">
-				<div class="text-xs opacity-60">Average</div>
-				<div class="opacity-80 font-paralucent font-medium text-[18px]">{average}</div>
-			</div>
-		</div> -->
-
-		<div class="mt-10">
+		<div class="hidden mt-10">
 			<div class="h-[1px] bg-white opacity-10"></div>
 		</div>
 
-		<div class="flex flex-col mb-0 justify-evenly">
+		<div class="flex-col hidden mb-0 justify-evenly">
 			{#if $loading}
 				<div
 					in:fade

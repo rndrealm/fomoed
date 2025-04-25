@@ -26,7 +26,7 @@
 	tabindex={0}
 	on:click={toggle}
 	on:keydown={toggle}
-	class="duration-200 relative w-full rounded-xl border-[#FFFFFF1A] border h-full pl-[14px] flex items-center gap-x-2 bg-[#12100F] hover:bg-[#FBFBFB1A] hover:border-[#FFFFFF1A] hover:cursor-pointer"
+	class="duration-200 relative w-full rounded-[6px] border-[#FFFFFF1A] border h-full pl-[14px] flex items-center gap-x-2 bg-[#070707] hover:bg-[#FBFBFB1A] hover:border-[#FFFFFF1A] hover:cursor-pointer"
 	role="button"
 >
 	<div class="pb-px">
@@ -52,7 +52,7 @@
 		<div
 			class="absolute top-0 left-0 translate-y-16 border border-[#FFFFFF1A] bg-[#0F0D0DE5] rounded-xl w-full h-[300px]"
 		>
-			<div class="overflow-y-scroll py-3 h-full no-scrollbar" data-simplebar>
+			<div class="h-full py-3 overflow-y-scroll no-scrollbar" data-simplebar>
 				{#each displayedOptions as option}
 					<div>
 						<button

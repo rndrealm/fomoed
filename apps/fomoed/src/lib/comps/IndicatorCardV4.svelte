@@ -19,12 +19,13 @@
 	import Copy from '$lib/icons/social/Copy.svelte';
 	import { fade } from 'svelte/transition';
 	import LoadingAnim from './animations/LoadingAnim.svelte';
-	import GaugeV3 from './indicator/GaugeV3.svelte';
+	import GaugeV2 from './indicator/GaugeV2.svelte';
 	import { enableXmas } from '$ts/utils/client/ui';
 	import Meta from '$lib/icons/social/Meta.svelte';
 	import Send from '$lib/icons/social/Send.svelte';
 	import CopyV2 from '$lib/icons/social/CopyV2.svelte';
 	import FearLogo from '$lib/icons/FearLogo.svelte';
+	import GaugeV3 from './indicator/GaugeV3.svelte';
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
 
@@ -187,17 +188,14 @@
 	}
 </script>
 
-<div
-	style:background
-	class="w-ful {onHomepage ? 'rounded-[30px]' : 'rounded-[26px]'}  flex flex-col"
->
-	<div class="flex flex-col">
-		<div class="relative w-full">
-			<div class="relative flex items-center justify-center px-[52px] mb-4">
+<div style:background class="w-full h-full {onHomepage ? 'rounded-[30px]' : 'rounded-[26px]'} ">
+	<div class="flex flex-col flex-1 h-full">
+		<div class="relative w-full mb-14">
+			<div class="relative flex items-center justify-center">
 				<GaugeV3 percentage={$cfgi_summary ? percentage : 0} />
 			</div>
 
-			<div class="absolute inset-x-0 flex items-center justify-center -bottom-9">
+			<div class="absolute inset-x-0 flex items-center justify-center -bottom-[70px]">
 				<div class="relative">
 					<div
 						class="py-2 pl-2 pr-1"
@@ -218,7 +216,7 @@
 			</div>
 
 			<div
-				class="flex justify-between duration-500 max-w-[230px] w-full mx-auto absolute inset-x-0 -bottom-5"
+				class="flex justify-between duration-500 max-w-[290px] w-full mx-auto absolute inset-x-0 -bottom-14"
 				class:opacity-0={!$cfgi_summary}
 			>
 				<div>
@@ -237,11 +235,11 @@
 			</div>
 		</div>
 
-		<div class="mt-20">
+		<div class="mt-10">
 			<div class="h-[1px] bg-white opacity-10"></div>
 		</div>
 
-		<div class="flex flex-col mb-0 justify-evenly">
+		<div class="flex-col mb-0 justify-evenly">
 			{#if $loading}
 				<div
 					in:fade
@@ -306,7 +304,7 @@
 				</div>
 			{:else if !$loading && !$has_voted && loadingIsOut}
 				<div in:fade>
-					<div class="font-medium text-sm text-center mt-[21px] opacity-80">
+					<div class="font-medium text-sm text-center mt-[11px] opacity-80">
 						How do you feel about the market today?
 					</div>
 

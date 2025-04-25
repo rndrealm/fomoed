@@ -3,6 +3,7 @@
 	import { cfgiDataService } from '$ts/client/services/CfgiDataService.client.svelte';
 	import { liveDataService } from '$ts/client/services/LiveSymbolDataService.client.svelte';
 	import IndicatorCardV2 from '../IndicatorCardV2.svelte';
+	import IndicatorCardV4 from '../IndicatorCardV4.svelte';
 	import CfgiAssetDropdown from './CfgiAssetDropdown.svelte';
 	import GaugeFrag from './GaugeFrag.svelte';
 
@@ -57,30 +58,17 @@
 </script>
 
 <div
-	class="  border-[0.5px] border-[#1E1E1E] pt-[30px] pb-[22px] bg-[#070707] rounded-[20px] w-full h-full"
+	class="  border-[0.5px] border-[#1E1E1E] pt-[30px] pb-[22px] bg-[#070707] rounded-[20px] w-full h-[461px]"
 >
 	<!-- Header Section -->
-	<div class="flex items-center justify-between px-[27px]">
-		<div class="flex items-center pl-2 gap-x-2">
-			<!-- <div class="size-5">
-				<CfgiIcon />
-			</div> -->
-
-			<h2 class="text-xl font-medium whitespace-nowrap">Fear and Greed Index</h2>
+	<div class="flex items-center justify-center px-[27px]">
+		<div class="flex items-center gap-x-2">
+			<h2 class="text-xl font-medium text-center whitespace-nowrap">Fear and Greed Index</h2>
 		</div>
-
-		<CfgiAssetDropdown bind:value={selectedSymbol} />
 	</div>
 
 	<!-- Gauge Section -->
-	<div class="pt-10">
-		<!-- <GaugeFrag
-			gaugeValue={lastCfgiData?.cfgi || null}
-			symbol={selectedSymbol}
-			price={liveSymbolData?.price}
-			v24={liveSymbolData?.volume24h}
-			dominance={symbolDominance !== null ? symbolDominance.toFixed(2) : null}
-		/> -->
-		<IndicatorCardV2 percentage={lastCfgiData?.cfgi || 0} />
+	<div class="h-full pt-10">
+		<IndicatorCardV4 percentage={lastCfgiData?.cfgi || 0} />
 	</div>
 </div>

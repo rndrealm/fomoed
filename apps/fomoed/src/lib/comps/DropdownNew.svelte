@@ -13,12 +13,12 @@
 	let expanded = false;
 </script>
 
-<div class="relative">
+<div class="relative h-full">
 	<button
 		on:click={() => (expanded = !expanded)}
-		class="flex items-center gap-x-2 border rounded-xl border-[#FFFFFF1A] px-[14px] py-[15px] w-full bg-[#12100F] hover:bg-[#FBFBFB1A] hover:border-[#FFFFFF1A]"
+		class="flex items-center gap-x-2 border rounded-[6px] border-[#FFFFFF1A] px-[14px] h-full w-full bg-[#070707] hover:bg-[#FBFBFB1A] hover:border-[#FFFFFF1A]"
 	>
-		<div class="font-medium font-paralucent flex-grow text-left pl-1 whitespace-nowrap">
+		<div class="flex-grow pl-1 font-medium text-left font-inter text-[13px] whitespace-nowrap">
 			{selected.label}
 		</div>
 

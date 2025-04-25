@@ -137,7 +137,12 @@
 	let chart: any;
 </script>
 
-<div class="w-full desktop:h-[450px] -desktop:h-full -desktop:flex flex-col relative">
+<div
+	class="w-full desktop:h-[450px] -desktop:h-full -desktop:flex flex-col relative {isFullscreen &&
+	$isDesktop
+		? 'z-[1000]'
+		: ''} "
+>
 	{#if $isDesktop === true}
 		<div
 			bind:this={chartCardContainer}
@@ -150,17 +155,17 @@
 		</div>
 
 		<div
-			class="absolute inset-0 flex items-center h-full z-10 pointer-events-none duration-200"
+			class="absolute inset-0 z-10 flex items-center h-full duration-200 pointer-events-none"
 			class:opacity-0={isFullscreen}
 		>
-			<div class="flex w-full relative">
-				<button on:click={() => goLeft()} class="-translate-x-1/2 pointer-events-auto p-4">
+			<div class="relative flex w-full">
+				<button on:click={() => goLeft()} class="p-4 -translate-x-1/2 pointer-events-auto">
 					<CarouselArrowLeft />
 				</button>
 
 				<div class="flex-grow"></div>
 
-				<button on:click={() => goRight()} class="translate-x-1/2 pointer-events-auto p-4">
+				<button on:click={() => goRight()} class="p-4 translate-x-1/2 pointer-events-auto">
 					<CarouselArrowRight />
 				</button>
 			</div>
@@ -168,7 +173,7 @@
 	{:else if $isDesktop === false}
 		<div
 			bind:this={mobileCarouselContainer}
-			class="w-full flex overflow-x-scroll snap-x snap-mandatory px-3 no-scrollbar flex-grow"
+			class="flex flex-grow w-full px-3 overflow-x-scroll snap-x snap-mandatory no-scrollbar"
 		>
 			{#each components as component, i}
 				<div class="flex-shrink-0 snap-center w-[calc(100vw-1.5rem)] relative">
@@ -199,7 +204,7 @@
 	<button
 		id="fullscreen-btn"
 		class="opacity-75 hover:opacity-100 duration-200 z-10 {isFullscreen && $isDesktop
-			? 'translate-y-3'
+			? 'translate-y-3 z-[1000] '
 			: ''}"
 		on:click={() => (isFullscreen ? goOutFullscreen() : goInFullscreen())}
 		class:isFullscreen

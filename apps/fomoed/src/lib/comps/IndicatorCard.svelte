@@ -179,13 +179,13 @@
 		: 'rounded-[26px]'} backdrop-blur-xl flex flex-col {onHomepage &&
 		'border-2 border-transparent'} {!onHomepage && 'border border-[#FFFFFF1A]'}"
 >
-	<div class="mx-auto h-full flex flex-col">
+	<div class="flex flex-col h-full mx-auto">
 		<div class="relative max-h-[220px] w-full">
-			<div class="inset-x-0 grid place-items-center px-2 mt-4">
+			<div class="inset-x-0 grid px-2 mt-4 place-items-center">
 				<Gauge percentage={$cfgi_summary ? percentage : 0} />
 			</div>
 
-			<div class="inset-x-0 absolute bottom-4 flex justify-center items-center">
+			<div class="absolute inset-x-0 flex items-center justify-center bottom-4">
 				<div class="relative">
 					<img
 						class:opacity-0={!$cfgi_summary}
@@ -197,16 +197,16 @@
 					{#if enableXmas}
 						<div
 							style="background-image: url(/images/xmas/hat.svg); aspect-ratio: 97/59;"
-							class="absolute -top-5 inset-x-0 -translate-x-3 z-30"
+							class="absolute inset-x-0 z-30 -translate-x-3 -top-5"
 						></div>
 					{/if}
 				</div>
 
-				{#if !$cfgi_summary}
+				<!-- {#if !$cfgi_summary}
 					<div class="absolute w-full">
 						<LoadingAnim />
 					</div>
-				{/if}
+				{/if} -->
 			</div>
 		</div>
 
@@ -223,7 +223,7 @@
 				<div class="text-[40px] leading-[40px] font-paralucent font-medium" style:color>
 					{percentage}
 				</div>
-				<div class="text-lg opacity-80 font-paralucent font-medium">{marketSentiment}</div>
+				<div class="text-lg font-medium opacity-80 font-paralucent">{marketSentiment}</div>
 			</div>
 
 			<div class="text-right">
@@ -236,7 +236,7 @@
 			<div class="h-[1px] bg-white opacity-10 mt-[20px]"></div>
 		</div>
 
-		<div class="flex-grow flex flex-col mb-4 justify-evenly h-28">
+		<div class="flex flex-col flex-grow mb-4 justify-evenly h-28">
 			{#if $loading}
 				<div
 					in:fade
@@ -257,12 +257,12 @@
 					</div>
 
 					<div
-						class="font-paralucent max-w-max font-medium text-sm bg-gradient-to-r from-primary to-yellow text-transparent bg-clip-text"
+						class="text-sm font-medium text-transparent font-paralucent max-w-max bg-gradient-to-r from-primary to-yellow bg-clip-text"
 					>
 						Fomoed score
 					</div>
 
-					<div class="font-medium text-sm text-center opacity-80">Share your polls on</div>
+					<div class="text-sm font-medium text-center opacity-80">Share your polls on</div>
 
 					<div class="flex gap-x-2 justify-center mt-[10px]">
 						<a href={copy_social_link('twitter', getLink())} target="_blank">

@@ -84,7 +84,7 @@
 	$: $selAssetOption && refreshData();
 </script>
 
-<div class="h-full overflow-hidden relative">
+<div class="relative h-full overflow-hidden">
 	<DashboardCard isChartCard {hideCard}>
 		{#if !$enablePlusFeatures}
 			<div class="absolute inset-px">
@@ -99,8 +99,8 @@
 					subtitle="Liquidation Map"
 				/>
 
-				<div class="col-span-2 -desktop:order-3 flex gap-x-2">
-					<div class="w-40 z-10 -desktop:flex-grow desktop:w-56 h-14">
+				<div class="flex col-span-2 -desktop:order-3 gap-x-2">
+					<div class="w-40 z-10 -desktop:flex-grow desktop:w-56 h-[34px]">
 						<Autocomplete
 							options={assetOptions}
 							bind:inputValue={$pairSearchTerm}
@@ -108,7 +108,7 @@
 						/>
 					</div>
 
-					<div class="w-32 z-10">
+					<div class="z-10 w-32">
 						<DropdownNew
 							options={timeframeOptions}
 							bind:selected={selectedTimeframe}
@@ -119,9 +119,7 @@
 					</div>
 				</div>
 
-				<div
-					class="-desktop:order-2 place-self-end duration-200 {$isFullscreenCardStore && 'pr-10'}"
-				>
+				<div class="-desktop:order-2 duration-200 {$isFullscreenCardStore && 'pr-10'}">
 					<IconButton disabled={loading} on:click={refreshData}>
 						<div class:animate-reverse-spin={loading}>
 							<IconRefresh />
@@ -131,7 +129,7 @@
 			</DashboardCardHeader>
 
 			<!-- Legend and Chart -->
-			<div class="flex-grow h-full flex flex-col max-w-full overflow-hidden">
+			<div class="flex flex-col flex-grow h-full max-w-full overflow-hidden">
 				<div class="flex-grow-0 mt-4 -desktop:mt-6 px-[30px] -desktop:px-4">
 					<Legend
 						legends={[
@@ -145,7 +143,7 @@
 					></Legend>
 				</div>
 
-				<!-- <div class="text-sm text-center pt-1 -desktop:text-xs">
+				<!-- <div class="pt-1 text-sm text-center -desktop:text-xs">
 					Current Price: {currentPrice}
 				</div> -->
 

@@ -3,12 +3,12 @@
 	export let subtitle = '';
 </script>
 
-<div class="flex-grow -desktop:pl-1 flex flex-col justify-center h-14">
-	<div class="font-paralucent-heavy text-[20px] -desktop:text-base uppercase">
+<div class="flex flex-col justify-center flex-grow -desktop:pl-1 h-14">
+	<div class=" text-[15px] -desktop:text-base uppercase font-semibold">
 		{title}
 	</div>
 
-	<div class="font-paralucent font-medium text-lg text-[#FFFFFFCC] -desktop:text-xs">
+	<div class=" font-semibold text-[15px] text-[#737373] -desktop:text-xs">
 		{subtitle}
 	</div>
 </div>
