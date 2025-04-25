@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Trash2, Plus, ChevronRight, ChevronDown } from "lucide-react";
-import { update } from "lodash-es";
+import { update, unset } from "lodash-es";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -285,43 +285,6 @@ function OperandButton({ children, onClick, onDelete, canDelete = false, path }:
             </DropdownMenu>
         </div>
     );
-}
-
-// Helper function to delete a value at a specific path in an object
-export function deleteAtPath(obj: any, path: (string | number)[]): any {
-    if (!obj || path.length === 0) return obj;
-
-    // Create a deep copy to avoid direct mutation
-    const result = JSON.parse(JSON.stringify(obj));
-
-    if (path.length === 1) {
-        // For arrays, we need special handling
-        if (Array.isArray(result)) {
-            result.splice(path[0] as number, 1);
-        } else {
-            delete result[path[0]];
-        }
-        return result;
-    }
-
-    let current = result;
-    const pathToParent = path.slice(0, path.length - 1);
-    const lastKey = path[path.length - 1];
-
-    // Navigate to the parent of the item to delete
-    for (const key of pathToParent) {
-        current = current[key];
-        if (current === undefined) return result; // Path doesn't exist
-    }
-
-    // Delete the item
-    if (Array.isArray(current)) {
-        current.splice(lastKey as number, 1);
-    } else {
-        delete current[lastKey];
-    }
-
-    return result;
 }
 
 // OperatorDropdownContent component to eliminate duplication

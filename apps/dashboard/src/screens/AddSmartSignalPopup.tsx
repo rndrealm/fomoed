@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
 import React, { useEffect } from "react";
-import { ConditionRenderer, deleteAtPath } from "./ConditionRenderer"; // Added updateAtPath import
+import { ConditionRenderer } from "./ConditionRenderer";
+import { unset } from "lodash-es"; // Import unset from lodash-es
 
 // Atom to manage the dialog open state
 const addSmartSignalOpenAtom = atomWithStorage("addSmartSignalOpen", false);
@@ -51,7 +52,10 @@ export function AddSmartSignalPopup({ trigger }: AddSmartSignalPopupProps) {
             return;
         }
 
-        const updatedCondition = deleteAtPath(condition, path);
+        // Create a deep copy of the condition to avoid mutating the original
+        const updatedCondition = JSON.parse(JSON.stringify(condition));
+        // Use lodash unset to remove the property at the given path
+        unset(updatedCondition, path);
         setCondition(updatedCondition);
     };
 
