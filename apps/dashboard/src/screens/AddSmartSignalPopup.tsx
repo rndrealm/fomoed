@@ -86,6 +86,7 @@ export function AddSmartSignalPopup({ trigger }: AddSmartSignalPopupProps) {
                                 condition={condition}
                                 onDelete={handleDeleteConditionPart}
                                 onUpdate={handleUpdateCondition}
+                                wholeCondition={condition}
                             />
                         </div>
                     </Card>

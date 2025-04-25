@@ -145,11 +145,11 @@ function DataConfigDialog({ dataType }: { dataType: DataType }) {
 
 // Number Input Dialog Component
 function NumberInputDialog({
-    currentCondition,
+    wholeCondition,
     onUpdate,
     editPath,
 }: {
-    currentCondition: any;
+    wholeCondition: any;
     onUpdate?: (newCondition: object) => void;
     editPath?: (string | number)[];
 }) {
@@ -162,13 +162,13 @@ function NumberInputDialog({
 
     const handleSave = () => {
         // Ensure path, onUpdate, and currentCondition are valid before proceeding
-        if (effectivePath && onUpdate && currentCondition) {
+        if (effectivePath && onUpdate && wholeCondition) {
             const numValue = parseFloat(inputValue);
 
             // Check if the parsed value is a valid number
             if (!isNaN(numValue)) {
                 // Use the existing updateAtPath helper function to safely update the condition
-                const updatedCondition = updateAtPath(currentCondition, effectivePath, numValue);
+                const updatedCondition = updateAtPath(wholeCondition, effectivePath, numValue);
 
                 // Pass the fully updated condition object back to the parent
                 onUpdate(updatedCondition);
@@ -177,7 +177,11 @@ function NumberInputDialog({
                 console.error("Invalid number input:", inputValue);
             }
         } else {
-            console.error("Cannot save number: Missing path, onUpdate handler, or current condition.");
+            console.error("Cannot save number: Missing path, onUpdate handler, or current condition.", {
+                effectivePath,
+                onUpdate,
+                wholeCondition,
+            });
         }
 
         // Reset state and close the dialog regardless of success or failure
@@ -418,14 +422,14 @@ export function deleteAtPath(obj: any, path: (string | number)[]): any {
 }
 
 // Helper function to update a value at a specific path in an object
-export function updateAtPath(obj: any, path: (string | number)[], value: any): any {
+export function updateAtPath(wholeCondition: any, path: (string | number)[], value: any): any {
     console.log("Updating path:", path, "with value:", value);
-    console.log("Original object:", obj);
+    console.log("Whole condition:", wholeCondition);
 
-    if (!obj || path.length === 0) return obj;
+    if (!wholeCondition || path.length === 0) return wholeCondition;
 
     // Create a deep copy to avoid direct mutation
-    const result = JSON.parse(JSON.stringify(obj));
+    const result = JSON.parse(JSON.stringify(wholeCondition));
 
     let current = result;
     const pathToParent = path.slice(0, path.length - 1);
@@ -437,7 +441,7 @@ export function updateAtPath(obj: any, path: (string | number)[], value: any): a
         // This prevents errors if the path is somehow invalid during an update
         if (current[key] === undefined) {
             console.error("Invalid path during update:", path, "at key:", key, ", current:", current);
-            return obj; // Return original object if path is broken
+            return wholeCondition; // Return original object if path is broken
         }
         current = current[key];
     }
@@ -454,7 +458,7 @@ export function updateAtPath(obj: any, path: (string | number)[], value: any): a
     } else {
         // Log an error if the target structure is not as expected (e.g., trying to set a numeric key on an object)
         console.error("Cannot update path:", path, "Target structure invalid at final step.");
-        return obj; // Return original object on error
+        return wholeCondition; // Return original object on error
     }
 
     return result;
@@ -501,13 +505,19 @@ function OperatorDropdownContent({ onSelect }: OperatorDropdownContentProps) {
 }
 
 // Helper function to render individual parts of the condition
-function renderConditionPart(
-    part: any,
-    path: (string | number)[] = [],
-    onDelete?: (path: (string | number)[]) => void,
-    onUpdate?: (newCondition: object) => void,
-    wholeCondition?: object | null
-): React.ReactNode {
+function renderConditionPart({
+    part,
+    path = [],
+    onDelete,
+    onUpdate,
+    wholeCondition,
+}: {
+    part: any;
+    path?: (string | number)[];
+    onDelete?: (path: (string | number)[]) => void;
+    onUpdate?: (newCondition: object) => void;
+    wholeCondition: object;
+}): React.ReactNode {
     if (typeof part === "object" && part !== null) {
         if ("topic" in part) {
             // Render topic placeholder
@@ -543,7 +553,7 @@ function renderConditionPart(
 
 export interface ConditionRendererProps {
     condition: object | null;
-    wholeCondition?: object | null; // Added new prop for the entire condition
+    wholeCondition: object;
     depth?: number;
     path?: (string | number)[];
     onDelete?: (path: (string | number)[]) => void;
@@ -590,12 +600,14 @@ function LogicalOperatorRenderer({
     path,
     onDelete,
     onUpdate,
+    wholeCondition,
 }: {
     operator: string;
     operands: any[];
     path: (string | number)[];
     onDelete?: (path: (string | number)[]) => void;
     onUpdate?: (newCondition: object) => void;
+    wholeCondition: object;
 }) {
     const handleAddCondition = (operatorType: string) => {
         if (!onUpdate) return;
@@ -646,7 +658,13 @@ function LogicalOperatorRenderer({
                     <div key={index} className="relative pb-3 last:pb-0">
                         <div className="absolute left-0 top-4 h-px w-4 bg-[#444444] -translate-x-4"></div>
                         <div className="pt-1">
-                            {renderConditionPart(operand, [...path, operator, index], onDelete, onUpdate)}
+                            {renderConditionPart({
+                                part: operand,
+                                path: [...path, operator, index],
+                                onDelete,
+                                onUpdate,
+                                wholeCondition,
+                            })}
                         </div>
                     </div>
                 ))}
@@ -669,14 +687,20 @@ function ComparisonOperatorRenderer({
     path: (string | number)[];
     onDelete?: (path: (string | number)[]) => void;
     onUpdate?: (newCondition: object) => void;
-    wholeCondition?: object | null;
+    wholeCondition: object;
 }) {
     return (
         <div className="flex items-center gap-2 p-2 bg-[#222222] rounded-md border border-[#444444] max-w-max group relative">
             {onDelete && <DeleteButton onDelete={() => onDelete(path)} />}
             {operands.map((operand: any, index: number) => (
                 <React.Fragment key={index}>
-                    {renderConditionPart(operand, [...path, operator, index], undefined, onUpdate, wholeCondition)}
+                    {renderConditionPart({
+                        part: operand,
+                        path: [...path, operator, index],
+                        onDelete: undefined,
+                        onUpdate,
+                        wholeCondition,
+                    })}
                     {index === 0 && <span className="text-white font-bold">{operator}</span>}
                 </React.Fragment>
             ))}
@@ -693,9 +717,6 @@ export function ConditionRenderer({
 }: ConditionRendererProps) {
     // Get the current edit path from atom state
     const [numberInputPath] = useAtom(numberInputPathAtom);
-
-    // If wholeCondition is not provided, use the current condition as the whole condition
-    const effectiveWholeCondition = wholeCondition || condition;
 
     if (!condition || typeof condition !== "object" || Object.keys(condition).length === 0) {
         return <EmptyCondition onUpdate={onUpdate} />;
@@ -715,11 +736,7 @@ export function ConditionRenderer({
     // Add the NumberInputDialog at the top level, passing the current edit path
     return (
         <>
-            <NumberInputDialog
-                currentCondition={effectiveWholeCondition}
-                onUpdate={onUpdate}
-                editPath={numberInputPath}
-            />
+            <NumberInputDialog wholeCondition={wholeCondition} onUpdate={onUpdate} editPath={numberInputPath} />
 
             {isLogicalOperator ? (
                 <LogicalOperatorRenderer
@@ -728,6 +745,7 @@ export function ConditionRenderer({
                     path={path}
                     onDelete={onDelete}
                     onUpdate={onUpdate}
+                    wholeCondition={wholeCondition}
                 />
             ) : isComparisonOperator ? (
                 <ComparisonOperatorRenderer
@@ -736,7 +754,7 @@ export function ConditionRenderer({
                     path={path}
                     onDelete={onDelete}
                     onUpdate={onUpdate}
-                    wholeCondition={effectiveWholeCondition}
+                    wholeCondition={wholeCondition}
                 />
             ) : (
                 // Just render the operator name if we don't have a specific renderer for it
