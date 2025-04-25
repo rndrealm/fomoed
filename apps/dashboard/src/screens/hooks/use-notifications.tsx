@@ -36,7 +36,17 @@ export function useNotifications() {
 
     useEffect(() => {
         fetchNotifications();
+        const interval = setInterval(fetchNotifications, 5000);
+        return () => clearInterval(interval);
     }, [fetchNotifications]);
 
-    return { notifications, fetchNotifications };
+    // Add a function to delete a notification by id
+    const deleteNotification = async (id: string) => {
+        const supabase = createSupabaseBrowserClient();
+        await supabase.from("notifications").delete().eq("id", id);
+        // Optionally, refetch notifications after deletion
+        // fetchNotifications();
+    };
+
+    return { notifications, fetchNotifications, deleteNotification };
 }
