@@ -51,32 +51,26 @@ export function AddSmartSignalPopup({ trigger }: AddSmartSignalPopupProps) {
         <Dialog open={open} onOpenChange={setOpen}>
             {trigger && <div onClick={() => setOpen(true)}>{trigger}</div>}
             {/* Use p-0 on DialogContent and manage padding internally for flex structure */}
-            <DialogContent className="h-[800px] w-[90%] max-w-[90%] sm:max-w-[90%] bg-[#1A1A1A] border-[#333333] text-white flex flex-col p-0">
+            <DialogContent className="h-[800px] w-[90%] max-w-[90%] sm:max-w-[90%] bg-[#1A1A1A] border-[#333333] text-white flex flex-col p-0 px-4">
                 {/* Header - fixed height */}
                 <DialogHeader className="p-6 pb-4 border-b border-[#333333]">
                     <div className="flex items-center justify-between">
                         <DialogTitle className="text-white">Add a Smart Signal</DialogTitle>
                     </div>
-                    <DialogDescription className="text-gray-400 pt-1">
-                        Configure your new smart signal settings here.
+                    <DialogDescription className="text-neutral-400 pt-1">
+                        Configure your new smart signal here.
                     </DialogDescription>
                 </DialogHeader>
 
-                {/* Main content - using flex column layout */}
-                <div className="flex-grow p-6 flex flex-col space-y-4 overflow-hidden">
-                    {/* Signal Preview Area - flex-grow to fill available space */}
-                    <Card className="flex-grow flex flex-col p-4 bg-[#222222] border-[#333333] min-h-0">
-                        <p className="text-sm text-gray-400 mb-2 flex-shrink-0">Condition</p>
-                        <div className="flex-grow overflow-y-auto p-3 rounded bg-[#2A2A2A] border border-[#3A3A3A] text-gray-300 font-mono text-sm">
-                            {/* Now only passing onUpdate handler */}
-                            <ConditionRenderer
-                                condition={condition}
-                                onUpdate={handleUpdateCondition}
-                                wholeCondition={condition}
-                            />
-                        </div>
-                    </Card>
-                </div>
+                {/* Signal Preview Area - flex-grow to fill available space */}
+                <Card className="flex-grow flex flex-col p-4 bg-white/5 border-[#333333] min-h-0 font-mono text-sm text-white">
+                    {/* Now only passing onUpdate handler */}
+                    <ConditionRenderer
+                        condition={condition}
+                        onUpdate={handleUpdateCondition}
+                        wholeCondition={condition}
+                    />
+                </Card>
 
                 {/* Footer - fixed height */}
                 <div className="flex justify-end gap-2 p-4 border-t border-[#333333]">
