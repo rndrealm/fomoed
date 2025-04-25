@@ -78,7 +78,7 @@ export function useSmartSignals() {
             topics,
             condition: JSON.stringify(condition),
             fired_at: null,
-            actions: [{ type: "notification" }],
+            actions: [{ type: "notification", description: "Smart signal fired!" }],
         };
         const supabase = createSupabaseBrowserClient();
         const { data, error } = await supabase.from("smart_signals").insert([smartSignal]).select("*").single();
