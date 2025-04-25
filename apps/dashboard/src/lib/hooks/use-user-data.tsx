@@ -9,6 +9,8 @@ export default function useUserData() {
     const session = useSession();
     const [userData, setUserData] = useState<UsersRow | null>(null);
 
+    console.log("User data", userData);
+
     useEffect(() => {
         if (!session?.user?.id) {
             setUserData(null);
@@ -16,6 +18,8 @@ export default function useUserData() {
         }
 
         const supabase = createSupabaseBrowserClient();
+
+        console.log("Fetching user data for ID:", session.user.id);
 
         supabase
             .from("users")

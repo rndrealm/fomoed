@@ -10,7 +10,7 @@ export interface SmartSignal {
     topics: string[];
     condition: string;
     fired_at: string | null;
-    actions: string;
+    actions: any[];
 }
 
 function getTopicsFromCondition(condition: ConditionObject): string[] {
@@ -63,7 +63,7 @@ export function useSmartSignals() {
             topics,
             condition: JSON.stringify(condition),
             fired_at: null,
-            actions: '[{ type: "notification" }]',
+            actions: [{ type: "notification" }],
         };
 
         const supabase = createSupabaseBrowserClient();
