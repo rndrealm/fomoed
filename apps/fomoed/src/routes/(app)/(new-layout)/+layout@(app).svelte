@@ -15,4 +15,3 @@
 
 <ModeWatcher defaultMode="dark" />
 <slot />
-<Toaster />

@@ -20,6 +20,7 @@
 	import SignOutPopup from '$lib/comps/popups/SignOutPopup.svelte';
 	import { signOut } from '$lib/utils/user.js';
 	import { supabaseStore } from '$ts/client/utils/supabase.svelte';
+	import { Toaster } from 'svelte-5-french-toast';
 
 	// const supabase = getContext<SupabaseClient>('supabase');
 
@@ -141,5 +142,6 @@ sentiment analysis"
 {/if}
 
 <SvelteToast />
+<Toaster />
 
 <slot />
