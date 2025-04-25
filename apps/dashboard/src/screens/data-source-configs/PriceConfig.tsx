@@ -5,6 +5,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DataConfigComponentProps } from "../types";
 
 function fetchProducts(): Promise<{ display_name: string }[]> {
     return fetch("https://api.exchange.coinbase.com/products")
@@ -12,7 +13,7 @@ function fetchProducts(): Promise<{ display_name: string }[]> {
         .then((data) => (Array.isArray(data) ? data.map((p) => ({ display_name: p.display_name })) : []));
 }
 
-export function PriceConfig() {
+export function PriceConfig({ setDataObject }: DataConfigComponentProps) {
     const [products, setProducts] = useState<{ display_name: string }[]>([]);
     const [open, setOpen] = useState(false);
     const [selected, setSelected] = useState<string>("");
@@ -20,6 +21,14 @@ export function PriceConfig() {
     useEffect(() => {
         fetchProducts().then(setProducts);
     }, []);
+
+    useEffect(() => {
+        if (selected) {
+            const topicName = "ticker_" + selected.replaceAll("-", "");
+
+            setDataObject({ topic: [topicName, "price"] });
+        }
+    }, [selected, setDataObject]);
 
     return (
         <div className="space-y-4 p-4 max-w-sm">

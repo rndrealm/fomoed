@@ -168,15 +168,16 @@ function OperandButton({ children, onClick, path, wholeCondition, onUpdate }: Ac
     const [open, setOpen] = React.useState(false); // For dropdown
     const [numberDialogOpen, setNumberDialogOpen] = React.useState(false); // For number input dialog
     const [numberInputValue, setNumberInputValue] = React.useState(""); // For number input value
+    const [dataConfigDialogOpen, setDataConfigDialogOpen] = React.useState(false); // For DataConfigDialog
 
     const handleDataItemClick = (dataType: DataType) => {
         setSelectedDataType(dataType);
         setOpen(false); // Close dropdown after selection
+        setDataConfigDialogOpen(true); // Open DataConfigDialog
     };
 
     const handleNumberClick = () => {
         if (path) {
-            // If the child is already a number, pre-fill the input with its value
             if (typeof children === "string" && !isNaN(parseFloat(children))) {
                 setNumberInputValue(children);
             } else {
@@ -190,33 +191,22 @@ function OperandButton({ children, onClick, path, wholeCondition, onUpdate }: Ac
 
     const handleBooleanClick = (value: boolean) => {
         if (path && wholeCondition) {
-            // Use the updateCondition function to safely update the condition
             const updatedCondition = updateCondition(wholeCondition, path, value);
-            // Pass the fully updated condition object back to the parent
             onUpdate(updatedCondition);
             setOpen(false); // Close dropdown after selection
         }
     };
 
     const handleNumberSave = () => {
-        // Ensure path and wholeCondition are valid before proceeding
         if (path && wholeCondition) {
             const numValue = parseFloat(numberInputValue);
-
-            // Check if the parsed value is a valid number
             if (!isNaN(numValue)) {
-                // Use the updateCondition function to safely update the condition
                 const updatedCondition = updateCondition(wholeCondition, path, numValue);
-
-                // Pass the fully updated condition object back to the parent
                 onUpdate(updatedCondition);
             } else {
-                // Handle cases where input is not a valid number, e.g., show an error
                 console.error("Invalid number input:", numberInputValue);
             }
         }
-
-        // Close the dialog and reset input
         setNumberDialogOpen(false);
         setNumberInputValue("");
     };
@@ -231,7 +221,13 @@ function OperandButton({ children, onClick, path, wholeCondition, onUpdate }: Ac
             const updatedCondition = updateCondition(wholeCondition, path, dataObject);
             onUpdate(updatedCondition);
         }
+        setDataConfigDialogOpen(false);
         setSelectedDataType(null);
+    };
+
+    const handleDataConfigDialogOpenChange = (open: boolean) => {
+        setDataConfigDialogOpen(open);
+        if (!open) setSelectedDataType(null);
     };
 
     return (
@@ -246,12 +242,9 @@ function OperandButton({ children, onClick, path, wholeCondition, onUpdate }: Ac
                     </div>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="bg-[#222222] border-[#333333] text-white">
-                    {/* Direct options */}
                     <DropdownMenuItem className="hover:bg-[#2A2A2A] cursor-pointer" onClick={handleNumberClick}>
                         Number
                     </DropdownMenuItem>
-
-                    {/* Boolean submenu */}
                     <DropdownMenu>
                         <DropdownMenuTrigger className="flex items-center justify-between w-full px-2 py-1.5 text-sm hover:bg-[#2A2A2A] cursor-pointer rounded-sm">
                             <span>Boolean</span>
@@ -272,10 +265,7 @@ function OperandButton({ children, onClick, path, wholeCondition, onUpdate }: Ac
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
-
                     <DropdownMenuSeparator className="bg-[#444444]" />
-
-                    {/* Data source submenu */}
                     <DropdownMenu>
                         <DropdownMenuTrigger className="flex items-center justify-between w-full px-2 py-1.5 text-sm hover:bg-[#2A2A2A] cursor-pointer rounded-sm">
                             <span>Data source</span>
@@ -296,7 +286,6 @@ function OperandButton({ children, onClick, path, wholeCondition, onUpdate }: Ac
                 </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Use extracted NumberInputDialog */}
             <NumberInputDialog
                 open={numberDialogOpen}
                 value={numberInputValue}
@@ -305,8 +294,12 @@ function OperandButton({ children, onClick, path, wholeCondition, onUpdate }: Ac
                 onCancel={handleNumberCancel}
             />
 
-            {/* DataConfigDialog with callback for setting data */}
-            <DataConfigDialog onSet={handleDataConfigSet} />
+            {/* DataConfigDialog with isOpen and onOpenChange */}
+            <DataConfigDialog
+                onSet={handleDataConfigSet}
+                isOpen={dataConfigDialogOpen}
+                onOpenChange={handleDataConfigDialogOpenChange}
+            />
         </div>
     );
 }

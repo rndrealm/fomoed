@@ -6,17 +6,24 @@ import { DataType } from "./types";
 
 export const selectedDataTypeAtom = atom<DataType | null>(null);
 
-export function DataConfigDialog({ onSet }: { onSet: (dataObject: object) => void }) {
+export function DataConfigDialog({
+    onSet,
+    isOpen,
+    onOpenChange,
+}: {
+    onSet: (dataObject: object) => void;
+    isOpen: boolean;
+    onOpenChange: (open: boolean) => void;
+}) {
     const [selectedDataType, setSelectedDataType] = useAtom(selectedDataTypeAtom);
     const [dataObject, setDataObject] = React.useState<object | null>(null);
-
-    const isOpen = selectedDataType !== null;
 
     const handleOpenChange = (open: boolean) => {
         if (!open) {
             setSelectedDataType(null);
             setDataObject(null);
         }
+        onOpenChange(open);
     };
 
     const renderConfigComponent = () => {
@@ -34,6 +41,7 @@ export function DataConfigDialog({ onSet }: { onSet: (dataObject: object) => voi
         onSet(dataObject);
         setSelectedDataType(null);
         setDataObject(null);
+        onOpenChange(false);
     };
 
     return (
@@ -56,6 +64,7 @@ export function DataConfigDialog({ onSet }: { onSet: (dataObject: object) => voi
                         onClick={() => {
                             setSelectedDataType(null);
                             setDataObject(null);
+                            onOpenChange(false);
                         }}
                         className="border-[#333333] bg-[#222222] text-gray-400 hover:bg-[#2A2A2A] hover:text-white"
                     >
