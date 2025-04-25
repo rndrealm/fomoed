@@ -681,13 +681,16 @@ export function ConditionRenderer({
     // Get the current edit path from atom state
     const [numberInputPath] = useAtom(numberInputPathAtom);
 
-    if (!condition || typeof condition !== "object" || Object.keys(condition).length === 0) {
+    // Use an empty object if condition is null
+    const safeCondition = condition || {};
+
+    if (typeof safeCondition !== "object" || Object.keys(safeCondition).length === 0) {
         return <EmptyCondition onUpdate={onUpdate} />;
     }
 
     // Assuming the top level is always an operator object like { "and": [...] } or { ">": [...] }
-    const operator = Object.keys(condition)[0];
-    const operands = (condition as any)[operator];
+    const operator = Object.keys(safeCondition)[0];
+    const operands = safeCondition[operator];
 
     if (!Array.isArray(operands)) {
         return <span className="text-red-500 italic">Invalid condition structure</span>;

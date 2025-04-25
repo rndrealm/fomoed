@@ -9,7 +9,7 @@ import { ConditionRenderer, deleteAtPath } from "./ConditionRenderer"; // Added 
 
 // Atom to manage the dialog open state
 const addSmartSignalOpenAtom = atomWithStorage("addSmartSignalOpen", false);
-const conditionAtom = atom<object | null>({
+const conditionAtom = atom<object>({
     or: [
         {
             and: [
@@ -47,7 +47,7 @@ export function AddSmartSignalPopup({ trigger }: AddSmartSignalPopupProps) {
 
         // If path is empty or contains only the root operator key, it's the root condition
         if (path.length === 0 || (path.length === 1 && typeof path[0] === "string")) {
-            setCondition(null);
+            setCondition({});
             return;
         }
 
