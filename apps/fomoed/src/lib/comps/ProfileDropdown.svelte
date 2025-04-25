@@ -21,7 +21,7 @@
 		<BorderedProfileImage />
 	</div>
 
-	<div class="pt-[6px] text-[18px] font-paralucent-demibold">
+	<div class="pt-[6px] text-[18px] font-paralucent-demibold text-white">
 		{$auth_user?.username || $auth_email?.substring(0, 8) + '...'}
 	</div>
 	<div class="text-[#FFFFFF99] text-xs">{$auth_email}</div>
@@ -60,6 +60,8 @@
 			class="group-active:opacity-40"
 		/>
 
-		<div class="text-xs font-switzer font-medium group-active:text-[#FFFFFF66]">Log out</div>
+		<div class="text-xs font-switzer font-medium text-[#FFFFFF99] group-active:text-[#FFFFFF66]">
+			Log out
+		</div>
 	</button>
 </div>

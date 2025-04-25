@@ -71,7 +71,9 @@
 	};
 </script>
 
-<div class="flex w-full h-full snap-center p-6 bg-[#080808] rounded-2xl border border-[#141414]">
+<div
+	class="flex w-full h-full snap-center px-5 py-4 bg-[#080808] rounded-2xl border border-[#141414]"
+>
 	<div class="flex flex-col gap-[14px]">
 		<div class="whitespace-nowrap flex items-center gap-2">
 			<p class="text-[15px] text-[#737373] leading-[1.35] font-normal uppercase">{title}</p>
