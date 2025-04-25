@@ -17,34 +17,39 @@ import { Input } from "@/components/ui/input";
 import { atom, useAtom } from "jotai";
 import { DataConfigDialog, DataType, DATA_TYPES, dataConfigOpenAtom, selectedDataTypeAtom } from "./DataConfigDialog";
 
-// We are using JSON logic. Example JSON structure:
-/**
- * {
-    or: [
-        {
-            and: [
-                { ">": [{ topic: ["ETHUSDT", "price"] }, 100000] },
-                { "=": [false, { topic: ["youtube_streaming_DiscoverCrypto", "isStreaming"] }] },
-                { "=": [false, { topic: ["youtube_streaming_DiscoverCrypto", "isStreaming"] }] },
-            ],
-        },
-        {
-            and: [
-                { ">": [{ topic: ["ETHUSDT", "price"] }, 100000] },
-                { "=": [false, { topic: ["youtube_streaming_DiscoverCrypto", "isStreaming"] }] },
-                { "=": [false, { topic: ["youtube_streaming_DiscoverCrypto", "isStreaming"] }] },
-            ],
-        },
-    ],
+// Define types for your condition structure
+interface Topic {
+    topic: [string, string]; // [source, type]
 }
- */
 
-// --- Data Types and Configuration Components ---
+type OperandValue = Topic | number | boolean | ConditionObject;
+
+interface LogicalCondition {
+    and?: OperandValue[];
+    or?: OperandValue[];
+}
+
+interface ComparisonCondition {
+    ">": [OperandValue, OperandValue];
+    "<": [OperandValue, OperandValue];
+    ">=": [OperandValue, OperandValue];
+    "<=": [OperandValue, OperandValue];
+    "=": [OperandValue, OperandValue];
+}
+
+type ConditionObject = LogicalCondition | ComparisonCondition;
 
 // Atoms to manage number input dialog
 const numberInputDialogOpenAtom = atom(false);
 const numberInputValueAtom = atom("");
 const numberInputPathAtom = atom<(string | number)[] | null>(null);
+
+// Function to update condition
+function updateCondition(condition: object, path: (string | number)[], value: any): object {
+    const updatedCondition = JSON.parse(JSON.stringify(condition)); // Create a deep copy
+    update(updatedCondition, path, () => value);
+    return updatedCondition;
+}
 
 // Number Input Dialog Component
 function NumberInputDialog({
@@ -70,9 +75,8 @@ function NumberInputDialog({
 
             // Check if the parsed value is a valid number
             if (!isNaN(numValue)) {
-                // Use lodash update to safely update the condition
-                const updatedCondition = JSON.parse(JSON.stringify(wholeCondition)); // Create a deep copy
-                update(updatedCondition, effectivePath, () => numValue);
+                // Use the updateCondition function to safely update the condition
+                const updatedCondition = updateCondition(wholeCondition, effectivePath, numValue);
 
                 // Pass the fully updated condition object back to the parent
                 onUpdate(updatedCondition);
@@ -306,7 +310,9 @@ interface OperatorDropdownContentProps {
     onSelect: (operatorType: string) => void;
 }
 
-function OperatorDropdownContent({ onSelect }: OperatorDropdownContentProps) {
+const OperatorDropdownContent = React.memo(function OperatorDropdownContent({
+    onSelect,
+}: OperatorDropdownContentProps) {
     return (
         <DropdownMenuContent className="w-48 bg-[#222222] border-[#444444]">
             <DropdownMenuLabel className="text-xs text-gray-400">Logical Operators</DropdownMenuLabel>
@@ -339,23 +345,22 @@ function OperatorDropdownContent({ onSelect }: OperatorDropdownContentProps) {
             </DropdownMenuGroup>
         </DropdownMenuContent>
     );
-}
+});
 
 // Helper function to render individual parts of the condition
-function renderConditionPart({
+function ConditionPart({
     part,
     path = [],
     onUpdate,
     wholeCondition,
 }: {
-    part: any;
+    part: OperandValue;
     path?: (string | number)[];
     onUpdate?: (newCondition: object) => void;
     wholeCondition: object;
-}): React.ReactNode {
+}) {
     if (typeof part === "object" && part !== null) {
         if ("topic" in part) {
-            // Render topic placeholder
             const [source, type] = part.topic;
             return (
                 <OperandButton path={path} wholeCondition={wholeCondition} onUpdate={onUpdate}>
@@ -363,20 +368,17 @@ function renderConditionPart({
                 </OperandButton>
             );
         } else {
-            // Recursively render nested conditions/operators
             return (
                 <ConditionRenderer condition={part} wholeCondition={wholeCondition} path={path} onUpdate={onUpdate} />
             );
         }
     } else if (typeof part === "number" || typeof part === "boolean") {
-        // Render primitive values with path for editing
         return (
             <OperandButton path={path} wholeCondition={wholeCondition} onUpdate={onUpdate}>
                 {String(part)}
             </OperandButton>
         );
     }
-    // Handle other types or invalid parts if necessary
     return null;
 }
 
@@ -488,12 +490,12 @@ function LogicalOperatorRenderer({
                     <div key={index} className="relative pb-3 last:pb-0">
                         <div className="absolute left-0 top-4 h-px w-4 bg-[#444444] -translate-x-4"></div>
                         <div className="pt-1">
-                            {renderConditionPart({
-                                part: operand,
-                                path: [...path, operator, index],
-                                onUpdate,
-                                wholeCondition,
-                            })}
+                            <ConditionPart
+                                part={operand}
+                                path={[...path, operator, index]}
+                                onUpdate={onUpdate}
+                                wholeCondition={wholeCondition}
+                            />
                         </div>
                     </div>
                 ))}
@@ -521,12 +523,12 @@ function ComparisonOperatorRenderer({
             {onUpdate && <DeleteButton path={path} wholeCondition={wholeCondition} onUpdate={onUpdate} />}
             {operands.map((operand: any, index: number) => (
                 <React.Fragment key={index}>
-                    {renderConditionPart({
-                        part: operand,
-                        path: [...path, operator, index],
-                        onUpdate,
-                        wholeCondition,
-                    })}
+                    <ConditionPart
+                        part={operand}
+                        path={[...path, operator, index]}
+                        onUpdate={onUpdate}
+                        wholeCondition={wholeCondition}
+                    />
                     {index === 0 && <span className="text-white font-bold">{operator}</span>}
                 </React.Fragment>
             ))}
