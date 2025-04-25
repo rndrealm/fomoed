@@ -1,13 +1,13 @@
 <script lang="ts">
-	import Nav from '$lib/comps/Nav.svelte';
+	import { DashboardService } from '$ts/client/services/DashboardService.client';
+	import { newsService } from '$ts/client/services/NewsService.client.svelte';
+	import { NewsService as NewsServiceOld } from '$ts/client/services/NewsServiceOld.client';
+	import { setContext } from 'svelte';
+
+	const dashboardService = new DashboardService();
+
+	setContext('newsService', new NewsServiceOld());
+	setContext('dashboardService', dashboardService);
 </script>
 
-<div class="flex min-h-screen flex-col items-center justify-between mx-auto">
-	<div class="absolute top-0 inset-x-auto max-w-screen-xl w-full">
-		<Nav></Nav>
-	</div>
-
-	<div class="w-full min-h-screen">
-		<slot />
-	</div>
-</div>
+<slot />
