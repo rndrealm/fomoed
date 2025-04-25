@@ -26,7 +26,7 @@
 		<nav class="mx-auto px-6 py-[14px] bg-[#000] relative rounded-2xl">
 			<div class="flex items-center justify-between w-full">
 				<div class="flex items-center gap-6">
-					<a href="/">
+					<a href="/dashboard">
 						<img src="/icons/small-logo.svg" alt="" />
 					</a>
 

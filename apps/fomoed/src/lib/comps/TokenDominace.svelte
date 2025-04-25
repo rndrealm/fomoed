@@ -72,7 +72,7 @@
 </script>
 
 <div
-	class="flex w-full h-full snap-center py-4 px-5 bg-[#080808] rounded-2xl border border-[#141414]"
+	class="flex w-full h-full snap-center py-3 px-5 bg-[#080808] rounded-2xl border border-[#141414]"
 >
 	<div class="flex flex-1 items-center justify-between">
 		<div class="whitespace-nowrap flex items-center gap-2">

@@ -75,7 +75,7 @@
 			height={20}
 			alt=""
 			class="duration-100 ml-[7px] flex-shrink-0"
-			class:rotate-180={isOpen}
+			class:rotate-180={!isOpen}
 		/>
 	</button>
 
