@@ -1,7 +1,11 @@
 import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
 import { ConditionObject } from "../types";
 import useUserData from "@/lib/hooks/use-user-data"; // import the hook
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
+import { atom, useAtom } from "jotai";
+
+// Atom to hold the smart signals globally
+export const smartSignalsAtom = atom<SmartSignalRow[]>([]);
 
 export interface SmartSignalRow {
     id: number | null;
@@ -50,15 +54,25 @@ function getTopicsFromCondition(condition: ConditionObject): string[] {
 
 export function useSmartSignals() {
     const userData = useUserData();
+    const [smartSignals, setSmartSignals] = useAtom(smartSignalsAtom);
+
+    const refreshSmartSignals = useCallback(async () => {
+        if (!userData) {
+            setSmartSignals([]);
+            return;
+        }
+        const supabase = createSupabaseBrowserClient();
+        const { data, error } = await supabase.from("smart_signals").select("*").eq("user_id", userData.id);
+        if (!error && data) {
+            setSmartSignals(data as SmartSignalRow[]);
+        }
+    }, [userData, setSmartSignals]);
 
     const saveSmartSignal = async (condition: ConditionObject): Promise<SmartSignalRow | null> => {
         if (!userData) {
-            console.error("User data is not available");
             return null;
         }
-
         const topics = getTopicsFromCondition(condition);
-
         const smartSignal: Partial<SmartSignalRow> = {
             user_id: userData.id,
             topics,
@@ -66,72 +80,29 @@ export function useSmartSignals() {
             fired_at: null,
             actions: [{ type: "notification" }],
         };
-
         const supabase = createSupabaseBrowserClient();
-
         const { data, error } = await supabase.from("smart_signals").insert([smartSignal]).select("*").single();
-
-        if (error) {
-            console.error("Error saving smart signal:", error);
-            return null;
+        if (!error) {
+            await refreshSmartSignals();
         }
-
-        return data as SmartSignalRow;
+        return error ? null : (data as SmartSignalRow);
     };
 
     const deleteSmartSignal = async (id: number): Promise<boolean> => {
         if (!userData) {
-            console.error("User data is not available");
             return false;
         }
-
         const supabase = createSupabaseBrowserClient();
-
         const { error } = await supabase.from("smart_signals").delete().eq("id", id).eq("user_id", userData.id);
-
-        if (error) {
-            console.error("Error deleting smart signal:", error);
-            return false;
+        if (!error) {
+            await refreshSmartSignals();
         }
-
-        return true;
+        return !error;
     };
 
-    const getSmartSignals = useCallback(async (): Promise<SmartSignalRow[] | null> => {
-        if (!userData) {
-            console.error("User data is not available");
-            return null;
-        }
-
-        const supabase = createSupabaseBrowserClient();
-
-        const { data, error } = await supabase.from("smart_signals").select("*").eq("user_id", userData.id);
-
-        if (error) {
-            console.error("Error fetching smart signals:", error);
-            return null;
-        }
-
-        return data as SmartSignalRow[];
-    }, [userData]);
-
-    const [smartSignals, setSmartSignals] = useState<SmartSignalRow[]>([]);
-
     useEffect(() => {
-        if (!userData) {
-            setSmartSignals([]);
-            return;
-        }
+        refreshSmartSignals();
+    }, [refreshSmartSignals]);
 
-        const fetchSmartSignals = async () => {
-            const signals = await getSmartSignals();
-            if (signals) {
-                setSmartSignals(signals);
-            }
-        };
-
-        fetchSmartSignals();
-    }, [getSmartSignals, userData]);
-
-    return { smartSignals, saveSmartSignal, deleteSmartSignal };
+    return { smartSignals, saveSmartSignal, deleteSmartSignal, refreshSmartSignals };
 }
