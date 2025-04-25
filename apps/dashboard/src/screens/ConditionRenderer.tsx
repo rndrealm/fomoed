@@ -93,6 +93,61 @@ interface ActionButtonProps {
     onUpdate?: (newCondition: object) => void;
 }
 
+// NumberInputDialog component
+interface NumberInputDialogProps {
+    open: boolean;
+    value: string;
+    onChange: (value: string) => void;
+    onSave: () => void;
+    onCancel: () => void;
+}
+
+function NumberInputDialog({ open, value, onChange, onSave, onCancel }: NumberInputDialogProps) {
+    return (
+        <Dialog open={open} onOpenChange={onCancel}>
+            <DialogContent className="sm:max-w-[400px] bg-[#1A1A1A] border-[#333333] text-white p-6">
+                <DialogHeader>
+                    <DialogTitle className="text-white">Enter a number</DialogTitle>
+                    <DialogDescription className="text-gray-400 pt-1">
+                        Please enter a numeric value for this operand.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="py-4">
+                    <Label htmlFor="number-input" className="text-gray-400 mb-2 block">
+                        Number value
+                    </Label>
+                    <Input
+                        id="number-input"
+                        type="number"
+                        step="any"
+                        value={value}
+                        onChange={(e) => onChange(e.target.value)}
+                        className="bg-[#2A2A2A] border-[#3A3A3A] text-white"
+                        placeholder="Enter a number"
+                        autoFocus
+                    />
+                </div>
+                <div className="flex justify-end gap-2">
+                    <Button
+                        variant="outline"
+                        onClick={onCancel}
+                        className="border-[#333333] bg-[#222222] text-gray-400 hover:bg-[#2A2A2A] hover:text-white"
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        className="bg-blue-500 text-white hover:bg-blue-600"
+                        onClick={onSave}
+                        disabled={value === "" || isNaN(parseFloat(value))}
+                    >
+                        Save
+                    </Button>
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
 function OperandButton({ children, onClick, path, wholeCondition, onUpdate }: ActionButtonProps) {
     const [, setSelectedDataType] = useAtom(selectedDataTypeAtom);
     const [open, setOpen] = React.useState(false); // For dropdown
@@ -218,50 +273,14 @@ function OperandButton({ children, onClick, path, wholeCondition, onUpdate }: Ac
                 </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Inline NumberInputDialog */}
-            <Dialog open={numberDialogOpen} onOpenChange={setNumberDialogOpen}>
-                <DialogContent className="sm:max-w-[400px] bg-[#1A1A1A] border-[#333333] text-white p-6">
-                    <DialogHeader>
-                        <DialogTitle className="text-white">Enter a number</DialogTitle>
-                        <DialogDescription className="text-gray-400 pt-1">
-                            Please enter a numeric value for this operand.
-                        </DialogDescription>
-                    </DialogHeader>
-
-                    <div className="py-4">
-                        <Label htmlFor="number-input" className="text-gray-400 mb-2 block">
-                            Number value
-                        </Label>
-                        <Input
-                            id="number-input"
-                            type="number"
-                            step="any"
-                            value={numberInputValue}
-                            onChange={(e) => setNumberInputValue(e.target.value)}
-                            className="bg-[#2A2A2A] border-[#3A3A3A] text-white"
-                            placeholder="Enter a number"
-                            autoFocus
-                        />
-                    </div>
-
-                    <div className="flex justify-end gap-2">
-                        <Button
-                            variant="outline"
-                            onClick={handleNumberCancel}
-                            className="border-[#333333] bg-[#222222] text-gray-400 hover:bg-[#2A2A2A] hover:text-white"
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            className="bg-blue-500 text-white hover:bg-blue-600"
-                            onClick={handleNumberSave}
-                            disabled={numberInputValue === "" || isNaN(parseFloat(numberInputValue))}
-                        >
-                            Save
-                        </Button>
-                    </div>
-                </DialogContent>
-            </Dialog>
+            {/* Use extracted NumberInputDialog */}
+            <NumberInputDialog
+                open={numberDialogOpen}
+                value={numberInputValue}
+                onChange={setNumberInputValue}
+                onSave={handleNumberSave}
+                onCancel={handleNumberCancel}
+            />
         </div>
     );
 }
