@@ -89,7 +89,7 @@
 				{#if change !== 0}
 					<div
 						class="bg-[#1FC16B] rounded-md p-1 flex gap-1 items-center
-        {change > 0 ? 'bg-[#1FC16B]' : 'bg-[#DA0000]'}"
+        {change > 0 ? 'bg-[#1FC16B]' : 'bg-[#FF3B30]'}"
 					>
 						<img src="/icons/arrow-up.svg" alt="icon" class:rotate-180={change < 0} />
 						<p class="text-[#000] text-xs font-bold">{change}%</p>
