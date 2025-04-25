@@ -12,8 +12,7 @@ export interface DataType {
     component: React.FC;
 }
 
-// Atoms to manage data config dialogs
-export const dataConfigOpenAtom = atom(false);
+// Atom to manage data config dialogs - only need selectedDataTypeAtom now
 export const selectedDataTypeAtom = atom<DataType | null>(null);
 
 // Price Configuration
@@ -63,21 +62,32 @@ export const DATA_TYPES: DataType[] = [
 ];
 
 // DataConfig Dialog Component
-export function DataConfigDialog({ dataType }: { dataType: DataType }) {
-    const [open, setOpen] = useAtom(dataConfigOpenAtom);
+export function DataConfigDialog() {
+    const [selectedDataType, setSelectedDataType] = useAtom(selectedDataTypeAtom);
+    
+    // Dialog is open when selectedDataType is not null
+    const isOpen = selectedDataType !== null;
+    
+    // Handle dialog close by setting selectedDataType to null
+    const handleOpenChange = (open: boolean) => {
+        if (!open) {
+            setSelectedDataType(null);
+        }
+    };
 
     const renderConfigComponent = () => {
-        const Component = dataType.component;
+        if (!selectedDataType) return null;
+        const Component = selectedDataType.component;
         return <Component />;
     };
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={isOpen} onOpenChange={handleOpenChange}>
             <DialogContent className="sm:max-w-[650px] h-[600px] bg-[#1A1A1A] border-[#333333] text-white flex flex-col p-0">
                 {/* Header section - fixed height */}
                 <DialogHeader className="p-6 pb-4">
                     <DialogTitle className="text-white">
-                        Configure <span className="px-2 py-1 bg-white/10 rounded">{dataType.label}</span> Data
+                        Configure <span className="px-2 py-1 bg-white/10 rounded">{selectedDataType?.label}</span> Data
                     </DialogTitle>
                     <DialogDescription className="text-gray-400 pt-1">
                         Add a data source to your smart signal.
@@ -91,7 +101,7 @@ export function DataConfigDialog({ dataType }: { dataType: DataType }) {
                 <div className="flex justify-end gap-2 p-4 border-t border-[#333333]">
                     <Button
                         variant="outline"
-                        onClick={() => setOpen(false)}
+                        onClick={() => setSelectedDataType(null)}
                         className="border-[#333333] bg-[#222222] text-gray-400 hover:bg-[#2A2A2A] hover:text-white"
                     >
                         Cancel

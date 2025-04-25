@@ -15,7 +15,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { atom, useAtom } from "jotai";
-import { DataConfigDialog, DataType, DATA_TYPES, dataConfigOpenAtom, selectedDataTypeAtom } from "./DataConfigDialog";
+import { DataType, DATA_TYPES, selectedDataTypeAtom } from "./DataConfigDialog";
 
 // Define types for your condition structure
 interface Topic {
@@ -153,12 +153,10 @@ function NumberInputDialog({
 
 // Value Dropdown Component
 export function ValueDropdown() {
-    const [, setDataConfigOpen] = useAtom(dataConfigOpenAtom);
-    const [selectedDataType, setSelectedDataType] = useAtom(selectedDataTypeAtom);
+    const [, setSelectedDataType] = useAtom(selectedDataTypeAtom);
 
     const handleDataItemClick = (dataType: DataType) => {
         setSelectedDataType(dataType);
-        setDataConfigOpen(true);
     };
 
     return (
@@ -186,9 +184,6 @@ export function ValueDropdown() {
                     ))}
                 </DropdownMenuContent>
             </DropdownMenu>
-
-            {/* Render the dialog conditionally */}
-            {selectedDataType && <DataConfigDialog dataType={selectedDataType} />}
         </>
     );
 }
@@ -236,7 +231,6 @@ interface ActionButtonProps {
 }
 
 function OperandButton({ children, onClick, path, wholeCondition, onUpdate }: ActionButtonProps) {
-    const [, setDataConfigOpen] = useAtom(dataConfigOpenAtom);
     const [, setSelectedDataType] = useAtom(selectedDataTypeAtom);
     const [, setNumberInputDialogOpen] = useAtom(numberInputDialogOpenAtom);
     const [, setNumberInputValue] = useAtom(numberInputValueAtom);
@@ -245,7 +239,6 @@ function OperandButton({ children, onClick, path, wholeCondition, onUpdate }: Ac
 
     const handleDataItemClick = (dataType: DataType) => {
         setSelectedDataType(dataType);
-        setDataConfigOpen(true);
         setOpen(false); // Close dropdown after selection
     };
 
