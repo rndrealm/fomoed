@@ -43,7 +43,7 @@
 
 <svelte:window bind:innerWidth />
 <div
-	class="bg-[#070707] border-[0.5px] border-[#1E1E1E] pt-7 pb-1 px-7 rounded-[20px] -desktop:rounded-none"
+	class="bg-[#070707] border-[0.5px] border-[#1E1E1E] pt-7 pb-1 px-4 md:px-7 rounded-[20px] -desktop:rounded-none"
 >
 	<h2
 		class="text-2xl font-medium text-new-white -desktop:font-black -desktop:text-3xl -desktop:py-2"
@@ -62,7 +62,10 @@
 	</div>
 
 	<!-- Article Grid -->
-	<div class="grid gap-3 mt-6" style="grid-template-columns:repeat(auto-fit, minmax(347px, 2fr));">
+	<div
+		class="grid gap-3 mt-6 grid-cols-[repeat(auto-fit,minmax(247px,2fr))] md:grid-cols-[repeat(auto-fit,minmax(347px,2fr))]"
+		style=""
+	>
 		{#each articleRows as row, rowIndex}
 			<!-- Article Row -->
 			<!-- <div class="grid gap-4" style="grid-template-columns: repeat(2, minmax(0, 1fr));"> -->

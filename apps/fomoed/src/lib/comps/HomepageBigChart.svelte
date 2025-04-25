@@ -250,11 +250,11 @@
 </script>
 
 <div class="relative h-full">
-	{#if $trend_chart_loading && showLoadingAnim}
+	<!-- {#if $trend_chart_loading && showLoadingAnim}
 		<div out:fade class="absolute inset-0">
 			<LoadingAnim />
 		</div>
-	{/if}
+	{/if} -->
 
 	<canvas class:opacity-0={$trend_chart_loading && showLoadingAnim} bind:this={canvas} width="400"
 	></canvas>

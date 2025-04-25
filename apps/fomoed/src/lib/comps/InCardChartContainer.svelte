@@ -16,7 +16,7 @@
 	let container: HTMLElement;
 </script>
 
-<div class="px-1 h-full relative">
+<div class="relative h-full px-1">
 	<div bind:this={container} class="w-full h-full no-scrollbar" class:opacity-0={loading}>
 		<div class="-desktop:h-full desktop:h-full -desktop:pb-3">
 			<slot />
@@ -25,7 +25,12 @@
 
 	{#if loading}
 		<div out:fade class="absolute inset-0 grid place-items-center">
-			<LoadingAnim />
+			<!-- <p class="text-[15px] font-semibold text-[#FFFFFF]">Fetching Charts...</p> -->
+			<p
+				class="text-[15px] font-semibold bg-gradient-to-r from-[#FFFFFF] to-[#999999] text-transparent bg-clip-text"
+			>
+				Fetching Charts...
+			</p>
 		</div>
 	{/if}
 </div>

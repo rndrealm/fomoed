@@ -93,7 +93,7 @@
 <!-- Asset price row -->
 <div
 	bind:this={scrollContainer}
-	class="flex h-16 mt-5 overflow-x-auto gap-x-4 no-scrollbar"
+	class="flex h-16 mt-0 overflow-x-auto md:mt-5 gap-x-4 no-scrollbar"
 	onmouseenter={handleMouseEnter}
 	onmouseleave={handleMouseLeave}
 	role="list"
