@@ -61,3 +61,38 @@ export interface ComparisonCondition {
 }
 
 export type ConditionObject = LogicalCondition | ComparisonCondition;
+
+/**
+ * Transcribes a ConditionObject into a human-readable string.
+ * @param condition The condition object to transcribe.
+ * @returns Human-readable string representation.
+ */
+export function transcribeCondition(condition: ConditionObject): string {
+    function operandToString(operand: OperandValue): string {
+        if (typeof operand === "number" || typeof operand === "boolean") {
+            return operand.toString();
+        }
+        if (Array.isArray((operand as DataStream).topic)) {
+            const ds = operand as DataStream;
+            return `${ds.topic[0]} ${ds.topic[1]}`;
+        }
+        if (typeof operand === "object") {
+            return transcribeCondition(operand as ConditionObject);
+        }
+        return String(operand);
+    }
+
+    if ("and" in condition && Array.isArray(condition.and)) {
+        return `(${condition.and.map(operandToString).join(" AND ")})`;
+    }
+    if ("or" in condition && Array.isArray(condition.or)) {
+        return `(${condition.or.map(operandToString).join(" OR ")})`;
+    }
+    for (const op of [">", "<", ">=", "<=", "="] as const) {
+        if (op in condition) {
+            const [left, right] = (condition as any)[op] as [OperandValue, OperandValue];
+            return `(${operandToString(left)} ${op} ${operandToString(right)})`;
+        }
+    }
+    return "Unknown condition";
+}
