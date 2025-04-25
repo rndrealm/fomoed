@@ -1,5 +1,5 @@
 import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
-import { ConditionObject } from "../types";
+import { ConditionObject } from "../conditionTypes";
 import useUserData from "@/lib/hooks/use-user-data"; // import the hook
 import { useCallback, useEffect } from "react";
 import { atom, useAtom } from "jotai";

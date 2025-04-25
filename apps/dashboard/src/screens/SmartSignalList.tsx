@@ -1,5 +1,5 @@
 import { TrendingUp, Trash } from "lucide-react";
-import { transcribeCondition } from "./types";
+import { transcribeCondition } from "./conditionTypes";
 import { useSmartSignals } from "./hooks/use-smart-signals";
 import { Button } from "@/components/ui/button";
 import React, { useState } from "react";

@@ -9,15 +9,15 @@ import { StreamingStatusConfig } from "./data-source-configs/StreamingStatusConf
         {
             and: [
                 { ">": [{ topic: ["ETHUSDT", "price"] }, 100000] },
-                { "=": [false, { topic: ["youtube_streaming_DiscoverCrypto", "isStreaming"] }] },
-                { "=": [false, { topic: ["youtube_streaming_DiscoverCrypto", "isStreaming"] }] },
+                { "==": [false, { topic: ["youtube_streaming_DiscoverCrypto", "isStreaming"] }] },
+                { "==": [false, { topic: ["youtube_streaming_DiscoverCrypto", "isStreaming"] }] },
             ],
         },
         {
             and: [
                 { ">": [{ topic: ["ETHUSDT", "price"] }, 100000] },
-                { "=": [false, { topic: ["youtube_streaming_DiscoverCrypto", "isStreaming"] }] },
-                { "=": [false, { topic: ["youtube_streaming_DiscoverCrypto", "isStreaming"] }] },
+                { "==": [false, { topic: ["youtube_streaming_DiscoverCrypto", "isStreaming"] }] },
+                { "==": [false, { topic: ["youtube_streaming_DiscoverCrypto", "isStreaming"] }] },
             ],
         },
     ],
@@ -88,7 +88,7 @@ export function transcribeCondition(condition: ConditionObject): string {
     if ("or" in condition && Array.isArray(condition.or)) {
         return `(${condition.or.map(operandToString).join(" OR ")})`;
     }
-    for (const op of [">", "<", ">=", "<=", "="] as const) {
+    for (const op of [">", "<", ">=", "<=", "=="] as const) {
         if (op in condition) {
             const [left, right] = (condition as any)[op] as [OperandValue, OperandValue];
             return `(${operandToString(left)} ${op} ${operandToString(right)})`;

@@ -2,7 +2,7 @@ import React from "react";
 import { atom, useAtom } from "jotai";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { DataType } from "./types";
+import { DataType } from "./conditionTypes";
 
 export const selectedDataTypeAtom = atom<DataType | null>(null);
 

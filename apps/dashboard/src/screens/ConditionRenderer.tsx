@@ -15,7 +15,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useAtom } from "jotai";
-import { DataType, DATA_TYPES, OperandValue, ConditionObject } from "./types";
+import { DataType, DATA_TYPES, OperandValue, ConditionObject } from "./conditionTypes";
 import { DataConfigDialog, selectedDataTypeAtom } from "./DataConfigDialog";
 
 function updateCondition(condition: ConditionObject, path: (string | number)[], value: any): ConditionObject {
@@ -331,8 +331,8 @@ const OperatorDropdownContent = React.memo(function OperatorDropdownContent({
                 <DropdownMenuItem onClick={() => onSelect("<=")} className="cursor-pointer hover:bg-[#333333]">
                     <span className="text-white">Less Than or Equal (≤)</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onSelect("=")} className="cursor-pointer hover:bg-[#333333]">
-                    <span className="text-white">Equal (=)</span>
+                <DropdownMenuItem onClick={() => onSelect("==")} className="cursor-pointer hover:bg-[#333333]">
+                    <span className="text-white">Equal (==)</span>
                 </DropdownMenuItem>
             </DropdownMenuGroup>
         </DropdownMenuContent>
@@ -385,10 +385,12 @@ export interface ConditionRendererProps {
 // Component to render empty condition state
 function EmptyCondition({ onUpdate }: { onUpdate: (newCondition: ConditionObject) => void }) {
     const handleSelect = (operatorType: string) => {
-        if (operatorType === "and" || operatorType === "or") {
-            onUpdate({ [operatorType]: [] });
+        // If user selects '=', use '==' instead
+        const op = operatorType === "=" ? "==" : operatorType;
+        if (op === "and" || op === "or") {
+            onUpdate({ [op]: [] });
         } else {
-            onUpdate({ [operatorType]: [{ topic: ["placeholder", "value"] }, 0] });
+            onUpdate({ [op]: [{ topic: ["placeholder", "value"] }, 0] });
         }
     };
 
@@ -426,11 +428,13 @@ function LogicalOperatorRenderer({
     wholeCondition: ConditionObject;
 }) {
     const handleAddCondition = (operatorType: string) => {
+        // If user selects '=', use '==' instead
+        const op = operatorType === "=" ? "==" : operatorType;
         let newItem;
-        if (operatorType === "and" || operatorType === "or") {
-            newItem = { [operatorType]: [] };
+        if (op === "and" || op === "or") {
+            newItem = { [op]: [] };
         } else {
-            newItem = { [operatorType]: [{ topic: ["placeholder", "value"] }, 0] };
+            newItem = { [op]: [{ topic: ["placeholder", "value"] }, 0] };
         }
 
         // Copy the wholeCondition and update the appropriate part
@@ -538,7 +542,7 @@ export function ConditionRenderer({ condition, wholeCondition, path = [], onUpda
     }
 
     const isLogicalOperator = ["and", "or"].includes(operator.toLowerCase());
-    const isComparisonOperator = [">", "<", ">=", "<=", "="].includes(operator);
+    const isComparisonOperator = [">", "<", ">=", "<=", "=", "=="].includes(operator);
 
     return (
         <>

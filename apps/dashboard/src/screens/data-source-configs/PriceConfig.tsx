@@ -5,7 +5,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { DataConfigComponentProps } from "../types";
+import { DataConfigComponentProps } from "../conditionTypes";
 
 function fetchProducts(): Promise<{ display_name: string }[]> {
     return fetch("https://api.exchange.coinbase.com/products")
