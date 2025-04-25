@@ -1,5 +1,7 @@
 import { Bell } from "lucide-react";
-import { useNotifications } from "./hooks/useNotifications";
+import { useAtom } from "jotai";
+import { notificationsAtom, useNotifications } from "./hooks/use-notifications";
+import dayjs from "dayjs";
 
 // NotificationItem component
 const NotificationItem = ({
@@ -28,13 +30,14 @@ const NotificationItem = ({
                 )}
             </div>
             <p className="text-gray-400 text-sm pt-1">{description}</p>
-            <span className="text-xs text-gray-500 pt-2 block">{timestamp}</span>
+            <span className="text-xs text-gray-500 pt-2 block">{dayjs(timestamp).format("DD MMM YYYY, HH:mm")}</span>
         </div>
     </div>
 );
 
 export default function NotificationList() {
-    const { notifications } = useNotifications();
+    const [notifications] = useAtom(notificationsAtom);
+    const {} = useNotifications();
 
     return (
         <>
@@ -44,13 +47,7 @@ export default function NotificationList() {
             </h2>
             <div className="space-y-2">
                 {notifications.map((n) => (
-                    <NotificationItem
-                        key={n.id}
-                        title={n.title}
-                        description={n.description}
-                        timestamp={n.timestamp}
-                        isNew={!n.read}
-                    />
+                    <NotificationItem key={n.id} title={n.description} description={""} timestamp={n.created_at} />
                 ))}
             </div>
         </>

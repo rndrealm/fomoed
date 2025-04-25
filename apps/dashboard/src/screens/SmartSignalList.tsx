@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import React, { useState } from "react";
 import { useAtom } from "jotai";
 import { smartSignalsAtom } from "./hooks/use-smart-signals";
+import dayjs from "dayjs";
 
 interface SmartSignalItemProps {
     title: string;
@@ -15,16 +16,18 @@ interface SmartSignalItemProps {
 }
 
 const SmartSignalItem = ({ title, description, createdAt, onDelete, firedAt }: SmartSignalItemProps) => (
-    <div className="group flex items-start p-4 rounded-md border border-[#333333] mb-3 bg-[#222222] hover:bg-[#2A2A2A] transition-colors relative">
-        <div className="h-8 w-8 rounded-full bg-blue-500/20 text-blue-500 flex items-center justify-center mr-3">
+    <div className="group flex items-start p-4 rounded-md border border-[#333333] bg-[#222222] hover:bg-[#2A2A2A] transition-colors relative">
+        <div className="h-8 w-8 rounded-full bg-blue-500/20 text-blue-500 flex items-center justify-center">
             <TrendingUp size={16} />
         </div>
-        <div className="flex-1">
+        <div className="flex-1 pl-3">
             <h3 className="font-medium text-white">{title}</h3>
-            <p className="text-gray-400 text-sm mt-1">{description}</p>
-            <span className="text-xs text-gray-500 mt-2 block">Created: {createdAt}</span>
-            <span className={`text-xs mt-1 block ${firedAt ? "text-green-400" : "text-yellow-400"}`}>
-                {firedAt ? `Fired at: ${firedAt}` : "Not fired yet"}
+            <p className="text-gray-400 text-sm pt-1">{description}</p>
+            <span className="text-xs text-gray-500 pt-2 block">
+                Created: {dayjs(createdAt).format("DD MMM YYYY, HH:mm")}
+            </span>
+            <span className={`text-xs pt-1 block ${firedAt ? "text-green-400" : "text-yellow-400"}`}>
+                {firedAt ? `Fired at: ${dayjs(firedAt).format("DD MMM YYYY, HH:mm")}` : "Not fired yet"}
             </span>
         </div>
         {onDelete && (

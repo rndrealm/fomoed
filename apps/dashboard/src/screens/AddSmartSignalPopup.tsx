@@ -10,24 +10,26 @@ import { useSmartSignals } from "./hooks/use-smart-signals";
 
 // Atom to manage the dialog open state
 const addSmartSignalOpenAtom = atomWithStorage("addSmartSignalOpen", false);
-const conditionAtom = atom<object>({
-    or: [
-        {
-            and: [
-                { ">": [{ topic: ["ETHUSDT", "price"] }, 100000] },
-                { "=": [false, { topic: ["youtube_streaming_DiscoverCrypto", "isStreaming"] }] },
-                { "=": [false, { topic: ["youtube_streaming_DiscoverCrypto", "isStreaming"] }] },
-            ],
-        },
-        {
-            and: [
-                { ">": [{ topic: ["ETHUSDT", "price"] }, 100000] },
-                { "=": [false, { topic: ["youtube_streaming_DiscoverCrypto", "isStreaming"] }] },
-                { "=": [false, { topic: ["youtube_streaming_DiscoverCrypto", "isStreaming"] }] },
-            ],
-        },
-    ],
-}); // Atom to store the condition object
+// const conditionAtom = atom<object>({
+//     or: [
+//         {
+//             and: [
+//                 { ">": [{ topic: ["ETHUSDT", "price"] }, 100000] },
+//                 { "=": [false, { topic: ["youtube_streaming_DiscoverCrypto", "isStreaming"] }] },
+//                 { "=": [false, { topic: ["youtube_streaming_DiscoverCrypto", "isStreaming"] }] },
+//             ],
+//         },
+//         {
+//             and: [
+//                 { ">": [{ topic: ["ETHUSDT", "price"] }, 100000] },
+//                 { "=": [false, { topic: ["youtube_streaming_DiscoverCrypto", "isStreaming"] }] },
+//                 { "=": [false, { topic: ["youtube_streaming_DiscoverCrypto", "isStreaming"] }] },
+//             ],
+//         },
+//     ],
+// }); // Atom to store the condition object
+
+const conditionAtom = atom<object>({});
 
 interface AddSmartSignalPopupProps {
     trigger?: React.ReactNode;
