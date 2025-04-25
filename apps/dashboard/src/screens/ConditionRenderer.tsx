@@ -505,7 +505,8 @@ function renderConditionPart(
     part: any,
     path: (string | number)[] = [],
     onDelete?: (path: (string | number)[]) => void,
-    onUpdate?: (newCondition: object) => void
+    onUpdate?: (newCondition: object) => void,
+    wholeCondition?: object | null
 ): React.ReactNode {
     if (typeof part === "object" && part !== null) {
         if ("topic" in part) {
@@ -518,7 +519,15 @@ function renderConditionPart(
             );
         } else {
             // Recursively render nested conditions/operators
-            return <ConditionRenderer condition={part} path={path} onDelete={onDelete} onUpdate={onUpdate} />;
+            return (
+                <ConditionRenderer
+                    condition={part}
+                    wholeCondition={wholeCondition}
+                    path={path}
+                    onDelete={onDelete}
+                    onUpdate={onUpdate}
+                />
+            );
         }
     } else if (typeof part === "number" || typeof part === "boolean") {
         // Render primitive values with path for editing
@@ -534,6 +543,7 @@ function renderConditionPart(
 
 export interface ConditionRendererProps {
     condition: object | null;
+    wholeCondition?: object | null; // Added new prop for the entire condition
     depth?: number;
     path?: (string | number)[];
     onDelete?: (path: (string | number)[]) => void;
@@ -652,19 +662,21 @@ function ComparisonOperatorRenderer({
     path,
     onDelete,
     onUpdate,
+    wholeCondition,
 }: {
     operator: string;
     operands: any[];
     path: (string | number)[];
     onDelete?: (path: (string | number)[]) => void;
     onUpdate?: (newCondition: object) => void;
+    wholeCondition?: object | null;
 }) {
     return (
         <div className="flex items-center gap-2 p-2 bg-[#222222] rounded-md border border-[#444444] max-w-max group relative">
             {onDelete && <DeleteButton onDelete={() => onDelete(path)} />}
             {operands.map((operand: any, index: number) => (
                 <React.Fragment key={index}>
-                    {renderConditionPart(operand, [...path, operator, index], undefined, onUpdate)}
+                    {renderConditionPart(operand, [...path, operator, index], undefined, onUpdate, wholeCondition)}
                     {index === 0 && <span className="text-white font-bold">{operator}</span>}
                 </React.Fragment>
             ))}
@@ -672,9 +684,18 @@ function ComparisonOperatorRenderer({
     );
 }
 
-export function ConditionRenderer({ condition, path = [], onDelete, onUpdate }: ConditionRendererProps) {
+export function ConditionRenderer({
+    condition,
+    wholeCondition,
+    path = [],
+    onDelete,
+    onUpdate,
+}: ConditionRendererProps) {
     // Get the current edit path from atom state
     const [numberInputPath] = useAtom(numberInputPathAtom);
+
+    // If wholeCondition is not provided, use the current condition as the whole condition
+    const effectiveWholeCondition = wholeCondition || condition;
 
     if (!condition || typeof condition !== "object" || Object.keys(condition).length === 0) {
         return <EmptyCondition onUpdate={onUpdate} />;
@@ -694,7 +715,11 @@ export function ConditionRenderer({ condition, path = [], onDelete, onUpdate }: 
     // Add the NumberInputDialog at the top level, passing the current edit path
     return (
         <>
-            <NumberInputDialog currentCondition={condition} onUpdate={onUpdate} editPath={numberInputPath} />
+            <NumberInputDialog
+                currentCondition={effectiveWholeCondition}
+                onUpdate={onUpdate}
+                editPath={numberInputPath}
+            />
 
             {isLogicalOperator ? (
                 <LogicalOperatorRenderer
@@ -711,17 +736,11 @@ export function ConditionRenderer({ condition, path = [], onDelete, onUpdate }: 
                     path={path}
                     onDelete={onDelete}
                     onUpdate={onUpdate}
+                    wholeCondition={effectiveWholeCondition}
                 />
             ) : (
-                // Fallback rendering for unknown operators
-                <div className="flex items-center gap-2">
-                    <span className="text-gray-400">{operator}</span>
-                    {operands.map((operand: any, index: number) => (
-                        <React.Fragment key={index}>
-                            {renderConditionPart(operand, [...path, operator, index], onDelete, onUpdate)}
-                        </React.Fragment>
-                    ))}
-                </div>
+                // Just render the operator name if we don't have a specific renderer for it
+                <span className="text-red-500 italic">Unsupported operator: {operator}</span>
             )}
         </>
     );
