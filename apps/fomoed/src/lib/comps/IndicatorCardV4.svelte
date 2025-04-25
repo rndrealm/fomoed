@@ -195,10 +195,10 @@
 				<GaugeV3 percentage={$cfgi_summary ? percentage : 0} />
 			</div>
 
-			<div class="absolute inset-x-0 flex items-center justify-center -bottom-[70px]">
+			<div class="absolute inset-x-0 flex items-center justify-center -bottom-[80px]">
 				<div class="relative">
 					<div
-						class="py-2 pl-2 pr-1"
+						class="flex justify-center py-2 pl-2 pr-1"
 						style="background: radial-gradient(49.81% 49.81% at 50% 50%, rgba(50, 15, 1, {$gradientIntensity}) 0%, rgba(25, 7, 0, {$gradientIntensity}) 100%); 
 					border-radius: 50%; 
 					
@@ -211,6 +211,11 @@
 						class="text-[48px] leading-[40px] font-mono font-normal text-white mt-6 flex justify-center"
 					>
 						{percentage}
+					</div>
+					<div
+						class="flex justify-center mt-1 text-sm font-semibold text-white uppercase font-inter"
+					>
+						{marketSentiment}
 					</div>
 				</div>
 			</div>

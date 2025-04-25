@@ -14,12 +14,14 @@
 	import BookmarkIconFilled from '$lib/icons/social/BookmarkIconFilled.svelte';
 	import type { PostLike } from '$ts/client/types/posts';
 	import { userService } from '$ts/client/services/UserService.svelte';
+	import SentimentPillV2 from '../custom/SentimentPill/SentimentPillV2.svelte';
 
 	type Props = {
 		article: PostLike;
 		showSourceAndTime?: boolean;
 		skeleton?: boolean;
 		compact?: boolean;
+		sentiment?: string;
 	};
 
 	let { article, showSourceAndTime = true, skeleton = false, compact = false }: Props = $props();
@@ -112,7 +114,11 @@
 			<span class="text-[#A5A5A5] text-[15px]" class:skeleton>{article?.comments_count}</span>
 		</button>
 
-		<div class="flex-grow"></div>
+		<div class="flex-grow">
+			{#if article?.sentiment}
+				<SentimentPillV2 sentiment={article.sentiment} />
+			{/if}
+		</div>
 
 		<!-- Bookmark -->
 		<button

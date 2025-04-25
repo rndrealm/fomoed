@@ -26,10 +26,10 @@
 	}
 </script>
 
-<div class="p-4 md:p-[30px] border border-[#1e1e1e] rounded-3xl bg-[#070707] mb-4">
+<div class="p-4 md:p-[30px] border border-[#141414] rounded-3xl bg-[#070707] mb-4">
 	<div class="flex flex-col gap-5">
 		<div class="flex flex-col gap-[14px]">
-			<p class="text-2xl text-white font-medium">{$coinstats_selected_coin?.name} News</p>
+			<p class="text-2xl font-medium text-white">{$coinstats_selected_coin?.name} News</p>
 
 			<NewsFilterChips
 				active={newsService.filter}
@@ -55,15 +55,15 @@
 							use:inview={{ threshold: 0.1 }}
 							on:inview_enter={loadNextPage}
 						>
-							<div class="h-40 bg-neutral-800 rounded-md"></div>
-							<div class="h-4 bg-neutral-800 rounded w-full"></div>
-							<div class="h-4 bg-neutral-800 rounded w-1/2"></div>
-							<div class="h-4 bg-neutral-800 rounded w-full"></div>
-							<div class="h-4 bg-neutral-800 rounded w-1/2"></div>
+							<div class="h-40 rounded-md bg-neutral-800"></div>
+							<div class="w-full h-4 rounded bg-neutral-800"></div>
+							<div class="w-1/2 h-4 rounded bg-neutral-800"></div>
+							<div class="w-full h-4 rounded bg-neutral-800"></div>
+							<div class="w-1/2 h-4 rounded bg-neutral-800"></div>
 						</div>
 					{/each}
 				{:else if newsService.news.length > 0}
-					<p class="text-white text-sm text-center py-4">No more news</p>
+					<p class="py-4 text-sm text-center text-white">No more news</p>
 				{/if}
 			</div>
 		</div>
