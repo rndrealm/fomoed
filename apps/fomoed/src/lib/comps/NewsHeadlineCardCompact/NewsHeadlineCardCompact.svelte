@@ -81,14 +81,19 @@
 				{/each}
 			</button>
 			<!-- Sentiment Pill -->
-			{#if article?.sentiment}
+			<!-- {#if article?.sentiment}
 				<SentimentPillV2 sentiment={article.sentiment} />
-			{/if}
+			{/if} -->
 		</div>
 		<!-- Bottom Row: Engagement Metrics -->
 		{#if !hideBottomBar}
 			<div class="mt-[0px]">
-				<NewsHeadlineBottomBar {article} showSourceAndTime={false} compact={true} />
+				<NewsHeadlineBottomBar
+					{article}
+					showSourceAndTime={false}
+					compact={true}
+					sentiment={article.sentiment}
+				/>
 			</div>
 		{/if}
 

@@ -122,7 +122,7 @@
 					</div>
 
 					<div
-						class="max-h-[500px] col-span-2 h-[450px] bg-[#070707] rounded-[15px] py-7 border border-[#1E1E1E]"
+						class="max-h-[500px] col-span-2 h-[450px] bg-[#070707] rounded-[15px] py-7 border border-[#141414]"
 					>
 						<h3 class="pb-2 text-xl font-medium text-center">Fear and Greed Index</h3>
 						<IndicatorCardV3 />
@@ -141,7 +141,7 @@
 
 	{#if $isMobile}
 		<div
-			class="px-0 mx-3 mt-3 mb-3 h-[400px] pt-7 pb-6 border border-[#1E1E1E] rounded-[15px] bg-[#070707]"
+			class="px-0 mx-3 mt-3 mb-3 h-[400px] pt-7 pb-6 border border-[#141414] rounded-[15px] bg-[#070707]"
 		>
 			<IndicatorCardV3 />
 		</div>
