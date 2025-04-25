@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Trash2, Plus, ChevronRight, ChevronDown } from "lucide-react";
+import { update } from "lodash-es";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -167,8 +168,9 @@ function NumberInputDialog({
 
             // Check if the parsed value is a valid number
             if (!isNaN(numValue)) {
-                // Use the existing updateAtPath helper function to safely update the condition
-                const updatedCondition = updateAtPath(wholeCondition, effectivePath, numValue);
+                // Use lodash update to safely update the condition
+                const updatedCondition = JSON.parse(JSON.stringify(wholeCondition)); // Create a deep copy
+                update(updatedCondition, effectivePath, () => numValue);
 
                 // Pass the fully updated condition object back to the parent
                 onUpdate(updatedCondition);
@@ -421,49 +423,6 @@ export function deleteAtPath(obj: any, path: (string | number)[]): any {
     return result;
 }
 
-// Helper function to update a value at a specific path in an object
-export function updateAtPath(wholeCondition: any, path: (string | number)[], value: any): any {
-    console.log("Updating path:", path, "with value:", value);
-    console.log("Whole condition:", wholeCondition);
-
-    if (!wholeCondition || path.length === 0) return wholeCondition;
-
-    // Create a deep copy to avoid direct mutation
-    const result = JSON.parse(JSON.stringify(wholeCondition));
-
-    let current = result;
-    const pathToParent = path.slice(0, path.length - 1);
-    const lastKey = path[path.length - 1];
-
-    // Navigate to the parent of the item to update
-    for (const key of pathToParent) {
-        // If a step in the path doesn't exist, return the original object
-        // This prevents errors if the path is somehow invalid during an update
-        if (current[key] === undefined) {
-            console.error("Invalid path during update:", path, "at key:", key, ", current:", current);
-            return wholeCondition; // Return original object if path is broken
-        }
-        current = current[key];
-    }
-
-    // Update the item at the final key
-    // Check if the parent is an array and the key is a valid index
-    if (Array.isArray(current) && typeof lastKey === "number" && lastKey >= 0 && lastKey < current.length) {
-        current[lastKey] = value; // Replace the value at the index
-    } else if (Array.isArray(current) && typeof lastKey === "number" && lastKey === current.length) {
-        current.push(value); // Append the value to the array
-    } else if (typeof current === "object" && current !== null && !Array.isArray(current)) {
-        // Check if the parent is an object (and not an array or null)
-        current[lastKey] = value; // Set or update the property
-    } else {
-        // Log an error if the target structure is not as expected (e.g., trying to set a numeric key on an object)
-        console.error("Cannot update path:", path, "Target structure invalid at final step.");
-        return wholeCondition; // Return original object on error
-    }
-
-    return result;
-}
-
 // OperatorDropdownContent component to eliminate duplication
 interface OperatorDropdownContentProps {
     onSelect: (operatorType: string) => void;
@@ -620,7 +579,11 @@ function LogicalOperatorRenderer({
         }
 
         const newPath = [...path, operator, operands.length];
-        const updatedCondition = updateAtPath({ [operator]: operands }, newPath, newItem);
+
+        // Use lodash update instead of custom updateAtPath
+        const updatedCondition = JSON.parse(JSON.stringify({ [operator]: operands }));
+        update(updatedCondition, newPath, () => newItem);
+
         onUpdate(updatedCondition);
     };
 
