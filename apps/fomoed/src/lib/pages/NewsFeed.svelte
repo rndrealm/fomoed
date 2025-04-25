@@ -19,11 +19,11 @@
 					toast.error('Failed to fetch popular news');
 				}
 			});
-			newsService.fetchNewsLabPosts().then((ok) => {
-				if (!ok) {
-					toast.error('Failed to fetch news lab posts');
-				}
-			});
+			// newsService.fetchNewsLabPosts().then((ok) => {
+			// 	if (!ok) {
+			// 		toast.error('Failed to fetch news lab posts');
+			// 	}
+			// });
 		}
 	});
 </script>
