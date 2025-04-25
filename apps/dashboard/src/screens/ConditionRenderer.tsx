@@ -16,6 +16,28 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { atom, useAtom } from "jotai";
 
+// We are using JSON logic. Example JSON structure:
+/**
+ * {
+    or: [
+        {
+            and: [
+                { ">": [{ topic: ["ETHUSDT", "price"] }, 100000] },
+                { "=": [false, { topic: ["youtube_streaming_DiscoverCrypto", "isStreaming"] }] },
+                { "=": [false, { topic: ["youtube_streaming_DiscoverCrypto", "isStreaming"] }] },
+            ],
+        },
+        {
+            and: [
+                { ">": [{ topic: ["ETHUSDT", "price"] }, 100000] },
+                { "=": [false, { topic: ["youtube_streaming_DiscoverCrypto", "isStreaming"] }] },
+                { "=": [false, { topic: ["youtube_streaming_DiscoverCrypto", "isStreaming"] }] },
+            ],
+        },
+    ],
+}
+ */
+
 // --- Data Types and Configuration Components ---
 
 // Define the type for a data type configuration object
@@ -122,74 +144,43 @@ function DataConfigDialog({ dataType }: { dataType: DataType }) {
 }
 
 // Number Input Dialog Component
-function NumberInputDialog({ onUpdate }: { onUpdate?: (newCondition: object) => void }) {
+function NumberInputDialog({
+    currentCondition,
+    onUpdate,
+    editPath,
+}: {
+    currentCondition: any;
+    onUpdate?: (newCondition: object) => void;
+    editPath?: (string | number)[];
+}) {
     const [open, setOpen] = useAtom(numberInputDialogOpenAtom);
     const [inputValue, setInputValue] = useAtom(numberInputValueAtom);
     const [path, setPath] = useAtom(numberInputPathAtom);
 
+    // Use the path provided in props if available, otherwise use the one from atom state
+    const effectivePath = editPath || path;
+
     const handleSave = () => {
-        if (path && onUpdate) {
+        // Ensure path, onUpdate, and currentCondition are valid before proceeding
+        if (effectivePath && onUpdate && currentCondition) {
             const numValue = parseFloat(inputValue);
 
-            // Create an object with the structure needed for updating
-            let updateObj: any = {};
-            let current = updateObj;
+            // Check if the parsed value is a valid number
+            if (!isNaN(numValue)) {
+                // Use the existing updateAtPath helper function to safely update the condition
+                const updatedCondition = updateAtPath(currentCondition, effectivePath, numValue);
 
-            // Process the path and build the correct structure
-            for (let i = 0; i < path.length; i += 2) {
-                const operator = path[i];
-
-                // Last item in the path
-                if (i === path.length - 1) {
-                    current[operator] = numValue;
-                    break;
-                }
-
-                const index = path[i + 1] as number;
-
-                if (i === path.length - 2) {
-                    // We're at the last operator, set the value directly at the specified index
-                    if (!current[operator]) {
-                        current[operator] = [];
-                    }
-
-                    // Make sure the operator has an array if it doesn't exist
-                    if (!Array.isArray(current[operator])) {
-                        current[operator] = [];
-                    }
-
-                    // Ensure the array is long enough
-                    while (current[operator].length <= index) {
-                        current[operator].push(undefined);
-                    }
-
-                    current[operator][index] = numValue;
-                } else {
-                    // We're at an intermediate operator
-                    if (!current[operator]) {
-                        current[operator] = [];
-                    }
-
-                    // Make sure the operator has an array
-                    if (!Array.isArray(current[operator])) {
-                        current[operator] = [];
-                    }
-
-                    // Ensure the array is long enough
-                    while (current[operator].length <= index) {
-                        current[operator].push({});
-                    }
-
-                    // Move to the next level
-                    current = current[operator][index];
-                }
+                // Pass the fully updated condition object back to the parent
+                onUpdate(updatedCondition);
+            } else {
+                // Handle cases where input is not a valid number, e.g., show an error
+                console.error("Invalid number input:", inputValue);
             }
-
-            // Update the condition with the correctly structured object
-            onUpdate(updateObj);
+        } else {
+            console.error("Cannot save number: Missing path, onUpdate handler, or current condition.");
         }
 
-        // Reset and close
+        // Reset state and close the dialog regardless of success or failure
         setOpen(false);
         setInputValue("");
         setPath(null);
@@ -428,6 +419,9 @@ export function deleteAtPath(obj: any, path: (string | number)[]): any {
 
 // Helper function to update a value at a specific path in an object
 export function updateAtPath(obj: any, path: (string | number)[], value: any): any {
+    console.log("Updating path:", path, "with value:", value);
+    console.log("Original object:", obj);
+
     if (!obj || path.length === 0) return obj;
 
     // Create a deep copy to avoid direct mutation
@@ -439,17 +433,28 @@ export function updateAtPath(obj: any, path: (string | number)[], value: any): a
 
     // Navigate to the parent of the item to update
     for (const key of pathToParent) {
+        // If a step in the path doesn't exist, return the original object
+        // This prevents errors if the path is somehow invalid during an update
         if (current[key] === undefined) {
-            current[key] = typeof key === "number" ? [] : {};
+            console.error("Invalid path during update:", path, "at key:", key, ", current:", current);
+            return obj; // Return original object if path is broken
         }
         current = current[key];
     }
 
-    // Update the item
-    if (Array.isArray(current)) {
-        current.splice(lastKey as number, 0, value);
+    // Update the item at the final key
+    // Check if the parent is an array and the key is a valid index
+    if (Array.isArray(current) && typeof lastKey === "number" && lastKey >= 0 && lastKey < current.length) {
+        current[lastKey] = value; // Replace the value at the index
+    } else if (Array.isArray(current) && typeof lastKey === "number" && lastKey === current.length) {
+        current.push(value); // Append the value to the array
+    } else if (typeof current === "object" && current !== null && !Array.isArray(current)) {
+        // Check if the parent is an object (and not an array or null)
+        current[lastKey] = value; // Set or update the property
     } else {
-        current[lastKey] = value;
+        // Log an error if the target structure is not as expected (e.g., trying to set a numeric key on an object)
+        console.error("Cannot update path:", path, "Target structure invalid at final step.");
+        return obj; // Return original object on error
     }
 
     return result;
@@ -668,6 +673,9 @@ function ComparisonOperatorRenderer({
 }
 
 export function ConditionRenderer({ condition, path = [], onDelete, onUpdate }: ConditionRendererProps) {
+    // Get the current edit path from atom state
+    const [numberInputPath] = useAtom(numberInputPathAtom);
+
     if (!condition || typeof condition !== "object" || Object.keys(condition).length === 0) {
         return <EmptyCondition onUpdate={onUpdate} />;
     }
@@ -683,10 +691,10 @@ export function ConditionRenderer({ condition, path = [], onDelete, onUpdate }: 
     const isLogicalOperator = ["and", "or"].includes(operator.toLowerCase());
     const isComparisonOperator = [">", "<", ">=", "<=", "="].includes(operator);
 
-    // Add the NumberInputDialog at the top level
+    // Add the NumberInputDialog at the top level, passing the current edit path
     return (
         <>
-            <NumberInputDialog onUpdate={onUpdate} />
+            <NumberInputDialog currentCondition={condition} onUpdate={onUpdate} editPath={numberInputPath} />
 
             {isLogicalOperator ? (
                 <LogicalOperatorRenderer
