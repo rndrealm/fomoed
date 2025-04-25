@@ -12,20 +12,15 @@ export default function SmartSignalsMvp() {
                 <CardTitle className="text-xl text-white">Smart Signals Dashboard</CardTitle>
                 <CardDescription className="text-gray-400">View your signals and notifications</CardDescription>
             </CardHeader>
+
             <CardContent>
                 <div className="grid grid-cols-2 gap-6">
                     {/* Smart Signals Section */}
                     <div className="flex flex-col">
-                        <h2 className="text-lg font-semibold mb-4 flex items-center text-white">
+                        <div className="text-lg font-semibold flex items-center text-white h-16">
                             <TrendingUp size={18} className="mr-2 text-blue-500" />
-                            Smart Signals
-                        </h2>
-
-                        <div className="space-y-2 max-h-[400px] overflow-y-auto">
-                            <SmartSignalList />
-                        </div>
-
-                        <div className="flex justify-end">
+                            <h2 className="grid place-items-center pl-2">Smart Signals</h2>
+                            <div className="flex-grow"></div>
                             <AddSmartSignalPopup
                                 trigger={
                                     <Button
@@ -37,6 +32,12 @@ export default function SmartSignalsMvp() {
                                     </Button>
                                 }
                             />
+                        </div>
+
+                        <div className="flex justify-end"></div>
+
+                        <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                            <SmartSignalList />
                         </div>
                     </div>
 

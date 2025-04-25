@@ -65,22 +65,29 @@ export default function NotificationList() {
 
     return (
         <>
-            <h2 className="text-lg font-semibold pb-4 flex items-center text-white">
+            <div className="text-lg font-semibold flex items-center text-white h-16">
                 <Bell size={18} className="text-orange-500" />
-                <div className="pl-2">Notifications</div>
-            </h2>
-            <div className="space-y-2">
-                {notifications.map((n) => (
-                    <NotificationItem
-                        key={n.id}
-                        title={n.description}
-                        description={""}
-                        timestamp={n.created_at}
-                        onDelete={() => handleDelete(n.id)}
-                        deleting={deletingId === n.id}
-                    />
-                ))}
+                <div className="pl-2 grid place-items-center">Notifications</div>
             </div>
+
+            {notifications.length === 0 ? (
+                <div className="flex flex-col items-center justify-center p-8 bg-[#232323] rounded-md border border-[#333333] text-gray-400">
+                    <span className="text-base font-medium">No notifications</span>
+                </div>
+            ) : (
+                <div className="space-y-2">
+                    {notifications.map((n) => (
+                        <NotificationItem
+                            key={n.id}
+                            title={n.description}
+                            description={""}
+                            timestamp={n.created_at}
+                            onDelete={() => handleDelete(n.id)}
+                            deleting={deletingId === n.id}
+                        />
+                    ))}
+                </div>
+            )}
         </>
     );
 }

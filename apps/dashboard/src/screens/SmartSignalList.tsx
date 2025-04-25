@@ -55,6 +55,14 @@ export default function SmartSignalList() {
         setDeletingId(null);
     };
 
+    if (smartSignals.length === 0) {
+        return (
+            <div className="flex flex-col items-center justify-center p-8 bg-[#232323] rounded-md border border-[#333333] text-gray-400">
+                <span className="text-base font-medium">No smart signals</span>
+            </div>
+        );
+    }
+
     return (
         <>
             {smartSignals.map((signal) => (
