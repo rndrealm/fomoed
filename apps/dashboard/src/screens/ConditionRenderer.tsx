@@ -241,10 +241,12 @@ function OperandButton({ children, onClick, path, wholeCondition, onUpdate }: Ac
     const [, setNumberInputDialogOpen] = useAtom(numberInputDialogOpenAtom);
     const [, setNumberInputValue] = useAtom(numberInputValueAtom);
     const [, setNumberInputPath] = useAtom(numberInputPathAtom);
+    const [open, setOpen] = React.useState(false); // Add state to control dropdown open state
 
     const handleDataItemClick = (dataType: DataType) => {
         setSelectedDataType(dataType);
         setDataConfigOpen(true);
+        setOpen(false); // Close dropdown after selection
     };
 
     const handleNumberClick = () => {
@@ -258,12 +260,23 @@ function OperandButton({ children, onClick, path, wholeCondition, onUpdate }: Ac
 
             setNumberInputPath(path);
             setNumberInputDialogOpen(true);
+            setOpen(false); // Close dropdown after selection
+        }
+    };
+
+    const handleBooleanClick = (value: boolean) => {
+        if (path && onUpdate && wholeCondition) {
+            // Use the updateCondition function to safely update the condition
+            const updatedCondition = updateCondition(wholeCondition, path, value);
+            // Pass the fully updated condition object back to the parent
+            onUpdate(updatedCondition);
+            setOpen(false); // Close dropdown after selection
         }
     };
 
     return (
         <div className="flex items-center gap-1 group">
-            <DropdownMenu>
+            <DropdownMenu open={open} onOpenChange={setOpen}>
                 <DropdownMenuTrigger asChild>
                     <div
                         onClick={onClick}
@@ -277,7 +290,28 @@ function OperandButton({ children, onClick, path, wholeCondition, onUpdate }: Ac
                     <DropdownMenuItem className="hover:bg-[#2A2A2A] cursor-pointer" onClick={handleNumberClick}>
                         Number
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="hover:bg-[#2A2A2A] cursor-pointer">Boolean</DropdownMenuItem>
+
+                    {/* Boolean submenu */}
+                    <DropdownMenu>
+                        <DropdownMenuTrigger className="flex items-center justify-between w-full px-2 py-1.5 text-sm hover:bg-[#2A2A2A] cursor-pointer rounded-sm">
+                            <span>Boolean</span>
+                            <ChevronRight size={14} />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent side="right" className="bg-[#222222] border-[#333333] text-white">
+                            <DropdownMenuItem
+                                className="hover:bg-[#2A2A2A] cursor-pointer"
+                                onClick={() => handleBooleanClick(true)}
+                            >
+                                True
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                className="hover:bg-[#2A2A2A] cursor-pointer"
+                                onClick={() => handleBooleanClick(false)}
+                            >
+                                False
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
 
                     <DropdownMenuSeparator className="bg-[#444444]" />
 
