@@ -12,10 +12,7 @@
 	import TokenDetails from '$lib/comps/TokenDetails.svelte';
 	import TokenDominace from '$lib/comps/TokenDominace.svelte';
 	import SelectToken from '$lib/comps/SelectToken.svelte';
-
-	console.log($coinstats_selected_coin, 'btincc');
-
-	console.log($coinstats_global_data, 'testeerrrr');
+	import DashboardNews from '$lib/comps/dashboard/DashboardNews.svelte';
 
 	let smallChartsCointainer: HTMLElement;
 	let scrollY = 0;
@@ -131,9 +128,10 @@
 				</div>
 
 				<div class="col-span-6 -desktop:pt-4">
-					<DashboardCard disablePadding hideCard={!$isDesktop}>
+					<!-- <DashboardCard disablePadding hideCard={!$isDesktop}>
 						<NewsCardContent />
-					</DashboardCard>
+					</DashboardCard> -->
+					<DashboardNews />
 				</div>
 			{/if}
 		</div>
@@ -152,9 +150,10 @@
 			<DashboardCarousel bind:isFullscreen={isCarouselFullscreen} />
 		</div>
 
-		<DashboardCard disablePadding hideCard={!$isDesktop}>
+		<!-- <DashboardCard disablePadding hideCard={!$isDesktop}>
 			<NewsCardContent />
-		</DashboardCard>
+		</DashboardCard> -->
+		<DashboardNews />
 	{/if}
 
 	<div class="snap-end">
