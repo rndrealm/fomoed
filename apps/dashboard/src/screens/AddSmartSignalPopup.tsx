@@ -42,24 +42,7 @@ export function AddSmartSignalPopup({ trigger }: AddSmartSignalPopupProps) {
         console.log("Condition changed:", condition);
     }, [condition]);
 
-    // Function to handle deleting a part of the condition
-    const handleDeleteConditionPart = (path: (string | number)[]) => {
-        if (!condition) return;
-
-        // If path is empty or contains only the root operator key, it's the root condition
-        if (path.length === 0 || (path.length === 1 && typeof path[0] === "string")) {
-            setCondition({});
-            return;
-        }
-
-        // Create a deep copy of the condition to avoid mutating the original
-        const updatedCondition = JSON.parse(JSON.stringify(condition));
-        // Use lodash unset to remove the property at the given path
-        unset(updatedCondition, path);
-        setCondition(updatedCondition);
-    };
-
-    // Function to handle updating the condition when a new operator is added
+    // Function to handle updating the condition (now handles both updates and deletions)
     const handleUpdateCondition = (newCondition: object) => {
         setCondition(newCondition);
     };
@@ -85,10 +68,9 @@ export function AddSmartSignalPopup({ trigger }: AddSmartSignalPopupProps) {
                     <Card className="flex-grow flex flex-col p-4 bg-[#222222] border-[#333333] min-h-0">
                         <p className="text-sm text-gray-400 mb-2 flex-shrink-0">Condition</p>
                         <div className="flex-grow overflow-y-auto p-3 rounded bg-[#2A2A2A] border border-[#3A3A3A] text-gray-300 font-mono text-sm">
-                            {/* Now passing both onDelete and onUpdate handlers */}
+                            {/* Now only passing onUpdate handler */}
                             <ConditionRenderer
                                 condition={condition}
-                                onDelete={handleDeleteConditionPart}
                                 onUpdate={handleUpdateCondition}
                                 wholeCondition={condition}
                             />

@@ -191,16 +191,31 @@ export function ValueDropdown() {
 
 // Delete button component to eliminate repetition
 interface DeleteButtonProps {
-    onDelete: () => void;
+    path: (string | number)[];
+    wholeCondition: any;
+    onUpdate?: (newCondition: object) => void;
     className?: string;
 }
 
-function DeleteButton({ onDelete, className }: DeleteButtonProps) {
+function DeleteButton({ path, wholeCondition, onUpdate, className }: DeleteButtonProps) {
+    const handleDelete = () => {
+        if (!path || !onUpdate || !wholeCondition) return;
+
+        // Create a deep copy of the condition to avoid mutating the original
+        const updatedCondition = JSON.parse(JSON.stringify(wholeCondition));
+
+        // Use lodash unset to remove the property at the given path
+        unset(updatedCondition, path);
+
+        // Call onUpdate with the modified condition
+        onUpdate(updatedCondition);
+    };
+
     return (
         <Button
             size="sm"
             variant="ghost"
-            onClick={onDelete}
+            onClick={handleDelete}
             className={`absolute -right-2 -top-2 p-1 h-5 w-5 rounded-full bg-[#2A2A2A] text-gray-400 hover:text-red-500 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity ${className || ""}`}
         >
             <Trash2 size={10} />
@@ -211,12 +226,12 @@ function DeleteButton({ onDelete, className }: DeleteButtonProps) {
 interface ActionButtonProps {
     children: React.ReactNode;
     onClick?: () => void;
-    onDelete?: () => void;
-    canDelete?: boolean;
     path?: (string | number)[];
+    wholeCondition?: object;
+    onUpdate?: (newCondition: object) => void;
 }
 
-function OperandButton({ children, onClick, onDelete, canDelete = false, path }: ActionButtonProps) {
+function OperandButton({ children, onClick, path, wholeCondition, onUpdate }: ActionButtonProps) {
     const [, setDataConfigOpen] = useAtom(dataConfigOpenAtom);
     const [, setSelectedDataType] = useAtom(selectedDataTypeAtom);
     const [, setNumberInputDialogOpen] = useAtom(numberInputDialogOpenAtom);
@@ -251,7 +266,9 @@ function OperandButton({ children, onClick, onDelete, canDelete = false, path }:
                         className="flex items-center justify-center px-3 py-1 text-sm rounded-md border border-[#333333] bg-[#222222] hover:bg-[#2A2A2A] hover:text-white relative cursor-pointer"
                     >
                         {children}
-                        {canDelete && onDelete && <DeleteButton onDelete={() => onDelete?.()} />}
+                        {path && wholeCondition && onUpdate && (
+                            <DeleteButton path={path} wholeCondition={wholeCondition} onUpdate={onUpdate} />
+                        )}
                     </div>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="bg-[#222222] border-[#333333] text-white">
@@ -331,13 +348,11 @@ function OperatorDropdownContent({ onSelect }: OperatorDropdownContentProps) {
 function renderConditionPart({
     part,
     path = [],
-    onDelete,
     onUpdate,
     wholeCondition,
 }: {
     part: any;
     path?: (string | number)[];
-    onDelete?: (path: (string | number)[]) => void;
     onUpdate?: (newCondition: object) => void;
     wholeCondition: object;
 }): React.ReactNode {
@@ -346,26 +361,20 @@ function renderConditionPart({
             // Render topic placeholder
             const [source, type] = part.topic;
             return (
-                <OperandButton canDelete={!!onDelete} onDelete={() => onDelete && onDelete(path)} path={path}>
+                <OperandButton path={path} wholeCondition={wholeCondition} onUpdate={onUpdate}>
                     {`${source} (${type})`}
                 </OperandButton>
             );
         } else {
             // Recursively render nested conditions/operators
             return (
-                <ConditionRenderer
-                    condition={part}
-                    wholeCondition={wholeCondition}
-                    path={path}
-                    onDelete={onDelete}
-                    onUpdate={onUpdate}
-                />
+                <ConditionRenderer condition={part} wholeCondition={wholeCondition} path={path} onUpdate={onUpdate} />
             );
         }
     } else if (typeof part === "number" || typeof part === "boolean") {
         // Render primitive values with path for editing
         return (
-            <OperandButton canDelete={!!onDelete} onDelete={() => onDelete && onDelete(path)} path={path}>
+            <OperandButton path={path} wholeCondition={wholeCondition} onUpdate={onUpdate}>
                 {String(part)}
             </OperandButton>
         );
@@ -379,7 +388,6 @@ export interface ConditionRendererProps {
     wholeCondition: object;
     depth?: number;
     path?: (string | number)[];
-    onDelete?: (path: (string | number)[]) => void;
     onUpdate?: (newCondition: object) => void;
 }
 
@@ -421,14 +429,12 @@ function LogicalOperatorRenderer({
     operator,
     operands,
     path,
-    onDelete,
     onUpdate,
     wholeCondition,
 }: {
     operator: string;
     operands: any[];
     path: (string | number)[];
-    onDelete?: (path: (string | number)[]) => void;
     onUpdate?: (newCondition: object) => void;
     wholeCondition: object;
 }) {
@@ -470,7 +476,7 @@ function LogicalOperatorRenderer({
                         <OperatorDropdownContent onSelect={handleAddCondition} />
                     </DropdownMenu>
 
-                    {onDelete && <DeleteButton onDelete={() => onDelete(path)} />}
+                    {onUpdate && <DeleteButton path={path} wholeCondition={wholeCondition} onUpdate={onUpdate} />}
                 </div>
             </div>
             <div className="relative flex flex-col pl-8 pt-2">
@@ -488,7 +494,6 @@ function LogicalOperatorRenderer({
                             {renderConditionPart({
                                 part: operand,
                                 path: [...path, operator, index],
-                                onDelete,
                                 onUpdate,
                                 wholeCondition,
                             })}
@@ -505,26 +510,23 @@ function ComparisonOperatorRenderer({
     operator,
     operands,
     path,
-    onDelete,
     onUpdate,
     wholeCondition,
 }: {
     operator: string;
     operands: any[];
     path: (string | number)[];
-    onDelete?: (path: (string | number)[]) => void;
     onUpdate?: (newCondition: object) => void;
     wholeCondition: object;
 }) {
     return (
         <div className="flex items-center gap-2 p-2 bg-[#222222] rounded-md border border-[#444444] max-w-max group relative">
-            {onDelete && <DeleteButton onDelete={() => onDelete(path)} />}
+            {onUpdate && <DeleteButton path={path} wholeCondition={wholeCondition} onUpdate={onUpdate} />}
             {operands.map((operand: any, index: number) => (
                 <React.Fragment key={index}>
                     {renderConditionPart({
                         part: operand,
                         path: [...path, operator, index],
-                        onDelete: undefined,
                         onUpdate,
                         wholeCondition,
                     })}
@@ -535,13 +537,7 @@ function ComparisonOperatorRenderer({
     );
 }
 
-export function ConditionRenderer({
-    condition,
-    wholeCondition,
-    path = [],
-    onDelete,
-    onUpdate,
-}: ConditionRendererProps) {
+export function ConditionRenderer({ condition, wholeCondition, path = [], onUpdate }: ConditionRendererProps) {
     // Get the current edit path from atom state
     const [numberInputPath] = useAtom(numberInputPathAtom);
 
@@ -573,7 +569,6 @@ export function ConditionRenderer({
                     operator={operator}
                     operands={operands}
                     path={path}
-                    onDelete={onDelete}
                     onUpdate={onUpdate}
                     wholeCondition={wholeCondition}
                 />
@@ -582,7 +577,6 @@ export function ConditionRenderer({
                     operator={operator}
                     operands={operands}
                     path={path}
-                    onDelete={onDelete}
                     onUpdate={onUpdate}
                     wholeCondition={wholeCondition}
                 />
