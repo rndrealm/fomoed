@@ -51,143 +51,6 @@ function updateCondition(condition: object, path: (string | number)[], value: an
     return updatedCondition;
 }
 
-// Number Input Dialog Component
-function NumberInputDialog({
-    wholeCondition,
-    onUpdate,
-    editPath,
-}: {
-    wholeCondition: any;
-    onUpdate?: (newCondition: object) => void;
-    editPath?: (string | number)[];
-}) {
-    const [open, setOpen] = useAtom(numberInputDialogOpenAtom);
-    const [inputValue, setInputValue] = useAtom(numberInputValueAtom);
-    const [path, setPath] = useAtom(numberInputPathAtom);
-
-    // Use the path provided in props if available, otherwise use the one from atom state
-    const effectivePath = editPath || path;
-
-    const handleSave = () => {
-        // Ensure path, onUpdate, and currentCondition are valid before proceeding
-        if (effectivePath && onUpdate && wholeCondition) {
-            const numValue = parseFloat(inputValue);
-
-            // Check if the parsed value is a valid number
-            if (!isNaN(numValue)) {
-                // Use the updateCondition function to safely update the condition
-                const updatedCondition = updateCondition(wholeCondition, effectivePath, numValue);
-
-                // Pass the fully updated condition object back to the parent
-                onUpdate(updatedCondition);
-            } else {
-                // Handle cases where input is not a valid number, e.g., show an error
-                console.error("Invalid number input:", inputValue);
-            }
-        } else {
-            console.error("Cannot save number: Missing path, onUpdate handler, or current condition.", {
-                effectivePath,
-                onUpdate,
-                wholeCondition,
-            });
-        }
-
-        // Reset state and close the dialog regardless of success or failure
-        setOpen(false);
-        setInputValue("");
-        setPath(null);
-    };
-
-    const handleCancel = () => {
-        setOpen(false);
-        setInputValue("");
-        setPath(null);
-    };
-
-    return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent className="sm:max-w-[400px] bg-[#1A1A1A] border-[#333333] text-white p-6">
-                <DialogHeader>
-                    <DialogTitle className="text-white">Enter a number</DialogTitle>
-                    <DialogDescription className="text-gray-400 pt-1">
-                        Please enter a numeric value for this operand.
-                    </DialogDescription>
-                </DialogHeader>
-
-                <div className="py-4">
-                    <Label htmlFor="number-input" className="text-gray-400 mb-2 block">
-                        Number value
-                    </Label>
-                    <Input
-                        id="number-input"
-                        type="number"
-                        step="any"
-                        value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
-                        className="bg-[#2A2A2A] border-[#3A3A3A] text-white"
-                        placeholder="Enter a number"
-                        autoFocus
-                    />
-                </div>
-
-                <div className="flex justify-end gap-2">
-                    <Button
-                        variant="outline"
-                        onClick={handleCancel}
-                        className="border-[#333333] bg-[#222222] text-gray-400 hover:bg-[#2A2A2A] hover:text-white"
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        className="bg-blue-500 text-white hover:bg-blue-600"
-                        onClick={handleSave}
-                        disabled={inputValue === "" || isNaN(parseFloat(inputValue))}
-                    >
-                        Save
-                    </Button>
-                </div>
-            </DialogContent>
-        </Dialog>
-    );
-}
-
-// Value Dropdown Component
-export function ValueDropdown() {
-    const [, setSelectedDataType] = useAtom(selectedDataTypeAtom);
-
-    const handleDataItemClick = (dataType: DataType) => {
-        setSelectedDataType(dataType);
-    };
-
-    return (
-        <>
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button
-                        size="sm"
-                        variant="outline"
-                        className="border-[#333333] bg-[#222222] hover:bg-[#2A2A2A] hover:text-white cursor-pointer flex items-center gap-1"
-                    >
-                        Data <ChevronDown size={14} />
-                    </Button>
-                </DropdownMenuTrigger>
-
-                <DropdownMenuContent className="bg-[#222222] border-[#333333] text-white">
-                    {DATA_TYPES.map((dataType) => (
-                        <DropdownMenuItem
-                            key={dataType.id}
-                            className="hover:bg-[#2A2A2A] cursor-pointer"
-                            onClick={() => handleDataItemClick(dataType)}
-                        >
-                            {dataType.label}
-                        </DropdownMenuItem>
-                    ))}
-                </DropdownMenuContent>
-            </DropdownMenu>
-        </>
-    );
-}
-
 // Delete button component to eliminate repetition
 interface DeleteButtonProps {
     path: (string | number)[];
@@ -232,10 +95,9 @@ interface ActionButtonProps {
 
 function OperandButton({ children, onClick, path, wholeCondition, onUpdate }: ActionButtonProps) {
     const [, setSelectedDataType] = useAtom(selectedDataTypeAtom);
-    const [, setNumberInputDialogOpen] = useAtom(numberInputDialogOpenAtom);
-    const [, setNumberInputValue] = useAtom(numberInputValueAtom);
-    const [, setNumberInputPath] = useAtom(numberInputPathAtom);
-    const [open, setOpen] = React.useState(false); // Add state to control dropdown open state
+    const [open, setOpen] = React.useState(false); // For dropdown
+    const [numberDialogOpen, setNumberDialogOpen] = React.useState(false); // For number input dialog
+    const [numberInputValue, setNumberInputValue] = React.useState(""); // For number input value
 
     const handleDataItemClick = (dataType: DataType) => {
         setSelectedDataType(dataType);
@@ -251,8 +113,7 @@ function OperandButton({ children, onClick, path, wholeCondition, onUpdate }: Ac
                 setNumberInputValue("");
             }
 
-            setNumberInputPath(path);
-            setNumberInputDialogOpen(true);
+            setNumberDialogOpen(true);
             setOpen(false); // Close dropdown after selection
         }
     };
@@ -265,6 +126,34 @@ function OperandButton({ children, onClick, path, wholeCondition, onUpdate }: Ac
             onUpdate(updatedCondition);
             setOpen(false); // Close dropdown after selection
         }
+    };
+
+    const handleNumberSave = () => {
+        // Ensure path, onUpdate, and wholeCondition are valid before proceeding
+        if (path && onUpdate && wholeCondition) {
+            const numValue = parseFloat(numberInputValue);
+
+            // Check if the parsed value is a valid number
+            if (!isNaN(numValue)) {
+                // Use the updateCondition function to safely update the condition
+                const updatedCondition = updateCondition(wholeCondition, path, numValue);
+
+                // Pass the fully updated condition object back to the parent
+                onUpdate(updatedCondition);
+            } else {
+                // Handle cases where input is not a valid number, e.g., show an error
+                console.error("Invalid number input:", numberInputValue);
+            }
+        }
+
+        // Close the dialog and reset input
+        setNumberDialogOpen(false);
+        setNumberInputValue("");
+    };
+
+    const handleNumberCancel = () => {
+        setNumberDialogOpen(false);
+        setNumberInputValue("");
     };
 
     return (
@@ -328,7 +217,89 @@ function OperandButton({ children, onClick, path, wholeCondition, onUpdate }: Ac
                     </DropdownMenu>
                 </DropdownMenuContent>
             </DropdownMenu>
+
+            {/* Inline NumberInputDialog */}
+            <Dialog open={numberDialogOpen} onOpenChange={setNumberDialogOpen}>
+                <DialogContent className="sm:max-w-[400px] bg-[#1A1A1A] border-[#333333] text-white p-6">
+                    <DialogHeader>
+                        <DialogTitle className="text-white">Enter a number</DialogTitle>
+                        <DialogDescription className="text-gray-400 pt-1">
+                            Please enter a numeric value for this operand.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="py-4">
+                        <Label htmlFor="number-input" className="text-gray-400 mb-2 block">
+                            Number value
+                        </Label>
+                        <Input
+                            id="number-input"
+                            type="number"
+                            step="any"
+                            value={numberInputValue}
+                            onChange={(e) => setNumberInputValue(e.target.value)}
+                            className="bg-[#2A2A2A] border-[#3A3A3A] text-white"
+                            placeholder="Enter a number"
+                            autoFocus
+                        />
+                    </div>
+
+                    <div className="flex justify-end gap-2">
+                        <Button
+                            variant="outline"
+                            onClick={handleNumberCancel}
+                            className="border-[#333333] bg-[#222222] text-gray-400 hover:bg-[#2A2A2A] hover:text-white"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            className="bg-blue-500 text-white hover:bg-blue-600"
+                            onClick={handleNumberSave}
+                            disabled={numberInputValue === "" || isNaN(parseFloat(numberInputValue))}
+                        >
+                            Save
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
+    );
+}
+
+// Value Dropdown Component
+export function ValueDropdown() {
+    const [, setSelectedDataType] = useAtom(selectedDataTypeAtom);
+
+    const handleDataItemClick = (dataType: DataType) => {
+        setSelectedDataType(dataType);
+    };
+
+    return (
+        <>
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-[#333333] bg-[#222222] hover:bg-[#2A2A2A] hover:text-white cursor-pointer flex items-center gap-1"
+                    >
+                        Data <ChevronDown size={14} />
+                    </Button>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent className="bg-[#222222] border-[#333333] text-white">
+                    {DATA_TYPES.map((dataType) => (
+                        <DropdownMenuItem
+                            key={dataType.id}
+                            className="hover:bg-[#2A2A2A] cursor-pointer"
+                            onClick={() => handleDataItemClick(dataType)}
+                        >
+                            {dataType.label}
+                        </DropdownMenuItem>
+                    ))}
+                </DropdownMenuContent>
+            </DropdownMenu>
+        </>
     );
 }
 
@@ -564,9 +535,6 @@ function ComparisonOperatorRenderer({
 }
 
 export function ConditionRenderer({ condition, wholeCondition, path = [], onUpdate }: ConditionRendererProps) {
-    // Get the current edit path from atom state
-    const [numberInputPath] = useAtom(numberInputPathAtom);
-
     // Use an empty object if condition is null
     const safeCondition = condition || {};
 
@@ -585,11 +553,8 @@ export function ConditionRenderer({ condition, wholeCondition, path = [], onUpda
     const isLogicalOperator = ["and", "or"].includes(operator.toLowerCase());
     const isComparisonOperator = [">", "<", ">=", "<=", "="].includes(operator);
 
-    // Add the NumberInputDialog at the top level, passing the current edit path
     return (
         <>
-            <NumberInputDialog wholeCondition={wholeCondition} onUpdate={onUpdate} editPath={numberInputPath} />
-
             {isLogicalOperator ? (
                 <LogicalOperatorRenderer
                     operator={operator}
