@@ -16,6 +16,7 @@
 	import anime from 'animejs';
 	import type { DashboardService } from '$ts/client/services/DashboardService.client';
 	import { browser } from '$app/environment';
+	import { chart_page } from '$lib/stores';
 
 	let mounted = false;
 
@@ -29,20 +30,21 @@
 	setContext('isFullscreenCardStore', isFullscreenCardStore);
 	setContext('fullscreenAnimCompleteCounterStore', fullscreenAnimCompleteCounterStore);
 
-	let page = browser ? dashboardService.getLastDisplayedChartIndex() : 0;
+	// let page = browser ? dashboardService.getLastDisplayedChartIndex() : 0;
 
-	function goLeft() {
-		page = page === 0 ? components.length - 1 : page - 1;
-	}
+	// function goLeft() {
+	// 	page = page === 0 ? components.length - 1 : page - 1;
+	// }
 
-	function goRight() {
-		page = (page + 1) % components.length;
-	}
+	// function goRight() {
+	// 	page = (page + 1) % components.length;
+	// }
 
-	$: mounted && dashboardService.setLastDisplayedChartIndex(page);
+	$: mounted && dashboardService.setLastDisplayedChartIndex($chart_page);
 
 	onMount(() => {
-		page = dashboardService.getLastDisplayedChartIndex();
+		// page = dashboardService.getLastDisplayedChartIndex();
+		chart_page.set(dashboardService.getLastDisplayedChartIndex());
 		mounted = true;
 	});
 
@@ -151,10 +153,10 @@
 			class:fixed={isFullscreen}
 			transition:fade={{ duration: 200 }}
 		>
-			<svelte:component this={components[page]} bind:chart />
+			<svelte:component this={components[$chart_page]} bind:chart />
 		</div>
 
-		<div
+		<!-- <div
 			class="absolute inset-0 z-10 flex items-center h-full duration-200 pointer-events-none"
 			class:opacity-0={isFullscreen}
 		>
@@ -169,7 +171,7 @@
 					<CarouselArrowRight />
 				</button>
 			</div>
-		</div>
+		</div> -->
 	{:else if $isDesktop === false}
 		<div
 			bind:this={mobileCarouselContainer}
@@ -201,9 +203,9 @@
 		</div>
 	{/if}
 
-	<button
+	<!-- <button
 		id="fullscreen-btn"
-		class="opacity-75 hover:opacity-100 duration-200 z-10 {isFullscreen && $isDesktop
+		class="hover:opacity-100 duration-200 z-10 {isFullscreen && $isDesktop
 			? 'translate-y-3 z-[1000] '
 			: ''}"
 		on:click={() => (isFullscreen ? goOutFullscreen() : goInFullscreen())}
@@ -214,20 +216,38 @@
 		{:else}
 			<IconExpand></IconExpand>
 		{/if}
-	</button>
+	</button> -->
+	<div
+		id="fullscreen-btn"
+		class="hover:opacity-100 duration-200 z-10 flex items-center gap-4 {isFullscreen && $isDesktop
+			? 'translate-y-3 z-[1000] '
+			: ''}"
+		class:isFullscreen
+	>
+		<p class="font-medium text-[13px] text-[#C3C3C3]">
+			{isFullscreen && $isDesktop ? 'Collapse' : 'Fullscreen'}
+		</p>
+		<button class="p-[6px]" on:click={() => (isFullscreen ? goOutFullscreen() : goInFullscreen())}>
+			{#if isFullscreen}
+				<IconCollapse></IconCollapse>
+			{:else}
+				<IconExpand></IconExpand>
+			{/if}
+		</button>
+	</div>
 </div>
 
 <style>
 	button {
-		@apply rounded-xl border border-[#FFFFFF1A] bg-[#0F0D0D] active:scale-90 duration-100;
+		@apply rounded-[5px] border border-[#363636] bg-[#1C1C1C] active:scale-90 duration-100;
 	}
 
 	#fullscreen-btn:not(.isFullscreen) {
-		@apply absolute bottom-4 left-4 -desktop:bottom-12 -desktop:left-8 p-4;
+		@apply absolute bottom-4 right-4 -desktop:bottom-12 -desktop:left-8 p-[6px];
 	}
 
 	#fullscreen-btn.isFullscreen {
-		@apply fixed top-4 right-4 p-2;
+		@apply fixed top-4 right-4 p-[6px];
 	}
 
 	:global(canvas) {
