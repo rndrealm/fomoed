@@ -13,8 +13,8 @@ export default function SmartSignalsMvp() {
                 <CardDescription className="text-gray-400">View your signals and notifications</CardDescription>
             </CardHeader>
 
-            <CardContent>
-                <div className="grid grid-cols-2 gap-6">
+            <CardContent className="flex-grow">
+                <div className="grid grid-cols-2 gap-6 h-full">
                     {/* Smart Signals Section */}
                     <div className="flex flex-col">
                         <div className="text-lg font-semibold flex items-center text-white h-16">
@@ -36,7 +36,7 @@ export default function SmartSignalsMvp() {
 
                         <div className="flex justify-end"></div>
 
-                        <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                        <div className="space-y-2 overflow-y-auto">
                             <SmartSignalList />
                         </div>
                     </div>
