@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { useAtom } from "jotai";
 import { DataType, DATA_TYPES, OperandValue, ConditionObject } from "./conditionTypes";
 import { DataConfigDialog, selectedDataTypeAtom } from "./DataConfigDialog";
+import { cn } from "@/lib/utils";
 
 function updateCondition(condition: ConditionObject, path: (string | number)[], value: any): ConditionObject {
     const updatedCondition = JSON.parse(JSON.stringify(condition)); // Create a deep copy
@@ -69,6 +70,7 @@ interface ActionButtonProps {
     path?: (string | number)[];
     wholeCondition?: ConditionObject;
     onUpdate: (newCondition: ConditionObject) => void;
+    isPlaceholder?: boolean;
 }
 
 interface NumberInputDialogProps {
@@ -125,7 +127,7 @@ function NumberInputDialog({ open, value, onChange, onSave, onCancel }: NumberIn
     );
 }
 
-function OperandButton({ children, onClick, path, wholeCondition, onUpdate }: ActionButtonProps) {
+function OperandButton({ children, onClick, path, wholeCondition, onUpdate, isPlaceholder }: ActionButtonProps) {
     const [, setSelectedDataType] = useAtom(selectedDataTypeAtom);
     const [open, setOpen] = React.useState(false); // For dropdown
     const [numberDialogOpen, setNumberDialogOpen] = React.useState(false); // For number input dialog
@@ -198,7 +200,12 @@ function OperandButton({ children, onClick, path, wholeCondition, onUpdate }: Ac
                 <DropdownMenuTrigger asChild>
                     <div
                         onClick={onClick}
-                        className="flex items-center justify-center px-3 py-1 text-sm rounded-md border border-[#333333] bg-[#222222] hover:bg-[#2A2A2A] hover:text-white relative cursor-pointer"
+                        className={cn(
+                            "flex items-center justify-center px-3 py-1 text-sm rounded-md border border-[#333333] relative cursor-pointer",
+                            isPlaceholder
+                                ? "bg-red-500 hover:bg-red-600 text-white"
+                                : "bg-[#222222] hover:bg-[#2A2A2A] hover:text-white"
+                        )}
                     >
                         {children}
                     </div>
@@ -357,6 +364,14 @@ function ConditionPart({
     onUpdate: (newCondition: ConditionObject) => void;
     wholeCondition: ConditionObject;
 }) {
+    // Render null as a placeholder operand
+    if (part === null) {
+        return (
+            <OperandButton path={path} wholeCondition={wholeCondition} onUpdate={onUpdate} isPlaceholder>
+                Select value
+            </OperandButton>
+        );
+    }
     if (typeof part === "object" && part !== null) {
         if ("topic" in part) {
             const [source, type] = part.topic;
@@ -396,7 +411,8 @@ function EmptyCondition({ onUpdate }: { onUpdate: (newCondition: ConditionObject
         if (op === "and" || op === "or") {
             onUpdate({ [op]: [] });
         } else {
-            onUpdate({ [op]: [{ topic: ["placeholder", "value"] }, 0] });
+            // Use [null, null] as placeholder operands
+            onUpdate({ [op]: [null, null] });
         }
     };
 
@@ -440,7 +456,8 @@ function LogicalOperatorRenderer({
         if (op === "and" || op === "or") {
             newItem = { [op]: [] };
         } else {
-            newItem = { [op]: [{ topic: ["placeholder", "value"] }, 0] };
+            // Use [null, null] as placeholder operands
+            newItem = { [op]: [null, null] };
         }
 
         // Copy the wholeCondition and update the appropriate part
