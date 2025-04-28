@@ -33,7 +33,13 @@ interface DeleteButtonProps {
 
 function DeleteButton({ path, wholeCondition, onUpdate, className }: DeleteButtonProps) {
     const handleDelete = () => {
-        if (!path || !wholeCondition) return;
+        if (!wholeCondition) return;
+
+        // If path is empty, we're at the root: set to empty object
+        if (!path || path.length === 0) {
+            onUpdate({} as ConditionObject);
+            return;
+        }
 
         // Create a deep copy of the condition to avoid mutating the original
         const updatedCondition = JSON.parse(JSON.stringify(wholeCondition));
