@@ -45,7 +45,7 @@
 	<div class="flex font-medium font-paralucent gap-x-8 -sm:hidden">
 		<!-- <Navlink href="/about">About</Navlink> -->
 		<Navlink href="/plans">Plans</Navlink>
-		<Navlink href="/dashboard">Dashboard</Navlink>
+		<Navlink href="/">Dashboard</Navlink>
 		<Navlink href="/news">News</Navlink>
 	</div>
 

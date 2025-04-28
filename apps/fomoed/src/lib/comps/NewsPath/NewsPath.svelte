@@ -7,7 +7,7 @@
 		<NewsIcon />
 	</div>
 
-	<a href="/dashboard">Dashboard</a>
+	<a href="/">Dashboard</a>
 
 	<div class="cursor-default">/</div>
 

@@ -26,14 +26,14 @@
 		<nav class="mx-auto px-6 py-[14px] bg-[#000] relative rounded-2xl">
 			<div class="flex items-center justify-between w-full">
 				<div class="flex items-center gap-6">
-					<a href="/dashboard">
+					<a href="/">
 						<img src="/icons/small-logo.svg" alt="" />
 					</a>
 
 					<div class="flex items-center gap-4">
-						<a href="/dashboard">
+						<a href="/">
 							<p
-								class={`text-base font-semibold leading-[135%] ${currentPath === '/dashboard' ? 'text-white' : 'text-[#9b9b9b]'}`}
+								class={`text-base font-semibold leading-[135%] ${currentPath === '/' ? 'text-white' : 'text-[#9b9b9b]'}`}
 							>
 								Dashboard
 							</p>
