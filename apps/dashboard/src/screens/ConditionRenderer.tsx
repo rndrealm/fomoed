@@ -211,35 +211,35 @@ function OperandButton({ children, onClick, path, wholeCondition, onUpdate, isPl
                     </div>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="bg-[#222222] border-[#333333] text-white">
-                    <DropdownMenuItem className="hover:bg-[#2A2A2A] cursor-pointer" onClick={handleNumberClick}>
+                    <DropdownMenuItem className="cursor-pointer" onClick={handleNumberClick}>
                         Number
                     </DropdownMenuItem>
+
                     <DropdownMenu>
-                        <DropdownMenuTrigger className="flex items-center justify-between w-full px-2 py-1.5 text-sm hover:bg-[#2A2A2A] cursor-pointer rounded-sm">
+                        <DropdownMenuTrigger className="flex items-center justify-between w-full px-2 py-1.5 text-sm cursor-pointer rounded-sm">
                             <span>Boolean</span>
                             <ChevronRight size={14} />
                         </DropdownMenuTrigger>
+
                         <DropdownMenuContent side="right" className="bg-[#222222] border-[#333333] text-white">
-                            <DropdownMenuItem
-                                className="hover:bg-[#2A2A2A] cursor-pointer"
-                                onClick={() => handleBooleanClick(true)}
-                            >
+                            <DropdownMenuItem className="cursor-pointer" onClick={() => handleBooleanClick(true)}>
                                 True
                             </DropdownMenuItem>
-                            <DropdownMenuItem
-                                className="hover:bg-[#2A2A2A] cursor-pointer"
-                                onClick={() => handleBooleanClick(false)}
-                            >
+
+                            <DropdownMenuItem className="cursor-pointer" onClick={() => handleBooleanClick(false)}>
                                 False
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
+
                     <DropdownMenuSeparator className="bg-[#444444]" />
+
                     <DropdownMenu>
                         <DropdownMenuTrigger className="flex items-center justify-between w-full px-2 py-1.5 text-sm hover:bg-[#2A2A2A] cursor-pointer rounded-sm">
                             <span>Data source</span>
                             <ChevronRight size={14} />
                         </DropdownMenuTrigger>
+
                         <DropdownMenuContent side="right" className="bg-[#222222] border-[#333333] text-white">
                             {DATA_TYPES.map((dataType) => (
                                 <DropdownMenuItem
@@ -418,7 +418,7 @@ function EmptyCondition({ onUpdate }: { onUpdate: (newCondition: ConditionObject
 
     return (
         <div className="flex items-center gap-2">
-            <span className="text-gray-500 italic">Build your signal using the buttons above</span>
+            <span className="text-gray-500 italic">Build your signal</span>
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button
