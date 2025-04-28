@@ -60,7 +60,7 @@
 
 	<div
 		class:hidden={!isOpen}
-		class="absolute top-16 -desktop:top-14 bg-[#090909] border-[#282828] border rounded-[10px] h-fit desktop:w-[240px] overflow-hidden flex flex-col z-[41] p-[6px]"
+		class="absolute top-22 -desktop:top-14 bg-[#090909] border-[#282828] border rounded-[10px] h-fit desktop:w-[240px] overflow-hidden flex flex-col z-[41] p-[6px]"
 	>
 		<div class="w-full overflow-x-hidden overflow-y-scroll no-scrollbar">
 			{#each dropDownOptions || [] as item}

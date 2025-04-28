@@ -63,7 +63,7 @@
 			</InCardChartContainer>
 		</div>
 
-		<div class="flex justify-center font-light gap-x-3 font-inter">
+		<div class="flex justify-center mt-6 font-light gap-x-3 font-inter">
 			{#each Object.entries(colorToCfgi) as [cfgi, color], index}
 				<div class="flex items-center mt-2">
 					<div class="w-2 h-2 rounded-[2px]" style="background-color: {color}"></div>

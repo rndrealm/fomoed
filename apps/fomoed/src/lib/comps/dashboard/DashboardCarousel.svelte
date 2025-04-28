@@ -140,7 +140,7 @@
 </script>
 
 <div
-	class="w-full desktop:h-[450px] -desktop:h-full -desktop:flex flex-col relative {isFullscreen &&
+	class="w-full desktop:h-[580px] -desktop:h-full -desktop:flex flex-col relative {isFullscreen &&
 	$isDesktop
 		? 'z-[1000]'
 		: ''} "
@@ -225,7 +225,7 @@
 		class:isFullscreen
 	>
 		<p class="font-medium text-[13px] text-[#C3C3C3]">
-			{isFullscreen && $isDesktop ? 'Collapse' : 'Fullscreen'}
+			{isFullscreen && $isDesktop ? '' : 'Fullscreen'}
 		</p>
 		<button class="p-[6px]" on:click={() => (isFullscreen ? goOutFullscreen() : goInFullscreen())}>
 			{#if isFullscreen}
@@ -243,7 +243,7 @@
 	}
 
 	#fullscreen-btn:not(.isFullscreen) {
-		@apply absolute bottom-4 right-4 -desktop:bottom-12 -desktop:left-8 p-[6px];
+		@apply absolute bottom-[5.5rem] right-14 -desktop:bottom-12 -desktop:left-8 p-[6px];
 	}
 
 	#fullscreen-btn.isFullscreen {

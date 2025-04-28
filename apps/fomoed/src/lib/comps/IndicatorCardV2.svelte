@@ -169,15 +169,17 @@
 	});
 
 	let loadingIsOut = false;
-
+	console.log('percentage', percentage);
+	const animationDuration = 1000 + percentage * 78 * 0.25;
 	// Create a tweened store for smooth animation of the gradient intensity
 	const gradientIntensity = tweened(0.3, {
-		duration: 800,
+		duration: animationDuration,
 		easing: cubicOut
 	});
 
 	// Update the gradient intensity whenever percentage changes
 	$: {
+		console.log('percentage update', percentage);
 		gradientIntensity.set(0.3 + (percentage * 0.7) / 100);
 	}
 </script>
@@ -194,14 +196,17 @@
 
 			<div class="absolute inset-x-0 flex items-center justify-center -bottom-[80px]">
 				<div class="relative">
-					<div
-						class="flex justify-center py-2 pl-2 pr-1"
-						style="background: radial-gradient(49.81% 49.81% at 50% 50%, rgba(50, 15, 1, {$gradientIntensity}) 0%, rgba(25, 7, 0, {$gradientIntensity}) 100%); 
-					border-radius: 50%; 
-					
-					backdrop-filter: blur(5.947214126586914px)"
-					>
-						<FearLogo />
+					<div class="relative flex justify-center">
+						<!-- <div
+							class="absolute top-0 left-0 flex justify-center items-center bg-[red] w-full h-full"
+						></div> -->
+						<!-- <div
+							class="absolute top-0 left-0 flex justify-center items-center w-[100%] h-[100%]"
+							style="background: radial-gradient(50% 50% at 50% 50%, rgba(247, 160, 106, 0) 65.47%, rgba(247, 160, 106, 0.04) 79.06%, rgba(247, 160, 106, 0.04) 84.46%, rgba(247, 160, 106, 0) 97.33%);"
+						></div> -->
+						<div class="relative">
+							<FearLogo />
+						</div>
 					</div>
 
 					<div
