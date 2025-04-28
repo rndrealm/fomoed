@@ -13,6 +13,7 @@
 	import TokenDominace from '$lib/comps/TokenDominace.svelte';
 	import SelectToken from '$lib/comps/SelectToken.svelte';
 	import DashboardNews from '$lib/comps/dashboard/DashboardNews.svelte';
+	import NewsAssetPriceRow from '$lib/comps/NewsAssetPriceRow/NewsAssetPriceRow.svelte';
 
 	let smallChartsCointainer: HTMLElement;
 	let scrollY = 0;
@@ -121,11 +122,16 @@
 						<DashboardCarousel />
 					</div>
 
-					<div
-						class="max-h-[500px] col-span-2 h-[450px] bg-[#070707] rounded-[15px] py-7 border border-[#141414]"
-					>
-						<h3 class="pb-2 text-xl font-medium text-center">Fear and Greed Index</h3>
-						<IndicatorCardV3 />
+					<div class="flex flex-col justify-between col-span-2">
+						<div
+							class="max-h-[500px] h-[460px] bg-[#070707] rounded-[15px] py-7 border border-[#141414]"
+						>
+							<h3 class="pb-2 text-xl font-medium text-center">Fear and Greed Index</h3>
+							<IndicatorCardV3 />
+						</div>
+						<div class="pb-6 rounded-r-[15px] bg-[#080808]">
+							<NewsAssetPriceRow />
+						</div>
 					</div>
 				</div>
 
