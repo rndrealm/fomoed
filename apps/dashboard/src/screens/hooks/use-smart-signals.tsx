@@ -52,6 +52,11 @@ function getTopicsFromCondition(condition: ConditionObject): string[] {
     return topics;
 }
 
+export interface CreateSmartSignalOptions {
+    inAppNotification: boolean;
+    emailNotification: boolean;
+}
+
 export function useSmartSignals() {
     const userData = useUserData();
     const [smartSignals, setSmartSignals] = useAtom(smartSignalsAtom);
@@ -68,17 +73,30 @@ export function useSmartSignals() {
         }
     }, [userData, setSmartSignals]);
 
-    const saveSmartSignal = async (condition: ConditionObject): Promise<SmartSignalRow | null> => {
+    const saveSmartSignal = async (
+        condition: ConditionObject,
+        options: CreateSmartSignalOptions
+    ): Promise<SmartSignalRow | null> => {
         if (!userData) {
             return null;
         }
         const topics = getTopicsFromCondition(condition);
+        const actions = [];
+
+        if (options.inAppNotification) {
+            actions.push({ type: "notification", description: "Your smart signal fired!" });
+        }
+
+        if (options.emailNotification) {
+            actions.push({ type: "email", content: "Your smart signal fired!" });
+        }
+
         const smartSignal: Partial<SmartSignalRow> = {
             user_id: userData.id,
             topics,
             condition: JSON.stringify(condition),
             fired_at: null,
-            actions: [{ type: "notification", description: "Smart signal fired!" }],
+            actions,
         };
         const supabase = createSupabaseBrowserClient();
         const { data, error } = await supabase.from("smart_signals").insert([smartSignal]).select("*").single();
