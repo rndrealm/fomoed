@@ -18,7 +18,7 @@
 
 <div class="relative w-full h-full rounded-[15px]">
 	<div class="chart_border"></div>
-	<div class="relative bg-[#080808] h-full px-3 pb-16 pt-4 rounded-[15px]">
+	<div class="relative bg-[#080808] h-full px-3 pb-10 lg:pb-16 pt-4 rounded-[15px]">
 		<div bind:this={container} class="w-full h-full no-scrollbar" class:opacity-0={loading}>
 			<div class="-desktop:h-full desktop:h-full -desktop:pb-3">
 				<slot />

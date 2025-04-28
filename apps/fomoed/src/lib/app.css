@@ -204,3 +204,13 @@ body {
 
 	background: linear-gradient(180deg, #000000 -45.18%, #3e3e3e 160.96%);
 }
+
+.test_gradient {
+	background: radial-gradient(
+		circle,
+		rgba(255, 165, 0, 0.8) 20%,
+		rgba(139, 69, 19, 0.6) 50%,
+		rgba(0, 0, 0, 0.8) 80%
+	);
+	border-radius: 100%;
+}

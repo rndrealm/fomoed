@@ -34,7 +34,7 @@
 	];
 </script>
 
-<div class="flex-grow">
+<div class="flex-grow relative z-[1000]">
 	<button
 		class="flex items-end justify-center flex-grow -desktop:pl-1 h-14"
 		on:click={() => (isOpen = !isOpen)}

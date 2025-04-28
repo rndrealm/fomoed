@@ -243,7 +243,7 @@
 	}
 
 	#fullscreen-btn:not(.isFullscreen) {
-		@apply absolute bottom-[5.5rem] right-14 -desktop:bottom-12 -desktop:left-8 p-[6px];
+		@apply absolute md:bottom-[5.5rem] right-14 -desktop:bottom-[5.5rem] -desktop:right-8 p-[6px];
 	}
 
 	#fullscreen-btn.isFullscreen {

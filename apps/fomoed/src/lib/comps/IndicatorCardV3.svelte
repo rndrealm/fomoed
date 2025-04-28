@@ -6,7 +6,6 @@
 		get_data_label,
 		success
 	} from '$lib/utils';
-	import TintedSecondaryButton from './TintedSecondaryButton.svelte';
 	import { page } from '$app/stores';
 	import { aped_score, cfgi_summary } from '$lib/stores';
 	import { onMount } from 'svelte';
@@ -14,19 +13,13 @@
 	import _ from 'lodash-es';
 	import SocialButton from './buttons/SocialButton.svelte';
 	import X from '$lib/icons/social/X.svelte';
-	import Facebook from '$lib/icons/social/Facebook.svelte';
-	import Telegram from '$lib/icons/social/Telegram.svelte';
-	import Copy from '$lib/icons/social/Copy.svelte';
+
 	import { fade } from 'svelte/transition';
-	import LoadingAnim from './animations/LoadingAnim.svelte';
 	import GaugeV3 from './indicator/GaugeV3.svelte';
-	import { enableXmas } from '$ts/utils/client/ui';
 	import Meta from '$lib/icons/social/Meta.svelte';
 	import Send from '$lib/icons/social/Send.svelte';
 	import CopyV2 from '$lib/icons/social/CopyV2.svelte';
 	import FearLogo from '$lib/icons/FearLogo.svelte';
-	import { tweened } from 'svelte/motion';
-	import { cubicOut } from 'svelte/easing';
 
 	export let onHomepage = false;
 	export let prev = 0;
@@ -175,21 +168,15 @@
 
 	let loadingIsOut = false;
 
-	// Create a tweened store for smooth animation of the gradient intensity
-	const gradientIntensity = tweened(0.3, {
-		duration: 800,
-		easing: cubicOut
-	});
+	// Reactive scale value based on percentage
+	let scaleValue = 0;
 
-	// Update the gradient intensity whenever percentage changes
-	$: {
-		gradientIntensity.set(0.3 + (percentage * 0.7) / 100);
-	}
+	$: scaleValue = Math.min(Math.max(0.75 + (percentage / 100) * 0.25, 0.75), 1);
 </script>
 
 <div
 	style:background
-	class="w-ful {onHomepage ? 'rounded-[30px]' : 'rounded-[26px]'}  flex flex-col"
+	class="w-full {onHomepage ? 'rounded-[30px]' : 'rounded-[26px]'}  flex flex-col"
 >
 	<div class="flex flex-col">
 		<div class="relative w-full">
@@ -197,16 +184,17 @@
 				<GaugeV3 percentage={$cfgi_summary ? percentage : 0} />
 			</div>
 
-			<div class="absolute inset-x-0 flex items-center justify-center -bottom-14">
+			<div class="absolute inset-x-0 flex items-center justify-center -bottom-16">
 				<div class="relative">
-					<div
-						class="flex justify-center py-2 pl-2 pr-1"
-						style="background: radial-gradient(49.81% 49.81% at 50% 50%, rgba(50, 15, 1, {$gradientIntensity}) 0%, rgba(25, 7, 0, {$gradientIntensity}) 100%); 
-					border-radius: 50%; 
-					
-					backdrop-filter: blur(5.947214126586914px)"
-					>
-						<FearLogo />
+					<div class="relative flex justify-center py-[12px] pl-[12px] pr-[8px]">
+						<div
+							class="absolute top-0 left-0 w-full h-full test_gradient"
+							style="transform: scale({scaleValue}); transition: transform 3s ease; transition-delay: 0.5s;"
+							class:opacity-0={!percentage}
+						></div>
+						<div class="relative">
+							<FearLogo />
+						</div>
 					</div>
 
 					<div
