@@ -10,26 +10,21 @@ import { useSmartSignals } from "./hooks/use-smart-signals";
 
 // Atom to manage the dialog open state
 const addSmartSignalOpenAtom = atomWithStorage("addSmartSignalOpen", false);
-// const conditionAtom = atom<object>({
-//     or: [
-//         {
-//             and: [
-//                 { ">": [{ topic: ["ETHUSDT", "price"] }, 100000] },
-//                 { "=": [false, { topic: ["youtube_streaming_DiscoverCrypto", "isStreaming"] }] },
-//                 { "=": [false, { topic: ["youtube_streaming_DiscoverCrypto", "isStreaming"] }] },
-//             ],
-//         },
-//         {
-//             and: [
-//                 { ">": [{ topic: ["ETHUSDT", "price"] }, 100000] },
-//                 { "=": [false, { topic: ["youtube_streaming_DiscoverCrypto", "isStreaming"] }] },
-//                 { "=": [false, { topic: ["youtube_streaming_DiscoverCrypto", "isStreaming"] }] },
-//             ],
-//         },
-//     ],
-// }); // Atom to store the condition object
 
 const conditionAtom = atom<object>({});
+
+// Utility to check for any placeholder (null) operand in the condition
+function hasPlaceholderOperand(obj: any): boolean {
+    if (obj === null) return true;
+    if (Array.isArray(obj)) return obj.some(hasPlaceholderOperand);
+    if (typeof obj === "object" && obj !== null) {
+        // Check for empty AND/OR
+        if ("and" in obj && Array.isArray(obj.and) && obj.and.length === 0) return true;
+        if ("or" in obj && Array.isArray(obj.or) && obj.or.length === 0) return true;
+        return Object.values(obj).some(hasPlaceholderOperand);
+    }
+    return false;
+}
 
 interface AddSmartSignalPopupProps {
     trigger?: React.ReactNode;
@@ -56,6 +51,8 @@ export function AddSmartSignalPopup({ trigger }: AddSmartSignalPopupProps) {
             console.error("Error creating smart signal:", error);
         }
     };
+
+    const isCreateDisabled = Object.keys(condition).length < 1 || hasPlaceholderOperand(condition);
 
     return (
         <>
@@ -88,7 +85,11 @@ export function AddSmartSignalPopup({ trigger }: AddSmartSignalPopupProps) {
                         >
                             Cancel
                         </Button>
-                        <Button className="bg-blue-500 text-white hover:bg-blue-600" onClick={handleCreateSignal}>
+                        <Button
+                            className="bg-blue-500 text-white hover:bg-blue-600"
+                            onClick={handleCreateSignal}
+                            disabled={isCreateDisabled}
+                        >
                             Create Signal
                         </Button>
                     </div>
