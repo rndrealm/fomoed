@@ -31,7 +31,7 @@
 	});
 </script>
 
-<main class="pt-[5.5rem] md:pt-[5rem] bg-[#090909]">
+<main class="pt-[5.5rem] md:pt-[5rem] bg-[#0c0c0c]">
 	<NewsAssetPriceRow />
 
 	<div

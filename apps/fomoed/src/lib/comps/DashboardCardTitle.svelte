@@ -35,10 +35,11 @@
 </script>
 
 <div class="flex-grow relative z-[1000]">
-	<button
+	<button class="flex items-end justify-center flex-grow -desktop:pl-1 h-14">
+		<!-- <button
 		class="flex items-end justify-center flex-grow -desktop:pl-1 h-14"
 		on:click={() => (isOpen = !isOpen)}
-	>
+	> -->
 		<div class="flex flex-col items-start">
 			<div class=" text-[15px] -desktop:text-base uppercase font-semibold">
 				{title}
@@ -48,14 +49,14 @@
 				{subtitle}
 			</div>
 		</div>
-		<img
+		<!-- <img
 			src="/icons/caret-up.svg"
 			width={20}
 			height={20}
 			alt=""
 			class="duration-100 ml-[7px] flex-shrink-0"
 			class:rotate-180={!isOpen}
-		/>
+		/> -->
 	</button>
 
 	<div
