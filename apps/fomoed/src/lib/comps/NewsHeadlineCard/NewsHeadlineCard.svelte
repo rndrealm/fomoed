@@ -13,7 +13,7 @@
 
 <a href={article?.detailUrl} class="block duration-500 ease-in-out" class:skeletoned={skeleton}>
 	<div
-		class="font-inter bg-[#070707] text-white pt-10 border-[0.5px] border-[#1E1E1E] rounded-[20px]"
+		class="font-inter bg-[#070707] text-white pt-10 border-[0.5px] border-[#1E1E1E] rounded-[20px] min-h-[365px]"
 	>
 		<!-- Headline -->
 		<h2
