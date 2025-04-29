@@ -1,26 +1,33 @@
 "use client";
 
-import React, { useState } from "react";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent } from "@/components/ui/dropdown-menu";
+import React, { ReactNode, useState } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+} from "@/components/ui/dropdown-menu";
 import ProfileDropdown from "./ProfileDropdown";
 import NavbarProfileButtonTrigger from "./NavbarProfileButtonTrigger";
 
-const NavbarProfileButton: React.FC = () => {
-    const [expanded, setExpanded] = useState(false);
+interface IProps {
+  children?: ReactNode;
+}
 
-    return (
-        <DropdownMenu open={expanded} onOpenChange={setExpanded}>
-            <DropdownMenuTrigger asChild>
-                <div>
-                    <NavbarProfileButtonTrigger />
-                </div>
-            </DropdownMenuTrigger>
+const NavbarProfileButton = (props: IProps) => {
+  const { children } = props;
+  const [expanded, setExpanded] = useState(false);
 
-            <DropdownMenuContent align="end" className="bg-transparent border-0">
-                <ProfileDropdown />
-            </DropdownMenuContent>
-        </DropdownMenu>
-    );
+  return (
+    <DropdownMenu open={expanded} onOpenChange={setExpanded}>
+      <DropdownMenuTrigger asChild>
+        <div>{children ? children : <NavbarProfileButtonTrigger />}</div>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent align="end" className="bg-transparent border-0">
+        <ProfileDropdown />
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 };
 
 export default NavbarProfileButton;
