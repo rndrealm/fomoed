@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "static.coinstats.app",
       },
+      new URL("https://lh3.googleusercontent.com/**"),
     ],
   },
 };
