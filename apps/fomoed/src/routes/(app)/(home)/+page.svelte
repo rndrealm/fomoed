@@ -22,7 +22,7 @@
 </script>
 
 <main
-	class="relative z-0 overflow-y-scroll -desktop:snap-y no-scrollbar snap-mandatory bg-[#0c0c0c]"
+	class="relative z-0 overflow-y-scroll -desktop:snap-y no-scrollbar snap-mandatory bg-[#0f0f0f]"
 	class:!overflow-hidden={$disableDashboardScroll}
 	style="height: {$innerHeight}px;"
 	onscroll={(e) => (scrollY = e.target?.scrollTop)}

@@ -50,7 +50,9 @@
 
 	async function loadExchangeOptions() {
 		const suppExchangePairs = await getCacheOrFetchSupportedExchangePairs();
+		// console.log('supportedExchangePairs', suppExchangePairs);
 		const options = supportedExchangePairsToOptions(suppExchangePairs);
+		// console.log('options', options);
 
 		// Filter by selected coin
 		const filtered = options.filter((o) => o.value.baseAsset === symbol);
@@ -129,7 +131,7 @@
 				</div>
 			</DashboardCardHeader>
 
-			<div class="flex-grow pl-5 mt-5 gap-x-4">
+			<div class="flex-grow px-5 mt-5 gap-x-4">
 				<InCardChartContainer {loading}>
 					<LiqHeatmapChart
 						bind:chart

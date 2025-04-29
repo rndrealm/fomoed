@@ -30,15 +30,15 @@
 	setContext('isFullscreenCardStore', isFullscreenCardStore);
 	setContext('fullscreenAnimCompleteCounterStore', fullscreenAnimCompleteCounterStore);
 
-	// let page = browser ? dashboardService.getLastDisplayedChartIndex() : 0;
+	let page = browser ? dashboardService.getLastDisplayedChartIndex() : 0;
 
-	// function goLeft() {
-	// 	page = page === 0 ? components.length - 1 : page - 1;
-	// }
+	function goLeft() {
+		page = page === 0 ? components.length - 1 : page - 1;
+	}
 
-	// function goRight() {
-	// 	page = (page + 1) % components.length;
-	// }
+	function goRight() {
+		page = (page + 1) % components.length;
+	}
 
 	$: mounted && dashboardService.setLastDisplayedChartIndex($chart_page);
 
@@ -153,25 +153,25 @@
 			class:fixed={isFullscreen}
 			transition:fade={{ duration: 200 }}
 		>
-			<svelte:component this={components[$chart_page]} bind:chart />
+			<svelte:component this={components[page]} bind:chart />
 		</div>
 
-		<!-- <div
+		<div
 			class="absolute inset-0 z-10 flex items-center h-full duration-200 pointer-events-none"
 			class:opacity-0={isFullscreen}
 		>
 			<div class="relative flex w-full">
-				<button on:click={() => goLeft()} class="p-4 -translate-x-1/2 pointer-events-auto">
+				<button on:click={() => goLeft()} class="p-4 translate-x-[-30%] pointer-events-auto">
 					<CarouselArrowLeft />
 				</button>
 
 				<div class="flex-grow"></div>
 
-				<button on:click={() => goRight()} class="p-4 translate-x-1/2 pointer-events-auto">
+				<button on:click={() => goRight()} class="p-4 translate-x-[30%] pointer-events-auto">
 					<CarouselArrowRight />
 				</button>
 			</div>
-		</div> -->
+		</div>
 	{:else if $isDesktop === false}
 		<div
 			bind:this={mobileCarouselContainer}

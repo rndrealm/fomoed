@@ -67,7 +67,7 @@
 	});
 </script>
 
-<main class="pt-[80px] bg-[#000] min-h-screen">
+<main class="pt-[80px] bg-[#0c0c0c] min-h-screen">
 	<!-- <div
 		class="pb-4 pt-4 fixed bg-[#0e0e0e55] w-full shadow-xl backdrop-blur-xl backdrop-brightness-[0.3] z-50"
 	>
