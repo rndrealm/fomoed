@@ -146,7 +146,7 @@ export async function GET(request: Request) {
     )) {
       for (const instrument of instruments) {
         console.info(
-          "[Exchange Liquidation Map API] Fetching instrument:",
+          "[Exchange Liquidation Map API Fetching instrument:",
           exchange,
           instrument.instrumentId
         );
