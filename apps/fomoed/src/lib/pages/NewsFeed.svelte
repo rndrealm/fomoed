@@ -14,16 +14,19 @@
 		newsService.setCurrency('');
 		if (!newsService.news.length) {
 			newsService.fetchNews();
-			newsService.fetchPopularNews().then((ok) => {
-				if (!ok) {
-					toast.error('Failed to fetch popular news');
-				}
-			});
+
 			// newsService.fetchNewsLabPosts().then((ok) => {
 			// 	if (!ok) {
 			// 		toast.error('Failed to fetch news lab posts');
 			// 	}
 			// });
+		}
+		if (!newsService.popularNews.length) {
+			newsService.fetchPopularNews().then((ok) => {
+				if (!ok) {
+					toast.error('Failed to fetch popular news');
+				}
+			});
 		}
 	});
 </script>
@@ -44,7 +47,7 @@
 			</div>
 
 			<div class="pt-5">
-				<LatestNewsSection articles={newsService.news} />
+				<LatestNewsSection articles={newsService.news} isFetching={newsService.isFetching} />
 			</div>
 		</div>
 
@@ -55,7 +58,10 @@
 				</div>
 
 				<div class="w-full max-w-lg pt-4">
-					<PopularNewsWidget articles={newsService.popularNews} />
+					<PopularNewsWidget
+						articles={newsService.popularNews}
+						isFetching={newsService.isFetching}
+					/>
 				</div>
 			</div>
 		{/if}

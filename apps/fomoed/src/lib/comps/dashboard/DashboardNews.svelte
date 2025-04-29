@@ -42,7 +42,7 @@
 		</div>
 
 		<div class="h-[500px] overflow-auto no-scrollbar">
-			<div class="grid grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-4 pt-4">
+			<div class="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4 pt-4">
 				{#each $infiniteNews as article (article.id)}
 					<NewsHeadlineCardCompact {article} />
 				{/each}
