@@ -5,6 +5,7 @@
 	import NewNavbarLogo from '../NewNavbarLogo/NewNavbarLogo.svelte';
 	// import { toast as tost } from '@zerodevx/svelte-toast';
 	import toast from 'svelte-5-french-toast';
+	import LoadUserData from '../func/LoadUserData.svelte';
 
 	function handleComingSoon() {
 		toast('Coming Soon', {
@@ -18,6 +19,8 @@
 	$: currentPath = $page.url.pathname;
 	let scrollY = 0;
 </script>
+
+<LoadUserData />
 
 <div class="fixed top-0 w-full z-[999] -desktop:bg-[50%_50%]">
 	<div class="relative overflow-hidden p-[1px] max-w-[550px] mx-auto w-full mt-3 rounded-2xl">
