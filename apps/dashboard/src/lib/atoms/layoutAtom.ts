@@ -3,8 +3,8 @@ import { layoutOptions } from "../static";
 
 const initialTab = {
   id: 1 as number | string,
-  label: "main tab",
-  name: "Main tab",
+  label: "untitled layout",
+  name: "Untitled Layout",
   editMode: false,
 };
 

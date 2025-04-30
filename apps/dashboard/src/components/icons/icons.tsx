@@ -100,7 +100,8 @@ export function AddTab() {
   );
 }
 
-export function TabLayout() {
+export function TabLayout(props: IDashboard) {
+  const { active } = props;
   return (
     <svg
       width="20"
@@ -111,7 +112,7 @@ export function TabLayout() {
     >
       <path
         d="M2 14H18V6H12C11.7167 6 11.4792 5.90417 11.2875 5.7125C11.0958 5.52083 11 5.28333 11 5V2H2V14ZM2 16C1.45 16 0.979167 15.8042 0.5875 15.4125C0.195833 15.0208 0 14.55 0 14V2C0 1.45 0.195833 0.979167 0.5875 0.5875C0.979167 0.195833 1.45 0 2 0H18C18.55 0 19.0208 0.195833 19.4125 0.5875C19.8042 0.979167 20 1.45 20 2V14C20 14.55 19.8042 15.0208 19.4125 15.4125C19.0208 15.8042 18.55 16 18 16H2Z"
-        fill="#474747"
+        fill={active ? "#ffffff" : "#474747"}
       />
     </svg>
   );

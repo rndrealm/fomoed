@@ -14,6 +14,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
+import { NewTabs } from "./new-tab";
 
 interface IToolbarItem {
   onClick?: () => void;
@@ -44,24 +45,7 @@ function ToolbarItem(props: IToolbarItem) {
 export function Toolbar() {
   return (
     <div className="flex items-center justify-between">
-      <div className="flex gap-2 items-center">
-        <button
-          type="button"
-          className="h-[32px] w-[32px] flex items-center justify-center rounded-md border border-[#121212]"
-        >
-          <AddTab />
-        </button>
-
-        <div className="h-[18px] w-[1px] bg-[#141414]"></div>
-        <button type="button">
-          <div className="flex items-center gap-2 w-[130px] h-[32px] bg-[#111] px-[6px] rounded-md">
-            <TabLayout />
-            <p className="text-[#7a7a7a] text-xs font-medium flex-1 truncate">
-              Untitled Layout
-            </p>
-          </div>
-        </button>
-      </div>
+      <NewTabs />
 
       <div className="flex items-center gap-2">
         <div className="flex items-center gap-[2px]">
