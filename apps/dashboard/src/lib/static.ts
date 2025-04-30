@@ -10,6 +10,7 @@ import {
   TwoVerticalPanes,
 } from "@/components/icons/LayoutOptions";
 import React from "react";
+import dashboard from "./assets/dashboard";
 
 export const layoutClassMap = {
   SinglePane: "grid-rows-1 grid-cols-1",
@@ -70,5 +71,33 @@ export const layoutOptions: LayoutOptions[] = [
       { id: 2, svg: FourHorizontalPanes, name: "FourHorizontalPanes" },
       { id: 3, svg: FourGridPanes, name: "FourGridPanes" },
     ],
+  },
+];
+
+export const layoutOptionsMap = [
+  {
+    id: 1,
+    name: "Crypto Fear and Greed Map",
+    image: dashboard.cfgi,
+  },
+  {
+    id: 2,
+    name: "Simplify Crypto Fear and Greed Map",
+    image: dashboard.simpleCfgi,
+  },
+  {
+    id: 3,
+    name: "Liquidation Map",
+    image: dashboard.liq,
+  },
+  {
+    id: 4,
+    name: "Liquidation Heat Map",
+    image: dashboard.liqHeat,
+  },
+  {
+    id: 5,
+    name: "Exchange Liquidation Map",
+    image: dashboard.exLiq,
   },
 ];

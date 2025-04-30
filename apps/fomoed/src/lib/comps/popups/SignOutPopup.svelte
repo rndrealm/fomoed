@@ -4,6 +4,8 @@
 	import SecondaryButton from '../buttons/SecondaryButton.svelte';
 
 	import PopupContainer from '../PopupContainer.svelte';
+	import ProfileIcon from '$lib/icons/ProfileIcon.svelte';
+	import { userService } from '$ts/client/services/UserService.svelte';
 
 	const dispatch = createEventDispatcher();
 </script>
@@ -11,7 +13,18 @@
 <PopupContainer>
 	<div class="p-[30px]">
 		<div class="flex justify-center">
-			<img src="/images/indicator-meme-3.png" width={160} height={160} alt="A sad guy." />
+			<!-- <img src="/images/indicator-meme-3.png" width={160} height={160} alt="A sad guy." /> -->
+			{#if userService.authUser}
+				<img
+					src={userService.authUser.user_metadata.avatar_url}
+					alt=""
+					width={160}
+					height={160}
+					class="object-cover rounded-full"
+				/>
+			{:else}
+				<ProfileIcon width={160} height={160} />
+			{/if}
 		</div>
 
 		<div class="font-paralucent-demibold text-[#FFFFFFCC] text-[24px] pt-[20px] text-center">
