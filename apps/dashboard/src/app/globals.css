@@ -168,3 +168,32 @@
     transform: rotate(360deg);
   }
 }
+
+.scrollbar::-webkit-scrollbar {
+  width: 3px;
+  /* height: 4px; */
+  height: 3px;
+}
+
+.scrollbar::-webkit-scrollbar-track {
+  /* background: #f5f5f5; */
+  border-radius: 4px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  background: transparent;
+  background: #1e1e1e;
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+  /* background: #d3d3d3; */
+  background-color: transparent;
+  height: 4px;
+  border-radius: 4px;
+  border-bottom-right-radius: 0;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.scrollbar.show::-webkit-scrollbar-thumb {
+  /* background: #d3d3d3; */
+  background: rgba(255, 255, 255, 0.3);
+}
