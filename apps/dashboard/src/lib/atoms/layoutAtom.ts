@@ -50,3 +50,27 @@ type WidgetsData = {
 };
 
 export const widgetsAtom = atom<WidgetsData>({});
+
+export const deleteTabAtom = atom(
+  null,
+  (get, set, idToDelete: string | number) => {
+    // 🔸 Remove layout
+    const layouts = get(layoutAtom);
+    const { [idToDelete]: _, ...remainingLayouts } = layouts;
+    set(layoutAtom, remainingLayouts);
+
+    // 🔸 Update tabs
+    const tabs = get(tabsAtom);
+    const updatedTabs = tabs.filter((tab) => tab.id !== idToDelete);
+    set(tabsAtom, updatedTabs);
+
+    // 🔸 Update activeTab if needed
+    const activeTab = get(activeTabAtom);
+    if (activeTab?.id === idToDelete) {
+      const newActive = updatedTabs[updatedTabs.length - 1] ?? null;
+      if (newActive) {
+        set(activeTabAtom, newActive);
+      }
+    }
+  }
+);

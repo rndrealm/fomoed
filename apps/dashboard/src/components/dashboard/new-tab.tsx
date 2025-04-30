@@ -3,6 +3,8 @@ import { AddTab, CloseTab, TabLayout } from "../icons/icons";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
   activeTabAtom,
+  deleteTabAtom,
+  layoutAtom,
   syncActiveTabAtom,
   tabsAtom,
 } from "@/lib/atoms/layoutAtom";
@@ -14,8 +16,11 @@ export function NewTabs() {
   const [tabs, setTabs] = useAtom(tabsAtom);
   const setSyncedActiveTab = useSetAtom(syncActiveTabAtom);
   const [activeTab, setActiveTab] = useAtom(activeTabAtom);
+  const setLayout = useSetAtom(layoutAtom);
+  const deleteTabFromAtom = useSetAtom(deleteTabAtom);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteTab, setDeleteTab] = useState<typeof activeTab>();
 
   return (
     <Fragment>
@@ -34,6 +39,14 @@ export function NewTabs() {
               return [...prev, currentTab];
             });
             setActiveTab(currentTab);
+            setLayout((prev) => {
+              return {
+                ...prev,
+                [currentTab.id]: {
+                  widget: [],
+                },
+              };
+            });
           }}
         >
           <AddTab />
@@ -58,7 +71,7 @@ export function NewTabs() {
                       isActive ? "bg-[#252525]" : "bg-[#111]"
                     )}
                   >
-                    <div className="flex gap-1 items-center">
+                    <div className="flex gap-2 items-center">
                       <TabLayout active={isActive} />
                       <p
                         className={cn(
@@ -78,6 +91,7 @@ export function NewTabs() {
                     type="button"
                     className="absolute right-[8px] top-[50%] translate-y-[-50%]"
                     onClick={() => {
+                      setDeleteTab(item);
                       setShowDeleteModal(true);
                     }}
                   >
@@ -95,8 +109,15 @@ export function NewTabs() {
           setShowDeleteModal(false);
         }}
         open={showDeleteModal}
-        title="Delete Exchange liquidation Heat Map?"
-        details="You can always add new widgets to your dashboard after widgets are deleted"
+        title={`Close "${deleteTab?.name}" Tab`}
+        details="Unsaved Tabs will be lost forever and cannot be recovered"
+        cancelBtnText="Cancel"
+        confirmBtnText="Confirm"
+        handleConfirm={() => {
+          if (!deleteTab?.id) return;
+          deleteTabFromAtom(deleteTab.id);
+          setShowDeleteModal(false);
+        }}
       />
     </Fragment>
   );

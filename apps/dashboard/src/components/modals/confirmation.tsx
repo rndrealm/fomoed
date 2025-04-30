@@ -8,6 +8,8 @@ interface IProps {
   details?: string;
   handleCancel?: () => void;
   handleConfirm?: () => void;
+  cancelBtnText?: string;
+  confirmBtnText?: string;
 }
 
 export function ConfirmationModal(props: IProps) {
@@ -18,6 +20,8 @@ export function ConfirmationModal(props: IProps) {
     handleCancel,
     handleConfirm,
     title,
+    cancelBtnText,
+    confirmBtnText,
   } = props;
   return (
     <ModalContainer
@@ -26,8 +30,8 @@ export function ConfirmationModal(props: IProps) {
       noHeader
       className="!max-w-[460px] w-full p-0"
     >
-      <div className="bg-[#090909] border border-[#141414] rounded-[10px] p-6">
-        <div className="flex flex-col gap-5">
+      <div className="bg-[#090909] border border-[#141414] rounded-[10px] p-6 min-h-[190px] flex flex-col">
+        <div className="flex flex-col gap-5 justify-between h-full flex-1">
           <div className="flex flex-col gap-[10px]">
             <h4 className="text-white font-medium leading-[24px] text-base">
               {title}
@@ -42,14 +46,14 @@ export function ConfirmationModal(props: IProps) {
               className="text-[#C3C3C3] font-medium leading-[1.25] text-[13px] bg-[#0E0E0E] border border-[#121212] rounded-sm p-2"
               onClick={handleCloseModal}
             >
-              Cancel
+              {cancelBtnText}
             </button>
 
             <button
               className="text-[#090909] font-medium leading-[1.25] text-[13px] bg-white border border-[#121212] rounded-sm p-2"
               onClick={handleConfirm}
             >
-              Delete Widget
+              {confirmBtnText}
             </button>
           </div>
         </div>
