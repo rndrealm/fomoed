@@ -3,7 +3,6 @@ import {
   AddWidget,
   Saved,
   Settings,
-  ToolbarEditLayout,
   ToolbarLayout,
   Unsaved,
 } from "../icons/icons";
@@ -63,14 +62,15 @@ export function Toolbar() {
             Add Widget
           </button>
           <div className="flex items-center gap-[2px]">
-            <div className="h-[28px] w-[28px] flex items-center justify-center bg-[#191919] rounded-md">
+            {/* <div className="h-[28px] w-[28px] flex items-center justify-center bg-[#191919] rounded-md">
               <Saved active />
-            </div>
+            </div> */}
             <div className="h-[28px] w-[28px] flex items-center justify-center bg-[#0d0d0d] rounded-md">
               <Unsaved />
             </div>
           </div>
-          <ToolbarItem icon={<ToolbarEditLayout />} label="Edit Layout" />
+          {/* <ToolbarItem icon={<ToolbarEditLayout />} label="Edit Layout" /> */}
+
           <ToolbarItem icon={<ToolbarLayout />} label="Layout" />
           <ToolbarItem icon={<Settings />} label="Settings" />
         </div>

@@ -35,9 +35,10 @@ export function DashboardContent() {
   const layout = useAtomValue(layoutAtom);
   const activeLayout = useAtomValue(activeTabAtom);
   const currentLayout = layout[activeLayout.id];
+
   return (
     <div className="w-full h-full">
-      {currentLayout.widget.length === 0 ? <Empty /> : <DashboardWidgets />}
+      {currentLayout?.widget?.length === 0 ? <Empty /> : <DashboardWidgets />}
 
       {/* <div className="grid grid-cols-2 gap-3">
         <WidgetWrapper />
