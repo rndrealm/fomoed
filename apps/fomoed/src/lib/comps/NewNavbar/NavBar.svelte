@@ -1,9 +1,6 @@
 <script>
 	import { page } from '$app/stores';
 	import ProfileButton from './ProfileButton.svelte';
-	import DashboardButton from './DashboardButton.svelte';
-	import NewNavbarLogo from '../NewNavbarLogo/NewNavbarLogo.svelte';
-	// import { toast as tost } from '@zerodevx/svelte-toast';
 	import toast from 'svelte-5-french-toast';
 	import LoadUserData from '../func/LoadUserData.svelte';
 
@@ -17,7 +14,6 @@
 	// let { activePage } = $props();
 
 	$: currentPath = $page.url.pathname;
-	let scrollY = 0;
 </script>
 
 <LoadUserData />

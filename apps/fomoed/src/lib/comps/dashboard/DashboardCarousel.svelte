@@ -17,6 +17,7 @@
 	import type { DashboardService } from '$ts/client/services/DashboardService.client';
 	import { browser } from '$app/environment';
 	import { chart_page } from '$lib/stores';
+	import CignalsCard from './widgets/CignalsChart/CignalsCard.svelte';
 
 	let mounted = false;
 
@@ -53,7 +54,8 @@
 		SimpleCfgiCard,
 		LiqHeatmapCard,
 		LiqMapCard,
-		ExchangeLiqMapCard
+		ExchangeLiqMapCard,
+		CignalsCard
 	];
 
 	let mobileScrollIndex = 0;
@@ -90,8 +92,10 @@
 			duration: 500,
 			easing: 'easeOutExpo',
 			complete: () => {
-				chart.resize();
-				chart.canvas.style.opacity = 1;
+				if (chart?.canvas) {
+					chart.resize();
+					chart.canvas.style.opacity = 1;
+				}
 
 				fullscreenAnimCompleteCounterStore.update((n) => n + 1);
 			}
@@ -101,7 +105,9 @@
 	function goOutFullscreen() {
 		isFullscreenCardStore.set(false);
 
-		chart.canvas.style.opacity = 0;
+		if (chart?.canvas) {
+			chart.canvas.style.opacity = 0;
+		}
 
 		anime({
 			targets: chartCardContainer,
@@ -120,13 +126,15 @@
 
 				disableDashboardScroll.set(false);
 
-				chart.resize(0, 0);
+				chart?.resize(0, 0);
 
 				await tick();
 
-				chart.resize();
+				chart?.resize();
 
-				chart.canvas.style.opacity = 1;
+				if (chart?.canvas) {
+					chart.canvas.style.opacity = 1;
+				}
 
 				fullscreenAnimCompleteCounterStore.update((n) => n + 1);
 			}
@@ -161,13 +169,19 @@
 			class:opacity-0={isFullscreen}
 		>
 			<div class="relative flex w-full">
-				<button on:click={() => goLeft()} class="p-4 translate-x-[-30%] pointer-events-auto">
+				<button
+					on:click={() => goLeft()}
+					class="p-4 translate-x-[-30%] pointer-events-auto !rounded-lg"
+				>
 					<CarouselArrowLeft />
 				</button>
 
 				<div class="flex-grow"></div>
 
-				<button on:click={() => goRight()} class="p-4 translate-x-[30%] pointer-events-auto">
+				<button
+					on:click={() => goRight()}
+					class="p-4 translate-x-[30%] pointer-events-auto !rounded-lg"
+				>
 					<CarouselArrowRight />
 				</button>
 			</div>
@@ -224,9 +238,9 @@
 			: ''}"
 		class:isFullscreen
 	>
-		<p class="font-medium text-[13px] text-[#C3C3C3]">
+		<!-- <p class="font-medium text-[13px] text-[#C3C3C3]">
 			{isFullscreen && $isDesktop ? '' : 'Fullscreen'}
-		</p>
+		</p> -->
 		<button class="p-[6px]" on:click={() => (isFullscreen ? goOutFullscreen() : goInFullscreen())}>
 			{#if isFullscreen}
 				<IconCollapse></IconCollapse>

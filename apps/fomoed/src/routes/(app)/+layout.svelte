@@ -86,6 +86,8 @@
 	$: ((supabase) => browser && setContext('supabase', supabase))(supabase);
 
 	$: supabaseStore.set(supabase);
+
+	$: console.log('display logout popup:', $displayLogoutPopup);
 </script>
 
 <MetaTags
@@ -127,6 +129,15 @@ sentiment analysis"
 
 <svelte:window bind:innerWidth={$innerWidth} bind:innerHeight={$innerHeight} />
 
+{#if $mobileMenuOpen && !$displayLogoutPopup}
+	<MobileMenu />
+{/if}
+
+<SvelteToast />
+<Toaster />
+
+<slot />
+
 {#if $displayLogoutPopup}
 	<SignOutPopup
 		on:sign-out={async () => {
@@ -136,12 +147,3 @@ sentiment analysis"
 		on:cancel={() => displayLogoutPopup.set(false)}
 	/>
 {/if}
-
-{#if $mobileMenuOpen && !$displayLogoutPopup}
-	<MobileMenu />
-{/if}
-
-<SvelteToast />
-<Toaster />
-
-<slot />

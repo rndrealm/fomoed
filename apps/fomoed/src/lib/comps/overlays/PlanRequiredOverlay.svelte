@@ -11,7 +11,7 @@
 
 <div
 	in:fade={{ duration: 100 }}
-	class="bg-[#0F0F0F99] backdrop-blur-sm absolute inset-0 z-20 rounded-[28px] grid place-items-center"
+	class="bg-[#0F0F0F99] backdrop-blur-sm absolute inset-0 z-20 rounded-[15px] grid place-items-center"
 >
 	<div class="px-4">
 		<div class="text-[15px] font-semibold font-inter text-center">

@@ -5,10 +5,10 @@
 	import Time from 'svelte-time/Time.svelte';
 	import { active_sub } from '$lib/stores/subs';
 	import BorderedProfileImage from './BorderedProfileImage.svelte';
-	import { displayLogoutPopup } from '$lib/stores/ui';
 	import { ClientSubscriptionManager } from '$ts/utils/client/plans';
 
-	let { absolute = true } = $props();
+	let { absolute = true, onClickLogout }: { absolute: boolean; onClickLogout: () => void } =
+		$props();
 
 	let currentActivePlan = $derived(ClientSubscriptionManager.currentActivePlan);
 </script>
@@ -49,7 +49,9 @@
 	<div class="flex-grow"></div>
 
 	<button
-		onclick={() => displayLogoutPopup.set(true)}
+		onclick={() => {
+			onClickLogout();
+		}}
 		class="flex gap-x-3 text-start w-full py-3 px-[15px] hover:bg-[#FFFFFF0D] group"
 	>
 		<img

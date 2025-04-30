@@ -7,10 +7,13 @@
 	import ProfileDropdown from '../ProfileDropdown.svelte';
 	import { browser } from '$app/environment';
 	import LoginButton from '../buttons/LoginButton.svelte';
+	import { displayLogoutPopup } from '$lib/stores/ui';
+
+	let open = $state(false);
 </script>
 
 {#if browser}
-	<Popover.Root>
+	<Popover.Root bind:open>
 		<Popover.Trigger>
 			<button class="h-[40px] aspect-square rounded-full grid place-items-center p-1">
 				<div
@@ -31,7 +34,13 @@
 
 		<Popover.Content class="h-[260px] bg-transparent border-none px-4 w-min">
 			{#if userService.authUser}
-				<ProfileDropdown absolute={false} />
+				<ProfileDropdown
+					absolute={false}
+					onClickLogout={() => {
+						displayLogoutPopup.set(true);
+						open = false;
+					}}
+				/>
 			{:else}
 				<div
 					class="w-[200px] bg-[#0F0D0DE5] border-[#FFFFFF1A] rounded-[10px] py-8 flex-col items-center right-0 top-0 border backdrop-blur-lg z-40 grid place-items-center"
