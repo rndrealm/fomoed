@@ -24,7 +24,7 @@ export function NewTabs() {
 
   return (
     <Fragment>
-      <div className="flex gap-2 items-center flex-1 overflow-hidden w-full">
+      <div className="flex items-center flex-1 w-full gap-2 overflow-hidden">
         <button
           type="button"
           className="h-[32px] w-[32px] flex items-center justify-center rounded-md border border-[#121212]"
@@ -54,7 +54,7 @@ export function NewTabs() {
 
         <div className="h-[18px] w-[1px] bg-[#141414]"></div>
 
-        <div className="flex-1 overflow-x-auto flex gap-2 items-center scrollbar pr-2">
+        <div className="flex items-center flex-1 gap-2 pr-2 overflow-x-auto scrollbar">
           {tabs.map((item) => {
             const isActive = activeTab.id === item.id;
             return (
@@ -71,7 +71,7 @@ export function NewTabs() {
                       isActive ? "bg-[#252525]" : "bg-[#111]"
                     )}
                   >
-                    <div className="flex gap-2 items-center">
+                    <div className="flex items-center gap-2">
                       <TabLayout active={isActive} />
                       <p
                         className={cn(
@@ -104,7 +104,7 @@ export function NewTabs() {
         </div>
       </div>
 
-      <ConfirmationModal
+      {/* <ConfirmationModal
         handleCloseModal={() => {
           setShowDeleteModal(false);
         }}
@@ -118,7 +118,7 @@ export function NewTabs() {
           deleteTabFromAtom(deleteTab.id);
           setShowDeleteModal(false);
         }}
-      />
+      /> */}
     </Fragment>
   );
 }

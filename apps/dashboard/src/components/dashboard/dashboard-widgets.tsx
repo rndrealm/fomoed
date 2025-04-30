@@ -1,10 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
 import { WidgetWrapper } from "./widget-wrapper";
 import { Drag } from "../icons/icons";
-import { useAtomValue } from "jotai";
-import { activeTabAtom, layoutAtom } from "@/lib/atoms/layoutAtom";
+import { useAtomValue, useSetAtom } from "jotai";
+import {
+  activeTabAtom,
+  deleteWidgetAtom,
+  layoutAtom,
+} from "@/lib/atoms/layoutAtom";
 import { chartsMap } from "@/lib/static";
+import { WidgetDropdownMenu } from "./widget-options-menu";
+import { ConfirmationModal } from "../modals";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -12,64 +18,103 @@ export function DashboardWidgets() {
   const layout = useAtomValue(layoutAtom);
   const activeLayout = useAtomValue(activeTabAtom);
   const currentLayout = layout[activeLayout.id];
-  console.log(currentLayout);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteWidget, setDeleteWidget] = useState<ReactGridLayout.Layout>();
+  const deleteWidgetFromAtom = useSetAtom(deleteWidgetAtom);
 
   return (
-    <ResponsiveGridLayout
-      className="layout"
-      // layouts={layout}
-      breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
-      cols={{ lg: 6, md: 6, sm: 6, xs: 4, xxs: 2 }}
-      draggableHandle=".cursor-grab"
-      rowHeight={210}
-      isResizable={false}
-      margin={[20, 20]}
-      onLayoutChange={(test) => {
-        // console.log(test);
-      }}
-    >
-      {currentLayout.widget.map((layout, index) => {
-        // const { x, y } = getGridPosition(index);
+    <>
+      <ResponsiveGridLayout
+        className="layout"
+        // layouts={layout}
+        breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
+        cols={{ lg: 6, md: 6, sm: 6, xs: 4, xxs: 2 }}
+        draggableHandle=".cursor-grab"
+        rowHeight={210}
+        isResizable={false}
+        margin={[20, 20]}
+        onLayoutChange={(test) => {
+          // console.log(test);
+        }}
+      >
+        {currentLayout.widget.map((layout, index) => {
+          // const { x, y } = getGridPosition(index);
 
-        return (
-          <div
-            key={`${index}`}
-            className="bg-[#080808] border border-[#1b1b1b] rounded-2xl overflow-hidden px-6 py-3 flex flex-col gap-4"
-            data-grid={{ x: layout.x, y: layout.y, w: layout.w, h: layout.h }}
-          >
-            <div className="flex flex-col items-center justify-center w-full h-full">
-              <button type="button" className="cursor-grab">
-                <Drag />
-              </button>
-              {chartsMap[layout.i as keyof typeof chartsMap]}
+          return (
+            <div
+              key={`${index}`}
+              className="bg-[#080808] border border-[#1b1b1b] rounded-2xl overflow-hidden px-6 py-3 flex flex-col gap-4"
+              data-grid={{ x: layout.x, y: layout.y, w: layout.w, h: layout.h }}
+            >
+              <div className="flex flex-col items-center justify-center w-full h-full">
+                <div className="grid items-center w-full grid-cols-3">
+                  <div className="col-span-1"></div>
+                  <button
+                    type="button"
+                    className="flex justify-center cursor-grab"
+                  >
+                    <Drag />
+                  </button>
+
+                  <div className="flex justify-end">
+                    <WidgetDropdownMenu
+                      deleteAction={() => {
+                        setDeleteWidget(layout);
+                        setShowDeleteModal(true);
+                      }}
+                    />
+                  </div>
+                </div>
+                {chartsMap[layout.i as keyof typeof chartsMap].component}
+              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
 
-      {/* <div
+        {/* <div
         key={`1`}
         className="h-[200px] bg-[gray]"
         data-grid={{ x: 3, y: 0, w: 3, h: 2 }}
-      >
+        >
         <div className="flex justify-center">
-          <button type="button" className="cursor-grab">
-            <Drag />
-          </button>
+        <button type="button" className="cursor-grab">
+        <Drag />
+        </button>
         </div>
-      </div>
-
-      <div
+        </div>
+        
+        <div
         key={`2`}
         className="h-[200px] bg-[gray]"
         data-grid={{ x: 0, y: 2, w: 3, h: 2 }}
-      >
+        >
         <div className="flex justify-center">
-          <button type="button" className="cursor-grab">
-            <Drag />
-          </button>
+        <button type="button" className="cursor-grab">
+        <Drag />
+        </button>
         </div>
-      </div> */}
-    </ResponsiveGridLayout>
+        </div> */}
+      </ResponsiveGridLayout>
+      <ConfirmationModal
+        handleCloseModal={() => {
+          setShowDeleteModal(false);
+          setDeleteWidget(undefined);
+        }}
+        open={showDeleteModal}
+        title={`Delete ${chartsMap[deleteWidget?.i as keyof typeof chartsMap]?.name}?`}
+        details="You can always add new widgets to your dashboard after widgets are deleted"
+        cancelBtnText="Cancel"
+        confirmBtnText="Delete Widget"
+        handleConfirm={() => {
+          if (!deleteWidget) return;
+          deleteWidgetFromAtom({
+            tabId: activeLayout.id,
+            widgetId: deleteWidget.i,
+          });
+          setDeleteWidget(undefined);
+          setShowDeleteModal(false);
+        }}
+      />
+    </>
   );
 }

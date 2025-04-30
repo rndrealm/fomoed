@@ -1,5 +1,6 @@
 import { atom } from "jotai";
 import { layoutOptions } from "../static";
+import { getGridPosition } from "@/charts/helpers";
 
 const initialTab = {
   id: 1 as number | string,
@@ -72,5 +73,45 @@ export const deleteTabAtom = atom(
         set(activeTabAtom, newActive);
       }
     }
+  }
+);
+
+export const deleteWidgetAtom = atom(
+  null,
+  (
+    get,
+    set,
+    { tabId, widgetId }: { tabId: string | number; widgetId: string | number }
+  ) => {
+    // Get current layouts
+    const layouts = get(layoutAtom);
+
+    // Check if the tab exists in layouts
+    if (!layouts[tabId]) {
+      return; // Nothing to delete
+    }
+
+    // Filter out the widget to remove
+    const updatedWidgets = layouts[tabId].widget.filter(
+      (widget) => widget.i !== widgetId.toString()
+    );
+
+    // Rearrange the remaining widgets using getGridPosition
+    const rearrangedWidgets = updatedWidgets.map((widget, index) => {
+      const { x, y } = getGridPosition(index);
+      return {
+        ...widget,
+        x,
+        y,
+      };
+    });
+
+    // Update layouts with the updated widget list
+    set(layoutAtom, {
+      ...layouts,
+      [tabId]: {
+        widget: rearrangedWidgets,
+      },
+    });
   }
 );

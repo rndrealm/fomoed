@@ -114,11 +114,26 @@ export const layoutOptionsMap = [
 export type LayoutOptionType = typeof layoutOptionsMap;
 
 export const chartsMap = {
-  "detailed-cfgi": <DetailedCfgiWidget />,
-  "simple-cfgi": <SimpleCfgiWidget />,
-  "liquidation-map": <DetailedCfgiWidget />,
-  "liquidation-heat-map": <SimpleCfgiWidget />,
-  "exchange-liquidation-map": <DetailedCfgiWidget />,
+  "detailed-cfgi": {
+    name: "Crypto Fear and Greed Map",
+    component: <DetailedCfgiWidget />,
+  },
+  "simple-cfgi": {
+    name: "Simplified Crypto Fear and Greed Map",
+    component: <SimpleCfgiWidget />,
+  },
+  "liquidation-map": {
+    name: "Liquidation Map",
+    component: <DetailedCfgiWidget />,
+  },
+  "liquidation-heat-map": {
+    name: "Liquidation Heat Map",
+    component: <SimpleCfgiWidget />,
+  },
+  "exchange-liquidation-map": {
+    name: "Exchange Liquidation Map",
+    component: <DetailedCfgiWidget />,
+  },
   // "liquidation-map": <LiquidationWidget />,
   // "liquidation-heat-map": <LiquidationHeatmapWidget />,
   // "exchange-liquidation-map": <DetailedCfgiWidget />,
