@@ -193,3 +193,12 @@
   /* background: #d3d3d3; */
   background: rgba(255, 255, 255, 0.3);
 }
+
+button {
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.8;
+  cursor: pointer;
+}
