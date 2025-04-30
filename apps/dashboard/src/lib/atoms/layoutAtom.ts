@@ -8,7 +8,14 @@ const initialTab = {
   editMode: false,
 };
 
-export const layoutAtom = atom(layoutOptions[3].options[2]);
+export const layoutAtom = atom<ReactGridLayout.Layout[]>([]);
+// export const layoutAtom = atom<string[]>([]);
+// export const layoutAtom = atom<string[]>([
+//   "detailed-cfgi",
+//   "simple-cfgi",
+//   "detailed-cfgi",
+//   "simple-cfgi",
+// ]);
 
 export const tabsAtom = atom([initialTab]);
 

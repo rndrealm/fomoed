@@ -4,6 +4,8 @@ import { QuickWidgets } from "./quick-widgets";
 import { RenderIf } from "../shared";
 import { WidgetWrapper } from "./widget-wrapper";
 import { DashboardWidgets } from "./dashboard-widgets";
+import { useAtomValue } from "jotai";
+import { layoutAtom } from "@/lib/atoms/layoutAtom";
 
 function Empty() {
   const [showWidgets, setShowWidgets] = useState(false);
@@ -30,14 +32,15 @@ function Empty() {
 }
 
 export function DashboardContent() {
+  const layout = useAtomValue(layoutAtom);
   return (
     <div className="w-full h-full">
-      {/* <Empty /> */}
+      {layout.length === 0 ? <Empty /> : <DashboardWidgets />}
+
       {/* <div className="grid grid-cols-2 gap-3">
         <WidgetWrapper />
         <WidgetWrapper />
       </div> */}
-      <DashboardWidgets />
     </div>
   );
 }
