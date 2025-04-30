@@ -163,7 +163,7 @@
 		<!-- <DashboardCard disablePadding hideCard={!$isDesktop}>
 			<NewsCardContent />
 		</DashboardCard> -->
-		<div class="mx-3">
+		<div class="mx-3 snap-end">
 			<DashboardNews />
 		</div>
 	{/if}
