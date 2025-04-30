@@ -129,7 +129,7 @@
 							<h3 class="pb-2 text-xl font-medium text-center">Fear and Greed Index</h3>
 							<IndicatorCardV3 />
 						</div>
-						<div class="pb-6 rounded-r-[15px] bg-[#080808]">
+						<div class="pb-6 rounded-[15px] bg-[#080808]">
 							<NewsAssetPriceRow />
 						</div>
 					</div>
