@@ -39,16 +39,14 @@
 	<!-- <div class="bg-[url(/background/dashboard.svg)] inset-0 fixed min-h-screen bg-cover -z-10"></div> -->
 
 	<div
-		class="flex-grow grid place-items-center desktop:pb-8 desktop:mx-4 pt-[5.5rem] md:pt-[5rem] duration-200 snap-start"
+		class="flex-grow grid place-items-center desktop:pb-8 desktop:mx-4 pt-[5.5rem] md:pt-[3.5rem] duration-200 snap-start"
 		class:opacity-0={$isDesktop === null}
 	>
 		<div
 			class="grid grid-cols-6 gap-[7px] mx-auto h-full desktop:pb-6 w-full max-w-[1050px] desktop:grid-rows-[1fr_3fr]"
 		>
-			<div class="">
-				<div class="flex desktop:col-span-6 w-full max-w-[1050px] mx-auto px-3 md:px-0">
-					<SelectToken />
-				</div>
+			<div class="flex desktop:col-span-6 max-w-[1050px] mx-auto px-3 md:px-0 justify-end w-full">
+				<SelectToken />
 			</div>
 			<div
 				bind:this={smallChartsCointainer}
