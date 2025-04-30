@@ -1,28 +1,42 @@
-import { layoutAtom } from "@/lib/atoms/layoutAtom";
+import { getGridPosition } from "@/charts/helpers";
+import { activeTabAtom, layoutAtom } from "@/lib/atoms/layoutAtom";
 import { LayoutOptionType } from "@/lib/static";
-import { useAtom, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import Image from "next/image";
 import React from "react";
 
 interface IProps {
   widget: LayoutOptionType[0];
+  handleGoBack: () => void;
 }
 
 export function QuickWidgetItem(props: IProps) {
-  const { widget } = props;
-  const [layout, setLayout] = useAtom(layoutAtom);
+  const { widget, handleGoBack } = props;
+  const [layouts, setLayout] = useAtom(layoutAtom);
+  const activeLayout = useAtomValue(activeTabAtom);
   return (
     <button
       className="flex flex-col gap-x-[6px] gap-y-[6px] cursor-pointer"
       onClick={() => {
-        const newLayout = {
+        const currLayout = layouts[activeLayout.id];
+        const { x, y } = getGridPosition(currLayout.widget.length);
+
+        const newWwidget = {
           i: widget.slug,
-          x: (layout.length % 2) * 2, // Ensures x alternates between 0 and 2
-          y: Math.floor(layout.length / 2) * 2, // Increments y every 2 items
-          w: 2,
+          x,
+          y,
+          w: 3,
           h: 2,
         };
-        setLayout((prev) => [...prev, newLayout]);
+
+        handleGoBack();
+        setLayout((prev) => ({
+          ...prev,
+          [activeLayout.id]: {
+            widget: [...prev?.[activeLayout.id].widget, newWwidget],
+          },
+        }));
+        handleGoBack();
       }}
     >
       <div className=" bg-[#000] rounded-lg border border-[#121212]">

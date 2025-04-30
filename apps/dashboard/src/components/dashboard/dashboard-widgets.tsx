@@ -3,19 +3,17 @@ import { Responsive, WidthProvider } from "react-grid-layout";
 import { WidgetWrapper } from "./widget-wrapper";
 import { Drag } from "../icons/icons";
 import { useAtomValue } from "jotai";
-import { layoutAtom } from "@/lib/atoms/layoutAtom";
+import { activeTabAtom, layoutAtom } from "@/lib/atoms/layoutAtom";
 import { chartsMap } from "@/lib/static";
-
-function getGridPosition(count: number) {
-  const x = count % 2 === 0 ? 0 : 3;
-  const y = Math.floor(count / 2) * 2;
-  return { x, y };
-}
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
 export function DashboardWidgets() {
   const layout = useAtomValue(layoutAtom);
+  const activeLayout = useAtomValue(activeTabAtom);
+  const currentLayout = layout[activeLayout.id];
+  console.log(currentLayout);
+
   return (
     <ResponsiveGridLayout
       className="layout"
@@ -27,17 +25,17 @@ export function DashboardWidgets() {
       isResizable={false}
       margin={[20, 20]}
       onLayoutChange={(test) => {
-        console.log(test);
+        // console.log(test);
       }}
     >
-      {layout.map((layout, index) => {
+      {currentLayout.widget.map((layout, index) => {
         // const { x, y } = getGridPosition(index);
 
         return (
           <div
             key={`${index}`}
             className="bg-[#080808] border border-[#1b1b1b] rounded-2xl overflow-hidden px-6 py-3 flex flex-col gap-4"
-            data-grid={{ x: 0, y: 0, w: 3, h: 2 }}
+            data-grid={{ x: layout.x, y: layout.y, w: layout.w, h: layout.h }}
           >
             <div className="flex flex-col items-center justify-center w-full h-full">
               <button type="button" className="cursor-grab">

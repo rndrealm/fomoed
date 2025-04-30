@@ -60,7 +60,7 @@ export default function Page() {
           !utils.isFullScreen ? "pt-[96px] px-4 pb-4" : "p-1"
         )}
       >
-        <div className="flex flex-col h-full w-full gap-4 bg-[#0a0a0a] relative">
+        <div className="relative flex flex-col w-full h-full gap-4">
           <div className="px-6">
             <Toolbar />
           </div>

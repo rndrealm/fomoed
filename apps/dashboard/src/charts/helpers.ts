@@ -338,6 +338,24 @@ export function evaluate_cmap(x: number, name: "viridis", reverse?: boolean) {
   }
 }
 
+/**
+ * Function to return a color string in the format of `rgb(r, g, b)`.
+ * @param r
+ * @param g
+ * @param b
+ * @returns
+ */
 export function formatRgb(r: number, g: number, b: number) {
   return `rgb(${r}, ${g}, ${b})`;
+}
+
+/**
+ * Function to get the grid position of a widget based on its count.
+ * @param count
+ * @returns
+ */
+export function getGridPosition(count: number) {
+  const x = count % 2 === 0 ? 0 : 3;
+  const y = Math.floor(count / 2) * 2;
+  return { x, y };
 }

@@ -8,7 +8,13 @@ const initialTab = {
   editMode: false,
 };
 
-export const layoutAtom = atom<ReactGridLayout.Layout[]>([]);
+type LayoutType = Record<string | number, { widget: ReactGridLayout.Layout[] }>;
+
+export const layoutAtom = atom<LayoutType>({
+  1: {
+    widget: [],
+  },
+});
 // export const layoutAtom = atom<string[]>([]);
 // export const layoutAtom = atom<string[]>([
 //   "detailed-cfgi",
