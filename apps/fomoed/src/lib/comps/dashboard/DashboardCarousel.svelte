@@ -217,9 +217,10 @@
 		</div>
 	{/if}
 
-	<!-- <button
+	<button
 		id="fullscreen-btn"
-		class="hover:opacity-100 duration-200 z-10 {isFullscreen && $isDesktop
+		class="hover:opacity-100 duration-200 z-10 bg-[#080808] border border-white/10 rounded-lg p-2 {isFullscreen &&
+		$isDesktop
 			? 'translate-y-3 z-[1000] '
 			: ''}"
 		on:click={() => (isFullscreen ? goOutFullscreen() : goInFullscreen())}
@@ -230,25 +231,7 @@
 		{:else}
 			<IconExpand></IconExpand>
 		{/if}
-	</button> -->
-	<div
-		id="fullscreen-btn"
-		class="hover:opacity-100 duration-200 z-10 flex items-center gap-4 {isFullscreen && $isDesktop
-			? 'translate-y-3 z-[1000] '
-			: ''}"
-		class:isFullscreen
-	>
-		<!-- <p class="font-medium text-[13px] text-[#C3C3C3]">
-			{isFullscreen && $isDesktop ? '' : 'Fullscreen'}
-		</p> -->
-		<button class="p-[6px]" on:click={() => (isFullscreen ? goOutFullscreen() : goInFullscreen())}>
-			{#if isFullscreen}
-				<IconCollapse></IconCollapse>
-			{:else}
-				<IconExpand></IconExpand>
-			{/if}
-		</button>
-	</div>
+	</button>
 </div>
 
 <style>
@@ -257,11 +240,11 @@
 	}
 
 	#fullscreen-btn:not(.isFullscreen) {
-		@apply absolute md:bottom-[5.5rem] right-14 -desktop:bottom-[5.5rem] -desktop:right-8 p-[6px];
+		@apply absolute md:bottom-4 right-4 -desktop:bottom-[5.5rem] -desktop:right-8;
 	}
 
 	#fullscreen-btn.isFullscreen {
-		@apply fixed top-4 right-4 p-[6px];
+		@apply fixed top-4 right-4;
 	}
 
 	:global(canvas) {
