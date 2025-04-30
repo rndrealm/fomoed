@@ -1,19 +1,44 @@
-import Image, { StaticImageData } from "next/image";
+import { getGridPosition } from "@/charts/helpers";
+import { activeTabAtom, layoutAtom } from "@/lib/atoms/layoutAtom";
+import { LayoutOptionType } from "@/lib/static";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import Image from "next/image";
 import React from "react";
 
 interface IProps {
-  widget: {
-    id: number;
-    image: StaticImageData;
-    name: string;
-  };
+  widget: LayoutOptionType[0];
+  handleGoBack: () => void;
 }
 
 export function QuickWidgetItem(props: IProps) {
-  const { widget } = props;
+  const { widget, handleGoBack } = props;
+  const [layouts, setLayout] = useAtom(layoutAtom);
+  const activeLayout = useAtomValue(activeTabAtom);
   return (
-    <div className="flex flex-col gap-x-[6px] gap-y-[6px]">
-      {/* <div className="aspect-[1315/1000] bg-[#000] rounded-lg border border-[#121212]"> */}
+    <button
+      className="flex flex-col gap-x-[6px] gap-y-[6px] cursor-pointer"
+      onClick={() => {
+        const currLayout = layouts[activeLayout.id];
+        const { x, y } = getGridPosition(currLayout.widget.length);
+
+        const newWwidget = {
+          i: widget.slug,
+          x,
+          y,
+          w: 3,
+          h: 2,
+        };
+
+        handleGoBack();
+        setLayout((prev) => ({
+          ...prev,
+          [activeLayout.id]: {
+            widget: [...prev?.[activeLayout.id].widget, newWwidget],
+          },
+        }));
+        handleGoBack();
+      }}
+    >
       <div className=" bg-[#000] rounded-lg border border-[#121212]">
         <Image src={widget.image} alt={widget.name} />
       </div>
@@ -24,6 +49,6 @@ export function QuickWidgetItem(props: IProps) {
           </p>
         </div>
       </div>
-    </div>
+    </button>
   );
 }

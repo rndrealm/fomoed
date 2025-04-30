@@ -20,7 +20,7 @@ interface IProps {
 }
 
 export function QuickWidgets(props: IProps) {
-  const { handleBack } = props;
+  const { handleBack = () => {} } = props;
 
   const [selectedTag, setSelectedTag] = useState(categoriesOptions[0].value);
   const [searchValue, setSearchValue] = useState("");
@@ -58,7 +58,7 @@ export function QuickWidgets(props: IProps) {
             Back
           </button>
         </div>
-        <div className="flex gap-1 items-center px-4">
+        <div className="flex items-center gap-1 px-4">
           {categoriesOptions.map((item) => {
             const active = selectedTag === item.value;
             return (
@@ -98,9 +98,13 @@ export function QuickWidgets(props: IProps) {
             </div>
           </RenderIf>
           <RenderIf condition={filteredWidget.length > 0}>
-            <div className="grid grid-cols-2 overflow-auto gap-x-2 gap-y-3 min-h-0 scrollbar">
+            <div className="grid min-h-0 grid-cols-2 overflow-auto gap-x-2 gap-y-3 scrollbar">
               {filteredWidget.map((widget, index) => (
-                <QuickWidgetItem key={index} widget={widget} />
+                <QuickWidgetItem
+                  key={index}
+                  widget={widget}
+                  handleGoBack={handleBack}
+                />
               ))}
             </div>
           </RenderIf>

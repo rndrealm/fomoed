@@ -11,6 +11,10 @@ import {
 } from "@/components/icons/LayoutOptions";
 import React from "react";
 import dashboard from "./assets/dashboard";
+import DetailedCfgiWidget from "@/components/widgets/cfgi/detailed-cfgi/detailed-cfgi-widget";
+import SimpleCfgiWidget from "@/components/widgets/cfgi/simple-cfgi/simple-cfgi-widget";
+import LiquidationWidget from "@/components/widgets/liquidation-map/liquidation/liquidation-widget";
+import LiquidationHeatmapWidget from "@/components/widgets/liquidation-map/liquidation-heatmap/liquidation-heatmap-widget";
 
 export const layoutClassMap = {
   SinglePane: "grid-rows-1 grid-cols-1",
@@ -78,26 +82,44 @@ export const layoutOptionsMap = [
   {
     id: 1,
     name: "Crypto Fear and Greed Map",
+    slug: "detailed-cfgi",
     image: dashboard.cfgi,
   },
   {
     id: 2,
     name: "Simplify Crypto Fear and Greed Map",
+    slug: "simple-cfgi",
     image: dashboard.simpleCfgi,
   },
   {
     id: 3,
     name: "Liquidation Map",
+    slug: "liquidation-map",
     image: dashboard.liq,
   },
   {
     id: 4,
     name: "Liquidation Heat Map",
+    slug: "liquidation-heat-map",
     image: dashboard.liqHeat,
   },
   {
     id: 5,
     name: "Exchange Liquidation Map",
+    slug: "exchange-liquidation-map",
     image: dashboard.exLiq,
   },
 ];
+
+export type LayoutOptionType = typeof layoutOptionsMap;
+
+export const chartsMap = {
+  "detailed-cfgi": <DetailedCfgiWidget />,
+  "simple-cfgi": <SimpleCfgiWidget />,
+  "liquidation-map": <DetailedCfgiWidget />,
+  "liquidation-heat-map": <SimpleCfgiWidget />,
+  "exchange-liquidation-map": <DetailedCfgiWidget />,
+  // "liquidation-map": <LiquidationWidget />,
+  // "liquidation-heat-map": <LiquidationHeatmapWidget />,
+  // "exchange-liquidation-map": <DetailedCfgiWidget />,
+};

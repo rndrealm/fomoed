@@ -24,9 +24,9 @@ const PeriodDropdown = (props: ICoinDropdownProps) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center justify-center h-8 gap-2 border rounded-sm cursor-pointer border-border w-19">
+        <button className="flex items-center justify-center h-8 gap-2 border rounded-sm cursor-pointer border-border-200 w-19 bg-widget-background-300">
           <div className="flex items-center gap-1">
-            <h1 className="text-xs font-light text-grey-400 font-inter">
+            <h1 className="text-[13px] font-medium text-grey-400 font-inter">
               {activePeriod?.label}
             </h1>
             <ChevronDown color="white" className="w-4 h-4" />

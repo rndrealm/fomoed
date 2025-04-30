@@ -37,7 +37,13 @@ const colorToCfgi = [
   },
 ];
 
-export default function DetailedCfgiWidget({isEmbed, symbol = null}: {isEmbed?: boolean, symbol?: string | null}) {
+export default function DetailedCfgiWidget({
+  isEmbed,
+  symbol = null,
+}: {
+  isEmbed?: boolean;
+  symbol?: string | null;
+}) {
   const [activePeriod, setActivePeriod] = useState<string>(
     CfgiPeriods[0].value
   );
@@ -57,7 +63,9 @@ export default function DetailedCfgiWidget({isEmbed, symbol = null}: {isEmbed?: 
 
   return (
     <>
-      <div className={cn("flex flex-col justify-center bg-widget-background", isEmbed ?  "w-full h-full" : "w-[670px] h-[380px] rounded-sm")}>
+      <div
+        className={cn("flex flex-col justify-center w-full h-full rounded-sm")}
+      >
         <div className="px-3 py-4">
           {coinData ? (
             <div className="flex items-center justify-between">
@@ -95,7 +103,7 @@ export default function DetailedCfgiWidget({isEmbed, symbol = null}: {isEmbed?: 
           )}
         </div>
 
-        <div className="flex items-center justify-center gap-5 border-t border-t-[#333] py-3">
+        <div className="flex items-center justify-center gap-5 py-3">
           <ChartLegend colorOptions={colorToCfgi} />
         </div>
       </div>

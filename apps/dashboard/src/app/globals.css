@@ -46,12 +46,16 @@
   /* App Specific variables */
   --color-widget-background: #171a1c;
   --color-widget-background-200: #202427;
+  --color-widget-background-300: #121212;
+  --color-widget-background-400: #0f0f0f;
   --color-grey: #d3d3d3;
   --color-grey-200: #a6a6a6;
   --color-grey-300: #d9d9d9;
   --color-grey-400: #f3f4fa;
+  --color-grey-500: #c3c3c3;
 
   --color-border: rgba(255, 255, 255, 0.1);
+  --color-border-200: #141414;
 
   --font-inter: "Inter", sans-serif;
 

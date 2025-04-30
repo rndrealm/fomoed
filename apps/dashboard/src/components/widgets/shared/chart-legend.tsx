@@ -12,12 +12,14 @@ const ChartLegend = (props: IProps) => {
   return (
     <>
       {colorOptions.map((opt, index) => (
-        <div className="flex items-center gap-2" key={index}>
+        <div className="flex items-center gap-1" key={index}>
           <div
-            className="w-4 h-4 rounded-full"
+            className="w-2 h-2 rounded-[2px]"
             style={{ backgroundColor: opt.color }}
           ></div>
-          <div className="text-xs text-grey font-inter">{opt.label}</div>
+          <div className="text-xs font-semibold text-grey font-inter">
+            {opt.label}
+          </div>
         </div>
       ))}
     </>
