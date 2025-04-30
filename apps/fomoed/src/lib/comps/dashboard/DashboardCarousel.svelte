@@ -219,7 +219,7 @@
 
 	<button
 		id="fullscreen-btn"
-		class="hover:opacity-100 duration-200 z-10 bg-[#080808] border border-white/10 rounded-lg p-2 {isFullscreen &&
+		class="hover:opacity-100 duration-200 z-10 bg-[#080808] border border-white/10 rounded-lg p-2 text-white/50 {isFullscreen &&
 		$isDesktop
 			? 'translate-y-3 z-[1000] '
 			: ''}"
