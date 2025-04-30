@@ -6,13 +6,25 @@ import { layoutOptionsMap } from "@/lib/static";
 import { RenderIf } from "../shared";
 import Image from "next/image";
 import dashboard from "@/lib/assets/dashboard";
+import { cn } from "@/lib/utils";
+
+const categoriesOptions = [
+  { id: 1, label: "All", value: "all" },
+  { id: 2, label: "Charts", value: "charts" },
+  { id: 3, label: "News", value: "news" },
+  { id: 4, label: "Custom Widgets", value: "custom-widgets" },
+];
 
 interface IProps {
   handleBack?: () => void;
 }
 
 export function QuickWidgets(props: IProps) {
+  const { handleBack } = props;
+
+  const [selectedTag, setSelectedTag] = useState(categoriesOptions[0].value);
   const [searchValue, setSearchValue] = useState("");
+
   const filteredWidget = useMemo(() => {
     if (!searchValue) return layoutOptionsMap;
     return layoutOptionsMap.filter((widget) => {
@@ -21,11 +33,11 @@ export function QuickWidgets(props: IProps) {
       return name.includes(search);
     });
   }, [searchValue]);
-  const { handleBack } = props;
+
   return (
     <div className="flex items-center justify-center w-full h-full overflow-hidden">
-      <div className="max-w-[732px] h-full w-full bg-[#090909] rounded-2xl overflow-hidden border border-[#121212] flex flex-col">
-        <div className="flex items-center bg-[#0b0b0b]">
+      <div className="max-w-[732px] h-full w-full bg-[#090909] rounded-2xl overflow-hidden border border-[#121212] flex flex-col gap-6">
+        <div className="flex items-center bg-[#0b0b0b] border-b border-[#121212]">
           <div className="relative flex-1">
             <span className="absolute left-[16px] top-[50%] -translate-y-1/2">
               <SearchIcon />
@@ -46,7 +58,29 @@ export function QuickWidgets(props: IProps) {
             Back
           </button>
         </div>
-        <div className="p-4 border-t border-[#121212] flex-1 flex flex-col gap-[10px] h-full w-full">
+        <div className="flex gap-1 items-center px-4">
+          {categoriesOptions.map((item) => {
+            const active = selectedTag === item.value;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                className={cn(
+                  "text-xs font-medium leading-[18px] py-[5px] px-[9px]",
+                  active
+                    ? "text-white bg-[#1D1D1D] rounded-md"
+                    : "text-[#7a7a7a]"
+                )}
+                onClick={() => {
+                  setSelectedTag(item.value);
+                }}
+              >
+                {item.label}
+              </button>
+            );
+          })}
+        </div>
+        <div className="px-4 pb-4 flex-1 flex flex-col gap-[10px] h-full w-full min-h-0">
           <p className="text-[#7d7d7d] leading-[1.33] font-semibold text-xs">
             Quick Widgets
           </p>
@@ -58,13 +92,13 @@ export function QuickWidgets(props: IProps) {
                   <Image src={dashboard.layout} alt="layout" />
                 </div>
                 <p className="text-[#9A9E9E] text-sm font-medium text-center font-sans">
-                  We currently do not support that widget
+                  We can’t find your widget.
                 </p>
               </div>
             </div>
           </RenderIf>
           <RenderIf condition={filteredWidget.length > 0}>
-            <div className="h-full w-full grid grid-cols-2 flex-1 overflow-auto gap-x-2 gap-y-3 pb-[50px]">
+            <div className="grid grid-cols-2 overflow-auto gap-x-2 gap-y-3 min-h-0 scrollbar">
               {filteredWidget.map((widget, index) => (
                 <QuickWidgetItem key={index} widget={widget} />
               ))}
