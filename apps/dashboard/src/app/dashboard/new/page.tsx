@@ -64,7 +64,7 @@ export default function Page() {
           <div className="px-6">
             <Toolbar />
           </div>
-          <div className="flex-1 border border-[#121212] bg-[#0F0F0F] overflow-auto rounded-[20px]">
+          <div className="flex-1 border border-[#121212] bg-[#0F0F0F] overflow-auto rounded-[20px] scrollbar">
             <DashboardContent />
           </div>
           <FullscreenBtn
