@@ -2,6 +2,7 @@ import React, { ReactNode } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import CloseIcon from "../icons/CloseIcon";
 import { cn } from "@/lib/utils";
+import { RenderIf } from "./render-if";
 
 interface IProps {
   open: boolean;
@@ -10,6 +11,7 @@ interface IProps {
   size?: "lg";
   className?: string;
   title?: string;
+  noHeader?: boolean;
 }
 
 const sizeClassMap: Record<NonNullable<IProps["size"]>, string> = {
@@ -24,6 +26,7 @@ export function ModalContainer(props: IProps) {
     size = "lg",
     className = "",
     title,
+    noHeader = false,
   } = props;
 
   const contentClasses = cn(
@@ -40,7 +43,7 @@ export function ModalContainer(props: IProps) {
       }}
     >
       <DialogContent className={contentClasses}>
-        <DialogTitle className="">
+        <DialogTitle className={cn(noHeader ? "hidden" : "")}>
           <div className="flex justify-between items-center">
             <p className="text-white text-base">{title}</p>
 

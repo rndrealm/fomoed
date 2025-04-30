@@ -1,9 +1,8 @@
-import React from "react";
+import React, { Fragment, useState } from "react";
 import {
-  AddTab,
+  AddWidget,
   Saved,
   Settings,
-  TabLayout,
   ToolbarEditLayout,
   ToolbarLayout,
   Unsaved,
@@ -15,6 +14,8 @@ import {
   TooltipTrigger,
 } from "../ui/tooltip";
 import { NewTabs } from "./new-tab";
+import { ModalContainer } from "../shared";
+import { QuickWidgets } from "./quick-widgets";
 
 interface IToolbarItem {
   onClick?: () => void;
@@ -43,23 +44,53 @@ function ToolbarItem(props: IToolbarItem) {
 }
 
 export function Toolbar() {
-  return (
-    <div className="flex items-center justify-between">
-      <NewTabs />
+  const [showWidgetsModal, setShowWidgetsModal] = useState(false);
 
-      <div className="flex items-center gap-2">
-        <div className="flex items-center gap-[2px]">
-          <div className="h-[28px] w-[28px] flex items-center justify-center bg-[#191919] rounded-md">
-            <Saved active />
+  return (
+    <Fragment>
+      <div className="flex items-center justify-between gap-4">
+        <NewTabs />
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            className="flex gap-[6px] items-center w-[102px] h-[32px] bg-[#FF3B10] text-xs font-medium text-white rounded-md justify-center"
+            onClick={() => {
+              setShowWidgetsModal(true);
+            }}
+          >
+            <AddWidget />
+            Add Widget
+          </button>
+          <div className="flex items-center gap-[2px]">
+            <div className="h-[28px] w-[28px] flex items-center justify-center bg-[#191919] rounded-md">
+              <Saved active />
+            </div>
+            <div className="h-[28px] w-[28px] flex items-center justify-center bg-[#0d0d0d] rounded-md">
+              <Unsaved />
+            </div>
           </div>
-          <div className="h-[28px] w-[28px] flex items-center justify-center bg-[#0d0d0d] rounded-md">
-            <Unsaved />
-          </div>
+          <ToolbarItem icon={<ToolbarEditLayout />} label="Edit Layout" />
+          <ToolbarItem icon={<ToolbarLayout />} label="Layout" />
+          <ToolbarItem icon={<Settings />} label="Settings" />
         </div>
-        <ToolbarItem icon={<ToolbarEditLayout />} label="Edit Layout" />
-        <ToolbarItem icon={<ToolbarLayout />} label="Layout" />
-        <ToolbarItem icon={<Settings />} label="Settings" />
       </div>
-    </div>
+
+      <ModalContainer
+        open={showWidgetsModal}
+        handleClose={() => {
+          setShowWidgetsModal(false);
+        }}
+        className="h-full p-0 rounded-2xl"
+        title="Add New Widget"
+        noHeader
+      >
+        <QuickWidgets
+          handleBack={() => {
+            setShowWidgetsModal(false);
+          }}
+        />
+      </ModalContainer>
+    </Fragment>
   );
 }

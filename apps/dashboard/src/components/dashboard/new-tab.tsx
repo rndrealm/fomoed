@@ -14,7 +14,7 @@ export function NewTabs() {
   const [activeTab, setActiveTab] = useAtom(activeTabAtom);
 
   return (
-    <div className="flex gap-2 items-center">
+    <div className="flex gap-2 items-center flex-1 overflow-hidden w-full">
       <button
         type="button"
         className="h-[32px] w-[32px] flex items-center justify-center rounded-md border border-[#121212]"
@@ -36,35 +36,37 @@ export function NewTabs() {
 
       <div className="h-[18px] w-[1px] bg-[#141414]"></div>
 
-      {tabs.map((item) => {
-        const isActive = activeTab.id === item.id;
-        return (
-          <button
-            key={item.id}
-            type="button"
-            onClick={() => {
-              setActiveTab(item);
-            }}
-          >
-            <div
-              className={cn(
-                "flex items-center gap-2 w-[130px] h-[32px] px-[6px] rounded-md",
-                isActive ? "bg-[#252525]" : "bg-[#111]"
-              )}
+      <div className="flex-1 overflow-x-auto flex gap-2 items-center scrollbar pr-2">
+        {tabs.map((item) => {
+          const isActive = activeTab.id === item.id;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => {
+                setActiveTab(item);
+              }}
             >
-              <TabLayout active={isActive} />
-              <p
+              <div
                 className={cn(
-                  "text-xs font-medium flex-1 truncate",
-                  isActive ? "text-white" : "text-[#7a7a7a]"
+                  "flex items-center gap-2 w-[160px] h-[32px] px-[6px] rounded-md",
+                  isActive ? "bg-[#252525]" : "bg-[#111]"
                 )}
               >
-                {item.name}
-              </p>
-            </div>
-          </button>
-        );
-      })}
+                <TabLayout active={isActive} />
+                <p
+                  className={cn(
+                    "text-xs font-medium flex-1 truncate",
+                    isActive ? "text-white" : "text-[#7a7a7a]"
+                  )}
+                >
+                  {item.name}
+                </p>
+              </div>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
