@@ -18,11 +18,11 @@
 
 <LoadUserData />
 
-<div class="fixed top-0 w-full z-[999] -desktop:bg-[50%_50%]">
+<div class="fixed top-0 w-full z-[999] -desktop:bg-[50%_50%] pointer-events-none">
 	<div class="relative overflow-hidden p-[1px] max-w-[550px] mx-auto w-full mt-3 rounded-2xl">
 		<div class="gradient_border_tab"></div>
 
-		<nav class="mx-auto px-6 py-[14px] bg-[#000] relative rounded-2xl">
+		<nav class="mx-auto px-6 py-[14px] bg-[#000] relative rounded-2xl pointer-events-auto">
 			<div class="flex items-center justify-between w-full">
 				<div class="flex items-center gap-6">
 					<a href="/">
