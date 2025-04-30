@@ -171,7 +171,7 @@
 			<div class="relative flex w-full">
 				<button
 					on:click={() => goLeft()}
-					class="p-4 translate-x-[-30%] pointer-events-auto !rounded-lg"
+					class="p-4 translate-x-[-30%] pointer-events-auto rounded-lg bg-[#080808] border border-white/10"
 				>
 					<CarouselArrowLeft />
 				</button>
@@ -180,7 +180,7 @@
 
 				<button
 					on:click={() => goRight()}
-					class="p-4 translate-x-[30%] pointer-events-auto !rounded-lg"
+					class="p-4 translate-x-[30%] pointer-events-auto rounded-lg bg-[#080808] border border-white/10"
 				>
 					<CarouselArrowRight />
 				</button>
@@ -253,7 +253,7 @@
 
 <style>
 	button {
-		@apply rounded-[5px] border border-[#363636] bg-[#1C1C1C] active:scale-90 duration-100;
+		@apply active:scale-90 duration-100;
 	}
 
 	#fullscreen-btn:not(.isFullscreen) {
