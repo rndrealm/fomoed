@@ -1,20 +1,27 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
-import { DashboardContent, Toolbar } from "@/components/dashboard";
-import { ExitFullScreen, FullScreen } from "@/components/icons/icons";
-import { RenderIf } from "@/components/shared";
+import React, { Fragment, useEffect, useRef, useState } from "react";
+import {
+  AddWidgetModal,
+  DashboardContent,
+  FullscreenBtn,
+  Toolbar,
+} from "@/components/dashboard";
+import { ModalContainer } from "@/components/shared";
+import { useAtom } from "jotai";
+import { utilsAtom } from "@/lib/atoms/utilsAtom";
+import { cn } from "@/lib/utils";
 
 export default function Page() {
   const [isFullscreen, setIsFullscreen] = useState(false);
-
-  const divRef = useRef<HTMLDivElement>(null);
+  const [utils, setUtils] = useAtom(utilsAtom);
 
   const handleFullscreen = () => {
-    const div = divRef.current;
-    if (!div) return;
+    // const div = divRef.current;
+    const element = document.documentElement;
+    if (!element) return;
     if (!isFullscreen) {
-      if (div.requestFullscreen) {
-        div.requestFullscreen();
+      if (element.requestFullscreen) {
+        element.requestFullscreen();
       }
     } else {
       document.exitFullscreen();
@@ -26,6 +33,7 @@ export default function Page() {
       const fullscreenElement = document.fullscreenElement;
 
       setIsFullscreen(!!fullscreenElement);
+      setUtils({ ...utils, isFullScreen: !!fullscreenElement });
     };
 
     document.addEventListener("fullscreenchange", onFullscreenChange);
@@ -45,34 +53,34 @@ export default function Page() {
   }, []);
 
   return (
-    <div className="h-screen pt-[96px] px-4 pb-4 overflow-hidden bg-[#0a0a0a]">
+    <Fragment>
       <div
-        ref={divRef}
-        className="flex flex-col h-full w-full gap-4 bg-[#0a0a0a] relative"
+        className={cn(
+          "h-screen pt-[96px] px-4 pb-4 overflow-hidden bg-[#0C0C0C]",
+          !utils.isFullScreen ? "pt-[96px] px-4 pb-4" : "p-1"
+        )}
       >
-        <div className="px-6">
-          <Toolbar />
-        </div>
-        <div className="flex-1 border border-[#121212] bg-[#080808] overflow-auto rounded-[20px]">
-          <DashboardContent />
-        </div>
-
-        <div className="absolute bottom-[24px] left-[24px]">
-          <button
-            onClick={handleFullscreen}
-            type="button"
-            className="border border-[#1c1c1c] bg-[#111] p-[6px] rounded-md"
+        <div className="flex flex-col h-full w-full gap-4 bg-[#0a0a0a] relative">
+          <div className="px-6">
+            <Toolbar />
+          </div>
+          <div className="flex-1 border border-[#121212] bg-[#0F0F0F] overflow-auto rounded-[20px]">
+            <DashboardContent />
+          </div>
+          <FullscreenBtn
+            isFullscreen={utils.isFullScreen}
+            handleFullscreen={handleFullscreen}
+          />
+          <ModalContainer
+            open={false}
+            handleClose={() => {}}
+            className="h-full"
+            title="Add New Widget"
           >
-            <RenderIf condition={!isFullscreen}>
-              <FullScreen />
-            </RenderIf>
-
-            <RenderIf condition={isFullscreen}>
-              <ExitFullScreen />
-            </RenderIf>
-          </button>
+            <AddWidgetModal />
+          </ModalContainer>
         </div>
       </div>
-    </div>
+    </Fragment>
   );
 }

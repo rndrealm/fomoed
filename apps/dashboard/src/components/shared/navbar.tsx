@@ -51,7 +51,7 @@ export const Navbar = () => {
   const pathName = usePathname();
 
   return (
-    <nav className="bg-[#0f0f0f] py-4 px-10 flex items-center">
+    <nav className="bg-[#0C0C0C] border-b border-[#161616] py-4 px-10 flex items-center">
       <div className="mx-auto flex justify-between items-center w-full">
         {/* Logo section */}
         <div className="flex items-center gap-10">
