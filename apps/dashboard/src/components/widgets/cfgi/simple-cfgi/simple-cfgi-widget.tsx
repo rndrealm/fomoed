@@ -47,7 +47,7 @@ export default function SimpleCfgiWidget() {
                 setValue={(coin: string) => {
                   setActiveCoin(coin);
                 }}
-                title="Fear and Greed Chart"
+                title="Simplified Fear and Greed Chart"
               />
               <div className="flex items-center gap-2">
                 <PeriodDropdown
