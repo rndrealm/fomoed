@@ -13,7 +13,10 @@ const initialTab = {
 // type LayoutType = Record<string | number, { widget: ReactGridLayout.Layout[] }>;
 interface LayoutType {
   id: string;
-  widget: ReactGridLayout.Layout[];
+  widget: {
+    id: string;
+    meta: ReactGridLayout.Layout;
+  }[];
 }
 
 export const layoutAtom = atom<LayoutType[]>([
@@ -109,7 +112,7 @@ export const deleteWidgetAtom = atom(
 
     // Filter out the widget to remove
     const updatedWidgets = currentLayout.widget.filter(
-      (widget) => widget.i !== widgetId.toString()
+      (widget) => widget.meta.i !== widgetId.toString()
     );
 
     // Rearrange the remaining widgets using getGridPosition

@@ -4,6 +4,7 @@ import { LayoutOptionType } from "@/lib/static";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import Image from "next/image";
 import React from "react";
+import { v4 as uuidv4 } from "uuid";
 
 interface IProps {
   widget: LayoutOptionType[0];
@@ -33,34 +34,18 @@ export function QuickWidgetItem(props: IProps) {
         };
 
         handleGoBack();
-        const checkIfWidgetExists = currLayout.widget.find(
-          (widget) => widget.i === widget.i
-        );
-        if (checkIfWidgetExists) {
-          setLayout((prev) => {
-            return prev.map((item) => {
-              if (item.id === activeLayout.id) {
-                return {
-                  ...item,
-                  widget: [...item.widget, newWwidget],
-                };
-              }
-              return item;
-            });
+
+        setLayout((prev) => {
+          return prev.map((item) => {
+            if (item.id === activeLayout.id) {
+              return {
+                ...item,
+                widget: [...item.widget, { meta: newWwidget, id: uuidv4() }],
+              };
+            }
+            return item;
           });
-        } else {
-          setLayout((prev) => {
-            return prev.map((item) => {
-              if (item.id === activeLayout.id) {
-                return {
-                  ...item,
-                  widget: [...item.widget, newWwidget],
-                };
-              }
-              return item;
-            });
-          });
-        }
+        });
         handleGoBack();
       }}
     >
