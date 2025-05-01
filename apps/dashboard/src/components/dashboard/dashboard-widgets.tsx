@@ -39,12 +39,12 @@ export function DashboardWidgets() {
       >
         {currentLayout?.widget.map((layout, index) => {
           // const { x, y } = getGridPosition(index);
-
+          const { x, y, w, h } = layout.meta;
           return (
             <div
               key={`${index}`}
               className="bg-[#080808] border border-[#1b1b1b] rounded-2xl overflow-hidden px-6 py-3 flex flex-col gap-4"
-              data-grid={{ x: layout.x, y: layout.y, w: layout.w, h: layout.h }}
+              data-grid={{ x, y, w, h }}
             >
               <div className="flex flex-col items-center justify-center w-full h-full">
                 <div className="grid items-center w-full grid-cols-3">
@@ -59,13 +59,13 @@ export function DashboardWidgets() {
                   <div className="flex justify-end">
                     <WidgetDropdownMenu
                       deleteAction={() => {
-                        setDeleteWidget(layout);
+                        setDeleteWidget(layout.meta);
                         setShowDeleteModal(true);
                       }}
                     />
                   </div>
                 </div>
-                {chartsMap[layout.i as keyof typeof chartsMap].component}
+                {chartsMap[layout.meta.i as keyof typeof chartsMap].component}
               </div>
             </div>
           );
