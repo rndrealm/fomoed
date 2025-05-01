@@ -1,12 +1,11 @@
 import React, { useState } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
-import { WidgetWrapper } from "./widget-wrapper";
 import { Drag } from "../icons/icons";
 import { useAtomValue, useSetAtom } from "jotai";
 import {
   activeTabAtom,
   deleteWidgetAtom,
-  layoutAtom,
+  LayoutType,
 } from "@/lib/atoms/layoutAtom";
 import { chartsMap } from "@/lib/static";
 import { WidgetDropdownMenu } from "./widget-options-menu";
@@ -14,10 +13,13 @@ import { ConfirmationModal } from "../modals";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
-export function DashboardWidgets() {
-  const layouts = useAtomValue(layoutAtom);
+interface IProps {
+  data: LayoutType;
+}
+
+export function DashboardWidgets(props: IProps) {
+  const { data } = props;
   const activeLayout = useAtomValue(activeTabAtom);
-  const currentLayout = layouts.find((layout) => layout.id === activeLayout.id);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteWidget, setDeleteWidget] = useState<ReactGridLayout.Layout>();
   const deleteWidgetFromAtom = useSetAtom(deleteWidgetAtom);
@@ -37,7 +39,7 @@ export function DashboardWidgets() {
           // console.log(test);
         }}
       >
-        {currentLayout?.widget.map((layout, index) => {
+        {data?.widget.map((layout, index) => {
           // const { x, y } = getGridPosition(index);
           const { x, y, w, h } = layout.meta;
           return (
