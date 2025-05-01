@@ -224,3 +224,20 @@ export const updateWidgetTokenAtom = atom(
     set(layoutAtom, updatedLayouts);
   }
 );
+export const renameTabAtom = atom(
+  null,
+  (get, set, { id, name }: { id: string; name: string }) => {
+    // 🔸 Update the tab in tabsAtom
+    const tabs = get(tabsAtom);
+    const updatedTabs = tabs.map((tab) =>
+      tab.id === id ? { ...tab, name, label: name } : tab
+    );
+    set(tabsAtom, updatedTabs);
+
+    // 🔸 Update activeTabAtom if it's the one being renamed
+    const activeTab = get(activeTabAtom);
+    if (activeTab?.id === id) {
+      set(activeTabAtom, { ...activeTab, name, label: name });
+    }
+  }
+);
