@@ -9,6 +9,12 @@ import { CfgiPeriods, TabOptions } from "@/constant/cfgi-data";
 import { Skeleton } from "@/components/ui/skeleton";
 import ChartLegend from "../../shared/chart-legend";
 import SimpleCfgiChart from "./simple-cfgi-chart";
+import {
+  activeTabAtom,
+  LayoutType,
+  updateWidgetTokenAtom,
+} from "@/lib/atoms/layoutAtom";
+import { useAtomValue, useSetAtom } from "jotai";
 
 const colorToCfgi = [
   {
@@ -17,23 +23,31 @@ const colorToCfgi = [
   },
 ];
 
-export default function SimpleCfgiWidget() {
+interface IProps {
+  widget: LayoutType["widget"][0];
+}
+
+export default function SimpleCfgiWidget(props: IProps) {
+  const { widget } = props;
   const [activePeriod, setActivePeriod] = useState<string>(
     CfgiPeriods[0].value
   );
-  const [activeCoin, setActiveCoin] = useState<string>("BTC");
+  // const [activeCoin, setActiveCoin] = useState<string>("BTC");
   const { data: coinData } = useReadCoinList();
 
   const activeCoinSlug = useMemo(() => {
-    return coinData?.find((coin) => coin.symbol === activeCoin)?.slug;
-  }, [activeCoin, coinData]);
+    return coinData?.find((coin) => coin.symbol === widget.token)?.slug;
+  }, [widget.token, coinData]);
   const { data } = useReadCfgiData(
-    activeCoin,
+    widget.token,
     activePeriod,
     activeCoinSlug || ""
   );
 
   const [chartViewOptions] = useState(TabOptions[1].value);
+
+  const activeLayout = useAtomValue(activeTabAtom);
+  const updateWidgetTokenFromAtom = useSetAtom(updateWidgetTokenAtom);
 
   return (
     <>
@@ -43,9 +57,13 @@ export default function SimpleCfgiWidget() {
             <div className="flex items-center justify-between">
               <CoinDropdown
                 options={coinData || []}
-                value={activeCoin}
+                value={widget.token}
                 setValue={(coin: string) => {
-                  setActiveCoin(coin);
+                  updateWidgetTokenFromAtom({
+                    tabId: activeLayout.id,
+                    widgetId: widget.id,
+                    token: coin,
+                  });
                 }}
                 title="Simplified Fear and Greed Chart"
               />

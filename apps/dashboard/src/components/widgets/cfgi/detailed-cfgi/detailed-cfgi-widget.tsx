@@ -10,6 +10,13 @@ import ChartLegend from "../../shared/chart-legend";
 import DetailedCfgiChart from "@/components/widgets/cfgi/detailed-cfgi/detailed-cfgi-chart";
 import ChartTab from "../../shared/chart-tab";
 import { cn } from "@/lib/utils";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import {
+  activeTabAtom,
+  layoutAtom,
+  LayoutType,
+  updateWidgetTokenAtom,
+} from "@/lib/atoms/layoutAtom";
 
 // const colorToCfgi = {
 //   25: "#FF3B10",
@@ -37,29 +44,32 @@ const colorToCfgi = [
   },
 ];
 
-export default function DetailedCfgiWidget({
-  isEmbed,
-  symbol = null,
-}: {
+interface IProps {
   isEmbed?: boolean;
   symbol?: string | null;
-}) {
+  widget: LayoutType["widgets"][0];
+}
+
+export default function DetailedCfgiWidget(props: IProps) {
+  const { isEmbed, symbol = null, widget } = props;
   const [activePeriod, setActivePeriod] = useState<string>(
     CfgiPeriods[0].value
   );
-  const [activeCoin, setActiveCoin] = useState<string>(symbol || "BTC");
+  // const [activeCoin, setActiveCoin] = useState<string>(symbol || "BTC");
   const { data: coinData } = useReadCoinList();
 
   const activeCoinSlug = useMemo(() => {
-    return coinData?.find((coin) => coin.symbol === activeCoin)?.slug;
-  }, [activeCoin, coinData]);
+    return coinData?.find((coin) => coin.symbol === widget.token)?.slug;
+  }, [widget.token, coinData]);
   const { data } = useReadCfgiData(
-    activeCoin,
+    widget.token,
     activePeriod,
     activeCoinSlug || ""
   );
 
   const [chartViewOptions, setChartViewOptions] = useState(TabOptions[1].value);
+  const activeLayout = useAtomValue(activeTabAtom);
+  const updateWidgetTokenFromAtom = useSetAtom(updateWidgetTokenAtom);
 
   return (
     <>
@@ -71,9 +81,13 @@ export default function DetailedCfgiWidget({
             <div className="flex items-center justify-between">
               <CoinDropdown
                 options={coinData || []}
-                value={activeCoin}
+                value={widget.token}
                 setValue={(coin: string) => {
-                  setActiveCoin(coin);
+                  updateWidgetTokenFromAtom({
+                    tabId: activeLayout.id,
+                    widgetId: widget.id,
+                    token: coin,
+                  });
                 }}
                 title="Fear and Greed Chart"
               />

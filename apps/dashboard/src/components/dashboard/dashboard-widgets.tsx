@@ -10,6 +10,7 @@ import {
 import { chartsMap } from "@/lib/static";
 import { WidgetDropdownMenu } from "./widget-options-menu";
 import { ConfirmationModal } from "../modals";
+import { joinWidgetSlug, splitWidgetSlug } from "@/lib/utils";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -21,7 +22,7 @@ export function DashboardWidgets(props: IProps) {
   const { data } = props;
   const activeLayout = useAtomValue(activeTabAtom);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deleteWidget, setDeleteWidget] = useState<ReactGridLayout.Layout>();
+  const [deleteWidget, setDeleteWidget] = useState<LayoutType["widgets"][0]>();
   const deleteWidgetFromAtom = useSetAtom(deleteWidgetAtom);
 
   console.log(data);
@@ -41,12 +42,12 @@ export function DashboardWidgets(props: IProps) {
           console.log(test);
         }}
       >
-        {data?.widget.map((layout, index) => {
-          // const { x, y } = getGridPosition(index);
+        {data?.widgets.map((layout, index) => {
           const { x, y, w, h } = layout.meta;
+
           return (
             <div
-              key={`${index}`}
+              key={joinWidgetSlug(layout.id, layout.meta.i)}
               className="bg-[#080808] border border-[#1b1b1b] rounded-2xl overflow-hidden px-6 py-3 flex flex-col gap-4"
               data-grid={{ x, y, w, h }}
             >
@@ -63,13 +64,15 @@ export function DashboardWidgets(props: IProps) {
                   <div className="flex justify-end">
                     <WidgetDropdownMenu
                       deleteAction={() => {
-                        setDeleteWidget(layout.meta);
+                        setDeleteWidget(layout);
                         setShowDeleteModal(true);
                       }}
                     />
                   </div>
                 </div>
-                {chartsMap[layout.meta.i as keyof typeof chartsMap].component}
+                {chartsMap[
+                  splitWidgetSlug(layout.meta.i).slug as keyof typeof chartsMap
+                ].component(layout)}
               </div>
             </div>
           );
@@ -105,7 +108,7 @@ export function DashboardWidgets(props: IProps) {
           setDeleteWidget(undefined);
         }}
         open={showDeleteModal}
-        title={`Delete ${chartsMap[deleteWidget?.i as keyof typeof chartsMap]?.name}?`}
+        title={`Delete ${chartsMap[deleteWidget?.meta.i as keyof typeof chartsMap]?.name}?`}
         details="You can always add new widgets to your dashboard after widgets are deleted"
         cancelBtnText="Cancel"
         confirmBtnText="Delete Widget"
@@ -113,7 +116,7 @@ export function DashboardWidgets(props: IProps) {
           if (!deleteWidget) return;
           deleteWidgetFromAtom({
             tabId: activeLayout.id,
-            widgetId: deleteWidget.i,
+            widgetId: deleteWidget.id,
           });
           setDeleteWidget(undefined);
           setShowDeleteModal(false);

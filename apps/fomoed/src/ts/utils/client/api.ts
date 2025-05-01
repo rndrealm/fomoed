@@ -4,7 +4,6 @@ import type { ForeignInstrument } from '.';
 async function fetchSupportedExchangePairs() {
 	const res = await fetch('/api/supported-exchange-pairs');
 	const data = await res.json();
-	console.log('ddkdkdkd');
 	return data.data;
 }
 

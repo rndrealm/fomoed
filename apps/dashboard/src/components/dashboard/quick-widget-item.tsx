@@ -1,6 +1,7 @@
 import { getGridPosition } from "@/charts/helpers";
 import { activeTabAtom, layoutAtom } from "@/lib/atoms/layoutAtom";
-import { LayoutOptionType } from "@/lib/static";
+import { LayoutOptionType, widgetIdJoin } from "@/lib/static";
+import { joinWidgetSlug } from "@/lib/utils";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import Image from "next/image";
 import React from "react";
@@ -14,33 +15,37 @@ interface IProps {
 export function QuickWidgetItem(props: IProps) {
   const { widget, handleGoBack } = props;
   const [layouts, setLayout] = useAtom(layoutAtom);
-  const activeLayout = useAtomValue(activeTabAtom);
+  const activeTab = useAtomValue(activeTabAtom);
+
   return (
     <button
       className="flex flex-col gap-x-[6px] gap-y-[6px] cursor-pointer"
       onClick={() => {
-        const currLayout = layouts.find(
-          (layout) => layout.id === activeLayout.id
-        );
-        if (!currLayout) return;
-        const { x, y } = getGridPosition(currLayout.widget.length);
+        const currLayoutId = activeTab.layout_id;
+        const currLayout = layouts.find((item) => item.id === currLayoutId);
 
-        const newWwidget = {
-          i: widget.slug,
-          x,
-          y,
-          w: 3,
-          h: 2,
+        const { x, y } = getGridPosition(currLayout?.widgets.length || 0);
+        const newId = uuidv4();
+        const newLayout = {
+          id: newId,
+          token: "BTC",
+          meta: {
+            i: joinWidgetSlug(newId, widget.slug),
+            x,
+            y,
+            w: 3,
+            h: 2,
+          },
         };
 
         handleGoBack();
 
         setLayout((prev) => {
           return prev.map((item) => {
-            if (item.id === activeLayout.id) {
+            if (item.id === activeTab.layout_id) {
               return {
                 ...item,
-                widget: [...item.widget, { meta: newWwidget, id: uuidv4() }],
+                widgets: [...item.widgets, newLayout],
               };
             }
             return item;
