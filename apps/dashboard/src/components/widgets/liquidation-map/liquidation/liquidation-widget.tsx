@@ -15,6 +15,12 @@ import LiquidationChart from "./liquidation-chart";
 import { ExchangePairOption } from "@/charts/types";
 import PairDropdown from "../../shared/pair-dropdown";
 import { cn } from "@/lib/utils";
+import {
+  activeTabAtom,
+  LayoutType,
+  updateWidgetTokenAtom,
+} from "@/lib/atoms/layoutAtom";
+import { useAtomValue, useSetAtom } from "jotai";
 
 const colorToCfgi = [
   {
@@ -31,17 +37,18 @@ const colorToCfgi = [
   },
 ];
 
-export default function LiquidationWidget({
-  isEmbed,
-  symbol = null,
-}: {
+interface IProps {
+  widget: LayoutType["widget"][0];
   isEmbed?: boolean;
   symbol?: string | null;
-}) {
+}
+
+export default function LiquidationWidget(props: IProps) {
+  const { isEmbed, symbol = null, widget } = props;
   const [activePeriod, setActivePeriod] = useState<string>(
     liquidTimeframeOptions[0].value
   );
-  const [activeCoin, setActiveCoin] = useState<string>(symbol || "BTC");
+  // const [activeCoin, setActiveCoin] = useState<string>(symbol || "BTC");
   const { data: coinData } = useReadCoinList();
 
   const { data: pairsData } = useGetSupportedxchangePairs();
@@ -57,8 +64,8 @@ export default function LiquidationWidget({
 
   const filteredData = useMemo(() => {
     if (!pairsData) return [];
-    return pairsData.filter((i) => i.value.baseAsset === activeCoin);
-  }, [pairsData, activeCoin]);
+    return pairsData.filter((i) => i.value.baseAsset === widget.token);
+  }, [pairsData, widget.token]);
 
   const { data: liquidationData } = useFetchLiquidMapData(
     activePeriod,
@@ -70,6 +77,9 @@ export default function LiquidationWidget({
 
   const [chartViewOptions] = useState(LiquidTabOptions[1].value);
 
+  const activeLayout = useAtomValue(activeTabAtom);
+  const updateWidgetTokenFromAtom = useSetAtom(updateWidgetTokenAtom);
+
   return (
     <>
       <div
@@ -80,13 +90,17 @@ export default function LiquidationWidget({
             <div className="flex items-center justify-between">
               <CoinDropdown
                 options={coinData || []}
-                value={activeCoin}
+                value={widget.token}
                 setValue={(coin: string) => {
-                  setActiveCoin(coin);
                   const newPairs = pairsData.filter(
                     (i) => i.value.baseAsset === coin
                   );
                   setSelectedPair(newPairs[0]);
+                  updateWidgetTokenFromAtom({
+                    tabId: activeLayout.id,
+                    widgetId: widget.id,
+                    token: coin,
+                  });
                 }}
                 title="Liquidation Map"
               />

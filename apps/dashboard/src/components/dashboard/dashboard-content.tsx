@@ -4,7 +4,7 @@ import { QuickWidgets } from "./quick-widgets";
 import { RenderIf } from "../shared";
 import { DashboardWidgets } from "./dashboard-widgets";
 import { useAtomValue } from "jotai";
-import { activeTabAtom, layoutAtom } from "@/lib/atoms/layoutAtom";
+import { activeTabAtom, layoutAtom, tabsAtom } from "@/lib/atoms/layoutAtom";
 import { cn } from "@/lib/utils";
 
 function Empty() {
@@ -33,13 +33,17 @@ function Empty() {
 
 export function DashboardContent() {
   const layouts = useAtomValue(layoutAtom);
+  const tabs = useAtomValue(tabsAtom);
   const activeLayout = useAtomValue(activeTabAtom);
 
   return (
     <div className="w-full h-full">
       {/* {currentLayout?.widget?.length === 0 ? <Empty /> : <DashboardWidgets />} */}
-      {layouts.map((item) => {
+      {tabs.map((item) => {
         const isActive = item.id === activeLayout.id;
+        const currLayout = layouts.find(
+          (layout) => layout.id === item.layout_id
+        );
 
         return (
           <div
@@ -49,10 +53,10 @@ export function DashboardContent() {
               isActive ? "" : "invisible h-0 overflow-hidden"
             )}
           >
-            {item?.widget?.length === 0 ? (
+            {currLayout?.widgets?.length === 0 || !currLayout ? (
               <Empty />
             ) : (
-              <DashboardWidgets data={item} />
+              <DashboardWidgets data={currLayout} />
             )}
           </div>
         );

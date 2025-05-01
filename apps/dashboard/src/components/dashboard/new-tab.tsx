@@ -15,7 +15,6 @@ import { RenderIf } from "../shared";
 
 export function NewTabs() {
   const [tabs, setTabs] = useAtom(tabsAtom);
-  const setSyncedActiveTab = useSetAtom(syncActiveTabAtom);
   const [activeTab, setActiveTab] = useAtom(activeTabAtom);
   const setLayout = useSetAtom(layoutAtom);
   const deleteTabFromAtom = useSetAtom(deleteTabAtom);
@@ -30,18 +29,23 @@ export function NewTabs() {
           type="button"
           className="h-[32px] w-[32px] flex items-center justify-center rounded-md border border-[#121212]"
           onClick={() => {
+            const newLayout = {
+              id: uuidv4(),
+              widgets: [],
+            };
             const currentTab = {
               id: uuidv4(),
               label: "untitled layout",
               name: "Untitled Layout",
               editMode: false,
+              layout_id: newLayout.id,
             };
             setTabs((prev) => {
               return [...prev, currentTab];
             });
             setActiveTab(currentTab);
 
-            setLayout((prev) => [...prev, { id: currentTab.id, widget: [] }]);
+            setLayout((prev) => [...prev, newLayout]);
           }}
         >
           <AddTab />

@@ -16,6 +16,7 @@ import SimpleCfgiWidget from "@/components/widgets/cfgi/simple-cfgi/simple-cfgi-
 import LiquidationWidget from "@/components/widgets/liquidation-map/liquidation/liquidation-widget";
 import LiquidationHeatmapWidget from "@/components/widgets/liquidation-map/liquidation-heatmap/liquidation-heatmap-widget";
 import LiquidationExchangeWidget from "@/components/widgets/liquidation-map/liquidation-exchange/liquidation-exchange-widget";
+import { LayoutType } from "./atoms/layoutAtom";
 
 export const layoutClassMap = {
   SinglePane: "grid-rows-1 grid-cols-1",
@@ -114,30 +115,43 @@ export const layoutOptionsMap = [
 
 export type LayoutOptionType = typeof layoutOptionsMap;
 
+// An object that maps chart types to their respective components and extra props including the widget data
 export const chartsMap = {
   "detailed-cfgi": {
     name: "Crypto Fear and Greed Map",
     extra: ["period", "token", "chart-tab", "exchange-token"],
-    component: <DetailedCfgiWidget />,
+    component: (widget: LayoutType["widgets"][0]) => (
+      <DetailedCfgiWidget widget={widget} />
+    ),
   },
   "simple-cfgi": {
     name: "Simplified Crypto Fear and Greed Map",
     extra: ["period", "token"],
-    component: <SimpleCfgiWidget />,
+    component: (widget: LayoutType["widgets"][0]) => (
+      <SimpleCfgiWidget widget={widget} />
+    ),
   },
   "liquidation-map": {
     name: "Liquidation Map",
     extra: ["period", "token", "exchange-token"],
-    component: <LiquidationWidget />,
+    component: (widget: LayoutType["widgets"][0]) => (
+      <LiquidationWidget widget={widget} />
+    ),
   },
   "liquidation-heat-map": {
     name: "Liquidation Heat Map",
     extra: ["period", "token", "exchange-token"],
-    component: <LiquidationHeatmapWidget />,
+    component: (widget: LayoutType["widgets"][0]) => (
+      <LiquidationHeatmapWidget widget={widget} />
+    ),
   },
   "exchange-liquidation-map": {
     name: "Exchange Liquidation Map",
     extra: ["period", "token", "exchange-token"],
-    component: <LiquidationExchangeWidget />,
+    component: (widget: LayoutType["widgets"][0]) => (
+      <LiquidationExchangeWidget widget={widget} />
+    ),
   },
 };
+
+export const widgetIdJoin = "@/$";

@@ -5,6 +5,7 @@ import {
 } from "@/services/queries/charts/types";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { widgetIdJoin } from "./static";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -68,3 +69,15 @@ export function humanizeNumber(num: number) {
 
   return num.toString();
 }
+
+export const joinWidgetSlug = (widgetId: string, slug: string) => {
+  return `${widgetId}${widgetIdJoin}${slug}`;
+};
+
+export const splitWidgetSlug = (widgetSlug: string) => {
+  const [widgetId, slug] = widgetSlug.split(widgetIdJoin);
+  return {
+    widgetId,
+    slug,
+  };
+};
