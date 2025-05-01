@@ -11,7 +11,7 @@ const initialTab = {
 };
 
 // type LayoutType = Record<string | number, { widget: ReactGridLayout.Layout[] }>;
-interface LayoutType {
+export interface LayoutType {
   id: string;
   widget: {
     id: string;
