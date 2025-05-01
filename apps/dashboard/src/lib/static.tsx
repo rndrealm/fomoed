@@ -117,22 +117,27 @@ export type LayoutOptionType = typeof layoutOptionsMap;
 export const chartsMap = {
   "detailed-cfgi": {
     name: "Crypto Fear and Greed Map",
+    extra: ["period", "token", "chart-tab", "exchange-token"],
     component: <DetailedCfgiWidget />,
   },
   "simple-cfgi": {
     name: "Simplified Crypto Fear and Greed Map",
+    extra: ["period", "token"],
     component: <SimpleCfgiWidget />,
   },
   "liquidation-map": {
     name: "Liquidation Map",
+    extra: ["period", "token", "exchange-token"],
     component: <LiquidationWidget />,
   },
   "liquidation-heat-map": {
     name: "Liquidation Heat Map",
+    extra: ["period", "token", "exchange-token"],
     component: <LiquidationHeatmapWidget />,
   },
   "exchange-liquidation-map": {
     name: "Exchange Liquidation Map",
+    extra: ["period", "token", "exchange-token"],
     component: <LiquidationExchangeWidget />,
   },
 };
