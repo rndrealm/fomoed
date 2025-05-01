@@ -73,9 +73,7 @@ export default function LiquidationWidget({
   return (
     <>
       <div
-        className={cn(
-          "flex flex-col justify-center bg-widget-background w-full h-fullrounded-sm"
-        )}
+        className={cn("flex flex-col justify-center w-full h-full rounded-sm")}
       >
         <div className="px-3 py-4">
           {coinData ? (

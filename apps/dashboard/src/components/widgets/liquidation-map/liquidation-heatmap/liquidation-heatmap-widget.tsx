@@ -14,6 +14,7 @@ import ChartLegend from "../../shared/chart-legend";
 import PairDropdown from "../../shared/pair-dropdown";
 import { ExchangePairOption } from "@/charts/types";
 import LiquidationHeatmapChart from "./liquidation-heatmap-chart";
+import { cn } from "@/lib/utils";
 
 const colorToCfgi = [
   {
@@ -57,7 +58,9 @@ export default function LiquidationHeatmapWidget() {
 
   return (
     <>
-      <div className="w-[670px] h-[380px] flex flex-col justify-center bg-widget-background rounded-sm">
+      <div
+        className={cn("flex flex-col justify-center w-full h-full rounded-sm")}
+      >
         <div className="px-3 py-4">
           {coinData ? (
             <div className="flex items-center justify-between">
@@ -100,7 +103,7 @@ export default function LiquidationHeatmapWidget() {
           )}
         </div>
 
-        <div className="flex items-center justify-center gap-5 border-t border-t-[#333] py-3">
+        <div className="flex items-center justify-center gap-5 py-3">
           <ChartLegend colorOptions={colorToCfgi} />
         </div>
       </div>

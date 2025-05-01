@@ -15,6 +15,7 @@ import DetailedCfgiWidget from "@/components/widgets/cfgi/detailed-cfgi/detailed
 import SimpleCfgiWidget from "@/components/widgets/cfgi/simple-cfgi/simple-cfgi-widget";
 import LiquidationWidget from "@/components/widgets/liquidation-map/liquidation/liquidation-widget";
 import LiquidationHeatmapWidget from "@/components/widgets/liquidation-map/liquidation-heatmap/liquidation-heatmap-widget";
+import LiquidationExchangeWidget from "@/components/widgets/liquidation-map/liquidation-exchange/liquidation-exchange-widget";
 
 export const layoutClassMap = {
   SinglePane: "grid-rows-1 grid-cols-1",
@@ -124,17 +125,14 @@ export const chartsMap = {
   },
   "liquidation-map": {
     name: "Liquidation Map",
-    component: <DetailedCfgiWidget />,
+    component: <LiquidationWidget />,
   },
   "liquidation-heat-map": {
     name: "Liquidation Heat Map",
-    component: <SimpleCfgiWidget />,
+    component: <LiquidationHeatmapWidget />,
   },
   "exchange-liquidation-map": {
     name: "Exchange Liquidation Map",
-    component: <DetailedCfgiWidget />,
+    component: <LiquidationExchangeWidget />,
   },
-  // "liquidation-map": <LiquidationWidget />,
-  // "liquidation-heat-map": <LiquidationHeatmapWidget />,
-  // "exchange-liquidation-map": <DetailedCfgiWidget />,
 };

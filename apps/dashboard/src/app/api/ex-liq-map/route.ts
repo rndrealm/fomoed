@@ -1,5 +1,12 @@
-import { NextResponse } from "next/server";
+import {
+  createSupabaseReqResClient,
+  createSupabaseServerClient,
+  createSupabaseServerComponentClient,
+} from "@/lib/utils/supabase/server-client";
+import { NextRequest, NextResponse } from "next/server";
+import { now } from "lodash-es";
 
+const maxCacheAgeSeconds = 120;
 async function fetchPairMarkets(symbol: string) {
   const url = `https://open-api-v3.coinglass.com/api/futures/pairs-markets?symbol=${symbol}`;
   const options = {
@@ -83,7 +90,7 @@ async function fetchCoinglassLiqMap(
 }
 
 //! REQUEST HANDLER FOR /api/ex-liq-map
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
 
@@ -96,8 +103,28 @@ export async function GET(request: Request) {
         { status: 400 }
       );
     }
-
     const currentPriceUsd = await fetchAssetPriceUsd(asset);
+
+    const supabaseServer = await createSupabaseServerClient();
+
+    const cacheAssetId = asset + "-" + timeframe;
+
+    const cached = await supabaseServer
+      .from("exchangeLiqMapCache")
+      .select()
+      .eq("asset", cacheAssetId);
+
+    if (cached.data?.length) {
+      const row = cached.data[0];
+      const updatedAt = new Date(row.updated_at);
+      const ageSeconds = (now() - updatedAt.getTime()) / 1000;
+
+      if (ageSeconds < maxCacheAgeSeconds) {
+        return NextResponse.json({
+          data: { currentPriceUsd, exLiqData: cached.data[0].data },
+        });
+      }
+    }
 
     const supportedFuturePairs: Record<
       string,
@@ -176,6 +203,11 @@ export async function GET(request: Request) {
         }
       }
     }
+
+    // Cache retrieved data
+    await supabaseServer
+      .from("exchangeLiqMapCache")
+      .upsert({ asset: cacheAssetId, data: totalExLiq });
 
     return NextResponse.json({
       data: { currentPriceUsd, exLiqData: totalExLiq },

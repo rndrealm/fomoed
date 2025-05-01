@@ -8,6 +8,7 @@ import {
   syncActiveTabAtom,
   tabsAtom,
 } from "@/lib/atoms/layoutAtom";
+import { v4 as uuidv4 } from "uuid";
 import { cn } from "@/lib/utils";
 import { ConfirmationModal } from "../modals";
 import { RenderIf } from "../shared";
@@ -30,7 +31,7 @@ export function NewTabs() {
           className="h-[32px] w-[32px] flex items-center justify-center rounded-md border border-[#121212]"
           onClick={() => {
             const currentTab = {
-              id: Date.now(),
+              id: uuidv4(),
               label: "untitled layout",
               name: "Untitled Layout",
               editMode: false,
@@ -39,14 +40,8 @@ export function NewTabs() {
               return [...prev, currentTab];
             });
             setActiveTab(currentTab);
-            setLayout((prev) => {
-              return {
-                ...prev,
-                [currentTab.id]: {
-                  widget: [],
-                },
-              };
-            });
+
+            setLayout((prev) => [...prev, { id: currentTab.id, widget: [] }]);
           }}
         >
           <AddTab />
@@ -104,7 +99,7 @@ export function NewTabs() {
         </div>
       </div>
 
-      {/* <ConfirmationModal
+      <ConfirmationModal
         handleCloseModal={() => {
           setShowDeleteModal(false);
         }}
@@ -118,7 +113,7 @@ export function NewTabs() {
           deleteTabFromAtom(deleteTab.id);
           setShowDeleteModal(false);
         }}
-      /> */}
+      />
     </Fragment>
   );
 }

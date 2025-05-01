@@ -32,9 +32,9 @@ function Empty() {
 }
 
 export function DashboardContent() {
-  const layout = useAtomValue(layoutAtom);
+  const layouts = useAtomValue(layoutAtom);
   const activeLayout = useAtomValue(activeTabAtom);
-  const currentLayout = layout[activeLayout.id];
+  const currentLayout = layouts.find((layout) => layout.id === activeLayout.id);
 
   return (
     <div className="w-full h-full">
