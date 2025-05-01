@@ -24,6 +24,8 @@ export function DashboardWidgets(props: IProps) {
   const [deleteWidget, setDeleteWidget] = useState<ReactGridLayout.Layout>();
   const deleteWidgetFromAtom = useSetAtom(deleteWidgetAtom);
 
+  console.log(data);
+
   return (
     <>
       <ResponsiveGridLayout
@@ -36,7 +38,7 @@ export function DashboardWidgets(props: IProps) {
         isResizable={false}
         margin={[20, 20]}
         onLayoutChange={(test) => {
-          // console.log(test);
+          console.log(test);
         }}
       >
         {data?.widget.map((layout, index) => {
