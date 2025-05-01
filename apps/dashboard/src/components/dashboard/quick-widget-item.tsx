@@ -18,7 +18,10 @@ export function QuickWidgetItem(props: IProps) {
     <button
       className="flex flex-col gap-x-[6px] gap-y-[6px] cursor-pointer"
       onClick={() => {
-        const currLayout = layouts[activeLayout.id];
+        const currLayout = layouts.find(
+          (layout) => layout.id === activeLayout.id
+        );
+        if (!currLayout) return;
         const { x, y } = getGridPosition(currLayout.widget.length);
 
         const newWwidget = {
@@ -30,12 +33,34 @@ export function QuickWidgetItem(props: IProps) {
         };
 
         handleGoBack();
-        setLayout((prev) => ({
-          ...prev,
-          [activeLayout.id]: {
-            widget: [...prev?.[activeLayout.id].widget, newWwidget],
-          },
-        }));
+        const checkIfWidgetExists = currLayout.widget.find(
+          (widget) => widget.i === widget.i
+        );
+        if (checkIfWidgetExists) {
+          setLayout((prev) => {
+            return prev.map((item) => {
+              if (item.id === activeLayout.id) {
+                return {
+                  ...item,
+                  widget: [...item.widget, newWwidget],
+                };
+              }
+              return item;
+            });
+          });
+        } else {
+          setLayout((prev) => {
+            return prev.map((item) => {
+              if (item.id === activeLayout.id) {
+                return {
+                  ...item,
+                  widget: [...item.widget, newWwidget],
+                };
+              }
+              return item;
+            });
+          });
+        }
         handleGoBack();
       }}
     >

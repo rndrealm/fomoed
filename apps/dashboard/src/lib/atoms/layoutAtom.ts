@@ -1,21 +1,27 @@
 import { atom } from "jotai";
 import { layoutOptions } from "../static";
 import { getGridPosition } from "@/charts/helpers";
+import { v4 as uuidv4 } from "uuid";
 
 const initialTab = {
-  id: 1 as number | string,
+  id: uuidv4(),
   label: "untitled layout",
   name: "Untitled Layout",
   editMode: false,
 };
 
-type LayoutType = Record<string | number, { widget: ReactGridLayout.Layout[] }>;
+// type LayoutType = Record<string | number, { widget: ReactGridLayout.Layout[] }>;
+interface LayoutType {
+  id: string;
+  widget: ReactGridLayout.Layout[];
+}
 
-export const layoutAtom = atom<LayoutType>({
-  1: {
+export const layoutAtom = atom<LayoutType[]>([
+  {
+    id: initialTab.id,
     widget: [],
   },
-});
+]);
 // export const layoutAtom = atom<string[]>([]);
 // export const layoutAtom = atom<string[]>([
 //   "detailed-cfgi",
@@ -57,8 +63,10 @@ export const deleteTabAtom = atom(
   (get, set, idToDelete: string | number) => {
     // 🔸 Remove layout
     const layouts = get(layoutAtom);
-    const { [idToDelete]: _, ...remainingLayouts } = layouts;
-    set(layoutAtom, remainingLayouts);
+    const updatedLayouts = layouts.filter(
+      (layout) => layout.id !== idToDelete.toString()
+    );
+    set(layoutAtom, updatedLayouts);
 
     // 🔸 Update tabs
     const tabs = get(tabsAtom);
@@ -86,13 +94,21 @@ export const deleteWidgetAtom = atom(
     // Get current layouts
     const layouts = get(layoutAtom);
 
+    // Find the layout with matching tabId
+    const layoutIndex = layouts.findIndex(
+      (layout) => layout.id === tabId.toString()
+    );
+
     // Check if the tab exists in layouts
-    if (!layouts[tabId]) {
+    if (layoutIndex === -1) {
       return; // Nothing to delete
     }
 
+    // Get the current layout
+    const currentLayout = layouts[layoutIndex];
+
     // Filter out the widget to remove
-    const updatedWidgets = layouts[tabId].widget.filter(
+    const updatedWidgets = currentLayout.widget.filter(
       (widget) => widget.i !== widgetId.toString()
     );
 
@@ -106,12 +122,14 @@ export const deleteWidgetAtom = atom(
       };
     });
 
+    // Create updated layouts array
+    const updatedLayouts = [...layouts];
+    updatedLayouts[layoutIndex] = {
+      ...currentLayout,
+      widget: rearrangedWidgets,
+    };
+
     // Update layouts with the updated widget list
-    set(layoutAtom, {
-      ...layouts,
-      [tabId]: {
-        widget: rearrangedWidgets,
-      },
-    });
+    set(layoutAtom, updatedLayouts);
   }
 );

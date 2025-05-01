@@ -15,9 +15,9 @@ import { ConfirmationModal } from "../modals";
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
 export function DashboardWidgets() {
-  const layout = useAtomValue(layoutAtom);
+  const layouts = useAtomValue(layoutAtom);
   const activeLayout = useAtomValue(activeTabAtom);
-  const currentLayout = layout[activeLayout.id];
+  const currentLayout = layouts.find((layout) => layout.id === activeLayout.id);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteWidget, setDeleteWidget] = useState<ReactGridLayout.Layout>();
   const deleteWidgetFromAtom = useSetAtom(deleteWidgetAtom);
@@ -37,7 +37,7 @@ export function DashboardWidgets() {
           // console.log(test);
         }}
       >
-        {currentLayout.widget.map((layout, index) => {
+        {currentLayout?.widget.map((layout, index) => {
           // const { x, y } = getGridPosition(index);
 
           return (
