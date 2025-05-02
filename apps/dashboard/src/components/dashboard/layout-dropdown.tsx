@@ -53,7 +53,7 @@ export function LayoutDropdown() {
               >
                 <TabLayout />
                 <p className="flex-1">{layout.name}</p>
-                <Delete />
+                {/* <Delete /> */}
               </DropdownMenuItem>
             ))}
           </RenderIf>
