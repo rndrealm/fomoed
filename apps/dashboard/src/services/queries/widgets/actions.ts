@@ -62,11 +62,24 @@ export const syncLayoutAction = async (payload: SaveLayoutPayload) => {
 export const getLayoutsAction = async () => {
   const supabase = createSupabaseBrowserClient();
 
-  const { data, error } = await supabase.from("layouts").select(`
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error("Please login to view your layouts.");
+  }
+
+  const { data, error } = await supabase
+    .from("layouts")
+    .select(
+      `
     id,
     name,
     widgets ( id,  token, meta, layout_id )
-  `);
+  `
+    )
+    .eq("user_id", user.id);
 
   if (error) {
     console.log("Error getting Layouts:", error);
