@@ -62,7 +62,10 @@ export function Toolbar() {
       toast("You don't have any changes to save!", {});
       return;
     }
-
+    if (!currentLayout.widgets.length) {
+      toast("You need to add a widget to save your layout.", {});
+      return;
+    }
     const supabase = createSupabaseBrowserClient();
 
     const {
@@ -111,7 +114,7 @@ export function Toolbar() {
             </div> */}
             <button
               className="h-[28px] w-[28px] flex items-center justify-center bg-[#0d0d0d] rounded-md"
-              // onClick={handleSaveLayout}
+              onClick={handleSaveLayout}
             >
               {isPending ? <Loader /> : <Unsaved />}
             </button>
