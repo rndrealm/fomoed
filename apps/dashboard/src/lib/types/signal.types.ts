@@ -48,6 +48,17 @@ export interface ConditionGroup {
 
 export type Condition = SimpleCondition | ConditionGroup;
 
+export type Action =
+  | {
+      type: "email";
+      subject: string;
+      content: string;
+    }
+  | {
+      type: "notification";
+      description: string;
+    };
+
 export interface SignalDefinition {
   id: string;
   name: string;
@@ -60,4 +71,5 @@ export interface SignalDefinition {
   createdAt: string;
   updatedAt: string;
   primaryAssetPair?: string; // Optional primary asset pair for the whole signal
+  actions: Action[];
 }

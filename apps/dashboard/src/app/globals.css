@@ -122,6 +122,10 @@
   }
 }
 
+@theme {
+  --color-fomoed-red: #ff3b10;
+}
+
 .gradient_border {
   position: absolute;
 

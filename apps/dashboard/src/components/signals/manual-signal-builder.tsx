@@ -1,5 +1,6 @@
 import { ConditionGroup } from "@/lib/types/signal.types";
 import React from "react";
+import { Separator } from "../ui/separator";
 import AssetPairSelector from "./asset-pair-selection";
 import ConditionGroupComponent from "./condition-group";
 
@@ -17,13 +18,13 @@ const ManualSignalBuilder: React.FC<ManualSignalBuilderProps> = ({
   onUpdatePrimaryAssetPair,
 }) => {
   return (
-    <div className="space-y-4">
-      <h2 className="text-lg font-medium mb-4">Signal Conditions</h2>
+    <div className="">
+      <h2 className="text-xl font-medium ">Signal Conditions</h2>
+      <p className="text-muted-foreground mb-2">Build your smart signals</p>
 
-      <div className="mb-6">
-        <p className="text-sm text-muted-foreground mb-2">
-          Select primary asset pair for this signal:
-        </p>
+      <Separator className="mt-4 mb-9" />
+
+      <div className="mb-6 max-w-56">
         <AssetPairSelector
           selectedAsset={primaryAssetPair}
           onAssetSelect={onUpdatePrimaryAssetPair}
