@@ -87,6 +87,11 @@ export function TabButton(props: ITabButton) {
                     }
                   }}
                   onBlur={(e) => {
+                    const value = e.target.value.trim();
+                    if (value === "") {
+                      e.target.value = name;
+                      return;
+                    }
                     handleNameChange(e.target.value);
                   }}
                 />
