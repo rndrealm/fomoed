@@ -58,3 +58,22 @@ export const syncLayoutAction = async (payload: SaveLayoutPayload) => {
     widget: savedWidget,
   };
 };
+
+export const getLayoutsAction = async () => {
+  const supabase = createSupabaseBrowserClient();
+
+  const { data, error } = await supabase.from("layouts").select(`
+    id,
+    name,
+    widgets ( id,  token, meta, layout_id )
+  `);
+
+  if (error) {
+    console.log("Error getting Layouts:", error);
+    throw new Error(error.message);
+  }
+
+  return {
+    layouts: data,
+  };
+};
