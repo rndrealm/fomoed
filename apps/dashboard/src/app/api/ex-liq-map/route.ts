@@ -1,8 +1,4 @@
-import {
-  createSupabaseReqResClient,
-  createSupabaseServerClient,
-  createSupabaseServerComponentClient,
-} from "@/lib/utils/supabase/server-client";
+import { createSupabaseServerClient } from "@/lib/utils/supabase/server-client";
 import { NextRequest, NextResponse } from "next/server";
 import { now } from "lodash-es";
 

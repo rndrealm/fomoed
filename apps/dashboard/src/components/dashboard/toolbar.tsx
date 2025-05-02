@@ -15,6 +15,12 @@ import {
 import { NewTabs } from "./new-tab";
 import { ModalContainer } from "../shared";
 import { QuickWidgets } from "./quick-widgets";
+import { useSyncLayouts } from "@/services/queries/widgets";
+import { useAtomValue } from "jotai";
+import { activeTabAtom, layoutAtom } from "@/lib/atoms/layoutAtom";
+import { toast } from "sonner";
+import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
+import Loader from "../shared/loader";
 
 interface IToolbarItem {
   onClick?: () => void;
@@ -44,6 +50,44 @@ function ToolbarItem(props: IToolbarItem) {
 
 export function Toolbar() {
   const [showWidgetsModal, setShowWidgetsModal] = useState(false);
+  const { mutate, isPending } = useSyncLayouts();
+  const activeTab = useAtomValue(activeTabAtom);
+  const layouts = useAtomValue(layoutAtom);
+
+  const handleSaveLayout = async () => {
+    const currentLayout = layouts.find(
+      (layout) => layout.id === activeTab.layout_id
+    );
+    if (!currentLayout) {
+      toast("You don't have any changes to save!", {});
+      return;
+    }
+
+    const supabase = createSupabaseBrowserClient();
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      toast("You need to be logged in to save your layout.", {});
+      return;
+    }
+    const formatWidgets = currentLayout.widgets.map((widget) => {
+      return {
+        ...widget,
+        user_id: user.id,
+      };
+    });
+
+    mutate({
+      layoutData: {
+        id: currentLayout.id,
+        name: activeTab.name,
+        user_id: user.id,
+      },
+      widgetData: formatWidgets,
+    });
+  };
 
   return (
     <Fragment>
@@ -65,9 +109,12 @@ export function Toolbar() {
             {/* <div className="h-[28px] w-[28px] flex items-center justify-center bg-[#191919] rounded-md">
               <Saved active />
             </div> */}
-            <div className="h-[28px] w-[28px] flex items-center justify-center bg-[#0d0d0d] rounded-md">
-              <Unsaved />
-            </div>
+            <button
+              className="h-[28px] w-[28px] flex items-center justify-center bg-[#0d0d0d] rounded-md"
+              // onClick={handleSaveLayout}
+            >
+              {isPending ? <Loader /> : <Unsaved />}
+            </button>
           </div>
           {/* <ToolbarItem icon={<ToolbarEditLayout />} label="Edit Layout" /> */}
 
