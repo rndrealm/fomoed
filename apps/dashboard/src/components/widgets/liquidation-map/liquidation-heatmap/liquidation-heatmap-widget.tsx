@@ -33,7 +33,7 @@ const colorToCfgi = [
   },
 ];
 interface IProps {
-  widget: LayoutType["widget"][0];
+  widget: LayoutType["widgets"][0];
 }
 export default function LiquidationHeatmapWidget(props: IProps) {
   const { widget } = props;

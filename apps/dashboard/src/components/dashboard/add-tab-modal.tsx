@@ -29,7 +29,7 @@ export function AddTabModal(props: IProps) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
-        <div className="flex gap-2 items-center">
+        <div className="flex items-center gap-2">
           <div className="relative flex-1">
             <span className="absolute left-2 top-[50%] -translate-y-1/2">
               <SearchIcon />
@@ -43,7 +43,7 @@ export function AddTabModal(props: IProps) {
           </div>
         </div>
 
-        <p className="text-white text-xs">
+        <p className="text-xs text-white">
           Select from your saved layouts below
         </p>
       </div>
@@ -54,29 +54,29 @@ export function AddTabModal(props: IProps) {
             <button
               key={item.id}
               type="button"
-              onClick={() => {
-                if (!newTab) {
-                  handleTabAdded();
-                  return;
-                }
-                const currentTab = {
-                  id: Date.now(),
-                  label: item.label,
-                  editMode: false,
-                  name: "New Tab",
-                };
-                setTabAtom((prev) => {
-                  return [...prev, currentTab];
-                });
-                setActiveTabAtom(currentTab);
-                handleTabAdded();
-              }}
+              // onClick={() => {
+              //   if (!newTab) {
+              //     handleTabAdded();
+              //     return;
+              //   }
+              //   const currentTab = {
+              //     id: Date.now(),
+              //     label: item.label,
+              //     editMode: false,
+              //     name: "New Tab",
+              //   };
+              //   setTabAtom((prev) => {
+              //     return [...prev, currentTab];
+              //   });
+              //   setActiveTabAtom(currentTab);
+              //   handleTabAdded();
+              // }}
             >
               <div className="flex flex-col gap-1">
                 <div className="">
                   <Image src={dashboard.layoutPlaceholder} alt="placeholder" />
                 </div>
-                <p className="text-center text-xs text-white">{item.label}</p>
+                <p className="text-xs text-center text-white">{item.label}</p>
               </div>
             </button>
           );
