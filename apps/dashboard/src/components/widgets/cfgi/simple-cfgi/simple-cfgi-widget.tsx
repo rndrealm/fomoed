@@ -24,7 +24,7 @@ const colorToCfgi = [
 ];
 
 interface IProps {
-  widget: LayoutType["widget"][0];
+  widget: LayoutType["widgets"][0];
 }
 
 export default function SimpleCfgiWidget(props: IProps) {
