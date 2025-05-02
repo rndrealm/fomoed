@@ -1,4 +1,4 @@
-import React, { Fragment, useRef, useState } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 import { AddTab, CloseTab, TabLayout } from "../icons/icons";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
@@ -35,7 +35,11 @@ export function TabButton(props: ITabButton) {
   const [hover, setHover] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
-
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.value = name;
+    }
+  }, [name]);
   return (
     <div
       className="relative"
@@ -51,6 +55,7 @@ export function TabButton(props: ITabButton) {
         onClick={handleClick}
         onDoubleClick={() => {
           inputRef.current?.focus();
+          inputRef.current?.select();
         }}
       >
         <div
@@ -59,9 +64,9 @@ export function TabButton(props: ITabButton) {
             isActive ? "bg-[#252525]" : "bg-[#111]"
           )}
         >
-          <div className="flex items-center gap-2 flex-1 w-full">
+          <div className="flex items-center flex-1 w-full gap-2">
             <TabLayout active={isActive} />
-            <div className="flex-1 flex">
+            <div className="flex flex-1">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -121,7 +126,6 @@ export function NewTabs() {
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteTab, setDeleteTab] = useState<typeof activeTab>();
-
   return (
     <Fragment>
       <div className="flex items-center flex-1 w-full gap-2 overflow-hidden">

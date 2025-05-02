@@ -2,6 +2,7 @@ import { atom } from "jotai";
 import { layoutOptions } from "../static";
 import { getGridPosition } from "@/charts/helpers";
 import { v4 as uuidv4 } from "uuid";
+import { splitWidgetSlug } from "../utils";
 
 export interface LayoutType {
   id: string;
@@ -239,5 +240,135 @@ export const renameTabAtom = atom(
     if (activeTab?.id === id) {
       set(activeTabAtom, { ...activeTab, name, label: name });
     }
+  }
+);
+
+export const syncOnLayoutChange = atom(
+  null,
+  (get, set, newLayouts: ReactGridLayout.Layout[]) => {
+    // Get the active tab
+    const activeTab = get(activeTabAtom);
+
+    // If no active tab, return early
+    if (!activeTab) {
+      return;
+    }
+
+    // Get the layout_id from the active tab
+    const layoutId = activeTab.layout_id;
+
+    // Get current layouts
+    const layouts = get(layoutAtom);
+
+    // Find the layout with matching layout_id
+    const layoutIndex = layouts.findIndex((layout) => layout.id === layoutId);
+
+    // If layout doesn't exist, return
+    if (layoutIndex === -1) {
+      return;
+    }
+
+    // Get the current layout
+    const currentLayout = layouts[layoutIndex];
+
+    // Update widgets meta with the new layout data
+    const updatedWidgets = currentLayout.widgets.map((widget) => {
+      // Find the corresponding layout from newLayouts
+      const newLayoutData = newLayouts.find(
+        (layout) => splitWidgetSlug(layout.i).widgetId === widget.id
+      );
+      console.log("newLayoutData check:", newLayoutData);
+      // If we found matching layout data, update the widget's meta
+      if (newLayoutData) {
+        return {
+          ...widget,
+          meta: {
+            ...widget.meta,
+            ...newLayoutData, // Updates x, y, w, h, etc.
+          },
+        };
+      }
+
+      // Otherwise return the widget unchanged
+      return widget;
+    });
+
+    // Create updated layouts array
+    const updatedLayouts = [...layouts];
+    updatedLayouts[layoutIndex] = {
+      ...currentLayout,
+      widgets: updatedWidgets,
+    };
+    console.log("updatedLayouts:", updatedLayouts);
+    // Update layouts with the updated widgets
+    set(layoutAtom, updatedLayouts);
+  }
+);
+
+// ...existing code...
+
+export const syncLayoutOnSelectAtom = atom(
+  null,
+  (
+    get,
+    set,
+    layout: {
+      id: any;
+      name: any;
+      widgets: {
+        id: any;
+        token: any;
+        meta: any;
+        layout_id: any;
+      }[];
+    }
+  ) => {
+    // Get current state
+    const currentLayouts = get(layoutAtom);
+    const tabs = get(tabsAtom);
+    const activeTab = get(activeTabAtom);
+
+    // Format the layout to match LayoutType structure
+    const formattedLayout: LayoutType = {
+      id: layout.id,
+      widgets: layout.widgets.map((widget) => ({
+        id: widget.id,
+        token: widget.token,
+        meta: widget.meta,
+      })),
+    };
+
+    // Add or update the layout in layouts array
+    const layoutExists = currentLayouts.some((l) => l.id === layout.id);
+    let updatedLayouts = [...currentLayouts];
+
+    if (layoutExists) {
+      updatedLayouts = currentLayouts.map((l) =>
+        l.id === layout.id ? formattedLayout : l
+      );
+    } else {
+      updatedLayouts = [...currentLayouts, formattedLayout];
+    }
+
+    // Update the layouts state
+    set(layoutAtom, updatedLayouts);
+
+    // Update the active tab with the new layout_id and name
+    const updatedActiveTab = {
+      ...activeTab,
+      layout_id: layout.id,
+      name: layout.name,
+      label: layout.name,
+    };
+
+    // Update both active tab and tabs array
+    set(activeTabAtom, updatedActiveTab);
+
+    // Update tab in tabs array
+    const updatedTabs = tabs.map((tab) =>
+      tab.id === activeTab.id ? updatedActiveTab : tab
+    );
+
+    set(tabsAtom, updatedTabs);
   }
 );

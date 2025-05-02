@@ -6,6 +6,7 @@ import {
   activeTabAtom,
   deleteWidgetAtom,
   LayoutType,
+  syncOnLayoutChange,
 } from "@/lib/atoms/layoutAtom";
 import { chartsMap } from "@/lib/static";
 import { WidgetDropdownMenu } from "./widget-options-menu";
@@ -24,8 +25,7 @@ export function DashboardWidgets(props: IProps) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteWidget, setDeleteWidget] = useState<LayoutType["widgets"][0]>();
   const deleteWidgetFromAtom = useSetAtom(deleteWidgetAtom);
-
-  console.log(data);
+  const syncLayoutChangeFromAtom = useSetAtom(syncOnLayoutChange);
 
   return (
     <>
@@ -38,16 +38,18 @@ export function DashboardWidgets(props: IProps) {
         rowHeight={210}
         isResizable={false}
         margin={[20, 20]}
-        onLayoutChange={(test) => {
-          console.log(test);
+        onDragStop={(newLayouts) => {
+          syncLayoutChangeFromAtom(newLayouts);
+          console.log("onLayoutChange", newLayouts);
         }}
+        onLayoutChange={(test) => {}}
       >
         {data?.widgets.map((layout, index) => {
           const { x, y, w, h } = layout.meta;
 
           return (
             <div
-              key={joinWidgetSlug(layout.id, layout.meta.i)}
+              key={layout.meta.i}
               className="bg-[#080808] border border-[#1b1b1b] rounded-2xl overflow-hidden px-6 py-3 flex flex-col gap-4"
               data-grid={{ x, y, w, h }}
             >

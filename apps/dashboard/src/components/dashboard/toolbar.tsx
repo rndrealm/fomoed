@@ -21,6 +21,7 @@ import { activeTabAtom, layoutAtom } from "@/lib/atoms/layoutAtom";
 import { toast } from "sonner";
 import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
 import Loader from "../shared/loader";
+import { LayoutDropdown } from "./layout-dropdown";
 
 interface IToolbarItem {
   onClick?: () => void;
@@ -121,7 +122,8 @@ export function Toolbar() {
           </div>
           {/* <ToolbarItem icon={<ToolbarEditLayout />} label="Edit Layout" /> */}
 
-          <ToolbarItem icon={<ToolbarLayout />} label="Layout" />
+          {/* <ToolbarItem icon={<ToolbarLayout />} label="Layout" /> */}
+          <LayoutDropdown />
           <ToolbarItem icon={<Settings />} label="Settings" />
         </div>
       </div>
