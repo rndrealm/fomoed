@@ -58,7 +58,7 @@ export function QuickWidgets(props: IProps) {
             Back
           </button>
         </div>
-        <div className="flex items-center gap-1 px-4">
+        {/* <div className="flex items-center gap-1 px-4">
           {categoriesOptions.map((item) => {
             const active = selectedTag === item.value;
             return (
@@ -79,7 +79,7 @@ export function QuickWidgets(props: IProps) {
               </button>
             );
           })}
-        </div>
+        </div> */}
         <div className="px-4 pb-4 flex-1 flex flex-col gap-[10px] h-full w-full min-h-0">
           <p className="text-[#7d7d7d] leading-[1.33] font-semibold text-xs">
             Quick Widgets

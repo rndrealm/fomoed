@@ -79,7 +79,7 @@ export default function LiquidationExchangeWidget(props: IProps) {
         className={cn("flex flex-col justify-center w-full h-full rounded-sm")}
       >
         <div className="px-3 py-4">
-          {coinData ? (
+          {coinData && filteredData?.length > 0 ? (
             <div className="flex items-center justify-between">
               <CoinDropdown
                 options={coinData || []}
@@ -98,18 +98,18 @@ export default function LiquidationExchangeWidget(props: IProps) {
                 title="Exchange Liquidation Map"
               />
               <div className="flex items-center gap-2">
-                <PeriodDropdown
-                  options={liquidTimeframeOptions}
-                  value={activePeriod}
-                  setValue={(value: string) => {
-                    setActivePeriod(value);
-                  }}
-                />
                 <PairDropdown
                   options={filteredData}
                   value={selectedPair}
                   setValue={(value) => {
                     setSelectedPair(value);
+                  }}
+                />
+                <PeriodDropdown
+                  options={liquidTimeframeOptions}
+                  value={activePeriod}
+                  setValue={(value: string) => {
+                    setActivePeriod(value);
                   }}
                 />
               </div>

@@ -56,6 +56,7 @@ export function Toolbar() {
   const layouts = useAtomValue(layoutAtom);
 
   const handleSaveLayout = async () => {
+    if (isPending) return;
     const currentLayout = layouts.find(
       (layout) => layout.id === activeTab.layout_id
     );
@@ -124,7 +125,7 @@ export function Toolbar() {
 
           {/* <ToolbarItem icon={<ToolbarLayout />} label="Layout" /> */}
           <LayoutDropdown />
-          <ToolbarItem icon={<Settings />} label="Settings" />
+          {/* <ToolbarItem icon={<Settings />} label="Settings" /> */}
         </div>
       </div>
 

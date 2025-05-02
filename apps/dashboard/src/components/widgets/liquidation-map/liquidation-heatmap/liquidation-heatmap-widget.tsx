@@ -74,7 +74,7 @@ export default function LiquidationHeatmapWidget(props: IProps) {
         className={cn("flex flex-col justify-center w-full h-full rounded-sm")}
       >
         <div className="px-3 py-4">
-          {coinData ? (
+          {coinData && filteredData?.length > 0 ? (
             <div className="flex items-center justify-between">
               <CoinDropdown
                 options={coinData || []}
@@ -91,7 +91,7 @@ export default function LiquidationHeatmapWidget(props: IProps) {
                   });
                   setSelectedPair(newPairs[0]);
                 }}
-                title="Liquidity Heatmap"
+                title="Liquidation Heatmap"
               />
               <div className="flex items-center gap-2">
                 <PairDropdown
