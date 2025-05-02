@@ -1,14 +1,20 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { SaveLayoutPayload } from "./types";
 import { getLayoutsAction, syncLayoutAction } from "./actions";
+import { toast } from "sonner";
 
 export const useSyncLayouts = () => {
+  const queryClient = useQueryClient();
   const { mutate, isPending, isError } = useMutation({
     mutationFn: async (body: SaveLayoutPayload): Promise<any> => {
       return await syncLayoutAction(body);
     },
     onSuccess: async (data) => {
       console.log("data:", data);
+      toast("Layout saved successfully.", {});
+      queryClient.invalidateQueries({
+        queryKey: ["layouts"],
+      });
     },
     onError: (error: any) => {
       console.log("error:", error.message);
