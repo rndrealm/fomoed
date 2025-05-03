@@ -4,7 +4,7 @@ import type { PublicUserDataRow } from "@/lib/types/db.types";
 
 export const authUserAtom = atom<User | null>(null);
 export const publicUserDataAtom = atom<PublicUserDataRow | null>(null);
-export const isLoadingUserAtom = atom<boolean>(false);
+export const isLoadingUserAtom = atom<boolean>(true);
 
 // Add a reset action to your atoms
 export const resetAuthState = atom(null, (get, set) => {

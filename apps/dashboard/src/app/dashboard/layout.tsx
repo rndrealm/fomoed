@@ -6,20 +6,20 @@ import { utilsAtom } from "@/lib/atoms/utilsAtom";
 import { useAtomValue } from "jotai";
 
 export default function DashboardLayout({
-  children,
+    children,
 }: Readonly<{
-  children: React.ReactNode;
+    children: React.ReactNode;
 }>) {
-  const utils = useAtomValue(utilsAtom);
+    const utils = useAtomValue(utilsAtom);
 
-  return (
-    <UserProvider>
-      <div className="absolute inset-x-0 top-0">
-        <RenderIf condition={!utils.isFullScreen}>
-          <Navbar />
-        </RenderIf>
-      </div>
-      {children}
-    </UserProvider>
-  );
+    return (
+        <>
+            <div className="absolute inset-x-0 top-0">
+                <RenderIf condition={!utils.isFullScreen}>
+                    <Navbar />
+                </RenderIf>
+            </div>
+            {children}
+        </>
+    );
 }
