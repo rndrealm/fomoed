@@ -1,12 +1,10 @@
 "use client";
 
 import React from "react";
-import BorderedProfileImage from "./BorderedProfileImage";
 import SecondaryButton from "./SecondaryButton";
 import LogoutIcon from "../icons/LogoutIcon";
 import { useRouter } from "next/navigation";
 import { useAtomValue, useSetAtom } from "jotai";
-import { supabaseClientAtom } from "@/lib/atoms/supabaseClientAtom";
 import {
   authUserAtom,
   publicUserDataAtom,
@@ -14,12 +12,12 @@ import {
   resetAuthState,
 } from "@/lib/atoms/userAtom";
 import { ProfileIcon } from "../shared";
+import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
 
 const ProfileDropdown: React.FC = () => {
   const authUser = useAtomValue(authUserAtom);
   const publicUserData = useAtomValue(publicUserDataAtom);
   const isLoading = useAtomValue(isLoadingUserAtom);
-  const supabase = useAtomValue(supabaseClientAtom);
   const router = useRouter();
   const setAuthReset = useSetAtom(resetAuthState);
 
@@ -38,9 +36,9 @@ const ProfileDropdown: React.FC = () => {
   };
 
   const handleLogout = async () => {
-    try {
       // First, perform the signOut operation
-      const { error } = await supabase.auth.signOut();
+      const supabaseClient = createSupabaseBrowserClient();
+      const { error } = await supabaseClient.auth.signOut();
 
       if (error) {
         console.error("Error signing out:", error);
@@ -52,9 +50,6 @@ const ProfileDropdown: React.FC = () => {
 
       // Navigate after successful logout
       router.push("/login");
-    } catch (error) {
-      console.error("Unexpected error during logout:", error);
-    }
   };
 
   if (isLoading) {
