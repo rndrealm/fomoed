@@ -14,13 +14,13 @@ import { cfgi_supported_tokens } from "@/constant/cfgi-data";
 
 interface ICoinDropdownProps {
   options: CoinDataInterface[];
-  value: string;
+  value?: string;
   setValue: (coin: string) => void;
   title: string;
 }
 
 const CoinDropdown = (props: ICoinDropdownProps) => {
-  const { options, value, setValue, title } = props;
+  const { options, value = "BTC", setValue, title } = props;
 
   const activeCoin = options.find((coin) => coin.symbol === value);
 

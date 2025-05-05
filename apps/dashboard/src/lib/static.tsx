@@ -17,6 +17,11 @@ import LiquidationWidget from "@/components/widgets/liquidation-map/liquidation/
 import LiquidationHeatmapWidget from "@/components/widgets/liquidation-map/liquidation-heatmap/liquidation-heatmap-widget";
 import LiquidationExchangeWidget from "@/components/widgets/liquidation-map/liquidation-exchange/liquidation-exchange-widget";
 import { LayoutType } from "./atoms/layoutAtom";
+import {
+  CFGI_SUPPORTED_PERIODS_ENUM,
+  liquidHeatMapTimeframeOptions,
+  liquidTimeframeOptions,
+} from "@/constant/cfgi-data";
 
 export const layoutClassMap = {
   SinglePane: "grid-rows-1 grid-cols-1",
@@ -155,3 +160,41 @@ export const chartsMap = {
 };
 
 export const widgetIdJoin = "@/$";
+
+export const exchangePairDefault = {
+  label: "Binance BTC/USDT",
+  value: {
+    instrumentId: "BTCUSDT",
+    baseAsset: "BTC",
+    quoteAsset: "USDT",
+    exchange: "Binance",
+    symbol: "BTCUSDT",
+  },
+};
+
+export const widgetPropsDefaults = {
+  "detailed-cfgi": {
+    token: "BTC",
+    period: CFGI_SUPPORTED_PERIODS_ENUM.DAY1 as string,
+    exchange_token: exchangePairDefault.label,
+    sentiment_tab: "both",
+  },
+  "simple-cfgi": {
+    token: "BTC",
+    period: CFGI_SUPPORTED_PERIODS_ENUM.DAY1 as string,
+  },
+  "liquidation-map": {
+    token: "BTC",
+    period: liquidTimeframeOptions[0].value,
+    exchange_token: exchangePairDefault.label,
+  },
+  "liquidation-heat-map": {
+    token: "BTC",
+    period: liquidHeatMapTimeframeOptions[0].value,
+    exchange_token: exchangePairDefault.label,
+  },
+  "exchange-liquidation-map": {
+    token: "BTC",
+    period: liquidTimeframeOptions[0].value,
+  },
+};

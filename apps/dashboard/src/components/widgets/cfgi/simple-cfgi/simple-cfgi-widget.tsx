@@ -5,14 +5,18 @@ import { useReadCfgiData, useReadCoinList } from "@/services/queries/charts";
 import CoinDropdown from "../../shared/coin-dropdown";
 import { useMemo, useState } from "react";
 import PeriodDropdown from "../../shared/period-dropdown";
-import { CfgiPeriods, TabOptions } from "@/constant/cfgi-data";
+import {
+  CFGI_SUPPORTED_PERIODS_ENUM,
+  CfgiPeriods,
+  TabOptions,
+} from "@/constant/cfgi-data";
 import { Skeleton } from "@/components/ui/skeleton";
 import ChartLegend from "../../shared/chart-legend";
 import SimpleCfgiChart from "./simple-cfgi-chart";
 import {
   activeTabAtom,
   LayoutType,
-  updateWidgetTokenAtom,
+  updateWidgetPropsAtom,
 } from "@/lib/atoms/layoutAtom";
 import { useAtomValue, useSetAtom } from "jotai";
 
@@ -29,25 +33,25 @@ interface IProps {
 
 export default function SimpleCfgiWidget(props: IProps) {
   const { widget } = props;
-  const [activePeriod, setActivePeriod] = useState<string>(
-    CfgiPeriods[0].value
-  );
+  // const [activePeriod, setActivePeriod] = useState<string>(
+  //   CfgiPeriods[0].value
+  // );
   // const [activeCoin, setActiveCoin] = useState<string>("BTC");
   const { data: coinData } = useReadCoinList();
 
   const activeCoinSlug = useMemo(() => {
-    return coinData?.find((coin) => coin.symbol === widget.token)?.slug;
-  }, [widget.token, coinData]);
+    return coinData?.find((coin) => coin.symbol === widget.props?.token)?.slug;
+  }, [widget.props?.token, coinData]);
   const { data } = useReadCfgiData(
-    widget.token,
-    activePeriod,
-    activeCoinSlug || ""
+    widget.props?.token,
+    widget.props?.period,
+    activeCoinSlug
   );
 
   const [chartViewOptions] = useState(TabOptions[1].value);
 
   const activeLayout = useAtomValue(activeTabAtom);
-  const updateWidgetTokenFromAtom = useSetAtom(updateWidgetTokenAtom);
+  const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
 
   return (
     <>
@@ -57,12 +61,12 @@ export default function SimpleCfgiWidget(props: IProps) {
             <div className="flex items-center justify-between">
               <CoinDropdown
                 options={coinData || []}
-                value={widget.token}
+                value={widget.props?.token}
                 setValue={(coin: string) => {
-                  updateWidgetTokenFromAtom({
+                  updateWidgetPropsFromAtom({
                     tabId: activeLayout.id,
                     widgetId: widget.id,
-                    token: coin,
+                    widgetProps: { ...widget.props, token: coin },
                   });
                 }}
                 title="Simplified Fear and Greed Chart"
@@ -70,9 +74,16 @@ export default function SimpleCfgiWidget(props: IProps) {
               <div className="flex items-center gap-2">
                 <PeriodDropdown
                   options={CfgiPeriods}
-                  value={activePeriod}
+                  value={
+                    widget.props?.period ||
+                    (CFGI_SUPPORTED_PERIODS_ENUM.DAY1 as string)
+                  }
                   setValue={(value: string) => {
-                    setActivePeriod(value);
+                    updateWidgetPropsFromAtom({
+                      tabId: activeLayout.id,
+                      widgetId: widget.id,
+                      widgetProps: { ...widget.props, period: value },
+                    });
                   }}
                 />
               </div>

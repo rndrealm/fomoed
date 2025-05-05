@@ -9,15 +9,18 @@ export interface LayoutType {
   widgets: {
     id: string;
     meta: ReactGridLayout.Layout;
-    token: string;
+    props: {
+      token?: string;
+      period?: string;
+      exchange_token?: string;
+      sentiment_tab?: string;
+    };
   }[];
 }
 
 interface TabType {
   id: string;
-  label: string;
   name: string;
-  editMode: boolean;
   layout_id: string;
 }
 
@@ -28,9 +31,7 @@ const initialLayout = {
 
 const initialTab = {
   id: uuidv4(),
-  label: "untitled layout",
   name: "Untitled Layout",
-  editMode: false,
   layout_id: initialLayout.id,
 };
 
@@ -153,7 +154,8 @@ export const deleteWidgetAtom = atom(
   }
 );
 
-export const updateWidgetTokenAtom = atom(
+// This function updates the props of a widget in the layout including the token, period etc
+export const updateWidgetPropsAtom = atom(
   null,
   (
     get,
@@ -161,11 +163,11 @@ export const updateWidgetTokenAtom = atom(
     {
       tabId,
       widgetId,
-      token,
+      widgetProps,
     }: {
       tabId: string;
       widgetId: string;
-      token: string;
+      widgetProps: LayoutType["widgets"][0]["props"];
     }
   ) => {
     // Get current tabs and layouts
@@ -207,7 +209,7 @@ export const updateWidgetTokenAtom = atom(
     // Create updated widget with new token
     const updatedWidget = {
       ...currentLayout.widgets[widgetIndex],
-      token,
+      props: widgetProps,
     };
 
     // Create updated widgets array
@@ -231,14 +233,14 @@ export const renameTabAtom = atom(
     // 🔸 Update the tab in tabsAtom
     const tabs = get(tabsAtom);
     const updatedTabs = tabs.map((tab) =>
-      tab.id === id ? { ...tab, name, label: name } : tab
+      tab.id === id ? { ...tab, name } : tab
     );
     set(tabsAtom, updatedTabs);
 
     // 🔸 Update activeTabAtom if it's the one being renamed
     const activeTab = get(activeTabAtom);
     if (activeTab?.id === id) {
-      set(activeTabAtom, { ...activeTab, name, label: name });
+      set(activeTabAtom, { ...activeTab, name });
     }
   }
 );
@@ -333,7 +335,9 @@ export const syncLayoutOnSelectAtom = atom(
       id: layout.id,
       widgets: layout.widgets.map((widget) => ({
         id: widget.id,
-        token: widget.token,
+        props: {
+          token: widget.token,
+        },
         meta: widget.meta,
       })),
     };

@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useRef, useState } from "react";
-import { AddTab, CloseTab, TabLayout } from "../icons/icons";
+import { AddTab, CloseTab, TabLayout } from "../../icons/icons";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
   activeTabAtom,
@@ -11,8 +11,9 @@ import {
 } from "@/lib/atoms/layoutAtom";
 import { v4 as uuidv4 } from "uuid";
 import { cn } from "@/lib/utils";
-import { ConfirmationModal } from "../modals";
-import { RenderIf } from "../shared";
+import { ConfirmationModal } from "../../modals";
+import { RenderIf } from "../../shared";
+import { useReadTabs } from "@/services/queries/widgets";
 
 interface ITabButton {
   handleClick?: () => void;
@@ -123,6 +124,7 @@ export function TabButton(props: ITabButton) {
 }
 
 export function NewTabs() {
+  const { data: tabData } = useReadTabs();
   const [tabs, setTabs] = useAtom(tabsAtom);
   const [activeTab, setActiveTab] = useAtom(activeTabAtom);
   const setLayout = useSetAtom(layoutAtom);
@@ -163,7 +165,7 @@ export function NewTabs() {
         <div className="h-[18px] w-[1px] bg-[#141414]"></div>
 
         <div className="flex items-center flex-1 gap-2 pr-2 overflow-x-auto scrollbar">
-          {tabs.map((item) => {
+          {tabData?.map((item) => {
             const isActive = activeTab.id === item.id;
             const showCloseBtn = tabs.length > 1;
 

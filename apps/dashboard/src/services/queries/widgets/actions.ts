@@ -76,7 +76,7 @@ export const getLayoutsAction = async () => {
       `
     id,
     name,
-    widgets ( id,  token, meta, layout_id )
+    widgets ( id,  token, meta, props, layout_id )
   `
     )
     .eq("user_id", user.id);
@@ -88,5 +88,102 @@ export const getLayoutsAction = async () => {
 
   return {
     layouts: data,
+  };
+};
+
+// ...existing code...
+
+export const getUserTabsAction = async () => {
+  const supabase = createSupabaseBrowserClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error("Please login to view your tabs.");
+  }
+
+  // Try to fetch existing tabs for the user
+  const { data: existingTabs, error: tabsError } = await supabase
+    .from("tabs")
+    .select(
+      `
+      id,
+      name,
+      layout_id,
+      layouts (
+        id,
+        name,
+        draft,
+        widgets (id,  meta, props, layout_id)
+      )
+    `
+    )
+    .eq("user_id", user.id);
+
+  if (tabsError) {
+    console.log("Error fetching tabs:", tabsError);
+    throw new Error(tabsError.message);
+  }
+
+  // If user has tabs, return them
+  if (existingTabs && existingTabs.length > 0) {
+    return {
+      tabs: existingTabs,
+    };
+  }
+
+  // // User has no tabs, create a default tab and layout
+  // const defaultLayout = {
+  //   name: "Default Layout",
+  //   user_id: user.id,
+  //   draft: true,
+  // };
+
+  // // Insert the default layout
+  // const { data: newLayout, error: layoutError } = await supabase
+  //   .from("layouts")
+  //   .insert(defaultLayout)
+  //   .select()
+  //   .single();
+
+  // if (layoutError) {
+  //   console.log("Error creating default layout:", layoutError);
+  //   throw new Error(layoutError.message);
+  // }
+
+  // Create a default tab linked to the new layout
+  const defaultTab = {
+    name: "Untitled Layout",
+    user_id: user.id,
+    layout_id: null,
+  };
+
+  const { data: newTab, error: newTabError } = await supabase
+    .from("tabs")
+    .insert(defaultTab)
+    .select(
+      `
+      id,
+      name,
+      layout_id,
+      layouts (
+        id,
+        name,
+        draft,
+        widgets (id, props, meta, layout_id)
+      )
+    `
+    )
+    .single();
+
+  if (newTabError) {
+    console.log("Error creating default tab:", newTabError);
+    throw new Error(newTabError.message);
+  }
+
+  return {
+    tabs: [newTab],
   };
 };

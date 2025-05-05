@@ -1,5 +1,5 @@
 import React, { Fragment } from "react";
-import AddIcon from "../icons/AddIcon";
+import AddIcon from "../../icons/AddIcon";
 
 interface IProps {
   handleAddTab: () => void;

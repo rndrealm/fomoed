@@ -8,7 +8,12 @@ export interface SaveLayoutPayload {
     id: string;
     // layout_id: string;
     user_id: string;
-    token: string;
+    props: {
+      token?: string;
+      period?: string;
+      exchange_token?: string;
+      sentiment_tab?: string;
+    };
     meta: {
       i: string;
       x: number;
