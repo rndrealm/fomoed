@@ -36,7 +36,7 @@ export function QuickWidgets(props: IProps) {
 
   return (
     <div className="flex items-center justify-center w-full h-full overflow-hidden">
-      <div className="max-w-[732px] h-full w-full bg-[#090909] rounded-2xl overflow-hidden border border-[#121212] flex flex-col gap-6">
+      <div className="max-w-[732px] h-full w-full bg-[#090909] rounded-2xl overflow-hidden border border-[#181818] flex flex-col gap-6">
         <div className="flex items-center bg-[#0b0b0b] border-b border-[#121212]">
           <div className="relative flex-1">
             <span className="absolute left-[16px] top-[50%] -translate-y-1/2">
