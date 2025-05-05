@@ -24,6 +24,7 @@ import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client
 import Loader from "../../shared/loader";
 import { LayoutDropdown } from "../layout-dropdown";
 import { useReadTabs } from "@/services/queries/tabs";
+import { Loader2 } from "lucide-react";
 
 interface IToolbarItem {
   onClick?: () => void;

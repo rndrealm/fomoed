@@ -118,11 +118,21 @@ export const loadTabsFromApiAtom = atom(
   }
 );
 
+let currentAbortController: AbortController | null = null;
 export const syncTabsWithDbAtom = atom(null, async (get) => {
+  // Abort the previous request if still pending
+  if (currentAbortController) {
+    currentAbortController.abort();
+  }
+
+  // Create a new controller for this request
+  currentAbortController = new AbortController();
+  const signal = currentAbortController.signal;
+
   const localTabs = get(tabsAtom);
 
   try {
-    await replaceUserTabsAction(localTabs);
+    await replaceUserTabsAction(localTabs, signal);
   } catch (error) {
     console.error("Failed to sync tabs with DB:", error);
   }
