@@ -1,10 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { SaveLayoutPayload } from "./types";
-import {
-  getLayoutsAction,
-  getUserTabsAction,
-  syncLayoutAction,
-} from "./actions";
+import { getLayoutsAction, syncLayoutAction } from "./actions";
 import { toast } from "sonner";
 
 export const useSyncLayouts = () => {
@@ -38,23 +34,6 @@ export const useReadLayouts = () => {
     queryFn: async () => {
       const response = await getLayoutsAction();
       return response.layouts;
-    },
-  });
-  return {
-    data,
-    isPending,
-    isSuccess,
-    error,
-  };
-};
-
-export const useReadTabs = () => {
-  const hash = ["tabs"];
-  const { data, isPending, error, isSuccess } = useQuery({
-    queryKey: hash,
-    queryFn: async () => {
-      const response = await getUserTabsAction();
-      return response.tabs;
     },
   });
   return {

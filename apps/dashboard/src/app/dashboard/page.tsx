@@ -1,5 +1,5 @@
 import Home from "@/components/dashboard/home";
-import { getUserTabsAction } from "@/services/queries/widgets/actions";
+import { getUserTabsAction } from "@/services/queries/tabs/actions";
 import {
   dehydrate,
   HydrationBoundary,

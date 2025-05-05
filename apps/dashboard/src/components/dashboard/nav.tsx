@@ -1,6 +1,6 @@
 import React, { Fragment, useState } from "react";
 import { AddTab } from "./tabs/add-tab";
-import { Tabs } from "./tabs/tabs";
+
 import { NewWidgetBtn } from "./new-widget-btn";
 import { ModalContainer } from "../shared";
 import { AddTabModal } from "./add-tab-modal";
@@ -20,7 +20,7 @@ export function Nav() {
               setIsModalOpen(true);
             }}
           />
-          <Tabs />
+          {/* <Tabs /> */}
         </div>
         <div className="flex items-center gap-2">
           <NewWidgetBtn />

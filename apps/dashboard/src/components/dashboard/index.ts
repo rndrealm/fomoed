@@ -14,7 +14,6 @@ export { NewWidgetBtn } from "./new-widget-btn";
 export { QuickWidgets } from "./quick-widgets";
 export { SaveChangesBtn } from "./save-changes-btn";
 export { SelectLayoutBtn } from "./select-layout-btn";
-export { Tabs } from "./tabs/tabs";
 export { Toolbar } from "./tabs/toolbar";
 export { WidgetContainer } from "./widget-container";
 export { WidgetPlaceholder } from "./widget-placeholder";
