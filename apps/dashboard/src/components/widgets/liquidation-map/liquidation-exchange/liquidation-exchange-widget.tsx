@@ -15,11 +15,8 @@ import { ExchangePairOption } from "@/charts/types";
 import PairDropdown from "../../shared/pair-dropdown";
 import LiquidationChart from "../liquidation/liquidation-chart";
 import { cn } from "@/lib/utils";
-import {
-  activeTabAtom,
-  LayoutType,
-  updateWidgetPropsAtom,
-} from "@/lib/atoms/layoutAtom";
+import { LayoutType, updateWidgetPropsAtom } from "@/lib/atoms/layoutAtom";
+import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 import { useAtomValue, useSetAtom } from "jotai";
 import { exchangePairDefault } from "@/lib/static";
 

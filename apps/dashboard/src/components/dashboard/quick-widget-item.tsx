@@ -1,5 +1,6 @@
 import { getGridPosition } from "@/charts/helpers";
-import { activeTabAtom, layoutAtom } from "@/lib/atoms/layoutAtom";
+import { layoutAtom } from "@/lib/atoms/layoutAtom";
+import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 import {
   LayoutOptionType,
   widgetIdJoin,

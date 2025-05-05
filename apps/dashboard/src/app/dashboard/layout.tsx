@@ -1,25 +1,24 @@
 // import Navbar from "@/components/ui/navbar";
 "use client";
-import { UserProvider } from "@/components/providers/UserProvider";
 import { Navbar, RenderIf } from "@/components/shared";
 import { utilsAtom } from "@/lib/atoms/utilsAtom";
 import { useAtomValue } from "jotai";
 
 export default function DashboardLayout({
-    children,
+  children,
 }: Readonly<{
-    children: React.ReactNode;
+  children: React.ReactNode;
 }>) {
-    const utils = useAtomValue(utilsAtom);
+  const utils = useAtomValue(utilsAtom);
 
-    return (
-        <>
-            <div className="absolute inset-x-0 top-0">
-                <RenderIf condition={!utils.isFullScreen}>
-                    <Navbar />
-                </RenderIf>
-            </div>
-            {children}
-        </>
-    );
+  return (
+    <>
+      <div className="absolute inset-x-0 top-0">
+        <RenderIf condition={!utils.isFullScreen}>
+          <Navbar />
+        </RenderIf>
+      </div>
+      {children}
+    </>
+  );
 }

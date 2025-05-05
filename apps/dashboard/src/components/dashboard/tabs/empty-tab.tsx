@@ -1,5 +1,5 @@
 import React from "react";
-import { activeTabAtom, syncActiveTabAtom } from "@/lib/atoms/layoutAtom";
+import { activeTabAtom, syncActiveTabAtom } from "@/lib/atoms/tabsAtom";
 import { useAtomValue, useSetAtom } from "jotai";
 
 export function EmptyTab() {

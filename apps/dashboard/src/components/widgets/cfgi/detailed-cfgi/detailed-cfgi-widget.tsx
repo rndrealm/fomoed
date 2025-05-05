@@ -15,11 +15,8 @@ import DetailedCfgiChart from "@/components/widgets/cfgi/detailed-cfgi/detailed-
 import ChartTab from "../../shared/chart-tab";
 import { cn } from "@/lib/utils";
 import { useAtomValue, useSetAtom } from "jotai";
-import {
-  activeTabAtom,
-  LayoutType,
-  updateWidgetPropsAtom,
-} from "@/lib/atoms/layoutAtom";
+import { LayoutType, updateWidgetPropsAtom } from "@/lib/atoms/layoutAtom";
+import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 
 const colorToCfgi = [
   {

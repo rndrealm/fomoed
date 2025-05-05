@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import {
   AddWidget,
   Saved,
@@ -16,12 +16,14 @@ import { NewTabs } from "./new-tab";
 import { ModalContainer } from "../../shared";
 import { QuickWidgets } from "../quick-widgets";
 import { useSyncLayouts } from "@/services/queries/widgets";
-import { useAtomValue } from "jotai";
-import { activeTabAtom, layoutAtom } from "@/lib/atoms/layoutAtom";
+import { useAtomValue, useSetAtom } from "jotai";
+import { layoutAtom } from "@/lib/atoms/layoutAtom";
+import { activeTabAtom, loadTabsFromApiAtom } from "@/lib/atoms/tabsAtom";
 import { toast } from "sonner";
 import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
 import Loader from "../../shared/loader";
 import { LayoutDropdown } from "../layout-dropdown";
+import { useReadTabs } from "@/services/queries/tabs";
 
 interface IToolbarItem {
   onClick?: () => void;
@@ -93,6 +95,16 @@ export function Toolbar() {
       widgetData: formatWidgets,
     });
   };
+
+  const loadTabsFromApi = useSetAtom(loadTabsFromApiAtom);
+
+  const { data, isSuccess } = useReadTabs();
+
+  useEffect(() => {
+    if (isSuccess && data?.length) {
+      loadTabsFromApi(data);
+    }
+  }, [isSuccess]);
 
   return (
     <Fragment>

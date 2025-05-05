@@ -1,7 +1,8 @@
 import React, { Fragment, useState } from "react";
 import { useAtomValue } from "jotai";
 import { Responsive, WidthProvider } from "react-grid-layout";
-import { activeTabAtom, widgetsAtom } from "@/lib/atoms/layoutAtom";
+import { widgetsAtom } from "@/lib/atoms/layoutAtom";
+import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 import { cn } from "@/lib/utils";
 import { WidgetPlaceholder } from "./widget-placeholder";
 import { EmptyTab } from "./tabs/empty-tab";
