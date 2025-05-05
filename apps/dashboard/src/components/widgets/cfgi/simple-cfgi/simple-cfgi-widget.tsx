@@ -13,11 +13,8 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import ChartLegend from "../../shared/chart-legend";
 import SimpleCfgiChart from "./simple-cfgi-chart";
-import {
-  activeTabAtom,
-  LayoutType,
-  updateWidgetPropsAtom,
-} from "@/lib/atoms/layoutAtom";
+import { LayoutType, updateWidgetPropsAtom } from "@/lib/atoms/layoutAtom";
+import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 import { useAtomValue, useSetAtom } from "jotai";
 
 const colorToCfgi = [

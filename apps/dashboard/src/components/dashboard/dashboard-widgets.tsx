@@ -3,11 +3,11 @@ import { Responsive, WidthProvider } from "react-grid-layout";
 import { Drag } from "../icons/icons";
 import { useAtomValue, useSetAtom } from "jotai";
 import {
-  activeTabAtom,
   deleteWidgetAtom,
   LayoutType,
   syncOnLayoutChange,
 } from "@/lib/atoms/layoutAtom";
+import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 import { chartsMap } from "@/lib/static";
 import { WidgetDropdownMenu } from "./widget-options-menu";
 import { ConfirmationModal } from "../modals";

@@ -1,14 +1,13 @@
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import { AddTab, CloseTab, TabLayout } from "../../icons/icons";
-import { useAtom, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
   activeTabAtom,
+  addNewTabAtom,
   deleteTabAtom,
-  layoutAtom,
   renameTabAtom,
   tabsAtom,
-} from "@/lib/atoms/layoutAtom";
-import { v4 as uuidv4 } from "uuid";
+} from "@/lib/atoms/tabsAtom";
 import { cn } from "@/lib/utils";
 import { ConfirmationModal } from "../../modals";
 import { RenderIf } from "../../shared";
@@ -122,11 +121,11 @@ export function TabButton(props: ITabButton) {
 }
 
 export function NewTabs() {
-  const [tabs, setTabs] = useAtom(tabsAtom);
+  const tabs = useAtomValue(tabsAtom);
   const [activeTab, setActiveTab] = useAtom(activeTabAtom);
-  const setLayout = useSetAtom(layoutAtom);
   const deleteTabFromAtom = useSetAtom(deleteTabAtom);
   const renameTab = useSetAtom(renameTabAtom);
+  const addNewTab = useSetAtom(addNewTabAtom);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteTab, setDeleteTab] = useState<typeof activeTab>();
@@ -137,23 +136,7 @@ export function NewTabs() {
           type="button"
           className="h-[32px] w-[32px] flex items-center justify-center rounded-md border border-[#121212]"
           onClick={() => {
-            const newLayout = {
-              id: uuidv4(),
-              widgets: [],
-            };
-            const currentTab = {
-              id: uuidv4(),
-              label: "untitled layout",
-              name: "Untitled Layout",
-              editMode: false,
-              layout_id: newLayout.id,
-            };
-            setTabs((prev) => {
-              return [...prev, currentTab];
-            });
-            setActiveTab(currentTab);
-
-            setLayout((prev) => [...prev, newLayout]);
+            addNewTab();
           }}
         >
           <AddTab />

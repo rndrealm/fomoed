@@ -6,7 +6,8 @@ import dashboard from "@/lib/assets/dashboard";
 import CaretDown from "../icons/CaretDown";
 import { cn } from "@/lib/utils";
 import { useAtomValue, useSetAtom } from "jotai";
-import { activeTabAtom, widgetsAtom } from "@/lib/atoms/layoutAtom";
+import { widgetsAtom } from "@/lib/atoms/layoutAtom";
+import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 
 const widgets = [
   { id: "cfgi-chart", name: "CFGI Chart" },

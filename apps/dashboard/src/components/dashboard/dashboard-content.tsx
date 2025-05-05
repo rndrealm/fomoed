@@ -4,7 +4,8 @@ import { QuickWidgets } from "./quick-widgets";
 import { RenderIf } from "../shared";
 import { DashboardWidgets } from "./dashboard-widgets";
 import { useAtomValue } from "jotai";
-import { activeTabAtom, layoutAtom, tabsAtom } from "@/lib/atoms/layoutAtom";
+import { layoutAtom } from "@/lib/atoms/layoutAtom";
+import { activeTabAtom, tabsAtom } from "@/lib/atoms/tabsAtom";
 import { cn } from "@/lib/utils";
 
 function Empty() {

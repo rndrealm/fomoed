@@ -3,6 +3,7 @@ import { layoutOptions } from "../static";
 import { getGridPosition } from "@/charts/helpers";
 import { v4 as uuidv4 } from "uuid";
 import { splitWidgetSlug } from "../utils";
+import { activeTabAtom, tabsAtom } from "./tabsAtom";
 
 export interface LayoutType {
   id: string;
@@ -44,24 +45,24 @@ export const layoutAtom = atom<LayoutType[]>([initialLayout]);
 //   "simple-cfgi",
 // ]);
 
-export const tabsAtom = atom<TabType[]>([initialTab]);
+// export const tabsAtom = atom<TabType[]>([initialTab]);
 
-export const activeTabAtom = atom<TabType>(initialTab);
+// export const activeTabAtom = atom<TabType>(initialTab);
 
-export const syncActiveTabAtom = atom(
-  null,
-  (get, set, newActiveTab: TabType) => {
-    // Set active tab state
-    set(activeTabAtom, newActiveTab);
+// export const syncActiveTabAtom = atom(
+//   null,
+//   (get, set, newActiveTab: TabType) => {
+//     // Set active tab state
+//     set(activeTabAtom, newActiveTab);
 
-    // Update tab inside the array
-    const tabs = get(tabsAtom);
-    const updatedTabs = tabs.map((tab) =>
-      tab.id === newActiveTab.id ? { ...tab, ...newActiveTab } : tab
-    );
-    set(tabsAtom, updatedTabs);
-  }
-);
+//     // Update tab inside the array
+//     const tabs = get(tabsAtom);
+//     const updatedTabs = tabs.map((tab) =>
+//       tab.id === newActiveTab.id ? { ...tab, ...newActiveTab } : tab
+//     );
+//     set(tabsAtom, updatedTabs);
+//   }
+// );
 
 type WidgetsData = {
   [key: string]: {
@@ -72,28 +73,28 @@ type WidgetsData = {
 
 export const widgetsAtom = atom<WidgetsData>({});
 
-export const deleteTabAtom = atom(null, (get, set, idToDelete: string) => {
-  // 🔸 Remove layout
-  const layouts = get(layoutAtom);
-  const updatedLayouts = layouts.filter(
-    (layout) => layout.id !== idToDelete.toString()
-  );
-  set(layoutAtom, updatedLayouts);
+// export const deleteTabAtom = atom(null, (get, set, idToDelete: string) => {
+//   // 🔸 Remove layout
+//   const layouts = get(layoutAtom);
+//   const updatedLayouts = layouts.filter(
+//     (layout) => layout.id !== idToDelete.toString()
+//   );
+//   set(layoutAtom, updatedLayouts);
 
-  // 🔸 Update tabs
-  const tabs = get(tabsAtom);
-  const updatedTabs = tabs.filter((tab) => tab.id !== idToDelete);
-  set(tabsAtom, updatedTabs);
+//   // 🔸 Update tabs
+//   const tabs = get(tabsAtom);
+//   const updatedTabs = tabs.filter((tab) => tab.id !== idToDelete);
+//   set(tabsAtom, updatedTabs);
 
-  // 🔸 Update activeTab if needed
-  const activeTab = get(activeTabAtom);
-  if (activeTab?.id === idToDelete) {
-    const newActive = updatedTabs[updatedTabs.length - 1] ?? null;
-    if (newActive) {
-      set(activeTabAtom, newActive);
-    }
-  }
-});
+//   // 🔸 Update activeTab if needed
+//   const activeTab = get(activeTabAtom);
+//   if (activeTab?.id === idToDelete) {
+//     const newActive = updatedTabs[updatedTabs.length - 1] ?? null;
+//     if (newActive) {
+//       set(activeTabAtom, newActive);
+//     }
+//   }
+// });
 
 export const deleteWidgetAtom = atom(
   null,
@@ -227,23 +228,23 @@ export const updateWidgetPropsAtom = atom(
     set(layoutAtom, updatedLayouts);
   }
 );
-export const renameTabAtom = atom(
-  null,
-  (get, set, { id, name }: { id: string; name: string }) => {
-    // 🔸 Update the tab in tabsAtom
-    const tabs = get(tabsAtom);
-    const updatedTabs = tabs.map((tab) =>
-      tab.id === id ? { ...tab, name } : tab
-    );
-    set(tabsAtom, updatedTabs);
+// export const renameTabAtom = atom(
+//   null,
+//   (get, set, { id, name }: { id: string; name: string }) => {
+//     // 🔸 Update the tab in tabsAtom
+//     const tabs = get(tabsAtom);
+//     const updatedTabs = tabs.map((tab) =>
+//       tab.id === id ? { ...tab, name } : tab
+//     );
+//     set(tabsAtom, updatedTabs);
 
-    // 🔸 Update activeTabAtom if it's the one being renamed
-    const activeTab = get(activeTabAtom);
-    if (activeTab?.id === id) {
-      set(activeTabAtom, { ...activeTab, name });
-    }
-  }
-);
+//     // 🔸 Update activeTabAtom if it's the one being renamed
+//     const activeTab = get(activeTabAtom);
+//     if (activeTab?.id === id) {
+//       set(activeTabAtom, { ...activeTab, name });
+//     }
+//   }
+// );
 
 export const syncOnLayoutChange = atom(
   null,
