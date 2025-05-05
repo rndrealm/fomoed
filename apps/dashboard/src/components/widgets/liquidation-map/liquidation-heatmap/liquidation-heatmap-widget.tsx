@@ -18,9 +18,10 @@ import { cn } from "@/lib/utils";
 import {
   activeTabAtom,
   LayoutType,
-  updateWidgetTokenAtom,
+  updateWidgetPropsAtom,
 } from "@/lib/atoms/layoutAtom";
 import { useAtomValue, useSetAtom } from "jotai";
+import { exchangePairDefault } from "@/lib/static";
 
 const colorToCfgi = [
   {
@@ -37,36 +38,44 @@ interface IProps {
 }
 export default function LiquidationHeatmapWidget(props: IProps) {
   const { widget } = props;
-  const [activePeriod, setActivePeriod] = useState<string>(
-    liquidHeatMapTimeframeOptions[0].value
-  );
+  // const [activePeriod, setActivePeriod] = useState<string>(
+  //   liquidHeatMapTimeframeOptions[0].value
+  // );
   // const [activeCoin, setActiveCoin] = useState<string>("BTC");
   const { data: coinData } = useReadCoinList();
 
   const { data: pairsData } = useGetSupportedxchangePairs();
 
-  const [selectedPair, setSelectedPair] = useState<ExchangePairOption>(
-    pairsData?.[0]
-  );
+  // const [selectedPair, setSelectedPair] = useState<ExchangePairOption>(
+  //   pairsData?.[0]
+  // );
+
+  const selectedPair = useMemo(() => {
+    return pairsData.find((pr) => pr.label === widget.props?.exchange_token);
+  }, [pairsData, widget.props?.exchange_token]);
 
   useEffect(() => {
-    if (!pairsData || selectedPair) return;
-    setSelectedPair(pairsData[0]);
+    if (!pairsData?.length || selectedPair) return;
+    updateWidgetPropsFromAtom({
+      tabId: activeLayout.id,
+      widgetId: widget.id,
+      widgetProps: { ...widget.props, exchange_token: pairsData[0].label },
+    });
   }, [pairsData, selectedPair]);
 
   const filteredData = useMemo(() => {
     if (!pairsData) return [];
-    return pairsData.filter((i) => i.value.baseAsset === widget.token);
-  }, [pairsData, widget.token]);
+    return pairsData.filter((i) => i.value.baseAsset === widget.props?.token);
+  }, [pairsData, widget.props?.token]);
 
   const { data: liquidationData } = useFetchLiquidHeatMapData(
-    activePeriod,
+    widget.props?.period,
     selectedPair?.value.exchange,
     selectedPair?.value.symbol
   );
 
   const activeLayout = useAtomValue(activeTabAtom);
-  const updateWidgetTokenFromAtom = useSetAtom(updateWidgetTokenAtom);
+  const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
 
   return (
     <>
@@ -78,34 +87,51 @@ export default function LiquidationHeatmapWidget(props: IProps) {
             <div className="flex items-center justify-between">
               <CoinDropdown
                 options={coinData || []}
-                value={widget.token}
+                value={widget.props?.token}
                 setValue={(coin: string) => {
                   // setActiveCoin(coin);
                   const newPairs = pairsData.filter(
                     (i) => i.value.baseAsset === coin
                   );
-                  updateWidgetTokenFromAtom({
+                  updateWidgetPropsFromAtom({
                     tabId: activeLayout.id,
                     widgetId: widget.id,
-                    token: coin,
+                    widgetProps: {
+                      ...widget.props,
+                      token: coin,
+                      exchange_token: newPairs[0].label,
+                    },
                   });
-                  setSelectedPair(newPairs[0]);
                 }}
                 title="Liquidation Heatmap"
               />
               <div className="flex items-center gap-2">
                 <PairDropdown
                   options={filteredData}
-                  value={selectedPair}
+                  value={selectedPair || exchangePairDefault}
                   setValue={(value) => {
-                    setSelectedPair(value);
+                    updateWidgetPropsFromAtom({
+                      tabId: activeLayout.id,
+                      widgetId: widget.id,
+                      widgetProps: {
+                        ...widget.props,
+                        exchange_token: value.label,
+                      },
+                    });
                   }}
                 />
                 <PeriodDropdown
                   options={liquidHeatMapTimeframeOptions}
-                  value={activePeriod}
+                  value={
+                    widget.props?.period ||
+                    liquidHeatMapTimeframeOptions[0].value
+                  }
                   setValue={(value: string) => {
-                    setActivePeriod(value);
+                    updateWidgetPropsFromAtom({
+                      tabId: activeLayout.id,
+                      widgetId: widget.id,
+                      widgetProps: { ...widget.props, period: value },
+                    });
                   }}
                 />
               </div>

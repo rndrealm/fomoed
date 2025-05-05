@@ -12,7 +12,7 @@ export function EditLayoutBtn() {
     <button
       type="button"
       onClick={() => {
-        setSyncedActiveTab({ ...activeTab, editMode: true });
+        setSyncedActiveTab({ ...activeTab });
       }}
     >
       <NavActionButton label="Edit Layout" leftIcon={<EditIcon />} />

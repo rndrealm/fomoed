@@ -76,7 +76,7 @@ export const getLayoutsAction = async () => {
       `
     id,
     name,
-    widgets ( id,  token, meta, layout_id )
+    widgets ( id,  token, meta, props, layout_id )
   `
     )
     .eq("user_id", user.id);

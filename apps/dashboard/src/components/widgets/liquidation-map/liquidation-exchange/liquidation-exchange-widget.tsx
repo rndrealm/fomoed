@@ -18,9 +18,10 @@ import { cn } from "@/lib/utils";
 import {
   activeTabAtom,
   LayoutType,
-  updateWidgetTokenAtom,
+  updateWidgetPropsAtom,
 } from "@/lib/atoms/layoutAtom";
 import { useAtomValue, useSetAtom } from "jotai";
+import { exchangePairDefault } from "@/lib/static";
 
 const colorToCfgi = [
   {
@@ -43,35 +44,25 @@ interface IProps {
 
 export default function LiquidationExchangeWidget(props: IProps) {
   const { widget } = props;
-  const [activePeriod, setActivePeriod] = useState<string>(
-    liquidTimeframeOptions[0].value
-  );
+  // const [activePeriod, setActivePeriod] = useState<string>(
+  //   liquidTimeframeOptions[0].value
+  // );
   // const [activeCoin, setActiveCoin] = useState<string>("BTC");
   const { data: coinData } = useReadCoinList();
 
   const { data: pairsData } = useGetSupportedxchangePairs();
 
-  const [selectedPair, setSelectedPair] = useState<ExchangePairOption>(
-    pairsData?.[0]
-  );
-
-  useEffect(() => {
-    if (!pairsData || selectedPair) return;
-    setSelectedPair(pairsData[0]);
-  }, [pairsData, selectedPair]);
-
-  const filteredData = useMemo(() => {
-    if (!pairsData) return [];
-    return pairsData.filter((i) => i.value.baseAsset === widget.token);
-  }, [pairsData, widget.token]);
+  // const [selectedPair, setSelectedPair] = useState<ExchangePairOption>(
+  //   pairsData?.[0]
+  // );
 
   const { data: liquidationData } = useFetchLiquidDataMerged(
-    activePeriod,
-    selectedPair?.value.baseAsset
+    widget.props?.period,
+    widget.props?.token
   );
 
   const activeLayout = useAtomValue(activeTabAtom);
-  const updateWidgetTokenFromAtom = useSetAtom(updateWidgetTokenAtom);
+  const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
 
   return (
     <>
@@ -79,37 +70,40 @@ export default function LiquidationExchangeWidget(props: IProps) {
         className={cn("flex flex-col justify-center w-full h-full rounded-sm")}
       >
         <div className="px-3 py-4">
-          {coinData && filteredData?.length > 0 ? (
+          {coinData ? (
             <div className="flex items-center justify-between">
               <CoinDropdown
                 options={coinData || []}
-                value={widget.token}
+                value={widget.props?.token}
                 setValue={(coin: string) => {
                   const newPairs = pairsData.filter(
                     (i) => i.value.baseAsset === coin
                   );
-                  setSelectedPair(newPairs[0]);
-                  updateWidgetTokenFromAtom({
+                  // setSelectedPair(newPairs[0]);
+                  updateWidgetPropsFromAtom({
                     tabId: activeLayout.id,
                     widgetId: widget.id,
-                    token: coin,
+                    widgetProps: {
+                      ...widget.props,
+                      token: coin,
+                      exchange_token: newPairs[0].label,
+                    },
                   });
                 }}
                 title="Exchange Liquidation Map"
               />
               <div className="flex items-center gap-2">
-                <PairDropdown
-                  options={filteredData}
-                  value={selectedPair}
-                  setValue={(value) => {
-                    setSelectedPair(value);
-                  }}
-                />
                 <PeriodDropdown
                   options={liquidTimeframeOptions}
-                  value={activePeriod}
+                  value={
+                    widget.props?.period || liquidTimeframeOptions[0].value
+                  }
                   setValue={(value: string) => {
-                    setActivePeriod(value);
+                    updateWidgetPropsFromAtom({
+                      tabId: activeLayout.id,
+                      widgetId: widget.id,
+                      widgetProps: { ...widget.props, period: value },
+                    });
                   }}
                 />
               </div>

@@ -1,18 +1,17 @@
 import React, { Fragment, useEffect, useRef, useState } from "react";
-import { AddTab, CloseTab, TabLayout } from "../icons/icons";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { AddTab, CloseTab, TabLayout } from "../../icons/icons";
+import { useAtom, useSetAtom } from "jotai";
 import {
   activeTabAtom,
   deleteTabAtom,
   layoutAtom,
   renameTabAtom,
-  syncActiveTabAtom,
   tabsAtom,
 } from "@/lib/atoms/layoutAtom";
 import { v4 as uuidv4 } from "uuid";
 import { cn } from "@/lib/utils";
-import { ConfirmationModal } from "../modals";
-import { RenderIf } from "../shared";
+import { ConfirmationModal } from "../../modals";
+import { RenderIf } from "../../shared";
 
 interface ITabButton {
   handleClick?: () => void;
@@ -163,7 +162,7 @@ export function NewTabs() {
         <div className="h-[18px] w-[1px] bg-[#141414]"></div>
 
         <div className="flex items-center flex-1 gap-2 pr-2 overflow-x-auto scrollbar">
-          {tabs.map((item) => {
+          {tabs?.map((item) => {
             const isActive = activeTab.id === item.id;
             const showCloseBtn = tabs.length > 1;
 

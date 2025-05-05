@@ -13,7 +13,7 @@ export function SaveChangesBtn() {
       <button
         type="button"
         onClick={() => {
-          setSyncedActiveTab({ ...activeTab, editMode: false });
+          setSyncedActiveTab({ ...activeTab });
         }}
       >
         <NavActionButton label="Save Changes" leftIcon={<SaveIcon />} />

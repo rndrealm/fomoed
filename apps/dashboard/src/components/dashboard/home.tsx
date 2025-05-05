@@ -11,7 +11,7 @@ import { useAtom } from "jotai";
 import { utilsAtom } from "@/lib/atoms/utilsAtom";
 import { cn } from "@/lib/utils";
 
-export default function Page() {
+export default function Home() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [utils, setUtils] = useAtom(utilsAtom);
 

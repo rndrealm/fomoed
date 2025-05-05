@@ -1,6 +1,10 @@
 import { getGridPosition } from "@/charts/helpers";
 import { activeTabAtom, layoutAtom } from "@/lib/atoms/layoutAtom";
-import { LayoutOptionType, widgetIdJoin } from "@/lib/static";
+import {
+  LayoutOptionType,
+  widgetIdJoin,
+  widgetPropsDefaults,
+} from "@/lib/static";
 import { joinWidgetSlug } from "@/lib/utils";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import Image from "next/image";
@@ -28,7 +32,10 @@ export function QuickWidgetItem(props: IProps) {
         const newId = uuidv4();
         const newLayout = {
           id: newId,
-          token: "BTC",
+          props:
+            widgetPropsDefaults[
+              widget.slug as keyof typeof widgetPropsDefaults
+            ],
           meta: {
             i: joinWidgetSlug(newId, widget.slug),
             x,

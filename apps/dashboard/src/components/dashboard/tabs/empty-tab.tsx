@@ -7,11 +7,11 @@ export function EmptyTab() {
   const activeTab = useAtomValue(activeTabAtom);
 
   return (
-    <div className="flex flex-col items-center justify-center gap-5  w-full h-full ">
+    <div className="flex flex-col items-center justify-center w-full h-full gap-5 ">
       <div className="max-w-[256px] flex flex-col items-center justify-center gap-5">
         <div className="flex flex-col items-center gap-2">
           <p
-            // className="text-center text-white text-base"
+            // className="text-base text-center text-white"
             className="font-normal text-base leading-[1.43] text-center text-white"
           >
             Wow, it’s so empty here...
@@ -26,7 +26,7 @@ export function EmptyTab() {
             className="font-medium text-xs leading-[1.5] text-white bg-[#3F4143] w-[151px] h-[32px] rounded-sm"
             type="button"
             onClick={() => {
-              setSyncedActiveTab({ ...activeTab, editMode: true });
+              setSyncedActiveTab({ ...activeTab });
             }}
           >
             Enter edit mode

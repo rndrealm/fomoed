@@ -5,23 +5,23 @@ import {
   Settings,
   ToolbarLayout,
   Unsaved,
-} from "../icons/icons";
+} from "../../icons/icons";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "../ui/tooltip";
+} from "../../ui/tooltip";
 import { NewTabs } from "./new-tab";
-import { ModalContainer } from "../shared";
-import { QuickWidgets } from "./quick-widgets";
+import { ModalContainer } from "../../shared";
+import { QuickWidgets } from "../quick-widgets";
 import { useSyncLayouts } from "@/services/queries/widgets";
 import { useAtomValue } from "jotai";
 import { activeTabAtom, layoutAtom } from "@/lib/atoms/layoutAtom";
 import { toast } from "sonner";
 import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
-import Loader from "../shared/loader";
-import { LayoutDropdown } from "./layout-dropdown";
+import Loader from "../../shared/loader";
+import { LayoutDropdown } from "../layout-dropdown";
 
 interface IToolbarItem {
   onClick?: () => void;
