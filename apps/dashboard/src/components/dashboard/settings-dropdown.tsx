@@ -15,10 +15,49 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { useAtomValue, useSetAtom } from "jotai";
+import { settingAtom, updateSettingAtom } from "@/lib/atoms/settingsAtom";
+
+interface IAutoSave {
+  autosave: boolean;
+}
+function AutoSaveToggle(props: IAutoSave) {
+  const { autosave } = props;
+
+  return (
+    <div className="flex items-center justify-between w-full">
+      <p className="flex-1">Autosave layouts</p>
+
+      <div
+        className={cn(
+          "flex items-center justify-center gap-1 p-[3px] rounded-lg border border-[#232323]",
+          autosave ? "bg-[#FF3B10] flex-row-reverse" : "bg-[#141414]"
+        )}
+      >
+        <div
+          className={cn(
+            "w-[16px] h-[16px] rounded-sm",
+            autosave ? "bg-white" : "bg-[#373737]"
+          )}
+        ></div>
+        <p
+          className={cn(
+            "text-[8px] font-medium w-[16px] text-right",
+            autosave ? "text-white" : "text-[#9B9B9B]"
+          )}
+        >
+          {autosave ? "ON" : "OFF"}
+        </p>
+      </div>
+    </div>
+  );
+}
 
 export function SettingsDropdown() {
   const [autosave, setAutosave] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const settings = useAtomValue(settingAtom);
+  const updateSettings = useSetAtom(updateSettingAtom);
 
   return (
     <TooltipProvider>
@@ -72,34 +111,10 @@ export function SettingsDropdown() {
               // }}
               onSelect={(e) => {
                 e.preventDefault();
-                setAutosave(!autosave);
+                updateSettings({ ...settings, auto_save: !settings.auto_save });
               }}
             >
-              <div className="flex items-center justify-between w-full">
-                <p className="flex-1">Autosave layouts</p>
-
-                <div
-                  className={cn(
-                    "flex items-center justify-center gap-1 p-[3px] rounded-lg border border-[#232323]",
-                    autosave ? "bg-[#FF3B10] flex-row-reverse" : "bg-[#141414]"
-                  )}
-                >
-                  <div
-                    className={cn(
-                      "w-[16px] h-[16px] rounded-sm",
-                      autosave ? "bg-white" : "bg-[#373737]"
-                    )}
-                  ></div>
-                  <p
-                    className={cn(
-                      "text-[8px] font-medium w-[16px] text-right",
-                      autosave ? "text-white" : "text-[#9B9B9B]"
-                    )}
-                  >
-                    {autosave ? "ON" : "OFF"}
-                  </p>
-                </div>
-              </div>
+              <AutoSaveToggle autosave={settings.auto_save} />
             </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>
