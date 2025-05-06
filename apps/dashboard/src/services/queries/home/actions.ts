@@ -33,7 +33,13 @@ export const getDashboardData = async () => {
   //   Try to fetch existing user settings
   const { data: settingsData, error: settingsError } = await supabase
     .from("dashboard_settings")
-    .select()
+    .select(
+      `
+        id,
+        user_id,
+        auto_save
+      `
+    )
     .eq("user_id", user.id);
 
   if (settingsError) {
