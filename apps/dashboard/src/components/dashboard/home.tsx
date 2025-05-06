@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { IDashboardData } from "@/services/queries/home/types";
 import { loadTabsFromApiAtom } from "@/lib/atoms/tabsAtom";
 import { loadLayoutsFromApiAtom } from "@/lib/atoms/layoutAtom";
+import { loadSettingsFromApiAtom } from "@/lib/atoms/settingsAtom";
 
 interface IProps {
   dashboardData: IDashboardData;
@@ -18,10 +19,12 @@ interface IProps {
 export default function Home({ dashboardData }: IProps) {
   const loadTabsFromApi = useSetAtom(loadTabsFromApiAtom);
   const loadLayoutsFromApi = useSetAtom(loadLayoutsFromApiAtom);
+  const loadSettingsFromApi = useSetAtom(loadSettingsFromApiAtom);
 
   useEffect(() => {
     loadTabsFromApi(dashboardData.tabs);
     loadLayoutsFromApi(dashboardData.layouts);
+    loadSettingsFromApi(dashboardData.settings);
   }, []);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [utils, setUtils] = useAtom(utilsAtom);

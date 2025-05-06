@@ -135,6 +135,6 @@ export const syncTabsWithDbAtom = atom(null, async (get) => {
   try {
     await replaceUserTabsAction(localTabs, signal);
   } catch (error) {
-    console.error("Failed to sync tabs with DB:", error);
+    console.log("Failed to sync tabs with DB:", error);
   }
 });
