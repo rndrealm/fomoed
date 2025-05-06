@@ -11,7 +11,7 @@ export function FullscreenBtn(props: IProps) {
   const { isFullscreen, handleFullscreen } = props;
 
   return (
-    <div className="absolute bottom-[24px] left-[24px]">
+    <div className="absolute bottom-[24px] right-[24px]">
       <button
         onClick={handleFullscreen}
         type="button"
