@@ -9,6 +9,7 @@ export { NewTabs } from "./tabs/new-tab";
 export { NavActionButton } from "./nav-action-button";
 export { NewWidgetBtn } from "./new-widget-btn";
 export { QuickWidgets } from "./quick-widgets";
+export { SettingsDropdown } from "./settings-dropdown";
 export { Toolbar } from "./tabs/toolbar";
 export { WidgetContainer } from "./widget-container";
 export { WidgetPlaceholder } from "./widget-placeholder";

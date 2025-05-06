@@ -25,6 +25,7 @@ import Loader from "../../shared/loader";
 import { LayoutDropdown } from "../layout-dropdown";
 import { useReadTabs } from "@/services/queries/tabs";
 import { Loader2 } from "lucide-react";
+import { SettingsDropdown } from "../settings-dropdown";
 
 interface IToolbarItem {
   onClick?: () => void;
@@ -38,7 +39,7 @@ function ToolbarItem(props: IToolbarItem) {
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger onClick={onClick}>
-          <div className="h-[28px] w-[28px] flex items-center justify-center">
+          <div className="h-[28px] w-[28px] flex items-center justify-center group">
             {icon}
           </div>
         </TooltipTrigger>
@@ -123,22 +124,25 @@ export function Toolbar() {
             <AddWidget />
             Add Widget
           </button>
-          <div className="flex items-center gap-[2px]">
-            {/* <div className="h-[28px] w-[28px] flex items-center justify-center bg-[#191919] rounded-md">
+          {/* <div className="flex items-center gap-[2px]">
+            <div className="h-[28px] w-[28px] flex items-center justify-center bg-[#191919] rounded-md">
               <Saved active />
-            </div> */}
+            </div>
             <button
               className="h-[28px] w-[28px] flex items-center justify-center bg-[#0d0d0d] rounded-md"
               onClick={handleSaveLayout}
             >
               {isPending ? <Loader /> : <Unsaved />}
             </button>
-          </div>
-          {/* <ToolbarItem icon={<ToolbarEditLayout />} label="Edit Layout" /> */}
+          </div> */}
 
-          {/* <ToolbarItem icon={<ToolbarLayout />} label="Layout" /> */}
+          <ToolbarItem
+            icon={isPending ? <Loader /> : <Unsaved />}
+            label="Save"
+            onClick={isPending ? () => {} : handleSaveLayout}
+          />
           <LayoutDropdown />
-          {/* <ToolbarItem icon={<Settings />} label="Settings" /> */}
+          <SettingsDropdown />
         </div>
       </div>
 

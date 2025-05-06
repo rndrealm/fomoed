@@ -1,7 +1,7 @@
 import React, { Fragment, useState } from "react";
 import { AddWidget } from "./add-widget";
 import { QuickWidgets } from "./quick-widgets";
-import { RenderIf } from "../shared";
+import { ModalContainer, RenderIf } from "../shared";
 import { DashboardWidgets } from "./dashboard-widgets";
 import { useAtomValue } from "jotai";
 import { layoutAtom } from "@/lib/atoms/layoutAtom";
@@ -21,13 +21,21 @@ function Empty() {
         />
       </RenderIf>
 
-      <RenderIf condition={showWidgets}>
+      <ModalContainer
+        open={showWidgets}
+        handleClose={() => {
+          setShowWidgets(false);
+        }}
+        className="h-full p-0 rounded-2xl"
+        title="Add New Widget"
+        noHeader
+      >
         <QuickWidgets
           handleBack={() => {
             setShowWidgets(false);
           }}
         />
-      </RenderIf>
+      </ModalContainer>
     </Fragment>
   );
 }
