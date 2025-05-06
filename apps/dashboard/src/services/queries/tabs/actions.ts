@@ -149,51 +149,6 @@ export const deleteTabAction = async (tabId: string) => {
   return { success: true, deletedId: tabId };
 };
 
-// Db action to replace all user tabs with local tabs
-// export const replaceUserTabsAction = async (localTabs: SyncTabsPayload) => {
-//   const supabase = createSupabaseBrowserClient();
-
-//   const {
-//     data: { user },
-//   } = await supabase.auth.getUser();
-
-//   if (!user) {
-//     throw new Error("Please login to replace tabs.");
-//   }
-
-//   // First, delete all existing tabs for the user
-//   const { error: deleteError } = await supabase
-//     .from("tabs")
-//     .delete()
-//     .match({ user_id: user.id });
-
-//   if (deleteError) {
-//     console.log("Error deleting existing tabs:", deleteError);
-//     throw new Error(deleteError.message);
-//   }
-
-//   // Prepare the local tabs for insertion by adding user_id to each
-//   const tabsToInsert = localTabs.map((tab) => ({
-//     id: tab.id,
-//     name: tab.name,
-//     user_id: user.id,
-//     layout_id: tab.layout_id ?? null,
-//   }));
-
-//   // Insert the local tabs
-//   const { data: insertedTabs, error: insertError } = await supabase
-//     .from("tabs")
-//     .upsert(tabsToInsert, { onConflict: "id" });
-
-//   if (insertError) {
-//     console.log("Error inserting local tabs:", insertError);
-//     throw new Error(insertError.message);
-//   }
-
-//   return {
-//     tabs: insertedTabs,
-//   };
-// };
 export const replaceUserTabsAction = async (
   localTabs: SyncTabsPayload,
   signal?: AbortSignal

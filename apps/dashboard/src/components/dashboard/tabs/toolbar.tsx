@@ -98,16 +98,6 @@ export function Toolbar() {
     });
   };
 
-  const loadTabsFromApi = useSetAtom(loadTabsFromApiAtom);
-
-  const { data, isSuccess } = useReadTabs();
-
-  useEffect(() => {
-    if (isSuccess && data?.length) {
-      loadTabsFromApi(data);
-    }
-  }, [isSuccess]);
-
   return (
     <Fragment>
       <div className="flex items-center justify-between gap-4">

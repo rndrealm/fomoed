@@ -5,11 +5,24 @@ import {
   FullscreenBtn,
   Toolbar,
 } from "@/components/dashboard";
-import { useAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
 import { utilsAtom } from "@/lib/atoms/utilsAtom";
 import { cn } from "@/lib/utils";
+import { IDashboardData } from "@/services/queries/home/types";
+import { loadTabsFromApiAtom } from "@/lib/atoms/tabsAtom";
+import { loadLayoutsFromApiAtom } from "@/lib/atoms/layoutAtom";
 
-export default function Home() {
+interface IProps {
+  dashboardData: IDashboardData;
+}
+export default function Home({ dashboardData }: IProps) {
+  const loadTabsFromApi = useSetAtom(loadTabsFromApiAtom);
+  const loadLayoutsFromApi = useSetAtom(loadLayoutsFromApiAtom);
+
+  useEffect(() => {
+    loadTabsFromApi(dashboardData.tabs);
+    loadLayoutsFromApi(dashboardData.layouts);
+  }, []);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [utils, setUtils] = useAtom(utilsAtom);
 

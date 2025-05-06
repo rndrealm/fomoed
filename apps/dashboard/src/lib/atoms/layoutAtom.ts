@@ -23,6 +23,7 @@ export interface LayoutType {
 
 export const layoutAtom = atom<LayoutType[]>([]);
 
+// This function creates a new layout, adds a new widget to it, saves it to the local state and sends it to the db
 export const addWidgetToNewLayoutAtom = atom(
   null,
   (get, set, { newWidget }: { newWidget: LayoutType["widgets"][0] }) => {
@@ -78,6 +79,8 @@ export const addWidgetToNewLayoutAtom = atom(
   }
 );
 
+// This function saves the new layout to the database
+// It is called when a new layout is created and a widget is added to it
 export const saveNewLayoutToDb = atom(
   null,
   async (
@@ -97,12 +100,50 @@ export const saveNewLayoutToDb = atom(
   }
 );
 
+// This function loads the layouts from the API and updates the local state
 export const loadLayoutsFromApiAtom = atom(
   null,
   (get, set, layoutsFromApi: LayoutType[]) => {
     // Update tabs state directly
-    console.log("layoutsFromApi:", layoutsFromApi);
     set(layoutAtom, layoutsFromApi);
+  }
+);
+
+// This function adds a widget to an existing layout
+export const addWidgetToExistingLayoutAtom = atom(
+  null,
+  (
+    get,
+    set,
+    { widget, layoutId }: { widget: LayoutType["widgets"][0]; layoutId: string }
+  ) => {
+    // Get the current layouts
+    const layouts = get(layoutAtom);
+
+    // Find the layout with the specified ID
+    const layoutIndex = layouts.findIndex((layout) => layout.id === layoutId);
+
+    // If layout doesn't exist, return
+    if (layoutIndex === -1) {
+      console.error(`Layout with ID ${layoutId} not found.`);
+      return;
+    }
+
+    // Get the current layout
+    const currentLayout = layouts[layoutIndex];
+
+    // Add the new widget to the layout's widgets array
+    const updatedWidgets = [...currentLayout.widgets, widget];
+
+    // Create updated layouts array
+    const updatedLayouts = [...layouts];
+    updatedLayouts[layoutIndex] = {
+      ...currentLayout,
+      widgets: updatedWidgets,
+    };
+
+    // Update the layouts atom with the new state
+    set(layoutAtom, updatedLayouts);
   }
 );
 

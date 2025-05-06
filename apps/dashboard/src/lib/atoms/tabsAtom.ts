@@ -2,7 +2,6 @@
 
 import { atom } from "jotai";
 import { v4 as uuidv4 } from "uuid";
-import { layoutAtom } from "./layoutAtom";
 import { replaceUserTabsAction } from "@/services/queries/tabs/actions";
 
 export interface TabType {
