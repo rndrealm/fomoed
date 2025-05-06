@@ -45,10 +45,7 @@ interface IProps {
 
 export default function DetailedCfgiWidget(props: IProps) {
   const { isEmbed, symbol = null, widget } = props;
-  // const [activePeriod, setActivePeriod] = useState<string>(
-  //   widget.props?.period || "1d"
-  // );
-  // const [activeCoin, setActiveCoin] = useState<string>(symbol || "BTC");
+
   const { data: coinData } = useReadCoinList();
 
   const activeCoinSlug = useMemo(() => {
@@ -61,7 +58,6 @@ export default function DetailedCfgiWidget(props: IProps) {
     activeCoinSlug
   );
 
-  // const [chartViewOptions, setChartViewOptions] = useState(TabOptions[1].value);
   const activeLayout = useAtomValue(activeTabAtom);
   const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
 

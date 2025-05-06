@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
 import { Drag } from "../icons/icons";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
   deleteWidgetAtom,
+  layoutAtom,
   LayoutType,
   syncOnLayoutChange,
 } from "@/lib/atoms/layoutAtom";
@@ -12,6 +13,7 @@ import { chartsMap } from "@/lib/static";
 import { WidgetDropdownMenu } from "./widget-options-menu";
 import { ConfirmationModal } from "../modals";
 import { joinWidgetSlug, splitWidgetSlug } from "@/lib/utils";
+import { settingAtom } from "@/lib/atoms/settingsAtom";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -26,6 +28,12 @@ export function DashboardWidgets(props: IProps) {
   const [deleteWidget, setDeleteWidget] = useState<LayoutType["widgets"][0]>();
   const deleteWidgetFromAtom = useSetAtom(deleteWidgetAtom);
   const syncLayoutChangeFromAtom = useSetAtom(syncOnLayoutChange);
+  const dashboardSetting = useAtomValue(settingAtom);
+
+  const layouts = useAtomValue(layoutAtom);
+  const activeTab = useAtomValue(activeTabAtom);
+  const currLayoutId = activeTab.layout_id;
+  const currLayout = layouts.find((item) => item.id === currLayoutId);
 
   return (
     <>
@@ -39,7 +47,13 @@ export function DashboardWidgets(props: IProps) {
         isResizable={false}
         margin={[20, 20]}
         onDragStop={(newLayouts) => {
-          syncLayoutChangeFromAtom(newLayouts);
+          // Check if the current layout id on active tab is null or undefined
+          const syncCondition =
+            dashboardSetting.auto_save || currLayout?.draft || true;
+          syncLayoutChangeFromAtom({
+            newLayouts: newLayouts,
+            sync: syncCondition,
+          });
           console.log("onLayoutChange", newLayouts);
         }}
         onLayoutChange={(test) => {}}

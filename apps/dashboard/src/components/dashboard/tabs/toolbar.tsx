@@ -84,7 +84,6 @@ export function Toolbar() {
     const formatWidgets = currentLayout.widgets.map((widget) => {
       return {
         ...widget,
-        user_id: user.id,
       };
     });
 
@@ -92,7 +91,6 @@ export function Toolbar() {
       layoutData: {
         id: currentLayout.id,
         name: activeTab.name,
-        user_id: user.id,
       },
       widgetData: formatWidgets,
     });

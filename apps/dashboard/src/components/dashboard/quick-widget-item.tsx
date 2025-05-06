@@ -51,27 +51,14 @@ export function QuickWidgetItem(props: IProps) {
         };
 
         // Check if the current layout id on active tab is null or undefined
+        const syncCondition =
+          dashboardSetting.auto_save || currLayout?.draft || true;
         if (currLayoutId) {
           addWidgetToExistingLayout({
             widget: newWidget,
             layoutId: currLayoutId,
+            sync: syncCondition,
           });
-          if (dashboardSetting.auto_save || currLayout?.draft) {
-            // Auto save
-          } else {
-            // Save to local state
-          }
-          // setLayout((prev) => {
-          //   return prev.map((item) => {
-          //     if (item.id === activeTab.layout_id) {
-          //       return {
-          //         ...item,
-          //         widgets: [...item.widgets, newWidget],
-          //       };
-          //     }
-          //     return item;
-          //   });
-          // });
         } else {
           addWidgetToNewLayout({ newWidget });
         }
