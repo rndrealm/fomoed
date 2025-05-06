@@ -4,20 +4,30 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Delete, TabLayout, ToolbarLayout } from "../icons/icons";
-import { useReadLayouts } from "@/services/queries/widgets";
+import { TabLayout, ToolbarLayout } from "../icons/icons";
 import {
   DropdownMenuGroup,
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@radix-ui/react-dropdown-menu";
 import { useSetAtom } from "jotai";
-import { syncLayoutOnSelectAtom } from "@/lib/atoms/layoutAtom";
+import {
+  loadLayoutsFromApiAtom,
+  syncLayoutOnSelectAtom,
+} from "@/lib/atoms/layoutAtom";
 import { RenderIf } from "../shared";
+import { useReadLayouts } from "@/services/queries/layouts";
+import { useEffect } from "react";
 
 export function LayoutDropdown() {
-  const { data } = useReadLayouts();
+  const { data, isSuccess } = useReadLayouts();
   const syncLayouts = useSetAtom(syncLayoutOnSelectAtom);
+  const loadLayoutsFromApi = useSetAtom(loadLayoutsFromApiAtom);
+  useEffect(() => {
+    if (isSuccess && data?.length) {
+      loadLayoutsFromApi(data);
+    }
+  }, [isSuccess]);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

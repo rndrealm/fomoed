@@ -1,15 +1,12 @@
 export { AddTab } from "./tabs/add-tab";
 export { AddWidget } from "./add-widget";
-export { AddWidgetModal } from "./add-widget-modal";
 export { DashboardContent } from "./dashboard-content";
 export { DashboardWidgets } from "./dashboard-widgets";
 export { EmptyTab } from "./tabs/empty-tab";
 export { FullscreenBtn } from "./fullscreen-btn";
 export { NewTabs } from "./tabs/new-tab";
 export { NavActionButton } from "./nav-action-button";
-export { NewWidgetBtn } from "./new-widget-btn";
 export { QuickWidgets } from "./quick-widgets";
 export { Toolbar } from "./tabs/toolbar";
-export { WidgetContainer } from "./widget-container";
 export { WidgetPlaceholder } from "./widget-placeholder";
 export { WidgetWrapper } from "./widget-wrapper";

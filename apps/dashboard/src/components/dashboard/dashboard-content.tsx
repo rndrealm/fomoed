@@ -36,7 +36,7 @@ export function DashboardContent() {
   const layouts = useAtomValue(layoutAtom);
   const tabs = useAtomValue(tabsAtom);
   const activeLayout = useAtomValue(activeTabAtom);
-
+  console.log("layouts", layouts);
   return (
     <div className="w-full h-full">
       {/* {currentLayout?.widget?.length === 0 ? <Empty /> : <DashboardWidgets />} */}
