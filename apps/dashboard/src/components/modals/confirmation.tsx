@@ -30,7 +30,7 @@ export function ConfirmationModal(props: IProps) {
       noHeader
       className="!max-w-[460px] w-full p-0"
     >
-      <div className="bg-[#090909] border border-[#181818] rounded-[10px] p-6 min-h-[190px] flex flex-col">
+      <div className="bg-[#090909] border border-[#333] rounded-[10px] p-6 min-h-[190px] flex flex-col">
         <div className="flex flex-col gap-5 justify-between h-full flex-1">
           <div className="flex flex-col gap-[10px]">
             <h4 className="text-white font-medium leading-[24px] text-base">

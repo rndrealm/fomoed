@@ -7,6 +7,7 @@ export { FullscreenBtn } from "./fullscreen-btn";
 export { NewTabs } from "./tabs/new-tab";
 export { NavActionButton } from "./nav-action-button";
 export { QuickWidgets } from "./quick-widgets";
+export { SettingsDropdown } from "./settings-dropdown";
 export { Toolbar } from "./tabs/toolbar";
 export { WidgetPlaceholder } from "./widget-placeholder";
 export { WidgetWrapper } from "./widget-wrapper";
