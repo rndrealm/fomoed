@@ -1,10 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { SaveLayoutPayload } from "./types";
-import {
-  getLayoutsAction,
-  getUserTabsAction,
-  syncLayoutAction,
-} from "./actions";
+import { getUserTabsAction, syncLayoutAction } from "./actions";
 import { toast } from "sonner";
 
 export const useSyncLayouts = () => {

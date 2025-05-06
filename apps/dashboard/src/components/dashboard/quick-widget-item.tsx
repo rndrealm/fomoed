@@ -1,5 +1,10 @@
 import { getGridPosition } from "@/charts/helpers";
-import { addWidgetToNewLayoutAtom, layoutAtom } from "@/lib/atoms/layoutAtom";
+import {
+  addWidgetToExistingLayoutAtom,
+  addWidgetToNewLayoutAtom,
+  layoutAtom,
+} from "@/lib/atoms/layoutAtom";
+import { settingAtom } from "@/lib/atoms/settingsAtom";
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 import { LayoutOptionType, widgetPropsDefaults } from "@/lib/static";
 import { joinWidgetSlug } from "@/lib/utils";
@@ -18,6 +23,8 @@ export function QuickWidgetItem(props: IProps) {
   const [layouts, setLayout] = useAtom(layoutAtom);
   const activeTab = useAtomValue(activeTabAtom);
   const addWidgetToNewLayout = useSetAtom(addWidgetToNewLayoutAtom);
+  const dashboardSetting = useAtomValue(settingAtom);
+  const addWidgetToExistingLayout = useSetAtom(addWidgetToExistingLayoutAtom);
 
   return (
     <button
@@ -45,17 +52,26 @@ export function QuickWidgetItem(props: IProps) {
 
         // Check if the current layout id on active tab is null or undefined
         if (currLayoutId) {
-          setLayout((prev) => {
-            return prev.map((item) => {
-              if (item.id === activeTab.layout_id) {
-                return {
-                  ...item,
-                  widgets: [...item.widgets, newWidget],
-                };
-              }
-              return item;
-            });
+          addWidgetToExistingLayout({
+            widget: newWidget,
+            layoutId: currLayoutId,
           });
+          if (dashboardSetting.auto_save || currLayout?.draft) {
+            // Auto save
+          } else {
+            // Save to local state
+          }
+          // setLayout((prev) => {
+          //   return prev.map((item) => {
+          //     if (item.id === activeTab.layout_id) {
+          //       return {
+          //         ...item,
+          //         widgets: [...item.widgets, newWidget],
+          //       };
+          //     }
+          //     return item;
+          //   });
+          // });
         } else {
           addWidgetToNewLayout({ newWidget });
         }

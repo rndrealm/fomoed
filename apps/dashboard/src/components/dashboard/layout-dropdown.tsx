@@ -32,13 +32,6 @@ export function LayoutDropdown() {
 
   const [isOpen, setIsOpen] = useState(false);
 
-  const loadLayoutsFromApi = useSetAtom(loadLayoutsFromApiAtom);
-  useEffect(() => {
-    if (isSuccess && data?.length) {
-      loadLayoutsFromApi(data);
-    }
-  }, [isSuccess]);
-
   return (
     <TooltipProvider>
       <DropdownMenu

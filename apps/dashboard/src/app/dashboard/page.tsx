@@ -1,26 +1,13 @@
 import Home from "@/components/dashboard/home";
-import { getUserTabsAction } from "@/services/queries/tabs/actions";
-import {
-  dehydrate,
-  HydrationBoundary,
-  QueryClient,
-} from "@tanstack/react-query";
-import React from "react";
+import { getDashboardData } from "@/services/queries/home/actions";
+import React, { Suspense } from "react";
 
 export default async function Page() {
-  const queryClient = new QueryClient();
+  const dashboardData = await getDashboardData();
 
-  await queryClient.prefetchQuery({
-    queryKey: ["tabs"],
-    queryFn: async () => {
-      const response = await getUserTabsAction();
-      console.log("response:", response);
-      return response.tabs;
-    },
-  });
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <Home />
-    </HydrationBoundary>
+    <Suspense fallback={<div>Loading...</div>}>
+      <Home dashboardData={dashboardData} />
+    </Suspense>
   );
 }
