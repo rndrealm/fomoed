@@ -72,6 +72,8 @@ export const addNewTabAtom = atom(null, (get, set) => {
   // 🔹 Create a new layout
   const newLayout = {
     id: uuidv4(),
+    name: "Untitled Layout",
+    draft: true,
     widgets: [],
   };
 
@@ -90,8 +92,8 @@ export const addNewTabAtom = atom(null, (get, set) => {
   set(activeTabAtom, newTab);
 
   // 🔹 Add layout to layoutAtom
-  const currentLayouts = get(layoutAtom);
-  set(layoutAtom, [...currentLayouts, newLayout]);
+  // const currentLayouts = get(layoutAtom);
+  // set(layoutAtom, [...currentLayouts, newLayout]);
 
   set(syncTabsWithDbAtom);
 });

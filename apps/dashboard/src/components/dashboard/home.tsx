@@ -1,12 +1,10 @@
 "use client";
-import React, { Fragment, useEffect, useRef, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import {
-  AddWidgetModal,
   DashboardContent,
   FullscreenBtn,
   Toolbar,
 } from "@/components/dashboard";
-import { ModalContainer } from "@/components/shared";
 import { useAtom } from "jotai";
 import { utilsAtom } from "@/lib/atoms/utilsAtom";
 import { cn } from "@/lib/utils";
@@ -71,14 +69,6 @@ export default function Home() {
             isFullscreen={utils.isFullScreen}
             handleFullscreen={handleFullscreen}
           />
-          <ModalContainer
-            open={false}
-            handleClose={() => {}}
-            className="h-full"
-            title="Add New Widget"
-          >
-            <AddWidgetModal />
-          </ModalContainer>
         </div>
       </div>
     </Fragment>

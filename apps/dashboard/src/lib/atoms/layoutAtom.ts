@@ -1,12 +1,14 @@
 import { atom } from "jotai";
-import { layoutOptions } from "../static";
 import { getGridPosition } from "@/charts/helpers";
 import { v4 as uuidv4 } from "uuid";
 import { splitWidgetSlug } from "../utils";
 import { activeTabAtom, tabsAtom } from "./tabsAtom";
+import { createLayoutAndAttachToTabAction } from "@/services/queries/layouts/actions";
 
 export interface LayoutType {
   id: string;
+  draft: boolean;
+  name: string;
   widgets: {
     id: string;
     meta: ReactGridLayout.Layout;
@@ -19,82 +21,90 @@ export interface LayoutType {
   }[];
 }
 
-interface TabType {
-  id: string;
-  name: string;
-  layout_id: string;
-}
+export const layoutAtom = atom<LayoutType[]>([]);
 
-const initialLayout = {
-  id: uuidv4(),
-  widgets: [],
-};
+export const addWidgetToNewLayoutAtom = atom(
+  null,
+  (get, set, { newWidget }: { newWidget: LayoutType["widgets"][0] }) => {
+    // Get active tab and update its layout_id
+    const activeTab = get(activeTabAtom);
+    const tabs = get(tabsAtom);
 
-const initialTab = {
-  id: uuidv4(),
-  name: "Untitled Layout",
-  layout_id: initialLayout.id,
-};
+    if (activeTab) {
+      // Create a new layout with a unique ID
+      const layoutName = activeTab.name;
+      const layoutId = uuidv4();
+      const newLayout: LayoutType = {
+        id: layoutId,
+        draft: true,
+        name: layoutName,
+        widgets: [newWidget],
+      };
 
-export const layoutAtom = atom<LayoutType[]>([initialLayout]);
-// export const layoutAtom = atom<string[]>([]);
-// export const layoutAtom = atom<string[]>([
-//   "detailed-cfgi",
-//   "simple-cfgi",
-//   "detailed-cfgi",
-//   "simple-cfgi",
-// ]);
+      const sendLayout = {
+        id: layoutId,
+        draft: true,
+        name: layoutName,
+      };
 
-// export const tabsAtom = atom<TabType[]>([initialTab]);
+      // Get current layouts and add the new one
+      const currentLayouts = get(layoutAtom);
+      const updatedLayouts = [...currentLayouts, newLayout];
 
-// export const activeTabAtom = atom<TabType>(initialTab);
+      // Update layouts atom
+      set(layoutAtom, updatedLayouts);
 
-// export const syncActiveTabAtom = atom(
-//   null,
-//   (get, set, newActiveTab: TabType) => {
-//     // Set active tab state
-//     set(activeTabAtom, newActiveTab);
+      const updatedActiveTab = {
+        ...activeTab,
+        layout_id: newLayout.id,
+      };
 
-//     // Update tab inside the array
-//     const tabs = get(tabsAtom);
-//     const updatedTabs = tabs.map((tab) =>
-//       tab.id === newActiveTab.id ? { ...tab, ...newActiveTab } : tab
-//     );
-//     set(tabsAtom, updatedTabs);
-//   }
-// );
+      // Update active tab
+      set(activeTabAtom, updatedActiveTab);
 
-type WidgetsData = {
-  [key: string]: {
-    id: string | number;
-    name: string;
-  }[];
-};
+      // Update tab in the tabs array
+      const updatedTabs = tabs.map((tab) =>
+        tab.id === activeTab.id ? updatedActiveTab : tab
+      );
 
-export const widgetsAtom = atom<WidgetsData>({});
+      set(tabsAtom, updatedTabs);
 
-// export const deleteTabAtom = atom(null, (get, set, idToDelete: string) => {
-//   // 🔸 Remove layout
-//   const layouts = get(layoutAtom);
-//   const updatedLayouts = layouts.filter(
-//     (layout) => layout.id !== idToDelete.toString()
-//   );
-//   set(layoutAtom, updatedLayouts);
+      set(saveNewLayoutToDb, {
+        layoutData: sendLayout,
+        widgetData: newWidget,
+        tabId: activeTab.id,
+      });
+    }
+  }
+);
 
-//   // 🔸 Update tabs
-//   const tabs = get(tabsAtom);
-//   const updatedTabs = tabs.filter((tab) => tab.id !== idToDelete);
-//   set(tabsAtom, updatedTabs);
+export const saveNewLayoutToDb = atom(
+  null,
+  async (
+    get,
+    set,
+    {
+      layoutData,
+      widgetData,
+      tabId,
+    }: { layoutData: any; widgetData: any; tabId: string }
+  ) => {
+    try {
+      await createLayoutAndAttachToTabAction({ layoutData, widgetData, tabId });
+    } catch (error) {
+      console.error("Failed to sync tabs with DB:", error);
+    }
+  }
+);
 
-//   // 🔸 Update activeTab if needed
-//   const activeTab = get(activeTabAtom);
-//   if (activeTab?.id === idToDelete) {
-//     const newActive = updatedTabs[updatedTabs.length - 1] ?? null;
-//     if (newActive) {
-//       set(activeTabAtom, newActive);
-//     }
-//   }
-// });
+export const loadLayoutsFromApiAtom = atom(
+  null,
+  (get, set, layoutsFromApi: LayoutType[]) => {
+    // Update tabs state directly
+    console.log("layoutsFromApi:", layoutsFromApi);
+    set(layoutAtom, layoutsFromApi);
+  }
+);
 
 export const deleteWidgetAtom = atom(
   null,
@@ -228,23 +238,6 @@ export const updateWidgetPropsAtom = atom(
     set(layoutAtom, updatedLayouts);
   }
 );
-// export const renameTabAtom = atom(
-//   null,
-//   (get, set, { id, name }: { id: string; name: string }) => {
-//     // 🔸 Update the tab in tabsAtom
-//     const tabs = get(tabsAtom);
-//     const updatedTabs = tabs.map((tab) =>
-//       tab.id === id ? { ...tab, name } : tab
-//     );
-//     set(tabsAtom, updatedTabs);
-
-//     // 🔸 Update activeTabAtom if it's the one being renamed
-//     const activeTab = get(activeTabAtom);
-//     if (activeTab?.id === id) {
-//       set(activeTabAtom, { ...activeTab, name });
-//     }
-//   }
-// );
 
 export const syncOnLayoutChange = atom(
   null,
@@ -308,21 +301,20 @@ export const syncOnLayoutChange = atom(
   }
 );
 
-// ...existing code...
-
 export const syncLayoutOnSelectAtom = atom(
   null,
   (
     get,
     set,
     layout: {
-      id: any;
-      name: any;
+      id: string;
+      name: string;
+      draft: boolean;
       widgets: {
-        id: any;
-        token: any;
-        meta: any;
-        layout_id: any;
+        id: string;
+        token: string;
+        meta: ReactGridLayout.Layout;
+        layout_id: string;
       }[];
     }
   ) => {
@@ -334,6 +326,8 @@ export const syncLayoutOnSelectAtom = atom(
     // Format the layout to match LayoutType structure
     const formattedLayout: LayoutType = {
       id: layout.id,
+      name: layout.name,
+      draft: layout.draft,
       widgets: layout.widgets.map((widget) => ({
         id: widget.id,
         props: {

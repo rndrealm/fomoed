@@ -1,11 +1,7 @@
 import { getGridPosition } from "@/charts/helpers";
-import { layoutAtom } from "@/lib/atoms/layoutAtom";
+import { addWidgetToNewLayoutAtom, layoutAtom } from "@/lib/atoms/layoutAtom";
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
-import {
-  LayoutOptionType,
-  widgetIdJoin,
-  widgetPropsDefaults,
-} from "@/lib/static";
+import { LayoutOptionType, widgetPropsDefaults } from "@/lib/static";
 import { joinWidgetSlug } from "@/lib/utils";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import Image from "next/image";
@@ -21,6 +17,7 @@ export function QuickWidgetItem(props: IProps) {
   const { widget, handleGoBack } = props;
   const [layouts, setLayout] = useAtom(layoutAtom);
   const activeTab = useAtomValue(activeTabAtom);
+  const addWidgetToNewLayout = useSetAtom(addWidgetToNewLayoutAtom);
 
   return (
     <button
@@ -31,7 +28,7 @@ export function QuickWidgetItem(props: IProps) {
 
         const { x, y } = getGridPosition(currLayout?.widgets.length || 0);
         const newId = uuidv4();
-        const newLayout = {
+        const newWidget = {
           id: newId,
           props:
             widgetPropsDefaults[
@@ -46,19 +43,22 @@ export function QuickWidgetItem(props: IProps) {
           },
         };
 
-        handleGoBack();
-
-        setLayout((prev) => {
-          return prev.map((item) => {
-            if (item.id === activeTab.layout_id) {
-              return {
-                ...item,
-                widgets: [...item.widgets, newLayout],
-              };
-            }
-            return item;
+        // Check if the current layout id on active tab is null or undefined
+        if (currLayoutId) {
+          setLayout((prev) => {
+            return prev.map((item) => {
+              if (item.id === activeTab.layout_id) {
+                return {
+                  ...item,
+                  widgets: [...item.widgets, newWidget],
+                };
+              }
+              return item;
+            });
           });
-        });
+        } else {
+          addWidgetToNewLayout({ newWidget });
+        }
         handleGoBack();
       }}
     >
