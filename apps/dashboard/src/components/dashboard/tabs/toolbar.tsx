@@ -17,7 +17,7 @@ import { ModalContainer } from "../../shared";
 import { QuickWidgets } from "../quick-widgets";
 import { useSyncLayouts } from "@/services/queries/widgets";
 import { useAtomValue, useSetAtom } from "jotai";
-import { layoutAtom } from "@/lib/atoms/layoutAtom";
+import { layoutAtom, setLayoutDraftFalseAtom } from "@/lib/atoms/layoutAtom";
 import { activeTabAtom, loadTabsFromApiAtom } from "@/lib/atoms/tabsAtom";
 import { toast } from "sonner";
 import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
@@ -58,6 +58,10 @@ export function Toolbar() {
   const { mutate, isPending } = useSyncLayouts();
   const activeTab = useAtomValue(activeTabAtom);
   const layouts = useAtomValue(layoutAtom);
+  const setLayoutDraftFalse = useSetAtom(setLayoutDraftFalseAtom);
+
+  const currLayoutId = activeTab.layout_id;
+  const currLayout = layouts.find((item) => item.id === currLayoutId);
 
   const handleSaveLayout = async () => {
     if (isPending) return;
@@ -84,20 +88,19 @@ export function Toolbar() {
     const formatWidgets = currentLayout.widgets.map((widget) => {
       return {
         ...widget,
-        user_id: user.id,
       };
     });
+
+    setLayoutDraftFalse({ layoutId: currentLayout.id });
 
     mutate({
       layoutData: {
         id: currentLayout.id,
         name: activeTab.name,
-        user_id: user.id,
       },
       widgetData: formatWidgets,
     });
   };
-
   return (
     <Fragment>
       <div className="flex items-center justify-between gap-4">
@@ -125,12 +128,13 @@ export function Toolbar() {
               {isPending ? <Loader /> : <Unsaved />}
             </button>
           </div> */}
-
-          <ToolbarItem
-            icon={isPending ? <Loader /> : <Unsaved />}
-            label="Save"
-            onClick={isPending ? () => {} : handleSaveLayout}
-          />
+          {currLayout && !currLayout?.draft ? (
+            <ToolbarItem
+              icon={isPending ? <Loader /> : <Unsaved />}
+              label="Save"
+              onClick={isPending ? () => {} : handleSaveLayout}
+            />
+          ) : null}
           <LayoutDropdown />
           <SettingsDropdown />
         </div>

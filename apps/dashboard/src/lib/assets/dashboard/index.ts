@@ -6,6 +6,7 @@ import simpleCfgi from "../../../../public/media/images/dashboard/simple-cfgi.pn
 import liq from "../../../../public/media/images/dashboard/liq.png";
 import liqHeat from "../../../../public/media/images/dashboard/liq-heat.png";
 import exLiq from "../../../../public/media/images/dashboard/ex-liq.png";
+import premiumLogo from "../../../../public/media/images/dashboard/premium-logo.png";
 
 const dashboard = {
   layoutPlaceholder,
@@ -16,6 +17,7 @@ const dashboard = {
   liq,
   liqHeat,
   exLiq,
+  premiumLogo,
 };
 
 export default dashboard;

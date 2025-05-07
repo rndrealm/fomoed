@@ -4,6 +4,9 @@ import { v4 as uuidv4 } from "uuid";
 import { splitWidgetSlug } from "../utils";
 import { activeTabAtom, tabsAtom } from "./tabsAtom";
 import { createLayoutAndAttachToTabAction } from "@/services/queries/layouts/actions";
+import { syncLayoutAction } from "@/services/queries/widgets/actions";
+import { SaveLayoutPayload } from "@/services/queries/widgets/types";
+import { settingAtom } from "./settingsAtom";
 
 export interface LayoutType {
   id: string;
@@ -95,7 +98,7 @@ export const saveNewLayoutToDb = atom(
     try {
       await createLayoutAndAttachToTabAction({ layoutData, widgetData, tabId });
     } catch (error) {
-      console.error("Failed to sync tabs with DB:", error);
+      console.log("Failed to sync tabs with DB:", error);
     }
   }
 );
@@ -115,7 +118,11 @@ export const addWidgetToExistingLayoutAtom = atom(
   (
     get,
     set,
-    { widget, layoutId }: { widget: LayoutType["widgets"][0]; layoutId: string }
+    {
+      widget,
+      layoutId,
+      sync,
+    }: { widget: LayoutType["widgets"][0]; layoutId: string; sync?: boolean }
   ) => {
     // Get the current layouts
     const layouts = get(layoutAtom);
@@ -125,7 +132,7 @@ export const addWidgetToExistingLayoutAtom = atom(
 
     // If layout doesn't exist, return
     if (layoutIndex === -1) {
-      console.error(`Layout with ID ${layoutId} not found.`);
+      console.log(`Layout with ID ${layoutId} not found.`);
       return;
     }
 
@@ -144,9 +151,100 @@ export const addWidgetToExistingLayoutAtom = atom(
 
     // Update the layouts atom with the new state
     set(layoutAtom, updatedLayouts);
+    if (sync) {
+      set(syncWidgetsToDb, {
+        layoutData: {
+          id: currentLayout.id,
+          name: currentLayout.name,
+        },
+        widgetData: updatedWidgets,
+      });
+    }
   }
 );
 
+// This function syncs the layout changes to the database
+// It is called when the layout position is changed in the dashboard
+export const syncOnLayoutChange = atom(
+  null,
+  (
+    get,
+    set,
+    {
+      newLayouts,
+      sync,
+    }: { newLayouts: ReactGridLayout.Layout[]; sync?: boolean }
+  ) => {
+    // Get the active tab
+    const activeTab = get(activeTabAtom);
+
+    // If no active tab, return early
+    if (!activeTab) {
+      return;
+    }
+
+    // Get the layout_id from the active tab
+    const layoutId = activeTab.layout_id;
+
+    // Get current layouts
+    const layouts = get(layoutAtom);
+
+    // Find the layout with matching layout_id
+    const layoutIndex = layouts.findIndex((layout) => layout.id === layoutId);
+
+    // If layout doesn't exist, return
+    if (layoutIndex === -1) {
+      return;
+    }
+
+    // Get the current layout
+    const currentLayout = layouts[layoutIndex];
+
+    // Update widgets meta with the new layout data
+    const updatedWidgets = currentLayout.widgets.map((widget) => {
+      // Find the corresponding layout from newLayouts
+      const newLayoutData = newLayouts.find(
+        (layout) => splitWidgetSlug(layout.i).widgetId === widget.id
+      );
+      console.log("newLayoutData check:", newLayoutData);
+      // If we found matching layout data, update the widget's meta
+      if (newLayoutData) {
+        return {
+          ...widget,
+          meta: {
+            ...widget.meta,
+            ...newLayoutData, // Updates x, y, w, h, etc.
+          },
+        };
+      }
+
+      // Otherwise return the widget unchanged
+      return widget;
+    });
+
+    // Create updated layouts array
+    const updatedLayouts = [...layouts];
+    updatedLayouts[layoutIndex] = {
+      ...currentLayout,
+      widgets: updatedWidgets,
+    };
+    // Update layouts with the updated widgets
+    set(layoutAtom, updatedLayouts);
+
+    if (sync) {
+      set(syncWidgetsToDb, {
+        layoutData: {
+          id: currentLayout.id,
+          name: currentLayout.name,
+        },
+        widgetData: updatedWidgets,
+      });
+    }
+  }
+);
+
+// This function deletes a widget from the layout
+// It is called when a widget is removed from the dashboard
 export const deleteWidgetAtom = atom(
   null,
   (get, set, { tabId, widgetId }: { tabId: string; widgetId: string }) => {
@@ -203,6 +301,18 @@ export const deleteWidgetAtom = atom(
 
     // Update layouts with the updated widget list
     set(layoutAtom, updatedLayouts);
+    const dashboardSetting = get(settingAtom);
+    const syncCondition = dashboardSetting.auto_save || currentLayout?.draft;
+
+    if (syncCondition) {
+      set(syncWidgetsToDb, {
+        layoutData: {
+          id: currentLayout.id,
+          name: currentLayout.name,
+        },
+        widgetData: updatedWidgets,
+      });
+    }
   }
 );
 
@@ -277,71 +387,76 @@ export const updateWidgetPropsAtom = atom(
 
     // Update layouts with the updated widget
     set(layoutAtom, updatedLayouts);
+    const dashboardSetting = get(settingAtom);
+    const syncCondition = dashboardSetting.auto_save || currentLayout?.draft;
+
+    if (syncCondition) {
+      set(syncWidgetsToDb, {
+        layoutData: {
+          id: currentLayout.id,
+          name: currentLayout.name,
+        },
+        widgetData: updatedWidgets,
+      });
+    }
   }
 );
 
-export const syncOnLayoutChange = atom(
+// This function saves the new layout to the database
+// It is called when a new layout is created and a widget is added to it
+let currentAbortController: AbortController | null = null;
+export const syncWidgetsToDb = atom(
   null,
-  (get, set, newLayouts: ReactGridLayout.Layout[]) => {
-    // Get the active tab
-    const activeTab = get(activeTabAtom);
-
-    // If no active tab, return early
-    if (!activeTab) {
-      return;
+  async (get, set, { layoutData, widgetData }: SaveLayoutPayload) => {
+    // Abort the previous request if still pending
+    if (currentAbortController) {
+      currentAbortController.abort();
     }
 
-    // Get the layout_id from the active tab
-    const layoutId = activeTab.layout_id;
+    // Create a new controller for this request
+    currentAbortController = new AbortController();
+    const signal = currentAbortController.signal;
+    try {
+      await syncLayoutAction({ layoutData, widgetData }, signal);
+    } catch (error) {
+      console.log("Failed to sync widgets with DV:", error);
+    }
+  }
+);
 
-    // Get current layouts
+// This function sets the draft property of a layout to false
+export const setLayoutDraftFalseAtom = atom(
+  null,
+  (get, set, { layoutId }: { layoutId: string }) => {
+    // Get the current layouts
     const layouts = get(layoutAtom);
 
-    // Find the layout with matching layout_id
+    // Find the layout with the specified ID
     const layoutIndex = layouts.findIndex((layout) => layout.id === layoutId);
 
-    // If layout doesn't exist, return
+    // If no layout is found, return
     if (layoutIndex === -1) {
+      console.error(`No layout found with ID ${layoutId}.`);
       return;
     }
 
     // Get the current layout
     const currentLayout = layouts[layoutIndex];
 
-    // Update widgets meta with the new layout data
-    const updatedWidgets = currentLayout.widgets.map((widget) => {
-      // Find the corresponding layout from newLayouts
-      const newLayoutData = newLayouts.find(
-        (layout) => splitWidgetSlug(layout.i).widgetId === widget.id
-      );
-      console.log("newLayoutData check:", newLayoutData);
-      // If we found matching layout data, update the widget's meta
-      if (newLayoutData) {
-        return {
-          ...widget,
-          meta: {
-            ...widget.meta,
-            ...newLayoutData, // Updates x, y, w, h, etc.
-          },
-        };
-      }
-
-      // Otherwise return the widget unchanged
-      return widget;
-    });
+    // Update the draft property to false
+    const updatedLayout = {
+      ...currentLayout,
+      draft: false,
+    };
 
     // Create updated layouts array
     const updatedLayouts = [...layouts];
-    updatedLayouts[layoutIndex] = {
-      ...currentLayout,
-      widgets: updatedWidgets,
-    };
-    console.log("updatedLayouts:", updatedLayouts);
-    // Update layouts with the updated widgets
+    updatedLayouts[layoutIndex] = updatedLayout;
+
+    // Update the layouts atom with the new state
     set(layoutAtom, updatedLayouts);
   }
 );
-
 export const syncLayoutOnSelectAtom = atom(
   null,
   (

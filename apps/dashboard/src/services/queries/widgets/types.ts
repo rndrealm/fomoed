@@ -2,12 +2,10 @@ export interface SaveLayoutPayload {
   layoutData: {
     id: string;
     name: string;
-    user_id: string;
   };
   widgetData: {
     id: string;
     // layout_id: string;
-    user_id: string;
     props: {
       token?: string;
       period?: string;

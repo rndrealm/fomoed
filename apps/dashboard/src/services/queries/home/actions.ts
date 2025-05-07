@@ -1,8 +1,4 @@
-import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
-import {
-  createSupabaseServerClient,
-  createSupabaseServerComponentClient,
-} from "@/lib/utils/supabase/server-client";
+import { createSupabaseServerClient } from "@/lib/utils/supabase/server-client";
 import { v4 as uuidv4 } from "uuid";
 
 export const getDashboardData = async () => {
@@ -50,7 +46,6 @@ export const getDashboardData = async () => {
     console.log("Error getting dashboard settings:", settingsError);
     throw new Error(settingsError.message);
   }
-
   if (settingsData.length === 0) {
     // Create default settings if none exist
     const defaultSettings = {
