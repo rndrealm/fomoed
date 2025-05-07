@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import { useAtomValue, useSetAtom } from "jotai";
 import { LayoutType, updateWidgetPropsAtom } from "@/lib/atoms/layoutAtom";
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
+import PremiumOverlay from "../../shared/premium-overlay";
 
 const colorToCfgi = [
   {
@@ -110,20 +111,23 @@ export default function DetailedCfgiWidget(props: IProps) {
             </div>
           ) : null}
         </div>
-        <div className="flex-grow mx-3 ">
-          {data ? (
-            <DetailedCfgiChart
-              cfgiData={data}
-              viewOption={widget.props?.sentiment_tab || "both"}
-            />
-          ) : (
-            <Skeleton className="w-full h-full bg-widget-background-200" />
-          )}
-        </div>
+        <PremiumOverlay>
+          <div className="h-full mx-3">
+            {data ? (
+              <DetailedCfgiChart
+                cfgiData={data}
+                viewOption={widget.props?.sentiment_tab || "both"}
+              />
+            ) : (
+              // <Skeleton className="w-full h-full bg-widget-background-200" />
+              <Skeleton className="w-full h-full bg-widget-background-200" />
+            )}
+          </div>
 
-        <div className="flex items-center justify-center gap-5 py-3">
-          <ChartLegend colorOptions={colorToCfgi} />
-        </div>
+          <div className="flex items-center justify-center gap-5 py-3">
+            <ChartLegend colorOptions={colorToCfgi} />
+          </div>
+        </PremiumOverlay>
       </div>
     </>
   );

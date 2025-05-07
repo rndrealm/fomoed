@@ -122,7 +122,7 @@ export const addWidgetToExistingLayoutAtom = atom(
       widget,
       layoutId,
       sync,
-    }: { widget: LayoutType["widgets"][0]; layoutId: string; sync: boolean }
+    }: { widget: LayoutType["widgets"][0]; layoutId: string; sync?: boolean }
   ) => {
     // Get the current layouts
     const layouts = get(layoutAtom);
@@ -173,7 +173,7 @@ export const syncOnLayoutChange = atom(
     {
       newLayouts,
       sync,
-    }: { newLayouts: ReactGridLayout.Layout[]; sync: boolean }
+    }: { newLayouts: ReactGridLayout.Layout[]; sync?: boolean }
   ) => {
     // Get the active tab
     const activeTab = get(activeTabAtom);
@@ -424,6 +424,39 @@ export const syncWidgetsToDb = atom(
   }
 );
 
+// This function sets the draft property of a layout to false
+export const setLayoutDraftFalseAtom = atom(
+  null,
+  (get, set, { layoutId }: { layoutId: string }) => {
+    // Get the current layouts
+    const layouts = get(layoutAtom);
+
+    // Find the layout with the specified ID
+    const layoutIndex = layouts.findIndex((layout) => layout.id === layoutId);
+
+    // If no layout is found, return
+    if (layoutIndex === -1) {
+      console.error(`No layout found with ID ${layoutId}.`);
+      return;
+    }
+
+    // Get the current layout
+    const currentLayout = layouts[layoutIndex];
+
+    // Update the draft property to false
+    const updatedLayout = {
+      ...currentLayout,
+      draft: false,
+    };
+
+    // Create updated layouts array
+    const updatedLayouts = [...layouts];
+    updatedLayouts[layoutIndex] = updatedLayout;
+
+    // Update the layouts atom with the new state
+    set(layoutAtom, updatedLayouts);
+  }
+);
 export const syncLayoutOnSelectAtom = atom(
   null,
   (

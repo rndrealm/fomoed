@@ -51,8 +51,8 @@ export function QuickWidgetItem(props: IProps) {
         };
 
         // Check if the current layout id on active tab is null or undefined
-        const syncCondition =
-          dashboardSetting.auto_save || currLayout?.draft || true;
+        const syncCondition = dashboardSetting.auto_save || currLayout?.draft;
+
         if (currLayoutId) {
           addWidgetToExistingLayout({
             widget: newWidget,

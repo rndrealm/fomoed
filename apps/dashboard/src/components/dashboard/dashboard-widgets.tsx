@@ -48,8 +48,7 @@ export function DashboardWidgets(props: IProps) {
         margin={[20, 20]}
         onDragStop={(newLayouts) => {
           // Check if the current layout id on active tab is null or undefined
-          const syncCondition =
-            dashboardSetting.auto_save || currLayout?.draft || true;
+          const syncCondition = dashboardSetting.auto_save || currLayout?.draft;
           syncLayoutChangeFromAtom({
             newLayouts: newLayouts,
             sync: syncCondition,
