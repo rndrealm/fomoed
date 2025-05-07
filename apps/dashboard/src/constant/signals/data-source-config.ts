@@ -1,4 +1,14 @@
-export const signalDataSources = [
+export type DataSource = {
+  name: string;
+  id: string;
+};
+
+export type SignalDataSourceGroup = {
+  group: string;
+  dataSources: DataSource[];
+};
+
+export const signalDataSources: SignalDataSourceGroup[] = [
   {
     group: "Market data",
     dataSources: [

@@ -7,6 +7,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { Label } from "@/components/ui/label";
 import {
   Popover,
   PopoverContent,
@@ -43,7 +44,8 @@ export function PriceTickerConfig({ value, onChange }: PriceTickerConfigProps) {
   }, []);
 
   return (
-    <div className="space-y-2 p-2">
+    <div className="w-full">
+      <Label className="mb-2 text-muted-foreground">Symbol</Label>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button

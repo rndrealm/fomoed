@@ -76,7 +76,7 @@ const ManualSignalBuilder = () => {
   };
 
   return (
-    <div className="p-6">
+    <div className="">
       <SignalConditionGroup
         group={rootGroup}
         depth={0}

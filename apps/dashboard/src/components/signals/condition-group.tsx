@@ -1,4 +1,4 @@
-import { Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { nanoid } from "nanoid";
 import { Button } from "../ui/button";
 import ConditionRow from "./condition-row";
@@ -26,7 +26,7 @@ export type GroupOperand = "and" | "or";
 export const defaultCondition = (): Condition => ({
   id: nanoid(),
   type: "condition",
-  dataSource: "price",
+  dataSource: null,
   topic: null,
   operator: null,
   value: null,
@@ -95,7 +95,7 @@ const SignalConditionGroup = ({
         <div className="flex items-center gap-2">
           <button
             onClick={handleGroupOperandChange}
-            className="uppercase px-2 py-1 border border-border rounded text-xs"
+            className="uppercase text-xs bg-white text-black px-2 py-1 border border-border rounded"
           >
             {group.operand}
           </button>
@@ -106,24 +106,28 @@ const SignalConditionGroup = ({
               className="p-2"
               onClick={onRemove}
             >
-              <Trash2 className="w-4 h-4 text-destructive" />
+              <Trash2 className="w-4 h-4 text-muted-foreground" />
             </Button>
           )}
         </div>
         <div className="flex gap-2">
-          <button
-            className="px-2 py-1 border border-border rounded text-xs"
+          <Button
+            variant={"ghost"}
+            size={"sm"}
+            className="text-xs flex gap-2 items-center"
             onClick={handleAddCondition}
           >
-            Add condition
-          </button>
-          <button
-            className="px-2 py-1 border border-border rounded text-xs"
+            <Plus size={12} /> Add condition
+          </Button>
+          <Button
+            variant={"ghost"}
+            size={"sm"}
+            className=" text-xs"
             onClick={handleAddGroup}
             disabled={depth >= MAX_DEPTH - 1}
           >
             Add group
-          </button>
+          </Button>
         </div>
       </div>
       <div className="flex flex-col gap-4">

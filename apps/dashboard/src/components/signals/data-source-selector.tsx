@@ -1,4 +1,5 @@
 import { signalDataSources } from "@/constant/signals/data-source-config";
+import { Label } from "../ui/label";
 import {
   Select,
   SelectContent,
@@ -16,33 +17,36 @@ type DataSourceDropDownProps = {
 
 const SignalDataSourceSelector = (props: DataSourceDropDownProps) => {
   return (
-    <Select
-      disabled={false}
-      value={props.value || undefined}
-      onValueChange={props.onChange}
-    >
-      <SelectTrigger className="w-[180px] bg-background">
-        <SelectValue placeholder="Select data source" />
-      </SelectTrigger>
-      <SelectContent className="max-h-[300px] overflow-y-auto">
-        {signalDataSources.map((source) => (
-          <SelectGroup key={source.group}>
-            <SelectLabel className="font-semibold text-sm text-primary">
-              {source.group}
-            </SelectLabel>
-            {source.dataSources.map((dataSource) => (
-              <SelectItem
-                key={dataSource.id}
-                value={dataSource.id}
-                className="pl-6 text-sm"
-              >
-                {dataSource.name}
-              </SelectItem>
-            ))}
-          </SelectGroup>
-        ))}
-      </SelectContent>
-    </Select>
+    <div className="w-full">
+      <Label className="mb-2 text-muted-foreground">Data source</Label>
+      <Select
+        disabled={false}
+        value={props.value || undefined}
+        onValueChange={props.onChange}
+      >
+        <SelectTrigger className="w-full bg-background">
+          <SelectValue placeholder="Select data source" />
+        </SelectTrigger>
+        <SelectContent className="max-h-[300px] overflow-y-auto">
+          {signalDataSources.map((source) => (
+            <SelectGroup key={source.group}>
+              <SelectLabel className="font-semibold text-sm text-primary">
+                {source.group}
+              </SelectLabel>
+              {source.dataSources.map((dataSource) => (
+                <SelectItem
+                  key={dataSource.id}
+                  value={dataSource.id}
+                  className="pl-6 text-sm"
+                >
+                  {dataSource.name}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
   );
 };
 

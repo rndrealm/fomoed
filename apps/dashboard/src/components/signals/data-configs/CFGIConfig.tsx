@@ -7,6 +7,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { Label } from "@/components/ui/label";
 import {
   Popover,
   PopoverContent,
@@ -113,7 +114,9 @@ export function CFGIConfig({ value, onChange }: CFGIConfigProps) {
     onChange(value === formattedCurrentValue ? "" : formattedCurrentValue);
   };
   return (
-    <div className="space-y-2 p-2">
+    <div className="w-full">
+      <Label className="mb-2 text-muted-foreground">CFGI Symbol</Label>
+
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
