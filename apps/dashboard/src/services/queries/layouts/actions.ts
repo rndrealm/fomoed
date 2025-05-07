@@ -99,3 +99,48 @@ export const getLayoutsAction = async () => {
     layouts: data,
   };
 };
+
+export const deleteLayoutAction = async (layoutId: string) => {
+  const supabase = createSupabaseBrowserClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error("Please login to delete a layout.");
+  }
+
+  // Delete widgets linked to the layout
+  const { error: widgetDeleteError } = await supabase
+    .from("widgets")
+    .delete()
+    .match({ layout_id: layoutId });
+
+  if (widgetDeleteError) {
+    console.error("Error deleting widgets:", widgetDeleteError);
+    throw new Error(widgetDeleteError.message);
+  }
+
+  // Unlink layout from any associated tabs
+  const { error: tabUpdateError } = await supabase
+    .from("tabs")
+    .update({ layout_id: null })
+    .match({ layout_id: layoutId, user_id: user.id });
+
+  if (tabUpdateError) {
+    console.error("Error updating tabs:", tabUpdateError);
+    throw new Error(tabUpdateError.message);
+  }
+
+  // Delete the layout itself
+  const { error: layoutDeleteError } = await supabase
+    .from("layouts")
+    .delete()
+    .match({ id: layoutId, user_id: user.id });
+
+  if (layoutDeleteError) {
+    console.error("Error deleting layout:", layoutDeleteError);
+    throw new Error(layoutDeleteError.message);
+  }
+};
