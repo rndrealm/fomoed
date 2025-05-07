@@ -3,11 +3,14 @@ import { getGridPosition } from "@/charts/helpers";
 import { v4 as uuidv4 } from "uuid";
 import { splitWidgetSlug } from "../utils";
 import { activeTabAtom, tabsAtom } from "./tabsAtom";
-import { createLayoutAndAttachToTabAction } from "@/services/queries/layouts/actions";
 import {
   attachLayoutToTabAction,
   syncLayoutAction,
 } from "@/services/queries/widgets/actions";
+import {
+  createLayoutAndAttachToTabAction,
+  deleteLayoutAction,
+} from "@/services/queries/layouts/actions";
 import { SaveLayoutPayload } from "@/services/queries/widgets/types";
 import { settingAtom } from "./settingsAtom";
 
@@ -464,39 +467,27 @@ export const syncWidgetsToDb = atom(
 //This function adds a layout to a tab
 export const syncLayoutOnSelectAtom = atom(
   null,
-  (
-    get,
-    set,
-    layout: {
-      id: string;
-      name: string;
-      draft: boolean;
-      widgets: {
-        id: string;
-        token: string;
-        meta: ReactGridLayout.Layout;
-        layout_id: string;
-      }[];
-    }
-  ) => {
+  (get, set, layout: LayoutType) => {
     // Get current state
     const currentLayouts = get(layoutAtom);
     const tabs = get(tabsAtom);
     const activeTab = get(activeTabAtom);
 
     // Format the layout to match LayoutType structure
-    const formattedLayout: LayoutType = {
-      id: layout.id,
-      name: layout.name,
-      draft: layout.draft,
-      widgets: layout.widgets.map((widget) => ({
-        id: widget.id,
-        props: {
-          token: widget.token,
-        },
-        meta: widget.meta,
-      })),
-    };
+    // const formattedLayout: LayoutType = {
+    //   id: layout.id,
+    //   name: layout.name,
+    //   draft: layout.draft,
+    //   widgets: layout.widgets.map((widget) => ({
+    //     id: widget.id,
+    //     props: {
+    //       token: widget.token,
+    //     },
+    //     meta: widget.meta,
+    //   })),
+    // };
+
+    const formattedLayout = layout;
 
     // Update the active tab with the new layout_id and name
     const updatedActiveTab = {
@@ -551,5 +542,31 @@ export const syncLayoutToTabToDb = atom(
     } catch (error) {
       console.log("Failed to sync layout with DB:", error);
     }
+  }
+);
+
+export const deleteLayoutAtom = atom(
+  null,
+  async (get, set, { layoutId }: { layoutId: string }) => {
+    const layouts = get(layoutAtom);
+    const updatedLayouts = layouts.filter((layout) => layout.id !== layoutId);
+
+    // Update layoutAtom
+    set(layoutAtom, updatedLayouts);
+
+    // Clean up tabs that were linked to this layout
+    const tabs = get(tabsAtom);
+    const updatedTabs = tabs.map((tab) =>
+      tab.layout_id === layoutId ? { ...tab, layout_id: null } : tab
+    );
+    set(tabsAtom, updatedTabs);
+
+    // If the active tab was using the deleted layout, unset it
+    const activeTab = get(activeTabAtom);
+    if (activeTab?.layout_id === layoutId) {
+      set(activeTabAtom, { ...activeTab, layout_id: null });
+    }
+
+    deleteLayoutAction(layoutId);
   }
 );

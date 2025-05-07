@@ -21,6 +21,8 @@ export default function Home({ dashboardData }: IProps) {
   const loadLayoutsFromApi = useSetAtom(loadLayoutsFromApiAtom);
   const loadSettingsFromApi = useSetAtom(loadSettingsFromApiAtom);
 
+  console.log(dashboardData.layouts);
+
   useEffect(() => {
     loadTabsFromApi(dashboardData.tabs);
     loadLayoutsFromApi(dashboardData.layouts);
