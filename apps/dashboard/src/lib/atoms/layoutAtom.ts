@@ -4,7 +4,10 @@ import { v4 as uuidv4 } from "uuid";
 import { splitWidgetSlug } from "../utils";
 import { activeTabAtom, tabsAtom } from "./tabsAtom";
 import { createLayoutAndAttachToTabAction } from "@/services/queries/layouts/actions";
-import { syncLayoutAction } from "@/services/queries/widgets/actions";
+import {
+  attachLayoutToTabAction,
+  syncLayoutAction,
+} from "@/services/queries/widgets/actions";
 import { SaveLayoutPayload } from "@/services/queries/widgets/types";
 import { settingAtom } from "./settingsAtom";
 
@@ -402,28 +405,6 @@ export const updateWidgetPropsAtom = atom(
   }
 );
 
-// This function saves the new layout to the database
-// It is called when a new layout is created and a widget is added to it
-let currentAbortController: AbortController | null = null;
-export const syncWidgetsToDb = atom(
-  null,
-  async (get, set, { layoutData, widgetData }: SaveLayoutPayload) => {
-    // Abort the previous request if still pending
-    if (currentAbortController) {
-      currentAbortController.abort();
-    }
-
-    // Create a new controller for this request
-    currentAbortController = new AbortController();
-    const signal = currentAbortController.signal;
-    try {
-      await syncLayoutAction({ layoutData, widgetData }, signal);
-    } catch (error) {
-      console.log("Failed to sync widgets with DV:", error);
-    }
-  }
-);
-
 // This function sets the draft property of a layout to false
 export const setLayoutDraftFalseAtom = atom(
   null,
@@ -457,6 +438,30 @@ export const setLayoutDraftFalseAtom = atom(
     set(layoutAtom, updatedLayouts);
   }
 );
+
+// This function saves the new layout to the database
+// It is called when a new layout is created and a widget is added to it
+let currentAbortController: AbortController | null = null;
+export const syncWidgetsToDb = atom(
+  null,
+  async (get, set, { layoutData, widgetData }: SaveLayoutPayload) => {
+    // Abort the previous request if still pending
+    if (currentAbortController) {
+      currentAbortController.abort();
+    }
+
+    // Create a new controller for this request
+    currentAbortController = new AbortController();
+    const signal = currentAbortController.signal;
+    try {
+      await syncLayoutAction({ layoutData, widgetData }, signal);
+    } catch (error) {
+      console.log("Failed to sync widgets with DV:", error);
+    }
+  }
+);
+
+//This function adds a layout to a tab
 export const syncLayoutOnSelectAtom = atom(
   null,
   (
@@ -493,21 +498,6 @@ export const syncLayoutOnSelectAtom = atom(
       })),
     };
 
-    // Add or update the layout in layouts array
-    const layoutExists = currentLayouts.some((l) => l.id === layout.id);
-    let updatedLayouts = [...currentLayouts];
-
-    if (layoutExists) {
-      updatedLayouts = currentLayouts.map((l) =>
-        l.id === layout.id ? formattedLayout : l
-      );
-    } else {
-      updatedLayouts = [...currentLayouts, formattedLayout];
-    }
-
-    // Update the layouts state
-    set(layoutAtom, updatedLayouts);
-
     // Update the active tab with the new layout_id and name
     const updatedActiveTab = {
       ...activeTab,
@@ -525,5 +515,41 @@ export const syncLayoutOnSelectAtom = atom(
     );
 
     set(tabsAtom, updatedTabs);
+
+    // Update layouts with the updated widget
+    const dashboardSetting = get(settingAtom);
+    const syncCondition = dashboardSetting.auto_save;
+
+    if (syncCondition) {
+      set(syncLayoutToTabToDb, {
+        tabId: updatedActiveTab.id,
+        layoutId: formattedLayout.id,
+      });
+    }
+  }
+);
+
+//This functions adds a layout to a tab on the db
+let currentAbortController2: AbortController | null = null;
+export const syncLayoutToTabToDb = atom(
+  null,
+  async (
+    get,
+    set,
+    { tabId, layoutId }: { tabId: string; layoutId: string }
+  ) => {
+    // Abort the previous request if still pending
+    if (currentAbortController2) {
+      currentAbortController2.abort();
+    }
+
+    // Create a new controller for this request
+    currentAbortController2 = new AbortController();
+    const signal = currentAbortController2.signal;
+    try {
+      await attachLayoutToTabAction(tabId, layoutId, signal);
+    } catch (error) {
+      console.log("Failed to sync layout with DB:", error);
+    }
   }
 );
