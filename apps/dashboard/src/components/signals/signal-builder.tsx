@@ -1,15 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { SignalDefinition } from "@/lib/types/signal.types";
-import { generateId, isConditionGroupValid } from "@/lib/utils/signal.utils";
 import { Settings, Wand } from "lucide-react";
 import React, { useState } from "react";
 import { toast } from "sonner";
 // import AISignalBuilder from "./AISignalBuilder";
-import AISignalBuilder from "./ai-builder";
 import ManualSignalBuilder from "./manual-signal-builder";
 import NotificationSettings from "./notification-settings";
-import SignalDetails from "./signal-details";
 
 interface SignalBuilderProps {
   initialSignal?: SignalDefinition;
@@ -22,85 +19,9 @@ const SignalBuilder: React.FC<SignalBuilderProps> = ({
   onSave,
   onCancel,
 }) => {
-  const [signal, setSignal] = useState<SignalDefinition>(
-    initialSignal || {
-      id: generateId(),
-      name: "",
-      description: "",
-      rootCondition: {
-        id: "root",
-        type: "group",
-        operator: "AND",
-        conditions: [
-          {
-            id: generateId(),
-            type: "simple",
-            dataSource: "",
-            operator: "",
-            value: "",
-          },
-        ],
-      },
-      notifications: {
-        email: true,
-        inApp: true,
-      },
-      primaryAssetPair: "btc-usdt", // Default asset pair
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      actions: [
-        {
-          type: "email",
-          subject: "Price Alert",
-          content: "Your price alert triggered!",
-        },
-        {
-          type: "notification",
-          description: "BTC price target reached",
-        },
-      ],
-    }
-  );
-
   const [buildMode, setBuildMode] = useState<string>("manual");
 
-  const handleRootConditionUpdate = (updatedRoot: any) => {
-    setSignal({ ...signal, rootCondition: updatedRoot });
-  };
-
-  const handleNotificationsUpdate = (updatedNotifications: any) => {
-    setSignal({ ...signal, notifications: updatedNotifications });
-  };
-
-  const handleUpdateSignal = (updatedSignal: SignalDefinition) => {
-    setSignal(updatedSignal);
-  };
-
-  const handleUpdatePrimaryAssetPair = (assetPair: string) => {
-    setSignal({ ...signal, primaryAssetPair: assetPair });
-  };
-
   const handleSave = () => {
-    // Validate the signal
-    if (!signal.name.trim()) {
-      toast.error("Signal name is required");
-      return;
-    }
-
-    if (!isConditionGroupValid(signal.rootCondition)) {
-      toast.error("Please complete all conditions before saving");
-      return;
-    }
-
-    // Add timestamps
-    const updatedSignal = {
-      ...signal,
-      updatedAt: new Date().toISOString(),
-    };
-
-    // Convert rootCondition to JSON Logic schema
-
-    onSave(updatedSignal);
     toast.success("Signal saved successfully");
   };
 
@@ -135,27 +56,23 @@ const SignalBuilder: React.FC<SignalBuilderProps> = ({
       {/* Building Frame */}
       {buildMode === "ai" ? (
         <>
-          <AISignalBuilder
+          {/* <AISignalBuilder
             signal={signal}
             onUpdateSignal={handleUpdateSignal}
-          />
+          /> */}
+          AI BUILDER
         </>
       ) : (
-        <ManualSignalBuilder
-          rootCondition={signal.rootCondition}
-          onUpdateRootCondition={handleRootConditionUpdate}
-          primaryAssetPair={signal.primaryAssetPair || "btc-usdt"}
-          onUpdatePrimaryAssetPair={handleUpdatePrimaryAssetPair}
-        />
+        <ManualSignalBuilder />
       )}
 
       <NotificationSettings
-        notifications={signal.notifications}
-        onUpdate={handleNotificationsUpdate}
+        notifications={{ email: false, inApp: false }}
+        onUpdate={() => {}}
       />
 
       {/* Signal Details Frame */}
-      <SignalDetails signal={signal} onUpdateSignal={handleUpdateSignal} />
+      {/* <SignalDetails signal={signal} onUpdateSignal={handleUpdateSignal} /> */}
 
       <div className="flex justify-end gap-3">
         {onCancel && (

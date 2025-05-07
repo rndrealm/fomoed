@@ -5,8 +5,6 @@ import {
 import { useAtom } from "jotai";
 import { useState } from "react";
 
-type Props = {};
-
 const MySignals = (props: Props) => {
   const [smartSignals] = useAtom(smartSignalsAtom);
   const { deleteSmartSignal } = useSmartSignals();

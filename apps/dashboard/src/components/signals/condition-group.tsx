@@ -1,195 +1,155 @@
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import {
-  Condition,
-  ConditionGroup as ConditionGroupType,
-} from "@/lib/types/signal.types";
-import {
-  createConditionGroup,
-  createSimpleCondition,
-  toggleGroupOperator,
-} from "@/lib/utils/signal.utils";
-import { ChevronDown, ChevronUp, Plus } from "lucide-react";
-import React from "react";
-import SimpleConditionComponent from "./simple-condition";
+import { Trash2 } from "lucide-react";
+import { nanoid } from "nanoid";
+import { Button } from "../ui/button";
+import ConditionRow from "./condition-row";
 
-interface ConditionGroupProps {
-  group: ConditionGroupType;
-  onUpdate: (updatedGroup: ConditionGroupType) => void;
-  onDelete?: () => void;
-  nestingLevel?: number;
-  isRoot?: boolean;
-  assetPair?: string;
-}
+export const MAX_DEPTH = 3;
 
-const ConditionGroupComponent: React.FC<ConditionGroupProps> = ({
+export type Condition = {
+  id: string;
+  type: "condition";
+  dataSource: string | null;
+  topic: string | null;
+  operator: string | null;
+  value: string | null;
+};
+
+export type Group = {
+  id: string;
+  type: "group";
+  operand: GroupOperand;
+  children: (Condition | Group)[];
+};
+
+export type GroupOperand = "and" | "or";
+
+export const defaultCondition = (): Condition => ({
+  id: nanoid(),
+  type: "condition",
+  dataSource: "price",
+  topic: null,
+  operator: null,
+  value: null,
+});
+
+export const defaultGroup = (depth: number): Group => ({
+  id: nanoid(),
+  type: "group",
+  operand: "and",
+  children: [defaultCondition()],
+});
+
+type NavConditionGroupProps = {
+  group: Group;
+  depth: number;
+  onUpdate: (group: Group) => void;
+  onRemove?: () => void;
+};
+
+const SignalConditionGroup = ({
   group,
+  depth,
   onUpdate,
-  onDelete,
-  nestingLevel = 0,
-  isRoot = false,
-  assetPair,
-}) => {
-  const [isCollapsed, setIsCollapsed] = React.useState(false);
+  onRemove,
+}: NavConditionGroupProps) => {
+  // Toggle between and/or
+  const handleGroupOperandChange = () => {
+    onUpdate({ ...group, operand: group.operand === "and" ? "or" : "and" });
+  };
 
+  // Add a new condition at this level
   const handleAddCondition = () => {
-    const newCondition = createSimpleCondition();
-    if (assetPair) {
-      newCondition.assetPair = assetPair;
-    }
-
-    const updatedGroup = {
-      ...group,
-      conditions: [...group.conditions, newCondition],
-    };
-    onUpdate(updatedGroup);
+    onUpdate({ ...group, children: [...group.children, defaultCondition()] });
   };
 
+  // Add a new group at this level (if depth < MAX_DEPTH)
   const handleAddGroup = () => {
-    const newGroup = createConditionGroup();
-    if (assetPair) {
-      newGroup.assetPair = assetPair;
+    if (depth < MAX_DEPTH - 1) {
+      onUpdate({
+        ...group,
+        children: [...group.children, defaultGroup(depth + 1)],
+      });
     }
-
-    const updatedGroup = {
-      ...group,
-      conditions: [...group.conditions, newGroup],
-    };
-    onUpdate(updatedGroup);
   };
 
-  const handleConditionUpdate = (
-    index: number,
-    updatedCondition: Condition
-  ) => {
-    const updatedConditions = [...group.conditions];
-    updatedConditions[index] = updatedCondition;
-    onUpdate({
-      ...group,
-      conditions: updatedConditions,
-    });
+  // Update a child (condition or group) by id
+  const handleUpdateChild = (id: string, updated: Condition | Group) => {
+    const next = group.children.map((c) => (c.id === id ? updated : c));
+    onUpdate({ ...group, children: next });
   };
 
-  const handleConditionDelete = (index: number) => {
-    // Don't allow deleting the last condition in the root group
-    if (isRoot && group.conditions.length <= 1) {
-      return;
+  // Remove a child (condition or group) by id
+  const handleRemoveChild = (id: string) => {
+    const next = group.children.filter((c) => c.id !== id);
+    // Always keep at least one condition in a group
+    if (next.length === 0 && depth === 0) {
+      onUpdate({ ...group, children: [defaultCondition()] });
+    } else {
+      onUpdate({ ...group, children: next });
     }
-    const updatedConditions = [...group.conditions];
-    updatedConditions.splice(index, 1);
-    onUpdate({
-      ...group,
-      conditions: updatedConditions,
-    });
   };
-
-  const toggleOperator = () => {
-    onUpdate(toggleGroupOperator(group));
-  };
-
-  const borderColor =
-    nestingLevel % 3 === 0
-      ? "border-orange-400"
-      : nestingLevel % 3 === 1
-        ? "border-blue-400"
-        : "border-purple-400";
 
   return (
-    <Card
-      className={`transition-all duration-200 ease-in-out mb-3 border-l-4 ${borderColor} gap-2`}
-    >
-      <CardHeader className="px-4 py-2 flex flex-row items-center justify-between ">
+    <div className="flex flex-col p-5 border border-border rounded-md bg-background">
+      <div className="flex items-center justify-between pb-4">
         <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="p-0 h-6 w-6"
-            onClick={() => setIsCollapsed(!isCollapsed)}
+          <button
+            onClick={handleGroupOperandChange}
+            className="uppercase px-2 py-1 border border-border rounded text-xs"
           >
-            {isCollapsed ? (
-              <ChevronDown className="h-4 w-4" />
-            ) : (
-              <ChevronUp className="h-4 w-4" />
-            )}
-          </Button>
-
-          <Badge
-            onClick={toggleOperator}
-            className="cursor-pointer bg-orange-500 hover:bg-orange-500/90"
-          >
-            {group.operator}
-          </Badge>
-
-          {!isRoot && onDelete && (
+            {group.operand}
+          </button>
+          {onRemove && (
             <Button
               variant="ghost"
-              size="sm"
-              onClick={onDelete}
-              className="text-gray-500 hover:text-destructive ml-2"
+              size="icon"
+              className="p-2"
+              onClick={onRemove}
             >
-              Remove
+              <Trash2 className="w-4 h-4 text-destructive" />
             </Button>
           )}
         </div>
-
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
+          <button
+            className="px-2 py-1 border border-border rounded text-xs"
             onClick={handleAddCondition}
-            className="text-xs"
           >
-            <Plus className="h-3 w-3 mr-1" />
-            Add Condition
-          </Button>
-
-          {nestingLevel < 3 && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleAddGroup}
-              className="text-xs"
-            >
-              <Plus className="h-3 w-3 mr-1" />
-              Add Group
-            </Button>
-          )}
+            Add condition
+          </button>
+          <button
+            className="px-2 py-1 border border-border rounded text-xs"
+            onClick={handleAddGroup}
+            disabled={depth >= MAX_DEPTH - 1}
+          >
+            Add group
+          </button>
         </div>
-      </CardHeader>
-
-      {!isCollapsed && (
-        <CardContent className="pt-2">
-          {group.conditions.map((condition, index) => (
-            <div key={condition.id} className="mb-2">
-              {condition.type === "simple" ? (
-                <SimpleConditionComponent
-                  condition={condition as any}
-                  onUpdate={(updated) => handleConditionUpdate(index, updated)}
-                  onDelete={() => handleConditionDelete(index)}
-                  assetPair={assetPair}
-                />
-              ) : (
-                <ConditionGroupComponent
-                  group={condition as ConditionGroupType}
-                  onUpdate={(updated) => handleConditionUpdate(index, updated)}
-                  onDelete={() => handleConditionDelete(index)}
-                  nestingLevel={nestingLevel + 1}
-                  assetPair={assetPair}
-                />
-              )}
+      </div>
+      <div className="flex flex-col gap-4">
+        {group.children.map((child) =>
+          child.type === "condition" ? (
+            <ConditionRow
+              key={child.id}
+              condition={child as Condition}
+              onChange={(updated) => handleUpdateChild(child.id, updated)}
+              onRemove={() => handleRemoveChild(child.id)}
+              isRemovable={group.children.length > 1}
+            />
+          ) : (
+            <div key={child.id} className="pl-4">
+              <SignalConditionGroup
+                group={child as Group}
+                depth={depth + 1}
+                onUpdate={(updated) => handleUpdateChild(child.id, updated)}
+                onRemove={() => handleRemoveChild(child.id)}
+              />
             </div>
-          ))}
-
-          {group.conditions.length === 0 && (
-            <div className="text-center py-4 text-gray-500">
-              No conditions. Add a condition or group.
-            </div>
-          )}
-        </CardContent>
-      )}
-    </Card>
+          )
+        )}
+      </div>
+    </div>
   );
 };
 
-export default ConditionGroupComponent;
+export default SignalConditionGroup;

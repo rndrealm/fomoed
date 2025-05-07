@@ -1,7 +1,5 @@
-import React from "react";
 import { Button } from "@/components/ui/button";
-import { Trash2, Plus, ChevronRight, ChevronDown } from "lucide-react";
-import { update, unset } from "lodash-es";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -11,13 +9,15 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { useAtom } from "jotai";
-import { DataType, DATA_TYPES, OperandValue, ConditionObject } from "./conditionTypes";
-import { DataConfigDialog, selectedDataTypeAtom } from "./DataConfigDialog";
+import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { useAtom } from "jotai";
+import { unset, update } from "lodash-es";
+import { ChevronDown, ChevronRight, Plus, Trash2 } from "lucide-react";
+import React from "react";
+import { ConditionObject, DATA_TYPES, DataType, OperandValue } from "./conditionTypes";
+import { DataConfigDialog, selectedDataTypeAtom } from "./DataConfigDialog";
 
 function updateCondition(condition: ConditionObject, path: (string | number)[], value: any): ConditionObject {
     const updatedCondition = JSON.parse(JSON.stringify(condition)); // Create a deep copy

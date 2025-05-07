@@ -1,5 +1,8 @@
 import SignalBuilder from "@/components/signals/signal-builder";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Plus } from "lucide-react";
+import AddSmartSignalPopup from "./AddSmartSignalPopup";
 import SmartSignalList from "./SmartSignalList";
 // import { Button } from "@/components/ui/button";
 // import {
@@ -82,6 +85,17 @@ export default function SmartSignalsMvp() {
           <TabsContent className="w-full" value="my-signals">
             <div className="space-y-2 overflow-y-auto">
               <div className="grid grid-cols-2 gap-6">
+                <AddSmartSignalPopup
+                  trigger={
+                    <Button
+                      variant="outline"
+                      className="border-dashed border-border bg-muted text-primary hover:text-primary/80 hover:bg-muted/80 max-w-max"
+                    >
+                      <Plus size={16} />
+                      Add Smart Signal
+                    </Button>
+                  }
+                />
                 <SmartSignalList />
               </div>
             </div>
