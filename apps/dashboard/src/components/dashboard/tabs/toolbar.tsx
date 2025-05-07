@@ -1,6 +1,7 @@
 import React, { Fragment, useEffect, useState } from "react";
 import {
   AddWidget,
+  ErrorSave,
   Saved,
   Settings,
   ToolbarLayout,
@@ -13,11 +14,15 @@ import {
   TooltipTrigger,
 } from "../../ui/tooltip";
 import { NewTabs } from "./new-tab";
-import { ModalContainer } from "../../shared";
+import { ModalContainer, RenderIf } from "../../shared";
 import { QuickWidgets } from "../quick-widgets";
 import { useSyncLayouts } from "@/services/queries/widgets";
-import { useAtomValue, useSetAtom } from "jotai";
-import { layoutAtom, setLayoutDraftFalseAtom } from "@/lib/atoms/layoutAtom";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import {
+  layoutAtom,
+  layoutChangedAtom,
+  setLayoutDraftFalseAtom,
+} from "@/lib/atoms/layoutAtom";
 import { activeTabAtom, loadTabsFromApiAtom } from "@/lib/atoms/tabsAtom";
 import { toast } from "sonner";
 import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
@@ -26,6 +31,7 @@ import { LayoutDropdown } from "../layout-dropdown";
 import { useReadTabs } from "@/services/queries/tabs";
 import { Loader2 } from "lucide-react";
 import { SettingsDropdown } from "../settings-dropdown";
+import { settingAtom } from "@/lib/atoms/settingsAtom";
 
 interface IToolbarItem {
   onClick?: () => void;
@@ -55,10 +61,12 @@ function ToolbarItem(props: IToolbarItem) {
 
 export function Toolbar() {
   const [showWidgetsModal, setShowWidgetsModal] = useState(false);
-  const { mutate, isPending } = useSyncLayouts();
+  const { mutate, isPending, isError, isSuccess } = useSyncLayouts();
   const activeTab = useAtomValue(activeTabAtom);
   const layouts = useAtomValue(layoutAtom);
+  const settings = useAtomValue(settingAtom);
   const setLayoutDraftFalse = useSetAtom(setLayoutDraftFalseAtom);
+  const [layoutChange, setLayoutChange] = useAtom(layoutChangedAtom);
 
   const currLayoutId = activeTab.layout_id;
   const currLayout = layouts.find((item) => item.id === currLayoutId);
@@ -101,6 +109,13 @@ export function Toolbar() {
       widgetData: formatWidgets,
     });
   };
+
+  useEffect(() => {
+    if (isSuccess) {
+      setLayoutChange(false);
+    }
+  }, [isSuccess]);
+
   return (
     <Fragment>
       <div className="flex items-center justify-between gap-4">
@@ -128,13 +143,36 @@ export function Toolbar() {
               {isPending ? <Loader /> : <Unsaved />}
             </button>
           </div> */}
-          {currLayout && !currLayout?.draft ? (
+          <RenderIf condition={!!currLayout && !currLayout?.draft}>
+            <Fragment>
+              <RenderIf
+                condition={!settings.auto_save && !isError && !layoutChange}
+              >
+                <ToolbarItem
+                  icon={isPending ? <Loader /> : <Unsaved />}
+                  label="Save"
+                  onClick={isPending ? () => {} : handleSaveLayout}
+                />
+              </RenderIf>
+
+              <RenderIf
+                condition={isError || (layoutChange && !settings.auto_save)}
+              >
+                <ToolbarItem
+                  icon={isPending ? <Loader /> : <ErrorSave />}
+                  label="Save"
+                  onClick={isPending ? () => {} : handleSaveLayout}
+                />
+              </RenderIf>
+            </Fragment>
+          </RenderIf>
+          {/* {currLayout && !currLayout?.draft ? (
             <ToolbarItem
               icon={isPending ? <Loader /> : <Unsaved />}
               label="Save"
               onClick={isPending ? () => {} : handleSaveLayout}
             />
-          ) : null}
+          ) : null} */}
           <LayoutDropdown />
           <SettingsDropdown />
         </div>
