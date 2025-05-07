@@ -5,7 +5,7 @@ import { toast } from "sonner";
 
 export const useSyncLayouts = () => {
   const queryClient = useQueryClient();
-  const { mutate, isPending, isError } = useMutation({
+  const response = useMutation({
     mutationFn: async (body: SaveLayoutPayload): Promise<any> => {
       return await saveLayoutAction(body);
     },
@@ -21,9 +21,7 @@ export const useSyncLayouts = () => {
     },
   });
   return {
-    mutate,
-    isPending,
-    isError,
+    ...response,
   };
 };
 

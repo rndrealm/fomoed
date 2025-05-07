@@ -29,6 +29,8 @@ export interface LayoutType {
 
 export const layoutAtom = atom<LayoutType[]>([]);
 
+export const layoutChangedAtom = atom(false);
+
 // This function creates a new layout, adds a new widget to it, saves it to the local state and sends it to the db
 export const addWidgetToNewLayoutAtom = atom(
   null,
@@ -154,6 +156,7 @@ export const addWidgetToExistingLayoutAtom = atom(
 
     // Update the layouts atom with the new state
     set(layoutAtom, updatedLayouts);
+    set(layoutChangedAtom, true);
     if (sync) {
       set(syncWidgetsToDb, {
         layoutData: {
@@ -233,6 +236,7 @@ export const syncOnLayoutChange = atom(
     };
     // Update layouts with the updated widgets
     set(layoutAtom, updatedLayouts);
+    set(layoutChangedAtom, true);
 
     if (sync) {
       set(syncWidgetsToDb, {
@@ -306,6 +310,8 @@ export const deleteWidgetAtom = atom(
     set(layoutAtom, updatedLayouts);
     const dashboardSetting = get(settingAtom);
     const syncCondition = dashboardSetting.auto_save || currentLayout?.draft;
+
+    set(layoutChangedAtom, true);
 
     if (syncCondition) {
       set(syncWidgetsToDb, {
@@ -392,6 +398,7 @@ export const updateWidgetPropsAtom = atom(
     set(layoutAtom, updatedLayouts);
     const dashboardSetting = get(settingAtom);
     const syncCondition = dashboardSetting.auto_save || currentLayout?.draft;
+    set(layoutChangedAtom, true);
 
     if (syncCondition) {
       set(syncWidgetsToDb, {
