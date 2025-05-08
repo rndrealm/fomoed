@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getActivePlan } from "./actions";
 import api from "@/services/api";
+import { SubscriptionsResponse } from "./types";
 
 export const useGetActiveSubs = () => {
   const hash = ["subs"];
@@ -21,14 +22,13 @@ export const useGetActiveSubs = () => {
 
 export const useGetUserPlans = () => {
   const hash = ["plans"];
-  const { data, isPending, error, isSuccess } = useQuery<any>({
+  const { data, isPending, error, isSuccess } = useQuery({
     queryKey: hash,
     queryFn: async () => {
       const response = await api.get({
         url: `/api/subscriptions`,
       });
-      return response.data;
-      console.log("response", response);
+      return response.data as SubscriptionsResponse;
     },
   });
   return {

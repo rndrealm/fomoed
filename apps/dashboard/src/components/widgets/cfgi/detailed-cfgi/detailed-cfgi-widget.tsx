@@ -120,7 +120,6 @@ export default function DetailedCfgiWidget(props: IProps) {
                 viewOption={widget.props?.sentiment_tab || "both"}
               />
             ) : (
-              // <Skeleton className="w-full h-full bg-widget-background-200" />
               <Skeleton className="w-full h-full bg-widget-background-200" />
             )}
           </div>

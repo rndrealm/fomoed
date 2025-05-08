@@ -55,7 +55,7 @@ const CoinDropdown = (props: ICoinDropdownProps) => {
           .filter((fl) => cfgi_supported_tokens.includes(fl.symbol))
           .map((coin, i) => (
             <DropdownMenuCheckboxItem
-              className="text-white"
+              className="text-white focus:text-white focus:bg-[#080808] "
               disabled={
                 !userPlans?.hasPlan &&
                 coin.symbol !== "BTC" &&

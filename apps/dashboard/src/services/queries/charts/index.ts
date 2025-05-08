@@ -39,7 +39,7 @@ export const useReadCfgiData = (
 };
 
 export const useReadCoinList = () => {
-  const hash = ["coinList"];
+  const hash = ["coin-list"];
   const { data, isPending, error, isSuccess } = useQuery({
     queryKey: hash,
     queryFn: async () => {

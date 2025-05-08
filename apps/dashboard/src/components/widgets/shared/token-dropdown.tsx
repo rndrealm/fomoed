@@ -45,11 +45,12 @@ const TokenDropdown = (props: ITokenDropdownProps) => {
           </div>
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56 max-h-[200px]">
+      <DropdownMenuContent className="w-56 max-h-[200px] bg-[#121212] ">
         {options
           .filter((fl) => cfgi_supported_tokens.includes(fl.symbol))
           .map((coin, i) => (
             <DropdownMenuCheckboxItem
+              className="text-white focus:text-white focus:bg-[#080808] "
               key={i}
               checked={value === coin.symbol}
               onCheckedChange={() => {
