@@ -27,6 +27,8 @@ export const getActivePlan = async () => {
     throw new Error(sub_error.message);
   }
 
+  console.log("subscriptions:", subscriptions);
+
   const subs = subscriptions.filter(
     (sub) => new Date(sub.end_timestamp).getTime() > Date.now()
   );

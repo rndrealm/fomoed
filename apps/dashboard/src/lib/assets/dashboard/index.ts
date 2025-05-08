@@ -7,6 +7,7 @@ import liq from "../../../../public/media/images/dashboard/liq.png";
 import liqHeat from "../../../../public/media/images/dashboard/liq-heat.png";
 import exLiq from "../../../../public/media/images/dashboard/ex-liq.png";
 import premiumLogo from "../../../../public/media/images/dashboard/premium-logo.png";
+import news from "../../../../public/media/images/dashboard/news.png";
 
 const dashboard = {
   layoutPlaceholder,
@@ -18,6 +19,7 @@ const dashboard = {
   liqHeat,
   exLiq,
   premiumLogo,
+  news,
 };
 
 export default dashboard;

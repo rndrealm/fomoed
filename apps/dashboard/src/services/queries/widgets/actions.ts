@@ -266,3 +266,46 @@ export const getUserTabsAction = async () => {
     tabs: [newTab],
   };
 };
+
+export const attachLayoutToTabAction = async (
+  tabId: string,
+  layoutId: string,
+  signal?: AbortSignal
+) => {
+  const supabase = createSupabaseBrowserClient();
+
+  if (signal?.aborted) {
+    return;
+  }
+
+  // Get the current user
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error("Please login to attach a layout to a tab.");
+  }
+
+  if (signal?.aborted) {
+    return;
+  }
+
+  // Update the tab to reference the provided layout
+  const { data: updatedTab, error: updateError } = await supabase
+    .from("tabs")
+    .update({ layout_id: layoutId })
+    .eq("id", tabId)
+    .eq("user_id", user.id)
+    .select()
+    .single();
+
+  if (updateError) {
+    console.log("Error attaching layout to tab:", updateError);
+    throw new Error(updateError.message);
+  }
+
+  return {
+    tab: updatedTab,
+  };
+};

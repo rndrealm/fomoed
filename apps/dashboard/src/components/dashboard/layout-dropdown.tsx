@@ -39,8 +39,6 @@ export function LayoutDropdown() {
 
   const layoutRef = useRef("");
 
-  console.log(layouts);
-
   return (
     <Fragment>
       <TooltipProvider>

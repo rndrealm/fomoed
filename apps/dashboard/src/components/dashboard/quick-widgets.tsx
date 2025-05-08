@@ -12,7 +12,7 @@ const categoriesOptions = [
   { id: 1, label: "All", value: "all" },
   { id: 2, label: "Charts", value: "charts" },
   { id: 3, label: "News", value: "news" },
-  { id: 4, label: "Custom Widgets", value: "custom-widgets" },
+  // { id: 4, label: "Custom Widgets", value: "custom-widgets" },
 ];
 
 interface IProps {
@@ -26,13 +26,15 @@ export function QuickWidgets(props: IProps) {
   const [searchValue, setSearchValue] = useState("");
 
   const filteredWidget = useMemo(() => {
-    if (!searchValue) return layoutOptionsMap;
+    if (!searchValue && selectedTag === "all") return layoutOptionsMap;
     return layoutOptionsMap.filter((widget) => {
       const name = widget.name.toLowerCase();
+      const category = widget.category.toLowerCase();
       const search = searchValue.toLowerCase();
-      return name.includes(search);
+      const tag = selectedTag.toLowerCase() === "all" ? "" : selectedTag;
+      return name.includes(search) && category.includes(tag);
     });
-  }, [searchValue]);
+  }, [searchValue, selectedTag]);
 
   return (
     <div className="flex items-center justify-center w-full h-full overflow-hidden">
@@ -58,7 +60,7 @@ export function QuickWidgets(props: IProps) {
             Back
           </button>
         </div>
-        {/* <div className="flex items-center gap-1 px-4">
+        <div className="flex items-center gap-1 px-4">
           {categoriesOptions.map((item) => {
             const active = selectedTag === item.value;
             return (
@@ -79,7 +81,7 @@ export function QuickWidgets(props: IProps) {
               </button>
             );
           })}
-        </div> */}
+        </div>
         <div className="px-4 pb-4 flex-1 flex flex-col gap-[10px] h-full w-full min-h-0">
           <p className="text-[#7d7d7d] leading-[1.33] font-semibold text-xs">
             Quick Widgets

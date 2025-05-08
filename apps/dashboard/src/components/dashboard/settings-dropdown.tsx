@@ -24,7 +24,6 @@ import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 import Loader from "../shared/loader";
 import { RenderIf } from "../shared";
-import { useGetActiveSubs } from "@/services/queries/subscriptions";
 
 interface IAutoSave {
   autosave: boolean;
@@ -72,8 +71,6 @@ export function SettingsDropdown() {
 
   const currLayoutId = activeTab.layout_id;
   const currLayout = layouts.find((item) => item.id === currLayoutId);
-
-  const { data: activeSubs } = useGetActiveSubs();
 
   const handleSaveLayout = async () => {
     if (isPending) return;
