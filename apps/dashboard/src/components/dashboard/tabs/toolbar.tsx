@@ -3,6 +3,7 @@ import {
   AddWidget,
   ErrorSave,
   Saved,
+  SaveDraft,
   Settings,
   ToolbarLayout,
   Unsaved,
@@ -32,6 +33,7 @@ import { useReadTabs } from "@/services/queries/tabs";
 import { Loader2 } from "lucide-react";
 import { SettingsDropdown } from "../settings-dropdown";
 import { settingAtom } from "@/lib/atoms/settingsAtom";
+import { NameLayout } from "@/components/modals";
 
 interface IToolbarItem {
   onClick?: () => void;
@@ -61,6 +63,9 @@ function ToolbarItem(props: IToolbarItem) {
 
 export function Toolbar() {
   const [showWidgetsModal, setShowWidgetsModal] = useState(false);
+  const [showNameModal, setShowNameModal] = useState(false);
+  const [newLayoutName, setNewLayoutName] = useState("");
+
   const { mutate, isPending, isError, isSuccess } = useSyncLayouts();
   const activeTab = useAtomValue(activeTabAtom);
   const layouts = useAtomValue(layoutAtom);
@@ -84,6 +89,12 @@ export function Toolbar() {
       toast("You need to add a widget to save your layout.", {});
       return;
     }
+
+    if (currentLayout.name === "" && newLayoutName === "") {
+      setShowNameModal(true);
+      return;
+    }
+
     const supabase = createSupabaseBrowserClient();
 
     const {
@@ -99,12 +110,12 @@ export function Toolbar() {
       };
     });
 
-    setLayoutDraftFalse({ layoutId: currentLayout.id });
+    setLayoutDraftFalse({ layoutId: currentLayout.id, name: newLayoutName });
 
     mutate({
       layoutData: {
         id: currentLayout.id,
-        name: activeTab.name,
+        name: currentLayout?.name || newLayoutName,
       },
       widgetData: formatWidgets,
     });
@@ -143,6 +154,15 @@ export function Toolbar() {
               {isPending ? <Loader /> : <Unsaved />}
             </button>
           </div> */}
+
+          <RenderIf condition={!!currLayout && currLayout?.draft}>
+            <ToolbarItem
+              icon={isPending ? <Loader /> : <SaveDraft />}
+              label="Save Draft"
+              onClick={isPending ? () => {} : handleSaveLayout}
+            />
+          </RenderIf>
+
           <RenderIf condition={!!currLayout && !currLayout?.draft}>
             <Fragment>
               <RenderIf
@@ -193,6 +213,27 @@ export function Toolbar() {
           }}
         />
       </ModalContainer>
+
+      <NameLayout
+        open={showNameModal}
+        handleCloseModal={() => {
+          setShowNameModal(false);
+        }}
+        value={newLayoutName}
+        onChange={(name) => {
+          setNewLayoutName(name);
+        }}
+        handleSave={() => {
+          if (newLayoutName.trim() === "") return;
+
+          handleSaveLayout();
+          setNewLayoutName("");
+          setShowNameModal(false);
+        }}
+        title="Name Layout"
+        details="Create a name for your Layout?"
+        placeholder="Layout Name"
+      />
     </Fragment>
   );
 }
