@@ -1,8 +1,8 @@
-import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
-import { ConditionObject } from "../conditionTypes";
 import useUserData from "@/lib/hooks/use-user-data"; // import the hook
-import { useCallback, useEffect } from "react";
+import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
 import { atom, useAtom } from "jotai";
+import { useCallback, useEffect, useState } from "react";
+import { ConditionObject } from "../conditionTypes";
 
 // Atom to hold the smart signals globally
 export const smartSignalsAtom = atom<SmartSignalRow[]>([]);
@@ -60,6 +60,7 @@ export interface CreateSmartSignalOptions {
 export function useSmartSignals() {
     const userData = useUserData();
     const [smartSignals, setSmartSignals] = useAtom(smartSignalsAtom);
+    const [isLoading, setIsLoading] = useState(true)
 
     const refreshSmartSignals = useCallback(async () => {
         if (!userData) {
@@ -71,6 +72,7 @@ export function useSmartSignals() {
         if (!error && data) {
             setSmartSignals(data as SmartSignalRow[]);
         }
+        setIsLoading(false);
     }, [userData, setSmartSignals]);
 
     const saveSmartSignal = async (
@@ -122,5 +124,5 @@ export function useSmartSignals() {
         refreshSmartSignals();
     }, [refreshSmartSignals]);
 
-    return { smartSignals, saveSmartSignal, deleteSmartSignal, refreshSmartSignals };
+    return { smartSignals, saveSmartSignal, deleteSmartSignal, refreshSmartSignals, isLoading };
 }

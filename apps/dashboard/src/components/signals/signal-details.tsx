@@ -2,27 +2,30 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { SignalDefinition } from "@/lib/types/signal.types";
 import React from "react";
 // import { generateSignalSummary } from "../../utils/aiUtils";
 
 interface SignalDetailsProps {
-  signal: SignalDefinition;
-  onUpdateSignal: (updatedSignal: SignalDefinition) => void;
+  name: string;
+  description: string;
+  onNameChange: (name: string) => void;
+  onDescriptionChange: (description: string) => void;
 }
 
-const SignalDetails: React.FC<SignalDetailsProps> = ({
-  signal,
-  onUpdateSignal,
-}) => {
+const SignalDetails = ({
+  name,
+  description,
+  onNameChange,
+  onDescriptionChange,
+}: SignalDetailsProps) => {
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onUpdateSignal({ ...signal, name: e.target.value });
+    onNameChange(e.target.value);
   };
 
   const handleDescriptionChange = (
     e: React.ChangeEvent<HTMLTextAreaElement>
   ) => {
-    onUpdateSignal({ ...signal, description: e.target.value });
+    onDescriptionChange(e.target.value);
   };
 
   const handleGenerateSummary = () => {
@@ -50,7 +53,7 @@ const SignalDetails: React.FC<SignalDetailsProps> = ({
           </label>
           <Input
             id="signal-name"
-            value={signal.name}
+            value={name}
             onChange={handleNameChange}
             placeholder="Enter a name for your signal"
           />
@@ -69,7 +72,7 @@ const SignalDetails: React.FC<SignalDetailsProps> = ({
           </div>
           <Textarea
             id="signal-description"
-            value={signal.description}
+            value={description}
             onChange={handleDescriptionChange}
             placeholder="Enter a description for your signal"
             rows={3}

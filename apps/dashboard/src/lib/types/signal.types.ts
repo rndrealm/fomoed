@@ -1,75 +1,14 @@
-export type DataSourceType = "number" | "boolean" | "string" | "enum";
-
-export interface DataSource {
+export interface ISignal {
   id: string;
-  name: string;
-  type: DataSourceType;
-  category: string;
-  enumValues?: string[];
-}
-
-export type OperatorType =
-  | ">"
-  | "<"
-  | ">="
-  | "<="
-  | "=="
-  | "!="
-  | "contains"
-  | "startsWith"
-  | "endsWith";
-
-export interface Operator {
-  id: string;
-  symbol: OperatorType;
-  name: string;
-  applicableTypes: DataSourceType[];
-}
-
-export type ConditionType = "simple" | "group";
-export type LogicalOperator = "AND" | "OR";
-
-export interface SimpleCondition {
-  id: string;
-  type: "simple";
-  dataSource: string; // ID of the data source
-  operator: string; // ID of the operator
-  value: string | number | boolean;
-  assetPair?: string; // Optional asset pair reference
-}
-
-export interface ConditionGroup {
-  id: string;
-  type: "group";
-  operator: LogicalOperator;
-  conditions: Condition[];
-  assetPair?: string; // Optional asset pair reference
-}
-
-export type Condition = SimpleCondition | ConditionGroup;
-
-export type Action =
-  | {
-      type: "email";
-      subject: string;
-      content: string;
-    }
-  | {
-      type: "notification";
-      description: string;
-    };
-
-export interface SignalDefinition {
-  id: string;
+  user_id: number;
   name: string;
   description: string;
-  rootCondition: ConditionGroup;
-  notifications: {
+  condition: string;
+  topics: string[];
+  actions: {
     email: boolean;
-    inApp: boolean;
+    notification: boolean;
   };
-  createdAt: string;
-  updatedAt: string;
-  primaryAssetPair?: string; // Optional primary asset pair for the whole signal
-  actions: Action[];
+  created_at: string;
+  updated_at: string;
 }

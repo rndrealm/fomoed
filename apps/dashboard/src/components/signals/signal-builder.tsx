@@ -1,25 +1,28 @@
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { SignalDefinition } from "@/lib/types/signal.types";
+
 import { Settings, Wand } from "lucide-react";
 import React, { useState } from "react";
 import { toast } from "sonner";
 // import AISignalBuilder from "./AISignalBuilder";
 import ManualSignalBuilder from "./manual-signal-builder";
 import NotificationSettings from "./notification-settings";
+import SignalDetails from "./signal-details";
 
 interface SignalBuilderProps {
-  initialSignal?: SignalDefinition;
-  onSave: (signal: SignalDefinition) => void;
+  // onSave: (signal: SignalDefinition) => void;
   onCancel?: () => void;
 }
 
 const SignalBuilder: React.FC<SignalBuilderProps> = ({
-  initialSignal,
-  onSave,
+  // initialSignal,
+  // onSave,
   onCancel,
 }) => {
   const [buildMode, setBuildMode] = useState<string>("manual");
+
+  const [signalName, setSignalName] = useState("");
+  const [signalDescription, setSignalDescription] = useState("");
 
   const handleSave = () => {
     toast.success("Signal saved successfully");
@@ -71,8 +74,12 @@ const SignalBuilder: React.FC<SignalBuilderProps> = ({
         onUpdate={() => {}}
       />
 
-      {/* Signal Details Frame */}
-      {/* <SignalDetails signal={signal} onUpdateSignal={handleUpdateSignal} /> */}
+      <SignalDetails
+        name={signalName}
+        description={signalDescription}
+        onNameChange={setSignalName}
+        onDescriptionChange={setSignalDescription}
+      />
 
       <div className="flex justify-end gap-3">
         {onCancel && (

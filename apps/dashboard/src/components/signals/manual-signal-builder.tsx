@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import SignalConditionGroup, {
   Condition,
   defaultGroup,
@@ -32,7 +32,7 @@ const ManualSignalBuilder = () => {
   }, []);
 
   // Update JSON-logic output whenever the group tree changes
-  React.useEffect(() => {
+  useEffect(() => {
     setLogic(toJsonLogic(rootGroup));
   }, [rootGroup, toJsonLogic]);
 
@@ -40,7 +40,16 @@ const ManualSignalBuilder = () => {
     const testData = {
       user_id: 4291,
       topics: ["ticker_BTCUSDT"],
-      condition: '{">":[100000,{"topic":["ticker_BTCUSDT","price"]}]}',
+      name: "Test Signal",
+      description: "Test Signal Description",
+      condition: JSON.stringify({
+        ">": [
+          10000,
+          {
+            topic: ["ticker_BTCUSDT", "price"],
+          },
+        ],
+      }),
       actions: [
         {
           type: "email",
@@ -56,7 +65,7 @@ const ManualSignalBuilder = () => {
 
     try {
       const response = await fetch(
-        "http://api.fomoed.io:8080/api/v1/smart-signal/new",
+        "http://localhost:8080/api/v1/smart-signal/new",
         {
           method: "POST",
           headers: {
@@ -82,12 +91,6 @@ const ManualSignalBuilder = () => {
         depth={0}
         onUpdate={updateGroup}
       />
-      <div className="pt-6">
-        <div className="text-lg font-semibold pb-2">JSON Logic Output</div>
-        <pre className="bg-muted rounded p-4 text-xs overflow-x-auto">
-          {logic ? JSON.stringify(logic, null, 2) : "No logic yet"}
-        </pre>
-      </div>
 
       <button onClick={handleTestApi}>Test API</button>
     </div>
