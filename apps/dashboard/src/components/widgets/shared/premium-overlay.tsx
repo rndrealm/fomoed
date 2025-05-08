@@ -2,7 +2,7 @@
 
 import { RenderIf } from "@/components/shared";
 import dashboard from "@/lib/assets/dashboard";
-import { useGetActiveSubs } from "@/services/queries/subscriptions";
+import { useGetUserPlans } from "@/services/queries/subscriptions";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import React, { Fragment, ReactNode } from "react";
@@ -13,10 +13,11 @@ interface IProps {
 
 const PremiumOverlay = (props: IProps) => {
   const { children } = props;
-  const { data: activeSubs } = useGetActiveSubs();
+  const { data: userPlans } = useGetUserPlans();
+
   return (
     <>
-      <RenderIf condition={!!activeSubs?.hasPlan}>
+      <RenderIf condition={!userPlans?.hasPlan}>
         <div
           className="absolute w-full h-full top-0 left-0  z-[10] backdrop-blur-[14px] rounded-[20px]"
           style={{

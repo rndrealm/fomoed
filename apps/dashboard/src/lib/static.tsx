@@ -22,6 +22,7 @@ import {
   liquidHeatMapTimeframeOptions,
   liquidTimeframeOptions,
 } from "@/constant/cfgi-data";
+import TokenNewsWidget from "@/components/widgets/news/token-news/token-news-widget";
 
 export const layoutClassMap = {
   SinglePane: "grid-rows-1 grid-cols-1",
@@ -91,30 +92,42 @@ export const layoutOptionsMap = [
     name: "Crypto Fear and Greed Map",
     slug: "detailed-cfgi",
     image: dashboard.cfgi,
+    category: "charts",
   },
   {
     id: 2,
     name: "Simplify Crypto Fear and Greed Map",
     slug: "simple-cfgi",
     image: dashboard.simpleCfgi,
+    category: "charts",
   },
   {
     id: 3,
     name: "Liquidation Map",
     slug: "liquidation-map",
     image: dashboard.liq,
+    category: "charts",
   },
   {
     id: 4,
     name: "Liquidation Heat Map",
     slug: "liquidation-heat-map",
     image: dashboard.liqHeat,
+    category: "charts",
   },
   {
     id: 5,
     name: "Exchange Liquidation Map",
     slug: "exchange-liquidation-map",
     image: dashboard.exLiq,
+    category: "charts",
+  },
+  {
+    id: 6,
+    name: "Token News",
+    slug: "token-news",
+    image: dashboard.cfgi,
+    category: "news",
   },
 ];
 
@@ -157,6 +170,13 @@ export const chartsMap = {
       <LiquidationExchangeWidget widget={widget} />
     ),
   },
+  "token-news": {
+    name: "Token News",
+    extra: ["token"],
+    component: (widget: LayoutType["widgets"][0]) => (
+      <TokenNewsWidget widget={widget} />
+    ),
+  },
 };
 
 export const widgetIdJoin = "@/$";
@@ -178,23 +198,50 @@ export const widgetPropsDefaults = {
     period: CFGI_SUPPORTED_PERIODS_ENUM.DAY1 as string,
     exchange_token: exchangePairDefault.label,
     sentiment_tab: "both",
+    meta: {
+      w: 3,
+      h: 2,
+    },
   },
   "simple-cfgi": {
     token: "BTC",
     period: CFGI_SUPPORTED_PERIODS_ENUM.DAY1 as string,
+    meta: {
+      w: 3,
+      h: 2,
+    },
   },
   "liquidation-map": {
     token: "BTC",
     period: liquidTimeframeOptions[0].value,
     exchange_token: exchangePairDefault.label,
+    meta: {
+      w: 3,
+      h: 2,
+    },
   },
   "liquidation-heat-map": {
     token: "BTC",
     period: liquidHeatMapTimeframeOptions[0].value,
     exchange_token: exchangePairDefault.label,
+    meta: {
+      w: 3,
+      h: 2,
+    },
   },
   "exchange-liquidation-map": {
     token: "BTC",
     period: liquidTimeframeOptions[0].value,
+    meta: {
+      w: 3,
+      h: 2,
+    },
+  },
+  "token-news": {
+    token: "BTC",
+    meta: {
+      w: 1.5,
+      h: 2,
+    },
   },
 };

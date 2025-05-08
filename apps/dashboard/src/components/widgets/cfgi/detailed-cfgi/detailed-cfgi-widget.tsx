@@ -2,13 +2,9 @@
 
 import { useReadCfgiData, useReadCoinList } from "@/services/queries/charts";
 import CoinDropdown from "../../shared/coin-dropdown";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import PeriodDropdown from "../../shared/period-dropdown";
-import {
-  CFGI_SUPPORTED_PERIODS_ENUM,
-  CfgiPeriods,
-  TabOptions,
-} from "@/constant/cfgi-data";
+import { CFGI_SUPPORTED_PERIODS_ENUM, CfgiPeriods } from "@/constant/cfgi-data";
 import { Skeleton } from "@/components/ui/skeleton";
 import ChartLegend from "../../shared/chart-legend";
 import DetailedCfgiChart from "@/components/widgets/cfgi/detailed-cfgi/detailed-cfgi-chart";
@@ -17,7 +13,7 @@ import { cn } from "@/lib/utils";
 import { useAtomValue, useSetAtom } from "jotai";
 import { LayoutType, updateWidgetPropsAtom } from "@/lib/atoms/layoutAtom";
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
-import PremiumOverlay from "../../shared/premium-overlay";
+import WidgetHeader from "../../shared/widget-header";
 
 const colorToCfgi = [
   {
@@ -63,55 +59,60 @@ export default function DetailedCfgiWidget(props: IProps) {
   const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
 
   return (
-    <>
-      <div
-        className={cn("flex flex-col justify-center w-full h-full rounded-sm")}
-      >
-        <div className="px-3 py-4">
-          {coinData ? (
-            <div className="flex items-center justify-between">
-              <CoinDropdown
-                options={coinData || []}
-                value={widget.props?.token}
-                setValue={(coin: string) => {
-                  updateWidgetPropsFromAtom({
-                    tabId: activeLayout.id,
-                    widgetId: widget.id,
-                    widgetProps: { ...widget.props, token: coin },
-                  });
-                }}
-                title="Fear and Greed Chart"
-              />
-              <div className="flex items-center gap-2">
-                <ChartTab
-                  value={widget.props?.sentiment_tab || "both"}
-                  setValue={(val) => {
-                    updateWidgetPropsFromAtom({
-                      tabId: activeLayout.id,
-                      widgetId: widget.id,
-                      widgetProps: { ...widget.props, sentiment_tab: val },
-                    });
-                  }}
-                />
-                <PeriodDropdown
-                  options={CfgiPeriods}
-                  value={
-                    widget.props?.period ||
-                    (CFGI_SUPPORTED_PERIODS_ENUM.DAY1 as string)
-                  }
-                  setValue={(value: string) => {
-                    updateWidgetPropsFromAtom({
-                      tabId: activeLayout.id,
-                      widgetId: widget.id,
-                      widgetProps: { ...widget.props, period: value },
-                    });
-                  }}
-                />
-              </div>
-            </div>
-          ) : null}
+    <div className="bg-[#080808] border border-[#1b1b1b] rounded-2xl px-6 py-3 flex flex-col gap-4 h-full">
+      <div className="flex flex-col items-center justify-center w-full h-full">
+        <div className="grid items-center w-full grid-cols-3">
+          <WidgetHeader widget={widget} />
         </div>
-        <PremiumOverlay>
+        <div
+          className={cn(
+            "flex flex-col justify-center w-full h-full rounded-sm"
+          )}
+        >
+          <div className="py-4">
+            {coinData ? (
+              <div className="flex items-center justify-between">
+                <CoinDropdown
+                  options={coinData || []}
+                  value={widget.props?.token}
+                  setValue={(coin: string) => {
+                    updateWidgetPropsFromAtom({
+                      tabId: activeLayout.id,
+                      widgetId: widget.id,
+                      widgetProps: { ...widget.props, token: coin },
+                    });
+                  }}
+                  title="Fear and Greed Chart"
+                />
+                <div className="flex items-center gap-2">
+                  <ChartTab
+                    value={widget.props?.sentiment_tab || "both"}
+                    setValue={(val) => {
+                      updateWidgetPropsFromAtom({
+                        tabId: activeLayout.id,
+                        widgetId: widget.id,
+                        widgetProps: { ...widget.props, sentiment_tab: val },
+                      });
+                    }}
+                  />
+                  <PeriodDropdown
+                    options={CfgiPeriods}
+                    value={
+                      widget.props?.period ||
+                      (CFGI_SUPPORTED_PERIODS_ENUM.DAY1 as string)
+                    }
+                    setValue={(value: string) => {
+                      updateWidgetPropsFromAtom({
+                        tabId: activeLayout.id,
+                        widgetId: widget.id,
+                        widgetProps: { ...widget.props, period: value },
+                      });
+                    }}
+                  />
+                </div>
+              </div>
+            ) : null}
+          </div>
           <div className="h-full mx-3">
             {data ? (
               <DetailedCfgiChart
@@ -127,8 +128,8 @@ export default function DetailedCfgiWidget(props: IProps) {
           <div className="flex items-center justify-center gap-5 py-3">
             <ChartLegend colorOptions={colorToCfgi} />
           </div>
-        </PremiumOverlay>
+        </div>
       </div>
-    </>
+    </div>
   );
 }

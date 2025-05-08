@@ -19,6 +19,8 @@ import { LayoutType, updateWidgetPropsAtom } from "@/lib/atoms/layoutAtom";
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 import { useAtomValue, useSetAtom } from "jotai";
 import { exchangePairDefault } from "@/lib/static";
+import WidgetHeader from "../../shared/widget-header";
+import PremiumOverlay from "../../shared/premium-overlay";
 
 const colorToCfgi = [
   {
@@ -43,17 +45,11 @@ interface IProps {
 
 export default function LiquidationWidget(props: IProps) {
   const { isEmbed, symbol = null, widget } = props;
-  // const [activePeriod, setActivePeriod] = useState<string>(
-  //   liquidTimeframeOptions[0].value
-  // );
-  // const [activeCoin, setActiveCoin] = useState<string>(symbol || "BTC");
+
   const { data: coinData } = useReadCoinList();
 
   const { data: pairsData } = useGetSupportedxchangePairs();
 
-  // const [selectedPair, setSelectedPair] = useState<ExchangePairOption>(
-  //   pairsData?.[0]
-  // );
   const selectedPair = useMemo(() => {
     return pairsData.find((pr) => pr.label === widget.props?.exchange_token);
   }, [pairsData, widget.props?.exchange_token]);
@@ -86,80 +82,89 @@ export default function LiquidationWidget(props: IProps) {
   const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
 
   return (
-    <>
-      <div
-        className={cn("flex flex-col justify-center w-full h-full rounded-sm")}
-      >
-        <div className="px-3 py-4">
-          {coinData && filteredData?.length > 0 ? (
-            <div className="flex items-center justify-between">
-              <CoinDropdown
-                options={coinData || []}
-                value={widget.props?.token}
-                setValue={(coin: string) => {
-                  const newPairs = pairsData.filter(
-                    (i) => i.value.baseAsset === coin
-                  );
-                  // setSelectedPair(newPairs[0]);
-                  updateWidgetPropsFromAtom({
-                    tabId: activeLayout.id,
-                    widgetId: widget.id,
-                    widgetProps: {
-                      ...widget.props,
-                      token: coin,
-                      exchange_token: newPairs[0].label,
-                    },
-                  });
-                }}
-                title="Liquidation Map"
-              />
-              <div className="flex items-center gap-2">
-                <PairDropdown
-                  options={filteredData}
-                  value={selectedPair || exchangePairDefault}
-                  setValue={(value) => {
+    <div className="bg-[#080808] border border-[#1b1b1b] rounded-2xl px-6 py-3 flex flex-col gap-4 h-full">
+      <div className="flex flex-col items-center justify-center w-full h-full">
+        <div className="grid items-center w-full grid-cols-3">
+          <WidgetHeader widget={widget} />
+        </div>
+        <div
+          className={cn(
+            "flex flex-col justify-center w-full h-full rounded-sm"
+          )}
+        >
+          <div className="py-4">
+            {coinData && filteredData?.length > 0 ? (
+              <div className="flex items-center justify-between">
+                <CoinDropdown
+                  options={coinData || []}
+                  value={widget.props?.token}
+                  setValue={(coin: string) => {
+                    const newPairs = pairsData.filter(
+                      (i) => i.value.baseAsset === coin
+                    );
+                    // setSelectedPair(newPairs[0]);
                     updateWidgetPropsFromAtom({
                       tabId: activeLayout.id,
                       widgetId: widget.id,
                       widgetProps: {
                         ...widget.props,
-                        exchange_token: value.label,
+                        token: coin,
+                        exchange_token: newPairs[0].label,
                       },
                     });
                   }}
+                  title="Liquidation Map"
                 />
-                <PeriodDropdown
-                  options={liquidTimeframeOptions}
-                  value={
-                    widget.props?.period || liquidTimeframeOptions[0].value
-                  }
-                  setValue={(value: string) => {
-                    updateWidgetPropsFromAtom({
-                      tabId: activeLayout.id,
-                      widgetId: widget.id,
-                      widgetProps: { ...widget.props, period: value },
-                    });
-                  }}
-                />
+                <div className="flex items-center gap-2">
+                  <PairDropdown
+                    options={filteredData}
+                    value={selectedPair || exchangePairDefault}
+                    setValue={(value) => {
+                      updateWidgetPropsFromAtom({
+                        tabId: activeLayout.id,
+                        widgetId: widget.id,
+                        widgetProps: {
+                          ...widget.props,
+                          exchange_token: value.label,
+                        },
+                      });
+                    }}
+                  />
+                  <PeriodDropdown
+                    options={liquidTimeframeOptions}
+                    value={
+                      widget.props?.period || liquidTimeframeOptions[0].value
+                    }
+                    setValue={(value: string) => {
+                      updateWidgetPropsFromAtom({
+                        tabId: activeLayout.id,
+                        widgetId: widget.id,
+                        widgetProps: { ...widget.props, period: value },
+                      });
+                    }}
+                  />
+                </div>
               </div>
+            ) : null}
+          </div>
+          <PremiumOverlay>
+            <div className="flex-grow mx-3 ">
+              {liquidationData ? (
+                <LiquidationChart
+                  liquidationData={liquidationData}
+                  viewOption={chartViewOptions}
+                />
+              ) : (
+                <Skeleton className="w-full h-full bg-widget-background-200" />
+              )}
             </div>
-          ) : null}
-        </div>
-        <div className="flex-grow mx-3 ">
-          {liquidationData ? (
-            <LiquidationChart
-              liquidationData={liquidationData}
-              viewOption={chartViewOptions}
-            />
-          ) : (
-            <Skeleton className="w-full h-full bg-widget-background-200" />
-          )}
-        </div>
 
-        <div className="flex items-center justify-center gap-5 py-3">
-          <ChartLegend colorOptions={colorToCfgi} />
+            <div className="flex items-center justify-center gap-5 py-3">
+              <ChartLegend colorOptions={colorToCfgi} />
+            </div>
+          </PremiumOverlay>
         </div>
       </div>
-    </>
+    </div>
   );
 }

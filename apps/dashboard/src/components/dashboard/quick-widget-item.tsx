@@ -35,18 +35,17 @@ export function QuickWidgetItem(props: IProps) {
 
         const { x, y } = getGridPosition(currLayout?.widgets.length || 0);
         const newId = uuidv4();
+        const widgetDefaults =
+          widgetPropsDefaults[widget.slug as keyof typeof widgetPropsDefaults];
+        const defaultWAndH = widgetDefaults.meta || { w: 3, h: 2 };
         const newWidget = {
           id: newId,
-          props:
-            widgetPropsDefaults[
-              widget.slug as keyof typeof widgetPropsDefaults
-            ],
+          props: widgetDefaults,
           meta: {
             i: joinWidgetSlug(newId, widget.slug),
             x,
             y,
-            w: 3,
-            h: 2,
+            ...defaultWAndH,
           },
         };
 
