@@ -10,6 +10,7 @@ import {
 import {
   createLayoutAndAttachToTabAction,
   deleteLayoutAction,
+  updateLayoutNameAction,
 } from "@/services/queries/layouts/actions";
 import { SaveLayoutPayload } from "@/services/queries/widgets/types";
 import { settingAtom } from "./settingsAtom";
@@ -49,7 +50,8 @@ export const addWidgetToNewLayoutAtom = atom(
       const newLayout: LayoutType = {
         id: layoutId,
         draft: true,
-        name: layoutName,
+        name: "",
+        // name: layoutName,
         widgets: [newWidget],
       };
 
@@ -418,7 +420,7 @@ export const updateWidgetPropsAtom = atom(
 // This function sets the draft property of a layout to false
 export const setLayoutDraftFalseAtom = atom(
   null,
-  (get, set, { layoutId }: { layoutId: string }) => {
+  (get, set, { layoutId, name = "" }: { layoutId: string; name?: string }) => {
     // Get the current layouts
     const layouts = get(layoutAtom);
 
@@ -438,6 +440,7 @@ export const setLayoutDraftFalseAtom = atom(
     const updatedLayout = {
       ...currentLayout,
       draft: false,
+      name: name || currentLayout?.name,
     };
 
     // Create updated layouts array
@@ -500,7 +503,7 @@ export const syncLayoutOnSelectAtom = atom(
     const updatedActiveTab = {
       ...activeTab,
       layout_id: layout.id,
-      name: layout.name,
+      // name: layout.name,
       label: layout.name,
     };
 
@@ -575,5 +578,28 @@ export const deleteLayoutAtom = atom(
     }
 
     deleteLayoutAction(layoutId);
+  }
+);
+
+export const editLayoutNameAtom = atom(
+  null,
+  async (
+    get,
+    set,
+    { layoutId, newName }: { layoutId: string; newName: string }
+  ) => {
+    const layouts = get(layoutAtom);
+
+    const updatedLayouts = layouts.map((layout) =>
+      layout.id === layoutId ? { ...layout, name: newName } : layout
+    );
+
+    set(layoutAtom, updatedLayouts);
+
+    try {
+      updateLayoutNameAction({ layoutId, newName });
+    } catch (error) {
+      console.log("Failed to sync layout with DB:", error);
+    }
   }
 );

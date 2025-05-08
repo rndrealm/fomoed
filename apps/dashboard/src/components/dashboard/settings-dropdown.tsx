@@ -141,7 +141,7 @@ export function SettingsDropdown() {
           </DropdownMenuLabel>
           {/* <DropdownMenuSeparator /> */}
           <DropdownMenuGroup>
-            {currLayout?.draft ? (
+            {/* {currLayout?.draft ? (
               <DropdownMenuItem
                 className="text-[#C3C3C3] my-2 text-[13px] font-inter font-medium flex items-center focus:bg-[#171717] focus:text-[#C3C3C3] cursor-pointer w-full justify-between"
                 onClick={handleSaveLayout}
@@ -153,7 +153,7 @@ export function SettingsDropdown() {
                   <Loader className="w-4 h-4" />
                 </RenderIf>
               </DropdownMenuItem>
-            ) : null}
+            ) : null} */}
             {/* <DropdownMenuItem
               className="text-[#C3C3C3] my-2 text-[13px] font-inter font-medium flex items-center focus:bg-[#171717] focus:text-[#C3C3C3] cursor-pointer w-full justify-between"
               onClick={() => {}}
