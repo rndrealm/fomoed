@@ -1,6 +1,6 @@
 import Home from "@/components/dashboard/home";
 import { getDashboardData } from "@/services/queries/home/actions";
-import { fetchNewsData } from "@/services/queries/news/actions";
+import { fetchNewsData } from "@/services/queries/news/server-actions";
 import React, { Suspense } from "react";
 
 export default async function Page() {
