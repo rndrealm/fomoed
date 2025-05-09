@@ -33,7 +33,8 @@ import { useReadTabs } from "@/services/queries/tabs";
 import { Loader2 } from "lucide-react";
 import { SettingsDropdown } from "../settings-dropdown";
 import { settingAtom } from "@/lib/atoms/settingsAtom";
-import { NameLayout } from "@/components/modals";
+import { NameLayout, Upgrade } from "@/components/modals";
+import { useGetUserPlans } from "@/services/queries/subscriptions";
 
 interface IToolbarItem {
   onClick?: () => void;
@@ -64,9 +65,12 @@ function ToolbarItem(props: IToolbarItem) {
 export function Toolbar() {
   const [showWidgetsModal, setShowWidgetsModal] = useState(false);
   const [showNameModal, setShowNameModal] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [newLayoutName, setNewLayoutName] = useState("");
 
   const { mutate, isPending, isError, isSuccess } = useSyncLayouts();
+  const { data } = useGetUserPlans();
+
   const activeTab = useAtomValue(activeTabAtom);
   const layouts = useAtomValue(layoutAtom);
   const settings = useAtomValue(settingAtom);
@@ -87,6 +91,12 @@ export function Toolbar() {
     }
     if (!currentLayout.widgets.length) {
       toast("You need to add a widget to save your layout.", {});
+      return;
+    }
+
+    //CHECK IF PRO USER
+    if (!data?.hasPlan && layouts.length > 3) {
+      setShowUpgradeModal(true);
       return;
     }
 
@@ -234,6 +244,17 @@ export function Toolbar() {
         details="Create a name for your Layout?"
         placeholder="Layout Name"
       />
+
+      <ModalContainer
+        open={showUpgradeModal}
+        handleClose={() => {
+          setShowUpgradeModal(false);
+        }}
+        noHeader
+        className="!max-w-[410px] !p-0 rounded-[24px]"
+      >
+        <Upgrade />
+      </ModalContainer>
     </Fragment>
   );
 }

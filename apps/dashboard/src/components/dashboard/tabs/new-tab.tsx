@@ -9,8 +9,9 @@ import {
   tabsAtom,
 } from "@/lib/atoms/tabsAtom";
 import { cn } from "@/lib/utils";
-import { ConfirmationModal } from "../../modals";
-import { RenderIf } from "../../shared";
+import { ConfirmationModal, Upgrade } from "../../modals";
+import { ModalContainer, RenderIf } from "../../shared";
+import { useGetUserPlans } from "@/services/queries/subscriptions";
 
 interface ITabButton {
   handleClick?: () => void;
@@ -128,16 +129,33 @@ export function NewTabs() {
   const addNewTab = useSetAtom(addNewTabAtom);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [deleteTab, setDeleteTab] = useState<typeof activeTab>();
+
+  const { data } = useGetUserPlans();
+
+  console.log(data);
+
+  const handleAddNewTab = () => {
+    if (data?.hasPlan) {
+      addNewTab();
+      return;
+    }
+
+    if (tabs.length > 1) {
+      setShowUpgradeModal(true);
+    } else {
+      addNewTab();
+    }
+  };
+
   return (
     <Fragment>
       <div className="flex items-center flex-1 w-full gap-2 overflow-hidden">
         <button
           type="button"
           className="h-[32px] w-[32px] flex items-center justify-center rounded-md border border-[#121212]"
-          onClick={() => {
-            addNewTab();
-          }}
+          onClick={handleAddNewTab}
         >
           <AddTab />
         </button>
@@ -186,6 +204,17 @@ export function NewTabs() {
           setShowDeleteModal(false);
         }}
       />
+
+      <ModalContainer
+        open={showUpgradeModal}
+        handleClose={() => {
+          setShowUpgradeModal(false);
+        }}
+        noHeader
+        className="!max-w-[410px] !p-0 rounded-[24px]"
+      >
+        <Upgrade />
+      </ModalContainer>
     </Fragment>
   );
 }
