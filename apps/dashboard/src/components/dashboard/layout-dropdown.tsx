@@ -4,7 +4,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Delete, TabLayout, ToolbarLayout } from "../icons/icons";
+import { Delete, Edit, TabLayout, ToolbarLayout } from "../icons/icons";
 import {
   DropdownMenuGroup,
   DropdownMenuLabel,
@@ -13,13 +13,12 @@ import {
 import { useAtomValue, useSetAtom } from "jotai";
 import {
   deleteLayoutAtom,
+  editLayoutNameAtom,
   layoutAtom,
-  loadLayoutsFromApiAtom,
   syncLayoutOnSelectAtom,
 } from "@/lib/atoms/layoutAtom";
 import { RenderIf } from "../shared";
-import { useReadLayouts } from "@/services/queries/layouts";
-import { Fragment, useEffect, useRef } from "react";
+import { Fragment, useRef } from "react";
 import {
   Tooltip,
   TooltipContent,
@@ -27,15 +26,18 @@ import {
   TooltipTrigger,
 } from "../ui/tooltip";
 import { useState } from "react";
-import { ConfirmationModal } from "../modals";
+import { ConfirmationModal, NameLayout } from "../modals";
 
 export function LayoutDropdown() {
   const syncLayouts = useSetAtom(syncLayoutOnSelectAtom);
   const deleteLayout = useSetAtom(deleteLayoutAtom);
   const layouts = useAtomValue(layoutAtom);
+  const editLayoutName = useSetAtom(editLayoutNameAtom);
 
   const [isOpen, setIsOpen] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showNameModal, setShowNameModal] = useState(false);
+  const [layoutName, setLayoutName] = useState("");
 
   const layoutRef = useRef("");
 
@@ -88,17 +90,33 @@ export function LayoutDropdown() {
                     }}
                   >
                     <TabLayout />
-                    <p className="flex-1 truncate">{layout.name}</p>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        layoutRef.current = layout.id;
-                        setShowDeleteModal(true);
-                      }}
-                    >
-                      <Delete fill="#5B5B5B" />
-                    </button>
+                    <p className="flex-1 truncate">
+                      {layout.name || "Untitled Layout"}
+                    </p>
+
+                    <div className="flex gap-1 items-center">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          layoutRef.current = layout.id;
+                          setLayoutName(layout.name);
+                          setShowNameModal(true);
+                        }}
+                      >
+                        <Edit />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          layoutRef.current = layout.id;
+                          setShowDeleteModal(true);
+                        }}
+                      >
+                        <Delete fill="#5B5B5B" />
+                      </button>
+                    </div>
                   </DropdownMenuItem>
                 ))}
               </RenderIf>
@@ -120,6 +138,24 @@ export function LayoutDropdown() {
           deleteLayout({ layoutId: layoutRef.current });
           setShowDeleteModal(false);
         }}
+      />
+
+      <NameLayout
+        open={showNameModal}
+        handleCloseModal={() => {
+          setShowNameModal(false);
+        }}
+        value={layoutName}
+        onChange={(name) => {
+          setLayoutName(name);
+        }}
+        handleSave={() => {
+          // console.log({ layoutId: layoutRef.current, newName: layoutName });
+          editLayoutName({ layoutId: layoutRef.current, newName: layoutName });
+          setShowNameModal(false);
+        }}
+        title="Rename Layout"
+        details="Rename your layout"
       />
     </Fragment>
   );

@@ -79,7 +79,7 @@ export const addNewTabAtom = atom(null, (get, set) => {
   // 🔹 Create a new tab referencing the new layout
   const newTab = {
     id: uuidv4(),
-    name: "Untitled Layout",
+    name: "New Tab",
     layout_id: null,
   };
 

@@ -10,6 +10,7 @@ import {
 import {
   createLayoutAndAttachToTabAction,
   deleteLayoutAction,
+  updateLayoutNameAction,
 } from "@/services/queries/layouts/actions";
 import { SaveLayoutPayload } from "@/services/queries/widgets/types";
 import { settingAtom } from "./settingsAtom";
@@ -32,6 +33,8 @@ export interface LayoutType {
 
 export const layoutAtom = atom<LayoutType[]>([]);
 
+export const layoutChangedAtom = atom(false);
+
 // This function creates a new layout, adds a new widget to it, saves it to the local state and sends it to the db
 export const addWidgetToNewLayoutAtom = atom(
   null,
@@ -47,7 +50,8 @@ export const addWidgetToNewLayoutAtom = atom(
       const newLayout: LayoutType = {
         id: layoutId,
         draft: true,
-        name: layoutName,
+        name: "",
+        // name: layoutName,
         widgets: [newWidget],
       };
 
@@ -157,6 +161,7 @@ export const addWidgetToExistingLayoutAtom = atom(
 
     // Update the layouts atom with the new state
     set(layoutAtom, updatedLayouts);
+    set(layoutChangedAtom, true);
     if (sync) {
       set(syncWidgetsToDb, {
         layoutData: {
@@ -236,6 +241,7 @@ export const syncOnLayoutChange = atom(
     };
     // Update layouts with the updated widgets
     set(layoutAtom, updatedLayouts);
+    set(layoutChangedAtom, true);
 
     if (sync) {
       set(syncWidgetsToDb, {
@@ -309,6 +315,8 @@ export const deleteWidgetAtom = atom(
     set(layoutAtom, updatedLayouts);
     const dashboardSetting = get(settingAtom);
     const syncCondition = dashboardSetting.auto_save || currentLayout?.draft;
+
+    set(layoutChangedAtom, true);
 
     if (syncCondition) {
       set(syncWidgetsToDb, {
@@ -395,6 +403,7 @@ export const updateWidgetPropsAtom = atom(
     set(layoutAtom, updatedLayouts);
     const dashboardSetting = get(settingAtom);
     const syncCondition = dashboardSetting.auto_save || currentLayout?.draft;
+    set(layoutChangedAtom, true);
 
     if (syncCondition) {
       set(syncWidgetsToDb, {
@@ -411,7 +420,7 @@ export const updateWidgetPropsAtom = atom(
 // This function sets the draft property of a layout to false
 export const setLayoutDraftFalseAtom = atom(
   null,
-  (get, set, { layoutId }: { layoutId: string }) => {
+  (get, set, { layoutId, name = "" }: { layoutId: string; name?: string }) => {
     // Get the current layouts
     const layouts = get(layoutAtom);
 
@@ -431,6 +440,7 @@ export const setLayoutDraftFalseAtom = atom(
     const updatedLayout = {
       ...currentLayout,
       draft: false,
+      name: name || currentLayout?.name,
     };
 
     // Create updated layouts array
@@ -493,7 +503,7 @@ export const syncLayoutOnSelectAtom = atom(
     const updatedActiveTab = {
       ...activeTab,
       layout_id: layout.id,
-      name: layout.name,
+      // name: layout.name,
       label: layout.name,
     };
 
@@ -568,5 +578,28 @@ export const deleteLayoutAtom = atom(
     }
 
     deleteLayoutAction(layoutId);
+  }
+);
+
+export const editLayoutNameAtom = atom(
+  null,
+  async (
+    get,
+    set,
+    { layoutId, newName }: { layoutId: string; newName: string }
+  ) => {
+    const layouts = get(layoutAtom);
+
+    const updatedLayouts = layouts.map((layout) =>
+      layout.id === layoutId ? { ...layout, name: newName } : layout
+    );
+
+    set(layoutAtom, updatedLayouts);
+
+    try {
+      updateLayoutNameAction({ layoutId, newName });
+    } catch (error) {
+      console.log("Failed to sync layout with DB:", error);
+    }
   }
 );

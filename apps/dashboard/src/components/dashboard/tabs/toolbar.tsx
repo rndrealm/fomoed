@@ -1,7 +1,9 @@
 import React, { Fragment, useEffect, useState } from "react";
 import {
   AddWidget,
+  ErrorSave,
   Saved,
+  SaveDraft,
   Settings,
   ToolbarLayout,
   Unsaved,
@@ -13,11 +15,15 @@ import {
   TooltipTrigger,
 } from "../../ui/tooltip";
 import { NewTabs } from "./new-tab";
-import { ModalContainer } from "../../shared";
+import { ModalContainer, RenderIf } from "../../shared";
 import { QuickWidgets } from "../quick-widgets";
 import { useSyncLayouts } from "@/services/queries/widgets";
-import { useAtomValue, useSetAtom } from "jotai";
-import { layoutAtom, setLayoutDraftFalseAtom } from "@/lib/atoms/layoutAtom";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import {
+  layoutAtom,
+  layoutChangedAtom,
+  setLayoutDraftFalseAtom,
+} from "@/lib/atoms/layoutAtom";
 import { activeTabAtom, loadTabsFromApiAtom } from "@/lib/atoms/tabsAtom";
 import { toast } from "sonner";
 import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
@@ -26,6 +32,9 @@ import { LayoutDropdown } from "../layout-dropdown";
 import { useReadTabs } from "@/services/queries/tabs";
 import { Loader2 } from "lucide-react";
 import { SettingsDropdown } from "../settings-dropdown";
+import { settingAtom } from "@/lib/atoms/settingsAtom";
+import { NameLayout, Upgrade } from "@/components/modals";
+import { useGetUserPlans } from "@/services/queries/subscriptions";
 
 interface IToolbarItem {
   onClick?: () => void;
@@ -55,10 +64,18 @@ function ToolbarItem(props: IToolbarItem) {
 
 export function Toolbar() {
   const [showWidgetsModal, setShowWidgetsModal] = useState(false);
-  const { mutate, isPending } = useSyncLayouts();
+  const [showNameModal, setShowNameModal] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [newLayoutName, setNewLayoutName] = useState("");
+
+  const { mutate, isPending, isError, isSuccess } = useSyncLayouts();
+  const { data } = useGetUserPlans();
+
   const activeTab = useAtomValue(activeTabAtom);
   const layouts = useAtomValue(layoutAtom);
+  const settings = useAtomValue(settingAtom);
   const setLayoutDraftFalse = useSetAtom(setLayoutDraftFalseAtom);
+  const [layoutChange, setLayoutChange] = useAtom(layoutChangedAtom);
 
   const currLayoutId = activeTab.layout_id;
   const currLayout = layouts.find((item) => item.id === currLayoutId);
@@ -76,6 +93,18 @@ export function Toolbar() {
       toast("You need to add a widget to save your layout.", {});
       return;
     }
+
+    //CHECK IF PRO USER
+    if (!data?.hasPlan && layouts.length > 3) {
+      setShowUpgradeModal(true);
+      return;
+    }
+
+    if (currentLayout.name === "" && newLayoutName === "") {
+      setShowNameModal(true);
+      return;
+    }
+
     const supabase = createSupabaseBrowserClient();
 
     const {
@@ -91,16 +120,23 @@ export function Toolbar() {
       };
     });
 
-    setLayoutDraftFalse({ layoutId: currentLayout.id });
+    setLayoutDraftFalse({ layoutId: currentLayout.id, name: newLayoutName });
 
     mutate({
       layoutData: {
         id: currentLayout.id,
-        name: activeTab.name,
+        name: currentLayout?.name || newLayoutName,
       },
       widgetData: formatWidgets,
     });
   };
+
+  useEffect(() => {
+    if (isSuccess) {
+      setLayoutChange(false);
+    }
+  }, [isSuccess]);
+
   return (
     <Fragment>
       <div className="flex items-center justify-between gap-4">
@@ -128,13 +164,45 @@ export function Toolbar() {
               {isPending ? <Loader /> : <Unsaved />}
             </button>
           </div> */}
-          {currLayout && !currLayout?.draft ? (
+
+          <RenderIf condition={!!currLayout && currLayout?.draft}>
+            <ToolbarItem
+              icon={isPending ? <Loader /> : <SaveDraft />}
+              label="Save Draft"
+              onClick={isPending ? () => {} : handleSaveLayout}
+            />
+          </RenderIf>
+
+          <RenderIf condition={!!currLayout && !currLayout?.draft}>
+            <Fragment>
+              <RenderIf
+                condition={!settings.auto_save && !isError && !layoutChange}
+              >
+                <ToolbarItem
+                  icon={isPending ? <Loader /> : <Unsaved />}
+                  label="Save"
+                  onClick={isPending ? () => {} : handleSaveLayout}
+                />
+              </RenderIf>
+
+              <RenderIf
+                condition={isError || (layoutChange && !settings.auto_save)}
+              >
+                <ToolbarItem
+                  icon={isPending ? <Loader /> : <ErrorSave />}
+                  label="Save"
+                  onClick={isPending ? () => {} : handleSaveLayout}
+                />
+              </RenderIf>
+            </Fragment>
+          </RenderIf>
+          {/* {currLayout && !currLayout?.draft ? (
             <ToolbarItem
               icon={isPending ? <Loader /> : <Unsaved />}
               label="Save"
               onClick={isPending ? () => {} : handleSaveLayout}
             />
-          ) : null}
+          ) : null} */}
           <LayoutDropdown />
           <SettingsDropdown />
         </div>
@@ -154,6 +222,38 @@ export function Toolbar() {
             setShowWidgetsModal(false);
           }}
         />
+      </ModalContainer>
+
+      <NameLayout
+        open={showNameModal}
+        handleCloseModal={() => {
+          setShowNameModal(false);
+        }}
+        value={newLayoutName}
+        onChange={(name) => {
+          setNewLayoutName(name);
+        }}
+        handleSave={() => {
+          if (newLayoutName.trim() === "") return;
+
+          handleSaveLayout();
+          setNewLayoutName("");
+          setShowNameModal(false);
+        }}
+        title="Name Layout"
+        details="Create a name for your Layout?"
+        placeholder="Layout Name"
+      />
+
+      <ModalContainer
+        open={showUpgradeModal}
+        handleClose={() => {
+          setShowUpgradeModal(false);
+        }}
+        noHeader
+        className="!max-w-[410px] !p-0 rounded-[24px]"
+      >
+        <Upgrade />
       </ModalContainer>
     </Fragment>
   );

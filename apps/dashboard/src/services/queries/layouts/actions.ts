@@ -144,3 +144,35 @@ export const deleteLayoutAction = async (layoutId: string) => {
     throw new Error(layoutDeleteError.message);
   }
 };
+
+export const updateLayoutNameAction = async ({
+  layoutId,
+  newName,
+}: {
+  layoutId: string;
+  newName: string;
+}) => {
+  const supabase = createSupabaseBrowserClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error("Please login to update a layout.");
+  }
+
+  const { data, error } = await supabase
+    .from("layouts")
+    .update({ name: newName })
+    .match({ id: layoutId, user_id: user.id })
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Error updating layout name:", error);
+    throw new Error(error.message);
+  }
+
+  return data;
+};
