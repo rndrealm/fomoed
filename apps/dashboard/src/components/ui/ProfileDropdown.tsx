@@ -32,33 +32,33 @@ const ProfileDropdown: React.FC = () => {
   const currentActivePlan = { name: "Pro" };
 
   const goto = (path: string) => {
-    router.push(path);
+    router.push("https://app.fomoed.io/plans");
   };
 
   const handleLogout = async () => {
-      // First, perform the signOut operation
-      const supabaseClient = createSupabaseBrowserClient();
-      const { error } = await supabaseClient.auth.signOut();
+    // First, perform the signOut operation
+    const supabaseClient = createSupabaseBrowserClient();
+    const { error } = await supabaseClient.auth.signOut();
 
-      if (error) {
-        console.error("Error signing out:", error);
-        return;
-      }
+    if (error) {
+      console.error("Error signing out:", error);
+      return;
+    }
 
-      // Only manually reset if needed as a fallback
-      setAuthReset();
+    // Only manually reset if needed as a fallback
+    setAuthReset();
 
-      // Navigate after successful logout
-      router.push("/login");
+    // Navigate after successful logout
+    router.push("/login");
   };
 
   if (isLoading) {
     return (
       <div className="w-[200px] h-[260px] bg-[#0F0D0DE5] border-[#FFFFFF1A] rounded-[10px] pt-[17px] flex flex-col items-center top-0 border backdrop-blur-lg z-40">
-        <div className="animate-pulse flex flex-col items-center w-full">
+        <div className="flex flex-col items-center w-full animate-pulse">
           <div className="w-[62px] h-[62px] rounded-full bg-gray-700"></div>
-          <div className="h-4 bg-gray-700 rounded mt-4 w-20"></div>
-          <div className="h-3 bg-gray-700 rounded mt-2 w-32"></div>
+          <div className="w-20 h-4 mt-4 bg-gray-700 rounded"></div>
+          <div className="w-32 h-3 mt-2 bg-gray-700 rounded"></div>
         </div>
       </div>
     );
@@ -68,8 +68,8 @@ const ProfileDropdown: React.FC = () => {
   if (!authUser) {
     return (
       <div className="w-[200px] bg-[#0F0D0DE5] border-[#FFFFFF1A] rounded-[10px] p-5 flex flex-col items-center top-0 border backdrop-blur-lg z-40">
-        <div className="text-white text-center mb-4">
-          <h3 className="font-paralucent-demibold text-base">Not logged in</h3>
+        <div className="mb-4 text-center text-white">
+          <h3 className="text-base font-paralucent-demibold">Not logged in</h3>
           <p className="text-[#FFFFFF99] text-xs mt-1">
             Sign in to access all features
           </p>
@@ -83,7 +83,7 @@ const ProfileDropdown: React.FC = () => {
       </div>
     );
   }
-
+  console.log("active:", activeSub.cancel_at_period_end);
   return (
     <div className="w-[200px] h-[260px] bg-[#0F0D0DE5] border-[#FFFFFF1A] rounded-[10px] pt-[17px] flex flex-col items-center top-0 border backdrop-blur-lg z-40">
       <div className="w-[62px] h-[62px] rounded-lg overflow-hidden">
@@ -103,7 +103,7 @@ const ProfileDropdown: React.FC = () => {
         </div>
       </div>
 
-      {activeSub && (
+      {/* {activeSub && (
         <div className="pt-[9px] text-[10px] text-[#FFFFFF99] mt-1">
           <span>{currentActivePlan?.name} plan </span>
 
@@ -113,7 +113,7 @@ const ProfileDropdown: React.FC = () => {
             <>Cancels TODO</>
           ) : null}
         </div>
-      )}
+      )} */}
 
       <div className="flex-grow"></div>
 
