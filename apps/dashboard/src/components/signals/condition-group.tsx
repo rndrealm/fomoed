@@ -19,6 +19,7 @@ export type Group = {
   type: "group";
   operand: GroupOperand;
   children: (Condition | Group)[];
+  depth?: number;
 };
 
 export type GroupOperand = "and" | "or";

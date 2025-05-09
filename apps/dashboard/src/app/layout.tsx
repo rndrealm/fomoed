@@ -3,6 +3,7 @@ import { ThemeProvider } from "@/components/providers/ThemeProvideer";
 import { Toaster } from "@/components/ui/sonner";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 import "./globals.css";
 
 import "../../node_modules/react-grid-layout/css/styles.css";
@@ -44,7 +45,9 @@ export default function RootLayout({
           defaultTheme="dark"
           disableTransitionOnChange
         >
-          <QueryProvider>{children}</QueryProvider>
+          <QueryProvider>
+            <NuqsAdapter>{children}</NuqsAdapter>
+          </QueryProvider>
           <Toaster />
         </ThemeProvider>
       </body>

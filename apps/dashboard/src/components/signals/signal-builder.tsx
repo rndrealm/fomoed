@@ -2,29 +2,62 @@ import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 import { Settings, Wand } from "lucide-react";
-import React, { useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 // import AISignalBuilder from "./AISignalBuilder";
+import useUserData from "@/lib/hooks/use-user-data";
+import { CreateSignalDTO, SignalActions } from "@/lib/types/signal.types";
+import { extractTopicsFromJsonLogic } from "@/lib/utils/signal.utils";
+import { useCreateSignalMutation } from "@/services/queries/signals";
 import ManualSignalBuilder from "./manual-signal-builder";
 import NotificationSettings from "./notification-settings";
 import SignalDetails from "./signal-details";
 
-interface SignalBuilderProps {
-  // onSave: (signal: SignalDefinition) => void;
-  onCancel?: () => void;
-}
-
-const SignalBuilder: React.FC<SignalBuilderProps> = ({
-  // initialSignal,
-  // onSave,
-  onCancel,
-}) => {
+const SignalBuilder = ({}) => {
   const [buildMode, setBuildMode] = useState<string>("manual");
-
   const [signalName, setSignalName] = useState("");
   const [signalDescription, setSignalDescription] = useState("");
+  const [condition, setCondition] = useState<object | null>(null);
+  const [signalActions, setSignalActions] = useState<SignalActions>({
+    email: true,
+    notification: true,
+  });
 
-  const handleSave = () => {
+  const user = useUserData();
+
+  const { mutateAsync: createSignal } = useCreateSignalMutation();
+
+  const handleSave = async () => {
+    if (!condition || !user?.user_id) return;
+
+    const actions: object[] = [];
+
+    if (signalActions.email)
+      actions.push({
+        type: "email",
+        subject: `Smart Signal fired: ${signalName}`,
+        content: `Your smart signal ${signalName} from fomoed.io has been triggered`,
+      });
+
+    if (signalActions.notification)
+      actions.push({
+        type: "notification",
+        description: `Your smart signal ${signalName} from fomoed.io has been triggered`,
+      });
+
+    const data: CreateSignalDTO = {
+      name: signalName,
+      description: signalDescription,
+      condition: JSON.stringify(condition),
+      topics: extractTopicsFromJsonLogic(condition),
+      user_id: user?.id,
+
+      // actions?
+      actions,
+    };
+    console.log("🚀 ~ handleSave ~ data:", data);
+
+    await createSignal(data);
     toast.success("Signal saved successfully");
   };
 
@@ -66,12 +99,12 @@ const SignalBuilder: React.FC<SignalBuilderProps> = ({
           AI BUILDER
         </>
       ) : (
-        <ManualSignalBuilder />
+        <ManualSignalBuilder logic={condition} setLogic={setCondition} />
       )}
 
       <NotificationSettings
-        notifications={{ email: false, inApp: false }}
-        onUpdate={() => {}}
+        notifications={signalActions}
+        onUpdate={setSignalActions}
       />
 
       <SignalDetails
@@ -82,11 +115,6 @@ const SignalBuilder: React.FC<SignalBuilderProps> = ({
       />
 
       <div className="flex justify-end gap-3">
-        {onCancel && (
-          <Button variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
-        )}
         <Button onClick={handleSave}>Save Signal</Button>
       </div>
     </div>

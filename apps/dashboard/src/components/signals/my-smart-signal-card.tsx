@@ -14,11 +14,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import dayjs from "dayjs";
 import { Bell, Copy, Mail, MoreVertical, Pencil, Trash } from "lucide-react";
 import { useMemo, useState } from "react";
 import { RenderIf } from "../shared";
 
-interface CryptoAlertCardProps {
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
+
+interface MySignalCardProps {
   title: string;
   description: string;
 
@@ -61,7 +65,7 @@ export default function MySmartSignalCard({
   hasInAppNotifications = true,
   hasEmailNotifications = true,
   lastUpdated,
-}: CryptoAlertCardProps) {
+}: MySignalCardProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const conditionCount = useMemo(() => {
@@ -82,9 +86,9 @@ export default function MySmartSignalCard({
   };
 
   return (
-    <Card className="w-full max-w-3xl ">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <h2 className="text-2xl font-semibold">{title}</h2>
+    <Card className="w-full max-w-3xl p-8 bg-[#080808]">
+      <CardHeader className="flex flex-row items-center justify-between p-0">
+        <h2 className="text-2xl font-semibold">{title ?? "Unnamed Signal"}</h2>
         <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="h-9 w-9 rounded-md">
@@ -121,12 +125,12 @@ export default function MySmartSignalCard({
         </DropdownMenu>
       </CardHeader>
 
-      <CardContent className="pb-4">
+      <CardContent className="p-0">
         <div className="mb-6">
           <p className="text-gray-500 uppercase text-sm font-medium mb-2">
             DESCRIPTION
           </p>
-          <p className="">{description}</p>
+          <p className="">{description ?? "No description"}</p>
         </div>
 
         <div className="border-t border-gray-800 pt-4">
@@ -134,18 +138,11 @@ export default function MySmartSignalCard({
             SIGNAL DETAILS
           </p>
           <div className="flex flex-wrap items-center gap-3 text-sm">
-            {/* <Badge
-              variant={"default"}
-              className="bg-white text-black rounded-full"
-            >
-              AND
-            </Badge> */}
-
             <Badge
               variant={"default"}
-              className="bg-muted text-foreground rounded-full py-1.5 px-3"
+              className="bg-white text-black rounded-full py-1.5 px-3"
             >
-              {conditionCount} Conditions
+              {conditionCount} Condition {conditionCount > 1 ? "s" : ""}
             </Badge>
 
             <RenderIf condition={hasInAppNotifications}>
@@ -171,9 +168,9 @@ export default function MySmartSignalCard({
         </div>
       </CardContent>
 
-      <CardFooter className="border-t border-gray-800 pt-4 text-sm">
-        <span className="text-muted-foreground">Last Updated • </span> 5h
-        {/* {lastUpdated} */}
+      <CardFooter className="border-t border-gray-800 p-0 text-sm">
+        <span className="text-muted-foreground">Last Updated • &nbsp;</span>
+        <span>{dayjs(lastUpdated).fromNow(true)}</span>
       </CardFooter>
     </Card>
   );

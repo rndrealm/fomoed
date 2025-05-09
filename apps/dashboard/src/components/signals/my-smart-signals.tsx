@@ -47,8 +47,8 @@ const MySignals = () => {
         {smartSignals.map((signal, idx) => (
           <MySmartSignalCard
             key={signal.id}
-            title={`My Signal ${idx + 1}`}
-            description={"Alert when price is above 100000 (example)"}
+            title={signal.name}
+            description={signal.description}
             conditions={JSON.parse(signal.condition)}
             hasInAppNotifications={true}
             hasEmailNotifications={true}

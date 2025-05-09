@@ -1,14 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { SignalActions } from "@/lib/types/signal.types";
 import React from "react";
 
 interface NotificationSettingsProps {
-  notifications: {
-    email: boolean;
-    inApp: boolean;
-  };
-  onUpdate: (notifications: { email: boolean; inApp: boolean }) => void;
+  notifications: SignalActions;
+  onUpdate: (notifications: SignalActions) => void;
 }
 
 const NotificationSettings: React.FC<NotificationSettingsProps> = ({
@@ -25,7 +23,7 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = ({
   const handleInAppToggle = () => {
     onUpdate({
       ...notifications,
-      inApp: !notifications.inApp,
+      notification: !notifications.notification,
     });
   };
 
@@ -59,7 +57,7 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = ({
             </div>
             <Switch
               id="app-notifications"
-              checked={notifications.inApp}
+              checked={notifications.notification}
               onCheckedChange={handleInAppToggle}
             />
           </div>

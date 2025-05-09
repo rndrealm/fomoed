@@ -16,9 +16,11 @@ export interface SmartSignalRow {
     condition: string;
     fired_at: string | null;
     actions: any[];
+    name: string;
+    description: string;
 }
 
-function getTopicsFromCondition(condition: ConditionObject): string[] {
+export function getTopicsFromCondition(condition: ConditionObject): string[] {
     const topics: string[] = [];
 
     function extract(obj: any) {

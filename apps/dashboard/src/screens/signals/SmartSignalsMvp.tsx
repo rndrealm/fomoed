@@ -14,15 +14,11 @@ export default function SmartSignalsMvp() {
 
           <TabsContent className="w-full" value="my-signals">
             <div className="space-y-2 overflow-y-auto">
-              {/* <SmartSignalList /> */}
               <MySignals />
             </div>
           </TabsContent>
           <TabsContent value="signal-builder">
-            <SignalBuilder
-              initialSignal={undefined}
-              onSave={(data) => console.log(data)}
-            />
+            <SignalBuilder />
           </TabsContent>
         </Tabs>
       </div>

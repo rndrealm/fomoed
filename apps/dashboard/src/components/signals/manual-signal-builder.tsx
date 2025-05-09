@@ -1,3 +1,4 @@
+import { nanoid } from "nanoid";
 import { useCallback, useEffect, useState } from "react";
 import SignalConditionGroup, {
   Condition,
@@ -5,95 +6,124 @@ import SignalConditionGroup, {
   Group,
 } from "./condition-group";
 
-const ManualSignalBuilder = () => {
+// Converts a JSON Logic object to a Group/Condition tree using 'children' and 'operand'
+function jsonLogicToGroup(logic: any, isRoot = true): any {
+  if (!logic || typeof logic !== "object") {
+    // Always return a root group with one empty condition
+    return {
+      id: nanoid(),
+      type: "group",
+      operand: "and",
+      children: [
+        {
+          id: nanoid(),
+          type: "condition",
+          dataSource: null,
+          topic: null,
+          operator: null,
+          value: null,
+        },
+      ],
+    };
+  }
+  if (logic.and || logic.or) {
+    const operand = logic.and ? "and" : "or";
+    const arr = logic[operand];
+    const children: (Group | Condition)[] = arr.map((item: any) =>
+      jsonLogicToGroup(item, false)
+    );
+    return {
+      id: nanoid(),
+      type: "group",
+      operand,
+      children,
+    };
+  }
+  for (const op of [">", "<", "==", "!="]) {
+    if (logic[op]) {
+      const [value, topicObj] = logic[op];
+      const condition = {
+        id: nanoid(),
+        type: "condition",
+        operator: op,
+        value: value,
+        dataSource: topicObj?.topic?.[1] || null,
+        topic: topicObj?.topic?.[0] || null,
+      };
+      // Only wrap in a group if this is the root
+      if (isRoot) {
+        return {
+          id: nanoid(),
+          type: "group",
+          operand: "and",
+          children: [condition],
+        };
+      }
+      return condition;
+    }
+  }
+  // fallback: empty root group with one empty condition
+  if (isRoot) {
+    return {
+      id: nanoid(),
+      type: "group",
+      operand: "and",
+      children: [
+        {
+          id: nanoid(),
+          type: "condition",
+          dataSource: null,
+          topic: null,
+          operator: null,
+          value: null,
+        },
+      ],
+    };
+  }
+  return null;
+}
+
+type ManualSignalBuilderProps = {
+  editMode?: boolean;
+  initialLogic?: object;
+  logic: object | null;
+  setLogic: (logic: object | null) => void;
+};
+
+// Place this outside the component to avoid infinite re-renders
+const toJsonLogic = (group: Group): any => {
+  const arr = group.children
+    .map((c) =>
+      c.type === "condition"
+        ? conditionToJsonLogic(c as Condition)
+        : toJsonLogic(c as Group)
+    )
+    .filter(Boolean);
+  return { [group.operand]: arr };
+};
+
+const ManualSignalBuilder = ({
+  editMode = false,
+  initialLogic,
+  logic = null,
+  setLogic,
+}: ManualSignalBuilderProps) => {
   // The root group state (always present)
-  const [rootGroup, setRootGroup] = useState<Group>(defaultGroup(0));
-  const [logic, setLogic] = useState<object | null>(null);
+  const [rootGroup, setRootGroup] = useState<Group>(
+    editMode && initialLogic ? jsonLogicToGroup(initialLogic) : defaultGroup(0)
+  );
 
   // Recursively update a group or condition in the tree
   const updateGroup = useCallback((updated: Group) => {
     setRootGroup(updated);
   }, []);
 
-  // Convert the group tree to JSON-logic
-  const toJsonLogic = useCallback((group: Group): any => {
-    const validChildren = group.children.filter(Boolean);
-    if (validChildren.length === 1 && validChildren[0].type === "condition") {
-      return conditionToJsonLogic(validChildren[0] as Condition);
-    }
-    const arr = validChildren
-      .map((c) =>
-        c.type === "condition"
-          ? conditionToJsonLogic(c as Condition)
-          : toJsonLogic(c as Group)
-      )
-      .filter(Boolean);
-    return { [group.operand]: arr };
-  }, []);
-
-  // Update JSON-logic output whenever the group tree changes
   useEffect(() => {
     setLogic(toJsonLogic(rootGroup));
-  }, [rootGroup, toJsonLogic]);
-
-  const handleTestApi = async () => {
-    const testData = {
-      user_id: 4291,
-      topics: ["ticker_BTCUSDT"],
-      name: "Test Signal",
-      description: "Test Signal Description",
-      condition: JSON.stringify({
-        ">": [
-          10000,
-          {
-            topic: ["ticker_BTCUSDT", "price"],
-          },
-        ],
-      }),
-      actions: [
-        {
-          type: "email",
-          subject: "Price Alert",
-          content: "ADS",
-        },
-        {
-          type: "notification",
-          description: "BTC price target reached",
-        },
-      ],
-    };
-
-    try {
-      const response = await fetch(
-        "http://localhost:8080/api/v1/smart-signal/new",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(testData),
-        }
-      );
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      const data = await response.json();
-      console.log("API response:", data);
-    } catch (error) {
-      console.error("Error testing API:", error);
-    }
-  };
+  }, [rootGroup, setLogic]);
 
   return (
-    <div className="">
-      <SignalConditionGroup
-        group={rootGroup}
-        depth={0}
-        onUpdate={updateGroup}
-      />
-
-      <button onClick={handleTestApi}>Test API</button>
-    </div>
+    <SignalConditionGroup group={rootGroup} depth={0} onUpdate={updateGroup} />
   );
 };
 

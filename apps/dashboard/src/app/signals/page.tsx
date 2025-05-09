@@ -1,11 +1,11 @@
 "use client";
 
-import SmartSignalsMvp from "@/screens/SmartSignalsMvp";
+import SmartSignalsMvp from "@/screens/signals/SmartSignalsMvp";
 
 export default function Home() {
-    return (
-        <div className="bg-[#0D0D0D] min-h-screen p-2 h-full">
-            <SmartSignalsMvp />
-        </div>
-    );
+  return (
+    <div className="bg-black min-h-screen p-2 h-full">
+      <SmartSignalsMvp />
+    </div>
+  );
 }
