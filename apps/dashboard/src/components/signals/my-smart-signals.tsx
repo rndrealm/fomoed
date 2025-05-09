@@ -1,6 +1,5 @@
-import { useSmartSignals } from "@/screens/hooks/use-smart-signals";
+import { useSmartSignals } from "@/services/queries/signals";
 import { LoaderCircle, Plus } from "lucide-react";
-import { useState } from "react";
 import { RenderIf } from "../shared";
 import { Card, CardContent } from "../ui/card";
 import MySmartSignalCard from "./my-smart-signal-card";
@@ -19,15 +18,7 @@ const EmptyState = () => {
   );
 };
 const MySignals = () => {
-  const { deleteSmartSignal, smartSignals, isLoading } = useSmartSignals();
-  const [deletingId, setDeletingId] = useState<number | null>(null);
-  console.log("🚀 ~ MySignals ~ smartSignals:", smartSignals);
-
-  const handleDelete = async (id: number) => {
-    setDeletingId(id);
-    await deleteSmartSignal(id);
-    setDeletingId(null);
-  };
+  const { data: smartSignals = [], isLoading } = useSmartSignals();
 
   if (isLoading) {
     return (
@@ -38,23 +29,25 @@ const MySignals = () => {
   }
 
   return (
-    <div className="w-full grid grid-cols-2 gap-5">
+    <div className="w-full grid grid-cols-2 gap-5 mt-4">
       <RenderIf condition={smartSignals.length === 0}>
         <EmptyState />
       </RenderIf>
 
-      <RenderIf condition={smartSignals.length > 0}>
-        {smartSignals.map((signal, idx) => (
-          <MySmartSignalCard
-            key={signal.id}
-            title={signal.name}
-            description={signal.description}
-            conditions={JSON.parse(signal.condition)}
-            hasInAppNotifications={true}
-            hasEmailNotifications={true}
-            lastUpdated={signal.updated_at}
-          />
-        ))}
+      <RenderIf condition={!!smartSignals && smartSignals.length > 0}>
+        {smartSignals &&
+          smartSignals.map((signal, idx) => (
+            <MySmartSignalCard
+              key={signal.id}
+              id={signal.id as number}
+              title={signal.name}
+              description={signal.description}
+              conditions={JSON.parse(signal.condition)}
+              hasInAppNotifications={true}
+              hasEmailNotifications={true}
+              lastUpdated={signal.updated_at}
+            />
+          ))}
       </RenderIf>
     </div>
   );
