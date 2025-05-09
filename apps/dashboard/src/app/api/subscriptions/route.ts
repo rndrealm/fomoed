@@ -3,6 +3,21 @@ import { createSupabaseServerClient } from "@/lib/utils/supabase/server-client";
 
 import { NextResponse } from "next/server";
 
+async function getPlanNameFromPriceId(priceId: string) {
+  const price = await stripe.prices.retrieve(priceId);
+  console.log("price:", price);
+
+  if (price.metadata.plan_id.includes("plus")) {
+    return "plus";
+  }
+
+  if (price.metadata.plan_id.includes("pro")) {
+    return "pro";
+  }
+
+  return null;
+}
+
 export const fetchUserPlans = async () => {
   const supabase = await createSupabaseServerClient();
 
@@ -34,6 +49,9 @@ export const fetchUserPlans = async () => {
     (sub) => sub.status === "active" || sub.status === "trialing"
   );
 
+  const activePriceId = active_subs[0].plan.id;
+  const activePlan = getPlanNameFromPriceId(activePriceId);
+  // console.log("plan:", activePlan);
   return {
     subscriptions: active_subs,
     hasPlan: active_subs.length > 0,
