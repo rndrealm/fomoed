@@ -138,7 +138,7 @@ export function Toolbar() {
     if (isSuccess) {
       setLayoutChange(false);
     }
-  }, [isSuccess]);
+  }, [isSuccess, setLayoutChange]);
 
   return (
     <Fragment>

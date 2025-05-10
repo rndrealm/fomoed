@@ -8,7 +8,7 @@ const plansIdMap = {
   plus: "prod_Q4NT6y9VdwZlKo",
 };
 
-export const fetchUserPlans = async () => {
+const fetchUserPlans = async () => {
   const supabase = await createSupabaseServerClient();
 
   const {

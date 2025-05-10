@@ -25,7 +25,14 @@ export default function Home({ dashboardData }: IProps) {
     loadTabsFromApi(dashboardData.tabs);
     loadLayoutsFromApi(dashboardData.layouts);
     loadSettingsFromApi(dashboardData.settings);
-  }, []);
+  }, [
+    dashboardData.tabs,
+    dashboardData.layouts,
+    dashboardData.settings,
+    loadTabsFromApi,
+    loadLayoutsFromApi,
+    loadSettingsFromApi,
+  ]);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [utils, setUtils] = useAtom(utilsAtom);
 
@@ -64,7 +71,7 @@ export default function Home({ dashboardData }: IProps) {
       document.removeEventListener("mozfullscreenchange", onFullscreenChange);
       document.removeEventListener("MSFullscreenChange", onFullscreenChange);
     };
-  }, []);
+  }, [utils, setUtils]);
 
   return (
     <Fragment>

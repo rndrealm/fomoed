@@ -1,3 +1,5 @@
+"use client";
+
 import { WidgetDropdownMenu } from "@/components/dashboard/widget-options-menu";
 import { Drag } from "@/components/icons/icons";
 import { ConfirmationModal } from "@/components/modals";
