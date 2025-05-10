@@ -18,6 +18,7 @@ interface IProps {
   dashboardData: IDashboardData;
 }
 export default function Home({ dashboardData }: IProps) {
+  console.log("dddddd:", dashboardData);
   const loadTabsFromApi = useSetAtom(loadTabsFromApiAtom);
   const loadLayoutsFromApi = useSetAtom(loadLayoutsFromApiAtom);
   const loadSettingsFromApi = useSetAtom(loadSettingsFromApiAtom);
