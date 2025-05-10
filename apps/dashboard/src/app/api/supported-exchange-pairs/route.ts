@@ -27,7 +27,7 @@ export async function GET() {
     return NextResponse.json({ data: data.data });
   } catch (error) {
     // Handle errors gracefully
-    console.error("Error fetching CFGI data:", error);
+    console.log("Error fetching CFGI data:", error);
     return NextResponse.json(
       { error: "Failed to fetch CFGI data" },
       { status: 500 }

@@ -41,7 +41,7 @@ const ProfileDropdown: React.FC = () => {
     const { error } = await supabaseClient.auth.signOut();
 
     if (error) {
-      console.error("Error signing out:", error);
+      console.log("Error signing out:", error);
       return;
     }
 

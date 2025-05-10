@@ -18,7 +18,7 @@ async function getPlanNameFromPriceId(priceId: string) {
   return null;
 }
 
-export const fetchUserPlans = async () => {
+const fetchUserPlans = async () => {
   const supabase = await createSupabaseServerClient();
 
   const {
@@ -49,8 +49,6 @@ export const fetchUserPlans = async () => {
     (sub) => sub.status === "active" || sub.status === "trialing"
   );
 
-  const activePriceId = active_subs[0].plan.id;
-  const activePlan = getPlanNameFromPriceId(activePriceId);
   // console.log("plan:", activePlan);
   return {
     subscriptions: active_subs,
@@ -68,7 +66,7 @@ export async function GET() {
     return NextResponse.json({ success: "true", data });
   } catch (error) {
     // Handle errors gracefully
-    console.error("Error fetching subsriptions data:", error);
+    console.log("Error fetching subsriptions data:", error);
     return NextResponse.json(
       { error: "Failed to fetch subsriptions data" },
       { status: 500 }

@@ -118,7 +118,7 @@ export const deleteLayoutAction = async (layoutId: string) => {
     .match({ layout_id: layoutId });
 
   if (widgetDeleteError) {
-    console.error("Error deleting widgets:", widgetDeleteError);
+    console.log("Error deleting widgets:", widgetDeleteError);
     throw new Error(widgetDeleteError.message);
   }
 
@@ -129,7 +129,7 @@ export const deleteLayoutAction = async (layoutId: string) => {
     .match({ layout_id: layoutId, user_id: user.id });
 
   if (tabUpdateError) {
-    console.error("Error updating tabs:", tabUpdateError);
+    console.log("Error updating tabs:", tabUpdateError);
     throw new Error(tabUpdateError.message);
   }
 
@@ -140,7 +140,7 @@ export const deleteLayoutAction = async (layoutId: string) => {
     .match({ id: layoutId, user_id: user.id });
 
   if (layoutDeleteError) {
-    console.error("Error deleting layout:", layoutDeleteError);
+    console.log("Error deleting layout:", layoutDeleteError);
     throw new Error(layoutDeleteError.message);
   }
 };
@@ -170,7 +170,7 @@ export const updateLayoutNameAction = async ({
     .single();
 
   if (error) {
-    console.error("Error updating layout name:", error);
+    console.log("Error updating layout name:", error);
     throw new Error(error.message);
   }
 
