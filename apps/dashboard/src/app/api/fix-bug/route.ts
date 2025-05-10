@@ -81,34 +81,16 @@ export async function createOrLinkUserFromOAuth(
 }
 
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url);
+  const supabase = await createSupabaseServerClient();
 
-  const code = searchParams.get("code");
+  const fakeUser = {
+    email: "seunoyediran4shawen@gmail.com",
+    id: "3cb42215-aa5e-495a-b458-f5fa39a99733",
+  };
 
-  console.log("code", code);
-
-  // if "next" is in param, use it in the redirect URL
-  const next = searchParams.get("next") ?? "/";
-
-  if (code) {
-    const supabase = await createSupabaseServerClient();
-
-    const { error, data } = await supabase.auth.exchangeCodeForSession(code);
-
-    console.log("error", error);
-
-    if (!data.user) {
-      return NextResponse.redirect(`${origin}/auth/auth-error`);
-    }
-
-    createOrLinkUserFromOAuth(supabase, data.user);
-
-    if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
-    }
-  }
+  //   createOrLinkUserFromOAuth(supabase, fakeUser);
 
   // TODO: Create this page
   // return the user to an error page with instructions
-  return NextResponse.redirect(`${origin}/auth/auth-error`);
+  return NextResponse.json({ success: true, data: fakeUser });
 }
