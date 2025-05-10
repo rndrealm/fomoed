@@ -119,7 +119,7 @@ export const formatCoinPrice = (price: string) => {
 };
 
 export function getChangeTextColor(change: number): string {
-  return change > 0 ? "#1FC16B" : change < 0 ? "#D00416" : "#00D743";
+  return change > 0 ? "#00D743" : change < 0 ? "#D00416" : "#ffffff";
 }
 
 export const maxTabsByPlan = {

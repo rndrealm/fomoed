@@ -9,7 +9,8 @@ export async function fetchPopularNews(token: string) {
     .select("*, news_likes(id), news_bookmarks(id)")
     .gte("published_at", dayAgo.toISOString())
     .contains("symbols", [token])
-    .limit(3);
+    .order("published_at", { ascending: false });
+  // .limit(3);
 
   if (error) {
     console.log("Error fetching popular news:", error);
