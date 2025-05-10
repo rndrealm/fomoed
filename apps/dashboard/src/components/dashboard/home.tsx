@@ -76,9 +76,6 @@ export default function Home({ dashboardData }: IProps) {
 
   return (
     <Fragment>
-      <div className="absolute inset-x-0 top-0">
-        <Navbar />
-      </div>
       <div
         className={cn(
           "h-screen pt-[96px] px-4 pb-4 overflow-hidden bg-[#0C0C0C]",

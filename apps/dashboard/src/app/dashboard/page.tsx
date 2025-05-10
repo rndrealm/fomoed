@@ -1,7 +1,7 @@
 "use client";
 
+import { Loader } from "@/components/dashboard";
 import Home from "@/components/dashboard/home";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useGetDashboardData } from "@/services/queries/home";
 // import { getDashboardData } from "@/services/queries/home/actions";
 // import { fetchNewsData } from "@/services/queries/news/server-actions";
@@ -307,11 +307,7 @@ export default function Page() {
   };
   return (
     <Fragment>
-      {dashboardData ? (
-        <Home dashboardData={dashboardData} />
-      ) : (
-        <Skeleton className="w-full h-full bg-widget-background-200" />
-      )}
+      {dashboardData ? <Home dashboardData={dashboardData} /> : <Loader />}
     </Fragment>
   );
 }

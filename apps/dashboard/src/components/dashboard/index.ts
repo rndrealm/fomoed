@@ -5,6 +5,7 @@ export { DashboardWidgets } from "./dashboard-widgets";
 export { EmptyTab } from "./tabs/empty-tab";
 export { FullscreenBtn } from "./fullscreen-btn";
 export { NewTabs } from "./tabs/new-tab";
+export { Loader } from "./loader";
 export { NavActionButton } from "./nav-action-button";
 export { QuickWidgets } from "./quick-widgets";
 export { SettingsDropdown } from "./settings-dropdown";
