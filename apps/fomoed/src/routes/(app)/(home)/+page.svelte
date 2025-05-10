@@ -39,7 +39,7 @@
 	<!-- <div class="bg-[url(/background/dashboard.svg)] inset-0 fixed min-h-screen bg-cover -z-10"></div> -->
 
 	<div
-		class="flex-grow grid place-items-center desktop:pb-8 desktop:mx-4 pt-[5.5rem] md:pt-[3.5rem] duration-200 snap-start"
+		class="flex-grow grid place-items-center desktop:pb-8 desktop:mx-4 pt-[5.5rem] md:pt-[3.5rem] duration-200 snap-start mt-[50px]"
 		class:opacity-0={$isDesktop === null}
 	>
 		<div

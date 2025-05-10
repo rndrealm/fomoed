@@ -61,8 +61,6 @@ export const Navbar = () => {
 
           <div className="flex gap-4 items-center">
             {links.map((item) => {
-              console.log(pathName);
-
               const active = pathName === item.href;
               return (
                 <NavLink

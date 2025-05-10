@@ -2,6 +2,7 @@
 "use client";
 import { Navbar, RenderIf } from "@/components/shared";
 import { utilsAtom } from "@/lib/atoms/utilsAtom";
+import { useGetUserPlans } from "@/services/queries/subscriptions";
 import { useAtomValue } from "jotai";
 
 export default function DashboardLayout({
@@ -10,6 +11,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }>) {
   const utils = useAtomValue(utilsAtom);
+  useGetUserPlans();
 
   return (
     <>

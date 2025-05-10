@@ -6,8 +6,9 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
 } from "@/components/ui/dropdown-menu";
-import ProfileDropdown from "./ProfileDropdown";
+// import ProfileDropdown from "./ProfileDropdown";
 import NavbarProfileButtonTrigger from "./NavbarProfileButtonTrigger";
+import { ProfileDropdown } from "../shared";
 
 interface IProps {
   children?: ReactNode;
@@ -24,6 +25,7 @@ const NavbarProfileButton = (props: IProps) => {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="bg-transparent border-0">
+        {/* <ProfileDropdown /> */}
         <ProfileDropdown />
       </DropdownMenuContent>
     </DropdownMenu>

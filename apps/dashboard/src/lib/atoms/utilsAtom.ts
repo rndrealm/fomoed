@@ -1,7 +1,7 @@
 import { atom } from "jotai";
 
-const defaultValues = {
+const initialUtils = {
   isFullScreen: false,
 };
 
-export const utilsAtom = atom(defaultValues);
+export const utilsAtom = atom(initialUtils);

@@ -15,6 +15,11 @@ const dataMap = {
 };
 
 export function Upgrade() {
+  function handleGoToPlans() {
+    window.location.href =
+      "https://fomoed-git-development-fomoed-00ef5fc1.vercel.app/plans";
+  }
+
   return (
     <div
       className="rounded-[24px] p-6 min-h-[455px] flex flex-col"
@@ -41,6 +46,7 @@ export function Upgrade() {
           <button
             type="button"
             className="rounded-md bg-white py-2 text-xs text-black font-medium leading-[1.5]"
+            onClick={handleGoToPlans}
           >
             Upgrade to Fomoed+
           </button>
@@ -49,6 +55,7 @@ export function Upgrade() {
             <button
               type="button"
               className="rounded-md py-2 text-xs text-[#b9b9b9] font-medium leading-[1.5] underline"
+              onClick={handleGoToPlans}
             >
               View other plans
             </button>
