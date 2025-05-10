@@ -3,6 +3,11 @@ import { createSupabaseServerClient } from "@/lib/utils/supabase/server-client";
 
 import { NextResponse } from "next/server";
 
+const plansIdMap = {
+  pro: "prod_QuL2KcFQNsFWb1",
+  plus: "prod_Q4NT6y9VdwZlKo",
+};
+
 export const fetchUserPlans = async () => {
   const supabase = await createSupabaseServerClient();
 
@@ -34,11 +39,26 @@ export const fetchUserPlans = async () => {
     (sub) => sub.status === "active" || sub.status === "trialing"
   );
 
+  let planType: "FREE" | "PRO" | "PLUS" = "FREE";
+
+  for (const sub of active_subs) {
+    const subProductId = sub.items.data?.[0]?.plan?.product;
+    if (subProductId === plansIdMap.pro) {
+      planType = "PRO";
+      break;
+    }
+    if (subProductId === plansIdMap.plus) {
+      planType = "PLUS";
+      break;
+    }
+  }
+
   return {
     subscriptions: active_subs,
     hasPlan: active_subs.length > 0,
     hasTrial:
       active_subs.find((sub) => sub.status === "trialing") !== undefined,
+    planType,
   };
 };
 

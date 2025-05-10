@@ -8,7 +8,7 @@ import {
   renameTabAtom,
   tabsAtom,
 } from "@/lib/atoms/tabsAtom";
-import { cn } from "@/lib/utils";
+import { cn, maxTabsByPlan } from "@/lib/utils";
 import { ConfirmationModal, Upgrade } from "../../modals";
 import { ModalContainer, RenderIf } from "../../shared";
 import { useGetUserPlans } from "@/services/queries/subscriptions";
@@ -134,19 +134,16 @@ export function NewTabs() {
 
   const { data } = useGetUserPlans();
 
-  console.log(data);
-
   const handleAddNewTab = () => {
-    if (data?.hasPlan) {
-      addNewTab();
+    const planType = data?.planType || "FREE"; // Default to FREE if not set
+    const maxTabs = maxTabsByPlan[planType] || 3;
+
+    if (tabs.length >= maxTabs) {
+      setShowUpgradeModal(true);
       return;
     }
 
-    if (tabs.length > 1) {
-      setShowUpgradeModal(true);
-    } else {
-      addNewTab();
-    }
+    addNewTab();
   };
 
   return (
