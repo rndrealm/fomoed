@@ -1,10 +1,14 @@
-import Home from "@/components/dashboard/home";
-import { getDashboardData } from "@/services/queries/home/actions";
-import { fetchNewsData } from "@/services/queries/news/server-actions";
-import React, { Suspense } from "react";
+"use client";
 
-export default async function Page() {
-  const dashboardData = await getDashboardData();
+import Home from "@/components/dashboard/home";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useGetDashboardData } from "@/services/queries/home";
+// import { getDashboardData } from "@/services/queries/home/actions";
+// import { fetchNewsData } from "@/services/queries/news/server-actions";
+import React, { Fragment, Suspense } from "react";
+
+export default function Page() {
+  const { data: dashboardData } = useGetDashboardData();
   // await fetchNewsData();
   const ald: any = {
     tabs: [
@@ -302,8 +306,12 @@ export default async function Page() {
     },
   };
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <Home dashboardData={dashboardData} />
-    </Suspense>
+    <Fragment>
+      {dashboardData ? (
+        <Home dashboardData={dashboardData} />
+      ) : (
+        <Skeleton className="w-full h-full bg-widget-background-200" />
+      )}
+    </Fragment>
   );
 }

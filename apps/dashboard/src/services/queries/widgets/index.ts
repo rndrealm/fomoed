@@ -24,25 +24,3 @@ export const useSyncLayouts = () => {
     ...response,
   };
 };
-
-export const useReadTabs = () => {
-  const hash = ["tabs"];
-  const { data, isPending, error, isSuccess } = useQuery({
-    queryKey: hash,
-    queryFn: async () => {
-      const response = await getUserTabsAction();
-      return response.tabs;
-    },
-    staleTime: Infinity,
-    refetchOnReconnect: false,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    retry: 0,
-  });
-  return {
-    data,
-    isPending,
-    isSuccess,
-    error,
-  };
-};
