@@ -1,7 +1,6 @@
 "use client";
-
+import { Loader } from "@/components/dashboard";
 import Home from "@/components/dashboard/home";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useGetDashboardData } from "@/services/queries/home";
 import { useFetchTokenNews } from "@/services/queries/news";
 import React, { Fragment, Suspense } from "react";
@@ -12,11 +11,7 @@ export default function Page() {
 
   return (
     <Fragment>
-      {dashboardData && newsData ? (
-        <Home dashboardData={dashboardData} />
-      ) : (
-        <Skeleton className="w-full h-full bg-widget-background-200" />
-      )}
+      {dashboardData ? <Home dashboardData={dashboardData} /> : <Loader />}
     </Fragment>
   );
 }
