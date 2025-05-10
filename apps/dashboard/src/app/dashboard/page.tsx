@@ -4,7 +4,7 @@ import { fetchNewsData } from "@/services/queries/news/server-actions";
 import React, { Suspense } from "react";
 
 export default async function Page() {
-  const dashboardData = await getDashboardData();
+  // const dashboardData = await getDashboardData();
   await fetchNewsData();
   const ald: any = {
     tabs: [
@@ -303,8 +303,7 @@ export default async function Page() {
   };
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <Home dashboardData={dashboardData} />
-      <div></div>
+      <Home dashboardData={ald} />
     </Suspense>
   );
 }
