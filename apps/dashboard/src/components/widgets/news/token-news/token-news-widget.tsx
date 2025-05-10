@@ -28,7 +28,7 @@ const TokenNewsWidget = (props: IProps) => {
       <div className="grid items-center w-full grid-cols-3">
         <WidgetHeader widget={widget} />
       </div>
-      <div className="flex flex-col  w-full h-full bg-[#121212] rounded-[12px] mt-2 overflow-auto">
+      <div className="flex flex-col  w-full h-full bg-[#121212] rounded-[12px] mt-2 overflow-auto scrollbar">
         {coinData ? (
           <div className="px-[0.875rem] py-3 border-b border-[#1E1E1E] flex items-center justify-between">
             {/* <h3 className="text-sm font-medium text-white">Popular</h3> */}
