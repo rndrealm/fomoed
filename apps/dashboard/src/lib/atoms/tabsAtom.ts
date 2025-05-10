@@ -10,7 +10,7 @@ export interface TabType {
   layout_id: string | null;
 }
 
-const initialTab: TabType = {
+export const initialTab: TabType = {
   id: uuidv4(),
   name: "Untitled Layout",
   layout_id: uuidv4(), // This will be updated once the layout is created

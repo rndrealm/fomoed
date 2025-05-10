@@ -2,7 +2,7 @@ import { IDashboardData } from "@/services/queries/home/types";
 import { updateSettingsAction } from "@/services/queries/settings/actions";
 import { atom } from "jotai";
 
-const initialSetting = {
+export const initialSetting = {
   id: "",
   auto_save: true,
 };
