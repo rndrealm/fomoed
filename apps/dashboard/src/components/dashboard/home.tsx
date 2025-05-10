@@ -12,6 +12,7 @@ import { IDashboardData } from "@/services/queries/home/types";
 import { loadTabsFromApiAtom } from "@/lib/atoms/tabsAtom";
 import { loadLayoutsFromApiAtom } from "@/lib/atoms/layoutAtom";
 import { loadSettingsFromApiAtom } from "@/lib/atoms/settingsAtom";
+import { Navbar } from "../shared";
 
 interface IProps {
   dashboardData: IDashboardData;
@@ -75,6 +76,9 @@ export default function Home({ dashboardData }: IProps) {
 
   return (
     <Fragment>
+      <div className="absolute inset-x-0 top-0">
+        <Navbar />
+      </div>
       <div
         className={cn(
           "h-screen pt-[96px] px-4 pb-4 overflow-hidden bg-[#0C0C0C]",
