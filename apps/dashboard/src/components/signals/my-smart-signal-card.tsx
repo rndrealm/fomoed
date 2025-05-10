@@ -167,7 +167,7 @@ export default function MySmartSignalCard({
                 variant={"default"}
                 className="bg-white text-black rounded-full py-1.5 px-3"
               >
-                {conditionCount} Condition {conditionCount > 1 ? "s" : ""}
+                {conditionCount} {`Condition${conditionCount > 1 ? "s" : ""}`}
               </Badge>
 
               <RenderIf condition={hasInAppNotifications}>

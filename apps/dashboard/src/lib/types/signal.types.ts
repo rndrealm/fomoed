@@ -23,3 +23,7 @@ export interface CreateSignalDTO {
   actions: object[];
   user_id: number; // FIXME: this is bad. backend should derive this from auth
 }
+
+export interface UpdateSignalDTO extends CreateSignalDTO {
+  id: string;
+}

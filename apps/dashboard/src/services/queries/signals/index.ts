@@ -1,5 +1,5 @@
 import useUserData from "@/lib/hooks/use-user-data";
-import { CreateSignalDTO } from "@/lib/types/signal.types";
+import { CreateSignalDTO, UpdateSignalDTO } from "@/lib/types/signal.types";
 import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
 import { SmartSignalRow } from "@/screens/hooks/use-smart-signals";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -82,9 +82,9 @@ export const useDeleteSmartSignal = () => {
 
 export const useUpdateSmartSignal = () => {
   return useMutation({
-    mutationFn: async (data: SmartSignalRow) => {
+    mutationFn: async (data: UpdateSignalDTO) => {
       const supabase = createSupabaseBrowserClient();
-      const { data: updatedData, error } = await supabase
+      const { error } = await supabase
         .from("smart_signals")
         .update(data)
         .eq("id", data.id);
@@ -92,11 +92,6 @@ export const useUpdateSmartSignal = () => {
       if (error) {
         throw new Error("Failed to update smart signal");
       }
-
-      if (!updatedData) {
-        throw new Error("No smart signal found");
-      }
-      return updatedData;
     },
   });
 };
