@@ -5,7 +5,7 @@ import React, { Suspense } from "react";
 
 export default async function Page() {
   // const dashboardData = await getDashboardData();
-  await fetchNewsData();
+  // await fetchNewsData();
   const ald: any = {
     tabs: [
       {
