@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ProfileIcon } from "./profile-icon";
 import { authUserAtom, resetAuthState } from "@/lib/atoms/userAtom";
 import { useAtomValue, useSetAtom } from "jotai";
@@ -41,6 +41,13 @@ export function ProfileDropdown() {
     window.location.href =
       "https://fomoed-git-development-fomoed-00ef5fc1.vercel.app/plans";
   }
+
+  useEffect(() => {
+    if (!isBeta) {
+      window.location.href =
+        "https://fomoed-git-development-fomoed-00ef5fc1.vercel.app";
+    }
+  }, [isBeta]);
 
   if (!authUser) {
     return (
