@@ -49,20 +49,21 @@ export const getDashboardData = async () => {
   if (settingsData.length === 0) {
     // Create default settings if none exist
     const defaultSettings = {
-      id: uuidv4(),
       user_id: user.id,
       auto_save: true,
     };
 
-    const { error: insertError } = await supabase
+    const { data: settings, error: insertError } = await supabase
       .from("dashboard_settings")
-      .insert(defaultSettings);
+      .insert(defaultSettings)
+      .select()
+      .single();
 
     if (insertError) {
       console.log("Error creating default settings:", insertError);
       throw new Error(insertError.message);
     }
-    returnSettings = defaultSettings;
+    returnSettings = settings;
   } else {
     returnSettings = settingsData[0];
   }
