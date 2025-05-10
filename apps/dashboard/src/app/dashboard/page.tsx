@@ -303,7 +303,7 @@ export default async function Page() {
   };
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <Home dashboardData={dashboardData} />
+      <Home dashboardData={ald} />
     </Suspense>
   );
 }
