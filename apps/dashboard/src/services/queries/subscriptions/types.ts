@@ -13,6 +13,8 @@ export interface ISubscription {
   plan_name: SubPlanName;
 }
 
+export type IPlanType = "FREE" | "PRO" | "PLUS";
+
 export interface SubscriptionsResponse {
   subscriptions: Array<{
     id: string;
@@ -176,4 +178,5 @@ export interface SubscriptionsResponse {
   }>;
   hasPlan: boolean;
   hasTrial: boolean;
+  planType: IPlanType;
 }
