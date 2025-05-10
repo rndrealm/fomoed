@@ -1,5 +1,4 @@
 import { createSupabaseServerClient } from "@/lib/utils/supabase/server-client";
-import { v4 as uuidv4 } from "uuid";
 
 export const getDashboardData = async () => {
   const supabase = await createSupabaseServerClient();
