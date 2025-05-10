@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import Link from "next/link";
-import DashboardButton from "../ui/dashboardButton";
 import NavbarProfileButton from "../ui/NavbarProfileButton";
 import Image from "next/image";
 import dashboard from "@/lib/assets/dashboard";
@@ -10,6 +9,9 @@ import { AppRoutes } from "@/lib/routes";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { ProfileIcon } from "./profile-icon";
+import { utilsAtom } from "@/lib/atoms/utilsAtom";
+import { useAtomValue } from "jotai";
+import { RenderIf } from "./render-if";
 
 const links = [
   {
@@ -49,54 +51,57 @@ function NavLink(props: INavLink) {
 
 export const Navbar = () => {
   const pathName = usePathname();
+  const utils = useAtomValue(utilsAtom);
 
   return (
-    <nav className="bg-[#0C0C0C] border-b border-[#161616] py-4 px-10 flex items-center">
-      <div className="mx-auto flex justify-between items-center w-full">
-        {/* Logo section */}
-        <div className="flex items-center gap-10">
-          <Link href="/">
-            <Image src={dashboard.logo} alt="logo" />
-          </Link>
+    <RenderIf condition={!utils.isFullScreen}>
+      <nav className="bg-[#0C0C0C] border-b border-[#161616] py-4 px-10 flex items-center">
+        <div className="flex items-center justify-between w-full mx-auto">
+          {/* Logo section */}
+          <div className="flex items-center gap-10">
+            <Link href="/">
+              <Image src={dashboard.logo} alt="logo" />
+            </Link>
 
-          <div className="flex gap-4 items-center">
-            {links.map((item) => {
-              console.log(pathName);
+            <div className="flex items-center gap-4">
+              {links.map((item) => {
+                console.log(pathName);
 
-              const active = pathName === item.href;
-              return (
-                <NavLink
-                  key={item.id}
-                  label={item.label}
-                  href={item.href}
-                  icon={<item.icon active={active} />}
-                  active={active}
-                />
-              );
-            })}
+                const active = pathName === item.href;
+                return (
+                  <NavLink
+                    key={item.id}
+                    label={item.label}
+                    href={item.href}
+                    icon={<item.icon active={active} />}
+                    active={active}
+                  />
+                );
+              })}
+            </div>
           </div>
-        </div>
 
-        {/* Navigation buttons */}
-        {/* <div className="flex items-center space-x-4">
+          {/* Navigation buttons */}
+          {/* <div className="flex items-center space-x-4">
           <DashboardButton />
           <NavbarProfileButton />
         </div> */}
 
-        <div className="flex gap-2 items-center">
-          <div className="w-[32px] h-[32px] border border-[#0b0b0b] rounded-md flex items-center justify-center">
-            <Misc />
-          </div>
-          <div className="w-[32px] h-[32px] border border-[#444] rounded-md flex items-center justify-center">
-            <Notification />
-          </div>
-          <div className="w-[32px] h-[32px] overflow-hidden rounded-md flex items-center justify-center cursor-pointer">
-            <NavbarProfileButton>
-              <ProfileIcon />
-            </NavbarProfileButton>
+          <div className="flex items-center gap-2">
+            <div className="w-[32px] h-[32px] border border-[#0b0b0b] rounded-md flex items-center justify-center">
+              <Misc />
+            </div>
+            <div className="w-[32px] h-[32px] border border-[#444] rounded-md flex items-center justify-center">
+              <Notification />
+            </div>
+            <div className="w-[32px] h-[32px] overflow-hidden rounded-md flex items-center justify-center cursor-pointer">
+              <NavbarProfileButton>
+                <ProfileIcon />
+              </NavbarProfileButton>
+            </div>
           </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+    </RenderIf>
   );
 };
