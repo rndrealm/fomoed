@@ -1,5 +1,4 @@
-import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
-import { createSupabaseServerClient } from "@/lib/utils/supabase/server-client";
+import { createSupabaseServerComponentClient } from "@/lib/utils/supabase/server-client";
 import {
   ApiNewsLabPost,
   CryptopanicNewsApiResponse,
@@ -106,7 +105,7 @@ async function fetchNews() {
   const newsLabPosts = await fetchRowsFromNewsLab();
 
   const concatPostUpserts = [...newsRows, ...newsLabPosts];
-  const supabase = await createSupabaseServerClient();
+  const supabase = await createSupabaseServerComponentClient();
   const { error } = await supabase.from("news").upsert(concatPostUpserts);
   if (error) {
     console.log("Error inserting news:", error);

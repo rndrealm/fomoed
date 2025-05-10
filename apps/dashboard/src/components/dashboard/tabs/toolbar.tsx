@@ -29,7 +29,6 @@ import { toast } from "sonner";
 import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
 import Loader from "../../shared/loader";
 import { LayoutDropdown } from "../layout-dropdown";
-import { useReadTabs } from "@/services/queries/tabs";
 import { Loader2 } from "lucide-react";
 import { SettingsDropdown } from "../settings-dropdown";
 import { settingAtom } from "@/lib/atoms/settingsAtom";
