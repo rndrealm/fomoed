@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
-import { Settings, Wand } from "lucide-react";
+import { LoaderCircle, Settings, Wand } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 // import AISignalBuilder from "./AISignalBuilder";
@@ -9,6 +9,7 @@ import useUserData from "@/lib/hooks/use-user-data";
 import { CreateSignalDTO, SignalActions } from "@/lib/types/signal.types";
 import { extractTopicsFromJsonLogic } from "@/lib/utils/signal.utils";
 import { useCreateSignalMutation } from "@/services/queries/signals";
+import { redirect } from "next/navigation";
 import ManualSignalBuilder from "./manual-signal-builder";
 import NotificationSettings from "./notification-settings";
 import SignalDetails from "./signal-details";
@@ -25,11 +26,15 @@ const SignalBuilder = ({}) => {
 
   const user = useUserData();
 
-  const { mutateAsync: createSignal } = useCreateSignalMutation();
+  const { mutateAsync: createSignal, isPending } = useCreateSignalMutation();
 
   const handleSave = async () => {
     if (!condition || !user?.user_id) return;
 
+    if (signalName.length === 0 || signalDescription.length === 0) {
+      toast.error("Please fill in all fields");
+      return;
+    }
     const actions: object[] = [];
 
     if (signalActions.email)
@@ -55,10 +60,10 @@ const SignalBuilder = ({}) => {
       // actions?
       actions,
     };
-    console.log("🚀 ~ handleSave ~ data:", data);
 
     await createSignal(data);
     toast.success("Signal saved successfully");
+    redirect("/signals");
   };
 
   return (
@@ -115,7 +120,10 @@ const SignalBuilder = ({}) => {
       />
 
       <div className="flex justify-end gap-3">
-        <Button onClick={handleSave}>Save Signal</Button>
+        <Button disabled={isPending} onClick={handleSave}>
+          {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+          Save Signal
+        </Button>
       </div>
     </div>
   );

@@ -28,7 +28,7 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = ({
   };
 
   return (
-    <Card>
+    <Card className="bg-[#0B0B0B]">
       <CardHeader className="pb-3">
         <CardTitle className="text-lg">Notification Settings</CardTitle>
       </CardHeader>

@@ -4,10 +4,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function SmartSignalsMvp() {
   return (
-    <div className="w-full h-full pt-14">
+    <div className="w-full pt-14">
       <div className="w-full max-w-7xl mx-auto">
         <Tabs defaultValue="my-signals">
-          <TabsList className="grid w-full max-w-60 grid-cols-2">
+          <TabsList className="grid w-full max-w-60 grid-cols-2 bg-[#0B0B0B]">
             <TabsTrigger value="my-signals">My Signals</TabsTrigger>
             <TabsTrigger value="signal-builder">Signal Builder</TabsTrigger>
           </TabsList>

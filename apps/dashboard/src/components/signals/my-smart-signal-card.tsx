@@ -21,6 +21,7 @@ import { RenderIf } from "../shared";
 
 import { useDeleteSmartSignal } from "@/services/queries/signals";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { redirect } from "next/navigation";
 import DeleteConfirmModal from "./delete-confirm-modal";
 dayjs.extend(relativeTime);
 
@@ -89,7 +90,7 @@ export default function MySmartSignalCard({
   };
 
   const onEdit = () => {
-    console.log("Edit signal");
+    redirect(`/signals/edit?id=${id}`);
     setIsMenuOpen(false);
   };
   const onDuplicate = () => {
@@ -122,7 +123,7 @@ export default function MySmartSignalCard({
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
-              className="w-56 bg-zinc-900 border-gray-800 text-white"
+              className="w-56 bg-[#080808] text-white"
             >
               <DropdownMenuItem
                 className="flex items-center gap-2 py-3 cursor-pointer focus:bg-zinc-800 focus:text-white"

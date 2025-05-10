@@ -102,12 +102,18 @@ export const useUpdateSmartSignal = () => {
 };
 
 export const useCreateSignalMutation = () => {
+  const client = useQueryClient();
+
   return useMutation({
     mutationFn: async (data: CreateSignalDTO) => {
-      return await axios.post(
+      await axios.post(
         process.env.NEXT_PUBLIC_BACKEND_BASE + "/api/v1/smart-signal/new",
         data
       );
+
+      client.invalidateQueries({
+        queryKey: ["get-smart-signals"],
+      });
     },
   });
 };

@@ -18,9 +18,9 @@ const EmptyState = () => {
   );
 };
 const MySignals = () => {
-  const { data: smartSignals = [], isLoading } = useSmartSignals();
+  const { data: smartSignals = [], isPending } = useSmartSignals();
 
-  if (isLoading) {
+  if (isPending) {
     return (
       <div className="w-full h-80 flex items-center justify-center">
         <LoaderCircle className="animate-spin" />

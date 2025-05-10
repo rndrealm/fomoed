@@ -39,7 +39,7 @@ const SignalDetails = ({
   };
 
   return (
-    <Card>
+    <Card className="bg-[#0B0B0B]">
       <CardHeader>
         <CardTitle>Signal Details</CardTitle>
       </CardHeader>

@@ -105,7 +105,6 @@ const toJsonLogic = (group: Group): any => {
 const ManualSignalBuilder = ({
   editMode = false,
   initialLogic,
-  logic = null,
   setLogic,
 }: ManualSignalBuilderProps) => {
   // The root group state (always present)
