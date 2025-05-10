@@ -1,4 +1,3 @@
-import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
 import { createSupabaseServerClient } from "@/lib/utils/supabase/server-client";
 import {
   ApiNewsLabPost,
