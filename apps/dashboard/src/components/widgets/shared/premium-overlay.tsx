@@ -41,7 +41,10 @@ const PremiumOverlay = (props: IProps) => {
             </div>
 
             <div className="mt-8">
-              <a href="/plans" className="flex justify-center">
+              <a
+                href="https://app.fomoed.io/plans"
+                className="flex justify-center"
+              >
                 <button className="flex items-center gap-[17px] justify-center border border-[#323232] bg-[white] rounded-[10px] px-4 py-[10px]">
                   <span className="text-xs font-semibold tracking-[-0.31px] text-black">
                     Select Your Plan
@@ -53,7 +56,7 @@ const PremiumOverlay = (props: IProps) => {
           </div>
         </div>
       </RenderIf>
-      {children}
+      <RenderIf condition={!!userPlans?.hasPlan}>{children}</RenderIf>
     </>
   );
 };

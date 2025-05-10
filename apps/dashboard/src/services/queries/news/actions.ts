@@ -12,7 +12,7 @@ export async function fetchPopularNews(token: string) {
     .limit(3);
 
   if (error) {
-    console.error("Error fetching popular news:", error);
+    console.log("Error fetching popular news:", error);
     throw new Error(error.message);
   }
 

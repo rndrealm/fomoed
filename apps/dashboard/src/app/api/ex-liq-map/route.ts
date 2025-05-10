@@ -79,7 +79,7 @@ async function fetchCoinglassLiqMap(
   const data = await res.json();
 
   if (!res.ok) {
-    console.error(data);
+    console.log(data);
   }
 
   return data;
@@ -210,7 +210,7 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     // Handle errors gracefully
-    console.error("Error fetching liquidation data:", error);
+    console.log("Error fetching liquidation data:", error);
     return NextResponse.json(
       { error: "Failed to fetch Liquidation data" },
       { status: 500 }

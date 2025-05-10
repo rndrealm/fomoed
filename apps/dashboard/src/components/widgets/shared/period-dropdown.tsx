@@ -8,7 +8,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
-import { OptionsType } from "@/constant/cfgi-data";
+import { CFGI_SUPPORTED_PERIODS_ENUM, OptionsType } from "@/constant/cfgi-data";
+import { useGetUserPlans } from "@/services/queries/subscriptions";
 
 interface ICoinDropdownProps {
   options: OptionsType[];
@@ -18,6 +19,7 @@ interface ICoinDropdownProps {
 
 const PeriodDropdown = (props: ICoinDropdownProps) => {
   const { options, value, setValue } = props;
+  const { data: userPlans } = useGetUserPlans();
 
   const activePeriod = options.find((coin) => coin.value === value);
 
@@ -38,6 +40,10 @@ const PeriodDropdown = (props: ICoinDropdownProps) => {
           <DropdownMenuCheckboxItem
             className="text-white focus:bg-widget-background focus:text-white"
             key={i}
+            disabled={
+              !userPlans?.hasPlan &&
+              coin.value !== (CFGI_SUPPORTED_PERIODS_ENUM.DAY1 as string)
+            }
             checked={value === coin.value}
             onCheckedChange={() => {
               setValue(coin.value);

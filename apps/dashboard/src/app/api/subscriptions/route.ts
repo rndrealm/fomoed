@@ -70,7 +70,7 @@ export async function GET() {
     return NextResponse.json({ success: "true", data });
   } catch (error) {
     // Handle errors gracefully
-    console.error("Error fetching subsriptions data:", error);
+    console.log("Error fetching subsriptions data:", error);
     return NextResponse.json(
       { error: "Failed to fetch subsriptions data" },
       { status: 500 }

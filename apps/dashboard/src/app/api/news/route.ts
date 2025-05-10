@@ -11,7 +11,7 @@ async function fetchNews() {
   const res = await fetch(url);
 
   if (!res.ok) {
-    console.error(await res.text());
+    console.log(await res.text());
     throw new Error("Failed to fetch news from CryptoPanic");
   }
 
@@ -29,7 +29,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ success: "true", data });
   } catch (error) {
     // Handle errors gracefully
-    console.error("Error fetching news data:", error);
+    console.log("Error fetching news data:", error);
     return NextResponse.json(
       { error: "Failed to fetch News data" },
       { status: 500 }

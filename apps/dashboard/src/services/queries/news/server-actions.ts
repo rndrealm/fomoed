@@ -17,7 +17,7 @@ async function fetchRowsFromNewsLab() {
   try {
     res = await fetch(url);
   } catch (error) {
-    console.error("Failed to fetch newslab posts:", error);
+    console.log("Failed to fetch newslab posts:", error);
     return [];
   }
 
@@ -26,7 +26,7 @@ async function fetchRowsFromNewsLab() {
   try {
     json = await res.json();
   } catch (error) {
-    console.error("Failed to parse newslab posts:", error);
+    console.log("Failed to parse newslab posts:", error);
     return [];
   }
 
@@ -69,7 +69,7 @@ async function fetchNews() {
   const res = await fetch(url);
 
   if (!res.ok) {
-    console.error(await res.text());
+    console.log(await res.text());
     throw new Error("Failed to fetch news from CryptoPanic");
   }
 
@@ -109,7 +109,7 @@ async function fetchNews() {
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.from("news").upsert(concatPostUpserts);
   if (error) {
-    console.error("Error inserting news:", error);
+    console.log("Error inserting news:", error);
     throw new Error(error.message);
   }
 

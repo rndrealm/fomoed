@@ -8,7 +8,7 @@ import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 import dashboard from "@/lib/assets/dashboard";
 import Image from "next/image";
 import { useReadTokenNews } from "@/services/queries/news";
-import { timeAgo } from "@/lib/utils";
+import { cn, timeAgo } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import AssetPill from "../../shared/asset-pill";
 
@@ -70,7 +70,15 @@ const TokenNewsWidget = (props: IProps) => {
                 </div>
                 <div className="flex items-center gap-1 mt-2">
                   <div className="bg-[#202020] rounded-[8px] flex">
-                    <p className="text-[0.625rem] font-medium uppercase text-white py-1 px-3">
+                    <p
+                      className={cn(
+                        "text-[0.625rem] font-medium uppercase  py-1 px-3 text-white",
+                        {
+                          "text-[#FF3B10]": item.sentiment === "bearish",
+                          "text-[#00D743]": item.sentiment === "bullish",
+                        }
+                      )}
+                    >
                       {item.sentiment}
                     </p>
                   </div>
