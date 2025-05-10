@@ -35,6 +35,7 @@ import { SettingsDropdown } from "../settings-dropdown";
 import { settingAtom } from "@/lib/atoms/settingsAtom";
 import { NameLayout, Upgrade } from "@/components/modals";
 import { useGetUserPlans } from "@/services/queries/subscriptions";
+import { maxTabsByPlan } from "@/lib/utils";
 
 interface IToolbarItem {
   onClick?: () => void;
@@ -95,7 +96,9 @@ export function Toolbar() {
     }
 
     //CHECK IF PRO USER
-    if (!data?.hasPlan && layouts.length > 3) {
+    const planType = data?.planType || "FREE"; // Default to FREE if not set
+    const maxTabs = maxTabsByPlan[planType] || 3;
+    if (layouts.length >= maxTabs + 1 && currentLayout.draft) {
       setShowUpgradeModal(true);
       return;
     }
@@ -135,7 +138,7 @@ export function Toolbar() {
     if (isSuccess) {
       setLayoutChange(false);
     }
-  }, [isSuccess]);
+  }, [isSuccess, setLayoutChange]);
 
   return (
     <Fragment>

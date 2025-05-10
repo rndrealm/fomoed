@@ -45,6 +45,9 @@ export default function LiquidationHeatmapWidget(props: IProps) {
     return pairsData.find((pr) => pr.label === widget.props?.exchange_token);
   }, [pairsData, widget.props?.exchange_token]);
 
+  const activeLayout = useAtomValue(activeTabAtom);
+  const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
+
   useEffect(() => {
     if (!pairsData?.length || selectedPair) return;
     updateWidgetPropsFromAtom({
@@ -52,7 +55,7 @@ export default function LiquidationHeatmapWidget(props: IProps) {
       widgetId: widget.id,
       widgetProps: { ...widget.props, exchange_token: pairsData[0].label },
     });
-  }, [pairsData, selectedPair]);
+  }, [pairsData, selectedPair, activeLayout.id, updateWidgetPropsFromAtom, widget.id, widget.props]);
 
   const filteredData = useMemo(() => {
     if (!pairsData) return [];
@@ -64,9 +67,6 @@ export default function LiquidationHeatmapWidget(props: IProps) {
     selectedPair?.value.exchange,
     selectedPair?.value.symbol
   );
-
-  const activeLayout = useAtomValue(activeTabAtom);
-  const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
 
   return (
     <div className="bg-[#080808] border border-[#1b1b1b] rounded-2xl px-6 py-3 flex flex-col gap-4 h-full">

@@ -3,20 +3,10 @@ import { createSupabaseServerClient } from "@/lib/utils/supabase/server-client";
 
 import { NextResponse } from "next/server";
 
-async function getPlanNameFromPriceId(priceId: string) {
-  const price = await stripe.prices.retrieve(priceId);
-  console.log("price:", price);
-
-  if (price.metadata.plan_id.includes("plus")) {
-    return "plus";
-  }
-
-  if (price.metadata.plan_id.includes("pro")) {
-    return "pro";
-  }
-
-  return null;
-}
+const plansIdMap = {
+  pro: "prod_QuL2KcFQNsFWb1",
+  plus: "prod_Q4NT6y9VdwZlKo",
+};
 
 const fetchUserPlans = async () => {
   const supabase = await createSupabaseServerClient();
@@ -49,12 +39,26 @@ const fetchUserPlans = async () => {
     (sub) => sub.status === "active" || sub.status === "trialing"
   );
 
-  // console.log("plan:", activePlan);
+  let planType: "FREE" | "PRO" | "PLUS" = "FREE";
+
+  for (const sub of active_subs) {
+    const subProductId = sub.items.data?.[0]?.plan?.product;
+    if (subProductId === plansIdMap.pro) {
+      planType = "PRO";
+      break;
+    }
+    if (subProductId === plansIdMap.plus) {
+      planType = "PLUS";
+      break;
+    }
+  }
+
   return {
     subscriptions: active_subs,
     hasPlan: active_subs.length > 0,
     hasTrial:
       active_subs.find((sub) => sub.status === "trialing") !== undefined,
+    planType,
   };
 };
 
