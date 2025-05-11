@@ -20,7 +20,7 @@ interface IUser extends IUserInsert {
   has_trial_active: boolean;
 }
 
-export async function linkAuthIdToEmail(email: string, authId: string) {
+async function linkAuthIdToEmail(email: string, authId: string) {
   const supabase = await createSupabaseServerComponentClient();
 
   const updateRes = await supabase
@@ -33,7 +33,7 @@ export async function linkAuthIdToEmail(email: string, authId: string) {
   }
 }
 
-export async function getUserByEmail(email: string): Promise<IUser | null> {
+async function getUserByEmail(email: string): Promise<IUser | null> {
   const supabase = await createSupabaseServerComponentClient();
 
   const user = await supabase
@@ -46,7 +46,7 @@ export async function getUserByEmail(email: string): Promise<IUser | null> {
   return user.data;
 }
 
-export async function createOrLinkUserFromOAuth(
+async function createOrLinkUserFromOAuth(
   supabase: SupabaseClient,
   user: User
 ): Promise<void> {
