@@ -9,6 +9,8 @@ import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client
 import { useRouter } from "next/navigation";
 import { useGetUserPlans } from "@/services/queries/subscriptions";
 import Link from "next/link";
+import { oldAppUrl } from "@/lib/static";
+import { RenderIf } from "./render-if";
 
 export function ProfileDropdown() {
   const router = useRouter();
@@ -38,14 +40,12 @@ export function ProfileDropdown() {
   };
 
   function handleGoToPlans() {
-    window.location.href =
-      "https://fomoed-git-development-fomoed-00ef5fc1.vercel.app/plans";
+    window.location.href = `${oldAppUrl}/plans`;
   }
 
   useEffect(() => {
     if (!isBeta) {
-      window.location.href =
-        "https://fomoed-git-development-fomoed-00ef5fc1.vercel.app";
+      window.location.href = oldAppUrl;
     }
   }, [isBeta]);
 
@@ -85,13 +85,15 @@ export function ProfileDropdown() {
               Fomoed {data?.planType}
             </p>
 
-            <button
-              type="button"
-              className="px-2 py-1 bg-white rounded-sm font-medium text-[#333] leading-[1.35] text-[13px]"
-              onClick={handleGoToPlans}
-            >
-              Upgrade Plan
-            </button>
+            <RenderIf condition={data?.planType !== "PRO"}>
+              <button
+                type="button"
+                className="px-2 py-1 bg-white rounded-sm font-medium text-[#333] leading-[1.35] text-[13px]"
+                onClick={handleGoToPlans}
+              >
+                Upgrade Plan
+              </button>
+            </RenderIf>
           </div>
 
           <div className="py-2 border-b border-[#333333] flex justify-between items-center px-5">
