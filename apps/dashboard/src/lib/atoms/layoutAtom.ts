@@ -58,7 +58,7 @@ export const addWidgetToNewLayoutAtom = atom(
       const sendLayout = {
         id: layoutId,
         draft: true,
-        name: layoutName,
+        name: "",
       };
 
       // Get current layouts and add the new one
