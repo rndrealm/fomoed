@@ -40,7 +40,7 @@ export function ProfileDropdown() {
   };
 
   function handleGoToPlans() {
-    window.location.href = `${oldAppUrl}/plans`;
+    window.location.href = "https://app.fomoed.io/plans";
   }
 
   useEffect(() => {

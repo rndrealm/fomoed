@@ -1,6 +1,5 @@
 import React from "react";
 import { Close, UpgradeStar } from "../icons/icons";
-import { oldAppUrl } from "@/lib/static";
 import { IPlanType } from "@/services/queries/subscriptions/types";
 import { RenderIf } from "../shared";
 
@@ -39,7 +38,7 @@ interface IProps {
 export function Upgrade(props: IProps) {
   const { plan = "FREE", handleClose } = props;
   function handleGoToPlans() {
-    window.location.href = `${oldAppUrl}/plans`;
+    window.location.href = "https://app.fomoed.io/plans";
   }
 
   return (
