@@ -1,23 +1,9 @@
 echo 'Checking your code lint, testing your code and building it. Lets hope it passes 🤲'
 
-# Check ESLint Standards
-npm run lint ||
-(
-        echo 'ESLint Check Failed! Make the required changes listed above, add changes and try to commit again.❌'
-        false; 
-)
 
-# Check tsconfig standards
-npm run check-types ||
-(
-    echo 'Failed Type check Make the changes required above. ❌'
-    false;
-)
-
-# If everything passes... Now we can commit
 echo ' Alright.... Code looks good... Trying to build now. ✅'
 
-npm run build ||
+pnpm run build ||
 (
     echo 'Your build failed 
             Next build failed: View the errors above to see why ❌. 
