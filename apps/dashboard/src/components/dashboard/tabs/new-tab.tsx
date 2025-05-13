@@ -12,6 +12,7 @@ import { cn, maxTabsByPlan } from "@/lib/utils";
 import { ConfirmationModal, Upgrade } from "../../modals";
 import { ModalContainer, RenderIf } from "../../shared";
 import { useGetUserPlans } from "@/services/queries/subscriptions";
+import { deleteLayoutAtom, layoutAtom } from "@/lib/atoms/layoutAtom";
 
 interface ITabButton {
   handleClick?: () => void;
@@ -123,14 +124,20 @@ export function TabButton(props: ITabButton) {
 
 export function NewTabs() {
   const tabs = useAtomValue(tabsAtom);
+  const layouts = useAtomValue(layoutAtom);
   const [activeTab, setActiveTab] = useAtom(activeTabAtom);
   const deleteTabFromAtom = useSetAtom(deleteTabAtom);
+  const deleteLayout = useSetAtom(deleteLayoutAtom);
   const renameTab = useSetAtom(renameTabAtom);
   const addNewTab = useSetAtom(addNewTabAtom);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [deleteTab, setDeleteTab] = useState<typeof activeTab>();
+
+  const currentLayout = layouts.find(
+    (item) => item.id === deleteTab?.layout_id
+  );
 
   const { data } = useGetUserPlans();
 
@@ -192,12 +199,19 @@ export function NewTabs() {
         }}
         open={showDeleteModal}
         title={`Close "${deleteTab?.name}" Tab`}
-        details="Tab will be lost forever and cannot be recovered"
+        details={
+          currentLayout?.draft
+            ? "Unsaved Draft and Tab will be lost forever and cannot be recovered"
+            : "Tab will be lost forever and cannot be recovered"
+        }
         cancelBtnText="Cancel"
         confirmBtnText="Confirm"
         handleConfirm={() => {
           if (!deleteTab?.id) return;
           deleteTabFromAtom(deleteTab.id);
+          if (currentLayout?.draft) {
+            deleteLayout({ layoutId: currentLayout.id });
+          }
           setShowDeleteModal(false);
         }}
       />
