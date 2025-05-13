@@ -1,7 +1,8 @@
+import { dev } from '$app/environment';
 import type { CookieOptionsWithName } from '@supabase/ssr';
 
 export const supabaseCookieOpts: CookieOptionsWithName = {
-	domain: '.fomoed.io',
+	domain: dev ? undefined : '.fomoed.io',
 	path: '/',
 	sameSite: 'lax',
 	secure: true,

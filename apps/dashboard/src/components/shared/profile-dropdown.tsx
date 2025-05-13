@@ -3,13 +3,12 @@ import React, { useEffect, useState } from "react";
 import { ProfileIcon } from "./profile-icon";
 import { authUserAtom, resetAuthState } from "@/lib/atoms/userAtom";
 import { useAtomValue, useSetAtom } from "jotai";
-import { cn } from "@/lib/utils";
+import { cn, getLegacyLoginUrl } from "@/lib/utils";
 import { Logout } from "../icons/icons";
 import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
 import { useRouter } from "next/navigation";
 import { useGetUserPlans } from "@/services/queries/subscriptions";
 import Link from "next/link";
-import { oldAppUrl } from "@/lib/static";
 import { RenderIf } from "./render-if";
 
 export function ProfileDropdown() {
@@ -36,7 +35,7 @@ export function ProfileDropdown() {
     setAuthReset();
 
     // Navigate after successful logout
-    router.push("/login");
+    router.push(getLegacyLoginUrl());
   };
 
   function handleGoToPlans() {
@@ -45,7 +44,7 @@ export function ProfileDropdown() {
 
   useEffect(() => {
     if (!isBeta) {
-      window.location.href = oldAppUrl;
+      window.location.href = process.env.NEXT_PUBLIC_LEGACY_APP_URL!;
     }
   }, [isBeta]);
 
@@ -53,7 +52,7 @@ export function ProfileDropdown() {
     return (
       <div className="py-2 px-5">
         <Link
-          href="/login"
+          href={getLegacyLoginUrl()}
           className="px-2 py-1 bg-white rounded-sm font-medium text-[#333] leading-[1.35] text-[13px] w-full block text-center"
         >
           Login
@@ -98,11 +97,11 @@ export function ProfileDropdown() {
 
           <div className="py-2 border-b border-[#333333] flex justify-between items-center px-5">
             <p className="font-medium text-white leading-[1.35] text-[13px]">
-              Version
+              BETA Version
             </p>
 
             <div className="flex items-center gap-2">
-              <p className="text-[#A4A4A4] leading-[1.35] text-[13px]">Beta</p>
+              <p className="text-[#A4A4A4] leading-[1.35] text-[13px]">Enabled</p>
 
               <div
                 className={cn(

@@ -20,7 +20,7 @@ const links = [
     icon: Dashboard,
     href: AppRoutes.dashboard.path,
   },
-  { id: 2, label: "News", icon: News, href: AppRoutes.news.path },
+  { id: 2, label: "News", icon: News, href: "https://app.fomoed.io/news" },
 ];
 
 interface INavLink {
@@ -91,9 +91,9 @@ export const Navbar = () => {
             {/* <div className="w-[32px] h-[32px] border border-[#0b0b0b] rounded-md flex items-center justify-center">
               <Misc />
             </div> */}
-            <div className="w-[32px] h-[32px] border border-[#444] rounded-md flex items-center justify-center">
+            {/* <div className="w-[32px] h-[32px] border border-[#444] rounded-md flex items-center justify-center">
               <Notification />
-            </div>
+            </div> */}
             <div className="w-[32px] h-[32px] overflow-hidden rounded-md flex items-center justify-center cursor-pointer">
               <NavbarProfileButton>
                 <ProfileIcon />
