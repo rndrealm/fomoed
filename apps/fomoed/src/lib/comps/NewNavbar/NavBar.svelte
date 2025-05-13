@@ -4,6 +4,7 @@
 	import toast from 'svelte-5-french-toast';
 	import LoadUserData from '../func/LoadUserData.svelte';
 	import Arrow from '$lib/icons/Arrow.svelte';
+	import { PUBLIC_DASHBOARD_URL } from '$env/static/public';
 
 	function handleComingSoon() {
 		toast('Coming Soon', {
@@ -63,17 +64,17 @@
 	</div>
 
 	<div class="flex justify-center mt-5">
-		<div class="rounded-[34px] bg-[#121212] p-2 flex items-center gap-2 pointer-events-auto">
+		<a
+			class="rounded-[34px] bg-[#121212] p-2 flex items-center gap-2 pointer-events-auto bg-white/10 backdrop-blur-lg font-semibold"
+			href={PUBLIC_DASHBOARD_URL}
+		>
 			<p class="text-white py-1 px-[6px] bg-[#A363FF] rounded-[34px] text-[8px] font-bold">BETA</p>
 			<p class="leading-[1.35] text-white text-[13px]">The Fomoed Webapp is now live</p>
 			<div class="h-[18px] w-[1px] bg-[#5A5A5A]"></div>
-			<a
-				href="https://fomoed-mono-dashboard-git-development-fomoed-00ef5fc1.vercel.app/"
-				class="flex gap-1 items-center leading-[1.35] text-white text-[13px] cursor-pointer"
-			>
+			<div class="flex gap-1 items-center leading-[1.35] text-white text-[13px] cursor-pointer">
 				Try Now <Arrow />
-			</a>
-		</div>
+			</div>
+		</a>
 	</div>
 </div>
 
