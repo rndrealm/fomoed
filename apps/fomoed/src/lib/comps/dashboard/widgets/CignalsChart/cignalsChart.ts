@@ -118,7 +118,7 @@ export class CignalsChart {
 	_shownMaxPrice = 0;
 	_data: CignalsDatapointArray = [];
 	_nDatapointsShown = 10;
-	_nCandlesFetch = 20;
+	_nCandlesFetch = 60;
 	_candelWidth = 6;
 	_highestBuyFootprintSize = 0;
 	_lowestBuyFootprintSize = 0;
