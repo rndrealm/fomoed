@@ -44,7 +44,7 @@ export function ProfileDropdown() {
 
   useEffect(() => {
     if (!isBeta) {
-      window.location.href = process.env.NEXT_PUBLIC_LEGACY_APP_URL;
+      window.location.href = process.env.NEXT_PUBLIC_LEGACY_APP_URL!;
     }
   }, [isBeta]);
 
