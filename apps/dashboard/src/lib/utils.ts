@@ -127,3 +127,7 @@ export const maxTabsByPlan = {
   PLUS: 5,
   PRO: 10,
 };
+
+export const capitalizeFirst = (text: string) => {
+  return text.charAt(0).toUpperCase() + text.slice(1);
+};
