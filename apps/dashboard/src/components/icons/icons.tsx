@@ -364,7 +364,7 @@ export function SaveDraft(props: IDashboard) {
     //   </defs>
     // </svg>
 
-    <Save width={18} height={18} className={cn(
+    <Save width={18} height={18} strokeWidth={2.8} className={cn(
           "stroke-[#474747] group-hover:stroke-white transition-colors duration-200"
         )} />
   );
