@@ -14,7 +14,7 @@
 </script>
 
 <div
-	class="w-[200px] h-[260px] bg-[#0F0D0DE5] border-[#FFFFFF1A] rounded-[10px] pt-[17px] flex flex-col items-center right-0 top-0 border backdrop-blur-lg z-40"
+	class="w-[200px] h-[260px] bg-[#0F0D0DE5] border-[#FFFFFF1A] rounded-[10px] pt-[17px] flex flex-col items-center right-0 top-0 border backdrop-blur-lg z-[1100] relative"
 	class:absolute
 >
 	<div class="w-[62px]">

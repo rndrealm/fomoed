@@ -23,8 +23,9 @@
 						<img
 							src={userService.authUser.user_metadata.avatar_url}
 							alt=""
-							class="rounded-full w-full aspect-square object-cover"
+							class="object-cover w-full rounded-full aspect-square"
 						/>
+						<!-- <ProfileIcon /> -->
 					{:else}
 						<ProfileIcon />
 					{/if}

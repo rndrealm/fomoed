@@ -29,9 +29,9 @@
 	}
 </script>
 
-<a href={article.detailUrl} class="block h-full" in:fade>
+<a href={article.detailUrl} class="w-full h-full" in:fade>
 	<div
-		class="font-inter bg-[#121212] text-white px-0 border-[0.5px] border-[#1E1E1E] py-6 rounded-[20px] flex flex-col h-full"
+		class="font-inter bg-[#121212] text-white px-0 border-[0.5px] border-[#1E1E1E] pt-6 pb-0 rounded-[20px] flex flex-col h-full"
 	>
 		<!-- Top Row: Source, Published Time, Sentiment -->
 		<div class="flex items-center justify-between gap-4 pl-5 pr-[1.875rem] pb-6 text-sm">
@@ -78,14 +78,14 @@
 		</button>
 
 		<!-- Bottom Row: Engagement Metrics -->
-		{#if !hideBottomBar}
-			<div class="mt-0">
-				<NewsHeadlineBottomBar {article} showSourceAndTime={false} compact={true} />
-			</div>
-		{/if}
+		<!-- {#if !hideBottomBar} -->
+		<div class="mt-0">
+			<NewsHeadlineBottomBar {article} showSourceAndTime={false} compact={true} />
+		</div>
+		<!-- {/if} -->
 
 		<!-- Like Button -->
-		{#if showLikeCountInHeadline}
+		<!-- {#if showLikeCountInHeadline}
 			<div class="px-5 pt-4">
 				<button
 					onclick={handleLikeToggle}
@@ -103,6 +103,6 @@
 					{article.likes_count}
 				</button>
 			</div>
-		{/if}
+		{/if} -->
 	</div>
 </a>

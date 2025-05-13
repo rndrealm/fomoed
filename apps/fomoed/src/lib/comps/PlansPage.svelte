@@ -34,15 +34,15 @@
 
 <div
 	style="background-image: url(/background/select-plan.svg)"
-	class="absolute inset-0 overflow-hidden bg-cover flex flex-col"
+	class="absolute inset-0 flex flex-col overflow-hidden bg-cover"
 >
 	<AppNav />
 
-	<div class="flex-grow grid place-items-center pb-24">
+	<div class="grid flex-grow pb-24 place-items-center">
 		<div
 			class="grid place-items-center grid-cols-3 gap-[7px] mx-auto h-full pb-6 w-full max-w-[1050px] max-h-[760px]"
 		>
-			<div class="col-span-3 w-full">
+			<div class="w-full col-span-3">
 				<h1
 					class="font-paralucent-demibold text-[28px] text-center -desktop:text-[22px] -desktop:mt-12"
 				>
@@ -60,7 +60,7 @@
 
 				<!-- Monthly/Yearly switch -->
 				<div
-					class="grid place-items-center mt-4 desktop:place-items-end desktop:pr-3 desktop:translate-y-10 duration-200"
+					class="grid mt-4 duration-200 place-items-center desktop:place-items-end desktop:pr-3 desktop:translate-y-10"
 					class:opacity-0={isLoadingPlanInfo}
 				>
 					<Toggle labelLeft="Monthly" labelRight="Yearly" bind:state={yearlySelected}></Toggle>

@@ -24,7 +24,7 @@
 
 		<!-- Articles -->
 
-		<div class=" grid pt-4 gap-y-4 bg-[#070707]">
+		<div class=" flex flex-col pt-4 gap-y-4 bg-[#070707]">
 			{#if isFetching}
 				{#each Array(5).fill(null) as _, index}
 					<!-- Replace this with your Skeleton Loader component -->
