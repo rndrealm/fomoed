@@ -91,21 +91,23 @@ export function LayoutDropdown() {
                   >
                     <TabLayout />
                     <p className="flex-1 truncate">
-                      {layout.name || "Untitled Layout"}
+                      {layout.draft ? "Untitled Layout" : layout?.name}
                     </p>
 
                     <div className="flex gap-1 items-center">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          layoutRef.current = layout.id;
-                          setLayoutName(layout.name);
-                          setShowNameModal(true);
-                        }}
-                      >
-                        <Edit />
-                      </button>
+                      <RenderIf condition={!layout.draft}>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            layoutRef.current = layout.id;
+                            setLayoutName(layout.name);
+                            setShowNameModal(true);
+                          }}
+                        >
+                          <Edit />
+                        </button>
+                      </RenderIf>
                       <button
                         type="button"
                         onClick={(e) => {

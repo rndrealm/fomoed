@@ -255,7 +255,12 @@ export function Toolbar() {
         noHeader
         className="!max-w-[410px] !p-0 rounded-[24px]"
       >
-        <Upgrade />
+        <Upgrade
+          plan={data?.planType}
+          handleClose={() => {
+            setShowUpgradeModal(false);
+          }}
+        />
       </ModalContainer>
     </Fragment>
   );

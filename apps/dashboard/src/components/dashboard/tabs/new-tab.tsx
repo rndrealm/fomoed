@@ -159,7 +159,7 @@ export function NewTabs() {
 
         <div className="h-[18px] w-[1px] bg-[#141414]"></div>
 
-        <div className="flex items-center flex-1 gap-2 pr-2 overflow-x-auto scrollbar">
+        <div className="flex items-center flex-1 gap-2 pr-2 overflow-x-auto no-scrollbar">
           {tabs?.map((item) => {
             const isActive = activeTab.id === item.id;
             const showCloseBtn = tabs.length > 1;
@@ -192,7 +192,7 @@ export function NewTabs() {
         }}
         open={showDeleteModal}
         title={`Close "${deleteTab?.name}" Tab`}
-        details="Unsaved Tabs will be lost forever and cannot be recovered"
+        details="Tab will be lost forever and cannot be recovered"
         cancelBtnText="Cancel"
         confirmBtnText="Confirm"
         handleConfirm={() => {
@@ -210,7 +210,12 @@ export function NewTabs() {
         noHeader
         className="!max-w-[410px] !p-0 rounded-[24px]"
       >
-        <Upgrade />
+        <Upgrade
+          plan={data?.planType}
+          handleClose={() => {
+            setShowUpgradeModal(false);
+          }}
+        />
       </ModalContainer>
     </Fragment>
   );

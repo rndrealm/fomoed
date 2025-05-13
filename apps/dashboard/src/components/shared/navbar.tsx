@@ -88,9 +88,9 @@ export const Navbar = () => {
         </div> */}
 
           <div className="flex items-center gap-2">
-            <div className="w-[32px] h-[32px] border border-[#0b0b0b] rounded-md flex items-center justify-center">
+            {/* <div className="w-[32px] h-[32px] border border-[#0b0b0b] rounded-md flex items-center justify-center">
               <Misc />
-            </div>
+            </div> */}
             <div className="w-[32px] h-[32px] border border-[#444] rounded-md flex items-center justify-center">
               <Notification />
             </div>
