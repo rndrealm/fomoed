@@ -212,7 +212,7 @@ export const widgetPropsDefaults = {
     exchange_token: exchangePairDefault.label,
     sentiment_tab: "both",
     meta: {
-      w: 3,
+      w: 4,
       h: 2,
     },
   },
@@ -220,7 +220,7 @@ export const widgetPropsDefaults = {
     token: "BTC",
     period: CFGI_SUPPORTED_PERIODS_ENUM.DAY1 as string,
     meta: {
-      w: 3,
+      w: 4,
       h: 2,
     },
   },
@@ -229,7 +229,7 @@ export const widgetPropsDefaults = {
     period: liquidTimeframeOptions[0].value,
     exchange_token: exchangePairDefault.label,
     meta: {
-      w: 3,
+      w: 4,
       h: 2,
     },
   },
@@ -238,7 +238,7 @@ export const widgetPropsDefaults = {
     period: liquidHeatMapTimeframeOptions[0].value,
     exchange_token: exchangePairDefault.label,
     meta: {
-      w: 3,
+      w: 4,
       h: 2,
     },
   },
@@ -246,21 +246,21 @@ export const widgetPropsDefaults = {
     token: "BTC",
     period: liquidTimeframeOptions[0].value,
     meta: {
-      w: 3,
+      w: 4,
       h: 2,
     },
   },
   "token-news": {
     token: "BTC",
     meta: {
-      w: 1.5,
+      w: 2,
       h: 2,
     },
   },
   dex: {
     token: "BTC",
     meta: {
-      w: 1.5,
+      w: 2,
       h: 2,
     },
   },

@@ -26,7 +26,7 @@ interface IProps {
 
 export function QuickWidgetItem(props: IProps) {
   const { widget, handleGoBack, tag } = props;
-  const [layouts, setLayout] = useAtom(layoutAtom);
+  const layouts = useAtomValue(layoutAtom);
   const activeTab = useAtomValue(activeTabAtom);
   const addWidgetToNewLayout = useSetAtom(addWidgetToNewLayoutAtom);
   const dashboardSetting = useAtomValue(settingAtom);

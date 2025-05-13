@@ -14,7 +14,7 @@ export const useFetchTokenNews = () => {
       return response.data as CryptopanicPost[];
     },
     staleTime: Infinity,
-    refetchOnReconnect: false,
+    refetchOnReconnect: true,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     retry: 0,
@@ -35,6 +35,7 @@ export const useReadTokenNews = (token: string = "BTC") => {
       const response = await fetchPopularNews(token);
       return response as NewsRowInsert[];
     },
+    refetchInterval: 1000 * 60 * 5,
   });
   return {
     data,

@@ -7,7 +7,7 @@ import {
   syncOnLayoutChange,
 } from "@/lib/atoms/layoutAtom";
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
-import { chartsMap } from "@/lib/static";
+import { chartsMap, widgetPropsDefaults } from "@/lib/static";
 import { splitWidgetSlug } from "@/lib/utils";
 import { settingAtom } from "@/lib/atoms/settingsAtom";
 
@@ -34,7 +34,7 @@ export function DashboardWidgets(props: IProps) {
         className="layout"
         // layouts={layout}
         breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
-        cols={{ lg: 6, md: 6, sm: 6, xs: 4, xxs: 2 }}
+        cols={{ lg: 8, md: 8, sm: 8, xs: 4, xxs: 2 }}
         draggableHandle=".cursor-grab"
         rowHeight={210}
         isResizable={false}
@@ -51,8 +51,13 @@ export function DashboardWidgets(props: IProps) {
         onLayoutChange={(test) => {}}
       >
         {data?.widgets.map((layout, index) => {
-          const { x, y, w, h } = layout.meta;
-
+          const { x, y } = layout.meta;
+          const dimensionDefault =
+            widgetPropsDefaults[
+              splitWidgetSlug(layout.meta.i)
+                .slug as keyof typeof widgetPropsDefaults
+            ]?.meta;
+          const { w, h } = dimensionDefault;
           return (
             <div key={layout.meta.i} data-grid={{ x, y, w, h }}>
               {chartsMap[

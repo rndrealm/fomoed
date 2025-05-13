@@ -49,23 +49,24 @@ const TokenNewsWidget = (props: IProps) => {
           <div className="flex flex-col flex-1 gap-5 px-4 py-3">
             {newsData?.map((item, i) => (
               <div key={i}>
-                <div className="pb-2">
-                  <Image
+                <div className="flex items-center pb-2">
+                  {/* <Image
                     src={dashboard.cryptopanic}
                     alt="News Icon"
                     width={14}
                     height={14}
-                  />
+                  /> */}
+                  <h1 className="text-white text-[0.625rem] font-semibold pr-2">
+                    {item.source}
+                  </h1>
+                  <p className="text-[#FF3B10] pr-1 pb-[2px]">•</p>
+                  <p className="text-[#A5A5A5] text-[0.625rem]">
+                    {timeAgo(item.published_at)}
+                  </p>
                 </div>
                 <div className="">
                   <span className="text-sm font-medium text-white ">
                     {item.title}
-                  </span>{" "}
-                  <span className="whitespace-nowrap">
-                    <span className="text-[#FF3B10]">•</span>{" "}
-                    <span className="text-[#A5A5A5] text-[0.625rem]">
-                      {timeAgo(item.published_at)}
-                    </span>
                   </span>
                 </div>
                 <div className="flex items-center gap-1 mt-2">

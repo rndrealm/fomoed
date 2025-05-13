@@ -355,7 +355,7 @@ export function formatRgb(r: number, g: number, b: number) {
  * @returns
  */
 export function getGridPosition(count: number) {
-  const x = count % 2 === 0 ? 0 : 3;
+  const x = count % 2 === 0 ? 0 : 4;
   const y = Math.floor(count / 2) * 2;
   return { x, y };
 }
