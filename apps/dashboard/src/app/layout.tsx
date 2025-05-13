@@ -8,34 +8,56 @@ import "../../node_modules/react-grid-layout/css/styles.css";
 import { UserProvider } from "@/components/providers/UserProvider";
 
 const geistSans = Geist({
-    variable: "--font-geist-sans",
-    subsets: ["latin"],
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
 });
 
 const geistMono = Geist_Mono({
-    variable: "--font-geist-mono",
-    subsets: ["latin"],
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-    title: "Fomoed Dashboards",
-    description: "Everything you need.",
+  title: "Fomoed",
+  description:
+    "Navigate crypto emotions, access Altcoins, and get precise market sentiment analysis effortlessly.",
+  keywords: [
+    "web3",
+    "ethereum",
+    "crypto",
+    "wallet",
+    "swap",
+    "bridge",
+    "btc",
+    "trading",
+    "defi",
+    "dashboard",
+    "cfgi",
+    "news",
+  ],
+  creator: "IDS",
+  metadataBase: new URL("https://fomoed.io"),
+  openGraph: {
+    images: "/og2.png",
+  },
 };
 
 export default function RootLayout({
-    children,
+  children,
 }: Readonly<{
-    children: React.ReactNode;
+  children: React.ReactNode;
 }>) {
-    return (
-        // Keep h-full for filling vertical space in iframes.
-        <html lang="en" className="h-full">
-            <body className={`${geistSans.variable} ${geistMono.variable} antialiased h-full`}>
-                <QueryProvider>
-                    <UserProvider>{children}</UserProvider>
-                </QueryProvider>
-                <Toaster />
-            </body>
-        </html>
-    );
+  return (
+    // Keep h-full for filling vertical space in iframes.
+    <html lang="en" className="h-full">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full`}
+      >
+        <QueryProvider>
+          <UserProvider>{children}</UserProvider>
+        </QueryProvider>
+        <Toaster />
+      </body>
+    </html>
+  );
 }
