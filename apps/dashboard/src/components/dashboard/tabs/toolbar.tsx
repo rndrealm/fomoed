@@ -97,7 +97,9 @@ export function Toolbar() {
     //CHECK IF PRO USER
     const planType = data?.planType || "FREE"; // Default to FREE if not set
     const maxTabs = maxTabsByPlan[planType] || 3;
-    if (layouts.length >= maxTabs + 1 && currentLayout.draft) {
+    const savedLayouts = layouts.filter((item) => !item.draft);
+
+    if (savedLayouts.length >= maxTabs - 1 && currentLayout.draft) {
       setShowUpgradeModal(true);
       return;
     }

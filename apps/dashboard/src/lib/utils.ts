@@ -124,8 +124,8 @@ export function getChangeTextColor(change: number): string {
 
 export const maxTabsByPlan = {
   FREE: 3,
-  PLUS: 5,
-  PRO: 10,
+  PLUS: 6,
+  PRO: 11,
 };
 
 export const capitalizeFirst = (text: string) => {
