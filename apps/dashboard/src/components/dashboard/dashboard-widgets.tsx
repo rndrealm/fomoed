@@ -57,7 +57,7 @@ export function DashboardWidgets(props: IProps) {
             <div key={layout.meta.i} data-grid={{ x, y, w, h }}>
               {chartsMap[
                 splitWidgetSlug(layout.meta.i).slug as keyof typeof chartsMap
-              ].component(layout)}
+              ]?.component(layout)}
             </div>
           );
         })}
