@@ -131,3 +131,17 @@ export const maxTabsByPlan = {
 export const capitalizeFirst = (text: string) => {
   return text.charAt(0).toUpperCase() + text.slice(1);
 };
+
+export function getLegacyLoginUrl(): string {
+  const legacyAppUrl = process.env.NEXT_PUBLIC_LEGACY_APP_URL;
+
+  if (legacyAppUrl) {
+    return `${legacyAppUrl}/auth`;
+  } else {
+    const currentUrlCopy = new URL(window.location.href);
+
+    currentUrlCopy.pathname = "/login";
+
+    return currentUrlCopy.toString();
+  }
+}

@@ -245,5 +245,3 @@ export const widgetPropsDefaults = {
     },
   },
 };
-
-export const oldAppUrl = "https://fomoed.io";
