@@ -1,5 +1,8 @@
 <script>
+	import ProfileIcon from '$lib/icons/ProfileIcon.svelte';
+	import { displayLogoutPopup } from '$lib/stores/ui';
 	import { auth_email, auth_user } from '$lib/stores/user';
+	import { userService } from '$ts/client/services/UserService.svelte';
 	import ProfileDropdown from './ProfileDropdown.svelte';
 
 	let expanded = false;
@@ -11,6 +14,8 @@
 
 	const premiumBorderExpanded =
 		'background: linear-gradient( #201E1E, #201E1E) padding-box, linear-gradient(90deg, #FF3B10 0%, #F3C111 71.5%) border-box';
+
+	let open = false;
 </script>
 
 <button
@@ -24,11 +29,20 @@
 	on:click={() => (expanded = !expanded)}
 >
 	<div
-		class="{expanded
-			? 'bg-[#373534]'
-			: 'bg-[#221F1D]'} rounded-[8px] w-[40px] h-[40px] flex-shrink-0 grid place-items-center duration-150"
+		class="p-1 {expanded
+			? 'bg-[transparent]'
+			: 'bg-[transparent]'} rounded-[8px] w-[40px] h-[40px] flex-shrink-0 grid place-items-center duration-150"
 	>
-		<img src="/images/indicator-meme-5.png" width={17} height={13} alt="Arrow right" />
+		{#if userService.authUser}
+			<img
+				src={userService.authUser.user_metadata.avatar_url}
+				alt=""
+				class="object-cover w-full rounded-full aspect-square"
+			/>
+			<!-- <ProfileIcon /> -->
+		{:else}
+			<ProfileIcon />
+		{/if}
 	</div>
 
 	<div class="uppercase truncate">
@@ -36,8 +50,14 @@
 	</div>
 
 	{#if expanded}
-		<div class="absolute top-16 right-0">
-			<ProfileDropdown></ProfileDropdown>
+		<div class="absolute right-0 top-16">
+			<ProfileDropdown
+				absolute={false}
+				onClickLogout={() => {
+					displayLogoutPopup.set(true);
+					open = false;
+				}}
+			/>
 		</div>
 	{/if}
 </button>

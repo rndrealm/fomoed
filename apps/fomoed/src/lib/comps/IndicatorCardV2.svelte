@@ -31,17 +31,7 @@
 	$: background = 'transparent';
 
 	$: marketSentiment = get_data_label(percentage);
-	$: color = get_data_color(percentage);
 	$: fomoed_score_color = get_data_color($aped_score);
-
-	$: iconIdx = get_data_index(percentage);
-
-	const icons = [
-		'indicator-meme-4.png',
-		'indicator-meme-3.png',
-		'indicator-meme-2.png',
-		'indicator-meme-1.png'
-	];
 
 	cfgi_summary.subscribe((data) => {
 		if (!data) return;

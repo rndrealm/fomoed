@@ -34,13 +34,6 @@
 
 	$: iconIdx = get_data_index(percentage);
 
-	const icons = [
-		'indicator-meme-4.png',
-		'indicator-meme-3.png',
-		'indicator-meme-2.png',
-		'indicator-meme-1.png'
-	];
-
 	cfgi_summary.subscribe((data) => {
 		if (!data) return;
 		prev = data.previous.value;

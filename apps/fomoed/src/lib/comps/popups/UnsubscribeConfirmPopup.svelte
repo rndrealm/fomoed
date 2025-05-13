@@ -13,7 +13,7 @@
 <PopupContainer>
 	<div class="p-[30px]">
 		<div class="flex justify-center">
-			<img src="/images/indicator-meme-3.png" width={160} height={160} alt="A sad guy." />
+			<img src="/images/icon.png" width={120} height={120} alt="Fomoed Icon." />
 		</div>
 
 		<div class="font-paralucent-demibold text-[#FFFFFFCC] text-[24px] pt-[20px] text-center">

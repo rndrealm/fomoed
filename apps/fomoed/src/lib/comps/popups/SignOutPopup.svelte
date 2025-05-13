@@ -13,7 +13,6 @@
 <PopupContainer>
 	<div class="p-[30px]">
 		<div class="flex justify-center">
-			<!-- <img src="/images/indicator-meme-3.png" width={160} height={160} alt="A sad guy." /> -->
 			{#if userService.authUser}
 				<img
 					src={userService.authUser.user_metadata.avatar_url}

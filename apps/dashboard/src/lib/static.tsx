@@ -23,6 +23,7 @@ import {
   liquidTimeframeOptions,
 } from "@/constant/cfgi-data";
 import TokenNewsWidget from "@/components/widgets/news/token-news/token-news-widget";
+import DexWidget from "@/components/widgets/dex/dex-widget";
 
 export const layoutClassMap = {
   SinglePane: "grid-rows-1 grid-cols-1",
@@ -129,6 +130,13 @@ export const layoutOptionsMap = [
     image: dashboard.tokenNews,
     category: "news",
   },
+  // {
+  //   id: 6,
+  //   name: "Dex",
+  //   slug: "dex",
+  //   image: dashboard.tokenNews,
+  //   category: "news",
+  // },
 ];
 
 export type LayoutOptionType = typeof layoutOptionsMap;
@@ -176,6 +184,11 @@ export const chartsMap = {
     component: (widget: LayoutType["widgets"][0]) => (
       <TokenNewsWidget widget={widget} />
     ),
+  },
+  dex: {
+    name: "Dex",
+    extra: [""],
+    component: (widget: LayoutType["widgets"][0]) => <DexWidget />,
   },
 };
 
@@ -238,6 +251,13 @@ export const widgetPropsDefaults = {
     },
   },
   "token-news": {
+    token: "BTC",
+    meta: {
+      w: 1.5,
+      h: 2,
+    },
+  },
+  dex: {
     token: "BTC",
     meta: {
       w: 1.5,
