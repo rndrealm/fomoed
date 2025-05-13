@@ -1,4 +1,5 @@
 import { getGridPosition } from "@/charts/helpers";
+import dashboard from "@/lib/assets/dashboard";
 import {
   addWidgetToExistingLayoutAtom,
   addWidgetToNewLayoutAtom,
@@ -7,22 +8,24 @@ import {
 import { settingAtom } from "@/lib/atoms/settingsAtom";
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 import { LayoutOptionType, widgetPropsDefaults } from "@/lib/static";
-import { joinWidgetSlug, maxTabsByPlan } from "@/lib/utils";
+import { capitalizeFirst, joinWidgetSlug, maxTabsByPlan } from "@/lib/utils";
 import { useGetUserPlans } from "@/services/queries/subscriptions";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import Image from "next/image";
 import React, { Fragment, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { RenderIf } from "../shared";
 import { ModalContainer } from "../shared";
 import { Upgrade } from "../modals";
 
 interface IProps {
   widget: LayoutOptionType[0];
   handleGoBack: () => void;
+  tag: string;
 }
 
 export function QuickWidgetItem(props: IProps) {
-  const { widget, handleGoBack } = props;
+  const { widget, handleGoBack, tag } = props;
   const [layouts, setLayout] = useAtom(layoutAtom);
   const activeTab = useAtomValue(activeTabAtom);
   const addWidgetToNewLayout = useSetAtom(addWidgetToNewLayoutAtom);
@@ -80,6 +83,19 @@ export function QuickWidgetItem(props: IProps) {
           handleGoBack();
         }}
       >
+        <RenderIf condition={widget.category === "charts" && tag !== "charts"}>
+          <div className="flex items-center gap-2 mb-2">
+            <Image
+              src={dashboard.folder}
+              width={22}
+              height={22}
+              alt="Folder Icon"
+            />
+            <p className="text-xs font-medium text-white">
+              {capitalizeFirst(widget.category)}
+            </p>
+          </div>
+        </RenderIf>
         <div className=" bg-[#000] rounded-lg border border-[#121212]">
           <Image src={widget.image} alt={widget.name} />
         </div>

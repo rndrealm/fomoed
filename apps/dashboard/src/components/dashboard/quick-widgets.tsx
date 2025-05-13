@@ -100,9 +100,10 @@ export function QuickWidgets(props: IProps) {
             </div>
           </RenderIf>
           <RenderIf condition={filteredWidget.length > 0}>
-            <div className="grid min-h-0 grid-cols-2 overflow-auto gap-x-2 gap-y-3 scrollbar">
+            <div className="grid min-h-0 grid-cols-2 overflow-auto gap-x-2 gap-y-4 scrollbar">
               {filteredWidget.map((widget, index) => (
                 <QuickWidgetItem
+                  tag={selectedTag}
                   key={index}
                   widget={widget}
                   handleGoBack={handleBack}
