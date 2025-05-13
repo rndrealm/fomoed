@@ -20,7 +20,7 @@ const links = [
     icon: Dashboard,
     href: AppRoutes.dashboard.path,
   },
-  { id: 2, label: "News", icon: News, href: AppRoutes.news.path },
+  { id: 2, label: "News", icon: News, href: "https://app.fomoed.io/news" },
 ];
 
 interface INavLink {
