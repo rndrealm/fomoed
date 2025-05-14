@@ -1,9 +1,10 @@
 import useUserData from "@/lib/hooks/use-user-data";
-import { CreateSignalDTO, UpdateSignalDTO } from "@/lib/types/signal.types";
 import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
 import { SmartSignalRow } from "@/screens/hooks/use-smart-signals";
+import api from "@/services/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import { CreateSignalDTO, GetAiSignalResponse, UpdateSignalDTO } from "./types";
 
 export const useSmartSignalById = (signalId: string | null) => {
   const userData = useUserData();
@@ -109,6 +110,22 @@ export const useCreateSignalMutation = () => {
       client.invalidateQueries({
         queryKey: ["get-smart-signals"],
       });
+    },
+  });
+};
+
+export const useGetAISignal = () => {
+  return useMutation({
+    mutationFn: async (prompt: string) => {
+      console.log("🚀 ~ mutationFn: ~ prompt:", prompt);
+      const res = await api.post({
+        url: "/api/signals/ai-builder",
+        body: { prompt },
+        auth: true,
+      });
+      console.log("🚀 ~ mutationFn: ~ res:", res);
+
+      return res.data as GetAiSignalResponse;
     },
   });
 };

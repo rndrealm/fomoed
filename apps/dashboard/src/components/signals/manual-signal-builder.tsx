@@ -85,8 +85,7 @@ function jsonLogicToGroup(logic: any, isRoot = true): any {
 
 type ManualSignalBuilderProps = {
   editMode?: boolean;
-  initialLogic?: object;
-  logic: object | null;
+  initialLogic?: object | null;
   setLogic: (logic: object | null) => void;
 };
 
@@ -109,7 +108,7 @@ const ManualSignalBuilder = ({
 }: ManualSignalBuilderProps) => {
   // The root group state (always present)
   const [rootGroup, setRootGroup] = useState<Group>(
-    editMode && initialLogic ? jsonLogicToGroup(initialLogic) : defaultGroup(0)
+    initialLogic ? jsonLogicToGroup(initialLogic) : defaultGroup(0)
   );
 
   // Recursively update a group or condition in the tree
@@ -128,7 +127,6 @@ const ManualSignalBuilder = ({
 
 // Helper for JSON-logic conversion
 function conditionToJsonLogic(cond: Condition) {
-  console.log("conditionToJsonLogic", cond);
   if (!cond.operator || !cond.topic || !cond.value) return null;
   return {
     [cond.operator]: [

@@ -91,7 +91,7 @@ const SignalConditionGroup = ({
   };
 
   return (
-    <div className="flex flex-col p-5 border border-border rounded-md bg-background">
+    <div className="flex flex-col p-5 border border-border rounded-md bg-[#080808]">
       <div className="flex items-center justify-between pb-4">
         <div className="flex items-center gap-2">
           <button

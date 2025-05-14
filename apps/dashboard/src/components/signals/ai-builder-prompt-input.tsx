@@ -1,6 +1,3 @@
-// DEPRECATED
-// This component is deprecated and will be removed in the future.
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -13,30 +10,27 @@ import {
 import { Input } from "@/components/ui/input";
 import { useGetAISignal } from "@/services/queries/signals";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useState } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import ManualSignalBuilder from "./manual-signal-builder";
-// import { processNaturalLanguage } from "@/lib/utils/signal.utils";
 
 interface AISignalBuilderProps {
-  logic: object | null;
-  onUpdateLogic: (updatedLogic: object | null) => void;
-  onUpdateBasicDetails: (name: string, description: string) => void;
+  onAiPromptResponse: (
+    name: string,
+    description: string,
+    condition: object
+  ) => void;
 }
 
 const aiBuilderFormSchema = z.object({
   prompt: z.string().min(1, "Prompt is required"),
 });
 
-const AISignalBuilder: React.FC<AISignalBuilderProps> = ({
-  logic,
-  onUpdateLogic,
-  onUpdateBasicDetails,
+const AISignalPromptInput: React.FC<AISignalBuilderProps> = ({
+  onAiPromptResponse,
 }) => {
   const { mutateAsync: getAiSignal, isPending } = useGetAISignal();
-  const [condition, setCondition] = useState<object | null>();
 
   const form = useForm<z.infer<typeof aiBuilderFormSchema>>({
     resolver: zodResolver(aiBuilderFormSchema),
@@ -52,13 +46,13 @@ const AISignalBuilder: React.FC<AISignalBuilderProps> = ({
     console.log(res);
 
     if (res.success && res.signal) {
-      onUpdateLogic(res.signal.condition);
-      console.log(
-        "🚀 ~ onSubmit ~ res.signal.condition:",
+      onAiPromptResponse(
+        res.signal.name,
+        res.signal.description,
         res.signal.condition
       );
-      setCondition(res.signal.condition);
-      onUpdateBasicDetails(res.signal.name, res.signal.description);
+      form.reset();
+      toast.success("Signal generated successfully!");
     } else {
       toast.error("Something went wrong. Please try again.");
     }
@@ -107,17 +101,9 @@ const AISignalBuilder: React.FC<AISignalBuilderProps> = ({
             social media sentiment is positive&apos;
           </div>
         </div>
-
-        {condition && (
-          <ManualSignalBuilder
-            initialLogic={condition}
-            setLogic={setCondition}
-            editMode={true}
-          />
-        )}
       </CardContent>
     </Card>
   );
 };
 
-export default AISignalBuilder;
+export default AISignalPromptInput;

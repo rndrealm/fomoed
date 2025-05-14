@@ -1,15 +1,16 @@
 import { Button } from "@/components/ui/button";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
-import { LoaderCircle, Settings, Wand } from "lucide-react";
+import { LoaderCircle } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 // import AISignalBuilder from "./AISignalBuilder";
 import useUserData from "@/lib/hooks/use-user-data";
-import { CreateSignalDTO, SignalActions } from "@/lib/types/signal.types";
+import { SignalActions } from "@/lib/types/signal.types";
 import { extractTopicsFromJsonLogic } from "@/lib/utils/signal.utils";
 import { useCreateSignalMutation } from "@/services/queries/signals";
+import { CreateSignalDTO } from "@/services/queries/signals/types";
 import { redirect } from "next/navigation";
+import AISignalPromptInput from "./ai-builder-prompt-input";
 import ManualSignalBuilder from "./manual-signal-builder";
 import NotificationSettings from "./notification-settings";
 import SignalDetails from "./signal-details";
@@ -23,10 +24,28 @@ const SignalBuilder = ({}) => {
     email: true,
     notification: true,
   });
+  const [updateCount, setUpdateCount] = useState(0);
 
   const user = useUserData();
 
   const { mutateAsync: createSignal, isPending } = useCreateSignalMutation();
+
+  const handleBasicDetailsUpdate = (name: string, description: string) => {
+    setSignalName(name);
+    setSignalDescription(description);
+  };
+
+  const handleAIBuilderResponse = (
+    name: string,
+    description: string,
+    condition: object
+  ) => {
+    setSignalName(name);
+    setSignalDescription(description);
+    setCondition(condition);
+    console.log("🚀 ~ SignalBuilder ~ condition:", condition);
+    setUpdateCount((prev) => prev + 1);
+  };
 
   const handleSave = async () => {
     if (!condition || !user?.user_id) return;
@@ -68,44 +87,20 @@ const SignalBuilder = ({}) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-center mb-4">
-        <ToggleGroup
-          type="single"
-          value={buildMode}
-          onValueChange={(value) => value && setBuildMode(value)}
-          className="border rounded-lg"
-        >
-          <ToggleGroupItem
-            value="manual"
-            aria-label="Toggle manual mode"
-            className="px-6 py-2 data-[state=on]:bg-fomoed-red data-[state=on]:text-white"
-          >
-            <Settings className="mr-2 h-4 w-4" />
-            Manual Builder
-          </ToggleGroupItem>
-          <ToggleGroupItem
-            value="ai"
-            aria-label="Toggle AI mode"
-            className="px-6 py-2 data-[state=on]:bg-fomoed-red data-[state=on]:text-white"
-          >
-            <Wand className="mr-2 h-4 w-4" />
-            AI Builder
-          </ToggleGroupItem>
-        </ToggleGroup>
+      <div>
+        <h1 className="font-medium text-xl mt-5">Signal Conditions</h1>
+        <h2 className="font-medium text-muted-foreground">
+          Build your Smart signals
+        </h2>
       </div>
 
-      {/* Building Frame */}
-      {buildMode === "ai" ? (
-        <>
-          {/* <AISignalBuilder
-            signal={signal}
-            onUpdateSignal={handleUpdateSignal}
-          /> */}
-          AI BUILDER
-        </>
-      ) : (
-        <ManualSignalBuilder logic={condition} setLogic={setCondition} />
-      )}
+      <AISignalPromptInput onAiPromptResponse={handleAIBuilderResponse} />
+
+      <ManualSignalBuilder
+        key={updateCount}
+        initialLogic={condition}
+        setLogic={setCondition}
+      />
 
       <NotificationSettings
         notifications={signalActions}
