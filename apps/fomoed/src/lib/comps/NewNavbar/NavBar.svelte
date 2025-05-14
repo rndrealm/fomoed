@@ -69,7 +69,7 @@
 			href={PUBLIC_DASHBOARD_URL}
 		>
 			<p class="text-white py-1 px-[6px] bg-[#A363FF] rounded-[34px] text-[8px] font-bold">BETA</p>
-			<p class="leading-[1.35] text-white text-[13px]">The Fomoed Webapp is now live</p>
+			<p class="leading-[1.35] text-white text-[13px]">New dashboard is now available</p>
 			<div class="h-[18px] w-[1px] bg-[#5A5A5A]"></div>
 			<div class="flex gap-1 items-center leading-[1.35] text-white text-[13px] cursor-pointer">
 				Try Now <Arrow />
