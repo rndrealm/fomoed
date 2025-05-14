@@ -71,3 +71,5 @@ export const cfgi_chart_loading = writable<boolean>(false);
 export const free_tokens = ['BTC', 'ETH'];
 export const aped_score = writable<number>(0);
 export const show_social_share = writable(false);
+
+export const chart_page = writable(0);

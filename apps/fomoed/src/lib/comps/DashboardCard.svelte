@@ -14,7 +14,7 @@
 	<div
 		class:isChartCard
 		class="{!isChartCard &&
-			'px-[30px] py-[22px]'} bg-[#0F0D0D] rounded-[26px] border border-white border-opacity-10 grid place-items-center w-full h-full -desktop:snap-center overflow-hidden duration-500"
+			'z-[1000] px-[30px] py-[22px]'} bg-[#080808] rounded-[15px] border border-[#141414] grid place-items-center w-full h-full -desktop:snap-center overflow-hidden duration-500"
 		class:!p-0={disablePadding}
 		class:!border-transparent={$isFullscreenCardStore}
 		class:!rounded-none={$isFullscreenCardStore}

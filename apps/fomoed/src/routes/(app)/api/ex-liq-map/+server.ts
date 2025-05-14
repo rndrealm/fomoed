@@ -116,7 +116,6 @@ export async function GET({ request, locals: { user, supabase } }: RequestEvent)
 			}
 		}
 	}
-
 	// Cache retrieved data
 	await supabaseServer
 		.from('exchangeLiqMapCache')

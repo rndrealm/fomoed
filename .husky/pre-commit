@@ -1,0 +1,15 @@
+echo 'Checking your code lint, testing your code and building it. Lets hope it passes 🤲'
+
+
+echo ' Alright.... Code looks good... Trying to build now. ✅'
+
+pnpm run build ||
+(
+    echo 'Your build failed 
+            Next build failed: View the errors above to see why ❌. 
+    '
+    false;
+)
+
+# If everything passes... Now we can commit
+echo 'All checks have passed... I am committing this now. ✅✅✅✅'

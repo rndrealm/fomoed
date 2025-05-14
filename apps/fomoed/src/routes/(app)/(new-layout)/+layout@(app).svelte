@@ -11,8 +11,8 @@
 <!-- <div class="fixed inset-x-0 top-0 z-50"> -->
 <!-- <NewNavbar /> -->
 <NavBar />
+<div class="mt-[50px]"></div>
 <!-- </div> -->
 
 <ModeWatcher defaultMode="dark" />
 <slot />
-<Toaster />

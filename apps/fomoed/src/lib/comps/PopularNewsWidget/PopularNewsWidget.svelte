@@ -3,7 +3,7 @@
 	import type { AppNewsItem } from '$ts/client/services/NewsService.client.svelte';
 	import NewsHeadlineCardCompactV2 from '../NewsHeadlineCardCompact/NewsHeadlineCardCompactV2.svelte';
 
-	let { articles } = $props<{ articles: AppNewsItem[] }>();
+	let { articles, isFetching } = $props<{ articles: AppNewsItem[]; isFetching: boolean }>();
 </script>
 
 <div class="px-[0px] relative rounded-[20px]">
@@ -24,10 +24,17 @@
 
 		<!-- Articles -->
 
-		<div class=" grid pt-4 gap-y-4 bg-[#070707]">
-			{#each articles as article}
-				<NewsHeadlineCardCompactV2 {article} hideBottomBar showLikeCountInHeadline />
-			{/each}
+		<div class=" flex flex-col pt-4 gap-y-4 bg-[#070707]">
+			{#if isFetching}
+				{#each Array(5).fill(null) as _, index}
+					<!-- Replace this with your Skeleton Loader component -->
+					<div class="h-[300px] bg-[#121212] rounded-md skeleton-loader"></div>
+				{/each}
+			{:else}
+				{#each articles as article}
+					<NewsHeadlineCardCompactV2 {article} hideBottomBar showLikeCountInHeadline />
+				{/each}
+			{/if}
 		</div>
 	</div>
 </div>

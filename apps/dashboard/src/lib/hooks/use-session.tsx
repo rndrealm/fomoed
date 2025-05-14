@@ -5,7 +5,7 @@ import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client
 import { Session } from "@supabase/supabase-js";
 
 export default function useSession() {
-    const [session, setSession] = useState<Session | null>(null);
+    const [session, setSession] = useState<Session | null | undefined>(undefined);
 
     useEffect(() => {
         const supabase = createSupabaseBrowserClient();

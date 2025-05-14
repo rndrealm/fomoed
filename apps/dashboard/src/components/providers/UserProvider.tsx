@@ -19,11 +19,11 @@ export function UserProvider({ children }: UserProviderProps) {
 
         if (session) {
             setAuthUser(session.user);
-        } else {
+            setIsLoadingUser(false);
+        } else if (session === null) {
             setAuthUser(null);
+            setIsLoadingUser(false);
         }
-
-        setIsLoadingUser(false);
     }, [session, setAuthUser, setIsLoadingUser]);
 
     return <>{children}</>;

@@ -1,14 +1,17 @@
 "use client";
-import { Nav, WidgetContainer } from "@/components/dashboard";
+import { Loader } from "@/components/dashboard";
+import Home from "@/components/dashboard/home";
+import { useGetDashboardData } from "@/services/queries/home";
+import { useFetchTokenNews } from "@/services/queries/news";
+import React, { Fragment, Suspense } from "react";
 
-export default function Home() {
+export default function Page() {
+  const { data: dashboardData } = useGetDashboardData();
+  const { data: newsData } = useFetchTokenNews();
+
   return (
-    <div className="bg-[#0D0D0D] h-screen pt-[96px] px-4 flex flex-col gap-2 overflow-hidden">
-      <Nav />
-
-      <WidgetContainer />
-
-      <div className="p-4"></div>
-    </div>
+    <Fragment>
+      {dashboardData ? <Home dashboardData={dashboardData} /> : <Loader />}
+    </Fragment>
   );
 }

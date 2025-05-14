@@ -62,18 +62,18 @@
 	<!-- Header Section -->
 	<div class="flex items-center justify-between px-[27px]">
 		<div class="flex items-center pl-2 gap-x-2">
-			<div class="size-5">
+			<!-- <div class="size-5">
 				<CfgiIcon />
-			</div>
+			</div> -->
 
 			<h2 class="text-xl font-medium whitespace-nowrap">Fear and Greed Index</h2>
 		</div>
 
-		<!-- <CfgiAssetDropdown bind:value={selectedSymbol} /> -->
+		<CfgiAssetDropdown bind:value={selectedSymbol} />
 	</div>
 
 	<!-- Gauge Section -->
-	<div class="pt-2">
+	<div class="pt-10">
 		<!-- <GaugeFrag
 			gaugeValue={lastCfgiData?.cfgi || null}
 			symbol={selectedSymbol}
@@ -81,6 +81,6 @@
 			v24={liveSymbolData?.volume24h}
 			dominance={symbolDominance !== null ? symbolDominance.toFixed(2) : null}
 		/> -->
-		<IndicatorCardV2 />
+		<IndicatorCardV2 percentage={lastCfgiData?.cfgi || 0} />
 	</div>
 </div>

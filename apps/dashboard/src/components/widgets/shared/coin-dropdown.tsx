@@ -11,19 +11,20 @@ import { CoinDataInterface } from "@/services/queries/charts/types";
 import Image from "next/image";
 import { ChevronDown } from "lucide-react";
 import { cfgi_supported_tokens } from "@/constant/cfgi-data";
+import { useGetUserPlans } from "@/services/queries/subscriptions";
 
 interface ICoinDropdownProps {
   options: CoinDataInterface[];
-  value: string;
+  value?: string;
   setValue: (coin: string) => void;
   title: string;
 }
 
 const CoinDropdown = (props: ICoinDropdownProps) => {
-  const { options, value, setValue, title } = props;
+  const { options, value = "BTC", setValue, title } = props;
+  const { data: userPlans } = useGetUserPlans();
 
   const activeCoin = options.find((coin) => coin.symbol === value);
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -49,11 +50,17 @@ const CoinDropdown = (props: ICoinDropdownProps) => {
           </div>
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56 max-h-[200px]">
+      <DropdownMenuContent className="w-56 max-h-[200px] bg-[#121212]">
         {options
           .filter((fl) => cfgi_supported_tokens.includes(fl.symbol))
           .map((coin, i) => (
             <DropdownMenuCheckboxItem
+              className="text-white focus:text-white focus:bg-[#080808] "
+              disabled={
+                !userPlans?.hasPlan &&
+                coin.symbol !== "BTC" &&
+                coin.symbol !== "ETH"
+              }
               key={i}
               checked={value === coin.symbol}
               onCheckedChange={() => {

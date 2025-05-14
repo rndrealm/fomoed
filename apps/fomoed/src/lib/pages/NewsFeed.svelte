@@ -11,23 +11,27 @@
 	import NewsLabPostsWidget from '$lib/comps/NewsLabPostsWidget/NewsLabPostsWidget.svelte';
 
 	onMount(async () => {
+		newsService.setCurrency('');
 		if (!newsService.news.length) {
 			newsService.fetchNews();
+
+			// newsService.fetchNewsLabPosts().then((ok) => {
+			// 	if (!ok) {
+			// 		toast.error('Failed to fetch news lab posts');
+			// 	}
+			// });
+		}
+		if (!newsService.popularNews.length) {
 			newsService.fetchPopularNews().then((ok) => {
 				if (!ok) {
 					toast.error('Failed to fetch popular news');
-				}
-			});
-			newsService.fetchNewsLabPosts().then((ok) => {
-				if (!ok) {
-					toast.error('Failed to fetch news lab posts');
 				}
 			});
 		}
 	});
 </script>
 
-<main class="pt-[7rem] bg-[#090909]">
+<main class="pt-[5.5rem] md:pt-[5rem] bg-[#0c0c0c]">
 	<NewsAssetPriceRow />
 
 	<div
@@ -43,7 +47,7 @@
 			</div>
 
 			<div class="pt-5">
-				<LatestNewsSection articles={newsService.news} />
+				<LatestNewsSection articles={newsService.news} isFetching={newsService.isFetching} />
 			</div>
 		</div>
 
@@ -54,7 +58,10 @@
 				</div>
 
 				<div class="w-full max-w-lg pt-4">
-					<PopularNewsWidget articles={newsService.popularNews} />
+					<PopularNewsWidget
+						articles={newsService.popularNews}
+						isFetching={newsService.isFetching}
+					/>
 				</div>
 			</div>
 		{/if}

@@ -11,8 +11,6 @@ export async function GET({ request, locals: { supabase, user } }: RequestEvent)
 	if (!hasActiveSubscription(supabase, user.id)) {
 		return error(401, { message: 'Unauthorized' });
 	}
-
 	const data = await fetchCoinglassSupportedPairs();
-
 	return json({ data: data.data });
 }

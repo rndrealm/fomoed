@@ -9,14 +9,14 @@
 	}>();
 </script>
 
-<h1 class="font-semibold font-inter text-5xl -desktop:text-4xl text-new-white leading-tight">
+<h1 class="text-5xl font-semibold leading-tight font-inter -desktop:text-4xl text-new-white">
 	{@html article.title}
 </h1>
 
 <ArticleBelowHeadingBar {article} />
 
 <div
-	class="_article_content_container font-inter pt-0 text-new-white leading-relaxed -desktop:text-justify"
+	class="pt-0 leading-relaxed _article_content_container font-inter text-new-white -desktop:text-justify"
 >
 	{@html embedWidgets(articleContent)}
 </div>

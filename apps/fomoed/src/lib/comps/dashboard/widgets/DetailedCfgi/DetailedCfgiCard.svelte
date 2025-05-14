@@ -37,7 +37,7 @@
 	{/if}
 
 	<div class="w-full h-full flex flex-col overflow-hidden desktop:px-[30px]">
-		<div class="desktop:flex items-center w-full -desktop:px-4">
+		<div class="items-center w-full desktop:flex -desktop:px-4">
 			<DashboardCardTitle
 				title={$coinstats_selected_coin?.name || 'Bitcoin'}
 				subtitle="Crypto Fear and Greed Chart"
@@ -53,16 +53,7 @@
 			</div>
 		</div>
 
-		<div class="flex gap-x-4 justify-center font-paralucent font-light">
-			{#each Object.entries(colorToCfgi) as [cfgi, color], index}
-				<div class="flex items-center mt-2">
-					<div class="w-2 h-2 rounded-full" style="background-color: {color}"></div>
-					<div class="ml-2 text-[#A0A0A0] text-sm">{index * 25}-{(index + 1) * 25}</div>
-				</div>
-			{/each}
-		</div>
-
-		<div class="pt-4 flex-grow">
+		<div class="flex-grow pt-4">
 			<InCardChartContainer {loading}>
 				<HomepageBigChart
 					bind:chart
@@ -70,6 +61,15 @@
 					periodHasSeconds={selectedPeriodOption.periodInSeconds}
 				></HomepageBigChart>
 			</InCardChartContainer>
+		</div>
+
+		<div class="flex justify-center mt-6 font-light gap-x-3 font-inter">
+			{#each Object.entries(colorToCfgi) as [cfgi, color], index}
+				<div class="flex items-center mt-2">
+					<div class="w-2 h-2 rounded-[2px]" style="background-color: {color}"></div>
+					<div class="ml-2 text-[#9B9FA4] text-xs font-medium">{index * 25}-{(index + 1) * 25}</div>
+				</div>
+			{/each}
 		</div>
 	</div>
 </DashboardCard>

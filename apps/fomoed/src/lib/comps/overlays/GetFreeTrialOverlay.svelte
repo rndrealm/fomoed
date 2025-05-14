@@ -15,12 +15,12 @@
 			Get your free trial to unlock more!
 		</div>
 
-		<div class="mt-2 flex justify-center space-x-3">
+		<div class="flex justify-center mt-2 space-x-3">
 			<img src="/fomoed.svg" alt="Fomoed." class="w-[158px] -desktop:w-[125px]" />
 			<PaidPlanBadge></PaidPlanBadge>
 		</div>
 
-		<div class="mt-6 mx-4">
+		<div class="mx-4 mt-6">
 			<a href="/plans">
 				<MainButton>
 					<span class="uppercase">Start Free Trial</span>
@@ -28,7 +28,7 @@
 				</MainButton>
 			</a>
 
-			<button onclick={hideCb} class="mx-auto underline hover:text-primary mt-4 block text-sm">
+			<button onclick={hideCb} class="block mx-auto mt-4 text-sm underline hover:text-primary">
 				Later
 			</button>
 		</div>

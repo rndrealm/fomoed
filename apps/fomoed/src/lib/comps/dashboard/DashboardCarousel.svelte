@@ -16,6 +16,8 @@
 	import anime from 'animejs';
 	import type { DashboardService } from '$ts/client/services/DashboardService.client';
 	import { browser } from '$app/environment';
+	import { chart_page } from '$lib/stores';
+	import CignalsCard from './widgets/CignalsChart/CignalsCard.svelte';
 
 	let mounted = false;
 
@@ -39,10 +41,11 @@
 		page = (page + 1) % components.length;
 	}
 
-	$: mounted && dashboardService.setLastDisplayedChartIndex(page);
+	$: mounted && dashboardService.setLastDisplayedChartIndex($chart_page);
 
 	onMount(() => {
-		page = dashboardService.getLastDisplayedChartIndex();
+		// page = dashboardService.getLastDisplayedChartIndex();
+		chart_page.set(dashboardService.getLastDisplayedChartIndex());
 		mounted = true;
 	});
 
@@ -51,7 +54,8 @@
 		SimpleCfgiCard,
 		LiqHeatmapCard,
 		LiqMapCard,
-		ExchangeLiqMapCard
+		ExchangeLiqMapCard,
+		CignalsCard
 	];
 
 	let mobileScrollIndex = 0;
@@ -88,8 +92,10 @@
 			duration: 500,
 			easing: 'easeOutExpo',
 			complete: () => {
-				chart.resize();
-				chart.canvas.style.opacity = 1;
+				if (chart?.canvas) {
+					chart.resize();
+					chart.canvas.style.opacity = 1;
+				}
 
 				fullscreenAnimCompleteCounterStore.update((n) => n + 1);
 			}
@@ -99,7 +105,9 @@
 	function goOutFullscreen() {
 		isFullscreenCardStore.set(false);
 
-		chart.canvas.style.opacity = 0;
+		if (chart?.canvas) {
+			chart.canvas.style.opacity = 0;
+		}
 
 		anime({
 			targets: chartCardContainer,
@@ -118,13 +126,15 @@
 
 				disableDashboardScroll.set(false);
 
-				chart.resize(0, 0);
+				chart?.resize(0, 0);
 
 				await tick();
 
-				chart.resize();
+				chart?.resize();
 
-				chart.canvas.style.opacity = 1;
+				if (chart?.canvas) {
+					chart.canvas.style.opacity = 1;
+				}
 
 				fullscreenAnimCompleteCounterStore.update((n) => n + 1);
 			}
@@ -137,7 +147,12 @@
 	let chart: any;
 </script>
 
-<div class="w-full desktop:h-[450px] -desktop:h-full -desktop:flex flex-col relative">
+<div
+	class="w-full desktop:h-[580px] -desktop:h-full -desktop:flex flex-col relative {isFullscreen &&
+	$isDesktop
+		? 'z-[1000]'
+		: ''} "
+>
 	{#if $isDesktop === true}
 		<div
 			bind:this={chartCardContainer}
@@ -150,17 +165,23 @@
 		</div>
 
 		<div
-			class="absolute inset-0 flex items-center h-full z-10 pointer-events-none duration-200"
+			class="absolute inset-0 z-10 flex items-center h-full duration-200 pointer-events-none"
 			class:opacity-0={isFullscreen}
 		>
-			<div class="flex w-full relative">
-				<button on:click={() => goLeft()} class="-translate-x-1/2 pointer-events-auto p-4">
+			<div class="relative flex w-full">
+				<button
+					on:click={() => goLeft()}
+					class="p-4 translate-x-[-30%] pointer-events-auto rounded-lg bg-[#080808] border border-white/10"
+				>
 					<CarouselArrowLeft />
 				</button>
 
 				<div class="flex-grow"></div>
 
-				<button on:click={() => goRight()} class="translate-x-1/2 pointer-events-auto p-4">
+				<button
+					on:click={() => goRight()}
+					class="p-4 translate-x-[30%] pointer-events-auto rounded-lg bg-[#080808] border border-white/10"
+				>
 					<CarouselArrowRight />
 				</button>
 			</div>
@@ -168,7 +189,7 @@
 	{:else if $isDesktop === false}
 		<div
 			bind:this={mobileCarouselContainer}
-			class="w-full flex overflow-x-scroll snap-x snap-mandatory px-3 no-scrollbar flex-grow"
+			class="flex flex-grow w-full px-3 overflow-x-scroll snap-x snap-mandatory no-scrollbar"
 		>
 			{#each components as component, i}
 				<div class="flex-shrink-0 snap-center w-[calc(100vw-1.5rem)] relative">
@@ -198,8 +219,9 @@
 
 	<button
 		id="fullscreen-btn"
-		class="opacity-75 hover:opacity-100 duration-200 z-10 {isFullscreen && $isDesktop
-			? 'translate-y-3'
+		class="hover:opacity-100 duration-200 z-10 bg-[#080808] border border-white/10 rounded-lg p-2 text-white/50 {isFullscreen &&
+		$isDesktop
+			? 'translate-y-3 z-[1000] '
 			: ''}"
 		on:click={() => (isFullscreen ? goOutFullscreen() : goInFullscreen())}
 		class:isFullscreen
@@ -214,15 +236,15 @@
 
 <style>
 	button {
-		@apply rounded-xl border border-[#FFFFFF1A] bg-[#0F0D0D] active:scale-90 duration-100;
+		@apply active:scale-90 duration-100;
 	}
 
 	#fullscreen-btn:not(.isFullscreen) {
-		@apply absolute bottom-4 left-4 -desktop:bottom-12 -desktop:left-8 p-4;
+		@apply absolute md:bottom-4 right-4 -desktop:bottom-[5.5rem] -desktop:right-8;
 	}
 
 	#fullscreen-btn.isFullscreen {
-		@apply fixed top-4 right-4 p-2;
+		@apply fixed top-4 right-4;
 	}
 
 	:global(canvas) {
