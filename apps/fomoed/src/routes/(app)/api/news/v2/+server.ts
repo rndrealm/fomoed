@@ -12,6 +12,7 @@ export async function GET({ request }) {
 	const kind = url.searchParams.get('kind') as any;
 	const page = url.searchParams.get('page') as any;
 	const currencies = url.searchParams.get('currencies') as any;
+	const search = url.searchParams.get('search') as string;
 
 	if (!newsFilterVals.includes(filter)) {
 		return json({ success: false, message: 'Invalid filter parameter value' });
@@ -29,8 +30,11 @@ export async function GET({ request }) {
 		filter,
 		kind,
 		page,
-		currencies
+		currencies,
+		search
 	});
+
+	console.log('Fetched news data:', data);
 
 	return json({ success: true, data });
 }

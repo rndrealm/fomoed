@@ -120,12 +120,14 @@ export class NewsService {
 		filter = 'all',
 		kind = 'all',
 		currencies = null,
-		page = 1
+		page = 1,
+		search = ''
 	}: {
 		filter: NewsFilterVal;
 		kind: NewsKindVal;
 		currencies: string | null;
 		page: number;
+		search: string;
 	}): Promise<NewsFeedResponseData> {
 		const url = new URL('https://cryptopanic.com/api/posts/');
 
@@ -188,15 +190,34 @@ export class NewsService {
 
 		const concatPostUpserts = [...newsRows, ...newsLabPosts];
 
-		await NewsTable.upsert(concatPostUpserts);
+		// Filter posts based on search term if provided
+		const filteredPosts = search.trim()
+			? concatPostUpserts.filter(
+					(post) =>
+						post.title?.toLowerCase().includes(search.toLowerCase()) ||
+						post.summary?.toLowerCase().includes(search.toLowerCase()) ||
+						post.symbols?.some((symbol) => symbol.toLowerCase().includes(search.toLowerCase()))
+				)
+			: concatPostUpserts;
 
-		console.log(newsLabPosts);
+		// console.log(filteredPosts);
+
+		// Update the IDs in the response to match filtered results
+		const filteredIds = filteredPosts
+			.filter((post) => ids.includes(post.id as string))
+			.map((post) => post.id as string);
+
+		await NewsTable.upsert(filteredPosts);
 
 		const responseData: NewsFeedResponseData = {
-			count: json.count,
-			next: json.next,
+			count: filteredIds.length,
+			next: json.next, // Don't use pagination with search
 			previous: json.previous,
-			postIds: ids
+			postIds: filteredIds
+			// count: json.count,
+			// next: json.next,
+			// previous: json.previous,
+			// postIds: ids
 		};
 
 		return responseData;

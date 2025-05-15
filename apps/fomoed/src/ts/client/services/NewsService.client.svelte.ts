@@ -80,12 +80,14 @@ export class NewsService extends BaseService {
 	#kind: NewsKindVal;
 	#page: number;
 	#currency: string;
+	#search: string;
 
 	constructor() {
 		super();
 
 		this.filter = 'all';
 		this.#kind = 'news';
+		this.#search = '';
 		this.#page = 1;
 		this.#currency = '';
 	}
@@ -116,6 +118,7 @@ export class NewsService extends BaseService {
 
 		url.searchParams.set('page', this.#page.toString());
 		url.searchParams.set('filter', this.filter);
+		url.searchParams.set('search', this.#search);
 		url.searchParams.set('kind', this.#kind);
 		url.searchParams.set('currencies', this.#currency);
 
@@ -284,6 +287,10 @@ export class NewsService extends BaseService {
 			this.#page = page;
 			await this.fetchNews();
 		}
+	}
+	async setSearch(search: string) {
+		this.#search = search;
+		await this.fetchNews();
 	}
 
 	async setCurrency(currency: string) {
