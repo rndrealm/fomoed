@@ -1,12 +1,12 @@
+import { topicSelectorMap } from "@/constant/signals/data-source-config";
 import { ChevronsUpDown, Trash2 } from "lucide-react";
+import { useMemo } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Separator } from "../ui/separator";
 import { Condition } from "./condition-group";
 import Operator from "./condition-operator";
-import { CFGIConfig } from "./data-configs/CFGIConfig";
-import { PriceTickerConfig } from "./data-configs/PriceTickerConfig";
 import SignalDataSourceSelector from "./data-source-selector";
 
 type ConditionRowProps = {
@@ -16,24 +16,25 @@ type ConditionRowProps = {
   isRemovable: boolean;
 };
 
-const topicSelectorMap: Record<
-  string,
-  React.FC<{ value: string | null; onChange: (value: string) => void }>
-> = {
-  price: PriceTickerConfig,
-  cfgi: CFGIConfig,
-};
-
 const ConditionRow = ({
   condition,
   onChange,
   onRemove,
   isRemovable,
 }: ConditionRowProps) => {
-  // Find the topic selector component for the current data source
-  const TopicSelector = condition.dataSource
-    ? topicSelectorMap[condition.dataSource]
-    : undefined;
+  const TopicSelector = useMemo(() => {
+    if (condition.dataSource) {
+      return topicSelectorMap[condition.dataSource]?.component || null;
+    }
+    return null;
+  }, [condition.dataSource]);
+
+  const allowedOperators = useMemo(() => {
+    if (condition.dataSource) {
+      return topicSelectorMap[condition.dataSource]?.allowedOperators || [];
+    }
+    return [];
+  }, [condition.dataSource]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -62,6 +63,7 @@ const ConditionRow = ({
         </div>
       )}
       <Operator
+        allowedOperators={allowedOperators}
         value={condition.operator}
         onChange={(v) => onChange({ ...condition, operator: v })}
       />

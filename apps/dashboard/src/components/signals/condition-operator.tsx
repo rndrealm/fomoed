@@ -8,6 +8,7 @@ import {
 } from "../ui/select";
 
 type OperatorProps = {
+  allowedOperators: string[];
   value?: string | null;
   onChange?: (value: string) => void;
 };
@@ -18,7 +19,7 @@ const Operator = (props: OperatorProps) => {
       <Label className="mb-2 text-muted-foreground">Operator</Label>
 
       <Select
-        disabled={false}
+        disabled={!props.allowedOperators.length}
         value={props.value || undefined}
         onValueChange={props.onChange || (() => {})}
       >
@@ -26,7 +27,7 @@ const Operator = (props: OperatorProps) => {
           <SelectValue placeholder="Select operator" />
         </SelectTrigger>
         <SelectContent className="max-h-[300px] overflow-y-auto">
-          {["==", ">", "<", ">=", "<="].map((op) => (
+          {props.allowedOperators.map((op) => (
             <SelectItem key={op} value={op} className="pl-6 text-sm">
               {op}
             </SelectItem>

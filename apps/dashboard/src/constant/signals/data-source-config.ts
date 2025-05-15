@@ -1,3 +1,6 @@
+import { CFGIConfig } from "@/components/signals/data-configs/CFGIConfig";
+import { PriceTickerConfig } from "@/components/signals/data-configs/PriceTickerConfig";
+
 export type DataSource = {
   name: string;
   id: string;
@@ -14,6 +17,8 @@ export const signalDataSources: SignalDataSourceGroup[] = [
     dataSources: [
       { name: "Price", id: "price" },
       { name: "CFGI", id: "cfgi" },
+      { name: "Trading Volume", id: "volume" },
+      { name: "Market Capitalization", id: "market_cap" },
     ],
   },
   {
@@ -24,3 +29,23 @@ export const signalDataSources: SignalDataSourceGroup[] = [
     ],
   },
 ];
+
+export const topicSelectorMap: Record<
+  string,
+  {
+    component: React.FC<{
+      value: string | null;
+      onChange: (value: string) => void;
+    }>;
+    allowedOperators: string[];
+  }
+> = {
+  price: {
+    component: PriceTickerConfig,
+    allowedOperators: [">", "<", "==", "!="],
+  },
+  cfgi: {
+    component: CFGIConfig,
+    allowedOperators: [">", "<", "==", "!="],
+  },
+};
