@@ -115,7 +115,7 @@ sentiment analysis"
 		title: `Fomoed`,
 		description:
 			'Fomoed provides a toolset for effortlessly navigating the emotional rollercoaster that is crypto. Have complete access to your favorite Altcoins and get precise data-based market sentiment analysis',
-		image: 'https://legacy-dev.fomoed.io/og2.png',
+		image: 'https://legacy-dev.fomoed.io/og3.png',
 		imageAlt: `Fomoed`
 	}}
 />
