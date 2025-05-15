@@ -100,7 +100,7 @@ sentiment analysis"
 		url: $page.url.href,
 		images: [
 			{
-				url: '/og2.png',
+				url: 'https://legacy-dev.fomoed.io/og3.png',
 				width: 1200,
 				height: 630,
 				alt: `Fomoed`
