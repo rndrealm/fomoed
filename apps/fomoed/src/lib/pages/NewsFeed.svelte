@@ -8,7 +8,6 @@
 	import PopularNewsWidget from '$lib/comps/PopularNewsWidget/PopularNewsWidget.svelte';
 	import { DESKTOP_BREAKPOINT, innerWidth } from '$lib/stores/ui';
 	import toast from 'svelte-5-french-toast';
-	import NewsLabPostsWidget from '$lib/comps/NewsLabPostsWidget/NewsLabPostsWidget.svelte';
 
 	onMount(async () => {
 		newsService.setCurrency('');
