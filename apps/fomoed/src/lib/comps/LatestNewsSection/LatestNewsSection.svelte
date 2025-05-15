@@ -4,6 +4,8 @@
 	import type { AppNewsItem } from '$ts/client/services/NewsService.client.svelte';
 	import PaginationBar from '$lib/comps/PaginationBar/PaginationBar.svelte';
 	import { newsService } from '$ts/client/services/NewsService.client.svelte';
+	import { writable } from 'svelte/store';
+	import { onDestroy } from 'svelte';
 
 	let { articles, isFetching } = $props<{ articles: AppNewsItem[]; isFetching: boolean }>();
 
@@ -39,6 +41,29 @@
 		newsService.setPage(page);
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 	}
+
+	const searchTerm = writable('');
+	let searchTimeout: ReturnType<typeof setTimeout>;
+
+	// Add a debounced search handler
+	function handleSearchChange(term: string) {
+		if (searchTimeout) clearTimeout(searchTimeout);
+
+		searchTimeout = setTimeout(() => {
+			newsService.setSearch(term);
+			newsService.setPage(1); // Reset to first pa
+		}, 500); // 500ms debounce
+	}
+
+	// Subscribe to search term changes
+	const unsubscribe = searchTerm.subscribe((value) => {
+		handleSearchChange(value);
+	});
+
+	onDestroy(() => {
+		if (searchTimeout) clearTimeout(searchTimeout);
+		unsubscribe();
+	});
 </script>
 
 <svelte:window bind:innerWidth />
@@ -50,6 +75,15 @@
 	>
 		Latest News
 	</h2>
+
+	<div class="py-4 mb-4 border-b border-[#141414]">
+		<input
+			type="text"
+			class=" bg-[#181818] rounded-[6px] w-full max-w-[21.4rem] text-[#FFFFFFCC] font-medium placeholder-[#FFFFFF4D] text-sm px-4 outline-none py-2"
+			placeholder="Search..."
+			bind:value={$searchTerm}
+		/>
+	</div>
 
 	<div class="pt-[14px]">
 		<NewsFilterChips
@@ -71,6 +105,19 @@
 				<!-- Replace this with your Skeleton Loader component -->
 				<div class="h-[300px] bg-[#121212] rounded-md skeleton-loader"></div>
 			{/each}
+		{:else if articles.length === 0}
+			<div class="flex flex-col items-center justify-center py-16 text-center col-span-full">
+				<div class="text-[#FFFFFFCC] text-lg mb-2">No articles found</div>
+				{#if $searchTerm}
+					<div class="text-[#FFFFFF80] text-sm">
+						No results match "{$searchTerm}". Try different keywords or clear your search.
+					</div>
+				{:else}
+					<div class="text-[#FFFFFF80] text-sm">
+						Try changing your filters or check back later for new content.
+					</div>
+				{/if}
+			</div>
 		{:else}
 			{#each articleRows as row, rowIndex}
 				<!-- Article Row -->

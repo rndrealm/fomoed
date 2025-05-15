@@ -52,7 +52,7 @@
 
 <!-- Asset price pill -->
 <div
-	class="flex min-w-[10.75rem] max-w-[12.5rem] items-center px-[7px] py-[3px] my-1 rounded-[31px] bg-[#1D1D1D] text-white font-sans font-normal text-[13px]"
+	class="flex whitespace-nowrap items-center px-[7px] py-[3px] my-1 rounded-[31px] bg-[#1D1D1D] text-white font-sans font-normal text-[13px]"
 >
 	<span class="pr-1">{symbol} </span>
 	<span class="font-medium"> -{formattedPrice}</span>

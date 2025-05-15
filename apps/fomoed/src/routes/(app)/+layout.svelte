@@ -100,9 +100,9 @@ sentiment analysis"
 		url: $page.url.href,
 		images: [
 			{
-				url: '/og2.png',
-				width: 1200,
-				height: 630,
+				url: 'https://legacy-dev.fomoed.io/og3.png',
+				// width: 1200,
+				// height: 630,
 				alt: `Fomoed`
 			}
 		],
@@ -115,7 +115,7 @@ sentiment analysis"
 		title: `Fomoed`,
 		description:
 			'Fomoed provides a toolset for effortlessly navigating the emotional rollercoaster that is crypto. Have complete access to your favorite Altcoins and get precise data-based market sentiment analysis',
-		image: '/og2.png',
+		image: 'https://legacy-dev.fomoed.io/og3.png',
 		imageAlt: `Fomoed`
 	}}
 />
