@@ -33,6 +33,7 @@ export function LayoutDropdown() {
   const deleteLayout = useSetAtom(deleteLayoutAtom);
   const layouts = useAtomValue(layoutAtom);
   const editLayoutName = useSetAtom(editLayoutNameAtom);
+  const syncLayouts = useSetAtom(syncLayoutOnSelectAtom);
 
   const [isOpen, setIsOpen] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -40,6 +41,9 @@ export function LayoutDropdown() {
   const [layoutName, setLayoutName] = useState("");
 
   const layoutRef = useRef("");
+
+  const savedLayouts = layouts.filter((item) => !item.draft);
+  const unSavedLayouts = layouts.filter((item) => item.draft);
 
   return (
     <Fragment>
@@ -64,11 +68,11 @@ export function LayoutDropdown() {
             </TooltipContent>
           </Tooltip>
           <DropdownMenuContent
-            className="w-[16rem] mt-2 bg-[#090909] border border-[#333]"
+            className="w-[16rem] mt-2 bg-[#090909] border border-[#333] p-0"
             align="end"
           >
             <DropdownMenuLabel className="text-[#646464] font-medium text-[10px] p-2 border-b border-[#333]">
-              SAVED LAYOUTS
+              LAYOUTS
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
@@ -81,37 +85,82 @@ export function LayoutDropdown() {
               </RenderIf>
 
               <RenderIf condition={!!layouts && layouts?.length > 0}>
-                <>
-                  {layouts
-                    .filter((ly) => !ly.draft)
-                    ?.map((layout, i) => (
-                      <LayoutItem
-                        layout={layout}
-                        key={i}
-                        layoutRef={layoutRef}
-                        setLayoutName={setLayoutName}
-                        setShowDeleteModal={setShowDeleteModal}
-                        setShowNameModal={setShowNameModal}
-                      />
-                    ))}
-                  <div>
-                    <h1 className="text-[#474747] text-[0.625rem] font-medium  bg-[#0F0F0F] px-4 py-2">
+                {savedLayouts?.map((layout, i) => (
+                  <DropdownMenuItem
+                    key={i}
+                    className="text-[#C3C3C3] my-2 text-[13px] font-inter font-medium flex items-center focus:bg-[#171717] focus:text-[#C3C3C3] cursor-pointer w-full justify-between"
+                    onClick={() => {
+                      syncLayouts(layout);
+                    }}
+                  >
+                    <TabLayout />
+                    <p className="flex-1 truncate">
+                      {layout.draft ? "Untitled Layout" : layout?.name}
+                    </p>
+
+                    <div className="flex items-center gap-1">
+                      <RenderIf condition={!layout.draft}>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            layoutRef.current = layout.id;
+                            setLayoutName(layout.name);
+                            setShowNameModal(true);
+                          }}
+                        >
+                          <Edit />
+                        </button>
+                      </RenderIf>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          layoutRef.current = layout.id;
+                          setShowDeleteModal(true);
+                        }}
+                      >
+                        <Delete fill="#5B5B5B" />
+                      </button>
+                    </div>
+                  </DropdownMenuItem>
+                ))}
+
+                <RenderIf condition={unSavedLayouts?.length > 0}>
+                  <div className="bg-[#0F0F0F] px-2 py-2">
+                    <p className="font-medium text-[#474747] leading-[1.25] text-[10px]">
                       UNSAVED LAYOUTS
-                    </h1>
-                    {layouts
-                      .filter((ly) => ly.draft)
-                      ?.map((layout, i) => (
-                        <LayoutItem
-                          layout={layout}
-                          key={i}
-                          layoutRef={layoutRef}
-                          setLayoutName={setLayoutName}
-                          setShowDeleteModal={setShowDeleteModal}
-                          setShowNameModal={setShowNameModal}
-                        />
-                      ))}
+                    </p>
                   </div>
-                </>
+                </RenderIf>
+
+                {unSavedLayouts?.map((layout, i) => (
+                  <DropdownMenuItem
+                    key={i}
+                    className="text-[#C3C3C3] my-2 text-[13px] font-inter font-medium flex items-center focus:bg-[#171717] focus:text-[#C3C3C3] cursor-pointer w-full justify-between"
+                    onClick={() => {
+                      syncLayouts(layout);
+                    }}
+                  >
+                    <TabLayout />
+                    <p className="flex-1 truncate">
+                      {layout.draft ? "Untitled Layout" : layout?.name}
+                    </p>
+
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          layoutRef.current = layout.id;
+                          setShowDeleteModal(true);
+                        }}
+                      >
+                        <Delete fill="#5B5B5B" />
+                      </button>
+                    </div>
+                  </DropdownMenuItem>
+                ))}
               </RenderIf>
             </DropdownMenuGroup>
           </DropdownMenuContent>
@@ -162,53 +211,53 @@ interface ILayoutItem {
   setShowDeleteModal: (show: boolean) => void;
 }
 
-const LayoutItem = (props: ILayoutItem) => {
-  const {
-    layout,
-    layoutRef,
-    setLayoutName,
-    setShowNameModal,
-    setShowDeleteModal,
-  } = props;
-  const syncLayouts = useSetAtom(syncLayoutOnSelectAtom);
+// const LayoutItem = (props: ILayoutItem) => {
+//   const {
+//     layout,
+//     layoutRef,
+//     setLayoutName,
+//     setShowNameModal,
+//     setShowDeleteModal,
+//   } = props;
+//   const syncLayouts = useSetAtom(syncLayoutOnSelectAtom);
 
-  return (
-    <DropdownMenuItem
-      className="text-[#C3C3C3] my-2 text-[13px] font-inter font-medium flex items-center focus:bg-[#171717] focus:text-[#C3C3C3] cursor-pointer w-full justify-between"
-      onClick={() => {
-        syncLayouts(layout);
-      }}
-    >
-      <TabLayout />
-      <p className="flex-1 truncate">
-        {layout.draft ? "Untitled Layout" : layout?.name}
-      </p>
+//   return (
+//     <DropdownMenuItem
+//       className="text-[#C3C3C3] my-2 text-[13px] font-inter font-medium flex items-center focus:bg-[#171717] focus:text-[#C3C3C3] cursor-pointer w-full justify-between"
+//       onClick={() => {
+//         syncLayouts(layout);
+//       }}
+//     >
+//       <TabLayout />
+//       <p className="flex-1 truncate">
+//         {layout.draft ? "Untitled Layout" : layout?.name}
+//       </p>
 
-      <div className="flex items-center gap-1">
-        <RenderIf condition={!layout.draft}>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              layoutRef.current = layout.id;
-              setLayoutName(layout.name);
-              setShowNameModal(true);
-            }}
-          >
-            <Edit />
-          </button>
-        </RenderIf>
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            layoutRef.current = layout.id;
-            setShowDeleteModal(true);
-          }}
-        >
-          <Delete fill="#5B5B5B" />
-        </button>
-      </div>
-    </DropdownMenuItem>
-  );
-};
+//       <div className="flex items-center gap-1">
+//         <RenderIf condition={!layout.draft}>
+//           <button
+//             type="button"
+//             onClick={(e) => {
+//               e.stopPropagation();
+//               layoutRef.current = layout.id;
+//               setLayoutName(layout.name);
+//               setShowNameModal(true);
+//             }}
+//           >
+//             <Edit />
+//           </button>
+//         </RenderIf>
+//         <button
+//           type="button"
+//           onClick={(e) => {
+//             e.stopPropagation();
+//             layoutRef.current = layout.id;
+//             setShowDeleteModal(true);
+//           }}
+//         >
+//           <Delete fill="#5B5B5B" />
+//         </button>
+//       </div>
+//     </DropdownMenuItem>
+//   );
+// };

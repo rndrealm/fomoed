@@ -34,21 +34,22 @@ import { SettingsDropdown } from "../settings-dropdown";
 import { settingAtom } from "@/lib/atoms/settingsAtom";
 import { NameLayout, Upgrade } from "@/components/modals";
 import { useGetUserPlans } from "@/services/queries/subscriptions";
-import { maxTabsByPlan } from "@/lib/utils";
+import { cn, maxTabsByPlan } from "@/lib/utils";
 
 interface IToolbarItem {
   onClick?: () => void;
   label?: string;
   icon: React.JSX.Element;
+  disabled?: boolean;
 }
 
 function ToolbarItem(props: IToolbarItem) {
-  const { onClick, label, icon } = props;
+  const { onClick, label, icon, disabled } = props;
   return (
     <TooltipProvider>
       <Tooltip>
-        <TooltipTrigger onClick={onClick}>
-          <div className="h-[28px] w-[28px] flex items-center justify-center group">
+        <TooltipTrigger onClick={onClick} disabled={disabled}>
+          <div className={ cn("h-[28px] w-[28px] flex items-center justify-center group") }>
             {icon}
           </div>
         </TooltipTrigger>
@@ -97,7 +98,9 @@ export function Toolbar() {
     //CHECK IF PRO USER
     const planType = data?.planType || "FREE"; // Default to FREE if not set
     const maxTabs = maxTabsByPlan[planType] || 3;
-    if (layouts.length >= maxTabs + 1 && currentLayout.draft) {
+    const savedLayouts = layouts.filter((item) => !item.draft);
+
+    if (savedLayouts.length >= maxTabs - 1 && currentLayout.draft) {
       setShowUpgradeModal(true);
       return;
     }
@@ -181,8 +184,9 @@ export function Toolbar() {
                 condition={!settings.auto_save && !isError && !layoutChange}
               >
                 <ToolbarItem
+                  disabled={true}
                   icon={isPending ? <Loader /> : <Unsaved />}
-                  label="Save"
+                  label="Saved"
                   onClick={isPending ? () => {} : handleSaveLayout}
                 />
               </RenderIf>
@@ -192,7 +196,7 @@ export function Toolbar() {
               >
                 <ToolbarItem
                   icon={isPending ? <Loader /> : <ErrorSave />}
-                  label="Save"
+                  label="Save layout changes"
                   onClick={isPending ? () => {} : handleSaveLayout}
                 />
               </RenderIf>

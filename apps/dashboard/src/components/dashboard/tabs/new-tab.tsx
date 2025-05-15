@@ -54,8 +54,8 @@ export function TabButton(props: ITabButton) {
         type="button"
         onClick={handleClick}
         onDoubleClick={() => {
-          inputRef.current?.focus();
-          inputRef.current?.select();
+          // inputRef.current?.focus();
+          // inputRef.current?.select();
         }}
       >
         <div
@@ -170,11 +170,12 @@ export function NewTabs() {
           {tabs?.map((item) => {
             const isActive = activeTab.id === item.id;
             const showCloseBtn = tabs.length > 1;
+            const tabLayout = layouts.find((tab) => tab.id === item?.layout_id);
 
             return (
               <TabButton
                 key={item.id}
-                name={item.name}
+                name={tabLayout?.name || item.name}
                 isActive={isActive}
                 showCloseBtn={showCloseBtn}
                 handleClick={() => {
