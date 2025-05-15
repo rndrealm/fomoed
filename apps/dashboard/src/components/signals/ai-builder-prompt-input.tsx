@@ -1,5 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -60,8 +66,12 @@ const AISignalPromptInput: React.FC<AISignalBuilderProps> = ({
 
   return (
     <Card className="mb-6 bg-[#0A0A0A]">
+      <CardHeader>
+        <CardTitle>AI Signal Assistant</CardTitle>
+        <CardDescription>Prompt your way to a smart signal</CardDescription>
+      </CardHeader>
       <CardContent className="pt-2">
-        <div className="flex flex-col gap-4 mb-8">
+        <div className="flex flex-col gap-4 ">
           <div className="flex gap-2 w-full">
             <Form {...form}>
               <form

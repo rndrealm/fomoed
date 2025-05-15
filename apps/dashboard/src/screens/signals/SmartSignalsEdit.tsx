@@ -105,9 +105,7 @@ const SmartSignalsEdit = () => {
         <div className="space-y-6">
           {condition && (
             <ManualSignalBuilder
-              editMode
               initialLogic={condition}
-              logic={condition}
               setLogic={setCondition}
             />
           )}

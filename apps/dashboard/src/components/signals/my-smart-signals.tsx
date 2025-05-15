@@ -17,10 +17,11 @@ const EmptyState = () => {
     </Card>
   );
 };
-const MySignals = () => {
-  const { data: smartSignals = [], isPending } = useSmartSignals();
 
-  if (isPending) {
+const MySignals = () => {
+  const { data: smartSignals = [], isLoading, isFetched } = useSmartSignals();
+
+  if (isLoading) {
     return (
       <div className="w-full h-80 flex items-center justify-center">
         <LoaderCircle className="animate-spin" />
@@ -29,26 +30,28 @@ const MySignals = () => {
   }
 
   return (
-    <div className="w-full grid grid-cols-2 gap-5 mt-4">
-      <RenderIf condition={smartSignals.length === 0}>
-        <EmptyState />
-      </RenderIf>
+    <div>
+      <div className="w-full grid grid-cols-2 gap-5 mt-4">
+        <RenderIf condition={isFetched && smartSignals.length === 0}>
+          <EmptyState />
+        </RenderIf>
 
-      <RenderIf condition={!!smartSignals && smartSignals.length > 0}>
-        {smartSignals &&
-          smartSignals.map((signal, idx) => (
-            <MySmartSignalCard
-              key={signal.id}
-              id={signal.id as number}
-              title={signal.name}
-              description={signal.description}
-              conditions={JSON.parse(signal.condition)}
-              hasInAppNotifications={true}
-              hasEmailNotifications={true}
-              lastUpdated={signal.updated_at}
-            />
-          ))}
-      </RenderIf>
+        <RenderIf condition={smartSignals?.length > 0}>
+          {smartSignals &&
+            smartSignals.map((signal, idx) => (
+              <MySmartSignalCard
+                key={signal.id}
+                id={signal.id as number}
+                title={signal.name}
+                description={signal.description}
+                conditions={JSON.parse(signal.condition)}
+                hasInAppNotifications={true}
+                hasEmailNotifications={true}
+                lastUpdated={signal.updated_at}
+              />
+            ))}
+        </RenderIf>
+      </div>
     </div>
   );
 };

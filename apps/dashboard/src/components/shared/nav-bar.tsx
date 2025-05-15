@@ -1,3 +1,4 @@
+"use client";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import FomoedIcon from "../icons/FomoedIcon";
@@ -26,7 +27,7 @@ const links = [
 const NavBar = () => {
   const path = usePathname();
   return (
-    <div className="w-full max-w-[590px] h-[60px] mx-auto mt-4 p-[0.4px] rounded-[15px] nav-bar-gradient">
+    <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[590px] h-[60px] mx-auto mt-4 p-[0.4px] rounded-[15px] nav-bar-gradient">
       <div className="flex items-center h-full w-full rounded-[15px] bg-background px-6 py-3.5">
         <FomoedIcon />
         <div className="flex items-center gap-4 ml-6">

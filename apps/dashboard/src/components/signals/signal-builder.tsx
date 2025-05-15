@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@/components/ui/button";
 
 import { LoaderCircle } from "lucide-react";
@@ -87,13 +88,6 @@ const SignalBuilder = ({}) => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-medium text-xl mt-5">Signal Conditions</h1>
-        <h2 className="font-medium text-muted-foreground">
-          Build your Smart signals
-        </h2>
-      </div>
-
       <AISignalPromptInput onAiPromptResponse={handleAIBuilderResponse} />
 
       <ManualSignalBuilder

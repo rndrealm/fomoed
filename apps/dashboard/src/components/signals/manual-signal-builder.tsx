@@ -84,7 +84,6 @@ function jsonLogicToGroup(logic: any, isRoot = true): any {
 }
 
 type ManualSignalBuilderProps = {
-  editMode?: boolean;
   initialLogic?: object | null;
   setLogic: (logic: object | null) => void;
 };
@@ -102,7 +101,6 @@ const toJsonLogic = (group: Group): any => {
 };
 
 const ManualSignalBuilder = ({
-  editMode = false,
   initialLogic,
   setLogic,
 }: ManualSignalBuilderProps) => {
