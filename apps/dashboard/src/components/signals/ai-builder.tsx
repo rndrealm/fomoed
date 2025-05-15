@@ -112,7 +112,6 @@ const AISignalBuilder: React.FC<AISignalBuilderProps> = ({
           <ManualSignalBuilder
             initialLogic={condition}
             setLogic={setCondition}
-            editMode={true}
           />
         )}
       </CardContent>

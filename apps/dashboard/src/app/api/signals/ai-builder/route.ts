@@ -3,48 +3,7 @@ import { generateObject } from "ai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-// Recursive JSON-logic schema for signal conditions
-// export const JsonLogicSchema: z.ZodType<any> = z.lazy(
-//   (): z.ZodType<any> =>
-//     z.union([
-//       // Logical group: { and: [ ... ] } or { or: [ ... ] }
-//       z.object({
-//         and: z.array(JsonLogicSchema),
-//       }),
-//       z.object({
-//         or: z.array(JsonLogicSchema),
-//       }),
-//       // Comparison: { ">": [number|string, { topic: [string, string] }] }
-//       z.object({
-//         ">": z.tuple([
-//           z.union([z.number(), z.string()]),
-//           z.object({ topic: z.tuple([z.string(), z.string()]) }),
-//         ]),
-//       }),
-//       z.object({
-//         "<": z.tuple([
-//           z.union([z.number(), z.string()]),
-//           z.object({ topic: z.tuple([z.string(), z.string()]) }),
-//         ]),
-//       }),
-//       z.object({
-//         "==": z.tuple([
-//           z.union([z.number(), z.string()]),
-//           z.object({ topic: z.tuple([z.string(), z.string()]) }),
-//         ]),
-//       }),
-//       z.object({
-//         "!=": z.tuple([
-//           z.union([z.number(), z.string()]),
-//           z.object({ topic: z.tuple([z.string(), z.string()]) }),
-//         ]),
-//       }),
-//       // Optionally allow boolean literals (JSON-logic supports this)
-//       z.boolean(),
-//     ])
-// );
-
-export const SignalAISchema = z.object({
+const SignalAISchema = z.object({
   success: z.literal(true),
   signal: z.object({
     name: z.string().min(1),
@@ -55,7 +14,7 @@ export const SignalAISchema = z.object({
 });
 
 // System prompt for the LLM
-export const aiPrompt = `
+const aiPrompt = `
 You are an expert at creating crypto trading signals using JSON-logic. 
 Given a user's request, generate a JSON object with the following structure:
 

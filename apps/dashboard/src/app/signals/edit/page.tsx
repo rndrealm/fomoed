@@ -1,7 +1,12 @@
 import SmartSignalsEdit from "@/screens/signals/SmartSignalsEdit";
+import { Suspense } from "react";
 
 const Page = () => {
-  return <SmartSignalsEdit />;
+  return (
+    <Suspense>
+      <SmartSignalsEdit />
+    </Suspense>
+  );
 };
 
 export default Page;
