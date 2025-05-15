@@ -101,8 +101,8 @@ sentiment analysis"
 		images: [
 			{
 				url: 'https://legacy-dev.fomoed.io/og3.png',
-				width: 1200,
-				height: 630,
+				// width: 1200,
+				// height: 630,
 				alt: `Fomoed`
 			}
 		],
