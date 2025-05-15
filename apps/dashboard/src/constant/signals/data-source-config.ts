@@ -1,5 +1,6 @@
 import { CFGIConfig } from "@/components/signals/data-configs/CFGIConfig";
 import { PriceTickerConfig } from "@/components/signals/data-configs/PriceTickerConfig";
+import { YouTubeChannelConfig } from "@/components/signals/data-configs/YouTubeChannelConfig";
 
 export type DataSource = {
   name: string;
@@ -28,6 +29,10 @@ export const signalDataSources: SignalDataSourceGroup[] = [
       { name: "MACD", id: "macd" },
     ],
   },
+  {
+    group: "Social Sentiment",
+    dataSources: [{ name: "YouTube Streaming Status", id: "youtube" }],
+  },
 ];
 
 export const topicSelectorMap: Record<
@@ -38,14 +43,22 @@ export const topicSelectorMap: Record<
       onChange: (value: string) => void;
     }>;
     allowedOperators: string[];
+    valueType: "string" | "number" | "boolean";
   }
 > = {
   price: {
     component: PriceTickerConfig,
     allowedOperators: [">", "<", "==", "!="],
+    valueType: "number",
   },
   cfgi: {
     component: CFGIConfig,
     allowedOperators: [">", "<", "==", "!="],
+    valueType: "number",
+  },
+  youtube: {
+    component: YouTubeChannelConfig,
+    allowedOperators: ["==", "!="],
+    valueType: "boolean",
   },
 };

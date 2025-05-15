@@ -11,7 +11,7 @@ export type Condition = {
   dataSource: string | null;
   topic: string | null;
   operator: string | null;
-  value: string | null;
+  value: string | number | boolean | null;
 };
 
 export type Group = {

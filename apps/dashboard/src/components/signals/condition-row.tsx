@@ -36,6 +36,13 @@ const ConditionRow = ({
     return [];
   }, [condition.dataSource]);
 
+  const valueType = useMemo(() => {
+    if (condition.dataSource) {
+      return topicSelectorMap[condition.dataSource]?.valueType || null;
+    }
+    return null;
+  }, [condition.dataSource]);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       <SignalDataSourceSelector
@@ -71,13 +78,34 @@ const ConditionRow = ({
       <div className="flex items-center gap-4">
         <div className="flex flex-col">
           <Label className="mb-2 text-muted-foreground">Value</Label>
-          <Input
-            type="number"
-            placeholder="Value"
-            className="w-fit"
-            value={condition.value || ""}
-            onChange={(e) => onChange({ ...condition, value: e.target.value })}
-          />
+          {(valueType === "number" || valueType === "string") && (
+            <Input
+              type={valueType}
+              placeholder="Value"
+              className="w-fit"
+              value={
+                typeof condition.value === "string" ||
+                typeof condition.value === "number"
+                  ? condition.value
+                  : ""
+              }
+              onChange={(e) =>
+                onChange({ ...condition, value: e.target.value })
+              }
+            />
+          )}
+
+          {valueType === "boolean" && (
+            <Button
+              variant="outline"
+              onClick={() =>
+                onChange({ ...condition, value: !condition.value })
+              }
+              className="w-fit flex-1 justify-between "
+            >
+              {condition.value ? "True" : "False"}
+            </Button>
+          )}
         </div>
         <Separator orientation="vertical" />
         {isRemovable && (
