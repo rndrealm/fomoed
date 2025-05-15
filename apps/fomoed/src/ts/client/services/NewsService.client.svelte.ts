@@ -66,6 +66,7 @@ export interface PostBookmarksMixin {
 export type AppNewsItem = NewsRow & PostLike;
 
 export class NewsService extends BaseService {
+	infiniteNews = writable<AppNewsItem[]>([]);
 	news = $state<AppNewsItem[]>([]);
 	popularNews = $state<AppNewsItem[]>([]);
 	newsLabPosts = $state<PostLike[]>([]);
@@ -78,13 +79,17 @@ export class NewsService extends BaseService {
 	filter: NewsFilterVal;
 	#kind: NewsKindVal;
 	#page: number;
+	#currency: string;
+	#search: string;
 
 	constructor() {
 		super();
 
 		this.filter = 'all';
 		this.#kind = 'news';
+		this.#search = '';
 		this.#page = 1;
+		this.#currency = '';
 	}
 
 	#transformNewsItem(item: NewsRow & PostLikesMixin & PostBookmarksMixin): AppNewsItem {
@@ -113,8 +118,9 @@ export class NewsService extends BaseService {
 
 		url.searchParams.set('page', this.#page.toString());
 		url.searchParams.set('filter', this.filter);
+		url.searchParams.set('search', this.#search);
 		url.searchParams.set('kind', this.#kind);
-		// url.searchParams.set('currencies', this.#currency);
+		url.searchParams.set('currencies', this.#currency);
 
 		const res = await fetch(url);
 
@@ -143,7 +149,14 @@ export class NewsService extends BaseService {
 			return;
 		}
 
-		this.news = data.map(this.#transformNewsItem);
+		const newArticles = data.map(this.#transformNewsItem);
+		this.news = newArticles;
+
+		this.infiniteNews.update((existing) => {
+			const existingIds = new Set(existing.map((a) => a.id));
+			const uniqueNew = newArticles.filter((a) => !existingIds.has(a.id));
+			return [...existing, ...uniqueNew];
+		});
 
 		this.currentPage = this.#page;
 
@@ -275,6 +288,14 @@ export class NewsService extends BaseService {
 			await this.fetchNews();
 		}
 	}
+	async setSearch(search: string) {
+		this.#search = search;
+		await this.fetchNews();
+	}
+
+	async setCurrency(currency: string) {
+		this.#currency = currency;
+	}
 
 	reset() {
 		this.news = [];
@@ -284,3 +305,4 @@ export class NewsService extends BaseService {
 }
 
 export const newsService = new NewsService();
+export const infiniteNews = newsService.infiniteNews;

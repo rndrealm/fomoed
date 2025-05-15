@@ -18,6 +18,7 @@
 	import toast from 'svelte-5-french-toast';
 	import NewsPath from '$lib/comps/NewsPath/NewsPath.svelte';
 	import type { PostLike } from '$ts/client/types/posts';
+	import CfgiWidgetV2 from '$lib/comps/CfgiWidget/CfgiWidgetV2.svelte';
 
 	const { base64originalUrl } = page.params;
 
@@ -66,7 +67,7 @@
 	});
 </script>
 
-<main class="pt-[80px] bg-[#000] min-h-screen">
+<main class="pt-[80px] bg-[#0c0c0c] min-h-screen">
 	<!-- <div
 		class="pb-4 pt-4 fixed bg-[#0e0e0e55] w-full shadow-xl backdrop-blur-xl backdrop-brightness-[0.3] z-50"
 	>
@@ -115,7 +116,7 @@
 					</div>
 				{/if} -->
 				<div class="h-full w-[700px] lg:block hidden">
-					<CfgiWidget />
+					<CfgiWidgetV2 />
 				</div>
 			</div>
 		{:else}

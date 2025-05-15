@@ -44,7 +44,7 @@ export async function fetchCoinglassSupportedPairs() {
 
 	const res = await fetch(url, options);
 	const data = await res.json();
-
+	console.log('coinglass supported pairs', data);
 	if (!res.ok || !data.success) {
 		console.error(data);
 	}

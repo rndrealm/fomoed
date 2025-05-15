@@ -5,23 +5,23 @@
 	import Time from 'svelte-time/Time.svelte';
 	import { active_sub } from '$lib/stores/subs';
 	import BorderedProfileImage from './BorderedProfileImage.svelte';
-	import { displayLogoutPopup } from '$lib/stores/ui';
 	import { ClientSubscriptionManager } from '$ts/utils/client/plans';
 
-	let { absolute = true } = $props();
+	let { absolute = true, onClickLogout }: { absolute: boolean; onClickLogout: () => void } =
+		$props();
 
 	let currentActivePlan = $derived(ClientSubscriptionManager.currentActivePlan);
 </script>
 
 <div
-	class="w-[200px] h-[260px] bg-[#0F0D0DE5] border-[#FFFFFF1A] rounded-[10px] pt-[17px] flex flex-col items-center right-0 top-0 border backdrop-blur-lg z-40"
+	class="w-[200px] h-[260px] bg-[#0F0D0DE5] border-[#FFFFFF1A] rounded-[10px] pt-[17px] flex flex-col items-center right-0 top-0 border backdrop-blur-lg z-[1100] relative"
 	class:absolute
 >
 	<div class="w-[62px]">
 		<BorderedProfileImage />
 	</div>
 
-	<div class="pt-[6px] text-[18px] font-paralucent-demibold">
+	<div class="pt-[6px] text-[18px] font-paralucent-demibold text-white">
 		{$auth_user?.username || $auth_email?.substring(0, 8) + '...'}
 	</div>
 	<div class="text-[#FFFFFF99] text-xs">{$auth_email}</div>
@@ -49,7 +49,9 @@
 	<div class="flex-grow"></div>
 
 	<button
-		onclick={() => displayLogoutPopup.set(true)}
+		onclick={() => {
+			onClickLogout();
+		}}
 		class="flex gap-x-3 text-start w-full py-3 px-[15px] hover:bg-[#FFFFFF0D] group"
 	>
 		<img
@@ -60,6 +62,8 @@
 			class="group-active:opacity-40"
 		/>
 
-		<div class="text-xs font-switzer font-medium group-active:text-[#FFFFFF66]">Log out</div>
+		<div class="text-xs font-switzer font-medium text-[#FFFFFF99] group-active:text-[#FFFFFF66]">
+			Log out
+		</div>
 	</button>
 </div>

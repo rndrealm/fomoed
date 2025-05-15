@@ -24,3 +24,6 @@ export type NewsKindVal = (typeof newsKindVals)[number];
 
 const planIds = ['plus', 'pro'] as const;
 export type PlanId = (typeof planIds)[number];
+
+export type DropdownOption = { value: any; label: string };
+export type SocketStatus = 'connecting' | 'connected' | 'disconnected';

@@ -33,7 +33,7 @@
 	let loading: boolean;
 </script>
 
-<div class="h-full w-full overflow-hidden relative">
+<div class="relative w-full h-full overflow-hidden">
 	<DashboardCard isChartCard {hideCard}>
 		{#if !$enablePlusFeatures}
 			<div class="absolute inset-px">
@@ -41,7 +41,7 @@
 			</div>
 		{/if}
 
-		<div class="flex flex-col h-full w-full">
+		<div class="flex flex-col w-full h-full">
 			<div
 				class="flex items-center w-full -desktop:flex-col -desktop:items-start px-[30px] -desktop:px-4"
 			>
@@ -61,14 +61,13 @@
 				</div>
 			</div>
 
-			<div class="flex-grow-0 mt-4 -desktop:mt-6 px-[30px] -desktop:px-4">
-				<Legend legends={[{ color: '#399F57', label: 'Crypto Fear & Greed Index' }]}></Legend>
-			</div>
-
 			<div class="flex-grow desktop:px-[30px]">
 				<InCardChartContainer {loading}>
 					<SimpleCfgiChart bind:chart bind:loading daysBack={selectedDuration.value} />
 				</InCardChartContainer>
+			</div>
+			<div class="flex-grow-0 mt-4 -desktop:mt-6 px-[30px] -desktop:px-4">
+				<Legend legends={[{ color: '#399F57', label: 'Crypto Fear & Greed Index' }]}></Legend>
 			</div>
 		</div>
 	</DashboardCard>

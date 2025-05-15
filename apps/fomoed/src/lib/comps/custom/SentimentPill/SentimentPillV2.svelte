@@ -10,9 +10,10 @@
 	let { sentiment, class: customClass = '' }: Props = $props();
 </script>
 
-<span
+<div
 	class:hidden={sentiment === 'neutral'}
-	class="px-6 text-[13px] font-medium py-0.5 text-xs rounded-full {sentiment === 'bullish'
+	class="px-0 flex justify-center text-[13px] font-medium py-1 w-[61px] text-xs border border-[#1E1E1E] rounded-[8px] {sentiment ===
+	'bullish'
 		? 'bg-transparent'
 		: sentiment === 'bearish'
 			? 'bg-transparent'
@@ -20,4 +21,4 @@
 	style="color: {getSentimentTextColor(sentiment)};"
 >
 	{capitalize(sentiment)}
-</span>
+</div>

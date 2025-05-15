@@ -14,16 +14,14 @@
 	import _ from 'lodash-es';
 	import SocialButton from './buttons/SocialButton.svelte';
 	import X from '$lib/icons/social/X.svelte';
-	import Facebook from '$lib/icons/social/Facebook.svelte';
-	import Telegram from '$lib/icons/social/Telegram.svelte';
-	import Copy from '$lib/icons/social/Copy.svelte';
 	import { fade } from 'svelte/transition';
-	import LoadingAnim from './animations/LoadingAnim.svelte';
-	import GaugeV2 from './indicator/GaugeV2.svelte';
-	import { enableXmas } from '$ts/utils/client/ui';
 	import Meta from '$lib/icons/social/Meta.svelte';
 	import Send from '$lib/icons/social/Send.svelte';
 	import CopyV2 from '$lib/icons/social/CopyV2.svelte';
+	import FearLogo from '$lib/icons/FearLogo.svelte';
+	import GaugeV3 from './indicator/GaugeV3.svelte';
+	import { tweened } from 'svelte/motion';
+	import { cubicOut } from 'svelte/easing';
 
 	export let onHomepage = false;
 	export let prev = 0;
@@ -33,17 +31,7 @@
 	$: background = 'transparent';
 
 	$: marketSentiment = get_data_label(percentage);
-	$: color = get_data_color(percentage);
 	$: fomoed_score_color = get_data_color($aped_score);
-
-	$: iconIdx = get_data_index(percentage);
-
-	const icons = [
-		'indicator-meme-4.png',
-		'indicator-meme-3.png',
-		'indicator-meme-2.png',
-		'indicator-meme-1.png'
-	];
 
 	cfgi_summary.subscribe((data) => {
 		if (!data) return;
@@ -171,98 +159,73 @@
 	});
 
 	let loadingIsOut = false;
+
+	let scaleValue = 0;
+
+	$: scaleValue = Math.min(Math.max(0.75 + (percentage / 100) * 0.25, 0.75), 1);
 </script>
 
 <div
 	style:background
-	class="w-ful {onHomepage ? 'rounded-[30px]' : 'rounded-[26px]'}  flex flex-col"
+	class="w-full {onHomepage ? 'rounded-[30px]' : 'rounded-[26px]'}  flex flex-col"
 >
 	<div class="flex flex-col">
 		<div class="relative w-full">
 			<div class="relative flex items-center justify-center">
-				<div
-					class="absolute top-0 left-0 flex flex-col justify-center pl-[51px] gap-1 h-full duration-500"
-					class:opacity-0={!$cfgi_summary}
-				>
-					<div class="font-medium text-center">
-						<div class="text-[9px] opacity-60">Prev</div>
-						<div class="opacity-80 font-paralucent font-medium text-[10px]">{prev}</div>
-					</div>
-
-					<div class="font-medium text-center">
-						<div class="text-[9px] opacity-60">Average</div>
-						<div class="opacity-80 font-paralucent text-[10px]">{average}</div>
-					</div>
-				</div>
-				<GaugeV2 percentage={$cfgi_summary ? percentage : 0} />
+				<GaugeV3 percentage={$cfgi_summary ? percentage : 0} />
 			</div>
 
-			<div class="absolute inset-x-0 flex items-center justify-center bottom-8">
+			<div class="absolute inset-x-0 flex items-center justify-center -bottom-[80px]">
 				<div class="relative">
-					<!-- <img
-						class:opacity-0={!$cfgi_summary}
-						src="/images/{icons[iconIdx]}"
-						alt=""
-						class="max-w-[92px] max-h-[124px]"
-					/> -->
+					<div class="relative flex justify-center py-[12px] pl-[12px] pr-[8px]">
+						<div
+							class="absolute top-0 left-0 w-full h-full test_gradient"
+							style="transform: scale({scaleValue}); transition: transform 3s ease; transition-delay: 0.5s;"
+							class:opacity-0={!percentage}
+						></div>
+						<div class="relative">
+							<FearLogo />
+						</div>
+					</div>
 
-					<div class="text-[48px] leading-[40px] font-mono font-normal" style:color>
+					<div
+						class="text-[48px] leading-[40px] font-mono font-normal text-white mt-6 flex justify-center"
+					>
 						{percentage}
 					</div>
-
-					<!-- {#if enableXmas}
-						<div
-							style="background-image: url(/images/xmas/hat.svg); aspect-ratio: 97/59;"
-							class="absolute inset-x-0 z-30 -translate-x-3 -top-5"
-						></div>
-					{/if} -->
-				</div>
-
-				<!-- {#if !$cfgi_summary}
-					<div class="absolute w-full">
-						<LoadingAnim />
+					<div
+						class="flex justify-center mt-1 text-sm font-semibold text-white uppercase font-inter"
+					>
+						{marketSentiment}
 					</div>
-				{/if} -->
+				</div>
 			</div>
 
 			<div
-				class="flex justify-between duration-500 max-w-[169px] w-full mx-auto absolute inset-x-0 bottom-0"
+				class="flex justify-between duration-500 max-w-[290px] w-full mx-auto absolute inset-x-0 -bottom-14"
 				class:opacity-0={!$cfgi_summary}
 			>
 				<div>
-					<div class="text-xs font-medium opacity-60">Fear</div>
+					<div class="text-xs font-medium">
+						<h3 class="text-[10px] opacity-60">Prev</h3>
+						<p class="text-base">{prev}</p>
+					</div>
 				</div>
 
 				<div class="">
-					<div class="text-xs font-medium opacity-60">Greed</div>
+					<div class="text-xs font-medium">
+						<h3 class="opacity-60 text-[10px]">Avg</h3>
+						<p class="text-base text-right">{average}</p>
+					</div>
 				</div>
 			</div>
 		</div>
 
-		<!-- <div
-			class="grid grid-cols-[1fr_2fr_1fr] justify-between px-[28px] duration-500"
-			class:opacity-0={!$cfgi_summary}
-		>
-			<div>
-				<div class="text-xs opacity-60">Prev</div>
-				<div class="opacity-80 font-paralucent font-medium text-[18px]">{prev}</div>
-			</div>
-
-			<div class="text-center">
-				<div class="text-lg font-medium opacity-80 font-paralucent">{marketSentiment}</div>
-			</div>
-
-			<div class="text-right">
-				<div class="text-xs opacity-60">Average</div>
-				<div class="opacity-80 font-paralucent font-medium text-[18px]">{average}</div>
-			</div>
-		</div> -->
-
-		<div class="mt-10">
+		<div class="hidden mt-10">
 			<div class="h-[1px] bg-white opacity-10"></div>
 		</div>
 
-		<div class="flex flex-col mb-0 justify-evenly">
+		<div class="flex-col hidden mb-0 justify-evenly">
 			{#if $loading}
 				<div
 					in:fade

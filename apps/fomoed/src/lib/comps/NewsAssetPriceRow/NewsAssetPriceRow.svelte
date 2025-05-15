@@ -35,19 +35,16 @@
 
 	function startAutoScroll() {
 		let scrollPosition = 0;
-		// Direction: 1 = right, -1 = left
-		let direction = 1;
+		// Scrolling speed (adjust as needed)
+		const scrollSpeed = 0.5;
 
 		const scroll = () => {
 			if (!isPaused && scrollContainer) {
-				// Adjust scrolling speed here (0.5 is a moderate speed)
-				scrollPosition += 0.5 * direction;
+				scrollPosition += scrollSpeed;
 
-				// Change direction when reaching either end
-				if (scrollPosition >= scrollContainer.scrollWidth - scrollContainer.clientWidth) {
-					direction = -1; // Start scrolling left
-				} else if (scrollPosition <= 0) {
-					direction = 1; // Start scrolling right
+				// Seamless loop logic
+				if (scrollPosition >= scrollContainer.scrollWidth / 2) {
+					scrollPosition = 0; // Reset to the start of the duplicated content
 				}
 
 				scrollContainer.scrollLeft = scrollPosition;
@@ -68,7 +65,6 @@
 
 	onMount(() => {
 		// Start automatic scrolling after component is mounted
-		console.log('mounted');
 		if (symbolDatas.length > 0) {
 			startAutoScroll();
 		}
@@ -93,12 +89,18 @@
 <!-- Asset price row -->
 <div
 	bind:this={scrollContainer}
-	class="flex h-16 mt-5 overflow-x-auto gap-x-4 no-scrollbar"
+	class="flex h-16 mt-0 overflow-x-auto md:mt-5 gap-x-4 no-scrollbar"
 	onmouseenter={handleMouseEnter}
 	onmouseleave={handleMouseLeave}
 	role="list"
 >
+	<!-- Original content -->
 	{#each symbolDatas as asset (asset.id)}
+		{@render assetBlock(asset)}
+	{/each}
+
+	<!-- Duplicated content for seamless looping -->
+	{#each symbolDatas as asset (asset.id + '-duplicate')}
 		{@render assetBlock(asset)}
 	{/each}
 </div>

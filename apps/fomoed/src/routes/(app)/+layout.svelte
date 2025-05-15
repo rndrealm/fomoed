@@ -20,6 +20,7 @@
 	import SignOutPopup from '$lib/comps/popups/SignOutPopup.svelte';
 	import { signOut } from '$lib/utils/user.js';
 	import { supabaseStore } from '$ts/client/utils/supabase.svelte';
+	import { Toaster } from 'svelte-5-french-toast';
 
 	// const supabase = getContext<SupabaseClient>('supabase');
 
@@ -85,6 +86,8 @@
 	$: ((supabase) => browser && setContext('supabase', supabase))(supabase);
 
 	$: supabaseStore.set(supabase);
+
+	$: console.log('display logout popup:', $displayLogoutPopup);
 </script>
 
 <MetaTags
@@ -97,9 +100,9 @@ sentiment analysis"
 		url: $page.url.href,
 		images: [
 			{
-				url: '/fomoed2.png',
-				width: 205,
-				height: 50,
+				url: '/og2.png',
+				width: 1200,
+				height: 630,
 				alt: `Fomoed`
 			}
 		],
@@ -112,7 +115,7 @@ sentiment analysis"
 		title: `Fomoed`,
 		description:
 			'Fomoed provides a toolset for effortlessly navigating the emotional rollercoaster that is crypto. Have complete access to your favorite Altcoins and get precise data-based market sentiment analysis',
-		image: '/fomoed2.png',
+		image: '/og2.png',
 		imageAlt: `Fomoed`
 	}}
 />
@@ -126,6 +129,15 @@ sentiment analysis"
 
 <svelte:window bind:innerWidth={$innerWidth} bind:innerHeight={$innerHeight} />
 
+{#if $mobileMenuOpen && !$displayLogoutPopup}
+	<MobileMenu />
+{/if}
+
+<SvelteToast />
+<Toaster />
+
+<slot />
+
 {#if $displayLogoutPopup}
 	<SignOutPopup
 		on:sign-out={async () => {
@@ -135,11 +147,3 @@ sentiment analysis"
 		on:cancel={() => displayLogoutPopup.set(false)}
 	/>
 {/if}
-
-{#if $mobileMenuOpen && !$displayLogoutPopup}
-	<MobileMenu />
-{/if}
-
-<SvelteToast />
-
-<slot />

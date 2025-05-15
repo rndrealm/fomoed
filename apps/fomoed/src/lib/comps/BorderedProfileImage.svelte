@@ -1,5 +1,7 @@
 <script>
+	import ProfileIcon from '$lib/icons/ProfileIcon.svelte';
 	import { auth_user } from '$lib/stores/user';
+	import { userService } from '$ts/client/services/UserService.svelte';
 
 	$: premium = $auth_user?.has_valid_sub;
 </script>
@@ -7,16 +9,16 @@
 <div
 	id="profile-img-container"
 	class:premium
-	class="bg-[#221F1D] aspect-square grid place-items-center rounded-[15%] overflow-hidden border border-transparent relative"
+	class="bg-[#221F1D] aspect-square grid place-items-center rounded-[50%] overflow-hidden border border-transparent relative"
 >
-	<img src="/images/indicator-meme-5.png" class="w-[65%]" alt="Arrow right" />
-
-	{#if premium}
+	{#if userService.authUser}
 		<img
-			class="absolute left-[2.5%] bottom-[2.5%] w-[20%] aspect-square z-10"
-			src="/icons/star.svg"
+			src={userService.authUser.user_metadata.avatar_url}
 			alt=""
+			class="rounded-full w-full aspect-square object-cover"
 		/>
+	{:else}
+		<ProfileIcon />
 	{/if}
 </div>
 

@@ -6,7 +6,7 @@
 </script>
 
 <a
-	href="/dashboard"
+	href="/"
 	class="px-4 h-[40px] transition-colors rounded-full border border-[#2B2B2B] font-inter font-semibold inline-flex items-center gap-x-2 text-sm"
 >
 	<DashboardIcon />

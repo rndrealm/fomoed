@@ -50,7 +50,9 @@
 
 	async function loadExchangeOptions() {
 		const suppExchangePairs = await getCacheOrFetchSupportedExchangePairs();
+		// console.log('supportedExchangePairs', suppExchangePairs);
 		const options = supportedExchangePairsToOptions(suppExchangePairs);
+		// console.log('options', options);
 
 		// Filter by selected coin
 		const filtered = options.filter((o) => o.value.baseAsset === symbol);
@@ -85,7 +87,7 @@
 		($selectedExchangeOption?.value.quoteAsset || 'USDT');
 </script>
 
-<div class="h-full w-full overflow-hidden relative">
+<div class="relative w-full h-full overflow-hidden">
 	<DashboardCard isChartCard {hideCard}>
 		{#if !$enablePlusFeatures}
 			<div class="absolute inset-px">
@@ -97,8 +99,10 @@
 			<DashboardCardHeader>
 				<DashboardCardTitle {title} subtitle="Liquidation Heatmap"></DashboardCardTitle>
 
-				<div class="col-span-2 -desktop:order-3 flex gap-x-2">
-					<div class="desktop:w-56 z-10 -desktop:w-32 h-14 -desktop:order-3 -desktop:flex-grow">
+				<div class="flex col-span-2 -desktop:order-3 gap-x-2">
+					<div
+						class="z-10 desktop:w-[210px] -desktop:w-32 h-[34px] -desktop:order-3 -desktop:flex-grow"
+					>
 						<Autocomplete
 							options={exchangeOptions}
 							bind:inputValue={$pairSearchTerm}
@@ -106,7 +110,7 @@
 						/>
 					</div>
 
-					<div class="w-32 z-10 h-14 -desktop:order-4">
+					<div class="z-10 w-32 h-[34px] -desktop:order-4">
 						<DropdownNew
 							options={timeframeOptions}
 							bind:selected={selectedTimeframe}
@@ -118,7 +122,7 @@
 					</div>
 				</div>
 
-				<div class="-desktop:order-2 place-self-end {$isFullscreenCardStore && 'pr-10'}">
+				<div class="-desktop:order-2 {$isFullscreenCardStore && 'pr-10'}">
 					<IconButton disabled={loading} on:click={refreshData}>
 						<div class:animate-reverse-spin={loading}>
 							<IconRefresh />
@@ -127,16 +131,7 @@
 				</div>
 			</DashboardCardHeader>
 
-			<div class="px-[30px] -desktop:px-4 pb-3 pt-3 desktop:pl-32">
-				<Legend
-					legends={[
-						{ color: '#440253', label: 'Liquidation Leverage' },
-						{ color: '#0DCB81', label: 'Supercharts' }
-					]}
-				></Legend>
-			</div>
-
-			<div class="flex-grow gap-x-4 pl-5">
+			<div class="flex-grow px-5 mt-5 gap-x-4">
 				<InCardChartContainer {loading}>
 					<LiqHeatmapChart
 						bind:chart
@@ -147,6 +142,14 @@
 						symbol={$selectedExchangeOption?.value.instrumentId}
 					/>
 				</InCardChartContainer>
+			</div>
+			<div class="px-[30px] -desktop:px-4 pb-3 pt-3 desktop:pl-8">
+				<Legend
+					legends={[
+						{ color: '#440253', label: 'Liquidation Leverage' },
+						{ color: '#0DCB81', label: 'Supercharts' }
+					]}
+				></Legend>
 			</div>
 		</div>
 	</DashboardCard>

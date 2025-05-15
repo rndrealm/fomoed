@@ -15,9 +15,9 @@ import { ExchangePairOption } from "@/charts/types";
 import { formatLiquidationData, formatMergetLiquidMapData } from "./helpers";
 
 export const useReadCfgiData = (
-  token: string,
-  period: string,
-  token_slug: string
+  token?: string,
+  period?: string,
+  token_slug?: string
 ) => {
   const hash = ["cfgi", token, period, token_slug];
   const { data, isPending, error, isSuccess } = useQuery<CfgiDataResponse[]>({
@@ -39,7 +39,7 @@ export const useReadCfgiData = (
 };
 
 export const useReadCoinList = () => {
-  const hash = ["coinList"];
+  const hash = ["coin-list"];
   const { data, isPending, error, isSuccess } = useQuery({
     queryKey: hash,
     queryFn: async () => {
@@ -97,11 +97,11 @@ export const useGetSupportedxchangePairs = () => {
 };
 
 export const useFetchLiquidMapData = (
-  timeframe: string,
-  exchange: string,
-  instrumentId: string,
-  baseAsset: string,
-  quoteAsset: string
+  timeframe?: string,
+  exchange?: string,
+  instrumentId?: string,
+  baseAsset?: string,
+  quoteAsset?: string
 ) => {
   const hash = [
     "get-liquid-map",
@@ -141,9 +141,9 @@ export const useFetchLiquidMapData = (
 };
 
 export const useFetchLiquidHeatMapData = (
-  timeframe: string,
-  exchange: string,
-  symbol: string
+  timeframe?: string,
+  exchange?: string,
+  symbol?: string
 ) => {
   const hash = ["get-liquid-heat-map", timeframe, exchange, symbol];
   const { data, isPending, error, isSuccess } = useQuery<LiquidHeatmapResponse>(
@@ -167,7 +167,10 @@ export const useFetchLiquidHeatMapData = (
     error,
   };
 };
-export const useFetchLiquidDataMerged = (timeframe: string, asset: string) => {
+export const useFetchLiquidDataMerged = (
+  timeframe?: string,
+  asset?: string
+) => {
   const hash = ["get-liquid-exchange-map", timeframe, asset];
   const { data, isPending, error, isSuccess } =
     useQuery<LiquidExchangeResponse>({

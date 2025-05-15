@@ -1,11 +1,11 @@
 import QueryProvider from "@/components/providers/QueryProvider";
-import { ThemeProvider } from "@/components/providers/ThemeProvideer";
 import { Toaster } from "@/components/ui/sonner";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import "./globals.css";
 
+import { UserProvider } from "@/components/providers/UserProvider";
 import "../../node_modules/react-grid-layout/css/styles.css";
 
 const geistSans = Geist({
@@ -19,8 +19,28 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Fomoed Dashbaords",
-  description: "Everything you need.",
+  title: "Fomoed",
+  description:
+    "Navigate crypto emotions, access Altcoins, and get precise market sentiment analysis effortlessly.",
+  keywords: [
+    "web3",
+    "ethereum",
+    "crypto",
+    "wallet",
+    "swap",
+    "bridge",
+    "btc",
+    "trading",
+    "defi",
+    "dashboard",
+    "cfgi",
+    "news",
+  ],
+  creator: "IDS",
+  metadataBase: new URL("https://fomoed.io"),
+  openGraph: {
+    images: "/og2.png",
+  },
 };
 
 export default function RootLayout({
@@ -40,16 +60,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased h-full`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          disableTransitionOnChange
-        >
-          <QueryProvider>
-            <NuqsAdapter>{children}</NuqsAdapter>
-          </QueryProvider>
-          <Toaster />
-        </ThemeProvider>
+        <QueryProvider>
+          <NuqsAdapter>
+            <UserProvider>{children}</UserProvider>
+          </NuqsAdapter>
+        </QueryProvider>
+        <Toaster />
       </body>
     </html>
   );

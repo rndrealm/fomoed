@@ -89,7 +89,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ data: { liquidationData, pairMarketData } });
   } catch (error) {
     // Handle errors gracefully
-    console.error("Error fetching liquidation data:", error);
+    console.log("Error fetching liquidation data:", error);
     return NextResponse.json(
       { error: "Failed to fetch Liquidation data" },
       { status: 500 }
