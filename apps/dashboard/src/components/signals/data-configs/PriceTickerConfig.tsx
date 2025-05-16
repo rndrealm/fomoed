@@ -44,7 +44,7 @@ export function PriceTickerConfig({ value, onChange }: PriceTickerConfigProps) {
   }, []);
 
   return (
-    <div className="w-full">
+    <div className="w-full full">
       <Label className="mb-2 text-muted-foreground">Symbol</Label>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
@@ -67,7 +67,7 @@ export function PriceTickerConfig({ value, onChange }: PriceTickerConfigProps) {
               placeholder="Search symbol..."
               className="px-4 py-2"
             />
-            <CommandList>
+            <CommandList className="bg-[#2A2A2A] ">
               <CommandEmpty>No symbol found.</CommandEmpty>
               <CommandGroup>
                 {products.map((product) => (

@@ -37,7 +37,7 @@ const NavBar = () => {
               key={link.name}
               className={cn(
                 "flex items-center gap-2 text-sm font-medium text-white",
-                path === link.path ? "text-white" : "text-[#737373]"
+                path.startsWith(link.path) ? "text-white" : "text-[#737373]"
               )}
             >
               {link.icon}

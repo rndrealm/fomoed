@@ -31,7 +31,16 @@ const MySignals = () => {
 
   return (
     <div>
-      <div className="w-full grid grid-cols-2 gap-5 mt-4">
+      <div className="flex items-center justify-between my-6">
+        <h1 className="font-medium text-xl">My Smart Signals</h1>
+
+        <button className="bg-fomoed-red text-white px-2 py-1 rounded flex items-center text-sm">
+          <Plus size={12} />
+          New Signal
+        </button>
+      </div>
+
+      <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-5 mt-4">
         <RenderIf condition={isFetched && smartSignals.length === 0}>
           <EmptyState />
         </RenderIf>

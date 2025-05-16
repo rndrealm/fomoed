@@ -87,34 +87,48 @@ const SignalBuilder = ({}) => {
   };
 
   return (
-    <div className="space-y-6">
-      <AISignalPromptInput onAiPromptResponse={handleAIBuilderResponse} />
-
-      <ManualSignalBuilder
-        key={updateCount}
-        initialLogic={condition}
-        setLogic={setCondition}
-      />
-
-      <NotificationSettings
-        notifications={signalActions}
-        onUpdate={setSignalActions}
-      />
-
-      <SignalDetails
-        name={signalName}
-        description={signalDescription}
-        onNameChange={setSignalName}
-        onDescriptionChange={setSignalDescription}
-      />
-
-      <div className="flex justify-end gap-3">
-        <Button disabled={isPending} onClick={handleSave}>
-          {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
-          Save Signal
-        </Button>
+    <>
+      <div className="my-6">
+        <h1 className="font-medium text-xl mt-5">Signal Conditions</h1>
+        <h2 className="font-medium text-muted-foreground">
+          Build your Smart signals
+        </h2>
       </div>
-    </div>
+      <div className="space-y-6">
+        <AISignalPromptInput onAiPromptResponse={handleAIBuilderResponse} />
+
+        <ManualSignalBuilder
+          key={updateCount}
+          initialLogic={condition}
+          setLogic={setCondition}
+        />
+
+        <NotificationSettings
+          notifications={signalActions}
+          onUpdate={setSignalActions}
+        />
+
+        <SignalDetails
+          name={signalName}
+          description={signalDescription}
+          onNameChange={setSignalName}
+          onDescriptionChange={setSignalDescription}
+        />
+
+        <div className="flex justify-end gap-3">
+          <Button
+            className="bg-fomoed-red text-white hover:bg-fomoed-red/80"
+            disabled={isPending}
+            onClick={handleSave}
+          >
+            {isPending && (
+              <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+            )}
+            Save Signal
+          </Button>
+        </div>
+      </div>
+    </>
   );
 };
 

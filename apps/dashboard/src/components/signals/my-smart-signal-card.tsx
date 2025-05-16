@@ -15,7 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import dayjs from "dayjs";
-import { Bell, Copy, Mail, MoreVertical, Pencil, Trash } from "lucide-react";
+import { Bell, Mail, MoreVertical, Pencil, Trash } from "lucide-react";
 import { useMemo, useState } from "react";
 import { RenderIf } from "../shared";
 
@@ -139,13 +139,13 @@ export default function MySmartSignalCard({
                 <Pencil className="h-5 w-5 text-gray-400" />
                 <span>Edit Signal</span>
               </DropdownMenuItem>
-              <DropdownMenuItem
+              {/* <DropdownMenuItem
                 className="flex items-center gap-2 py-3 cursor-pointer focus:bg-zinc-800 focus:text-white"
                 onClick={onDuplicate}
               >
                 <Copy className="h-5 w-5 text-gray-400" />
                 <span>Duplicate Signal</span>
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
             </DropdownMenuContent>
           </DropdownMenu>
         </CardHeader>

@@ -76,7 +76,7 @@ const ConditionRow = ({
       />
 
       <div className="flex items-center gap-4">
-        <div className="flex flex-col">
+        <div className="flex flex-col w-full">
           <Label className="mb-2 text-muted-foreground">Value</Label>
           {(valueType === "number" || valueType === "string") && (
             <Input
@@ -104,6 +104,19 @@ const ConditionRow = ({
               className="w-fit flex-1 justify-between "
             >
               {condition.value ? "True" : "False"}
+            </Button>
+          )}
+
+          {!valueType && (
+            <Button
+              disabled
+              variant="outline"
+              onClick={() =>
+                onChange({ ...condition, value: !condition.value })
+              }
+              className="w-full grow justify-between "
+            >
+              Select value
             </Button>
           )}
         </div>

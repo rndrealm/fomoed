@@ -1,21 +1,27 @@
 "use client";
 
 import MySignals from "@/components/signals/my-smart-signals";
-import { Plus } from "lucide-react";
+import SignalBuilder from "@/components/signals/signal-builder";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function Home() {
   return (
     <div className="bg-black min-h-screen p-2 h-full w-full">
-      <div className="flex items-center justify-between my-6">
-        <h1 className="font-medium text-xl">My Smart Signals</h1>
+      <Tabs defaultValue="my-signals">
+        <TabsList className="grid w-full max-w-60 grid-cols-2 bg-[#0B0B0B]">
+          <TabsTrigger value={"my-signals"}>My Signals</TabsTrigger>
 
-        <button className="bg-fomoed-red text-white px-2 py-1 rounded flex items-center text-sm">
-          <Plus size={12} />
-          New Signal
-        </button>
-      </div>
+          <TabsTrigger value={"signal-builder"}>Signal Builder</TabsTrigger>
+        </TabsList>
 
-      <MySignals />
+        <TabsContent value="my-signals">
+          <MySignals />
+        </TabsContent>
+
+        <TabsContent value="signal-builder">
+          <SignalBuilder />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

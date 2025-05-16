@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -66,9 +65,10 @@ const SignalDetails = ({
             >
               Description
             </label>
+            {/* FIXME 
             <Button variant="ghost" size="sm" onClick={handleGenerateSummary}>
               Generate Summary
-            </Button>
+            </Button> */}
           </div>
           <Textarea
             id="signal-description"

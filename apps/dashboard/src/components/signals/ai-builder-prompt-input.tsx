@@ -93,6 +93,7 @@ const AISignalPromptInput: React.FC<AISignalBuilderProps> = ({
 
                           <Button
                             type="submit"
+                            className="bg-fomoed-red text-white   hover:bg-fomoed-red/80"
                             disabled={isPending || !prompt.trim()}
                           >
                             {isPending ? "Processing..." : "Generate"}

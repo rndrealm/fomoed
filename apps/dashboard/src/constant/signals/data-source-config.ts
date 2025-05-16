@@ -5,6 +5,7 @@ import { YouTubeChannelConfig } from "@/components/signals/data-configs/YouTubeC
 export type DataSource = {
   name: string;
   id: string;
+  disabled?: boolean;
 };
 
 export type SignalDataSourceGroup = {
@@ -18,15 +19,15 @@ export const signalDataSources: SignalDataSourceGroup[] = [
     dataSources: [
       { name: "Price", id: "price" },
       { name: "CFGI", id: "cfgi" },
-      { name: "Trading Volume", id: "volume" },
-      { name: "Market Capitalization", id: "market_cap" },
+      { name: "Trading Volume", id: "volume", disabled: true },
+      { name: "Market Capitalization", id: "market_cap", disabled: true },
     ],
   },
   {
     group: "Technical indicators",
     dataSources: [
-      { name: "RSI", id: "rsi" },
-      { name: "MACD", id: "macd" },
+      { name: "RSI", id: "rsi", disabled: true },
+      { name: "MACD", id: "macd", disabled: true },
     ],
   },
   {
