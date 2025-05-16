@@ -45,6 +45,7 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = ({
               id="email-notifications"
               checked={notifications.email}
               onCheckedChange={handleEmailToggle}
+              className="bg-fomoed-red"
             />
           </div>
 

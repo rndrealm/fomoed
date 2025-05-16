@@ -5,6 +5,8 @@ import FomoedIcon from "../icons/FomoedIcon";
 import NavBarDashboardIcon from "../icons/NavBarDashboardIcon";
 import NavBarNewsIcon from "../icons/NavBarNewsIcon";
 import NavBarSignalsIcon from "../icons/NavBarSignalsIcon";
+import NavbarProfileButton from "../ui/NavbarProfileButton";
+import { ProfileIcon } from "./profile-icon";
 
 const links = [
   {
@@ -28,7 +30,7 @@ const NavBar = () => {
   const path = usePathname();
   return (
     <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[590px] h-[60px] mx-auto mt-4 p-[0.4px] rounded-[15px] nav-bar-gradient">
-      <div className="flex items-center h-full w-full rounded-[15px] bg-background px-6 py-3.5">
+      <div className="flex items-center h-full w-full rounded-[15px] bg-black px-6 py-3.5">
         <FomoedIcon />
         <div className="flex items-center gap-4 ml-6">
           {links.map((link) => (
@@ -36,7 +38,7 @@ const NavBar = () => {
               href={link.path}
               key={link.name}
               className={cn(
-                "flex items-center gap-2 text-sm font-medium text-white",
+                "flex items-center gap-2 text-xs sm:text-sm font-medium text-white",
                 path.startsWith(link.path) ? "text-white" : "text-[#737373]"
               )}
             >
@@ -44,6 +46,12 @@ const NavBar = () => {
               <span className="font-medium">{link.name}</span>
             </a>
           ))}
+        </div>
+
+        <div className="w-[32px] h-[32px] overflow-hidden rounded-md ml-auto flex items-center justify-center cursor-pointer">
+          <NavbarProfileButton>
+            <ProfileIcon />
+          </NavbarProfileButton>
         </div>
       </div>
     </div>

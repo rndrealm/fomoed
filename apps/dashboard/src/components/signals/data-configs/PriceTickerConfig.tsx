@@ -61,13 +61,13 @@ export function PriceTickerConfig({ value, onChange }: PriceTickerConfigProps) {
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-full p-0 bg-[#222222] border-[#333333] text-white">
+        <PopoverContent className="w-full p-0">
           <Command>
             <CommandInput
               placeholder="Search symbol..."
               className="px-4 py-2"
             />
-            <CommandList className="bg-[#2A2A2A] ">
+            <CommandList className=" ">
               <CommandEmpty>No symbol found.</CommandEmpty>
               <CommandGroup>
                 {products.map((product) => (
