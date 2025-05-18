@@ -112,6 +112,8 @@ export const actions: Actions = {
 
 		await supabase.auth.resetPasswordForEmail(email, { redirectTo });
 
+		console.info('Sent password reset email to: ', email);
+
 		return redirect(303, '/auth/sent/password-reset?email=' + email);
 	}
 };
