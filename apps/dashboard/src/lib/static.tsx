@@ -24,6 +24,7 @@ import {
 } from "@/constant/cfgi-data";
 import TokenNewsWidget from "@/components/widgets/news/token-news/token-news-widget";
 import DexWidget from "@/components/widgets/dex/dex-widget";
+import CignalsWidget from "@/components/widgets/cignals/cignals-widget";
 
 export const layoutClassMap = {
   SinglePane: "grid-rows-1 grid-cols-1",
@@ -131,12 +132,19 @@ export const layoutOptionsMap = [
     category: "news",
   },
   // {
-  //   id: 6,
+  //   id: 7,
   //   name: "Dex",
   //   slug: "dex",
   //   image: dashboard.tokenNews,
   //   category: "news",
   // },
+  {
+    id: 8,
+    name: "Cignals Chart",
+    slug: "cignals-chart",
+    image: dashboard.tokenNews,
+    category: "charts",
+  },
 ];
 
 export type LayoutOptionType = typeof layoutOptionsMap;
@@ -189,6 +197,13 @@ export const chartsMap = {
     name: "Dex",
     extra: [""],
     component: (widget: LayoutType["widgets"][0]) => <DexWidget />,
+  },
+  "cignals-chart": {
+    name: "Cignals Chart",
+    extra: [""],
+    component: (widget: LayoutType["widgets"][0]) => (
+      <CignalsWidget widget={widget} />
+    ),
   },
 };
 
@@ -261,6 +276,13 @@ export const widgetPropsDefaults = {
     token: "BTC",
     meta: {
       w: 2,
+      h: 2,
+    },
+  },
+  "cignals-chart": {
+    token: "BTC",
+    meta: {
+      w: 4,
       h: 2,
     },
   },
