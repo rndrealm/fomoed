@@ -5,6 +5,7 @@ import { ConfirmationModal } from "@/components/modals";
 import { deleteWidgetAtom, LayoutType } from "@/lib/atoms/layoutAtom";
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 import { chartsMap } from "@/lib/static";
+import { splitWidgetSlug } from "@/lib/utils";
 import { useAtomValue, useSetAtom } from "jotai";
 import React, { useState } from "react";
 
@@ -18,6 +19,7 @@ const WidgetHeader = (props: IProps) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteWidget, setDeleteWidget] = useState<LayoutType["widgets"][0]>();
   const deleteWidgetFromAtom = useSetAtom(deleteWidgetAtom);
+  console.log("delete widget:", deleteWidget);
   return (
     <>
       <div className="col-span-1"></div>
@@ -39,7 +41,7 @@ const WidgetHeader = (props: IProps) => {
           setDeleteWidget(undefined);
         }}
         open={showDeleteModal}
-        title={`Delete ${chartsMap[deleteWidget?.meta.i as keyof typeof chartsMap]?.name}?`}
+        title={`Delete ${chartsMap[splitWidgetSlug(deleteWidget?.meta.i || "").slug as keyof typeof chartsMap]?.name}?`}
         details="You can always add new widgets to your dashboard after widgets are deleted"
         cancelBtnText="Cancel"
         confirmBtnText="Delete Widget"
