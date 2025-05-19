@@ -25,6 +25,8 @@ import {
 import TokenNewsWidget from "@/components/widgets/news/token-news/token-news-widget";
 import DexWidget from "@/components/widgets/dex/dex-widget";
 import CignalsWidget from "@/components/widgets/cignals/cignals-widget";
+import CryptocurrencyMarket from "@/components/widgets/cryptocurrency-market/cryptocurrency-market";
+import PriceHistory from "@/components/widgets/price-history/price-history";
 
 export const layoutClassMap = {
   SinglePane: "grid-rows-1 grid-cols-1",
@@ -131,6 +133,13 @@ export const layoutOptionsMap = [
     image: dashboard.tokenNews,
     category: "news",
   },
+  {
+    id: 7,
+    name: "Cryptocurrency Market",
+    slug: "cryptocurrency-market",
+    image: dashboard.simple,
+    category: "charts",
+  },
   // {
   //   id: 7,
   //   name: "Dex",
@@ -143,6 +152,12 @@ export const layoutOptionsMap = [
     name: "Cignals Chart",
     slug: "cignals-chart",
     image: dashboard.tokenNews,
+    category: "charts",
+  },
+  {
+    name: "Token Price History",
+    slug: "token-price-history",
+    image: dashboard.simple,
     category: "charts",
   },
 ];
@@ -203,6 +218,20 @@ export const chartsMap = {
     extra: [""],
     component: (widget: LayoutType["widgets"][0]) => (
       <CignalsWidget widget={widget} />
+    ),
+  },
+  "cryptocurrency-market": {
+    name: "Cryptocurrency Market",
+    extra: [""],
+    component: (widget: LayoutType["widgets"][0]) => (
+      <CryptocurrencyMarket widget={widget} />
+    ),
+  },
+  "token-price-history": {
+    name: "Token Price History",
+    extra: [""],
+    component: (widget: LayoutType["widgets"][0]) => (
+      <PriceHistory widget={widget} />
     ),
   },
 };
@@ -280,6 +309,21 @@ export const widgetPropsDefaults = {
     },
   },
   "cignals-chart": {
+    token: "BTC",
+    meta: {
+      w: 4,
+      h: 2,
+    },
+  },
+  "cryptocurrency-market": {
+    token: "BTC",
+    meta: {
+      w: 4,
+      h: 2,
+    },
+  },
+
+  "token-price-history": {
     token: "BTC",
     meta: {
       w: 4,
