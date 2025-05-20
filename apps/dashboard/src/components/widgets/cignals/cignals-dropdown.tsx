@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { ComboboxComp } from "@/components/shared/combobox";
 import {
@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { SelectComp } from "@/components/shared/select";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import useOutsideClick from "@/hooks/useOutsideClick";
 
 interface IProps {
   availableInstruments: ParsedCignalsInstrumentArray;
@@ -19,8 +20,10 @@ interface IProps {
   originalOptions: CignalsChartOptions;
 }
 
-const CignalsModal = (props: IProps) => {
+const CignalsDropdown = (props: IProps) => {
   const { availableInstruments, onClose, onSave, originalOptions } = props;
+  const [ref] = useOutsideClick(() => {});
+  // const [ref] = useOutsideClick(onClose);
 
   const [cignalForm, setCignalForm] = useState({
     instrument: originalOptions.instrument?.label?.toLowerCase() || "",
@@ -78,15 +81,25 @@ const CignalsModal = (props: IProps) => {
     };
     onSave(newOptions);
   };
-
   return (
-    <div className="absolute flex items-center justify-center w-full h-full bg-black">
-      <div>
-        <h1 className="mb-3 font-semibold text-center text-white">
-          Footprint chart settings
-        </h1>
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col ">
+    <div
+      className="absolute top-10 right-0 flex items-center justify-center w-[290px] h-fit pt-3 bg-black z-[10] border border-[#232323] rounded-[10px]"
+      ref={ref}
+    >
+      <div className="w-full">
+        <div className="border-b border-b-[#232323]">
+          <h1 className="mb-3 font-medium  text-xs  text-[white] px-2 ">
+            Footprint chart settings
+          </h1>
+        </div>
+        <div className="flex flex-col gap-4 px-2 py-3">
+          <div className="flex items-center justify-between ">
+            <label
+              htmlFor="instrument"
+              className="text-[#878787] text-xs font-medium"
+            >
+              Pairs
+            </label>
             <ComboboxComp
               options={instrumentOptions}
               value={cignalForm.instrument}
@@ -94,31 +107,49 @@ const CignalsModal = (props: IProps) => {
               emptySearch="Select Instruments"
               inputPlaceholder="Select Instruments"
               emptySelect="No frameworks found"
-              label="Instrument"
+              triggerClassName="justify-between bg-transparent w-[160px] text-white text-[0.625rem] rounded-[3px] h-[26px] hover:bg-transparent hover:text-white border border-[#3E3E3E]"
             />
           </div>
-          <div className="w-full">
+          <div className="flex items-center justify-between ">
+            <label
+              htmlFor="timeframe"
+              className="text-[#878787] text-xs font-medium"
+            >
+              Time Interval
+            </label>
             <SelectComp
               options={periodOptions}
               value={cignalForm.timeframe}
-              label="Timeframe"
               setValue={(value) => handleChange("timeframe", value)}
+              triggerClassName="justify-between bg-transparent w-[160px] text-white text-[0.625rem] rounded-[3px] !h-[26px] hover:bg-transparent hover:text-white border border-[#3E3E3E]"
             />
           </div>
-          <div>
-            <label className="pb-1 text-white">Price Step</label>
+          <div className="flex items-center justify-between ">
+            <label className="text-[#878787] text-xs font-medium">
+              Price Interval
+            </label>
             <Input
               value={cignalForm.priceStep || undefined}
               type="number"
-              className="bg-white"
+              className="justify-between bg-transparent w-[160px] text-white !text-[0.625rem] rounded-[3px] !h-[26px] hover:bg-transparent hover:text-white border border-[#3E3E3E]"
               onChange={(e) =>
                 handleChange("priceStep", e.target.valueAsNumber)
               }
             />
           </div>
-          <div className="flex gap-2">
-            <Button onClick={onClose}>Cancel</Button>
-            <Button onClick={handleSave}>Save Changes</Button>
+          <div className="flex items-center justify-end gap-2 mt-2">
+            <Button
+              onClick={onClose}
+              className="text-white bg-red-800 text-[0.625rem] font-medium h-7 hover:bg-red-800 hover:text-white"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSave}
+              className="text-black bg-white text-[0.625rem] font-medium h-7 hover:bg-white hover:text-black"
+            >
+              Save Changes
+            </Button>
           </div>
         </div>
       </div>
@@ -126,4 +157,4 @@ const CignalsModal = (props: IProps) => {
   );
 };
 
-export default CignalsModal;
+export default CignalsDropdown;

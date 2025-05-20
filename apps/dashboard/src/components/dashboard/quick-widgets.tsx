@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 
 const categoriesOptions = [
   { id: 1, label: "All", value: "all" },
+  { id: 1, label: "New", value: "new" },
   { id: 2, label: "Charts", value: "charts" },
   { id: 3, label: "News", value: "news" },
   // { id: 4, label: "Custom Widgets", value: "custom-widgets" },
@@ -29,10 +30,11 @@ export function QuickWidgets(props: IProps) {
     if (!searchValue && selectedTag === "all") return layoutOptionsMap;
     return layoutOptionsMap.filter((widget) => {
       const name = widget.name.toLowerCase();
-      const category = widget.category.toLowerCase();
+      const tags = widget.tags;
+      // const category = widget.category.toLowerCase();
       const search = searchValue.toLowerCase();
       const tag = selectedTag.toLowerCase() === "all" ? "" : selectedTag;
-      return name.includes(search) && category.includes(tag);
+      return name.includes(search) && tags.includes(tag);
     });
   }, [searchValue, selectedTag]);
 

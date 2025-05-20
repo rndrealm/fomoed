@@ -32,6 +32,7 @@ interface IProps {
   emptySelect?: string;
   inputPlaceholder?: string;
   label?: string;
+  triggerClassName?: string;
 }
 
 export function ComboboxComp(props: IProps) {
@@ -43,6 +44,7 @@ export function ComboboxComp(props: IProps) {
     emptySelect = "Select",
     inputPlaceholder,
     label,
+    triggerClassName,
   } = props;
   const [open, setOpen] = React.useState(false);
 
@@ -51,20 +53,15 @@ export function ComboboxComp(props: IProps) {
       <RenderIf condition={!!label}>
         <Label className="pb-1 text-white">{label}</Label>
       </RenderIf>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="justify-between w-full"
-        >
+      <PopoverTrigger asChild className={cn("", triggerClassName)}>
+        <Button variant="outline" role="combobox" aria-expanded={open}>
           {value
             ? options.find((option) => option.value === value)?.label
             : emptySearch}
-          <ChevronsUpDown className="opacity-50" />
+          <ChevronsUpDown className="text-[#71717a] opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
+      <PopoverContent className="w-full p-0">
         <Command>
           <CommandInput placeholder={inputPlaceholder} className="h-9" />
           <CommandList>
