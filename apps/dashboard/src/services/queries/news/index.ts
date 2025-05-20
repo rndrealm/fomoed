@@ -44,3 +44,23 @@ export const useReadTokenNews = (token: string = "BTC") => {
     error,
   };
 };
+
+export const useReadSingleNewslabPost = (id: string = "") => {
+  const hash = ["news-lab-post", id];
+  const { data, isPending, error, isSuccess } = useQuery({
+    queryKey: hash,
+    queryFn: async () => {
+      const response = await api.get({
+        url: `/api/newslab/single-post?id=${id}`,
+        // url: `${process.env.NEXT_PUBLIC_NEWSLAB_URL}/api/newslab-posts/`,
+      });
+      return response;
+    },
+  });
+  return {
+    data,
+    isPending,
+    isSuccess,
+    error,
+  };
+};

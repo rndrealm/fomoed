@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     "news",
   ],
   creator: "IDS",
-  metadataBase: new URL("https://fomoed.io"),
+  metadataBase: new URL("https://dashboard-dev.fomoed.io"),
   openGraph: {
     images: "/og2.png",
   },
@@ -58,7 +58,7 @@ export default function RootLayout({
         />
       </head> */}
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full bg-[#0C0C0C]`}
       >
         <QueryProvider>
           <NuqsAdapter>
