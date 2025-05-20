@@ -24,6 +24,7 @@ import {
 } from "@/constant/cfgi-data";
 import TokenNewsWidget from "@/components/widgets/news/token-news/token-news-widget";
 import DexWidget from "@/components/widgets/dex/dex-widget";
+import CignalsWidget from "@/components/widgets/cignals/cignals-widget";
 import CryptocurrencyMarket from "@/components/widgets/cryptocurrency-market/cryptocurrency-market";
 import PriceHistory from "@/components/widgets/price-history/price-history";
 
@@ -90,33 +91,43 @@ export const layoutOptions: LayoutOptions[] = [
 ];
 
 export const layoutOptionsMap = [
+  // {
+  //   name: "Token Price History",
+  //   slug: "token-price-history",
+  //   image: dashboard.simple,
+  //   category: "charts",
+  //   tags: ["charts", "new"],
+  // },
+  // {
+  //   id: 8,
+  //   name: "Cignals Chart",
+  //   slug: "cignals-chart",
+  //   image: dashboard.tokenNews,
+  //   category: "charts",
+  //   tags: ["charts", "new"],
+  // },
+  // {
+  //   id: 7,
+  //   name: "Cryptocurrency Market",
+  //   slug: "cryptocurrency-market",
+  //   image: dashboard.simple,
+  //   category: "charts",
+  //   tags: ["charts", "new"],
+  // },
+  // {
+  //   id: 7,
+  //   name: "Dex",
+  //   slug: "dex",
+  //   image: dashboard.tokenNews,
+  //   category: "news",
+  // },
   {
-    id: 1,
-    name: "Crypto Fear and Greed Map",
-    slug: "detailed-cfgi",
-    image: dashboard.cfgi,
-    category: "charts",
-  },
-  {
-    id: 2,
-    name: "Simplify Crypto Fear and Greed Map",
-    slug: "simple-cfgi",
-    image: dashboard.simple,
-    category: "charts",
-  },
-  {
-    id: 3,
-    name: "Liquidation Map",
-    slug: "liquidation-map",
-    image: dashboard.cfgi2,
-    category: "charts",
-  },
-  {
-    id: 4,
-    name: "Liquidation Heat Map",
-    slug: "liquidation-heat-map",
-    image: dashboard.heat,
-    category: "charts",
+    id: 6,
+    name: "Token News",
+    slug: "token-news",
+    image: dashboard.tokenNews,
+    category: "news",
+    tags: ["news", "new"],
   },
   {
     id: 5,
@@ -124,34 +135,39 @@ export const layoutOptionsMap = [
     slug: "exchange-liquidation-map",
     image: dashboard.cfgi2,
     category: "charts",
+    tags: ["charts"],
   },
   {
-    id: 6,
-    name: "Token News",
-    slug: "token-news",
-    image: dashboard.tokenNews,
-    category: "news",
+    id: 4,
+    name: "Liquidation Heat Map",
+    slug: "liquidation-heat-map",
+    image: dashboard.heat,
+    category: "charts",
+    tags: ["charts"],
   },
   {
-    id: 7,
-    name: "Cryptocurrency Market",
-    slug: "cryptocurrency-market",
+    id: 3,
+    name: "Liquidation Map",
+    slug: "liquidation-map",
+    image: dashboard.cfgi2,
+    category: "charts",
+    tags: ["charts"],
+  },
+  {
+    id: 2,
+    name: "Simplify Crypto Fear and Greed Map",
+    slug: "simple-cfgi",
     image: dashboard.simple,
     category: "charts",
+    tags: ["charts"],
   },
-  // {
-  //   id: 6,
-  //   name: "Dex",
-  //   slug: "dex",
-  //   image: dashboard.tokenNews,
-  //   category: "news",
-  // },
   {
-    id: 8,
-    name: "Token Price History",
-    slug: "token-price-history",
-    image: dashboard.simple,
+    id: 1,
+    name: "Crypto Fear and Greed Map",
+    slug: "detailed-cfgi",
+    image: dashboard.cfgi,
     category: "charts",
+    tags: ["charts"],
   },
 ];
 
@@ -205,6 +221,13 @@ export const chartsMap = {
     name: "Dex",
     extra: [""],
     component: (widget: LayoutType["widgets"][0]) => <DexWidget />,
+  },
+  "cignals-chart": {
+    name: "Cignals Chart",
+    extra: [""],
+    component: (widget: LayoutType["widgets"][0]) => (
+      <CignalsWidget widget={widget} />
+    ),
   },
   "cryptocurrency-market": {
     name: "Cryptocurrency Market",
@@ -294,7 +317,16 @@ export const widgetPropsDefaults = {
       h: 2,
     },
   },
-
+  "cignals-chart": {
+    token: "BTC",
+    instrument: null,
+    timeInterval: "5m",
+    priceStep: 10,
+    meta: {
+      w: 4,
+      h: 2,
+    },
+  },
   "cryptocurrency-market": {
     token: "BTC",
     meta: {

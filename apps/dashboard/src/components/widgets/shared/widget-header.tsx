@@ -19,7 +19,7 @@ const WidgetHeader = (props: IProps) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteWidget, setDeleteWidget] = useState<LayoutType["widgets"][0]>();
   const deleteWidgetFromAtom = useSetAtom(deleteWidgetAtom);
-  console.log("delete widget:", deleteWidget);
+
   return (
     <>
       <div className="col-span-1"></div>
