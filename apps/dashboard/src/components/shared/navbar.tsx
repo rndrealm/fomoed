@@ -49,7 +49,12 @@ function NavLink(props: INavLink) {
   );
 }
 
-export const Navbar = () => {
+interface IProps {
+  isNews?: boolean;
+}
+
+export const Navbar = (props: IProps) => {
+  const { isNews = false } = props;
   const pathName = usePathname();
   const utils = useAtomValue(utilsAtom);
 
@@ -87,19 +92,21 @@ export const Navbar = () => {
           <NavbarProfileButton />
         </div> */}
 
-          <div className="flex items-center gap-2">
-            {/* <div className="w-[32px] h-[32px] border border-[#0b0b0b] rounded-md flex items-center justify-center">
+          <RenderIf condition={!isNews}>
+            <div className="flex items-center gap-2">
+              {/* <div className="w-[32px] h-[32px] border border-[#0b0b0b] rounded-md flex items-center justify-center">
               <Misc />
             </div> */}
-            {/* <div className="w-[32px] h-[32px] border border-[#444] rounded-md flex items-center justify-center">
+              {/* <div className="w-[32px] h-[32px] border border-[#444] rounded-md flex items-center justify-center">
               <Notification />
             </div> */}
-            <div className="w-[32px] h-[32px] overflow-hidden rounded-md flex items-center justify-center cursor-pointer">
-              <NavbarProfileButton>
-                <ProfileIcon />
-              </NavbarProfileButton>
+              <div className="w-[32px] h-[32px] overflow-hidden rounded-md flex items-center justify-center cursor-pointer">
+                <NavbarProfileButton>
+                  <ProfileIcon />
+                </NavbarProfileButton>
+              </div>
             </div>
-          </div>
+          </RenderIf>
         </div>
       </nav>
     </RenderIf>
