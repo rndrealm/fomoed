@@ -27,6 +27,7 @@ import DexWidget from "@/components/widgets/dex/dex-widget";
 import CignalsWidget from "@/components/widgets/cignals/cignals-widget";
 import CryptocurrencyMarket from "@/components/widgets/cryptocurrency-market/cryptocurrency-market";
 import PriceHistory from "@/components/widgets/price-history/price-history";
+import Heatmap from "@/components/widgets/heatmap/heatmap";
 
 export const layoutClassMap = {
   SinglePane: "grid-rows-1 grid-cols-1",
@@ -169,6 +170,15 @@ export const layoutOptionsMap = [
     category: "charts",
     tags: ["charts"],
   },
+
+  // {
+  //   id: 10,
+  //   name: "Heatmap",
+  //   slug: "heatmap",
+  //   image: dashboard.cfgi,
+  //   category: "charts",
+  //   tags: ["charts"],
+  // },
 ];
 
 export type LayoutOptionType = typeof layoutOptionsMap;
@@ -241,6 +251,13 @@ export const chartsMap = {
     extra: [""],
     component: (widget: LayoutType["widgets"][0]) => (
       <PriceHistory widget={widget} />
+    ),
+  },
+  heatmap: {
+    name: "Token Price History",
+    extra: [""],
+    component: (widget: LayoutType["widgets"][0]) => (
+      <Heatmap widget={widget} />
     ),
   },
 };
@@ -336,6 +353,13 @@ export const widgetPropsDefaults = {
   },
 
   "token-price-history": {
+    token: "BTC",
+    meta: {
+      w: 4,
+      h: 2,
+    },
+  },
+  heatmap: {
     token: "BTC",
     meta: {
       w: 4,
