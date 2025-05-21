@@ -130,14 +130,14 @@ export const layoutOptionsMap = [
     category: "news",
     tags: ["news", "new"],
   },
-  // {
-  //   id: 5,
-  //   name: "Exchange Liquidation Map",
-  //   slug: "exchange-liquidation-map",
-  //   image: dashboard.cfgi2,
-  //   category: "charts",
-  //   tags: ["charts"],
-  // },
+  {
+    id: 5,
+    name: "Exchange Liquidation Map",
+    slug: "exchange-liquidation-map",
+    image: dashboard.cfgi2,
+    category: "charts",
+    tags: ["charts"],
+  },
   {
     id: 4,
     name: "Liquidation Heat Map",
