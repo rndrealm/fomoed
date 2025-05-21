@@ -247,7 +247,8 @@ button:hover {
   animation: shine 2s ease infinite;
 }
 
-.app_news_content h1 {
+.app_news_content h1,
+.app_news_content .ql-size-huge {
   font-size: 36px;
   line-height: 125%;
   color: #ffffff;
@@ -255,7 +256,8 @@ button:hover {
   margin-bottom: 1rem;
 }
 
-.app_news_content h2 {
+.app_news_content h2,
+.app_news_content .ql-size-large {
   font-weight: 500;
   font-size: 20px;
   line-height: 135%;
@@ -310,18 +312,21 @@ button:hover {
 
 /* Tailwind `md`: 768px and up */
 @media (max-width: 768px) {
-  .app_news_content h1 {
+  .app_news_content h1,
+  .app_news_content .ql-size-huge {
     font-size: 30px;
   }
 
-  .app_news_content h2 {
+  .app_news_content h2,
+  .app_news_content .ql-size-large {
     font-size: 18px;
   }
 }
 
 /* Tailwind `sm`: 640px and up */
 @media (max-width: 640px) {
-  .app_news_content h1 {
+  .app_news_content h1,
+  .app_news_content .ql-size-huge {
     font-size: 24px;
   }
 
