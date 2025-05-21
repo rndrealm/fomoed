@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 
 import { LoaderCircle } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 // import AISignalBuilder from "./AISignalBuilder";
 import useUserData from "@/lib/hooks/use-user-data";
@@ -20,7 +20,7 @@ const SignalBuilder = ({}) => {
   const [buildMode, setBuildMode] = useState<string>("manual");
   const [signalName, setSignalName] = useState("");
   const [signalDescription, setSignalDescription] = useState("");
-  const [condition, setCondition] = useState<object | null>(null);
+  const [logic, setLogic] = useState<object | null>(null);
   const [signalActions, setSignalActions] = useState<SignalActions>({
     email: true,
     notification: true,
@@ -39,17 +39,20 @@ const SignalBuilder = ({}) => {
   const handleAIBuilderResponse = (
     name: string,
     description: string,
-    condition: object
+    logic: object
   ) => {
     setSignalName(name);
     setSignalDescription(description);
-    setCondition(condition);
-    console.log("🚀 ~ SignalBuilder ~ condition:", condition);
+    setLogic(logic);
     setUpdateCount((prev) => prev + 1);
   };
 
+  useEffect(() => {
+    console.log("🚀 ~ SignalBuilder ~ condition:", logic);
+  }, [logic]);
+
   const handleSave = async () => {
-    if (!condition || !user?.user_id) return;
+    if (!logic || !user?.user_id) return;
 
     if (signalName.length === 0 || signalDescription.length === 0) {
       toast.error("Please fill in all fields");
@@ -73,8 +76,8 @@ const SignalBuilder = ({}) => {
     const data: CreateSignalDTO = {
       name: signalName,
       description: signalDescription,
-      condition: JSON.stringify(condition),
-      topics: extractTopicsFromJsonLogic(condition),
+      condition: JSON.stringify(logic),
+      topics: extractTopicsFromJsonLogic(logic),
       user_id: user?.id,
 
       // actions?
@@ -99,8 +102,8 @@ const SignalBuilder = ({}) => {
 
         <ManualSignalBuilder
           key={updateCount}
-          initialLogic={condition}
-          setLogic={setCondition}
+          initialLogic={logic}
+          setLogic={setLogic}
         />
 
         <NotificationSettings

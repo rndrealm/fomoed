@@ -1,4 +1,8 @@
 import { Condition, Group } from "@/components/signals/condition-group";
+import {
+  DataSource,
+  signalDataSources,
+} from "@/constant/signals/data-source-config";
 import { nanoid } from "nanoid";
 
 export function extractTopicsFromJsonLogic(logic: any): string[] {
@@ -126,4 +130,19 @@ export const conditionToJsonLogic = (cond: Condition) => {
       },
     ],
   };
+};
+
+/**
+ * Get a data source object by its ID
+ * @param id The ID of the data source to find
+ * @returns The data source object if found, undefined otherwise
+ */
+export const getDataSourceById = (id: string): DataSource | undefined => {
+  for (const group of signalDataSources) {
+    const dataSource = group.dataSources.find((source) => source.id === id);
+    if (dataSource) {
+      return dataSource;
+    }
+  }
+  return undefined;
 };

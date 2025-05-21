@@ -1,18 +1,18 @@
 "use client";
-import React, { Fragment, useEffect, useState } from "react";
 import {
   DashboardContent,
   FullscreenBtn,
   Toolbar,
 } from "@/components/dashboard";
-import { useAtom, useSetAtom } from "jotai";
+import { loadLayoutsFromApiAtom } from "@/lib/atoms/layoutAtom";
+import { loadSettingsFromApiAtom } from "@/lib/atoms/settingsAtom";
+import { loadTabsFromApiAtom } from "@/lib/atoms/tabsAtom";
 import { utilsAtom } from "@/lib/atoms/utilsAtom";
 import { cn } from "@/lib/utils";
 import { IDashboardData } from "@/services/queries/home/types";
-import { loadTabsFromApiAtom } from "@/lib/atoms/tabsAtom";
-import { loadLayoutsFromApiAtom } from "@/lib/atoms/layoutAtom";
-import { loadSettingsFromApiAtom } from "@/lib/atoms/settingsAtom";
-import { Navbar } from "../shared";
+import { useAtom, useSetAtom } from "jotai";
+import { Fragment, useEffect, useState } from "react";
+import CreateSignalFromChartModal from "../signals/create-signal-from-chart-modal";
 
 interface IProps {
   dashboardData: IDashboardData;
@@ -94,6 +94,7 @@ export default function Home({ dashboardData }: IProps) {
             handleFullscreen={handleFullscreen}
           />
         </div>
+        <CreateSignalFromChartModal />
       </div>
     </Fragment>
   );

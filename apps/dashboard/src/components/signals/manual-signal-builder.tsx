@@ -25,6 +25,10 @@ const ManualSignalBuilder = ({
     setLogic(toJsonLogic(rootGroup));
   }, [rootGroup, setLogic]);
 
+  useEffect(() => {
+    console.log("🚀 ~ ManualSignalBuilder ~ rootGroup:", rootGroup);
+  }, [rootGroup]);
+
   return (
     <SignalConditionGroup group={rootGroup} depth={0} onUpdate={updateGroup} />
   );

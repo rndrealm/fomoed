@@ -1,37 +1,36 @@
-import { conditionToJsonLogic } from "@/lib/utils/signal.utils";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../ui/dialog";
+  signalModalConfigAtom,
+  signalModalDataAtom,
+} from "@/lib/atoms/signalModalAtom";
+import { conditionToJsonLogic } from "@/lib/utils/signal.utils";
+import { useAtom } from "jotai";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Condition } from "./condition-group";
 import ManualSignalBuilder from "./manual-signal-builder";
 import NotificationSettings from "./notification-settings";
 import SignalDetails from "./signal-details";
 
-// type Props = {
-//   //   initialCondition: Condition[];
-// };
+const CreateSignalFromChartModal = () => {
+  const [signalModalConfig, setSignalModalConfig] = useAtom(
+    signalModalConfigAtom
+  );
+  const [modelData] = useAtom(signalModalDataAtom);
 
-const CreateSignalFromDataPointModal = () => {
-  const intialCondition: Condition[] = [
-    {
-      id: "1",
-      type: "condition",
-      dataSource: "price",
-      topic: "price_BTCUSD",
-      operator: "==",
-      value: 12333,
-    },
-  ];
-
-  const logic = conditionToJsonLogic(intialCondition[0]);
+  const logic = {
+    and: [
+      ...modelData.conditions.map((condition: Condition) => {
+        return conditionToJsonLogic(condition);
+      }),
+    ],
+  };
 
   return (
-    <Dialog>
-      <DialogTrigger>Open</DialogTrigger>
+    <Dialog
+      open={signalModalConfig.isOpen}
+      onOpenChange={(state) =>
+        setSignalModalConfig({ ...signalModalConfig, isOpen: state })
+      }
+    >
       <DialogContent className="min-w-5xl bg-[#0e0e0e] text-white dark max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="mb-4">
@@ -63,4 +62,4 @@ const CreateSignalFromDataPointModal = () => {
   );
 };
 
-export default CreateSignalFromDataPointModal;
+export default CreateSignalFromChartModal;
