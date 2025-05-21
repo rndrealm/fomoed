@@ -1,6 +1,6 @@
 import { NewsContent } from "@/components/news";
 import { normalizeHtmlText } from "@/lib/utils";
-import React from "react";
+import React, { Fragment } from "react";
 
 // export async function generateMetadata({
 //   params,
@@ -55,5 +55,9 @@ import React from "react";
 // }
 
 export default function Page() {
-  return <div></div>;
+  return (
+    <Fragment>
+      <div className="absolute inset-x-0 top-0">{/* <Navbar isNews /> */}</div>
+    </Fragment>
+  );
 }
