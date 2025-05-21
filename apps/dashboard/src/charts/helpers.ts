@@ -12,7 +12,7 @@ export async function registerChartPluginZoomInBrowser() {
   Chart.register(pluginZoom.default);
 }
 export async function registerCandleStickPluginBrowser() {
-  if (!window) return;
+  // if (!window) return;
 
   const { CandlestickController, CandlestickElement } = await import(
     "chartjs-chart-financial"

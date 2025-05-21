@@ -19,10 +19,10 @@ Chart.register(LiqHeatmapController);
 interface ICfgiCard {
   liquidationData: LiquidHeatmapResponse;
 }
+registerCandleStickPluginBrowser();
 
 const LiquidationHeatmapChart = (props: ICfgiCard) => {
   useEffect(() => {
-    registerCandleStickPluginBrowser();
     registerChartPluginZoomInBrowser();
   }, []);
   const { liquidationData } = props;
