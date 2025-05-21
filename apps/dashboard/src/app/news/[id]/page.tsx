@@ -33,14 +33,19 @@ export default async function Page({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const url = new URL(
-    `/api/newslab-posts/${id}`,
-    process.env.PUBLIC_NEWSLAB_URL
-  );
 
-  const res = await fetch(url);
+  // const url = new URL(
+  //   `/api/newslab-posts/${id}`,
+  //   process.env.PUBLIC_NEWSLAB_URL
+  // );
 
-  const text = await res.text();
+  // const url = `${process.env.PUBLIC_NEWSLAB_URL}/api/newslab-posts/${id}`;
+
+  // const res = await fetch(url);
+
+  // const text = await res.text();
+
+  const text = "<h1>Test</h1>";
 
   return (
     <div className="pt-[96px] bg-[#0C0C0C] h-screen overflow-auto pt-10 pb-14 px-4">
