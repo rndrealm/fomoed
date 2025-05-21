@@ -1,3 +1,4 @@
+import { createSupabaseServerClient } from "@/lib/utils/supabase/server-client";
 import { NextResponse } from "next/server";
 
 //! REQUEST HANDLER FOR /api/newslab/:id
@@ -5,18 +6,30 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
-    const url = new URL(
-      `/api/newslab-posts/${id}`,
-      process.env.PUBLIC_NEWSLAB_URL
-    );
 
-    console.log("URL:", url.toString());
+    const supabase = await createSupabaseServerClient();
 
-    const res = await fetch(url);
+    const { data: newsItem, error } = await supabase
+      .from("news")
+      .select("*")
+      .eq("id", id)
+      .single();
 
-    const json = await res.text();
+    if (error) {
+      return NextResponse.json(
+        { error: "Failed to fetch news item" },
+        { status: 500 }
+      );
+    }
 
-    return NextResponse.json({ success: "true", data: json });
+    if (!newsItem) {
+      return NextResponse.json(
+        { error: "News item not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ success: true, data: newsItem });
   } catch (error) {
     // Handle errors gracefully
     console.log("Error fetching news data:", error);
