@@ -15,7 +15,11 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   // Authenticate API routes
-  if (!user && request.nextUrl.pathname.startsWith("/api")) {
+  if (
+    !user &&
+    request.nextUrl.pathname.startsWith("/api") &&
+    !request.nextUrl.pathname.includes("/newslab")
+  ) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

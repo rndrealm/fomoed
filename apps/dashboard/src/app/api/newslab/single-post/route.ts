@@ -29,7 +29,7 @@ export async function GET(request: Request) {
       );
     }
 
-    return NextResponse.json({ success: true, data: newsItem });
+    return NextResponse.json(newsItem);
   } catch (error) {
     // Handle errors gracefully
     console.log("Error fetching news data:", error);
