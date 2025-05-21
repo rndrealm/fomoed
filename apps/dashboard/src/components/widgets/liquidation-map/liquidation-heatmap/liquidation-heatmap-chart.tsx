@@ -14,8 +14,6 @@ import { LiquidHeatmapResponse } from "@/services/queries/charts/types";
 import { LiqHeatmapController } from "@/charts/plugins/LiqMapPlugin";
 import { cn, humanizeNumber } from "@/lib/utils";
 
-registerCandleStickPluginBrowser();
-
 Chart.register(LiqHeatmapController);
 
 interface ICfgiCard {
@@ -24,6 +22,7 @@ interface ICfgiCard {
 
 const LiquidationHeatmapChart = (props: ICfgiCard) => {
   useEffect(() => {
+    registerCandleStickPluginBrowser();
     registerChartPluginZoomInBrowser();
   }, []);
   const { liquidationData } = props;
