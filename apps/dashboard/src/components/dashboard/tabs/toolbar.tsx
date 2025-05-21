@@ -161,7 +161,7 @@ export function Toolbar() {
             }}
           >
             <AddWidget />
-            Add Widget
+            Add Widgets
           </button>
           {/* <div className="flex items-center gap-[2px]">
             <div className="h-[28px] w-[28px] flex items-center justify-center bg-[#191919] rounded-md">

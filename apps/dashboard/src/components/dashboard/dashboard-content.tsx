@@ -7,7 +7,6 @@ import { useAtomValue } from "jotai";
 import { layoutAtom } from "@/lib/atoms/layoutAtom";
 import { activeTabAtom, tabsAtom } from "@/lib/atoms/tabsAtom";
 import { cn } from "@/lib/utils";
-import { useReadSingleNewslabPost } from "@/services/queries/news";
 
 function Empty() {
   const [showWidgets, setShowWidgets] = useState(false);
@@ -45,11 +44,6 @@ export function DashboardContent() {
   const layouts = useAtomValue(layoutAtom);
   const tabs = useAtomValue(tabsAtom);
   const activeLayout = useAtomValue(activeTabAtom);
-
-  const { data } = useReadSingleNewslabPost(
-    "05c7f515-896e-4804-8f67-f672bd756539"
-  );
-  console.log("fff:", data);
 
   return (
     <div className="w-full h-full">
