@@ -1,4 +1,4 @@
-import { Navbar } from "@/components/shared";
+// import { Navbar } from "@/components/shared";
 import { Fragment } from "react";
 
 export default function DashboardLayout({
@@ -8,9 +8,7 @@ export default function DashboardLayout({
 }>) {
   return (
     <Fragment>
-      <div className="absolute inset-x-0 top-0">
-        <Navbar isNews />
-      </div>
+      <div className="absolute inset-x-0 top-0">{/* <Navbar isNews /> */}</div>
       {children}
     </Fragment>
   );
