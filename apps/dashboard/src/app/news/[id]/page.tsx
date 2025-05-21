@@ -27,29 +27,33 @@ import React from "react";
 //   };
 // }
 
-export default async function Page({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
+// export default async function Page({
+//   params,
+// }: {
+//   params: Promise<{ id: string }>;
+// }) {
+//   const { id } = await params;
 
-  // const url = new URL(
-  //   `/api/newslab-posts/${id}`,
-  //   process.env.PUBLIC_NEWSLAB_URL
-  // );
+//   const url = new URL(
+//     `/api/newslab-posts/${id}`,
+//     process.env.PUBLIC_NEWSLAB_URL
+//   );
 
-  // const url = `${process.env.PUBLIC_NEWSLAB_URL}/api/newslab-posts/${id}`;
+//   const url = `${process.env.PUBLIC_NEWSLAB_URL}/api/newslab-posts/${id}`;
 
-  // const res = await fetch(url);
+//   const res = await fetch(url);
 
-  // const text = await res.text();
+//   const text = await res.text();
 
-  const text = "<h1>Test</h1>";
+//   const text = "<h1>Test</h1>";
 
-  return (
-    <div className="pt-[96px] bg-[#0C0C0C] h-screen overflow-auto pt-10 pb-14 px-4">
-      {/* <NewsContent content={text} /> */}
-    </div>
-  );
+//   return (
+//     <div className="pt-[96px] bg-[#0C0C0C] h-screen overflow-auto pt-10 pb-14 px-4">
+//       <NewsContent content={text} />
+//     </div>
+//   );
+// }
+
+export default function Page() {
+  return <div></div>;
 }
