@@ -28,11 +28,11 @@ export async function generateMetadata({
 }
 
 export default async function Page({
-  searchParams,
+  params,
 }: {
-  searchParams?: Promise<{ id: string }>;
+  params?: Promise<{ id: string }>;
 }) {
-  const id = (await searchParams)?.id || "";
+  const id = (await params)?.id || "";
 
   const url = new URL(
     `/api/newslab-posts/${id}`,
