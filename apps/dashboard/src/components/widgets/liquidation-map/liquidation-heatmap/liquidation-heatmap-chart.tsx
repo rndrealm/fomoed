@@ -14,9 +14,6 @@ import { LiquidHeatmapResponse } from "@/services/queries/charts/types";
 import { LiqHeatmapController } from "@/charts/plugins/LiqMapPlugin";
 import { cn, humanizeNumber } from "@/lib/utils";
 
-registerChartPluginZoomInBrowser();
-registerCandleStickPluginBrowser();
-
 Chart.register(LiqHeatmapController);
 
 interface ICfgiCard {
@@ -24,188 +21,195 @@ interface ICfgiCard {
 }
 
 const LiquidationHeatmapChart = (props: ICfgiCard) => {
+  useEffect(() => {
+    registerChartPluginZoomInBrowser();
+    registerCandleStickPluginBrowser();
+  }, []);
   const { liquidationData } = props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
   const [maxValue, setMaxValue] = React.useState(0);
 
-  const chart_init = useCallback((ctx: CanvasRenderingContext2D) => {
-    const y = liquidationData.y;
-    const prices = liquidationData.prices;
-    const liq = liquidationData.liq;
+  const chart_init = useCallback(
+    (ctx: CanvasRenderingContext2D) => {
+      const y = liquidationData.y;
+      const prices = liquidationData.prices;
+      const liq = liquidationData.liq;
 
-    const liq_values = liq.map((i: any) => i[2]);
-    const max_liq = Math.max(...liq_values);
+      const liq_values = liq.map((i: any) => i[2]);
+      const max_liq = Math.max(...liq_values);
 
-    setMaxValue(max_liq);
+      setMaxValue(max_liq);
 
-    const liqHeatmapData = liq.map((item: any) => {
-      const normalized = item[2] / max_liq;
-      const [r, g, b] = evaluate_cmap(normalized, "viridis");
-      const backgroundColor = formatRgb(r, g, b);
+      const liqHeatmapData = liq.map((item: any) => {
+        const normalized = item[2] / max_liq;
+        const [r, g, b] = evaluate_cmap(normalized, "viridis");
+        const backgroundColor = formatRgb(r, g, b);
 
-      return {
-        x: prices[item[0]][0] * 1000,
-        y: y[item[1]],
-        backgroundColor,
-      };
-    });
+        return {
+          x: prices[item[0]][0] * 1000,
+          y: y[item[1]],
+          backgroundColor,
+        };
+      });
 
-    for (let i = 1; i < y.length; i++) {
-      const yVal = y[i];
-      const prevYVal = y[i - 1];
+      for (let i = 1; i < y.length; i++) {
+        const yVal = y[i];
+        const prevYVal = y[i - 1];
 
-      const pointsWithYVal = liqHeatmapData.filter((i) => i.y == yVal);
+        const pointsWithYVal = liqHeatmapData.filter((i) => i.y == yVal);
 
-      for (const p of pointsWithYVal) {
-        // @ts-expect-error HOTFIX
-        p.prevYVal = prevYVal;
+        for (const p of pointsWithYVal) {
+          // @ts-expect-error HOTFIX
+          p.prevYVal = prevYVal;
+        }
       }
-    }
 
-    const datasets = [
-      {
-        type: "candlestick",
-        data: prices.map(function (item: any) {
-          return {
-            x: item[0] * 1000,
-            o: item[1],
-            h: item[2],
-            l: item[3],
-            c: item[4],
-          };
-        }),
-        borderColors: {
-          up: "rgb(26, 152, 129)",
-          down: "rgb(239, 57, 74)",
-          unchanged: "#999",
+      const datasets = [
+        {
+          type: "candlestick",
+          data: prices.map(function (item: any) {
+            return {
+              x: item[0] * 1000,
+              o: item[1],
+              h: item[2],
+              l: item[3],
+              c: item[4],
+            };
+          }),
+          borderColors: {
+            up: "rgb(26, 152, 129)",
+            down: "rgb(239, 57, 74)",
+            unchanged: "#999",
+          },
+          backgroundColors: {
+            up: "rgb(26, 152, 129)",
+            down: "rgb(239, 57, 74)",
+            unchanged: "#999",
+          },
+          // order: 10,
+          yAxisID: "y",
+          xAxisID: "x",
+          parsing: false,
+          barPercentage: 0.5,
+          categoryPercentage: 1,
         },
-        backgroundColors: {
-          up: "rgb(26, 152, 129)",
-          down: "rgb(239, 57, 74)",
-          unchanged: "#999",
+        {
+          type: "liqHeatmap",
+          data: liqHeatmapData,
+          yAxisID: "y",
+          xAxisID: "x",
+          parsing: false,
         },
-        // order: 10,
-        yAxisID: "y",
-        xAxisID: "x",
-        parsing: false,
-        barPercentage: 0.5,
-        categoryPercentage: 1,
-      },
-      {
-        type: "liqHeatmap",
-        data: liqHeatmapData,
-        yAxisID: "y",
-        xAxisID: "x",
-        parsing: false,
-      },
-    ];
+      ];
 
-    const minTimestampSeconds = prices[0][0] * 1000;
-    const maxTimestampSeconds = prices[prices.length - 1][0] * 1000;
-    const minPrice = Math.min(...y);
-    const maxPrice = Math.max(...y);
+      const minTimestampSeconds = prices[0][0] * 1000;
+      const maxTimestampSeconds = prices[prices.length - 1][0] * 1000;
+      const minPrice = Math.min(...y);
+      const maxPrice = Math.max(...y);
 
-    const zoomPluginOptions: ZoomPluginOptions = {
-      zoom: {
-        wheel: {
+      const zoomPluginOptions: ZoomPluginOptions = {
+        zoom: {
+          wheel: {
+            enabled: true,
+            speed: 0.05,
+          },
+          pinch: {
+            enabled: true,
+          },
+          mode: "xy",
+        },
+        pan: {
           enabled: true,
-          speed: 0.05,
+          mode: "xy",
+          threshold: 0,
         },
-        pinch: {
-          enabled: true,
+        limits: {
+          x: {
+            minRange: 1000 * 60 * 60 * 4,
+            min: minTimestampSeconds,
+            max: maxTimestampSeconds,
+          },
+          y: { minRange: 1000, min: minPrice, max: maxPrice },
         },
-        mode: "xy",
-      },
-      pan: {
-        enabled: true,
-        mode: "xy",
-        threshold: 0,
-      },
-      limits: {
-        x: {
-          minRange: 1000 * 60 * 60 * 4,
-          min: minTimestampSeconds,
-          max: maxTimestampSeconds,
-        },
-        y: { minRange: 1000, min: minPrice, max: maxPrice },
-      },
-    };
+      };
 
-    chartRef.current?.destroy();
+      chartRef.current?.destroy();
 
-    if (canvasRef.current) {
-      chartRef.current = new Chart(canvasRef.current, {
-        data: { datasets: datasets as any },
-        // @ts-expect-error HOTFIX
-        layout: { padding: 0 },
-        options: {
-          animation: false,
-          responsive: false,
-          maintainAspectRatio: false,
-          scales: {
-            x: {
-              type: "time",
-              offset: true,
-            },
-            y: {
-              position: "right",
-              type: "linear",
-              grid: {
-                display: false,
+      if (canvasRef.current) {
+        chartRef.current = new Chart(canvasRef.current, {
+          data: { datasets: datasets as any },
+          // @ts-expect-error HOTFIX
+          layout: { padding: 0 },
+          options: {
+            animation: false,
+            responsive: false,
+            maintainAspectRatio: false,
+            scales: {
+              x: {
+                type: "time",
+                offset: true,
               },
-              ticks: {
-                callback: (value: string | number) => {
-                  if (typeof value === "string") {
-                    return value;
-                  }
+              y: {
+                position: "right",
+                type: "linear",
+                grid: {
+                  display: false,
+                },
+                ticks: {
+                  callback: (value: string | number) => {
+                    if (typeof value === "string") {
+                      return value;
+                    }
 
-                  if (value < 0) {
-                    return "";
-                  }
+                    if (value < 0) {
+                      return "";
+                    }
 
-                  return `$${Math.round(value / 1000)}k`;
+                    return `$${Math.round(value / 1000)}k`;
+                  },
                 },
               },
             },
-          },
-          interaction: {
-            mode: "nearest",
-            intersect: false,
-          },
-          plugins: {
-            legend: {
-              display: false,
+            interaction: {
+              mode: "nearest",
+              intersect: false,
             },
-            zoom: zoomPluginOptions,
-          },
-        },
-        plugins: [
-          {
-            id: "bg",
-            beforeDraw: (chart: Chart) => {
-              // Purple background
-              const { ctx, chartArea } = chart;
-              const { left, right, top, bottom } = chartArea;
-
-              const gradient = ctx.createLinearGradient(0, top, 0, bottom);
-              gradient.addColorStop(0, "#46035c");
-              gradient.addColorStop(1, "#46035c");
-
-              ctx.save();
-
-              ctx.fillStyle = gradient;
-              ctx.fillRect(left, top, right - left, bottom - top);
-
-              ctx.restore();
+            plugins: {
+              legend: {
+                display: false,
+              },
+              zoom: zoomPluginOptions,
             },
           },
-        ],
-      });
-    }
+          plugins: [
+            {
+              id: "bg",
+              beforeDraw: (chart: Chart) => {
+                // Purple background
+                const { ctx, chartArea } = chart;
+                const { left, right, top, bottom } = chartArea;
 
-    chartRef.current?.resize();
-  }, [liquidationData, setMaxValue]);
+                const gradient = ctx.createLinearGradient(0, top, 0, bottom);
+                gradient.addColorStop(0, "#46035c");
+                gradient.addColorStop(1, "#46035c");
+
+                ctx.save();
+
+                ctx.fillStyle = gradient;
+                ctx.fillRect(left, top, right - left, bottom - top);
+
+                ctx.restore();
+              },
+            },
+          ],
+        });
+      }
+
+      chartRef.current?.resize();
+    },
+    [liquidationData, setMaxValue]
+  );
 
   useEffect(() => {
     if (!canvasRef.current) return;

@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 
 const categoriesOptions = [
   { id: 1, label: "All", value: "all" },
-  { id: 1, label: "New", value: "new" },
+  { id: 4, label: "New", value: "new" },
   { id: 2, label: "Charts", value: "charts" },
   { id: 3, label: "News", value: "news" },
   // { id: 4, label: "Custom Widgets", value: "custom-widgets" },
