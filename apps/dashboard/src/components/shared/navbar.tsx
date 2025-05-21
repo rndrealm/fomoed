@@ -60,7 +60,7 @@ export const Navbar = (props: IProps) => {
 
   return (
     <RenderIf condition={!utils.isFullScreen}>
-      <nav className="bg-[#0C0C0C] border-b border-[#161616] py-4 px-10 flex items-center">
+      <nav className="bg-[#0C0C0C] border-b border-[#161616] py-4 px-4 sm:px-10 flex items-center">
         <div className="flex items-center justify-between w-full mx-auto">
           {/* Logo section */}
           <div className="flex items-center gap-10">

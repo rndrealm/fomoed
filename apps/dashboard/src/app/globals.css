@@ -247,6 +247,39 @@ button:hover {
   animation: shine 2s ease infinite;
 }
 
+.app_news_content h1 {
+  font-size: 36px;
+  line-height: 125%;
+  color: #ffffff;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.app_news_content h2 {
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 135%;
+  color: #fff;
+}
+
+.app_news_content h3 {
+  font-weight: 500;
+  font-size: 17px;
+  line-height: 135%;
+  color: #e1e1e1;
+}
+
+.app_news_content p {
+  font-size: 15px;
+  line-height: 135%;
+  color: #e1e1e1;
+  font-weight: 400;
+}
+
+.app_news_content img {
+  margin: 1rem 0;
+}
+
 @keyframes shine {
   to {
     background-position: right -40px top 0;
@@ -272,5 +305,27 @@ button:hover {
   75%,
   100% {
     clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 100% 100%, 100% 100%);
+  }
+}
+
+/* Tailwind `md`: 768px and up */
+@media (max-width: 768px) {
+  .app_news_content h1 {
+    font-size: 30px;
+  }
+
+  .app_news_content h2 {
+    font-size: 18px;
+  }
+}
+
+/* Tailwind `sm`: 640px and up */
+@media (max-width: 640px) {
+  .app_news_content h1 {
+    font-size: 24px;
+  }
+
+  .app_news_content p {
+    font-size: 13px;
   }
 }
