@@ -145,3 +145,20 @@ export function getLegacyLoginUrl(): string {
     return currentUrlCopy.toString();
   }
 }
+
+/**
+ * Converts HTML entities and non-breaking spaces to regular text
+ * @param htmlText Text with HTML entities
+ * @returns Normalized plain text
+ */
+export function normalizeHtmlText(htmlText: string): string {
+  if (!htmlText) return "";
+
+  return htmlText
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
+}
