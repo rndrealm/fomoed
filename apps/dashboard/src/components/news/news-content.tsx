@@ -24,13 +24,13 @@ export function NewsContent(props: IProps) {
               Joshua Jake /
             </p>
             <p className="font-medium text-[#9b9b9b] text-[15px] leading-[1.35]">
-              News, BTC
+              News, ETH
             </p>
           </div>
 
-          <p className="font-medium text-[#9b9b9b] text-[15px] leading-[1.35] hidden sm:block">
+          {/* <p className="font-medium text-[#9b9b9b] text-[15px] leading-[1.35] hidden sm:block">
             24 MIN READ
-          </p>
+          </p> */}
         </div>
         <div className="flex flex-col gap-4 app_news_content">
           {parse(normalizedContent)}
