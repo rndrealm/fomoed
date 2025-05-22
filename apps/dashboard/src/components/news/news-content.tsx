@@ -1,7 +1,9 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import parse from "html-react-parser";
 import { Footer } from "./footer";
+import { calculateReadingTime, normalizeHtmlText } from "@/lib/utils";
+import { RenderIf } from "../shared";
 
 interface IProps {
   content?: string;
@@ -9,8 +11,14 @@ interface IProps {
 
 export function NewsContent(props: IProps) {
   const { content = "" } = props;
+  const [mins, setMins] = useState("");
 
   const normalizedContent = content.replace(/(&nbsp;)+/g, " ");
+
+  useEffect(() => {
+    const readingTime = calculateReadingTime(content);
+    setMins(`${readingTime}`);
+  }, [content]);
 
   return (
     <div className="text-white flex flex-col gap-10 max-w-[640px] mx-auto">
@@ -29,11 +37,14 @@ export function NewsContent(props: IProps) {
               </p>
             </div>
 
-            {/* <p className="font-medium text-[#9b9b9b] text-[14px] leading-[1.35] hidden sm:block">
-              24 MIN READ
-            </p> */}
+            <RenderIf condition={!!mins}>
+              <p className="font-medium text-[#9b9b9b] text-[14px] leading-[1.35] hidden sm:block">
+                {mins} MIN READ
+              </p>
+            </RenderIf>
           </div>
           <div className="flex flex-col gap-4 app_news_content">
+            {/* {parse(normalizeHtmlText(content))} */}
             {parse(normalizedContent)}
           </div>
         </div>
