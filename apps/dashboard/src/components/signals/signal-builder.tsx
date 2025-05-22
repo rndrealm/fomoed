@@ -17,7 +17,6 @@ import NotificationSettings from "./notification-settings";
 import SignalDetails from "./signal-details";
 
 const SignalBuilder = ({}) => {
-  const [buildMode, setBuildMode] = useState<string>("manual");
   const [signalName, setSignalName] = useState("");
   const [signalDescription, setSignalDescription] = useState("");
   const [logic, setLogic] = useState<object | null>(null);

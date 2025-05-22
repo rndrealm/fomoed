@@ -15,10 +15,7 @@ import {
   CrosshairPluginConfig,
 } from "@/charts/plugins/CrosshairPlugin";
 import { TabOptions } from "@/constant/cfgi-data";
-import {
-  signalModalConfigAtom,
-  signalModalDataAtom,
-} from "@/lib/atoms/signalModalAtom";
+import { signalModalConfigAtom } from "@/lib/atoms/signalModalAtom";
 import { useAtom } from "jotai";
 
 registerChartPluginZoomInBrowser();
@@ -35,11 +32,6 @@ const DetailedCfgiChart = (props: ICfgiCard) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
   const [_, setSignalModalConfig] = useAtom(signalModalConfigAtom);
-  const [modelData] = useAtom(signalModalDataAtom);
-
-  useEffect(() => {
-    console.log("Signal Modal Data", modelData);
-  }, [modelData]);
 
   function get_data_color(data: number) {
     return data <= 25

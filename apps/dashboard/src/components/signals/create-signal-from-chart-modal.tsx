@@ -4,6 +4,7 @@ import {
 } from "@/lib/atoms/signalModalAtom";
 import { conditionToJsonLogic } from "@/lib/utils/signal.utils";
 import { useAtom } from "jotai";
+import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Condition } from "./condition-group";
 import ManualSignalBuilder from "./manual-signal-builder";
@@ -15,6 +16,13 @@ const CreateSignalFromChartModal = () => {
     signalModalConfigAtom
   );
   const [modelData] = useAtom(signalModalDataAtom);
+  const [signalActions, setSignalActions] = useState({
+    email: true,
+    notification: true,
+  });
+
+  const [signalName, setSignalName] = useState("");
+  const [signalDescription, setSignalDescription] = useState("");
 
   const logic = {
     and: [
@@ -43,18 +51,15 @@ const CreateSignalFromChartModal = () => {
           />
 
           <NotificationSettings
-            notifications={{
-              notification: true,
-              email: true,
-            }}
-            onUpdate={() => {}}
+            notifications={signalActions}
+            onUpdate={setSignalActions}
           />
 
           <SignalDetails
-            description="This is a test description"
-            name="Test Signal"
-            onDescriptionChange={() => {}}
-            onNameChange={() => {}}
+            name={signalName}
+            onNameChange={setSignalName}
+            onDescriptionChange={setSignalDescription}
+            description={signalDescription}
           />
         </DialogHeader>
       </DialogContent>
