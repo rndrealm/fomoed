@@ -19,3 +19,36 @@ export async function fetchPopularNews(token: string) {
 
   return data;
 }
+
+export async function fetchNewslabPosts() {
+  const supabase = createSupabaseBrowserClient();
+
+  const { data, error } = await supabase
+    .from("news")
+    .select("*")
+    .match({ source: "NewsLab" })
+    .order("published_at", { ascending: false });
+
+  if (error) {
+    console.log("Error fetching newslab posts:", error);
+    throw new Error(error.message);
+  }
+
+  return data;
+}
+export async function fetchSingleNewslabPosts(id: string) {
+  const supabase = createSupabaseBrowserClient();
+
+  const { data: newsItem, error } = await supabase
+    .from("news")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    console.log("Error fetching newslab posts:", error);
+    throw new Error(error.message);
+  }
+
+  return newsItem;
+}

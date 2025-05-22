@@ -4,8 +4,13 @@ import { LinkIcon, Twitter } from "../icons/icons";
 import Link from "next/link";
 import { toast } from "sonner";
 import { useRouter, usePathname } from "next/navigation";
+import { NewsRowInsert } from "@/services/queries/news/types";
+import { formatDate } from "@/lib/utils";
 
-export function Footer() {
+interface IProps {
+  article?: NewsRowInsert;
+}
+export function Footer({ article }: IProps) {
   const [pathName, setPathName] = useState("");
 
   useEffect(() => {
@@ -23,7 +28,7 @@ export function Footer() {
           <div className="h-[25px] w-[1px] bg-[#3C3C3C]"></div>
 
           <p className="text-[#5F5F5F] font-medium leading-[1.35] text-[14px]">
-            MAY 20, 2025
+            {formatDate(article?.published_at)}
           </p>
         </div>
         <div className="flex items-center gap-2">

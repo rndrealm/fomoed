@@ -1,5 +1,6 @@
 import { NewsContent } from "@/components/news";
-import { normalizeHtmlText } from "@/lib/utils";
+import { extractNewsContent, normalizeHtmlText } from "@/lib/utils";
+import { fetchPostContent } from "@/services/server-actions";
 import React, { Fragment } from "react";
 
 export async function generateMetadata({
@@ -8,18 +9,15 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const url = new URL(
-    `/api/newslab/single-post?id=${id}`,
-    "https://dashboard-dev.fomoed.io"
-  );
+  const text = await fetchPostContent(id);
 
-  const res = await fetch(url);
-  const post = await res.json();
+  const extractedText = extractNewsContent(text);
 
-  const normalizedTitle = normalizeHtmlText(post.title);
+  const title = normalizeHtmlText(extractedText.title || "") || "Untitled";
+  console.log("extractedText", title);
   return {
     title: "Fomoed News",
-    description: normalizedTitle,
+    description: title,
     metadataBase: new URL("https://dashboard-dev.fomoed.io"),
     openGraph: {
       images: "/og3.png",
@@ -37,14 +35,7 @@ export default async function Page({
 }) {
   const id = (await params)?.id || "";
 
-  const url = new URL(
-    `/api/newslab-posts/${id}`,
-    process.env.PUBLIC_NEWSLAB_URL
-  );
-
-  const res = await fetch(url);
-
-  const text = await res.text();
+  const text = await fetchPostContent(id);
 
   return (
     <div className="pt-[96px] bg-[#0C0C0C] h-screen overflow-auto pt-10 pb-14 px-4">
