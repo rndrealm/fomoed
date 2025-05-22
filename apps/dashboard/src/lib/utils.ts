@@ -1,8 +1,5 @@
 import { ExchangePairOption } from "@/charts/types";
-import {
-  InstrumentInfo,
-  SupportedPairsData,
-} from "@/services/queries/charts/types";
+import { SupportedPairsData } from "@/services/queries/charts/types";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { widgetIdJoin } from "./static";
@@ -184,4 +181,78 @@ export function calculateReadingTime(htmlContent: string) {
   }
 
   return Math.ceil(readingTime);
+}
+
+/**
+ * Formats an ISO date string to "MONTH DD, YYYY" format
+ * @param isoDateString ISO formatted date string
+ * @returns Formatted date string (e.g., "MAY 20, 2025")
+ */
+export function formatDate(isoDateString?: string): string {
+  if (!isoDateString) return "";
+
+  const date = new Date(isoDateString);
+
+  // Get month name and convert to uppercase
+  const months = [
+    "JAN",
+    "FEB",
+    "MAR",
+    "APR",
+    "MAY",
+    "JUN",
+    "JUL",
+    "AUG",
+    "SEP",
+    "OCT",
+    "NOV",
+    "DEC",
+  ];
+  const month = months[date.getMonth()];
+
+  // Get day and year
+  const day = date.getDate();
+  const year = date.getFullYear();
+
+  return `${month} ${day}, ${year}`;
+}
+
+/**
+ * Extracts the first h1 content and first image from HTML content
+ * @param htmlString The HTML content as a string
+ * @returns Object containing heading content and image information
+ */
+export function extractNewsContent(htmlString: string): {
+  title: string | null;
+  image: {
+    src: string | null;
+    alt: string | null;
+  };
+} {
+  // Extract h1 content
+  const h1Regex = /<h1>([\s\S]*?)<\/h1>/;
+  const h1Match = htmlString.match(h1Regex);
+  const title = h1Match ? h1Match[1] : null;
+
+  // Try to find a proper img tag first
+  const imgRegex =
+    /<img[\s\S]*?src=["'](.*?)["'][\s\S]*?(?:alt=["'](.*?)["'])?[\s\S]*?>/;
+  const imgMatch = htmlString.match(imgRegex);
+
+  // If no img tag found, look for [IMAGE: ...] pattern
+  const imageBracketRegex = /\[IMAGE: ([\s\S]*?)\]/;
+  const imageBracketMatch = !imgMatch && htmlString.match(imageBracketRegex);
+
+  return {
+    title,
+    image: {
+      src: imgMatch ? imgMatch[1] : null,
+      alt:
+        imgMatch && imgMatch[2]
+          ? imgMatch[2]
+          : imageBracketMatch
+            ? imageBracketMatch[1]
+            : null,
+    },
+  };
 }
