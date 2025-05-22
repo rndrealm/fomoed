@@ -162,3 +162,26 @@ export function normalizeHtmlText(htmlText: string): string {
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'");
 }
+
+export function calculateReadingTime(htmlContent: string) {
+  const normalizedContent = normalizeHtmlText(htmlContent);
+
+  const wordsPerMinute = 250; // Average reading speed
+  let wordCount = 0;
+  let imageCount = 0;
+
+  // Use a DOM parser or regex to extract text and count images
+  const text = normalizedContent.replace(/<[^>]+>/g, " "); // Strip HTML tags
+  wordCount = text.split(/\s+/).filter((word) => word.length > 0).length;
+  imageCount = (normalizedContent.match(/<img[^>]+>/gi) || []).length;
+  imageCount += (normalizedContent.match(/<img-placeholder[^>]+>/gi) || [])
+    .length;
+
+  // Calculate reading time: words / WPM + image adjustments
+  let readingTime = wordCount / wordsPerMinute;
+  for (let i = 0; i < imageCount; i++) {
+    readingTime += (12 - i) / 60; // Convert seconds to minutes
+  }
+
+  return Math.ceil(readingTime);
+}
