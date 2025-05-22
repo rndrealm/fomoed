@@ -16,18 +16,18 @@ export function Footer() {
     <div className="flex flex-col gap-5">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-5 border-[#202020] border-t">
         <div className="flex items-center gap-2">
-          <p className="text-white font-medium leading-[1.35] text-[15px]">
+          <p className="text-white font-medium leading-[1.35] text-[14px]">
             JOSHUA JAKE
           </p>
 
           <div className="h-[25px] w-[1px] bg-[#3C3C3C]"></div>
 
-          <p className="text-[#5F5F5F] font-medium leading-[1.35] text-[15px]">
+          <p className="text-[#5F5F5F] font-medium leading-[1.35] text-[14px]">
             MAY 20, 2025
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <p className="text-white font-medium leading-[1.35] text-[15px]">
+          <p className="text-white font-medium leading-[1.35] text-[14px]">
             Share Article
           </p>
           <div className="h-[25px] w-[1px] bg-[#3C3C3C]"></div>
