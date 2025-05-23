@@ -49,20 +49,21 @@ export const useReadTokenNews = (token: string = "BTC") => {
   };
 };
 
-export const useReadNewslabPosts = (id: string = "") => {
+export const useReadNewslabPosts = () => {
   const hash = ["news-lab-posts"];
   const { data, isPending, error, isSuccess } = useQuery({
     queryKey: hash,
     queryFn: async () => {
       const response = await fetchNewslabPosts();
-      return response as NewsRowInsert[];
+      return response as { data: NewsRowInsert[]; count: number };
     },
   });
   return {
-    data,
+    data: data?.data,
     isPending,
     isSuccess,
     error,
+    count: data?.count,
   };
 };
 export const useReadSingleNewslabPost = (id: string = "") => {
