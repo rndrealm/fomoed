@@ -4,11 +4,14 @@ import {
   useFetchTokenNews,
   useReadNewslabPosts,
 } from "@/services/queries/news";
-import React from "react";
+import React, { useState } from "react";
 
 const Feed = () => {
-  const { data, isPending } = useReadNewslabPosts();
   const { isPending: newsIsPending } = useFetchTokenNews();
+
+  const { data, isPending, count } = useReadNewslabPosts();
+  const [page, setPage] = useState(1);
+
   return (
     <main className="md:max-w-[45.75rem] mx-auto mt-[6.625rem] pb-[3rem] max-w-[500px] px-4">
       <h1 className="text-2xl font-medium text-white">News Feed</h1>

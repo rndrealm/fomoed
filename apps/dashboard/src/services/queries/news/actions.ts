@@ -23,9 +23,9 @@ export async function fetchPopularNews(token: string) {
 export async function fetchNewslabPosts() {
   const supabase = createSupabaseBrowserClient();
 
-  const { data, error } = await supabase
+  const { data, error, count } = await supabase
     .from("news")
-    .select("*")
+    .select("*", { count: "exact" })
     .match({ source: "NewsLab" })
     .order("published_at", { ascending: false });
 
@@ -33,8 +33,8 @@ export async function fetchNewslabPosts() {
     console.log("Error fetching newslab posts:", error);
     throw new Error(error.message);
   }
-
-  return data;
+  console.log("Newslab posts count:", count);
+  return { data, count };
 }
 export async function fetchSingleNewslabPosts(id: string) {
   const supabase = createSupabaseBrowserClient();
