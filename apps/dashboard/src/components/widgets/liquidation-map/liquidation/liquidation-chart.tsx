@@ -15,8 +15,6 @@ import {
 } from "@/charts/plugins/CrosshairPlugin";
 import { humanizeNumber } from "@/lib/utils";
 
-registerChartPluginZoomInBrowser();
-
 Chart.register(CrosshairPlugin);
 
 interface ICfgiCard {
@@ -25,6 +23,9 @@ interface ICfgiCard {
 }
 
 const LiquidationChart = (props: ICfgiCard) => {
+  useEffect(() => {
+    registerChartPluginZoomInBrowser();
+  }, []);
   const { liquidationData, viewOption } = props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);

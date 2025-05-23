@@ -2,6 +2,7 @@ import { registerChartPluginZoomInBrowser } from "@/charts/helpers";
 import { CfgiDataResponse } from "@/services/queries/charts/types";
 import type { ChartDataset } from "chart.js/auto";
 import Chart from "chart.js/auto";
+
 import "chartjs-adapter-dayjs-4/dist/chartjs-adapter-dayjs-4.esm";
 import type { ZoomPluginOptions } from "chartjs-plugin-zoom/types/options";
 import dayjs from "dayjs";
@@ -14,8 +15,6 @@ import {
 import { signalModalConfigAtom } from "@/lib/atoms/signalModalAtom";
 import { useAtom } from "jotai";
 
-registerChartPluginZoomInBrowser();
-
 Chart.register(CrosshairPlugin);
 
 interface ICfgiCard {
@@ -26,6 +25,9 @@ interface ICfgiCard {
 const color = "#47A663";
 
 const SimpleCfgiChart = (props: ICfgiCard) => {
+  useEffect(() => {
+    registerChartPluginZoomInBrowser();
+  }, []);
   const { cfgiData: data, viewOption } = props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
@@ -219,6 +221,7 @@ const SimpleCfgiChart = (props: ICfgiCard) => {
 
       chartRef.current.resize();
     },
+
     [data, setSignalModalConfig]
   );
 

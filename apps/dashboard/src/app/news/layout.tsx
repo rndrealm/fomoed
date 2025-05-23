@@ -1,7 +1,7 @@
 import { Navbar } from "@/components/shared";
 import { Fragment } from "react";
 
-export default function DashboardLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
