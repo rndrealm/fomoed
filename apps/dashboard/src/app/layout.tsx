@@ -51,7 +51,7 @@ export default function RootLayout({
     // Keep h-full for filling vertical space in iframes.
     <html lang="en" className="h-full">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full bg-[#0C0C0C]`}
       >
         <QueryProvider>
           <UserProvider>{children}</UserProvider>

@@ -15,6 +15,7 @@ import tokenNews from "../../../../public/media/images/dashboard/token-news.png"
 import folder from "../../../../public/media/images/dashboard/folder.png";
 import heat from "../../../../public/media/images/dashboard/heat.png";
 import simple from "../../../../public/media/images/dashboard/simple.png";
+import settings from "../../../../public/media/images/dashboard/settings.svg";
 
 const dashboard = {
   layoutPlaceholder,
@@ -34,6 +35,7 @@ const dashboard = {
   folder,
   heat,
   simple,
+  settings,
 };
 
 export default dashboard;

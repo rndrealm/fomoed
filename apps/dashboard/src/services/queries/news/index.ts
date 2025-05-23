@@ -1,7 +1,11 @@
 import api from "@/services/api";
 import { useQuery } from "@tanstack/react-query";
 import { CryptopanicPost, NewsRowInsert } from "./types";
-import { fetchPopularNews } from "./actions";
+import {
+  fetchNewslabPosts,
+  fetchPopularNews,
+  fetchSingleNewslabPosts,
+} from "./actions";
 
 export const useFetchTokenNews = () => {
   const hash = ["news"];
@@ -36,6 +40,58 @@ export const useReadTokenNews = (token: string = "BTC") => {
       return response as NewsRowInsert[];
     },
     refetchInterval: 1000 * 60 * 5,
+  });
+  return {
+    data,
+    isPending,
+    isSuccess,
+    error,
+  };
+};
+
+export const useReadNewslabPosts = () => {
+  const hash = ["news-lab-posts"];
+  const { data, isPending, error, isSuccess } = useQuery({
+    queryKey: hash,
+    queryFn: async () => {
+      const response = await fetchNewslabPosts();
+      return response as { data: NewsRowInsert[]; count: number };
+    },
+  });
+  return {
+    data: data?.data,
+    isPending,
+    isSuccess,
+    error,
+    count: data?.count,
+  };
+};
+export const useReadSingleNewslabPost = (id: string = "") => {
+  const hash = ["news-lab-post", id];
+  const { data, isPending, error, isSuccess } = useQuery({
+    queryKey: hash,
+    queryFn: async () => {
+      const response = await fetchSingleNewslabPosts(id);
+      return response as NewsRowInsert;
+    },
+  });
+  return {
+    data,
+    isPending,
+    isSuccess,
+    error,
+  };
+};
+export const useReadNewslabContent = (id: string = "") => {
+  const hash = ["news-lab-content", id];
+  const { data, isPending, error, isSuccess } = useQuery({
+    queryKey: hash,
+    queryFn: async () => {
+      const response = await api.get({
+        url: `/api/newslab-posts/${id}`,
+      });
+      return response;
+    },
   });
   return {
     data,

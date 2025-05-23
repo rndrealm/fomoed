@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useRef, useCallback } from "react";
 import Chart from "chart.js/auto";
 import type { ChartDataset } from "chart.js/auto";
@@ -16,8 +18,6 @@ import {
 } from "@/charts/plugins/CrosshairPlugin";
 import { TabOptions } from "@/constant/cfgi-data";
 
-registerChartPluginZoomInBrowser();
-
 Chart.register(CrosshairPlugin);
 
 interface ICfgiCard {
@@ -26,6 +26,9 @@ interface ICfgiCard {
 }
 
 const DetailedCfgiChart = (props: ICfgiCard) => {
+  useEffect(() => {
+    registerChartPluginZoomInBrowser();
+  }, []);
   const { cfgiData, viewOption } = props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
