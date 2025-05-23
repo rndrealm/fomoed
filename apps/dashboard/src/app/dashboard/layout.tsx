@@ -9,7 +9,7 @@ export default function DashboardLayout({
   return (
     <Fragment>
       <div className="absolute inset-x-0 top-0">
-        <Navbar isNews />
+        <Navbar />
       </div>
       {children}
     </Fragment>
