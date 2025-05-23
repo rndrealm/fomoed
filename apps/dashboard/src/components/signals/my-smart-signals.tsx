@@ -1,4 +1,6 @@
+import { activeSignalTabAtom } from "@/lib/atoms/signalTabsAtom";
 import { useSmartSignals } from "@/services/queries/signals";
+import { useAtom } from "jotai";
 import { LoaderCircle, Plus } from "lucide-react";
 import { RenderIf } from "../shared";
 import { Card, CardContent } from "../ui/card";
@@ -20,6 +22,7 @@ const EmptyState = () => {
 
 const MySignals = () => {
   const { data: smartSignals = [], isLoading, isFetched } = useSmartSignals();
+  const [_, setActiveSignalTab] = useAtom(activeSignalTabAtom);
 
   if (isLoading) {
     return (
@@ -34,7 +37,10 @@ const MySignals = () => {
       <div className="flex items-center justify-between my-6">
         <h1 className="font-medium text-xl">My Smart Signals</h1>
 
-        <button className="bg-fomoed-red text-white px-2 py-1 rounded flex items-center text-sm">
+        <button
+          onClick={() => setActiveSignalTab("signal-builder")}
+          className="bg-fomoed-red text-white px-2 py-1 rounded flex items-center text-sm"
+        >
           <Plus size={12} />
           New Signal
         </button>

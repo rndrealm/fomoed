@@ -14,6 +14,7 @@ const SignalAISchema = z.object({
 });
 
 // System prompt for the LLM
+// todo: add more examples and imprve the prompt
 const aiPrompt = `
 You are an expert at creating crypto trading signals using JSON-logic. 
 Given a user's request, generate a JSON object with the following structure:
@@ -34,8 +35,14 @@ If the user requests a signal for an unsupported or invalid currency pair, respo
   "message": "Invalid currency"
 }
 
-Supported currency pairs: BTCUSD, ETHUSD, SOLUSD.
-Supported data sources: price (e.g., "ticker_BTCUSD"), cfgi (e.g., "cfgi_BTC").
+Supported currency pairs: BTCUSD, ETHUSD, SOLUSD or other currencies supporded by coinbase API.
+
+Supported data sources (examples): 
+- coin pric (eg: [ticker_BTCUSD, price], [ticker_ETHUSD, price], [ticker_SOLUSD, price])
+- coin fear and greed index (eg: [cfgi_BTC, cfgi], [cfgi_ETH, cfgi], [cfgi_SOL, cfgi])
+- youtube streaming status (eg: ["youtube_streaming_DiscoverCrypto","isStreaming"] currently only this channel is supported)
+
+===================
 
 Example user prompt #1: "alert me when bitcoin goes above 80000 and btc cfgi goes above 68"
 
@@ -89,7 +96,6 @@ export async function POST(req: Request) {
     // Parse user prompt from request
     const { prompt } = await req.json();
 
-    console.log("🚀 ~ POST ~ prompt:", prompt);
     // Use aiPrompt as system prompt, and user prompt as input
     const { object } = await generateObject({
       model: openai("gpt-4o"),
@@ -97,11 +103,9 @@ export async function POST(req: Request) {
       prompt: prompt,
       schema: SignalAISchema,
     });
-    console.log("🚀 ~ POST ~ object:", object);
 
     // const parsed = JSON.parse(text);
     const parsed = object;
-    // console.log("🚀 ~ POST ~ parsed:", parsed);
 
     return NextResponse.json({ data: parsed });
   } catch (e) {

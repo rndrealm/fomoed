@@ -52,10 +52,10 @@ export default function RootLayout({
     // Keep h-full for filling vertical space in iframes.
     <html lang="en" className="h-full" suppressHydrationWarning>
       <head>
-        <script
+        {/* <script
           crossOrigin="anonymous"
           src="//unpkg.com/react-scan/dist/auto.global.js"
-        />
+        /> */}
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased h-full bg-[#0C0C0C]`}
