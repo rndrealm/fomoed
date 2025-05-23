@@ -12,7 +12,7 @@ export async function registerChartPluginZoomInBrowser() {
   Chart.register(pluginZoom.default);
 }
 export async function registerCandleStickPluginBrowser() {
-  if (!window) return;
+  // if (!window) return;
 
   const { CandlestickController, CandlestickElement } = await import(
     "chartjs-chart-financial"
@@ -338,6 +338,18 @@ export function evaluate_cmap(x: number, name: "viridis", reverse?: boolean) {
   }
 }
 
+export type RGB = { r: number; g: number; b: number };
+/**
+ * Linearly interpolates between two values.
+ * @param start - The start value.
+ * @param end - The end value.
+ * @param t - The interpolation factor (0 to 1).
+ * @returns The interpolated value.
+ */
+function lerp(start: number, end: number, t: number): number {
+  return start + t * (end - start);
+}
+
 /**
  * Function to return a color string in the format of `rgb(r, g, b)`.
  * @param r
@@ -358,4 +370,144 @@ export function getGridPosition(count: number) {
   const x = count % 2 === 0 ? 0 : 4;
   const y = Math.floor(count / 2) * 2;
   return { x, y };
+}
+
+export function smartRoundPriceStep(step: number) {
+  const digits = Math.floor(Math.log10(step));
+  const factor = Math.pow(10, digits + 1);
+
+  return Math.ceil(step / factor) * factor;
+}
+
+/**
+ * Converts a time interval string to milliseconds.
+ *
+ * @param interval - A string representing a time interval in the format "<number><unit>"
+ *                  where unit can be:
+ *                  - 'm' for minutes
+ *                  - 'h' for hours
+ *                  - 'D' for days
+ *                  - 'W' for weeks
+ *                  - 'M' for months (approximated as 30 days, i.e., 2592000000 milliseconds)
+ *
+ * @returns The interval converted to milliseconds
+ *
+ * @throws {Error} If the interval format is invalid or the unit is not recognized
+ *
+ * @example
+ * timeIntervalStringToM('1h')  // returns 3600000 (1 hour in milliseconds)
+ * timeIntervalStringToM('24h') // returns 86400000 (24 hours in milliseconds)
+ * timeIntervalStringToM('7D')  // returns 604800000 (7 days in milliseconds)
+ */
+export function timeIntervalStringToMs(interval: string): number {
+  const timeMultipliers: { [key: string]: number } = {
+    m: 60 * 1000,
+    h: 60 * 60 * 1000,
+    D: 24 * 60 * 60 * 1000,
+    W: 7 * 24 * 60 * 60 * 1000,
+    M: 30 * 24 * 60 * 60 * 1000, // Approximation for a month (2592000000 milliseconds)
+  };
+
+  const unit = interval.slice(-1);
+  const value = parseInt(interval.slice(0, -1), 10);
+
+  if (!timeMultipliers[unit] || isNaN(value)) {
+    throw new Error("Invalid interval format");
+  }
+
+  return value * timeMultipliers[unit];
+}
+
+export function getNextFromArray(array: readonly any[], current: any) {
+  const currentIndex = array.indexOf(current);
+  const nextIndex = (currentIndex + 1) % array.length;
+
+  return array[nextIndex];
+}
+
+export function getPointerEventDistance(p1: PointerEvent, p2: PointerEvent) {
+  const dx = p1.clientX - p2.clientX;
+  const dy = p1.clientY - p2.clientY;
+
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+/**
+ * Maps a value from a given range to a color gradient between two RGB colors.
+ * @param value - The value to map between 0-1.
+ * @param color1 - The starting RGB color.
+ * @param color2 - The ending RGB color.
+ * @returns The resulting RGB color.
+ */
+export function mapValueToRgbColor(
+  value: number,
+  color1: RGB,
+  color2: RGB
+): RGB {
+  // Ensure the value is clamped within the range
+  // value = Math.max(min, Math.min(max, value));
+
+  // Interpolate each channel
+  const r = Math.round(lerp(color1.r, color2.r, value));
+  const g = Math.round(lerp(color1.g, color2.g, value));
+  const b = Math.round(lerp(color1.b, color2.b, value));
+
+  return { r, g, b };
+}
+
+/**
+ *
+ * @param value
+ * @param nChars Minimum 2
+ * @returns
+ */
+export function numberToChars(value: number, nChars: number): string {
+  const suffixes = ["", "k", "m"];
+  let suffixIndex = 0;
+
+  // Scale the number to fit the appropriate suffix
+  while (value >= 1000 && suffixIndex < suffixes.length - 1) {
+    value /= 1000;
+    suffixIndex++;
+  }
+
+  const beforeDecimalDigitCount = value.toFixed(0).length;
+  const remainingCharCount = nChars - beforeDecimalDigitCount;
+
+  // if more than 4, start's to be buggy
+  // 2 for the dot and the suffix
+  let afterDecimalDigitCount = Math.min(4, remainingCharCount - 2);
+
+  afterDecimalDigitCount = Math.max(0, afterDecimalDigitCount);
+
+  let formattedValue = value.toFixed(afterDecimalDigitCount);
+
+  // Keep at most one trailing zero
+  while (formattedValue.endsWith("0")) {
+    formattedValue = formattedValue.slice(0, -1);
+  }
+
+  if (formattedValue.includes(".")) {
+    formattedValue += "0";
+  }
+
+  return formattedValue + suffixes[suffixIndex];
+}
+
+export function formatPriceScaleValue(n: number, priceStep: number) {
+  const stepDigits = Math.floor(Math.log10(priceStep));
+
+  if (priceStep < 100) {
+    return n.toFixed(Math.max(0, -stepDigits));
+  }
+
+  if (priceStep < 1000) {
+    return (n / 1000).toFixed(2) + "k";
+  }
+
+  return (n / 1000).toFixed(0) + "k";
+}
+
+export function rgbToString(rgb: RGB, alpha = 1) {
+  return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
 }

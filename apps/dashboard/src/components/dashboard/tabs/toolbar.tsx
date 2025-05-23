@@ -45,11 +45,16 @@ interface IToolbarItem {
 
 function ToolbarItem(props: IToolbarItem) {
   const { onClick, label, icon, disabled } = props;
+
   return (
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger onClick={onClick} disabled={disabled}>
-          <div className={ cn("h-[28px] w-[28px] flex items-center justify-center group") }>
+          <div
+            className={cn(
+              "h-[28px] w-[28px] flex items-center justify-center group"
+            )}
+          >
             {icon}
           </div>
         </TooltipTrigger>

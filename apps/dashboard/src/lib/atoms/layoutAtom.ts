@@ -22,12 +22,13 @@ export interface LayoutType {
   widgets: {
     id: string;
     meta: ReactGridLayout.Layout;
-    props: {
-      token?: string;
-      period?: string;
-      exchange_token?: string;
-      sentiment_tab?: string;
-    };
+    props: any;
+    // props: {
+    //   token?: string;
+    //   period?: string;
+    //   exchange_token?: string;
+    //   sentiment_tab?: string;
+    // };
   }[];
 }
 
