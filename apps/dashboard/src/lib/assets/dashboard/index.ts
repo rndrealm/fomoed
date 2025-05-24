@@ -16,6 +16,8 @@ import folder from "../../../../public/media/images/dashboard/folder.png";
 import heat from "../../../../public/media/images/dashboard/heat.png";
 import simple from "../../../../public/media/images/dashboard/simple.png";
 import settings from "../../../../public/media/images/dashboard/settings.svg";
+import left from "../../../../public/media/images/dashboard/left.svg";
+import right from "../../../../public/media/images/dashboard/right.svg";
 
 const dashboard = {
   layoutPlaceholder,
@@ -36,6 +38,8 @@ const dashboard = {
   heat,
   simple,
   settings,
+  left,
+  right,
 };
 
 export default dashboard;
