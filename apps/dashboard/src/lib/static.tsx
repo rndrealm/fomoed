@@ -367,3 +367,14 @@ export const widgetPropsDefaults = {
     },
   },
 };
+
+export const tourSteps = [
+  {
+    selector: "#first-step",
+    content: "Click here to add a new widget to your dashboard.",
+  },
+  {
+    selector: "#second-step",
+    content: "Click here to see your saved and unsaved layouts.",
+  },
+];
