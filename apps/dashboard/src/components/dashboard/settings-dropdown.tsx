@@ -128,7 +128,7 @@ export function SettingsDropdown() {
           </TooltipTrigger>
           <TooltipContent side="bottom" className="bg-[#101010]">
             <p className="text-[#afafaf] text-xs font-semibold leading-[1.25]">
-              Settings
+              Settingsa
             </p>
           </TooltipContent>
         </Tooltip>
