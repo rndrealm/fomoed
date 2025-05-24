@@ -10,8 +10,8 @@ import React, { Fragment, Suspense } from "react";
 export default async function Page() {
   // const { data: dashboardData } = useGetDashboardData();
   // const { data: newsData } = useFetchTokenNews();
-  await fetchNewsData();
   const dashboardData = await getDashboardData();
+  // await fetchNewsData();
   return (
     // <Fragment>
     //   {dashboardData ? <Home dashboardData={dashboardData} /> : <Loader />}
