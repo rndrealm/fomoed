@@ -16,6 +16,7 @@ import { Navbar } from "../shared";
 import { TourProvider } from "@reactour/tour";
 import { tourSteps } from "@/lib/static";
 import { OnboardingModal } from "./shared/onboarding-modal";
+import { useFetchTokenNews } from "@/services/queries/news";
 
 interface IProps {
   dashboardData: IDashboardData;
@@ -24,6 +25,8 @@ export default function Home({ dashboardData }: IProps) {
   const loadTabsFromApi = useSetAtom(loadTabsFromApiAtom);
   const loadLayoutsFromApi = useSetAtom(loadLayoutsFromApiAtom);
   const loadSettingsFromApi = useSetAtom(loadSettingsFromApiAtom);
+
+  const { data: newsData } = useFetchTokenNews();
 
   useEffect(() => {
     loadTabsFromApi(dashboardData.tabs);
@@ -77,7 +80,7 @@ export default function Home({ dashboardData }: IProps) {
     };
   }, [utils, setUtils]);
 
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
   };
