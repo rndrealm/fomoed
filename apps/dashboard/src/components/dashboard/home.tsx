@@ -13,6 +13,9 @@ import { loadTabsFromApiAtom } from "@/lib/atoms/tabsAtom";
 import { loadLayoutsFromApiAtom } from "@/lib/atoms/layoutAtom";
 import { loadSettingsFromApiAtom } from "@/lib/atoms/settingsAtom";
 import { Navbar } from "../shared";
+import { TourProvider } from "@reactour/tour";
+import { tourSteps } from "@/lib/static";
+import { OnboardingModal } from "./shared/onboarding-modal";
 
 interface IProps {
   dashboardData: IDashboardData;
@@ -74,8 +77,14 @@ export default function Home({ dashboardData }: IProps) {
     };
   }, [utils, setUtils]);
 
+  const [isOpen, setIsOpen] = useState(true);
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+  };
+
   return (
-    <Fragment>
+    <TourProvider steps={tourSteps}>
+      <OnboardingModal isOpen={isOpen} onOpenChange={handleOpenChange} />
       <div
         className={cn(
           "h-screen pt-[96px] px-4 pb-4 overflow-hidden bg-[#0C0C0C]",
@@ -95,6 +104,6 @@ export default function Home({ dashboardData }: IProps) {
           />
         </div>
       </div>
-    </Fragment>
+    </TourProvider>
   );
 }

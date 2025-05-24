@@ -25,8 +25,6 @@ export async function fetchNewslabPosts(page: number = 1, limit: number = 20) {
   const supabase = createSupabaseBrowserClient();
 
   const { from, to } = getPaginationMeta(page, limit);
-  console.log("from", from, "to", to);
-  console.log("page", page, "limit", limit);
 
   const { data, error, count } = await supabase
     .from("news")

@@ -155,6 +155,7 @@ export function Toolbar() {
         <div className="flex items-center gap-2">
           <button
             type="button"
+            id="first-step"
             className="flex gap-[6px] items-center w-[102px] h-[32px] bg-[#FF3B10] text-xs font-medium text-white rounded-md justify-center"
             onClick={() => {
               setShowWidgetsModal(true);
