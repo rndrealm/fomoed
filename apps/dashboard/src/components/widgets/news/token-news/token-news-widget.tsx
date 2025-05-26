@@ -21,9 +21,9 @@ const TokenNewsWidget = (props: IProps) => {
   const { data: coinData } = useReadCoinList();
   const activeLayout = useAtomValue(activeTabAtom);
   const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
-  const { isSuccess } = useFetchTokenNews();
+  // const { isSuccess } = useFetchTokenNews();
 
-  const { data: newsData } = useReadTokenNews(widget.props.token, isSuccess);
+  const { data: newsData } = useReadTokenNews(widget.props.token, true);
 
   return (
     <div className="bg-[#080808] border border-[#1b1b1b] rounded-[12px] px-3 py-3 h-full flex flex-col items-center justify-center flex-1 w-full ">

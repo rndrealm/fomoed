@@ -30,5 +30,6 @@ export interface IDashboardData {
   settings: {
     id: string;
     auto_save: boolean;
+    active_tab_id?: string | null;
   };
 }

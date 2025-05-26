@@ -1,4 +1,3 @@
-import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
 import { createSupabaseServerComponentClient } from "@/lib/utils/supabase/server-client";
 import { v4 as uuidv4 } from "uuid";
 
@@ -38,7 +37,8 @@ export const getDashboardData = async () => {
       `
         id,
         user_id,
-        auto_save
+        auto_save,
+        active_tab_id
       `
     )
     .eq("user_id", user.id);
@@ -53,6 +53,7 @@ export const getDashboardData = async () => {
       id: uuidv4(),
       user_id: user.id,
       auto_save: true,
+      active_tab_id: null,
     };
 
     const { error: insertError } = await supabase

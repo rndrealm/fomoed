@@ -2,7 +2,6 @@ export { AddTab } from "./tabs/add-tab";
 export { AddWidget } from "./add-widget";
 export { DashboardContent } from "./dashboard-content";
 export { DashboardWidgets } from "./dashboard-widgets";
-export { EmptyTab } from "./tabs/empty-tab";
 export { FullscreenBtn } from "./fullscreen-btn";
 export { NewTabs } from "./tabs/new-tab";
 export { Loader } from "./loader";

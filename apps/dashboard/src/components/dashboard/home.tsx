@@ -1,5 +1,5 @@
 "use client";
-import React, { Fragment, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   DashboardContent,
   FullscreenBtn,
@@ -26,10 +26,10 @@ export default function Home({ dashboardData }: IProps) {
   const loadLayoutsFromApi = useSetAtom(loadLayoutsFromApiAtom);
   const loadSettingsFromApi = useSetAtom(loadSettingsFromApiAtom);
 
-  const { data: newsData } = useFetchTokenNews();
+  // const { data: newsData } = useFetchTokenNews();
 
   useEffect(() => {
-    loadTabsFromApi(dashboardData.tabs);
+    loadTabsFromApi(dashboardData.tabs, dashboardData.settings.active_tab_id);
     loadLayoutsFromApi(dashboardData.layouts);
     loadSettingsFromApi(dashboardData.settings);
   }, [

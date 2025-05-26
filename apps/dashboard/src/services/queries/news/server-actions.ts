@@ -66,9 +66,9 @@ async function fetchNews() {
   url.searchParams.set("approved", "true");
 
   const res = await fetch(url);
-  console.log("Fetching news from CryptoPanic:", res);
+  // console.log("Fetching news from CryptoPanic:", res);
   if (!res.ok) {
-    console.log(await res.text());
+    // console.log(await res.text());
     throw new Error("Failed to fetch news from CryptoPanic");
   }
 

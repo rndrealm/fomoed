@@ -1,5 +1,8 @@
 import { IDashboardData } from "@/services/queries/home/types";
-import { updateSettingsAction } from "@/services/queries/settings/actions";
+import {
+  updateSettingsAction,
+  updateSettingsActiveTab,
+} from "@/services/queries/settings/actions";
 import { atom } from "jotai";
 
 export const initialSetting = {
