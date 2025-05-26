@@ -31,7 +31,7 @@ export const useFetchTokenNews = () => {
   };
 };
 
-export const useReadTokenNews = (token: string = "BTC") => {
+export const useReadTokenNews = (token: string = "BTC", start?: boolean) => {
   const hash = ["token-news", token];
   const { data, isPending, error, isSuccess } = useQuery({
     queryKey: hash,
@@ -40,6 +40,7 @@ export const useReadTokenNews = (token: string = "BTC") => {
       return response as NewsRowInsert[];
     },
     refetchInterval: 1000 * 60 * 5,
+    enabled: start,
   });
   return {
     data,
