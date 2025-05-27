@@ -2,6 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 
 import api from "../../api";
 import {
+  BinanceKlineFormatted,
+  BinanceKlineRaw,
   CfgiDataResponse,
   CoinListResponse,
   FormatLiquidationDataResult,
@@ -194,5 +196,41 @@ export const useFetchLiquidDataMerged = (
     isPending,
     isSuccess,
     error,
+  };
+};
+
+export const useFetchBinancePriceData = (
+  symbol?: string, // e.g., 'BTCUSDT'
+  interval?: string, // e.g., '1h', '1d'
+  limit: number = 100 // Number of candles (max 1000)
+) => {
+  const queryKey = ["binance-price", symbol, interval, limit];
+
+  const res = useQuery<unknown>({
+    queryKey,
+    queryFn: async () => {
+      const response = await api.get({
+        url: `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`,
+      });
+
+      return response;
+    },
+    enabled: !!symbol && !!interval,
+  });
+
+  const transformedData: BinanceKlineFormatted[] | undefined = (
+    res.data as BinanceKlineRaw[]
+  )?.map(([time, open, high, low, close]) => ({
+    time: Math.floor(time / 1000),
+    open: parseFloat(open),
+    high: parseFloat(high),
+    low: parseFloat(low),
+    close: parseFloat(close),
+    value: parseFloat(close),
+  }));
+
+  return {
+    ...res,
+    data: transformedData,
   };
 };

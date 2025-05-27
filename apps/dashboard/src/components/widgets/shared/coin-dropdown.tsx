@@ -12,6 +12,7 @@ import Image from "next/image";
 import { ChevronDown } from "lucide-react";
 import { cfgi_supported_tokens } from "@/constant/cfgi-data";
 import { useGetUserPlans } from "@/services/queries/subscriptions";
+import { RenderIf } from "@/components/shared";
 
 interface ICoinDropdownProps {
   options: CoinDataInterface[];
@@ -30,12 +31,14 @@ const CoinDropdown = (props: ICoinDropdownProps) => {
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-2 cursor-pointer whitespace-nowrap">
           <div className="flex-shrink-0">
-            <Image
-              width={32}
-              height={32}
-              src={activeCoin?.icon || ""}
-              alt="Coin Icon"
-            />
+            <RenderIf condition={!!activeCoin?.icon}>
+              <Image
+                width={32}
+                height={32}
+                src={activeCoin?.icon || ""}
+                alt="Coin Icon"
+              />
+            </RenderIf>
           </div>
           <div>
             <h1 className="text-base font-medium text-white font-inter">
