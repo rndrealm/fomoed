@@ -256,3 +256,21 @@ export function extractNewsContent(htmlString: string): {
     },
   };
 }
+
+export function formatPriceSignificant(value: string) {
+  const num = Number(value);
+  if (num === 0) return "0";
+
+  if (num >= 1) {
+    // For numbers >= 1, format with commas and exactly 2 decimals
+    return num.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  } else {
+    // For small numbers < 1, show up to 8 decimals, trimming trailing zeros
+    let fixed = num.toFixed(8);
+    fixed = fixed.replace(/\.?0+$/, ""); // remove trailing zeros and dot if integer
+    return fixed;
+  }
+}

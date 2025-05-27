@@ -285,6 +285,14 @@ button:hover {
   margin: 1rem 0;
 }
 
+.app_line_chart_component {
+  background: url("../../public/media/images/dashboard/price-chart-bg.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center calc(50% - 30px);
+}
+
 @keyframes shine {
   to {
     background-position: right -40px top 0;
