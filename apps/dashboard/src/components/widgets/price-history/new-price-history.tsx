@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import {
   CandleStick,
@@ -74,17 +74,22 @@ interface IProps {
 export default function NewPriceHistory(props: IProps) {
   const { widget } = props;
 
-  const [isCandleStick, setIsCandleStick] = useState(false);
+  const [isCandleStick, setIsCandleStick] = useState(true);
 
   const { data: coinData = [] } = useReadCoinList();
 
   const activeLayout = useAtomValue(activeTabAtom);
   const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
 
-  const { data = [] } = useFetchBinancePriceData(
+  const { data = [], refetch } = useFetchBinancePriceData(
     `${widget?.props?.token}USDT`,
     widget?.props?.period
   );
+
+  useEffect(() => {
+    refetch();
+    // eslint-disable-next-line
+  }, [isCandleStick]);
 
   return (
     <div className="flex flex-col gap-2 bg-[#000] pt-6 pb-4 rounded-[30px] h-full">
@@ -160,6 +165,7 @@ export default function NewPriceHistory(props: IProps) {
           data={data}
           token={widget?.props?.token}
           period={widget?.props?.period}
+          isCandleStick={isCandleStick}
         />
       </div>
     </div>
