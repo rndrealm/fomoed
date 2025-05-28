@@ -6,6 +6,7 @@ import {
   LineType,
   LineStyle,
   ISeriesApi,
+  CandlestickSeries,
 } from "lightweight-charts";
 
 interface ChartColors {
@@ -19,6 +20,7 @@ interface IProps {
   colors?: ChartColors;
   token?: string;
   period?: string;
+  isCandleStick?: boolean;
 }
 
 const Chart = (props: IProps) => {
@@ -31,10 +33,12 @@ const Chart = (props: IProps) => {
     } = {},
     token = "btc",
     period = "1d",
+    isCandleStick = true,
   } = props;
 
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const seriesRef = useRef<ISeriesApi<any>>(null);
+  const candleSeriesRef = useRef<ISeriesApi<any>>(null);
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
@@ -86,14 +90,17 @@ const Chart = (props: IProps) => {
       lineType: LineType.Curved,
     });
 
-    // const _areaSeries = chart.addAreaSeries({
-    //   lineColor,
-    //   topColor: areaTopColor,
-    //   bottomColor: areaBottomColor,
-    // });
+    const candleSeries = chart.addSeries(CandlestickSeries);
 
-    areaSeries.setData(data);
+    if (isCandleStick) {
+      candleSeries.setData(data);
+    } else {
+      areaSeries.setData(data);
+    }
+
     seriesRef.current = areaSeries;
+    candleSeriesRef.current = candleSeries;
+
     const len = data?.length;
     const from = data[len - 20]?.time;
     const to = data[len - 1]?.time;
@@ -118,7 +125,7 @@ const Chart = (props: IProps) => {
       observer.disconnect();
       chart.remove();
     };
-  }, [data, backgroundColor, lineColor, textColor]);
+  }, [data, backgroundColor, lineColor, textColor, isCandleStick]);
 
   useEffect(() => {
     if (!token || !seriesRef.current || !period) return;
@@ -148,14 +155,18 @@ const Chart = (props: IProps) => {
         // if (lastData && candlestickData.time >= lastData.time) {
         //   seriesRef.current.update(candlestickData);
         // }
-        seriesRef.current.update(candlestickData);
+        if (isCandleStick) {
+          candleSeriesRef.current?.update(candlestickData);
+        } else {
+          seriesRef.current.update(candlestickData);
+        }
       }
     };
 
     return () => {
       ws.close();
     };
-  }, [token, period, data]);
+  }, [token, period, data, isCandleStick]);
 
   return (
     <div
