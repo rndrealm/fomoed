@@ -17,7 +17,7 @@ const del = async ({ url, body: data }: Request) => {
 
 const get = async ({ url, auth = true }: Request) => {
   const ald = await (auth ? axiosInstance.get(url) : axios.get(url));
-  return ald;
+  return ald as any;
 };
 
 const post = async ({ url, body, auth = true }: Request) => {

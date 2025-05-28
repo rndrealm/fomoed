@@ -64,6 +64,10 @@
     #121212 -22.5%,
     #1e1e1e 217.5%
   );
+  --text-mid: 0.9375rem;
+  --text-xxs: 0.625rem;
+  --text-xxxs: 0.5rem;
+  --spacing-sm: 0.625rem;
 }
 
 :root {
