@@ -274,3 +274,23 @@ export function formatPriceSignificant(value: string) {
     return fixed;
   }
 }
+
+export function formatSummaryDate(date = new Date()) {
+  const monthDayFormatter = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "2-digit",
+  });
+
+  const weekdayFormatter = new Intl.DateTimeFormat("en-US", {
+    weekday: "long",
+  });
+
+  const [{ value: month }, , { value: day }] =
+    monthDayFormatter.formatToParts(date);
+  const weekday = weekdayFormatter.format(date);
+
+  return {
+    date: `${month}’ ${day}`,
+    weekday,
+  };
+}

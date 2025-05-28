@@ -74,7 +74,7 @@ interface IProps {
 export default function NewPriceHistory(props: IProps) {
   const { widget } = props;
 
-  const [isCandleStick, setIsCandleStick] = useState(true);
+  const [isCandleStick, setIsCandleStick] = useState(false);
 
   const { data: coinData = [] } = useReadCoinList();
 
