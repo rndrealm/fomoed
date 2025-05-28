@@ -1,4 +1,5 @@
 import { CFGIConfig } from "@/components/signals/data-configs/CFGIConfig";
+import { MarketCapConfig } from "@/components/signals/data-configs/MarketCapConfig";
 import { PriceTickerConfig } from "@/components/signals/data-configs/PriceTickerConfig";
 import { VolumeTickerConfig } from "@/components/signals/data-configs/VolumeTickerConfig";
 import { YouTubeChannelConfig } from "@/components/signals/data-configs/YouTubeChannelConfig";
@@ -20,8 +21,8 @@ export const signalDataSources: SignalDataSourceGroup[] = [
     dataSources: [
       { name: "Price", id: "price" },
       { name: "CFGI", id: "cfgi" },
-      { name: "Trading Volume", id: "volume_24" },
-      { name: "Market Capitalization", id: "market_cap", disabled: true },
+      { name: "Trading Volume", id: "volume_24h" },
+      { name: "Market Capitalization", id: "market_cap" },
     ],
   },
   {
@@ -63,9 +64,14 @@ export const topicSelectorMap: Record<
     allowedOperators: ["==", "!="],
     valueType: "boolean",
   },
-  volume_24: {
+  volume_24h: {
     component: VolumeTickerConfig,
-    allowedOperators: [">", "<", "==", "!="],
+    allowedOperators: [">", "<"],
+    valueType: "number",
+  },
+  market_cap: {
+    component: MarketCapConfig,
+    allowedOperators: [">", "<"],
     valueType: "number",
   },
 };
