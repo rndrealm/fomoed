@@ -41,6 +41,7 @@ export default function PriceTokenDropdown(props: IProps) {
 
   useEffect(() => {
     if (open) {
+      setSearchValue("");
       // Slight delay ensures the input is mounted
       setTimeout(() => {
         inputRef.current?.focus();
