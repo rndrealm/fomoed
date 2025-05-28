@@ -18,6 +18,12 @@ import simple from "../../../../public/media/images/dashboard/simple.png";
 import settings from "../../../../public/media/images/dashboard/settings.svg";
 import left from "../../../../public/media/images/dashboard/left.svg";
 import right from "../../../../public/media/images/dashboard/right.svg";
+import swap from "../../../../public/media/images/dashboard/swap.svg";
+import x from "../../../../public/media/images/dashboard/x.svg";
+import search from "../../../../public/media/images/dashboard/search.svg";
+import eth from "../../../../public/media/images/dashboard/eth.svg";
+import check from "../../../../public/media/images/dashboard/check.svg";
+import token from "../../../../public/media/images/dashboard/token.svg";
 
 const dashboard = {
   layoutPlaceholder,
@@ -40,6 +46,12 @@ const dashboard = {
   settings,
   left,
   right,
+  swap,
+  x,
+  search,
+  eth,
+  check,
+  token,
 };
 
 export default dashboard;

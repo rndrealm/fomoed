@@ -256,3 +256,30 @@ export function extractNewsContent(htmlString: string): {
     },
   };
 }
+
+/**
+ * Shortens a wallet address to the format 0xV1W2...X3Y4
+ * @param address The full wallet address
+ * @param startChars Number of characters to keep at the beginning (including 0x)
+ * @param endChars Number of characters to keep at the end
+ * @returns The shortened address string
+ */
+export const shortenAddress = (
+  address: string,
+  startChars = 6,
+  endChars = 4
+): string => {
+  if (!address) return "";
+  if (address.length <= startChars + endChars) return address;
+
+  return `${address.slice(0, startChars)}...${address.slice(-endChars)}`;
+};
+
+/**
+ * Swaps 'from' and 'to' slugs
+ * @param slug
+ * @returns
+ */
+export const swapFromTo = (slug: "from" | "to") => {
+  return slug === "from" ? "to" : "from";
+};

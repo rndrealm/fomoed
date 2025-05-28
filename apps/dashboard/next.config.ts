@@ -6,9 +6,8 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "static.coinstats.app",
+        hostname: "**",
       },
-      new URL("https://lh3.googleusercontent.com/**"),
     ],
   },
 };
