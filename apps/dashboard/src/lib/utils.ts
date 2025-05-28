@@ -283,3 +283,40 @@ export const shortenAddress = (
 export const swapFromTo = (slug: "from" | "to") => {
   return slug === "from" ? "to" : "from";
 };
+export function formatPriceSignificant(value: string) {
+  const num = Number(value);
+  if (num === 0) return "0";
+
+  if (num >= 1) {
+    // For numbers >= 1, format with commas and exactly 2 decimals
+    return num.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  } else {
+    // For small numbers < 1, show up to 8 decimals, trimming trailing zeros
+    let fixed = num.toFixed(8);
+    fixed = fixed.replace(/\.?0+$/, ""); // remove trailing zeros and dot if integer
+    return fixed;
+  }
+}
+
+export function formatSummaryDate(date = new Date()) {
+  const monthDayFormatter = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "2-digit",
+  });
+
+  const weekdayFormatter = new Intl.DateTimeFormat("en-US", {
+    weekday: "long",
+  });
+
+  const [{ value: month }, , { value: day }] =
+    monthDayFormatter.formatToParts(date);
+  const weekday = weekdayFormatter.format(date);
+
+  return {
+    date: `${month}’ ${day}`,
+    weekday,
+  };
+}
