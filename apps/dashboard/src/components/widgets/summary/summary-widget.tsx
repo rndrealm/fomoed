@@ -1,22 +1,83 @@
-import React from "react";
-import { Ellipsis, Summary } from "@/components/icons/icons";
+"use client";
+import React, { useEffect, useState } from "react";
+import { Delete, Ellipsis, Summary } from "@/components/icons/icons";
 import { cn, formatSummaryDate } from "@/lib/utils";
+import { Mover } from "./mover";
+import {
+  Carousel,
+  CarouselApi,
+  CarouselContent,
+  CarouselItem,
+} from "@/components/ui/carousel";
+import { Loser } from "./loser";
+import {
+  useFetchTopGainerLoser,
+  useReadCoinList,
+} from "@/services/queries/charts";
+import { News } from "./news";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-const gradientStyle = {
-  background:
-    "radial-gradient(378.86% 378.86% at -51.09% -33.99%, #ff8970 10.51%, #84ebb4 48.98%, #ffdb43 86.81%)",
-};
+function OptionsDropdown() {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          className="w-[24px] h-[24px] flex items-center justify-between"
+        >
+          <Ellipsis />
+        </button>
+      </DropdownMenuTrigger>
 
-const percentTextStyle = {
-  background:
-    "radial-gradient(378.86% 378.86% at -51.09% -33.99%, rgb(255, 137, 112) 10.51%, rgb(132, 235, 180) 48.98%, rgb(255, 219, 67) 86.81%)",
-  backgroundClip: "text",
-  WebkitBackgroundClip: "text",
-  WebkitTextFillColor: "transparent",
-};
+      <DropdownMenuContent
+        className="w-[210px] rounded-lg bg-[#090909] border border-[#333]"
+        align="end"
+      >
+        <DropdownMenuGroup>
+          <DropdownMenuItem
+            className="text-[#D4D4D4] text-[13px] leading-[1.25] p-[10px] font-normal focus:bg-[#171717] focus:text-[#C3C3C3] cursor-pointer w-full flex items-center justify-between"
+            onSelect={(e) => {
+              e.preventDefault();
+            }}
+          >
+            Delete widget
+            <Delete fill="#A2A2A2" />
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 
 export default function SummaryWidget() {
+  const [api, setApi] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
+  const [count, setCount] = React.useState(0);
+
+  const { data: coinData = [] } = useReadCoinList(true);
+
+  console.log(coinData);
+
   const { date, weekday } = formatSummaryDate();
+
+  useEffect(() => {
+    if (!api) {
+      return;
+    }
+
+    setCount(api.scrollSnapList().length);
+    setCurrent(api.selectedScrollSnap() + 1);
+
+    api.on("select", () => {
+      setCurrent(api.selectedScrollSnap() + 1);
+    });
+  }, [api]);
 
   return (
     <div className="bg-[#000] p-4 flex flex-col gap-4 rounded-[30px] justify-between">
@@ -29,16 +90,11 @@ export default function SummaryWidget() {
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            className="w-[24px] h-[24px] flex items-center justify-between"
-          >
-            <Ellipsis />
-          </button>
+          <OptionsDropdown />
         </div>
       </div>
 
-      <div className="flex flex-col gap-[10px]">
+      <div className="flex flex-col gap-[10px] flex-1">
         <div className="">
           <p className="text-semibold text-[13px] leading-[1.25] text-[#878787]">
             {date}
@@ -48,52 +104,26 @@ export default function SummaryWidget() {
           </p>
         </div>
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="h-[64px] w-[83px] relative">
-              <div
-                style={gradientStyle}
-                className="w-[64px] h-[64px] rounded-[20px]"
-              ></div>
-
-              <div
-                style={gradientStyle}
-                className="w-[56px] h-[56px] rounded-[20px] absolute right-[0px] top-[5px] opacity-[0.2]"
-              ></div>
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <p className="text-medium text-[13px] leading-[1.25] text-[#878787]">
-                😶‍🌫️ BIGGEST LOSER
-              </p>
-              <p className="text-semibold text-base leading-[1.35] text-white">
-                Ethereum (ETH)
-              </p>
-            </div>
-          </div>
-
-          <div className="flex flex-col items-end">
-            <div className="flex items-center">
-              <p className="text-semibold text-[13px] leading-[1.25] text-[#555555]">
-                $156 <span className="text-[#1FC16B]">-$180</span>
-              </p>
-              {/* <p>-$180</p> */}
-            </div>
-            <h2
-              className="text-4xl leading-[1.15] font-bold"
-              style={percentTextStyle}
-            >
-              +69%
-            </h2>
-          </div>
-        </div>
+        <Carousel setApi={setApi}>
+          <CarouselContent>
+            <CarouselItem>
+              <Mover data={coinData?.[0]} />
+            </CarouselItem>
+            <CarouselItem>
+              <Loser data={coinData?.[coinData?.length - 1]} />
+            </CarouselItem>
+            <CarouselItem>
+              <News />
+            </CarouselItem>
+          </CarouselContent>
+        </Carousel>
       </div>
 
       <div className="flex justify-center gap-[2px] items-center mt-2">
-        {Array(4)
+        {Array(count)
           .fill(0)
           .map((_, index) => {
-            const bg = index === 0 ? "bg-white" : "bg-[#373737]";
+            const bg = index + 1 === current ? "bg-white" : "bg-[#373737]";
 
             return (
               <div
