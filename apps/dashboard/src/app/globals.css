@@ -72,6 +72,10 @@ html {
   );
 
   --color-fomoed-red: #ff3b10;
+  --text-mid: 0.9375rem;
+  --text-xxs: 0.625rem;
+  --text-xxxs: 0.5rem;
+  --spacing-sm: 0.625rem;
 }
 
 :root {
@@ -291,6 +295,14 @@ button:hover {
 
 .app_news_content img {
   margin: 1rem 0;
+}
+
+.app_line_chart_component {
+  background: url("../../public/media/images/dashboard/price-chart-bg.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center calc(50% - 30px);
 }
 
 @keyframes shine {

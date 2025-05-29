@@ -1,5 +1,6 @@
+import DexProvider from "@/components/providers/DexProvider";
 import { Navbar } from "@/components/shared";
-import { Fragment } from "react";
+import "@rainbow-me/rainbowkit/styles.css";
 
 export default function DashboardLayout({
   children,
@@ -7,11 +8,11 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <Fragment>
+    <DexProvider>
       <div className="absolute inset-x-0 top-0">
-        <Navbar isNews />
+        <Navbar />
       </div>
       {children}
-    </Fragment>
+    </DexProvider>
   );
 }

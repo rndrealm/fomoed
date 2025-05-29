@@ -3,6 +3,7 @@
 import { atom } from "jotai";
 import { v4 as uuidv4 } from "uuid";
 import { replaceUserTabsAction } from "@/services/queries/tabs/actions";
+import { updateSettingsActiveTab } from "@/services/queries/settings/actions";
 
 export interface TabType {
   id: string;
@@ -20,16 +21,11 @@ export const tabsAtom = atom<TabType[]>([initialTab]);
 
 export const activeTabAtom = atom<TabType>(initialTab);
 
-export const syncActiveTabAtom = atom(
+export const updateActiveTabAtom = atom(
   null,
-  (get, set, newActiveTab: TabType) => {
-    set(activeTabAtom, newActiveTab);
-
-    const tabs = get(tabsAtom);
-    const updatedTabs = tabs.map((tab) =>
-      tab.id === newActiveTab.id ? { ...tab, ...newActiveTab } : tab
-    );
-    set(tabsAtom, updatedTabs);
+  (get, set, activeTab: TabType) => {
+    set(activeTabAtom, activeTab);
+    set(syncActiveTabWithDbAtom, activeTab.id);
   }
 );
 
@@ -61,6 +57,7 @@ export const deleteTabAtom = atom(null, (get, set, idToDelete: string) => {
     const newActive = updatedTabs[updatedTabs.length - 1] ?? null;
     if (newActive) {
       set(activeTabAtom, newActive);
+      set(updateActiveTabAtom, newActive);
     }
   }
 
@@ -95,6 +92,7 @@ export const addNewTabAtom = atom(null, (get, set) => {
   // set(layoutAtom, [...currentLayouts, newLayout]);
 
   set(syncTabsWithDbAtom);
+  set(updateActiveTabAtom, newTab);
 });
 
 export const loadTabsFromApiAtom = atom(
@@ -107,14 +105,17 @@ export const loadTabsFromApiAtom = atom(
       name: string;
       layout_id: string;
       // Any other tab fields can go here (like label/editMode if needed)
-    }[]
+    }[],
+    active_tab_id?: string | null
   ) => {
     // Update tabs state directly
     set(tabsAtom, tabsFromApi);
 
+    const findActiveTab = tabsFromApi.find((tab) => tab.id === active_tab_id);
+
     // Optionally set the first tab as active
     if (tabsFromApi.length > 0) {
-      set(activeTabAtom, tabsFromApi[0]);
+      set(activeTabAtom, findActiveTab || tabsFromApi[0]);
     }
   }
 );
@@ -138,3 +139,24 @@ export const syncTabsWithDbAtom = atom(null, async (get) => {
     console.log("Failed to sync tabs with DB:", error);
   }
 });
+
+let synxAbortController: AbortController | null = null;
+export const syncActiveTabWithDbAtom = atom(
+  null,
+  async (get, set, new_active_tab: string) => {
+    // Abort the previous request if still pending
+    if (synxAbortController) {
+      synxAbortController.abort();
+    }
+
+    // Create a new controller for this request
+    synxAbortController = new AbortController();
+    const signal = synxAbortController.signal;
+
+    try {
+      await updateSettingsActiveTab(new_active_tab, signal);
+    } catch (error) {
+      console.log("Failed to sync active tab with DB:", error);
+    }
+  }
+);

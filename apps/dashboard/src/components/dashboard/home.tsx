@@ -8,11 +8,14 @@ import { loadLayoutsFromApiAtom } from "@/lib/atoms/layoutAtom";
 import { loadSettingsFromApiAtom } from "@/lib/atoms/settingsAtom";
 import { loadTabsFromApiAtom } from "@/lib/atoms/tabsAtom";
 import { utilsAtom } from "@/lib/atoms/utilsAtom";
+import { tourSteps } from "@/lib/static";
 import { cn } from "@/lib/utils";
 import { IDashboardData } from "@/services/queries/home/types";
+import { TourProvider } from "@reactour/tour";
 import { useAtom, useSetAtom } from "jotai";
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import CreateSignalFromChartModal from "../signals/create-signal-from-chart-modal";
+import { OnboardingModal } from "./shared/onboarding-modal";
 
 interface IProps {
   dashboardData: IDashboardData;
@@ -22,8 +25,10 @@ export default function Home({ dashboardData }: IProps) {
   const loadLayoutsFromApi = useSetAtom(loadLayoutsFromApiAtom);
   const loadSettingsFromApi = useSetAtom(loadSettingsFromApiAtom);
 
+  // const { data: newsData } = useFetchTokenNews();
+
   useEffect(() => {
-    loadTabsFromApi(dashboardData.tabs);
+    loadTabsFromApi(dashboardData.tabs, dashboardData.settings.active_tab_id);
     loadLayoutsFromApi(dashboardData.layouts);
     loadSettingsFromApi(dashboardData.settings);
   }, [
@@ -74,8 +79,14 @@ export default function Home({ dashboardData }: IProps) {
     };
   }, [utils, setUtils]);
 
+  const [isOpen, setIsOpen] = useState(false);
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+  };
+
   return (
-    <Fragment>
+    <TourProvider steps={tourSteps}>
+      <OnboardingModal isOpen={isOpen} onOpenChange={handleOpenChange} />
       <div
         className={cn(
           "h-screen pt-[96px] px-4 pb-4 overflow-hidden bg-[#0C0C0C]",
@@ -96,6 +107,6 @@ export default function Home({ dashboardData }: IProps) {
         </div>
         <CreateSignalFromChartModal />
       </div>
-    </Fragment>
+    </TourProvider>
   );
 }

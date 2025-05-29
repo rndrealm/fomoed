@@ -39,13 +39,16 @@
 	<!-- <div class="bg-[url(/background/dashboard.svg)] inset-0 fixed min-h-screen bg-cover -z-10"></div> -->
 
 	<div
-		class="flex-grow grid place-items-center desktop:pb-8 desktop:mx-4 pt-[5.5rem] md:pt-[3.5rem] duration-200 snap-start mt-[50px]"
+		class="flex-grow grid place-items-center desktop:pb-8 desktop:mx-4 pt-[9.5rem] md:pt-[3.5rem] duration-200 snap-start mt-[50px]"
 		class:opacity-0={$isDesktop === null}
 	>
+		<!-- <div class="flex flex-col gap-[7px] mx-auto h-full desktop:pb-6 w-full max-w-[1050px]"> -->
 		<div
 			class="grid grid-cols-6 gap-[7px] mx-auto h-full desktop:pb-6 w-full max-w-[1050px] desktop:grid-rows-[1fr_3fr]"
 		>
-			<div class="flex desktop:col-span-6 max-w-[1050px] mx-auto px-3 md:px-0 justify-end w-full">
+			<div
+				class="flex col-span-3 desktop:col-span-6 max-w-[1050px] mx-auto px-3 md:px-0 justify-start mx-3 desktop:justify-end w-full"
+			>
 				<SelectToken />
 			</div>
 			<div

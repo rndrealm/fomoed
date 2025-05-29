@@ -28,6 +28,8 @@ import CignalsWidget from "@/components/widgets/cignals/cignals-widget";
 import CryptocurrencyMarket from "@/components/widgets/cryptocurrency-market/cryptocurrency-market";
 import PriceHistory from "@/components/widgets/price-history/price-history";
 import Heatmap from "@/components/widgets/heatmap/heatmap";
+import NewPriceHistory from "@/components/widgets/price-history/new-price-history";
+import { pricePeriodOptions } from "@/constant";
 
 export const layoutClassMap = {
   SinglePane: "grid-rows-1 grid-cols-1",
@@ -172,6 +174,15 @@ export const layoutOptionsMap = [
   },
 
   // {
+  //   id: 112,
+  //   name: "New Price History",
+  //   slug: "new-price-history",
+  //   image: dashboard.cfgi,
+  //   category: "charts",
+  //   tags: ["charts"],
+  // },
+
+  // {
   //   id: 10,
   //   name: "Heatmap",
   //   slug: "heatmap",
@@ -258,6 +269,13 @@ export const chartsMap = {
     extra: [""],
     component: (widget: LayoutType["widgets"][0]) => (
       <Heatmap widget={widget} />
+    ),
+  },
+  "new-price-history": {
+    name: "New Price History",
+    extra: ["period", "token"],
+    component: (widget: LayoutType["widgets"][0]) => (
+      <NewPriceHistory widget={widget} />
     ),
   },
 };
@@ -366,4 +384,24 @@ export const widgetPropsDefaults = {
       h: 2,
     },
   },
+
+  "new-price-history": {
+    token: "BTC",
+    period: pricePeriodOptions[11].value,
+    meta: {
+      w: 4,
+      h: 2,
+    },
+  },
 };
+
+export const tourSteps = [
+  {
+    selector: "#first-step",
+    content: "Click here to add a new widget to your dashboard.",
+  },
+  {
+    selector: "#second-step",
+    content: "Click here to see your saved and unsaved layouts.",
+  },
+];

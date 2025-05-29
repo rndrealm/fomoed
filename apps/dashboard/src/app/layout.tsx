@@ -7,6 +7,7 @@ import "./globals.css";
 
 import { UserProvider } from "@/components/providers/UserProvider";
 import "../../node_modules/react-grid-layout/css/styles.css";
+import { ReactScan } from "@/components/shared/ReactScan";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -50,13 +51,8 @@ export default function RootLayout({
 }>) {
   return (
     // Keep h-full for filling vertical space in iframes.
-    <html lang="en" className="h-full" suppressHydrationWarning>
-      <head>
-        {/* <script
-          crossOrigin="anonymous"
-          src="//unpkg.com/react-scan/dist/auto.global.js"
-        /> */}
-      </head>
+    <html lang="en" className="h-full">
+      {/* <ReactScan /> */}
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased h-full bg-[#0C0C0C]`}
       >

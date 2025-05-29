@@ -56,7 +56,10 @@ export function LayoutDropdown() {
           <Tooltip>
             <TooltipTrigger>
               <DropdownMenuTrigger asChild>
-                <div className="flex items-center justify-center rounded-sm group">
+                <div
+                  className="flex items-center justify-center rounded-sm group"
+                  id="second-step"
+                >
                   <ToolbarLayout active={isOpen} />
                 </div>
               </DropdownMenuTrigger>
@@ -79,7 +82,7 @@ export function LayoutDropdown() {
               <RenderIf condition={!!layouts && layouts?.length === 0}>
                 <div className="max-w-[149px] mx-auto py-[50px]">
                   <p className="text-[#848484] text-center text-xs font-medium">
-                    You currently have no saved layout
+                    You currently have no layout
                   </p>
                 </div>
               </RenderIf>
