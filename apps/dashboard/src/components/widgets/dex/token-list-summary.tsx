@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { SingleTokenType } from "@/services/queries/dex/types";
 import Image from "next/image";
 import React from "react";
+import RemoteImage from "../shared/remote-image";
 
 interface IProps {
   list: SingleTokenType[];
@@ -27,8 +28,8 @@ const TokenListSummary = (props: IProps) => {
           onClick={() => updateTokenValue(token)}
         >
           <div>
-            <Image
-              src={token.logoURI || dashboard.logo}
+            <RemoteImage
+              src={token.logoURI}
               alt={token.name}
               width={28}
               height={28}

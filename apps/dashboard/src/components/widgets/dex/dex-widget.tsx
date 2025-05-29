@@ -3,12 +3,13 @@ import dashboard from "@/lib/assets/dashboard";
 import { ChevronDown } from "lucide-react";
 import Image from "next/image";
 import TokenSelect from "./token-select";
-import { useFetchSupportedChains } from "@/services/queries/dex";
+import { useFetchSupportedChains, useGetQuote } from "@/services/queries/dex";
 import { useState } from "react";
 import { ChainType, SingleTokenType } from "@/services/queries/dex/types";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import ConnectButton from "./connect-button";
-import { useBalance } from "wagmi";
+import { useAccount, useBalance } from "wagmi";
+import { appendDecimal, formatNumber } from "@/lib/utils";
 
 interface SwapData {
   from: {
@@ -47,8 +48,19 @@ const DexWidget = () => {
     }));
   };
 
+  const [inputValue, setInputValue] = useState("");
   const { openConnectModal } = useConnectModal();
-  const balance = useBalance();
+  const { address, isConnected } = useAccount();
+
+  const { data, isLoading, isSuccess, isError } = useGetQuote({
+    userAddress: address,
+    receiverAddress: address,
+    originChainId: swapData.from.network?.chainId.toString(),
+    destinationChainId: swapData.to.network?.chainId.toString(),
+    inputToken: swapData.from.token?.address,
+    outputToken: swapData.to.token?.address,
+    inputAmount: appendDecimal(inputValue, swapData.from.token?.decimals),
+  });
 
   return (
     <div className="text-white border border-[#1E1E1E] rounded-[15px] p-3 font-inter font-semibold bg-[#080808] h-full relative">
@@ -74,7 +86,15 @@ const DexWidget = () => {
               <p className="font-normal text-xxs">Balance: 0:00</p>
             </div>
             <div className="flex items-center justify-between mt-1 rounded-[8px] bg-[#080808] px-3 py-sm">
-              <p className="text-xs font-medium">0.0</p>
+              <input
+                type="text"
+                placeholder="0.00"
+                value={formatNumber(inputValue)}
+                onChange={(e) => {
+                  setInputValue(e.target.value);
+                }}
+                className="p-1 text-xs font-medium outline-none"
+              />
               <TokenSelect
                 tokenData={swapData.from}
                 otherTokenData={swapData.to}
@@ -93,8 +113,8 @@ const DexWidget = () => {
           {/* To */}
           <div>
             <div className="flex items-center justify-between">
-              <p className="text-xs font-medium">From:</p>
-              <p className="font-normal text-xxs">Balance: 0:00</p>
+              <p className="text-xs font-medium">To:</p>
+              {/* <p className="font-normal text-xxs">Balance: 0:00</p> */}
             </div>
             <div className="flex items-center justify-between mt-1 rounded-[8px] bg-[#080808] px-3 py-sm">
               <p className="text-xs font-medium">0.0</p>
@@ -123,12 +143,46 @@ const DexWidget = () => {
 
           {/* Connect button */}
           <div className="px-3 mt-7">
-            <button
-              className="w-full h-10 text-xs font-medium bg-[#202020] rounded-[6px]"
-              onClick={openConnectModal}
-            >
-              Connect Wallet
-            </button>
+            {/* If wallet has not been conncted */}
+            {!isConnected ? (
+              <button
+                className="w-full h-10 text-xs font-medium bg-[#202020] rounded-[6px]"
+                onClick={openConnectModal}
+              >
+                Connect Wallet
+              </button>
+            ) : null}
+            {/* Wallet has been connected but quote is being fetched */}
+            {isConnected && isLoading ? (
+              <button className="w-full h-10 text-xs font-medium bg-[#202020] rounded-[6px]">
+                Fetching Quote...
+              </button>
+            ) : null}
+            {/* Wallet has been connected and quote has been fetched successfully */}
+            {isConnected &&
+            isSuccess &&
+            data?.manualRoutes &&
+            data?.manualRoutes.length > 0 ? (
+              <button className="w-full h-10 text-xs font-medium bg-[#202020] rounded-[6px]">
+                Swap {data?.input?.token?.symbol} for{" "}
+                {swapData.to.token?.symbol}
+              </button>
+            ) : null}
+
+            {/* Wallet has been connected but there is an error or no quote found */}
+            {(isConnected && isError) ||
+            (isConnected && data?.manualRoutes.length === 0) ? (
+              <button className="w-full h-10 text-xs font-medium bg-[#202020] rounded-[6px]">
+                No Quote Found
+              </button>
+            ) : null}
+
+            {/* Wallet has been connected, no error, no loading, but no success (rest state) */}
+            {isConnected && !isError && !isLoading && !isSuccess ? (
+              <button className="w-full h-10 text-xs font-medium bg-[#202020] rounded-[6px]">
+                Swap
+              </button>
+            ) : null}
           </div>
         </div>
       </div>
