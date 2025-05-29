@@ -1,6 +1,13 @@
 import api from "@/services/api";
 import { useQuery } from "@tanstack/react-query";
-import { ChainType, TokenListResponse } from "./types";
+import {
+  ChainType,
+  DexQuoteParams,
+  DexQuoteResult,
+  TokenListResponse,
+} from "./types";
+
+const BUNGEE_API_BASE_URL = "https://public-backend.bungee.exchange";
 
 export const useFetchTokenList = (
   chainId: string = "1",
@@ -11,7 +18,7 @@ export const useFetchTokenList = (
     queryKey: hash,
     queryFn: async () => {
       const response = await api.get({
-        url: `https://public-backend.bungee.exchange/api/v1/tokens/list?chainIds=${chainId}&userAddress=${userAddress}`,
+        url: `${BUNGEE_API_BASE_URL}/api/v1/tokens/list?chainIds=${chainId}&userAddress=${userAddress}`,
       });
       return response.result as TokenListResponse;
     },
@@ -30,7 +37,7 @@ export const useSearchTokenList = (search: string = "") => {
     queryKey: hash,
     queryFn: async () => {
       const response = await api.get({
-        url: `https://public-backend.bungee.exchange/api/v1/tokens/search?q=${search}`,
+        url: `${BUNGEE_API_BASE_URL}/api/v1/tokens/search?q=${search}`,
       });
       return response.result.tokens as TokenListResponse;
     },
@@ -49,7 +56,7 @@ export const useFetchSupportedChains = () => {
     queryKey: hash,
     queryFn: async () => {
       const response = await api.get({
-        url: `https://public-backend.bungee.exchange/api/v1/supported-chains`,
+        url: `${BUNGEE_API_BASE_URL}/api/v1/supported-chains`,
       });
       return response.result as ChainType[];
     },
@@ -59,5 +66,49 @@ export const useFetchSupportedChains = () => {
     isPending,
     isSuccess,
     error,
+  };
+};
+
+export const useGetQuote = (params: DexQuoteParams) => {
+  const hash = [
+    "dex-quote",
+    params.userAddress,
+    params.originChainId,
+    params.destinationChainId,
+    params.inputToken,
+    params.outputToken,
+    params.inputAmount,
+  ];
+
+  const url = `${BUNGEE_API_BASE_URL}/api/v1/bungee/quote`;
+  const queryParams = new URLSearchParams(params as any);
+  const fullUrl = `${url}?${queryParams}&enableManual=true`;
+
+  const { data, isPending, error, isSuccess, isError, isLoading } = useQuery({
+    queryKey: hash,
+    queryFn: async () => {
+      const response = await api.get({
+        url: fullUrl,
+      });
+      return response.result as DexQuoteResult;
+    },
+    enabled:
+      !!params.userAddress &&
+      !!params.originChainId &&
+      !!params.destinationChainId &&
+      !!params.inputToken &&
+      !!params.outputToken &&
+      !!params.inputAmount &&
+      params.inputAmount !== "0",
+  });
+
+  console.log("quote reasssd:", data);
+  return {
+    data,
+    isPending,
+    isSuccess,
+    error,
+    isError,
+    isLoading,
   };
 };

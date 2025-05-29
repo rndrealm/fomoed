@@ -123,6 +123,7 @@ export const layoutOptionsMap = [
   //   slug: "dex",
   //   image: dashboard.tokenNews,
   //   category: "news",
+  //   tags: ["new"],
   // },
   {
     id: 6,

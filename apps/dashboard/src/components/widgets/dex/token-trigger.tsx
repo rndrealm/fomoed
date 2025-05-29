@@ -4,6 +4,7 @@ import { SingleTokenType } from "@/services/queries/dex/types";
 import { ChevronDown } from "lucide-react";
 import Image from "next/image";
 import React from "react";
+import RemoteImage from "../shared/remote-image";
 
 interface IProps {
   value: SingleTokenType | null;
@@ -12,6 +13,7 @@ interface IProps {
 
 const TokenTrigger = (props: IProps) => {
   const { value, toggle } = props;
+  console.log("ttt:", value?.logoURI);
   return (
     <button
       className={cn(
@@ -25,8 +27,8 @@ const TokenTrigger = (props: IProps) => {
       {value ? (
         <div className="flex items-center gap-1">
           <div>
-            <Image
-              src={value.logoURI || dashboard.token}
+            <RemoteImage
+              src={value.logoURI}
               alt={value.name}
               width={16}
               height={16}

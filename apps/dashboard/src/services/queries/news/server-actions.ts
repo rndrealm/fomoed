@@ -69,7 +69,8 @@ async function fetchNews() {
   // console.log("Fetching news from CryptoPanic:", res);
   if (!res.ok) {
     // console.log(await res.text());
-    throw new Error("Failed to fetch news from CryptoPanic");
+    // throw new Error("Failed to fetch news from CryptoPanic");
+    return { error: true, message: "Failed to fetch news from CryptoPanic" };
   }
 
   const json: CryptopanicNewsApiResponse = await res.json();
