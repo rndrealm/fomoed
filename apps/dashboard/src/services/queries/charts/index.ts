@@ -11,6 +11,7 @@ import {
   LiquidHeatmapResponse,
   LiquidMapDataResponse,
   SupportedPairsData,
+  Ticker,
 } from "./types";
 import { supportedExchangePairsToOptions } from "@/lib/utils";
 import { ExchangePairOption } from "@/charts/types";
@@ -40,7 +41,7 @@ export const useReadCfgiData = (
   };
 };
 
-export const useReadCoinList = () => {
+export const useReadCoinList = (summary = false) => {
   const hash = ["coin-list"];
   const { data, isPending, error, isSuccess } = useQuery({
     queryKey: hash,
@@ -50,8 +51,12 @@ export const useReadCoinList = () => {
       });
       return response as unknown as CoinListResponse;
     },
+    refetchOnMount: summary ? "always" : false,
+    refetchOnReconnect: summary ? "always" : false,
+    refetchOnWindowFocus: summary ? "always" : false,
   });
-  const returnData = data?.coins.map((coin) => {
+
+  let returnData = data?.coins.map((coin) => {
     return {
       price: coin.pu,
       priceChange: coin.p24,
@@ -65,6 +70,10 @@ export const useReadCoinList = () => {
       is_free: coin.i === "bitcoin" || coin.i === "ethereum",
     };
   });
+
+  if (summary) {
+    returnData = returnData?.sort((a, b) => b.priceChange - a.priceChange);
+  }
   return {
     data: returnData,
     isPending,
@@ -232,5 +241,44 @@ export const useFetchBinancePriceData = (
   return {
     ...res,
     data: transformedData,
+  };
+};
+
+export const useFetchTopGainerLoser = () => {
+  const queryKey = ["binance-top-gainer-loser"];
+
+  const res = useQuery<unknown>({
+    queryKey,
+    queryFn: async () => {
+      const response = await api.get({
+        url: `https://api.binance.com/api/v3/ticker/24hr`,
+      });
+
+      return response;
+    },
+    refetchOnMount: "always",
+    refetchOnWindowFocus: "always",
+    refetchOnReconnect: "always",
+    // enabled: !!symbol && !!interval,
+  });
+
+  const usdtPairs =
+    (res.data as Ticker[])
+      ?.filter((item) => item.symbol.endsWith("USDT"))
+      .filter((item) => parseFloat(item.quoteVolume) > 1000000) || [];
+
+  const sorted = (usdtPairs || []).sort(
+    (a, b) =>
+      parseFloat(b.priceChangePercent) - parseFloat(a.priceChangePercent)
+  );
+
+  const newData = {
+    mover: sorted[0],
+    loser: sorted[sorted.length - 1],
+  };
+
+  return {
+    ...res,
+    data: newData,
   };
 };
