@@ -7,6 +7,8 @@ import NavBarNewsIcon from "../icons/NavBarNewsIcon";
 import NavBarSignalsIcon from "../icons/NavBarSignalsIcon";
 import NavbarProfileButton from "../ui/NavbarProfileButton";
 import { ProfileIcon } from "./profile-icon";
+import { Notification } from "../icons/icons";
+import SignalNotificationsPopover from "../signals/signal-notifications";
 
 const links = [
   {
@@ -48,10 +50,15 @@ const NavBar = () => {
           ))}
         </div>
 
-        <div className="w-[32px] h-[32px] overflow-hidden rounded-md ml-auto flex items-center justify-center cursor-pointer">
-          <NavbarProfileButton>
-            <ProfileIcon />
-          </NavbarProfileButton>
+        <div className="ml-auto flex items-center gap-2">
+          <div className="w-[32px] h-[32px] overflow-hidden rounded-md flex items-center justify-center cursor-pointer">
+            <SignalNotificationsPopover />
+          </div>
+          <div className="w-[32px] h-[32px] overflow-hidden rounded-md flex items-center justify-center cursor-pointer">
+            <NavbarProfileButton>
+              <ProfileIcon />
+            </NavbarProfileButton>
+          </div>
         </div>
       </div>
     </div>

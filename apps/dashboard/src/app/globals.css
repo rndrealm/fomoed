@@ -375,3 +375,22 @@ button:hover {
   );
   border-radius: 15px;
 }
+
+.scrollbar-small-dark {
+  scrollbar-width: thin;
+  scrollbar-color: #4a4a4a #1a1a1a;
+}
+
+.scrollbar-small-dark::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollbar-small-dark::-webkit-scrollbar-thumb {
+  background-color: #4a4a4a;
+  border-radius: 10px;
+}
+
+.scrollbar-small-dark::-webkit-scrollbar-track {
+  background-color: #1a1a1a;
+}
