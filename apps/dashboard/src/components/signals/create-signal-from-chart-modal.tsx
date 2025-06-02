@@ -60,6 +60,7 @@ const CreateSignalFromChartModal = () => {
             onNameChange={setSignalName}
             onDescriptionChange={setSignalDescription}
             description={signalDescription}
+            jsonLogic={logic}
           />
         </DialogHeader>
       </DialogContent>

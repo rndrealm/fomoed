@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { Check, ChevronsUpDown } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 interface PriceTickerConfigProps {
   value: string | null;
@@ -28,10 +28,23 @@ export function PriceTickerConfig({ value, onChange }: PriceTickerConfigProps) {
   >([]);
   const [open, setOpen] = useState(false);
 
+  // Memoize the selected product display name
+  const selectedProduct = useMemo(() => {
+    return products.find((p) => p.value === value)?.display_name || value;
+  }, [products, value]);
+
+  // Memoize the onSelect handler
+  const handleSelect = useCallback((currentValue: string) => {
+    onChange(currentValue === value ? "" : currentValue);
+    setOpen(false);
+  }, [onChange, value]);
+
   useEffect(() => {
-    fetch("https://api.exchange.coinbase.com/products")
-      .then((res) => res.json())
-      .then((data) => {
+    // Only fetch products once when component mounts
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch("https://api.exchange.coinbase.com/products");
+        const data = await res.json();
         if (Array.isArray(data)) {
           setProducts(
             data.map((p) => ({
@@ -40,8 +53,13 @@ export function PriceTickerConfig({ value, onChange }: PriceTickerConfigProps) {
             }))
           );
         }
-      });
-  }, []);
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
+      }
+    };
+
+    fetchProducts();
+  }, []); // Empty dependency array means this runs once on mount
 
   return (
     <div className="w-full full">
@@ -55,9 +73,7 @@ export function PriceTickerConfig({ value, onChange }: PriceTickerConfigProps) {
             className="w-full justify-between bg-[#2A2A2A] border-[#3A3A3A] text-white px-4 py-2"
             id="symbol"
           >
-            {value
-              ? products.find((p) => p.value === value)?.display_name || value
-              : "Select symbol"}
+            {value ? selectedProduct : "Select symbol"}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
@@ -67,17 +83,14 @@ export function PriceTickerConfig({ value, onChange }: PriceTickerConfigProps) {
               placeholder="Search symbol..."
               className="px-4 py-2"
             />
-            <CommandList className=" ">
+            <CommandList>
               <CommandEmpty>No symbol found.</CommandEmpty>
               <CommandGroup>
                 {products.map((product) => (
                   <CommandItem
                     key={product.display_name}
                     value={product.value}
-                    onSelect={(currentValue) => {
-                      onChange(currentValue === value ? "" : currentValue);
-                      setOpen(false);
-                    }}
+                    onSelect={handleSelect}
                     className="cursor-pointer px-4 py-2"
                   >
                     <Check

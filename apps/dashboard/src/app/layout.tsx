@@ -6,6 +6,7 @@ import { NuqsAdapter } from "nuqs/adapters/next/app";
 import "./globals.css";
 
 import { UserProvider } from "@/components/providers/UserProvider";
+import { NotificationProvider } from "@/components/providers/NotificationProvider";
 import "../../node_modules/react-grid-layout/css/styles.css";
 import { ReactScan } from "@/components/shared/ReactScan";
 
@@ -58,7 +59,11 @@ export default function RootLayout({
       >
         <QueryProvider>
           <NuqsAdapter>
-            <UserProvider>{children}</UserProvider>
+            <UserProvider>
+              <NotificationProvider>
+                {children}
+              </NotificationProvider>
+            </UserProvider>
           </NuqsAdapter>
         </QueryProvider>
         <Toaster />

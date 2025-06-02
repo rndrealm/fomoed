@@ -130,3 +130,17 @@ export const useGetAISignal = () => {
     },
   });
 };
+
+export const useGenerateSignalDetails = () => {
+  return useMutation({
+    mutationFn: async (jsonLogic: Record<string, any>) => {
+      const res = await api.post({
+        url: "/api/signals/details-generator",
+        body: { jsonLogic },
+        auth: true,
+      });
+
+      return res.data;
+    },
+  });
+};

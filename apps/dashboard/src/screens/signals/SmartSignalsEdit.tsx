@@ -120,6 +120,7 @@ const SmartSignalsEdit = () => {
             description={signalDescription}
             onNameChange={setSignalName}
             onDescriptionChange={setSignalDescription}
+            jsonLogic={condition}
           />
 
           <div className="flex justify-end gap-3">

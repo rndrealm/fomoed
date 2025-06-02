@@ -30,10 +30,6 @@ const SignalBuilder = ({}) => {
 
   const { mutateAsync: createSignal, isPending } = useCreateSignalMutation();
 
-  const handleBasicDetailsUpdate = (name: string, description: string) => {
-    setSignalName(name);
-    setSignalDescription(description);
-  };
 
   const handleAIBuilderResponse = (
     name: string,
@@ -115,6 +111,7 @@ const SignalBuilder = ({}) => {
           description={signalDescription}
           onNameChange={setSignalName}
           onDescriptionChange={setSignalDescription}
+          jsonLogic={logic}
         />
 
         <div className="flex justify-end gap-3">
