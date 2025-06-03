@@ -117,14 +117,14 @@ export const layoutOptionsMap = [
   //   category: "charts",
   //   tags: ["charts", "new"],
   // },
-  {
-    id: 7,
-    name: "Dex",
-    slug: "dex",
-    image: dashboard.tokenNews,
-    category: "news",
-    tags: ["new"],
-  },
+  // {
+  //   id: 7,
+  //   name: "Dex",
+  //   slug: "dex",
+  //   image: dashboard.tokenNews,
+  //   category: "news",
+  //   tags: ["new"],
+  // },
   {
     id: 6,
     name: "Token News",
