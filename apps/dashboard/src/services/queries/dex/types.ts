@@ -44,6 +44,7 @@ export interface DexQuoteParams {
   inputToken?: string;
   outputToken?: string;
   inputAmount?: string;
+  slippage?: string;
 }
 
 export interface DexQuoteResult {
@@ -113,4 +114,33 @@ export interface DexQuoteResult {
     };
     refuel: any;
   }>;
+}
+
+export interface BuildTransactionResult {
+  approvalData: any;
+  txData: {
+    data: string;
+    to: string;
+    chainId: number;
+    value: string;
+  };
+  userOp: string;
+}
+
+export interface TokenBalance {
+  chainId: number;
+  tokenAddress: string;
+  userAddress: string;
+  balance: string;
+  icon: string;
+  logoURI: string;
+  decimals: number;
+  symbol: string;
+  name: string;
+}
+
+export interface TokenBalanceResponse {
+  success: boolean;
+  result: TokenBalance;
+  statusCode: number;
 }
