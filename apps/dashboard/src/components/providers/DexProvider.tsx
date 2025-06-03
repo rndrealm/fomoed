@@ -15,11 +15,7 @@ export default function DexProvider({
   children: ReactNode;
   initialState?: State;
 }) {
-  const myTheme = merge(darkTheme(), {
-    colors: {
-      accentColor: "red",
-    },
-  } as Theme);
+  const myTheme = merge(darkTheme() as Theme);
 
   return (
     <WagmiProvider config={config}>

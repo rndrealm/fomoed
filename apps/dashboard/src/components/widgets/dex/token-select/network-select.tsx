@@ -5,7 +5,7 @@ import { ChainType } from "@/services/queries/dex/types";
 import { ChevronDown } from "lucide-react";
 import Image from "next/image";
 import React, { Fragment, useEffect, useState } from "react";
-import RemoteImage from "../shared/remote-image";
+import RemoteImage from "../../shared/remote-image";
 
 interface IProps {
   networkValue: ChainType | null;
