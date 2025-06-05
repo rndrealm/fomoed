@@ -144,3 +144,36 @@ export const useGenerateSignalDetails = () => {
     },
   });
 };
+
+export const useValueSuggestions = (
+  dataSourceId: string | null,
+  topic: string | null
+) => {
+  return useQuery({
+    queryKey: ["value-suggestions", dataSourceId, topic],
+    queryFn: async () => {
+      if (!dataSourceId || !topic) {
+        return { suggestions: [] };
+      }
+
+      const cleanTopic = topic.replace("ticker_", "");
+
+      const res = await api.get({
+        url: `/api/signals/value-suggestions?dataSourceId=${dataSourceId}&topic=${cleanTopic}`,
+        auth: true,
+      });
+
+      console.log("🚀 ~ queryFn: ~ res:", res);
+
+      return res as {
+        suggestions: Array<{
+          value: number;
+          label: string;
+        }>;
+        error?: string;
+      };
+    },
+    enabled: !!dataSourceId && !!topic,
+    refetchOnWindowFocus: false,
+  });
+};

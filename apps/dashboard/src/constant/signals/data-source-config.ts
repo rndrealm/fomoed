@@ -8,6 +8,7 @@ export type DataSource = {
   name: string;
   id: string;
   disabled?: boolean;
+  suggestionsEnabled?: boolean;
 };
 
 export type SignalDataSourceGroup = {
@@ -19,7 +20,7 @@ export const signalDataSources: SignalDataSourceGroup[] = [
   {
     group: "Market data",
     dataSources: [
-      { name: "Price", id: "price" },
+      { name: "Price", id: "price", suggestionsEnabled: true },
       { name: "CFGI", id: "cfgi" },
       { name: "Trading Volume", id: "volume_24h" },
       { name: "Market Capitalization", id: "market_cap" },

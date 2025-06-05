@@ -1,4 +1,7 @@
-import { topicSelectorMap } from "@/constant/signals/data-source-config";
+import {
+  signalDataSources,
+  topicSelectorMap,
+} from "@/constant/signals/data-source-config";
 import { ChevronsUpDown, Trash2 } from "lucide-react";
 import { useMemo } from "react";
 import { Button } from "../ui/button";
@@ -8,6 +11,7 @@ import { Separator } from "../ui/separator";
 import { Condition } from "./condition-group";
 import Operator from "./condition-operator";
 import SignalDataSourceSelector from "./data-source-selector";
+import ValueSuggestions from "./value-suggestions";
 
 type ConditionRowProps = {
   condition: Condition;
@@ -43,6 +47,16 @@ const ConditionRow = ({
     return null;
   }, [condition.dataSource]);
 
+  const suggestionsEnabled = useMemo(() => {
+    if (condition.dataSource) {
+      const dataSource = signalDataSources
+        .flatMap((group) => group.dataSources)
+        .find((ds) => ds.id === condition.dataSource);
+      return dataSource?.suggestionsEnabled || false;
+    }
+    return false;
+  }, [condition.dataSource]);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       <SignalDataSourceSelector
@@ -51,6 +65,7 @@ const ConditionRow = ({
         }
         value={condition.dataSource}
       />
+
       {TopicSelector ? (
         <TopicSelector
           value={condition.topic}
@@ -69,6 +84,7 @@ const ConditionRow = ({
           </Button>
         </div>
       )}
+
       <Operator
         allowedOperators={allowedOperators}
         value={condition.operator}
@@ -82,7 +98,7 @@ const ConditionRow = ({
             <Input
               type={valueType}
               placeholder="Value"
-              className="w-fit"
+              className="w-full"
               value={
                 typeof condition.value === "string" ||
                 typeof condition.value === "number"
@@ -94,7 +110,6 @@ const ConditionRow = ({
               }
             />
           )}
-
           {valueType === "boolean" && (
             <Button
               variant="outline"
@@ -106,7 +121,6 @@ const ConditionRow = ({
               {condition.value ? "True" : "False"}
             </Button>
           )}
-
           {!valueType && (
             <Button
               disabled
@@ -119,6 +133,16 @@ const ConditionRow = ({
               Select value
             </Button>
           )}
+
+          <div>
+            {suggestionsEnabled && (
+              <ValueSuggestions
+                dataSourceId={condition.dataSource}
+                topic={condition.topic}
+                onSelect={(value) => onChange({ ...condition, value })}
+              />
+            )}
+          </div>
         </div>
         <Separator orientation="vertical" />
         {isRemovable && (
