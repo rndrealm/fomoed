@@ -179,7 +179,8 @@ export class NewsService {
 							: 'neutral',
 				summary: i.description,
 				symbols: i.instruments?.map((c) => c.code) || [],
-				title: i.title
+				title: i.title,
+				metadata: { region: i.source.region }
 			});
 
 			ids.push(appId);
@@ -204,7 +205,7 @@ export class NewsService {
 
 		// Update the IDs in the response to match filtered results
 		const filteredIds = filteredPosts
-			.filter((post) => ids.includes(post.id as string))
+			.filter((post) => ids.includes(post.id as string) && post.metadata?.region === 'en')
 			.map((post) => post.id as string);
 
 		await NewsTable.upsert(filteredPosts);
