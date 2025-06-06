@@ -17,6 +17,7 @@ import { v4 as uuidv4 } from "uuid";
 import { RenderIf } from "../shared";
 import { ModalContainer } from "../shared";
 import { Upgrade } from "../modals";
+import { useNextStep } from "nextstepjs";
 
 interface IProps {
   widget: LayoutOptionType[0];
@@ -35,6 +36,8 @@ export function QuickWidgetItem(props: IProps) {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   const { data } = useGetUserPlans();
+
+  const tour = useNextStep();
 
   return (
     <Fragment>
@@ -81,6 +84,9 @@ export function QuickWidgetItem(props: IProps) {
             addWidgetToNewLayout({ newWidget });
           }
           handleGoBack();
+          if (tour.currentStep === 1) {
+            tour.setCurrentStep(tour.currentStep + 1);
+          }
         }}
       >
         <RenderIf condition={widget.category === "charts" && tag !== "charts"}>

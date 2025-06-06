@@ -131,9 +131,6 @@ const DexWidget = () => {
     value: parseEther("0.07633"),
   });
 
-  console.log("estimateGas", result.data);
-  console.log("tokenBalance", parseEther(inputValue));
-
   return (
     <div className="text-white border border-[#1E1E1E] rounded-[15px] p-3 font-inter font-semibold bg-[#080808] h-full relative">
       {data && data.manualRoutes && data.manualRoutes.length > 0 ? (

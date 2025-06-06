@@ -39,7 +39,10 @@ export function QuickWidgets(props: IProps) {
   }, [searchValue, selectedTag]);
 
   return (
-    <div className="flex items-center justify-center w-full h-full overflow-hidden">
+    <div
+      className="flex items-center justify-center w-full h-full overflow-hidden"
+      id="second-step"
+    >
       <div className="max-w-[732px] h-full w-full bg-[#090909] rounded-2xl overflow-hidden border border-[#333] flex flex-col gap-6">
         <div className="flex items-center bg-[#0b0b0b] border-b border-[#121212]">
           <div className="relative flex-1">

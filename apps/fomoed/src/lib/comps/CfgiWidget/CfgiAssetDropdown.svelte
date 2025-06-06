@@ -16,7 +16,6 @@
 
 	// 	return 'Select an asset';
 	// });
-	console.log(cfgiDataService.availableSymbols);
 </script>
 
 {#key cfgiDataService.availableSymbols}
