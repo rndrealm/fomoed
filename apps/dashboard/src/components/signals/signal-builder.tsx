@@ -8,7 +8,10 @@ import { toast } from "sonner";
 import useUserData from "@/lib/hooks/use-user-data";
 import { SignalActions } from "@/lib/types/signal.types";
 import { extractTopicsFromJsonLogic } from "@/lib/utils/signal.utils";
-import { useCreateSignalMutation } from "@/services/queries/signals";
+import {
+  useCreateSignalMutation,
+  useSmartSignals,
+} from "@/services/queries/signals";
 import { CreateSignalDTO } from "@/services/queries/signals/types";
 import { redirect, useRouter } from "next/navigation";
 import AISignalPromptInput from "./ai-builder-prompt-input";
@@ -17,6 +20,9 @@ import NotificationSettings from "./notification-settings";
 import SignalDetails from "./signal-details";
 import { useAtom } from "jotai";
 import { activeSignalTabAtom } from "@/lib/atoms/signalTabsAtom";
+import { useGetUserPlans } from "@/services/queries/subscriptions";
+import { ModalContainer } from "../shared";
+import { Upgrade } from "../modals";
 
 const SignalBuilder = ({}) => {
   const [signalName, setSignalName] = useState("");
@@ -26,12 +32,17 @@ const SignalBuilder = ({}) => {
     email: true,
     notification: true,
   });
+  const { data: smartSignals = [] } = useSmartSignals();
+
   const [updateCount, setUpdateCount] = useState(0);
   const [_, setActiveSignalTab] = useAtom(activeSignalTabAtom);
 
   const user = useUserData();
+  const { data: userPlanData } = useGetUserPlans();
 
   const { mutateAsync: createSignal, isPending } = useCreateSignalMutation();
+
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   const handleAIBuilderResponse = (
     name: string,
@@ -50,6 +61,11 @@ const SignalBuilder = ({}) => {
 
   const handleSave = async () => {
     if (!logic || !user?.user_id) return;
+
+    if (userPlanData?.planType === "FREE" && smartSignals.length 2) {
+      setShowUpgradeModal(true);
+      return;
+    }
 
     if (signalName.length === 0 || signalDescription.length === 0) {
       toast.error("Please fill in all fields");
@@ -128,6 +144,22 @@ const SignalBuilder = ({}) => {
             Save Signal
           </Button>
         </div>
+
+        <ModalContainer
+          open={showUpgradeModal}
+          handleClose={() => {
+            setShowUpgradeModal(false);
+          }}
+          noHeader
+          className="!max-w-[410px] !p-0 rounded-[24px]"
+        >
+          <Upgrade
+            plan={userPlanData?.planType}
+            handleClose={() => {
+              setShowUpgradeModal(false);
+            }}
+          />
+        </ModalContainer>
       </div>
     </>
   );

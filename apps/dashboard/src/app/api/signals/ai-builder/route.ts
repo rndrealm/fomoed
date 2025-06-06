@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 const SignalAISchema = z.object({
-  success: z.literal(true),
+  success: z.boolean(),
   signal: z.object({
     name: z.string().min(1),
     description: z.string().min(1),
@@ -105,15 +105,14 @@ export async function POST(req: Request) {
       schema: SignalAISchema,
     });
 
-    // const parsed = JSON.parse(text);
-    const parsed = object;
-
-    return NextResponse.json({ data: parsed });
+    return NextResponse.json({ data: object });
   } catch (e) {
     console.log("Error in AI signal generation:", e);
     return NextResponse.json({
-      success: false,
-      message: e,
+      data: {
+        success: false,
+        message: e,
+      },
     });
   }
 }

@@ -18,7 +18,6 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import ManualSignalBuilder from "./manual-signal-builder";
-// import { processNaturalLanguage } from "@/lib/utils/signal.utils";
 
 interface AISignalBuilderProps {
   logic: object | null;
@@ -53,10 +52,6 @@ const AISignalBuilder: React.FC<AISignalBuilderProps> = ({
 
     if (res.success && res.signal) {
       onUpdateLogic(res.signal.condition);
-      console.log(
-        "🚀 ~ onSubmit ~ res.signal.condition:",
-        res.signal.condition
-      );
       setCondition(res.signal.condition);
       onUpdateBasicDetails(res.signal.name, res.signal.description);
     } else {

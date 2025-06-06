@@ -12,12 +12,12 @@ const dataMap = {
   FREE: {
     title: "Upgrade to pro",
     details:
-      "Get unlimited access to 10+ Tabs, 44+ crypto assets with Fomoed pro",
+      "Get unlimited access to 10+ Tabs, 44+ crypto assets, smart signals with Fomoed pro",
   },
   PLUS: {
     title: "Upgrade to pro",
     details:
-      "Get unlimited access to 10+ Tabs, 44+ crypto assets with Fomoed pro",
+      "Get unlimited access to 10+ Tabs, 44+ crypto assets, smart signals with Fomoed pro",
   },
   PRO: {
     title: "You’ve hit your current limit",
