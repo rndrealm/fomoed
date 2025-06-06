@@ -28,6 +28,9 @@ import CignalsWidget from "@/components/widgets/cignals/cignals-widget";
 import CryptocurrencyMarket from "@/components/widgets/cryptocurrency-market/cryptocurrency-market";
 import PriceHistory from "@/components/widgets/price-history/price-history";
 import Heatmap from "@/components/widgets/heatmap/heatmap";
+import NewPriceHistory from "@/components/widgets/price-history/new-price-history";
+import { pricePeriodOptions } from "@/constant";
+import { Tour } from "nextstepjs";
 
 export const layoutClassMap = {
   SinglePane: "grid-rows-1 grid-cols-1",
@@ -121,6 +124,7 @@ export const layoutOptionsMap = [
   //   slug: "dex",
   //   image: dashboard.tokenNews,
   //   category: "news",
+  //   tags: ["new"],
   // },
   {
     id: 6,
@@ -170,6 +174,15 @@ export const layoutOptionsMap = [
     category: "charts",
     tags: ["charts"],
   },
+
+  // {
+  //   id: 112,
+  //   name: "New Price History",
+  //   slug: "new-price-history",
+  //   image: dashboard.cfgi,
+  //   category: "charts",
+  //   tags: ["charts"],
+  // },
 
   // {
   //   id: 10,
@@ -258,6 +271,13 @@ export const chartsMap = {
     extra: [""],
     component: (widget: LayoutType["widgets"][0]) => (
       <Heatmap widget={widget} />
+    ),
+  },
+  "new-price-history": {
+    name: "New Price History",
+    extra: ["period", "token"],
+    component: (widget: LayoutType["widgets"][0]) => (
+      <NewPriceHistory widget={widget} />
     ),
   },
 };
@@ -366,4 +386,80 @@ export const widgetPropsDefaults = {
       h: 2,
     },
   },
+
+  "new-price-history": {
+    token: "BTC",
+    period: pricePeriodOptions[11].value,
+    meta: {
+      w: 4,
+      h: 2,
+    },
+  },
 };
+
+export const tourSteps = [
+  {
+    tour: "mainTour",
+    steps: [
+      {
+        icon: "👋",
+        selector: "#first-step",
+        content: "Click here to add a new widget to your dashboard.",
+        title: "Adding a New Widget",
+        side: "bottom",
+        showControls: true,
+        showSkip: true,
+        pointerPadding: 10,
+        pointerRadius: 10,
+      },
+      {
+        icon: "👋",
+        selector: "#second-step",
+        content:
+          "Pick a widget to add to your dashboard. You can start with the ** widget if you’re not sure",
+        title: "Pick a Widget",
+        side: "left",
+        showControls: true,
+        showSkip: true,
+        pointerPadding: 10,
+        pointerRadius: 10,
+      },
+      {
+        icon: "👋",
+        selector: "#third-step",
+        content:
+          "Click this ‘Save’ icon to lock in your layout so you can always return to it.",
+        title: "Looks good! Now Save Your Layout",
+        side: "bottom-right",
+        showControls: true,
+        showSkip: true,
+        pointerPadding: 10,
+        pointerRadius: 10,
+      },
+      {
+        icon: "👋",
+        selector: "#fourth-step",
+        content:
+          "You can now name your layout. This will help you identify it later.",
+        title: "Name your layout",
+        side: "left",
+        showControls: true,
+        showSkip: true,
+        pointerPadding: 10,
+        pointerRadius: 10,
+      },
+      {
+        icon: "👋",
+        selector: "#fifth-step",
+        content:
+          "Click here to view all your saved layouts, you can switch between them or create new ones anytime",
+        title: "Access Saved Layouts Anytime",
+        side: "bottom-right",
+        showControls: true,
+        showSkip: true,
+        pointerPadding: 10,
+        pointerRadius: 10,
+      },
+    ],
+  },
+] satisfies Tour[];

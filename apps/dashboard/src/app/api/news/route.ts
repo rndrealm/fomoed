@@ -7,60 +7,60 @@ import {
 } from "@/services/queries/news/types";
 import { NextResponse } from "next/server";
 
-async function fetchRowsFromNewsLab() {
-  const newsRows: Partial<NewsRowInsert>[] = [];
+// async function fetchRowsFromNewsLab() {
+//   const newsRows: Partial<NewsRowInsert>[] = [];
 
-  const url = new URL("/api/newslab-posts", process.env.PUBLIC_NEWSLAB_URL);
+//   const url = new URL("/api/newslab-posts", process.env.PUBLIC_NEWSLAB_URL);
 
-  let res: Response;
+//   let res: Response;
 
-  try {
-    res = await fetch(url);
-  } catch (error) {
-    console.log("Failed to fetch newslab posts:", error);
-    return [];
-  }
+//   try {
+//     res = await fetch(url);
+//   } catch (error) {
+//     console.log("Failed to fetch newslab posts:", error);
+//     return [];
+//   }
 
-  let json: ApiNewsLabPost[];
+//   let json: ApiNewsLabPost[];
 
-  try {
-    json = await res.json();
-  } catch (error) {
-    console.log("Failed to parse newslab posts:", error);
-    return [];
-  }
+//   try {
+//     json = await res.json();
+//   } catch (error) {
+//     console.log("Failed to parse newslab posts:", error);
+//     return [];
+//   }
 
-  for (const post of json) {
-    const originalUrl =
-      process.env.PUBLIC_NEWSLAB_URL + "/api/newslab-posts/" + post.id;
+//   for (const post of json) {
+//     const originalUrl =
+//       process.env.PUBLIC_NEWSLAB_URL + "/api/newslab-posts/" + post.id;
 
-    const contentWithoutTitle = post.content.replace(/<h1[^>]*>.*?<\/h1>/, "");
-    const contentWithoutMarkup = contentWithoutTitle.replace(/<[^>]+>/g, "");
-    const contentWithoutNewlines = contentWithoutMarkup
-      .replace(/\n/g, " ")
-      .trim();
-    const briefContent = contentWithoutNewlines.substring(0, 200) + "...";
+//     const contentWithoutTitle = post.content.replace(/<h1[^>]*>.*?<\/h1>/, "");
+//     const contentWithoutMarkup = contentWithoutTitle.replace(/<[^>]+>/g, "");
+//     const contentWithoutNewlines = contentWithoutMarkup
+//       .replace(/\n/g, " ")
+//       .trim();
+//     const briefContent = contentWithoutNewlines.substring(0, 200) + "...";
 
-    const rowInsert: Partial<NewsRowInsert> = {
-      id: post.id,
-      original_url: originalUrl,
-      published_at: post.created_at,
-      source: "NewsLab",
-      image_url: null,
-      sentiment: "neutral",
-      summary: briefContent,
-      symbols: post.metadata.ref_tokens,
-      title: post.title,
-    };
+//     const rowInsert: Partial<NewsRowInsert> = {
+//       id: post.id,
+//       original_url: originalUrl,
+//       published_at: post.created_at,
+//       source: "NewsLab",
+//       image_url: null,
+//       sentiment: "neutral",
+//       summary: briefContent,
+//       symbols: post.metadata.ref_tokens,
+//       title: post.title,
+//     };
 
-    newsRows.push(rowInsert);
-  }
+//     newsRows.push(rowInsert);
+//   }
 
-  return newsRows;
-}
+//   return newsRows;
+// }
 
 async function fetchNews() {
-  const url = new URL("https://cryptopanic.com/api/posts/");
+  const url = new URL("https://cryptopanic.com/api/growth/v2/posts/");
 
   url.searchParams.set("auth_token", process.env.PRIVATE_CRYPTOPANIC_KEY!);
   url.searchParams.set("metadata", "true");
@@ -84,7 +84,7 @@ async function fetchNews() {
 
     newsRows.push({
       id: appId,
-      original_url: i.source.url,
+      original_url: i.original_url,
       published_at: i.published_at,
       source: i.source.title,
       image_url: null,
@@ -94,8 +94,8 @@ async function fetchNews() {
           : i.votes.positive < i.votes.negative
             ? "bearish"
             : "neutral",
-      summary: i.metadata?.description,
-      symbols: i.currencies?.map((c) => c.code) || [],
+      summary: i.description,
+      symbols: i.instruments?.map((c) => c.code) || [],
       title: i.title,
     });
 

@@ -37,3 +37,39 @@ export const updateSettingsAction = async (
 
   return data;
 };
+export const updateSettingsActiveTab = async (
+  new_active_tab: string,
+  signal?: AbortSignal
+) => {
+  const supabase = createSupabaseBrowserClient();
+
+  if (signal?.aborted) {
+    return;
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error("Please login to update settings.");
+  }
+
+  if (signal?.aborted) {
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from("dashboard_settings")
+    .update({ active_tab_id: new_active_tab })
+    .match({ user_id: user.id })
+    .select()
+    .single();
+
+  if (error) {
+    console.log("Error updating settings:", error);
+    throw new Error(error.message);
+  }
+
+  return data;
+};

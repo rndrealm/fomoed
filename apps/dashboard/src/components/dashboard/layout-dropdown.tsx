@@ -28,6 +28,8 @@ import {
 } from "../ui/tooltip";
 import { useState } from "react";
 import { ConfirmationModal, NameLayout } from "../modals";
+import { useNextStep } from "nextstepjs";
+import { OnboardingEndModal } from "./shared/onboarding-end-modal";
 
 export function LayoutDropdown() {
   const deleteLayout = useSetAtom(deleteLayoutAtom);
@@ -45,16 +47,30 @@ export function LayoutDropdown() {
   const savedLayouts = layouts.filter((item) => !item.draft);
   const unSavedLayouts = layouts.filter((item) => item.draft);
 
+  const [isEndOpen, setIsEndOpen] = useState(false);
+  const handleOpenChange = (open: boolean) => {
+    setIsEndOpen(open);
+  };
+
+  const tour = useNextStep();
+
   return (
     <Fragment>
       <TooltipProvider>
         <DropdownMenu
           onOpenChange={(e) => {
             setIsOpen(e);
+            if (tour.currentStep === 4) {
+              tour.closeNextStep();
+
+              setTimeout(() => {
+                handleOpenChange(true);
+              }, 1000);
+            }
           }}
         >
           <Tooltip>
-            <TooltipTrigger>
+            <TooltipTrigger id="fifth-step">
               <DropdownMenuTrigger asChild>
                 <div className="flex items-center justify-center rounded-sm group">
                   <ToolbarLayout active={isOpen} />
@@ -79,7 +95,7 @@ export function LayoutDropdown() {
               <RenderIf condition={!!layouts && layouts?.length === 0}>
                 <div className="max-w-[149px] mx-auto py-[50px]">
                   <p className="text-[#848484] text-center text-xs font-medium">
-                    You currently have no saved layout
+                    You currently have no layout
                   </p>
                 </div>
               </RenderIf>
@@ -199,6 +215,8 @@ export function LayoutDropdown() {
         title="Rename Layout"
         details="Rename your layout"
       />
+
+      <OnboardingEndModal isOpen={isEndOpen} onOpenChange={handleOpenChange} />
     </Fragment>
   );
 }

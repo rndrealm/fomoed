@@ -7,6 +7,7 @@ import {
   deleteTabAtom,
   renameTabAtom,
   tabsAtom,
+  updateActiveTabAtom,
 } from "@/lib/atoms/tabsAtom";
 import { cn, maxTabsByPlan } from "@/lib/utils";
 import { ConfirmationModal, Upgrade } from "../../modals";
@@ -126,6 +127,7 @@ export function NewTabs() {
   const tabs = useAtomValue(tabsAtom);
   const layouts = useAtomValue(layoutAtom);
   const [activeTab, setActiveTab] = useAtom(activeTabAtom);
+  const updateActiveTab = useSetAtom(updateActiveTabAtom);
   const deleteTabFromAtom = useSetAtom(deleteTabAtom);
   const deleteLayout = useSetAtom(deleteLayoutAtom);
   const renameTab = useSetAtom(renameTabAtom);
@@ -179,7 +181,7 @@ export function NewTabs() {
                 isActive={isActive}
                 showCloseBtn={showCloseBtn}
                 handleClick={() => {
-                  setActiveTab(item);
+                  updateActiveTab(item);
                 }}
                 handleClose={() => {
                   setDeleteTab(item);

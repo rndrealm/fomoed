@@ -35,6 +35,8 @@ import { settingAtom } from "@/lib/atoms/settingsAtom";
 import { NameLayout, Upgrade } from "@/components/modals";
 import { useGetUserPlans } from "@/services/queries/subscriptions";
 import { cn, maxTabsByPlan } from "@/lib/utils";
+import { useTour } from "@reactour/tour";
+import { useNextStep } from "nextstepjs";
 
 interface IToolbarItem {
   onClick?: () => void;
@@ -112,6 +114,11 @@ export function Toolbar() {
 
     if (currentLayout.name === "" && newLayoutName === "") {
       setShowNameModal(true);
+      if (tour.currentStep === 2) {
+        setTimeout(() => {
+          tour.setCurrentStep(tour.currentStep + 1);
+        }, 500);
+      }
       return;
     }
 
@@ -147,6 +154,8 @@ export function Toolbar() {
     }
   }, [isSuccess, setLayoutChange]);
 
+  const tour = useNextStep();
+
   return (
     <Fragment>
       <div className="flex items-center justify-between gap-4">
@@ -155,9 +164,15 @@ export function Toolbar() {
         <div className="flex items-center gap-2">
           <button
             type="button"
+            id="first-step"
             className="flex gap-[6px] items-center w-[102px] h-[32px] bg-[#FF3B10] text-xs font-medium text-white rounded-md justify-center"
             onClick={() => {
               setShowWidgetsModal(true);
+              if (tour.currentStep === 0) {
+                setTimeout(() => {
+                  tour.setCurrentStep(tour.currentStep + 1);
+                }, 500);
+              }
             }}
           >
             <AddWidget />
@@ -175,13 +190,19 @@ export function Toolbar() {
             </button>
           </div> */}
 
-          <RenderIf condition={!!currLayout && currLayout?.draft}>
-            <ToolbarItem
-              icon={isPending ? <Loader /> : <SaveDraft />}
-              label="Save Draft"
-              onClick={isPending ? () => {} : handleSaveLayout}
-            />
-          </RenderIf>
+          <div id="third-step">
+            <RenderIf condition={!!currLayout && currLayout?.draft}>
+              <ToolbarItem
+                icon={isPending ? <Loader /> : <SaveDraft />}
+                label="Save Draft"
+                onClick={() => {
+                  if (isPending) return;
+
+                  handleSaveLayout();
+                }}
+              />
+            </RenderIf>
+          </div>
 
           <RenderIf condition={!!currLayout && !currLayout?.draft}>
             <Fragment>
@@ -214,7 +235,9 @@ export function Toolbar() {
               onClick={isPending ? () => {} : handleSaveLayout}
             />
           ) : null} */}
+
           <LayoutDropdown />
+
           <SettingsDropdown />
         </div>
       </div>
@@ -250,6 +273,10 @@ export function Toolbar() {
           handleSaveLayout();
           setNewLayoutName("");
           setShowNameModal(false);
+
+          if (tour.currentStep === 3) {
+            tour.setCurrentStep(tour.currentStep + 1);
+          }
         }}
         title="Name Layout"
         details="Create a name for your Layout?"

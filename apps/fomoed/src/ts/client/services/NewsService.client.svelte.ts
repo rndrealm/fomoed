@@ -196,6 +196,8 @@ export class NewsService extends BaseService {
 			return false;
 		}
 
+		console.log('Popular news data:', data);
+
 		this.popularNews = data.map(this.#transformNewsItem);
 
 		return true;

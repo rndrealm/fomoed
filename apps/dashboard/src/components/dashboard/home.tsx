@@ -1,10 +1,11 @@
 "use client";
-import React, { Fragment, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   DashboardContent,
   FullscreenBtn,
   Toolbar,
 } from "@/components/dashboard";
+import { NextStepProvider, NextStep } from "nextstepjs";
 import { useAtom, useSetAtom } from "jotai";
 import { utilsAtom } from "@/lib/atoms/utilsAtom";
 import { cn } from "@/lib/utils";
@@ -13,6 +14,12 @@ import { loadTabsFromApiAtom } from "@/lib/atoms/tabsAtom";
 import { loadLayoutsFromApiAtom } from "@/lib/atoms/layoutAtom";
 import { loadSettingsFromApiAtom } from "@/lib/atoms/settingsAtom";
 import { Navbar } from "../shared";
+import { TourProvider } from "@reactour/tour";
+import { tourSteps } from "@/lib/static";
+import { OnboardingModal } from "./shared/onboarding-modal";
+import { useFetchTokenNews } from "@/services/queries/news";
+import TourContent from "./shared/tour-card";
+import TourCard from "./shared/tour-card";
 
 interface IProps {
   dashboardData: IDashboardData;
@@ -22,8 +29,10 @@ export default function Home({ dashboardData }: IProps) {
   const loadLayoutsFromApi = useSetAtom(loadLayoutsFromApiAtom);
   const loadSettingsFromApi = useSetAtom(loadSettingsFromApiAtom);
 
+  // const { data: newsData } = useFetchTokenNews();
+
   useEffect(() => {
-    loadTabsFromApi(dashboardData.tabs);
+    loadTabsFromApi(dashboardData.tabs, dashboardData.settings.active_tab_id);
     loadLayoutsFromApi(dashboardData.layouts);
     loadSettingsFromApi(dashboardData.settings);
   }, [
@@ -74,27 +83,35 @@ export default function Home({ dashboardData }: IProps) {
     };
   }, [utils, setUtils]);
 
+  const [isOpen, setIsOpen] = useState(true);
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+  };
+
   return (
-    <Fragment>
-      <div
-        className={cn(
-          "h-screen pt-[96px] px-4 pb-4 overflow-hidden bg-[#0C0C0C]",
-          !utils.isFullScreen ? "pt-[96px] px-4 pb-4" : "p-1"
-        )}
-      >
-        <div className="relative flex flex-col w-full h-full gap-4">
-          <div className="px-6">
-            <Toolbar />
+    <NextStepProvider>
+      <NextStep steps={tourSteps} cardComponent={TourCard}>
+        {/* <OnboardingModal isOpen={isOpen} onOpenChange={handleOpenChange} /> */}
+        <div
+          className={cn(
+            "h-screen pt-[96px] px-4 pb-4 overflow-hidden bg-[#0C0C0C]",
+            !utils.isFullScreen ? "pt-[96px] px-4 pb-4" : "p-1"
+          )}
+        >
+          <div className="relative flex flex-col w-full h-full gap-4">
+            <div className="px-6">
+              <Toolbar />
+            </div>
+            <div className="flex-1 border border-[#333333] bg-[#0F0F0F] overflow-auto rounded-[20px] scrollbar">
+              <DashboardContent />
+            </div>
+            <FullscreenBtn
+              isFullscreen={utils.isFullScreen}
+              handleFullscreen={handleFullscreen}
+            />
           </div>
-          <div className="flex-1 border border-[#333333] bg-[#0F0F0F] overflow-auto rounded-[20px] scrollbar">
-            <DashboardContent />
-          </div>
-          <FullscreenBtn
-            isFullscreen={utils.isFullScreen}
-            handleFullscreen={handleFullscreen}
-          />
         </div>
-      </div>
-    </Fragment>
+      </NextStep>
+    </NextStepProvider>
   );
 }

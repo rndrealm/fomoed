@@ -31,7 +31,7 @@ export const useFetchTokenNews = () => {
   };
 };
 
-export const useReadTokenNews = (token: string = "BTC") => {
+export const useReadTokenNews = (token: string = "BTC", start?: boolean) => {
   const hash = ["token-news", token];
   const { data, isPending, error, isSuccess } = useQuery({
     queryKey: hash,
@@ -40,6 +40,7 @@ export const useReadTokenNews = (token: string = "BTC") => {
       return response as NewsRowInsert[];
     },
     refetchInterval: 1000 * 60 * 5,
+    enabled: start,
   });
   return {
     data,
@@ -49,12 +50,13 @@ export const useReadTokenNews = (token: string = "BTC") => {
   };
 };
 
-export const useReadNewslabPosts = () => {
-  const hash = ["news-lab-posts"];
+export const useReadNewslabPosts = (page: number = 1) => {
+  const limit = 20;
+  const hash = ["news-lab-posts", page];
   const { data, isPending, error, isSuccess } = useQuery({
     queryKey: hash,
     queryFn: async () => {
-      const response = await fetchNewslabPosts();
+      const response = await fetchNewslabPosts(page, limit);
       return response as { data: NewsRowInsert[]; count: number };
     },
   });
@@ -63,7 +65,11 @@ export const useReadNewslabPosts = () => {
     isPending,
     isSuccess,
     error,
-    count: data?.count,
+    meta: {
+      count: data?.count || limit,
+      limit,
+      page,
+    },
   };
 };
 export const useReadSingleNewslabPost = (id: string = "") => {

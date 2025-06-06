@@ -15,7 +15,18 @@ import tokenNews from "../../../../public/media/images/dashboard/token-news.png"
 import folder from "../../../../public/media/images/dashboard/folder.png";
 import heat from "../../../../public/media/images/dashboard/heat.png";
 import simple from "../../../../public/media/images/dashboard/simple.png";
+import successCheck from "../../../../public/media/images/dashboard/success-check.png";
 import settings from "../../../../public/media/images/dashboard/settings.svg";
+import left from "../../../../public/media/images/dashboard/left.svg";
+import right from "../../../../public/media/images/dashboard/right.svg";
+import swap from "../../../../public/media/images/dashboard/swap.svg";
+import x from "../../../../public/media/images/dashboard/x.svg";
+import search from "../../../../public/media/images/dashboard/search.svg";
+import eth from "../../../../public/media/images/dashboard/eth.svg";
+import check from "../../../../public/media/images/dashboard/check.svg";
+import token from "../../../../public/media/images/dashboard/token.svg";
+import explore from "../../../../public/media/images/dashboard/explore.svg";
+import chevronDown from "../../../../public/media/images/dashboard/chevron-down.svg";
 
 const dashboard = {
   layoutPlaceholder,
@@ -36,6 +47,17 @@ const dashboard = {
   heat,
   simple,
   settings,
+  left,
+  right,
+  swap,
+  x,
+  search,
+  eth,
+  check,
+  token,
+  chevronDown,
+  successCheck,
+  explore,
 };
 
 export default dashboard;
