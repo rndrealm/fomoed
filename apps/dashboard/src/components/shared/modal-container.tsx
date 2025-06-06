@@ -44,8 +44,8 @@ export function ModalContainer(props: IProps) {
     >
       <DialogContent className={contentClasses}>
         <DialogTitle className={cn(noHeader ? "hidden" : "")}>
-          <div className="flex justify-between items-center">
-            <p className="text-white text-base">{title}</p>
+          <div className="flex items-center justify-between">
+            <p className="text-base text-white">{title}</p>
 
             <button type="button" onClick={handleClose}>
               <CloseIcon />

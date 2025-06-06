@@ -60,7 +60,7 @@ import { NextResponse } from "next/server";
 // }
 
 async function fetchNews() {
-  const url = new URL("https://cryptopanic.com/api/posts/");
+  const url = new URL("https://cryptopanic.com/api/growth/v2/posts/");
 
   url.searchParams.set("auth_token", process.env.PRIVATE_CRYPTOPANIC_KEY!);
   url.searchParams.set("metadata", "true");
@@ -84,7 +84,7 @@ async function fetchNews() {
 
     newsRows.push({
       id: appId,
-      original_url: i.source.url,
+      original_url: i.original_url,
       published_at: i.published_at,
       source: i.source.title,
       image_url: null,
@@ -94,8 +94,8 @@ async function fetchNews() {
           : i.votes.positive < i.votes.negative
             ? "bearish"
             : "neutral",
-      summary: i.metadata?.description,
-      symbols: i.currencies?.map((c) => c.code) || [],
+      summary: i.description,
+      symbols: i.instruments?.map((c) => c.code) || [],
       title: i.title,
     });
 

@@ -31,8 +31,11 @@ export function NameLayout(props: IProps) {
       noHeader
       className="!max-w-[460px] w-full p-0"
     >
-      <div className="bg-[#090909] border border-[#333] rounded-[10px] p-6 min-h-[210px] flex flex-col">
-        <div className="flex flex-col gap-5 justify-between h-full flex-1">
+      <div
+        className="bg-[#090909] border border-[#333] rounded-[10px] p-6 min-h-[210px] flex flex-col"
+        id="fourth-step"
+      >
+        <div className="flex flex-col justify-between flex-1 h-full gap-5">
           <div className="flex flex-col gap-[10px]">
             <h4 className="text-white font-medium leading-[24px] text-base">
               {title}
