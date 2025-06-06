@@ -125,13 +125,14 @@ export default function MySmartSignalCard({
               align="end"
               className="w-56 bg-[#080808] text-white"
             >
-              <DropdownMenuItem
+              {/* Temporarily disabled */}
+              {/* <DropdownMenuItem
                 className="flex items-center gap-2 py-3 cursor-pointer focus:bg-zinc-800 focus:text-white"
                 onClick={onEdit}
               >
                 <Pencil className="h-5 w-5 text-gray-400" />
                 <span>Edit Signal</span>
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
               <DropdownMenuItem
                 className="flex items-center gap-2 py-3 cursor-pointer focus:bg-zinc-800 focus:text-white"
                 onClick={onDelete}
