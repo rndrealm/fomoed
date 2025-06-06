@@ -31,6 +31,7 @@ const SmartSignalsEdit = () => {
   });
 
   useEffect(() => {
+    console.log("🚀 ~ useEffect ~ data:", data);
     if (data && data.condition) {
       setCondition(JSON.parse(data.condition));
       setSignalName(data.name ?? "");
@@ -41,7 +42,10 @@ const SmartSignalsEdit = () => {
           (action) => action.type === "notification"
         ),
       });
-      console.log("🚀 ~ SmartSignalsEdit ~ data:", data);
+      console.log("🚀 ~ useEffect ~ condition:", JSON.parse(data.condition));
+      console.log("🚀 ~ useEffect ~ signalName:", data.name);
+      console.log("🚀 ~ useEffect ~ signalDescription:", data.description);
+      console.log("🚀 ~ useEffect ~ signalActions:", data.actions);
     }
   }, [data]);
 
@@ -52,13 +56,13 @@ const SmartSignalsEdit = () => {
       actions.push({
         type: "email",
         subject: `Smart Signal fired: ${signalName}`,
-        content: `Your smart signal ${signalName} from fomoed.io has been triggered`,
+        content: `Your smart signal "${signalName}" from fomoed.io has been triggered`,
       });
 
     if (signalActions.notification)
       actions.push({
         type: "notification",
-        description: `Your smart signal ${signalName} from fomoed.io has been triggered`,
+        description: `Your smart signal "${signalName}" from fomoed.io has been triggered`,
       });
 
     if (!condition || !user?.id) return;
@@ -77,7 +81,7 @@ const SmartSignalsEdit = () => {
     redirect("/signals");
   };
 
-  if (isLoading) {
+  if (isLoading || !data || !condition) {
     return (
       <div className="bg-black min-h-screen p-2 h-full">
         <div className="w-full h-80 flex items-center justify-center">
@@ -103,6 +107,7 @@ const SmartSignalsEdit = () => {
         </div>
 
         <div className="space-y-6">
+          {JSON.stringify(condition)}
           {condition && (
             <ManualSignalBuilder
               initialLogic={condition}

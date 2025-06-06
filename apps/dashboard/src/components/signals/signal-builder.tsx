@@ -62,7 +62,7 @@ const SignalBuilder = ({}) => {
   const handleSave = async () => {
     if (!logic || !user?.user_id) return;
 
-    if (userPlanData?.planType === "FREE" && smartSignals.length 2) {
+    if (userPlanData?.planType === "FREE" && smartSignals.length >= 2) {
       setShowUpgradeModal(true);
       return;
     }
@@ -77,13 +77,13 @@ const SignalBuilder = ({}) => {
       actions.push({
         type: "email",
         subject: `Smart Signal fired: ${signalName}`,
-        content: `Your smart signal ${signalName} from fomoed.io has been triggered`,
+        content: `Your smart signal "${signalName}" from fomoed.io has been triggered`,
       });
 
     if (signalActions.notification)
       actions.push({
         type: "notification",
-        description: `Your smart signal ${signalName} from fomoed.io has been triggered`,
+        description: `Your smart signal "${signalName}" from fomoed.io has been triggered`,
       });
 
     const data: CreateSignalDTO = {

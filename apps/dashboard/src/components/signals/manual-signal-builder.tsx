@@ -22,7 +22,10 @@ const ManualSignalBuilder = ({
   }, []);
 
   useEffect(() => {
-    setLogic(toJsonLogic(rootGroup));
+    const testLogic = toJsonLogic(rootGroup);
+    console.log("🚀 ~ useEffect ~ testLogic:", testLogic, rootGroup);
+
+    setLogic(testLogic);
   }, [rootGroup, setLogic]);
 
   useEffect(() => {

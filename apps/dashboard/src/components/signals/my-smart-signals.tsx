@@ -35,7 +35,7 @@ const MySignals = () => {
   const { data } = useGetUserPlans();
 
   const handleNewSignal = () => {
-    if (data?.planType === "FREE" && smartSignals.length >= 1) {
+    if (data?.planType === "FREE" && smartSignals.length >= 2) {
       setShowUpgradeModal(true);
     } else {
       setActiveSignalTab("signal-builder");

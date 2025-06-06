@@ -121,7 +121,13 @@ export const toJsonLogic = (group: Group): any => {
 
 // Helper for JSON-logic conversion
 export const conditionToJsonLogic = (cond: Condition) => {
-  if (!cond.operator || !cond.topic || cond.value === null || cond.value === undefined) return null;
+  if (
+    !cond.operator ||
+    !cond.topic ||
+    cond.value === null ||
+    cond.value === undefined
+  )
+    return null;
   return {
     [cond.operator]: [
       {

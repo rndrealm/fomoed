@@ -6,7 +6,6 @@ import MySignals from "@/components/signals/my-smart-signals";
 import SignalBuilder from "@/components/signals/signal-builder";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { activeSignalTabAtom } from "@/lib/atoms/signalTabsAtom";
-import { useGetUserPlans } from "@/services/queries/subscriptions";
 import { useAtom } from "jotai";
 
 export default function Home() {
