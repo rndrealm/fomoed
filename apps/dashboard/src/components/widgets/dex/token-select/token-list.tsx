@@ -1,8 +1,9 @@
 import dashboard from "@/lib/assets/dashboard";
 import { cn, shortenAddress } from "@/lib/utils";
-import { SingleTokenType } from "@/services/queries/dex/types";
+import { ChainType, SingleTokenType } from "@/services/queries/dex/types";
 import Image from "next/image";
 import React from "react";
+import RemoteImage from "../../shared/remote-image";
 
 interface IProps {
   list: SingleTokenType[];
@@ -25,8 +26,8 @@ const TokenList = (props: IProps) => {
         >
           <div className="flex items-center gap-2">
             <div>
-              <Image
-                src={token.logoURI || dashboard.logo}
+              <RemoteImage
+                src={token.logoURI}
                 alt={token.name}
                 width={28}
                 height={28}
@@ -41,7 +42,7 @@ const TokenList = (props: IProps) => {
             </div>
           </div>
 
-          {value?.symbol === token.symbol ? (
+          {value?.address === token.address ? (
             <div>
               <Image
                 src={dashboard.check}

@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { SingleTokenType } from "@/services/queries/dex/types";
 import Image from "next/image";
 import React from "react";
+import RemoteImage from "../../shared/remote-image";
 
 interface IProps {
   list: SingleTokenType[];
@@ -20,15 +21,15 @@ const TokenListSummary = (props: IProps) => {
           className={cn(
             "flex flex-col items-center gap-1 bg-[#1A1A1A] rounded-[8px] flex-1 py-2",
             {
-              "border-2 border-[grey]": value?.symbol === token.symbol,
+              "border-2 border-[grey]": value?.address === token.address,
             }
           )}
           type="button"
           onClick={() => updateTokenValue(token)}
         >
           <div>
-            <Image
-              src={token.logoURI || dashboard.logo}
+            <RemoteImage
+              src={token.logoURI}
               alt={token.name}
               width={28}
               height={28}

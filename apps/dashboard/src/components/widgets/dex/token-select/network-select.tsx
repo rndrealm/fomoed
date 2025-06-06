@@ -5,6 +5,7 @@ import { ChainType } from "@/services/queries/dex/types";
 import { ChevronDown } from "lucide-react";
 import Image from "next/image";
 import React, { Fragment, useEffect, useState } from "react";
+import RemoteImage from "../../shared/remote-image";
 
 interface IProps {
   networkValue: ChainType | null;
@@ -60,7 +61,7 @@ const NetworkSelect = (props: IProps) => {
               >
                 <div className="flex items-center gap-1">
                   <div>
-                    <Image
+                    <RemoteImage
                       src={network.icon || dashboard.token}
                       alt={network.name}
                       width={16}

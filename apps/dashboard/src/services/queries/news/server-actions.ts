@@ -59,21 +59,22 @@ import {
 // }
 
 async function fetchNews() {
-  const url = new URL("https://cryptopanic.com/api/posts/");
+  const url = new URL("https://cryptopanic.com/api/growth/v2/posts/");
 
   url.searchParams.set("auth_token", process.env.PRIVATE_CRYPTOPANIC_KEY!);
   url.searchParams.set("metadata", "true");
   url.searchParams.set("approved", "true");
 
   const res = await fetch(url);
-  // console.log("Fetching news from CryptoPanic:", res);
   if (!res.ok) {
     // console.log(await res.text());
-    throw new Error("Failed to fetch news from CryptoPanic");
+    // throw new Error("Failed to fetch news from CryptoPanic");
+    return { error: true, message: "Failed to fetch news from CryptoPanic" };
   }
 
   const json: CryptopanicNewsApiResponse = await res.json();
   const news = json.results;
+  // console.log("Fetching news from CryptoPanic:", news);
 
   const newsRows: Partial<NewsRowInsert>[] = [];
   const ids: string[] = [];
@@ -83,7 +84,7 @@ async function fetchNews() {
 
     newsRows.push({
       id: appId,
-      original_url: i.source.url,
+      original_url: i.original_url,
       published_at: i.published_at,
       source: i.source.title,
       image_url: null,
@@ -93,8 +94,8 @@ async function fetchNews() {
           : i.votes.positive < i.votes.negative
             ? "bearish"
             : "neutral",
-      summary: i.metadata?.description,
-      symbols: i.currencies?.map((c) => c.code) || [],
+      summary: i.description,
+      symbols: i.instruments?.map((c) => c.code) || [],
       title: i.title,
     });
 

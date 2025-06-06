@@ -321,3 +321,64 @@ export function formatSummaryDate(date = new Date()) {
     weekday,
   };
 }
+
+/**
+ * Function to format a string so that it only contains numbers, only has one decimal places and it removes other decimal places
+ * @param value string
+ * @returns string
+ */
+export const formatNumber = (value: string) => {
+  const cleanValue = value.replace(/[^0-9.]/g, "");
+
+  const [integerPart, decimalPart] = cleanValue.split(".");
+
+  const formattedInteger = integerPart || "";
+  return decimalPart !== undefined
+    ? `${formattedInteger}.${decimalPart}`
+    : formattedInteger;
+};
+
+/**
+ * Function to append decimal places to an amount
+ * @param amount amount to be operated on
+ * @param decimal decimal places to be added
+ * @returns
+ */
+export const appendDecimal = (amount?: string, decimal?: number): string => {
+  if (!amount) return "0";
+  if (!decimal) return amount;
+  const multiplier = Math.pow(10, decimal);
+  const fixed = parseFloat(amount) * multiplier;
+  return fixed.toLocaleString("fullwide", { useGrouping: false });
+};
+
+/**
+ * Function to remove decimal places from an amount based on the decimal param
+ * @param decimal the decimal places to be removed
+ * @param amount amount to be operated on
+ * @returns
+ */
+export const removeDecimal = (
+  amount: string | number,
+  decimal: number
+): string => {
+  if (!amount || amount === "0") return "0.0";
+  if (isNaN(Number(amount))) return "0.0";
+  const strAmount = amount.toString();
+  let isNegative = false;
+  if (amount.toString().split("")[0] === "-") {
+    isNegative = true;
+  }
+
+  const absStrAmount = Math.abs(Number(strAmount)).toString();
+  const position = absStrAmount.length - decimal;
+
+  let retValue;
+  if (position <= 0) {
+    retValue = "0." + "0".repeat(Math.abs(position)) + absStrAmount;
+  } else {
+    retValue =
+      absStrAmount.slice(0, position) + "." + absStrAmount.slice(position);
+  }
+  return isNegative ? "-" + retValue : retValue;
+};

@@ -10,12 +10,11 @@ import {
 } from "@/services/queries/dex";
 import { useDebounce } from "@/hooks/useDebounce";
 import { ChainType, SingleTokenType } from "@/services/queries/dex/types";
-import TokenListSummary from "./token-list-summary";
 import TokenList from "./token-list";
+import { useAccount } from "wagmi";
 import TokenTrigger from "./token-trigger";
 import NetworkSelect from "./network-select";
-import { swapFromTo } from "@/lib/utils";
-import { useAccount } from "wagmi";
+import TokenListSummary from "./token-list-summary";
 
 interface IProps {
   tokenData: {
@@ -26,7 +25,7 @@ interface IProps {
     token: SingleTokenType | null;
     network: ChainType | null;
   };
-  updateTokenData: (
+  updateSwapData: (
     type: "from" | "to",
     slug: "token" | "network",
     value: SingleTokenType | ChainType | null
@@ -35,7 +34,7 @@ interface IProps {
 }
 
 const TokenSelect = (props: IProps) => {
-  const { tokenData, otherTokenData, updateTokenData, slug } = props;
+  const { tokenData, otherTokenData, updateSwapData, slug } = props;
   const { data: networkList } = useFetchSupportedChains();
   const [isOpen, setIsOpen] = useState(false);
   const [networkValue, setNetworkValue] = useState<ChainType | null>(
@@ -46,20 +45,17 @@ const TokenSelect = (props: IProps) => {
     setNetworkValue(network);
   };
   const updateTokenValue = (token: SingleTokenType) => {
-    updateTokenData(slug, "network", networkValue);
+    updateSwapData(slug, "network", networkValue);
 
     // Todo: improve the ux when the user selects the same token and network
     if (
       networkValue?.chainId === otherTokenData?.network?.chainId &&
       token.symbol === otherTokenData?.token?.symbol
     ) {
-      // console.log("special");
-      // updateTokenData(slug, "token", token);
-      // updateTokenData(swapFromTo(slug), "token", null);
       setIsOpen(false);
       return;
     } else {
-      updateTokenData(slug, "token", token);
+      updateSwapData(slug, "token", token);
     }
 
     setIsOpen(false);
@@ -74,29 +70,29 @@ const TokenSelect = (props: IProps) => {
   );
   const { data: searchTokenList } = useSearchTokenList(debouncedSearchValue);
 
-  useEffect(() => {
-    if (tokenList && !tokenData.token) {
-      const selectedIndex = slug === "from" ? 0 : 1;
-      updateTokenData(
-        slug,
-        "token",
-        tokenList[networkValueWithFallback][selectedIndex]
-      );
-    }
-  }, [
-    tokenList,
-    tokenData.token,
-    networkValueWithFallback,
-    updateTokenData,
-    slug,
-  ]);
+  // useEffect(() => {
+  //   if (tokenList && !tokenData.token) {
+  //     const selectedIndex = slug === "from" ? 0 : 1;
+  //     updateSwapData(
+  //       slug,
+  //       "token",
+  //       tokenList[networkValueWithFallback][selectedIndex]
+  //     );
+  //   }
+  // }, [
+  //   tokenList,
+  //   tokenData.token,
+  //   networkValueWithFallback,
+  //   updateSwapData,
+  //   slug,
+  // ]);
 
   useEffect(() => {
     if (networkList && !networkValue) {
       updateNetworkValue(networkList[0]);
-      updateTokenData(slug, "network", networkList[0]);
+      updateSwapData(slug, "network", networkList[0]);
     }
-  }, [networkList, networkValue, updateTokenData, slug]);
+  }, [networkList, networkValue, updateSwapData, slug]);
 
   return (
     <Fragment>
@@ -110,7 +106,6 @@ const TokenSelect = (props: IProps) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            // transition={{ duration: 0.2 }}
           >
             <div>
               <div className="flex items-center justify-between">

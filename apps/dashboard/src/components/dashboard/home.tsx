@@ -4,6 +4,7 @@ import {
   FullscreenBtn,
   Toolbar,
 } from "@/components/dashboard";
+import { NextStepProvider, NextStep } from "nextstepjs";
 import { loadLayoutsFromApiAtom } from "@/lib/atoms/layoutAtom";
 import { loadSettingsFromApiAtom } from "@/lib/atoms/settingsAtom";
 import { loadTabsFromApiAtom } from "@/lib/atoms/tabsAtom";
@@ -12,10 +13,12 @@ import { tourSteps } from "@/lib/static";
 import { cn } from "@/lib/utils";
 import { IDashboardData } from "@/services/queries/home/types";
 import { TourProvider } from "@reactour/tour";
-import { useAtom, useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
 import CreateSignalFromChartModal from "../signals/create-signal-from-chart-modal";
 import { OnboardingModal } from "./shared/onboarding-modal";
+import TourContent from "./shared/tour-card";
+import TourCard from "./shared/tour-card";
+import { useAtom, useSetAtom } from "jotai";
 
 interface IProps {
   dashboardData: IDashboardData;
@@ -79,34 +82,35 @@ export default function Home({ dashboardData }: IProps) {
     };
   }, [utils, setUtils]);
 
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
   };
 
   return (
-    <TourProvider steps={tourSteps}>
-      <OnboardingModal isOpen={isOpen} onOpenChange={handleOpenChange} />
-      <div
-        className={cn(
-          "h-screen pt-[96px] px-4 pb-4 overflow-hidden bg-[#0C0C0C]",
-          !utils.isFullScreen ? "pt-[96px] px-4 pb-4" : "p-1"
-        )}
-      >
-        <div className="relative flex flex-col w-full h-full gap-4">
-          <div className="px-6">
-            <Toolbar />
+    <NextStepProvider>
+      <NextStep steps={tourSteps} cardComponent={TourCard}>
+        {/* <OnboardingModal isOpen={isOpen} onOpenChange={handleOpenChange} /> */}
+        <div
+          className={cn(
+            "h-screen pt-[96px] px-4 pb-4 overflow-hidden bg-[#0C0C0C]",
+            !utils.isFullScreen ? "pt-[96px] px-4 pb-4" : "p-1"
+          )}
+        >
+          <div className="relative flex flex-col w-full h-full gap-4">
+            <div className="px-6">
+              <Toolbar />
+            </div>
+            <div className="flex-1 border border-[#333333] bg-[#0F0F0F] overflow-auto rounded-[20px] scrollbar">
+              <DashboardContent />
+            </div>
+            <FullscreenBtn
+              isFullscreen={utils.isFullScreen}
+              handleFullscreen={handleFullscreen}
+            />
           </div>
-          <div className="flex-1 border border-[#333333] bg-[#0F0F0F] overflow-auto rounded-[20px] scrollbar">
-            <DashboardContent />
-          </div>
-          <FullscreenBtn
-            isFullscreen={utils.isFullScreen}
-            handleFullscreen={handleFullscreen}
-          />
         </div>
-        <CreateSignalFromChartModal />
-      </div>
-    </TourProvider>
+      </NextStep>
+    </NextStepProvider>
   );
 }
