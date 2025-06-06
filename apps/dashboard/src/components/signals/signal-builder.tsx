@@ -10,11 +10,13 @@ import { SignalActions } from "@/lib/types/signal.types";
 import { extractTopicsFromJsonLogic } from "@/lib/utils/signal.utils";
 import { useCreateSignalMutation } from "@/services/queries/signals";
 import { CreateSignalDTO } from "@/services/queries/signals/types";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import AISignalPromptInput from "./ai-builder-prompt-input";
 import ManualSignalBuilder from "./manual-signal-builder";
 import NotificationSettings from "./notification-settings";
 import SignalDetails from "./signal-details";
+import { useAtom } from "jotai";
+import { activeSignalTabAtom } from "@/lib/atoms/signalTabsAtom";
 
 const SignalBuilder = ({}) => {
   const [signalName, setSignalName] = useState("");
@@ -25,11 +27,11 @@ const SignalBuilder = ({}) => {
     notification: true,
   });
   const [updateCount, setUpdateCount] = useState(0);
+  const [_, setActiveSignalTab] = useAtom(activeSignalTabAtom);
 
   const user = useUserData();
 
   const { mutateAsync: createSignal, isPending } = useCreateSignalMutation();
-
 
   const handleAIBuilderResponse = (
     name: string,
@@ -81,7 +83,7 @@ const SignalBuilder = ({}) => {
 
     await createSignal(data);
     toast.success("Signal saved successfully");
-    redirect("/signals");
+    setActiveSignalTab("my-signals");
   };
 
   return (

@@ -1,6 +1,7 @@
 import { CFGIConfig } from "@/components/signals/data-configs/CFGIConfig";
 import { MarketCapConfig } from "@/components/signals/data-configs/MarketCapConfig";
 import { PriceTickerConfig } from "@/components/signals/data-configs/PriceTickerConfig";
+import { SocialDominanceConfig } from "@/components/signals/data-configs/SocialDominanceConfig";
 import { VolumeTickerConfig } from "@/components/signals/data-configs/VolumeTickerConfig";
 import { YouTubeChannelConfig } from "@/components/signals/data-configs/YouTubeChannelConfig";
 
@@ -23,7 +24,7 @@ export const signalDataSources: SignalDataSourceGroup[] = [
       { name: "Price", id: "price", suggestionsEnabled: true },
       { name: "CFGI", id: "cfgi" },
       { name: "Trading Volume", id: "volume_24h" },
-      { name: "Market Capitalization", id: "market_cap" },
+      { name: "Market Capitalization", id: "market_cap", disabled: true },
     ],
   },
   {
@@ -35,7 +36,14 @@ export const signalDataSources: SignalDataSourceGroup[] = [
   },
   {
     group: "Social Sentiment",
-    dataSources: [{ name: "YouTube Streaming Status", id: "youtube" }],
+    dataSources: [
+      { name: "YouTube Streaming Status", id: "youtube" },
+      {
+        name: "Social Dominance",
+        id: "social_dominance_total",
+        disabled: true,
+      },
+    ],
   },
 ];
 
@@ -47,7 +55,7 @@ export const topicSelectorMap: Record<
       onChange: (value: string) => void;
     }>;
     allowedOperators: string[];
-    valueType: "string" | "number" | "boolean";
+    valueType: "string" | "number" | "boolean" | "percentage";
   }
 > = {
   price: {
@@ -74,5 +82,10 @@ export const topicSelectorMap: Record<
     component: MarketCapConfig,
     allowedOperators: [">", "<"],
     valueType: "number",
+  },
+  social_dominance_total: {
+    component: SocialDominanceConfig,
+    allowedOperators: [">", "<"],
+    valueType: "percentage",
   },
 };

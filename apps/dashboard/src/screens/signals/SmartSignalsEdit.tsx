@@ -90,7 +90,7 @@ const SmartSignalsEdit = () => {
   return (
     <div className="bg-black min-h-screen p-2 h-full ">
       <div className=" w-full max-w-7xl mx-auto">
-        <div className="mt-14">
+        <div className="">
           <Button
             variant={"ghost"}
             size={"sm"}

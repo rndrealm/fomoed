@@ -45,7 +45,8 @@ export const useSmartSignals = () => {
       const { data, error } = await supabase
         .from("smart_signals")
         .select("*")
-        .eq("user_id", userData?.id);
+        .eq("user_id", userData?.id)
+        .order("created_at", { ascending: false });
 
       if (error) {
         throw new Error("Failed to fetch smart signals");

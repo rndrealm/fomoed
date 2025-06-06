@@ -4,7 +4,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Separator } from "../ui/separator";
 import { Toggle } from "../ui/toggle";
 import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
-import { useSignalNotifications, useMarkNotificationAsRead } from "@/services/queries/signal-notifications";
+import {
+  useSignalNotifications,
+  useMarkNotificationAsRead,
+} from "@/services/queries/signal-notifications";
 import SignalNotificationIcon from "../icons/SignalNotificationIcon";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -17,16 +20,16 @@ function SignalNotificationsPopover() {
   const { mutate: markAsRead } = useMarkNotificationAsRead();
 
   const { readNotifications, unreadNotifications } = useMemo(() => {
-    const read = allNotifications.filter(n => n.read);
-    const unread = allNotifications.filter(n => !n.read);
+    const read = allNotifications.filter((n) => n.read);
+    const unread = allNotifications.filter((n) => !n.read);
     return { readNotifications: read, unreadNotifications: unread };
   }, [allNotifications]);
 
   const displayedNotifications = useMemo(() => {
     switch (activeTab) {
-      case 'read':
+      case "read":
         return readNotifications;
-      case 'unread':
+      case "unread":
         return unreadNotifications;
       default:
         return allNotifications;
@@ -34,15 +37,11 @@ function SignalNotificationsPopover() {
   }, [activeTab, readNotifications, unreadNotifications, allNotifications]);
 
   const handleOpenChange = async (open: boolean) => {
-    console.log("oooopeb:", open);
-    
-    if (open) {
-      // Mark all unread notifications as readkgjhgjhg when opening
+    if (!open) {
+      // mark as read on close
       if (unreadNotifications.length > 0) {
         await Promise.all(
-          unreadNotifications.map(notification => 
-            markAsRead(notification.id)
-          )
+          unreadNotifications.map((notification) => markAsRead(notification.id))
         );
       }
     }
@@ -115,14 +114,14 @@ function SignalNotificationsPopover() {
                 <div className="w-8 h-8 bg-[#1B1B1B] rounded-sm flex items-center justify-center shrink-0">
                   <SignalNotificationIcon />
                 </div>
-                <div className="flex flex-col ">
+                <div className="flex flex-col w-full">
                   <div className="font-medium">{notification.signal_name}</div>
                   <div className="text-xs text-[#808080]">
                     {notification.description}
                   </div>
                 </div>
                 <div className="flex justify-end items-center">
-                  <div className="text-xs text-[#808080] text-end">
+                  <div className="text-xs text-[#808080] text-end whitespace-nowrap">
                     {dayjs(notification.created_at).fromNow()}
                   </div>
                 </div>

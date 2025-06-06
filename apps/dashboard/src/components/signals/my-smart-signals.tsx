@@ -7,11 +7,15 @@ import { Card, CardContent } from "../ui/card";
 import MySmartSignalCard from "./my-smart-signal-card";
 
 const EmptyState = () => {
+  const [_, setActiveSignalTab] = useAtom(activeSignalTabAtom);
   return (
     <Card className="w-full h-80">
       <CardContent className="flex items-center justify-center flex-col w-full h-full ">
         Create your very own Smart Signals
-        <button className="bg-fomoed-red text-white px-2 py-1 rounded mt-2 flex items-center text-sm">
+        <button
+          onClick={() => setActiveSignalTab("signal-builder")}
+          className="bg-fomoed-red text-white px-2 py-1 rounded mt-2 flex items-center text-sm"
+        >
           <Plus size={12} />
           New Signal
         </button>

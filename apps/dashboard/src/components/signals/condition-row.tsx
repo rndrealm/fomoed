@@ -110,6 +110,26 @@ const ConditionRow = ({
               }
             />
           )}
+
+          {valueType === "percentage" && (
+            <Input
+              type="number"
+              max={100}
+              min={0}
+              placeholder="Percentage %"
+              className="w-full"
+              value={
+                typeof condition.value === "string" ||
+                typeof condition.value === "number"
+                  ? condition.value
+                  : ""
+              }
+              onChange={(e) =>
+                onChange({ ...condition, value: e.target.value })
+              }
+            />
+          )}
+
           {valueType === "boolean" && (
             <Button
               variant="outline"

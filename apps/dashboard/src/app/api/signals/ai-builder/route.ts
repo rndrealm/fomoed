@@ -38,7 +38,8 @@ If the user requests a signal for an unsupported or invalid currency pair, respo
 Supported currency pairs: BTCUSD, ETHUSD, SOLUSD or other currencies supporded by coinbase API.
 
 Supported data sources (examples): 
-- coin pric (eg: [ticker_BTCUSD, price], [ticker_ETHUSD, price], [ticker_SOLUSD, price])
+- coin price (eg: [ticker_BTCUSD, price], [ticker_ETHUSD, price], [ticker_SOLUSD, price])
+- coin volume 24h (eg: [ticker_BTCUSD, volume_24h], [ticker_ETHUSD, volume_24h], [ticker_SOLUSD, volume_24h])
 - coin fear and greed index (eg: [cfgi_BTC, cfgi], [cfgi_ETH, cfgi], [cfgi_SOL, cfgi])
 - youtube streaming status (eg: ["youtube_streaming_DiscoverCrypto","isStreaming"] currently only this channel is supported)
 
