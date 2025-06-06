@@ -2,9 +2,12 @@ import { activeSignalTabAtom } from "@/lib/atoms/signalTabsAtom";
 import { useSmartSignals } from "@/services/queries/signals";
 import { useAtom } from "jotai";
 import { LoaderCircle, Plus } from "lucide-react";
-import { RenderIf } from "../shared";
+import { ModalContainer, RenderIf } from "../shared";
 import { Card, CardContent } from "../ui/card";
 import MySmartSignalCard from "./my-smart-signal-card";
+import { useGetUserPlans } from "@/services/queries/subscriptions";
+import { useState } from "react";
+import { Upgrade } from "../modals";
 
 const EmptyState = () => {
   const [_, setActiveSignalTab] = useAtom(activeSignalTabAtom);
@@ -27,6 +30,17 @@ const EmptyState = () => {
 const MySignals = () => {
   const { data: smartSignals = [], isLoading, isFetched } = useSmartSignals();
   const [_, setActiveSignalTab] = useAtom(activeSignalTabAtom);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
+  const { data } = useGetUserPlans();
+
+  const handleNewSignal = () => {
+    if (data?.planType === "FREE" && smartSignals.length >= 2) {
+      setShowUpgradeModal(true);
+    } else {
+      setActiveSignalTab("signal-builder");
+    }
+  };
 
   if (isLoading) {
     return (
@@ -42,7 +56,7 @@ const MySignals = () => {
         <h1 className="font-medium text-xl">My Smart Signals</h1>
 
         <button
-          onClick={() => setActiveSignalTab("signal-builder")}
+          onClick={handleNewSignal}
           className="bg-fomoed-red text-white px-2 py-1 rounded flex items-center text-sm"
         >
           <Plus size={12} />
@@ -71,6 +85,22 @@ const MySignals = () => {
             ))}
         </RenderIf>
       </div>
+
+      <ModalContainer
+        open={showUpgradeModal}
+        handleClose={() => {
+          setShowUpgradeModal(false);
+        }}
+        noHeader
+        className="!max-w-[410px] !p-0 rounded-[24px]"
+      >
+        <Upgrade
+          plan={data?.planType}
+          handleClose={() => {
+            setShowUpgradeModal(false);
+          }}
+        />
+      </ModalContainer>
     </div>
   );
 };
