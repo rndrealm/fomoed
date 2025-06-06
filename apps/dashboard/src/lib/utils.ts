@@ -283,7 +283,7 @@ export const shortenAddress = (
 export const swapFromTo = (slug: "from" | "to") => {
   return slug === "from" ? "to" : "from";
 };
-export function formatPriceSignificant(value: string) {
+export function formatPriceSignificant(value: string | number) {
   const num = Number(value);
   if (num === 0) return "0";
 
@@ -350,3 +350,44 @@ export const appendDecimal = (amount?: string, decimal?: number): string => {
   const fixed = parseFloat(amount) * multiplier;
   return fixed.toLocaleString("fullwide", { useGrouping: false });
 };
+
+export function formatNewsDate(
+  date: Date = new Date(),
+  timeZone?: string
+): string {
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone,
+  });
+
+  const parts = formatter.formatToParts(date);
+
+  const month = parts.find((p) => p.type === "month")?.value?.toUpperCase();
+  const day = parts.find((p) => p.type === "day")?.value;
+  const year = parts.find((p) => p.type === "year")?.value;
+
+  return `${month} ${day}, ${year}`;
+}
+
+export function formatChartTooltipDate(
+  dateInput: Date | string | number
+): string {
+  const date = new Date(dateInput);
+
+  const optionsDate: Intl.DateTimeFormatOptions = {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  };
+  const optionsTime: Intl.DateTimeFormatOptions = {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  };
+
+  const datePart = date.toLocaleDateString("en-US", optionsDate);
+  const timePart = date.toLocaleTimeString("en-US", optionsTime);
+  return `${datePart}, ${timePart}`;
+}
