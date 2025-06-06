@@ -33,7 +33,7 @@ export class NewsService {
 		currencies: string | null;
 		page: number;
 	}) {
-		const url = new URL('https://cryptopanic.com/api/posts/');
+		const url = new URL('https://cryptopanic.com/api/growth/v2/posts/');
 
 		url.searchParams.set('auth_token', PRIVATE_CRYPTOPANIC_KEY);
 		url.searchParams.set('metadata', 'true');
@@ -129,7 +129,7 @@ export class NewsService {
 		page: number;
 		search: string;
 	}): Promise<NewsFeedResponseData> {
-		const url = new URL('https://cryptopanic.com/api/posts/');
+		const url = new URL('https://cryptopanic.com/api/growth/v2/posts/');
 
 		url.searchParams.set('auth_token', PRIVATE_CRYPTOPANIC_KEY);
 		url.searchParams.set('metadata', 'true');
@@ -148,7 +148,7 @@ export class NewsService {
 		}
 
 		url.searchParams.set('page', page.toString());
-
+		console.log('Fetching news from CryptoPanic with URL:', url.toString());
 		const res = await fetch(url);
 
 		if (!res.ok) {
@@ -167,7 +167,7 @@ export class NewsService {
 
 			newsRows.push({
 				id: appId,
-				original_url: i.source.url,
+				original_url: i.original_url,
 				published_at: i.published_at,
 				source: i.source.title,
 				image_url: null,
@@ -177,9 +177,10 @@ export class NewsService {
 						: i.votes.positive < i.votes.negative
 							? 'bearish'
 							: 'neutral',
-				summary: i.metadata?.description,
-				symbols: i.currencies?.map((c) => c.code) || [],
-				title: i.title
+				summary: i.description,
+				symbols: i.instruments?.map((c) => c.code) || [],
+				title: i.title,
+				metadata: { region: i.source.region }
 			});
 
 			ids.push(appId);
@@ -204,7 +205,7 @@ export class NewsService {
 
 		// Update the IDs in the response to match filtered results
 		const filteredIds = filteredPosts
-			.filter((post) => ids.includes(post.id as string))
+			.filter((post) => ids.includes(post.id as string) && post.metadata?.region === 'en')
 			.map((post) => post.id as string);
 
 		await NewsTable.upsert(filteredPosts);

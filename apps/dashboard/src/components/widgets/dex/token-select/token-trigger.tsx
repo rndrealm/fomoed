@@ -4,7 +4,7 @@ import { SingleTokenType } from "@/services/queries/dex/types";
 import { ChevronDown } from "lucide-react";
 import Image from "next/image";
 import React from "react";
-import RemoteImage from "../shared/remote-image";
+import RemoteImage from "../../shared/remote-image";
 
 interface IProps {
   value: SingleTokenType | null;
@@ -13,7 +13,6 @@ interface IProps {
 
 const TokenTrigger = (props: IProps) => {
   const { value, toggle } = props;
-  console.log("ttt:", value?.logoURI);
   return (
     <button
       className={cn(

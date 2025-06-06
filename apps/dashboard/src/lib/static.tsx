@@ -32,6 +32,7 @@ import NewPriceHistory from "@/components/widgets/price-history/new-price-histor
 import { pricePeriodOptions } from "@/constant";
 import Dominance from "@/components/widgets/dominance/dominance";
 import OrderBook from "@/components/widgets/order-book/order-book";
+import { Tour } from "nextstepjs";
 
 export const layoutClassMap = {
   SinglePane: "grid-rows-1 grid-cols-1",
@@ -446,11 +447,67 @@ export const widgetPropsDefaults = {
 
 export const tourSteps = [
   {
-    selector: "#first-step",
-    content: "Click here to add a new widget to your dashboard.",
+    tour: "mainTour",
+    steps: [
+      {
+        icon: "👋",
+        selector: "#first-step",
+        content: "Click here to add a new widget to your dashboard.",
+        title: "Adding a New Widget",
+        side: "bottom",
+        showControls: true,
+        showSkip: true,
+        pointerPadding: 10,
+        pointerRadius: 10,
+      },
+      {
+        icon: "👋",
+        selector: "#second-step",
+        content:
+          "Pick a widget to add to your dashboard. You can start with the ** widget if you’re not sure",
+        title: "Pick a Widget",
+        side: "left",
+        showControls: true,
+        showSkip: true,
+        pointerPadding: 10,
+        pointerRadius: 10,
+      },
+      {
+        icon: "👋",
+        selector: "#third-step",
+        content:
+          "Click this ‘Save’ icon to lock in your layout so you can always return to it.",
+        title: "Looks good! Now Save Your Layout",
+        side: "bottom-right",
+        showControls: true,
+        showSkip: true,
+        pointerPadding: 10,
+        pointerRadius: 10,
+      },
+      {
+        icon: "👋",
+        selector: "#fourth-step",
+        content:
+          "You can now name your layout. This will help you identify it later.",
+        title: "Name your layout",
+        side: "left",
+        showControls: true,
+        showSkip: true,
+        pointerPadding: 10,
+        pointerRadius: 10,
+      },
+      {
+        icon: "👋",
+        selector: "#fifth-step",
+        content:
+          "Click here to view all your saved layouts, you can switch between them or create new ones anytime",
+        title: "Access Saved Layouts Anytime",
+        side: "bottom-right",
+        showControls: true,
+        showSkip: true,
+        pointerPadding: 10,
+        pointerRadius: 10,
+      },
+    ],
   },
-  {
-    selector: "#second-step",
-    content: "Click here to see your saved and unsaved layouts.",
-  },
-];
+] satisfies Tour[];

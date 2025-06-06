@@ -1,15 +1,25 @@
 "use client";
 import dashboard from "@/lib/assets/dashboard";
-import { ChevronDown } from "lucide-react";
 import Image from "next/image";
-import TokenSelect from "./token-select";
-import { useFetchSupportedChains, useGetQuote } from "@/services/queries/dex";
+import {
+  useFetchSupportedChains,
+  useGetQuote,
+  useTokenBalanceRead,
+} from "@/services/queries/dex";
 import { useState } from "react";
 import { ChainType, SingleTokenType } from "@/services/queries/dex/types";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import ConnectButton from "./connect-button";
-import { useAccount, useBalance } from "wagmi";
-import { appendDecimal, formatNumber } from "@/lib/utils";
+import { useAccount, useBalance, useEstimateGas } from "wagmi";
+import { appendDecimal, formatNumber, removeDecimal } from "@/lib/utils";
+import PriceSummary from "./price-summary";
+import ReviewModal from "./review/review-modal";
+import SettingsModal from "./settings-modal";
+import { useDebounce } from "@/hooks/useDebounce";
+import InsufficientChecker from "./insufficient-checker";
+import TokenSelect from "./token-select";
+import AmountInput from "./amount-input";
+import { parseEther } from "viem";
 
 interface SwapData {
   from: {
@@ -22,23 +32,31 @@ interface SwapData {
   };
 }
 
+const initialSwapData = {
+  from: {
+    token: null,
+    network: null,
+  },
+  to: {
+    token: null,
+    network: null,
+  },
+};
+
 const DexWidget = () => {
   useFetchSupportedChains();
-  const [swapData, setSwapData] = useState<SwapData>({
-    from: {
-      token: null,
-      network: null,
-    },
-    to: {
-      token: null,
-      network: null,
-    },
-  });
+  const [swapData, setSwapData] = useState<SwapData>(initialSwapData);
+
   const updateSwapData = (
     type: "from" | "to",
     slug: "token" | "network",
     value: SingleTokenType | ChainType | null
   ) => {
+    if (type === "from" && slug === "token" && value && "balance" in value) {
+      setLocalBalance(
+        parseFloat(removeDecimal(value.balance, value.decimals)).toFixed(3)
+      );
+    }
     setSwapData((prevData) => ({
       ...prevData,
       [type]: {
@@ -49,8 +67,35 @@ const DexWidget = () => {
   };
 
   const [inputValue, setInputValue] = useState("");
+  const debouncedSearchValue = useDebounce(inputValue, 500);
   const { openConnectModal } = useConnectModal();
   const { address, isConnected } = useAccount();
+  const [localBalance, setLocalBalance] = useState("0.00");
+
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const toggleReviewModal = () => {
+    setIsReviewModalOpen(!isReviewModalOpen);
+  };
+
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const toggleSettingsModal = () => {
+    setIsSettingsModalOpen(!isSettingsModalOpen);
+  };
+
+  const [slippage, setSlippage] = useState({ value: 0.5, custom: false });
+  const updateSlippage = (value: number, custom: boolean) => {
+    setSlippage({ value, custom });
+  };
+
+  const { data: tokenBalance } = useTokenBalanceRead(
+    swapData.from.network?.chainId.toString(),
+    address,
+    swapData.from.token?.address
+  );
+
+  const parsedBalance = parseFloat(
+    removeDecimal(tokenBalance?.balance || 0, tokenBalance?.decimals || 0)
+  ).toFixed(5);
 
   const { data, isLoading, isSuccess, isError } = useGetQuote({
     userAddress: address,
@@ -59,17 +104,61 @@ const DexWidget = () => {
     destinationChainId: swapData.to.network?.chainId.toString(),
     inputToken: swapData.from.token?.address,
     outputToken: swapData.to.token?.address,
-    inputAmount: appendDecimal(inputValue, swapData.from.token?.decimals),
+    inputAmount: appendDecimal(
+      debouncedSearchValue,
+      swapData.from.token?.decimals
+    ),
+    slippage: slippage.value.toString(),
+  });
+
+  const completeFn = () => {
+    toggleReviewModal();
+    setSwapData(initialSwapData);
+    setInputValue("");
+  };
+
+  const setMax = () => {
+    if (!swapData.from.token || !tokenBalance) return;
+    const maxAmount = parseFloat(
+      removeDecimal(tokenBalance.balance, swapData.from.token.decimals)
+    ).toFixed(5);
+    setInputValue(maxAmount);
+  };
+
+  const result = useEstimateGas({
+    account: address,
+    to: address,
+    value: parseEther("0.07633"),
   });
 
   return (
     <div className="text-white border border-[#1E1E1E] rounded-[15px] p-3 font-inter font-semibold bg-[#080808] h-full relative">
+      {data && data.manualRoutes && data.manualRoutes.length > 0 ? (
+        <ReviewModal
+          isOpen={isReviewModalOpen}
+          toggle={toggleReviewModal}
+          quoteData={data}
+          chainExplorer={swapData.to.network?.explorers[0]}
+          completeFn={completeFn}
+        />
+      ) : null}
+
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        toggle={toggleSettingsModal}
+        slippage={slippage}
+        updateSlippage={updateSlippage}
+      />
+
       {/* Header */}
       <div className="flex items-center justify-between ">
         <h1 className="text-mid">Swap</h1>
         <div className="flex items-center gap-2">
           <ConnectButton />
-          <button className="bg-[#121212] px-2 h-8 border border-[#141414] rounded-[6px]">
+          <button
+            className="bg-[#121212] px-2 h-8 border border-[#141414] rounded-[6px]"
+            onClick={toggleSettingsModal}
+          >
             <Image src={dashboard.settings} alt="Settings icon" />
           </button>
         </div>
@@ -83,22 +172,18 @@ const DexWidget = () => {
           <div>
             <div className="flex items-center justify-between">
               <p className="text-xs font-medium">From:</p>
-              <p className="font-normal text-xxs">Balance: 0:00</p>
+              <p className="font-normal text-xxs">Balance: {parsedBalance}</p>
             </div>
             <div className="flex items-center justify-between mt-1 rounded-[8px] bg-[#080808] px-3 py-sm">
-              <input
-                type="text"
-                placeholder="0.00"
-                value={formatNumber(inputValue)}
-                onChange={(e) => {
-                  setInputValue(e.target.value);
-                }}
-                className="p-1 text-xs font-medium outline-none"
+              <AmountInput
+                inputValue={formatNumber(inputValue)}
+                updateInputValue={(val) => setInputValue(val)}
+                setMax={setMax}
               />
               <TokenSelect
                 tokenData={swapData.from}
                 otherTokenData={swapData.to}
-                updateTokenData={updateSwapData}
+                updateSwapData={updateSwapData}
                 slug="from"
               />
             </div>
@@ -121,7 +206,7 @@ const DexWidget = () => {
               <TokenSelect
                 tokenData={swapData.to}
                 otherTokenData={swapData.from}
-                updateTokenData={updateSwapData}
+                updateSwapData={updateSwapData}
                 slug="to"
               />
             </div>
@@ -130,19 +215,10 @@ const DexWidget = () => {
 
         {/* Summary section */}
         <div className="border-t border-[#1E1E1E] pt-4 flex flex-col justify-between">
-          <div className="flex flex-col px-3 gap-sm">
-            <div className="flex items-center justify-between font-medium ">
-              <h3 className="text-xs ">Price</h3>
-              <p className="text-xxs text-[#A5A5A5] ">0.00</p>
-            </div>
-            <div className="flex items-center justify-between  text-[#A5A5A5]">
-              <h3 className="text-xxs ">Minimum received</h3>
-              <p className="font-medium text-xxs ">0.00</p>
-            </div>
-          </div>
+          <PriceSummary quoteData={data} />
 
           {/* Connect button */}
-          <div className="px-3 mt-7">
+          <div className="px-3 mt-6">
             {/* If wallet has not been conncted */}
             {!isConnected ? (
               <button
@@ -163,10 +239,13 @@ const DexWidget = () => {
             isSuccess &&
             data?.manualRoutes &&
             data?.manualRoutes.length > 0 ? (
-              <button className="w-full h-10 text-xs font-medium bg-[#202020] rounded-[6px]">
-                Swap {data?.input?.token?.symbol} for{" "}
-                {swapData.to.token?.symbol}
-              </button>
+              <InsufficientChecker
+                toggleReviewModal={toggleReviewModal}
+                fromSymbol={data?.input?.token?.symbol}
+                toSymbol={swapData.to.token?.symbol}
+                balance={tokenBalance?.balance}
+                amount={data?.input?.amount}
+              />
             ) : null}
 
             {/* Wallet has been connected but there is an error or no quote found */}

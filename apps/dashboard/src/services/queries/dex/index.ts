@@ -1,9 +1,12 @@
 import api from "@/services/api";
 import { useQuery } from "@tanstack/react-query";
 import {
+  BuildTransactionResult,
   ChainType,
   DexQuoteParams,
   DexQuoteResult,
+  TokenBalance,
+  TokenBalanceResponse,
   TokenListResponse,
 } from "./types";
 
@@ -78,6 +81,7 @@ export const useGetQuote = (params: DexQuoteParams) => {
     params.inputToken,
     params.outputToken,
     params.inputAmount,
+    params.slippage,
   ];
 
   const url = `${BUNGEE_API_BASE_URL}/api/v1/bungee/quote`;
@@ -102,7 +106,6 @@ export const useGetQuote = (params: DexQuoteParams) => {
       params.inputAmount !== "0",
   });
 
-  console.log("quote reasssd:", data);
   return {
     data,
     isPending,
@@ -110,5 +113,48 @@ export const useGetQuote = (params: DexQuoteParams) => {
     error,
     isError,
     isLoading,
+  };
+};
+
+export const useBuildTransaction = (quoteId: string) => {
+  const hash = ["dex-build-transaction"];
+  const { data, isPending, error, isSuccess } = useQuery({
+    queryKey: hash,
+    queryFn: async () => {
+      const response = await api.get({
+        url: `${BUNGEE_API_BASE_URL}/api/v1/bungee/build-tx?quoteId=${quoteId}`,
+      });
+      return response.result as BuildTransactionResult;
+    },
+  });
+  return {
+    data,
+    isPending,
+    isSuccess,
+    error,
+  };
+};
+
+export const useTokenBalanceRead = (
+  chainId?: string,
+  userAddress?: string,
+  tokenAddress?: string
+) => {
+  const hash = ["get-token-balance", userAddress, tokenAddress, chainId];
+  const { data, isPending, error, isSuccess, refetch } =
+    useQuery<TokenBalanceResponse>({
+      queryKey: hash,
+      queryFn: async () =>
+        await api.get({
+          url: `https://api.socket.tech/v2/balances/token-balance?tokenAddress=${tokenAddress}&chainId=${chainId}&userAddress=${userAddress}`,
+        }),
+      enabled: !!userAddress && !!tokenAddress && !!chainId,
+    });
+  return {
+    data: data?.result,
+    isPending,
+    isSuccess,
+    error,
+    refetch,
   };
 };

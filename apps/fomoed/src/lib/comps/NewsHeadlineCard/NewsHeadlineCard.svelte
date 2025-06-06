@@ -9,6 +9,7 @@
 	};
 
 	let { article, skeleton = false }: Props = $props();
+	console.log('article', article);
 </script>
 
 <a href={article?.detailUrl} class="block duration-500 ease-in-out" class:skeletoned={skeleton}>

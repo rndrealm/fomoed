@@ -11,7 +11,7 @@ export default async function Page() {
   // const { data: dashboardData } = useGetDashboardData();
   // const { data: newsData } = useFetchTokenNews();
   const dashboardData = await getDashboardData();
-  await fetchNewsData();
+  // await fetchNewsData();
   return (
     // <Fragment>
     //   {dashboardData ? <Home dashboardData={dashboardData} /> : <Loader />}
