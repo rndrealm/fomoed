@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { Fragment, useEffect, useRef } from "react";
 import {
   createChart,
   ColorType,
@@ -8,6 +8,7 @@ import {
   ISeriesApi,
   CandlestickSeries,
 } from "lightweight-charts";
+import { formatChartTooltipDate, formatPriceSignificant } from "@/lib/utils";
 
 interface ChartColors {
   backgroundColor?: string;
@@ -39,6 +40,7 @@ const Chart = (props: IProps) => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const seriesRef = useRef<ISeriesApi<any>>(null);
   const candleSeriesRef = useRef<ISeriesApi<any>>(null);
+  const tooltipRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
@@ -63,7 +65,7 @@ const Chart = (props: IProps) => {
         },
       },
       rightPriceScale: {
-        visible: false,
+        visible: isCandleStick,
       },
       timeScale: {
         borderColor: "transparent",
@@ -108,6 +110,60 @@ const Chart = (props: IProps) => {
     if (from && to) {
       chart.timeScale().setVisibleRange({ from, to });
     }
+
+    const tooltip = tooltipRef.current!;
+    const container = chartContainerRef.current!;
+
+    const toolTipWidth = 240;
+    const toolTipHeight = 24;
+    const toolTipMargin = 25;
+
+    chart.subscribeCrosshairMove((param) => {
+      if (
+        !param.point ||
+        !param.time ||
+        param.point.x < 0 ||
+        param.point.x > container.clientWidth ||
+        param.point.y < 0 ||
+        param.point.y > container.clientHeight
+      ) {
+        tooltip.style.display = "none";
+        return;
+      }
+
+      const data = param.seriesData.get(
+        isCandleStick ? candleSeries : areaSeries
+      )! as any;
+      const price = data.value ?? data.close;
+
+      console.log(formatChartTooltipDate(Date.now()));
+
+      tooltip.style.display = "flex";
+      tooltip.innerHTML = `
+      <div style="background: #1C1C1C; border-radius: 8px; padding: 3px 6px">
+        <p style="color: #878787; font-size: 13px; line-height: 135%; font-weight: 600"><span style="color: #ffffff; font-weight: 700;">${formatPriceSignificant(price)}</span> ${formatChartTooltipDate(data.time * 1000)}</p>
+      </div>
+    `;
+
+      const coordinate = isCandleStick
+        ? candleSeries.priceToCoordinate(price)
+        : areaSeries.priceToCoordinate(price);
+      if (coordinate === null) return;
+
+      let shiftedCoordinate = param.point.x - toolTipWidth / 2;
+      shiftedCoordinate = Math.max(
+        0,
+        Math.min(container.clientWidth - toolTipWidth, shiftedCoordinate)
+      );
+
+      const coordinateY =
+        coordinate - toolTipHeight - toolTipMargin > 0
+          ? coordinate - toolTipHeight - toolTipMargin
+          : coordinate + toolTipMargin;
+
+      tooltip.style.left = `${shiftedCoordinate}px`;
+      tooltip.style.top = `${coordinateY}px`;
+    });
     // chart.timeScale().fitContent();
 
     const observer = new ResizeObserver(() => {
@@ -169,11 +225,18 @@ const Chart = (props: IProps) => {
   }, [token, period, data, isCandleStick]);
 
   return (
-    <div
-      ref={chartContainerRef}
-      style={{ width: "100%", height: "100%" }}
-      className="app_line_chart_component flex-1"
-    />
+    <div className="h-full w-full relative">
+      <div
+        ref={chartContainerRef}
+        style={{ width: "100%", height: "100%" }}
+        className="app_line_chart_component flex-1"
+      />
+
+      <div
+        ref={tooltipRef}
+        className="absolute top-[0] right-[0] w-[220px] h-[24px] hidden z-[9] justify-center overflow-visible whitespace-nowrap"
+      ></div>
+    </div>
   );
 };
 

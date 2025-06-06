@@ -316,6 +316,27 @@ button:hover {
   background-position: center calc(50% - 30px);
 }
 
+.app_widget_button {
+  transition: all 0.2s ease;
+  width: 26px;
+}
+
+.app_widget_button:hover {
+  width: 56px;
+}
+
+.app_widget_button__text {
+  display: none;
+}
+
+.app_widget_button:hover .app_widget_button__text {
+  display: inline-block;
+}
+
+.app_widget_button:hover .app_widget_button__icon {
+  display: none;
+}
+
 @keyframes shine {
   to {
     background-position: right -40px top 0;

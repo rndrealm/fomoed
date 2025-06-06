@@ -1,0 +1,267 @@
+"use client";
+import React, { useState } from "react";
+import {
+  ArrowUp,
+  Close,
+  CoinStats as CoinStatsIcon,
+  Explorer,
+  Globe,
+  Info,
+  Link,
+  Question,
+  Twitter,
+} from "@/components/icons/icons";
+import { OptionsDropdown } from "../shared/options-dropwdown";
+import { useReadCoinList } from "@/services/queries/charts";
+import CoinStatsTokenDropdown from "../shared/coin-stats-token-dropdown";
+import { AnimatePresence, motion } from "motion/react";
+
+interface ILinkItem {
+  icon: () => React.JSX.Element;
+  label: string;
+}
+
+function LinkItem(props: ILinkItem) {
+  const { icon, label } = props;
+  return (
+    <div className="py-1 px-[6px] rounded-lg bg-[#141414] flex items-center gap-1">
+      {icon()}
+      <p className="text-sm font-normal text-white">{label}</p>
+    </div>
+  );
+}
+
+const modalSlide = {
+  hidden: {
+    y: 100,
+    opacity: 0,
+  },
+  visible: {
+    y: "0%",
+    opacity: 1,
+    transition: {
+      type: "tween",
+      ease: "easeInOut",
+      duration: 0.2,
+    },
+  },
+  exit: {
+    y: 100,
+    opacity: 0,
+    transition: {
+      ease: "easeInOut",
+      duration: 0.2,
+    },
+  },
+};
+
+export default function CoinStats() {
+  const { data: coinData = [] } = useReadCoinList();
+
+  const [selectedCoin, setSelectedCoin] = useState("BTC");
+  const [showInfo, setShowInfo] = useState(false);
+
+  return (
+    <div className="flex flex-col gap-4 p-4 rounded-[30px] bg-[#000] relative overflow-hidden ">
+      <div className="flex flex-col gap-1">
+        <div className="flex justify-center">
+          <div className="cursor-grab w-[36px] h-[5px] bg-[#444] rounded-[2px]"></div>
+        </div>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <CoinStatsIcon />
+            <h4 className="text-base text-[#878787] leading-[1.35] font-semibold">
+              COIN STATS
+            </h4>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setShowInfo(true);
+              }}
+            >
+              <Question />
+            </button>
+            <OptionsDropdown />
+          </div>
+        </div>
+      </div>
+
+      <div className="flex justify-center">
+        <CoinStatsTokenDropdown
+          options={coinData}
+          setValue={(coin) => {
+            setSelectedCoin(coin);
+          }}
+          value={selectedCoin}
+        />
+      </div>
+
+      <div className="flex flex-col gap-8 flex-1 pb-4">
+        <div className="flex justify-center items-center gap-8">
+          <div className="flex flex-col items-center">
+            <h3 className="text-sm text-[#878787] leading-[1.35] font-medium">
+              Rank
+            </h3>
+            <h3 className="text-xl text-white leading-[1.35] font-bold">1</h3>
+          </div>
+
+          <div className="flex flex-col items-center">
+            <h3 className="text-sm text-[#878787] leading-[1.35] font-medium">
+              Market Cap
+            </h3>
+            <div className="flex items-center">
+              <h3 className="text-xl text-white leading-[1.35] font-bold">
+                $2.61T
+              </h3>
+              <ArrowUp />
+              <p className="text-xs text-[#84ebb4] leading-[1.35] font-semibold">
+                2.98%
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-3">
+            <div className="flex justify-center relative">
+              <div className="flex justify-center gap-1 bg-[#000] px-1 relative z-2">
+                <Link />
+                <p className="text-sm text-[#878787] leading-[1.35] font-medium">
+                  Links
+                </p>
+              </div>
+              <div className="w-full h-[1px] bg-[#161616] absolute top-[50%] z-1"></div>
+            </div>
+
+            <div className="flex justify-center gap-1 pb-4 border-b border-[#161616]">
+              <LinkItem icon={Globe} label="Website" />
+              <LinkItem icon={Twitter} label="X (Twitter)" />
+              <LinkItem icon={Explorer} label="Explorer" />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-4">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <p className="font-medium text-sm text-[#878787] leading-[1.35]">
+                  24h Volume
+                </p>
+              </div>
+
+              <p className="font-bold text-sm text-[#fff] leading-[1.35]">
+                $42.61b
+              </p>
+            </div>
+
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <p className="font-medium text-sm text-[#878787] leading-[1.35]">
+                  FDV
+                </p>
+                <Info />
+              </div>
+
+              <p className="font-bold text-sm text-[#fff] leading-[1.35]">
+                $2,161,244,123,269
+              </p>
+            </div>
+
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <p className="font-medium text-sm text-[#878787] leading-[1.35]">
+                  Circulating Supply
+                </p>
+                <Info />
+              </div>
+
+              <p className="font-bold text-sm text-[#fff] leading-[1.35]">
+                20,000,00
+              </p>
+            </div>
+
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <p className="font-medium text-sm text-[#878787] leading-[1.35]">
+                  Total Supply
+                </p>
+                <Info />
+              </div>
+
+              <p className="font-bold text-sm text-[#fff] leading-[1.35]">
+                20,000,00
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {showInfo && (
+          <motion.div
+            className="absolute bottom-[10px] left-[10px] right-[10px] bg-[#111] rounded-[22px] py-4 px-5 z-9"
+            variants={modalSlide}
+            initial="hidden"
+            animate="visible"
+            exit="hidden"
+          >
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col">
+                  <h3 className="font-semibold text-base leading-[1.35] text-white">
+                    MARKET CAP
+                  </h3>
+                  <p className="font-light text-[13px] leading-[1.25] text-[#878787]">
+                    Learn about the Marketcap
+                  </p>
+                </div>
+                <p className="font-medium text-[13px] leading-[1.35] text-white">
+                  Market capitalization (market cap) is the total value of a
+                  cryptocurrency. It’s calculated by multiplying the current
+                  price by the total circulating supply. It gives an idea of a
+                  coin&apos;s overall size and importance in the market.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col">
+                  <h3 className="font-semibold text-base leading-[1.35] text-white">
+                    Volume
+                  </h3>
+                  <p className="font-light text-[13px] leading-[1.25] text-[#878787]">
+                    Learn about the Volume
+                  </p>
+                </div>
+                <p className="font-medium text-[13px] leading-[1.35] text-white">
+                  Volume measures how much of a cryptocurrency has been traded
+                  over a specific period, usually 24 hours. It shows how active
+                  and liquid a market is — higher volume often means more
+                  interest and easier buying or selling.
+                </p>
+              </div>
+
+              <div className="flex justify-center">
+                <button
+                  type="button"
+                  className="rounded-[40px] bg-[#272727] flex items-center justify-center gap-1 h-[26px] app_widget_button"
+                  onClick={() => {
+                    setShowInfo(false);
+                  }}
+                >
+                  <p className="font-medium text-[13px] text-white whitespace-nowrap app_widget_button__text">
+                    Close
+                  </p>
+                  <div className="app_widget_button__icon">
+                    <Close fill="#878787" />
+                  </div>
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
