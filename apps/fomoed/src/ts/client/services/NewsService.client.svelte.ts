@@ -8,6 +8,7 @@ import type { NewsFeedResponseData, TypedServerResponse } from '$ts/common/api.t
 import { BaseService } from './BaseService.client.svelte';
 import type { NewsRow } from '$ts/server/db/NewsTable';
 import type { PostLike } from '$ts/client/types/posts';
+import { getPaginationMeta } from '../utils';
 
 export type NewsTokenOption = { value: string; label: string; icon: string | null };
 
@@ -34,13 +35,12 @@ export type NewsFilterOption = { value: NewsFilterVal; label: string };
 
 export const newsFilterOpts: NewsFilterOption[] = [
 	{ value: 'all', label: 'All' },
-	{ value: 'rising', label: 'Rising' },
-	{ value: 'hot', label: 'Hot' },
+	// { value: 'rising', label: 'Rising' },
+	// { value: 'hot', label: 'Hot' },
 	{ value: 'bullish', label: 'Bullish' },
-	{ value: 'bearish', label: 'Bearish' },
-	{ value: 'important', label: 'Important' },
-	{ value: 'saved', label: 'Top Saved' },
-	{ value: 'lol', label: 'LOL' }
+	{ value: 'bearish', label: 'Bearish' }
+	// { value: 'important', label: 'Important' },
+	// { value: 'saved', label: 'Top Saved' }
 ];
 
 export type NewsKindOption = { value: NewsKindVal; label: string };
@@ -74,6 +74,8 @@ export class NewsService extends BaseService {
 	hasNextPage = writable(true);
 	currentPage = $state(1);
 	totalPages = $state(1);
+	itemsPerPage = 16;
+	totalItems = 80;
 	isFetching = $state(false);
 
 	filter: NewsFilterVal;
@@ -114,35 +116,63 @@ export class NewsService extends BaseService {
 	async fetchNews() {
 		this.isFetching = true;
 
-		const url = new URL(window.location.origin + '/api/news/v2');
+		// const url = new URL(window.location.origin + '/api/news/v2');
 
-		url.searchParams.set('page', this.#page.toString());
-		url.searchParams.set('filter', this.filter);
-		url.searchParams.set('search', this.#search);
-		url.searchParams.set('kind', this.#kind);
-		url.searchParams.set('currencies', this.#currency);
+		// url.searchParams.set('page', this.#page.toString());
+		// url.searchParams.set('filter', this.filter);
+		// url.searchParams.set('search', this.#search);
+		// url.searchParams.set('kind', this.#kind);
+		// url.searchParams.set('currencies', this.#currency);
 
-		const res = await fetch(url);
+		// const res = await fetch(url);
 
-		if (!res.ok) {
-			this.isFetching = false;
-			return;
-		}
+		// if (!res.ok) {
+		// 	this.isFetching = false;
+		// 	return;
+		// }
 
-		const json = (await res.json()) as TypedServerResponse<NewsFeedResponseData>;
+		// const json = (await res.json()) as TypedServerResponse<NewsFeedResponseData>;
 
-		if (!json.success) {
-			this.isFetching = false;
-			return;
-		}
+		// if (!json.success) {
+		// 	this.isFetching = false;
+		// 	return;
+		// }
 
-		// Now we need to fetch the posts from the DB
-		const postIds = json.data.postIds;
+		// // Now we need to fetch the posts from the DB
+		// const postIds = json.data.postIds;
 
-		const { data, error } = await this.supabase
+		this.currentPage = this.#page;
+
+		const { from, to } = getPaginationMeta(this.#page, this.itemsPerPage);
+
+		let query = this.supabase
 			.from('news')
 			.select('*, news_likes(id), news_bookmarks(id)')
-			.in('id', postIds);
+			.order('published_at', { ascending: false })
+			.eq('metadata->>region', 'en')
+			.range(from, to);
+
+		// Filter by currency if set and not 'all'
+		if (this.#currency && this.#currency !== 'all') {
+			query = query.contains('symbols', [this.#currency]);
+		}
+
+		// Filter by filter value if set and not 'all'
+		if (
+			this.filter &&
+			this.filter !== 'all' &&
+			(this.filter === 'bullish' || this.filter === 'bearish')
+		) {
+			query = query.eq('sentiment', this.filter);
+		}
+
+		// Filter by search if set
+		if (this.#search && this.#search.trim() !== '') {
+			const searchTerm = `%${this.#search.trim()}%`;
+			query = query.or(`title.ilike.${searchTerm},summary.ilike.${searchTerm}`);
+		}
+
+		const { data, error } = await query.range(from, to);
 
 		if (error) {
 			this.isFetching = false;
@@ -155,28 +185,30 @@ export class NewsService extends BaseService {
 		this.infiniteNews.update((existing) => {
 			const existingIds = new Set(existing.map((a) => a.id));
 			const uniqueNew = newArticles.filter((a) => !existingIds.has(a.id));
-			return [...existing, ...uniqueNew];
+			const updateData = [...existing, ...uniqueNew];
+			return updateData;
 		});
-
-		this.currentPage = this.#page;
 
 		// Calculate total pages if possible based on API response
 		// Assuming the API provides total count or pages information
 		// If not provided, we'll estimate based on hasNextPage
-		if (json.data.count !== undefined) {
-			const itemsPerPage = json.data.postIds.length || 10;
-			this.totalPages = Math.ceil(json.data.count / itemsPerPage);
-		} else {
-			// If we don't have exact count, estimate based on current situation
-			this.totalPages = this.hasNextPage ? this.currentPage + 1 : this.currentPage;
-		}
+		// if (json.data.count !== undefined) {
+		// 	const itemsPerPage = json.data.postIds.length || 10;
+		// 	this.totalPages = Math.ceil(json.data.count / itemsPerPage);
+		// } else {
+		// 	// If we don't have exact count, estimate based on current situation
+		// 	this.totalPages = this.hasNextPage ? this.currentPage + 1 : this.currentPage;
+		// }
 
-		if (json.data.next === null) {
-			this.hasNextPage.set(false);
-		} else {
-			this.hasNextPage.set(true);
-			this.isFetching = false;
-		}
+		this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
+		this.isFetching = false;
+
+		// if (json.data.next === null) {
+		// 	this.hasNextPage.set(false);
+		// } else {
+		// 	this.hasNextPage.set(true);
+		// 	this.isFetching = false;
+		// }
 	}
 
 	async fetchPopularNews(): Promise<boolean> {
@@ -196,8 +228,6 @@ export class NewsService extends BaseService {
 			this.popularNews = [];
 			return false;
 		}
-
-		console.log('Popular news data:', data);
 
 		this.popularNews = data.map(this.#transformNewsItem);
 
