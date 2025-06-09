@@ -1,13 +1,6 @@
 <script lang="ts">
 	import { coinstats_selected_coin } from '$lib/stores';
-	import {
-		infiniteNews,
-		newsService,
-		type AppNewsItem
-	} from '$ts/client/services/NewsService.client.svelte';
-	import { onMount } from 'svelte';
-	import { get, writable } from 'svelte/store';
-	import LatestNewsSection from '../LatestNewsSection/LatestNewsSection.svelte';
+	import { infiniteNews, newsService } from '$ts/client/services/NewsService.client.svelte';
 	import NewsFilterChips from '../NewsFilterChips/NewsFilterChips.svelte';
 	import NewsHeadlineCardCompact from '../NewsHeadlineCardCompact/NewsHeadlineCardCompact.svelte';
 	import { inview } from 'svelte-inview';

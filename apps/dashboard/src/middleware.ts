@@ -18,6 +18,7 @@ export async function middleware(request: NextRequest) {
   if (
     !user &&
     request.nextUrl.pathname.startsWith("/api") &&
+    !request.nextUrl.pathname.includes("/news") &&
     !request.nextUrl.pathname.includes("/newslab")
   ) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

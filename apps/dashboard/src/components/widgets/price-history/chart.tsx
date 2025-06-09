@@ -69,6 +69,7 @@ const Chart = (props: IProps) => {
       },
       timeScale: {
         borderColor: "transparent",
+
         tickMarkFormatter: (time: number) => {
           const date = new Date(time * 1000); // time is in seconds
           const day = date.getDate();
@@ -103,13 +104,13 @@ const Chart = (props: IProps) => {
     seriesRef.current = areaSeries;
     candleSeriesRef.current = candleSeries;
 
-    const len = data?.length;
-    const from = data[len - 20]?.time;
-    const to = data[len - 1]?.time;
+    // const len = data?.length;
+    // const from = data[len - 20]?.time;
+    // const to = data[len - 1]?.time;
 
-    if (from && to) {
-      chart.timeScale().setVisibleRange({ from, to });
-    }
+    // if (from && to) {
+    //   chart.timeScale().setVisibleRange({ from, to });
+    // }
 
     const tooltip = tooltipRef.current!;
     const container = chartContainerRef.current!;
@@ -135,8 +136,6 @@ const Chart = (props: IProps) => {
         isCandleStick ? candleSeries : areaSeries
       )! as any;
       const price = data.value ?? data.close;
-
-      console.log(formatChartTooltipDate(Date.now()));
 
       tooltip.style.display = "flex";
       tooltip.innerHTML = `

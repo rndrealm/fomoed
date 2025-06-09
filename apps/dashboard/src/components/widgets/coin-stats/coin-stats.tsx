@@ -15,6 +15,9 @@ import { OptionsDropdown } from "../shared/options-dropwdown";
 import { useReadCoinList } from "@/services/queries/charts";
 import CoinStatsTokenDropdown from "../shared/coin-stats-token-dropdown";
 import { AnimatePresence, motion } from "motion/react";
+import { LayoutType, updateWidgetPropsAtom } from "@/lib/atoms/layoutAtom";
+import { activeTabAtom } from "@/lib/atoms/tabsAtom";
+import { useAtomValue, useSetAtom } from "jotai";
 
 interface ILinkItem {
   icon: () => React.JSX.Element;
@@ -55,14 +58,21 @@ const modalSlide = {
   },
 };
 
-export default function CoinStats() {
+interface IProps {
+  widget: LayoutType["widgets"][0];
+}
+
+export default function CoinStats(props: IProps) {
+  const { widget } = props;
   const { data: coinData = [] } = useReadCoinList();
 
-  const [selectedCoin, setSelectedCoin] = useState("BTC");
   const [showInfo, setShowInfo] = useState(false);
 
+  const activeLayout = useAtomValue(activeTabAtom);
+  const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
+
   return (
-    <div className="flex flex-col gap-4 p-4 rounded-[30px] bg-[#000] relative overflow-hidden ">
+    <div className="flex flex-col gap-3 p-4 rounded-[30px] bg-[#000] relative overflow-hidden h-full justify-between">
       <div className="flex flex-col gap-1">
         <div className="flex justify-center">
           <div className="cursor-grab w-[36px] h-[5px] bg-[#444] rounded-[2px]"></div>
@@ -84,7 +94,7 @@ export default function CoinStats() {
             >
               <Question />
             </button>
-            <OptionsDropdown />
+            <OptionsDropdown widget={widget} />
           </div>
         </div>
       </div>
@@ -93,13 +103,20 @@ export default function CoinStats() {
         <CoinStatsTokenDropdown
           options={coinData}
           setValue={(coin) => {
-            setSelectedCoin(coin);
+            updateWidgetPropsFromAtom({
+              tabId: activeLayout.id,
+              widgetId: widget.id,
+              widgetProps: {
+                ...widget.props,
+                token: coin,
+              },
+            });
           }}
-          value={selectedCoin}
+          value={widget?.props?.token}
         />
       </div>
 
-      <div className="flex flex-col gap-8 flex-1 pb-4">
+      <div className="flex flex-col gap-6 pb-4">
         <div className="flex justify-center items-center gap-8">
           <div className="flex flex-col items-center">
             <h3 className="text-sm text-[#878787] leading-[1.35] font-medium">
@@ -124,7 +141,7 @@ export default function CoinStats() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-5">
           <div className="flex flex-col gap-3">
             <div className="flex justify-center relative">
               <div className="flex justify-center gap-1 bg-[#000] px-1 relative z-2">
@@ -143,7 +160,7 @@ export default function CoinStats() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3">
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2">
                 <p className="font-medium text-sm text-[#878787] leading-[1.35]">
