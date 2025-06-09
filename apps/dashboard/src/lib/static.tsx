@@ -186,23 +186,23 @@ export const layoutOptionsMap = [
   //   tags: ["charts"],
   // },
 
-  {
-    id: 113,
-    name: "BTC Dominance",
-    slug: "btc-dominance",
-    image: dashboard.cfgi,
-    category: "charts",
-    tags: ["charts"],
-  },
+  // {
+  //   id: 113,
+  //   name: "BTC Dominance",
+  //   slug: "btc-dominance",
+  //   image: dashboard.cfgi,
+  //   category: "charts",
+  //   tags: ["charts"],
+  // },
 
-  {
-    id: 114,
-    name: "Order Book",
-    slug: "order-book",
-    image: dashboard.cfgi,
-    category: "charts",
-    tags: ["charts"],
-  },
+  // {
+  //   id: 114,
+  //   name: "Order Book",
+  //   slug: "order-book",
+  //   image: dashboard.cfgi,
+  //   category: "charts",
+  //   tags: ["charts"],
+  // },
 
   // {
   //   id: 10,

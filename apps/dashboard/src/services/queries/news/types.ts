@@ -112,6 +112,7 @@ export type NewsRowInsert = {
   sentiment: "bullish" | "bearish" | "neutral";
   summary: string;
   symbols: string[];
+  metadata: Record<string, any>;
 };
 
 export type ApiNewsLabPost = {

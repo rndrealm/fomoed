@@ -1,4 +1,7 @@
-import { createSupabaseServerComponentClient } from "@/lib/utils/supabase/server-client";
+import {
+  createSupabaseServerComponentClient,
+  createSupabaseServerWithAnonKey,
+} from "@/lib/utils/supabase/server-client";
 import {
   ApiNewsLabPost,
   CryptopanicNewsApiResponse,
@@ -81,6 +84,10 @@ async function fetchNews() {
 
   for (const i of news) {
     const appId = `cryptopanic-${i.id}`;
+    if (i.source.region !== "en") {
+      // Skip non-English news
+      continue;
+    }
 
     newsRows.push({
       id: appId,
@@ -97,6 +104,7 @@ async function fetchNews() {
       summary: i.description,
       symbols: i.instruments?.map((c) => c.code) || [],
       title: i.title,
+      metadata: { region: i.source.region, ...i.votes },
     });
 
     ids.push(appId);
@@ -107,7 +115,7 @@ async function fetchNews() {
   // const concatPostUpserts = [...newsRows, ...newsLabPosts];
 
   const concatPostUpserts = [...newsRows];
-  const supabase = await createSupabaseServerComponentClient();
+  const supabase = await createSupabaseServerWithAnonKey();
   const { error } = await supabase.from("news").upsert(concatPostUpserts);
   if (error) {
     console.log("Error inserting news:", error);
