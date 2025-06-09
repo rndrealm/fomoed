@@ -1,4 +1,5 @@
 import { browser } from '$app/environment';
+import { refresh_coinstats_coin_list } from '$lib/utils';
 
 export type LiveSymbolData = {
 	symbol: string;
@@ -26,13 +27,7 @@ export class LiveDataService {
 	constructor() {}
 
 	async refreshData() {
-                const coins = await fetch('/api/coinstats-coins')
-                .then((res) => res.json())
-                .catch((err) => {
-                  console.error(err);
-                  return [];
-                });
-
+                const coins = await refresh_coinstats_coin_list();
 		let globalData: GlobalMarketData | null = null;
 
 		// Create a new map with updated data
