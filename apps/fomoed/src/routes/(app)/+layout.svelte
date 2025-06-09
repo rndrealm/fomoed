@@ -1,6 +1,5 @@
 <script lang="ts">
 	import 'simplebar';
-	import 'simplebar/dist/simplebar.css';
 	import '$lib/app.css';
 
 	import ResizeObserver from 'resize-observer-polyfill';

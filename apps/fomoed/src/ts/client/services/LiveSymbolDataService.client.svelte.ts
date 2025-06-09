@@ -26,17 +26,14 @@ export class LiveDataService {
 	constructor() {}
 
 	async refreshData() {
-		let coins: any[] = [];
-		let globalData: GlobalMarketData | null = null;
+                const coins = await fetch('/api/coinstats-coins')
+                .then((res) => res.json())
+                .catch((err) => {
+                  console.error(err);
+                  return [];
+                });
 
-		try {
-			const response = await fetch('https://api.coin-stats.com/v4/coins?skip=0&limit=2500');
-			const data = await response.json();
-			coins = data?.coins || [];
-		} catch (error) {
-			console.error('Failed to fetch cryptocurrency data:', error);
-			return;
-		}
+		let globalData: GlobalMarketData | null = null;
 
 		// Create a new map with updated data
 		const updatedData = new Map<string, LiveSymbolData>();
