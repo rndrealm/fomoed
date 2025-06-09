@@ -12,25 +12,34 @@ import {
   Twitter,
 } from "@/components/icons/icons";
 import { OptionsDropdown } from "../shared/options-dropwdown";
-import { useReadCoinList } from "@/services/queries/charts";
+import {
+  useFetchCoinStatsSingleToken,
+  useFetchCoinStatsToken,
+  useReadCoinList,
+} from "@/services/queries/charts";
 import CoinStatsTokenDropdown from "../shared/coin-stats-token-dropdown";
 import { AnimatePresence, motion } from "motion/react";
 import { LayoutType, updateWidgetPropsAtom } from "@/lib/atoms/layoutAtom";
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 import { useAtomValue, useSetAtom } from "jotai";
+import CoinDropdown from "./coin-dropdown";
+import { formatMarketCapNumber } from "@/lib/utils";
 
 interface ILinkItem {
   icon: () => React.JSX.Element;
   label: string;
+  href?: string;
 }
 
 function LinkItem(props: ILinkItem) {
-  const { icon, label } = props;
+  const { icon, label, href } = props;
   return (
-    <div className="py-1 px-[6px] rounded-lg bg-[#141414] flex items-center gap-1">
-      {icon()}
-      <p className="text-sm font-normal text-white">{label}</p>
-    </div>
+    <a target="_blank" href={href}>
+      <div className="py-1 px-[6px] rounded-lg bg-[#141414] flex items-center gap-1">
+        {icon()}
+        <p className="text-sm font-normal text-white">{label}</p>
+      </div>
+    </a>
   );
 }
 
@@ -64,7 +73,12 @@ interface IProps {
 
 export default function CoinStats(props: IProps) {
   const { widget } = props;
-  const { data: coinData = [] } = useReadCoinList();
+  const { data = [] } = useFetchCoinStatsToken();
+  const { data: coinStats } = useFetchCoinStatsSingleToken(
+    widget?.props?.token
+  );
+
+  console.log(coinStats);
 
   const [showInfo, setShowInfo] = useState(false);
 
@@ -72,7 +86,7 @@ export default function CoinStats(props: IProps) {
   const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
 
   return (
-    <div className="flex flex-col gap-3 p-4 rounded-[30px] bg-[#000] relative overflow-hidden h-full justify-between">
+    <div className="flex flex-col gap-3 p-4 rounded-2xl bg-[#000] relative overflow-hidden h-full justify-between">
       <div className="flex flex-col gap-1">
         <div className="flex justify-center">
           <div className="cursor-grab w-[36px] h-[5px] bg-[#444] rounded-[2px]"></div>
@@ -100,8 +114,8 @@ export default function CoinStats(props: IProps) {
       </div>
 
       <div className="flex justify-center">
-        <CoinStatsTokenDropdown
-          options={coinData}
+        <CoinDropdown
+          options={data}
           setValue={(coin) => {
             updateWidgetPropsFromAtom({
               tabId: activeLayout.id,
@@ -122,7 +136,9 @@ export default function CoinStats(props: IProps) {
             <h3 className="text-sm text-[#878787] leading-[1.35] font-medium">
               Rank
             </h3>
-            <h3 className="text-xl text-white leading-[1.35] font-bold">1</h3>
+            <h3 className="text-xl text-white leading-[1.35] font-bold">
+              {coinStats?.rank}
+            </h3>
           </div>
 
           <div className="flex flex-col items-center">
@@ -131,12 +147,14 @@ export default function CoinStats(props: IProps) {
             </h3>
             <div className="flex items-center">
               <h3 className="text-xl text-white leading-[1.35] font-bold">
-                $2.61T
+                {formatMarketCapNumber(coinStats?.marketCap || "")}
+
+                {/* $2.61T */}
               </h3>
-              <ArrowUp />
+              {/* <ArrowUp />
               <p className="text-xs text-[#84ebb4] leading-[1.35] font-semibold">
                 2.98%
-              </p>
+              </p> */}
             </div>
           </div>
         </div>
@@ -154,9 +172,17 @@ export default function CoinStats(props: IProps) {
             </div>
 
             <div className="flex justify-center gap-1 pb-4 border-b border-[#161616]">
-              <LinkItem icon={Globe} label="Website" />
+              {/* <LinkItem icon={Globe} label="Website" />
               <LinkItem icon={Twitter} label="X (Twitter)" />
-              <LinkItem icon={Explorer} label="Explorer" />
+              <LinkItem icon={Explorer} label="Explorer" /> */}
+
+              <LinkItem icon={Globe} label="" href={coinStats?.websiteUrl} />
+              <LinkItem icon={Twitter} label="" href={coinStats?.twitterUrl} />
+              <LinkItem
+                icon={Explorer}
+                label=""
+                href={coinStats?.explorers[0]}
+              />
             </div>
           </div>
 
@@ -164,12 +190,14 @@ export default function CoinStats(props: IProps) {
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2">
                 <p className="font-medium text-sm text-[#878787] leading-[1.35]">
-                  24h Volume
+                  {/* 24h Volume */}
+                  Volume
                 </p>
               </div>
 
               <p className="font-bold text-sm text-[#fff] leading-[1.35]">
-                $42.61b
+                {/* $42.61b */}
+                {formatMarketCapNumber(coinStats?.volume || "")}
               </p>
             </div>
 
@@ -182,7 +210,7 @@ export default function CoinStats(props: IProps) {
               </div>
 
               <p className="font-bold text-sm text-[#fff] leading-[1.35]">
-                $2,161,244,123,269
+                {formatMarketCapNumber(coinStats?.fullyDilutedValuation || "")}
               </p>
             </div>
 
@@ -195,7 +223,7 @@ export default function CoinStats(props: IProps) {
               </div>
 
               <p className="font-bold text-sm text-[#fff] leading-[1.35]">
-                20,000,00
+                {formatMarketCapNumber(coinStats?.availableSupply || "", false)}
               </p>
             </div>
 
@@ -208,7 +236,7 @@ export default function CoinStats(props: IProps) {
               </div>
 
               <p className="font-bold text-sm text-[#fff] leading-[1.35]">
-                20,000,00
+                {formatMarketCapNumber(coinStats?.totalSupply || "", false)}
               </p>
             </div>
           </div>

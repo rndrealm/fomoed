@@ -485,7 +485,7 @@ export const widgetPropsDefaults = {
   },
 
   "coin-stats": {
-    token: "BTC",
+    token: "bitcoin",
     // period: pricePeriodOptions[11].value,
     meta: {
       w: 2,
@@ -497,7 +497,7 @@ export const widgetPropsDefaults = {
     // token: "BTC",
     // period: pricePeriodOptions[11].value,
     meta: {
-      w: 2,
+      w: 3,
       h: 1,
     },
   },

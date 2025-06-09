@@ -9,6 +9,7 @@ import {
   CfgiDataResponse,
   CoinDataInterface,
   CoinListResponse,
+  CoinStatsTokenInfo,
   FormatLiquidationDataResult,
   LiquidExchangeResponse,
   LiquidHeatmapResponse,
@@ -19,6 +20,7 @@ import {
 import { supportedExchangePairsToOptions } from "@/lib/utils";
 import { ExchangePairOption } from "@/charts/types";
 import { formatLiquidationData, formatMergetLiquidMapData } from "./helpers";
+import axios from "axios";
 
 export const useReadCfgiData = (
   token?: string,
@@ -345,4 +347,49 @@ export const useFetchBinanceTokens = () => {
     ...res,
     data: mapped || [],
   };
+};
+
+export const useFetchCoinStatsToken = () => {
+  const queryKey = ["coin-stats-tokens"];
+
+  const res = useQuery<CoinStatsTokenInfo[]>({
+    queryKey,
+    queryFn: async () => {
+      const response = await axios.get(
+        "https://openapiv1.coinstats.app/coins?limit=200",
+        {
+          headers: {
+            "X-API-KEY": "WvGNSh8jIvpDJ0hjsgNZu1MFMYeohhiYMqDuzcZplTk=",
+          },
+        }
+      );
+
+      return response?.data?.result;
+    },
+  });
+
+  return res;
+};
+
+export const useFetchCoinStatsSingleToken = (token = "") => {
+  const queryKey = ["coin-stats-single-token", token];
+
+  const res = useQuery<CoinStatsTokenInfo>({
+    queryKey,
+    queryFn: async () => {
+      const response = await axios.get(
+        `https://openapiv1.coinstats.app/coins/${token}`,
+        {
+          headers: {
+            "X-API-KEY": "WvGNSh8jIvpDJ0hjsgNZu1MFMYeohhiYMqDuzcZplTk=",
+          },
+        }
+      );
+
+      return response?.data;
+    },
+    enabled: !!token,
+  });
+
+  return res;
 };
