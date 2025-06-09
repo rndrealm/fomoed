@@ -446,3 +446,34 @@ export function cleanSpecialChars(text: string): string {
     .replace(/&#8220;/g, '"')
     .replace(/&#8221;/g, '"');
 }
+
+function _formatMarketCapNumber(num: number) {
+  const abs = Math.abs(num);
+
+  if (abs >= 1_000_000_000_000) {
+    return `${(num / 1_000_000_000_000).toFixed(2).replace(/\.00$/, "")}T`;
+  } else if (abs >= 1_000_000_000) {
+    return `${(num / 1_000_000_000).toFixed(2).replace(/\.00$/, "")}B`;
+  } else if (abs >= 1_000_000) {
+    return `${(num / 1_000_000).toFixed(2).replace(/\.00$/, "")}M`;
+  } else if (abs >= 1_000) {
+    return `${(num / 1_000).toFixed(2).replace(/\.00$/, "")}K`;
+  } else {
+    return num.toString();
+  }
+}
+
+export function formatMarketCapNumber(
+  value: number | string,
+  withCurrency = true
+) {
+  const num = typeof value === "string" ? parseFloat(value) : value;
+
+  if (isNaN(num)) return "";
+
+  if (!withCurrency) {
+    return _formatMarketCapNumber(num);
+  }
+
+  return `$${_formatMarketCapNumber(num)}`;
+}

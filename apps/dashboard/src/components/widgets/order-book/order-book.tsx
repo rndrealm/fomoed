@@ -130,7 +130,7 @@ export default function OrderBook(props: IProps) {
   }, [widget?.props?.token]);
 
   return (
-    <div className="flex flex-col gap-2 p-4 rounded-[30px] bg-[#000] relative overflow-hidden h-full">
+    <div className="flex flex-col gap-2 p-4 rounded-2xl bg-[#000] relative overflow-hidden h-full">
       <div className="flex flex-col gap-1">
         <div className="flex justify-center">
           <div className="cursor-grab w-[36px] h-[5px] bg-[#444] rounded-[2px]"></div>
