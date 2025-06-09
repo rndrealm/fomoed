@@ -1,43 +1,66 @@
 import { type NextRequest, type NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
+import { createClient } from "@supabase/supabase-js";
 
 // server component can only get cookies and not set them, hence the "component" check
 export async function createSupabaseServerClient(component: boolean = false) {
-    const cookieStore = await cookies();
+  const cookieStore = await cookies();
 
-    return createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
-        cookies: {
-            getAll() {
-                const cookies = cookieStore.getAll();
-                return cookies;
-            },
-            setAll(cookiesToSet) {
-                if (component) return;
-                cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
-            },
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          const cookies = cookieStore.getAll();
+          return cookies;
         },
-    });
+        setAll(cookiesToSet) {
+          if (component) return;
+          cookiesToSet.forEach(({ name, value, options }) =>
+            cookieStore.set(name, value, options)
+          );
+        },
+      },
+    }
+  );
+}
+// server component can only get cookies and not set them, hence the "component" check
+export async function createSupabaseServerWithAnonKey() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.PRIVATE_SUPABASE_SECRET!
+  );
 }
 
 export async function createSupabaseServerComponentClient() {
-    const cookieStore = await cookies();
-    cookieStore.getAll();
-    return createSupabaseServerClient(true);
+  const cookieStore = await cookies();
+  cookieStore.getAll();
+  return createSupabaseServerClient(true);
 }
 
-export async function createSupabaseReqResClient(req: NextRequest, res: NextResponse) {
-    const cookieStore = await cookies();
-    cookieStore.getAll();
+export async function createSupabaseReqResClient(
+  req: NextRequest,
+  res: NextResponse
+) {
+  const cookieStore = await cookies();
+  cookieStore.getAll();
 
-    return createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
-        cookies: {
-            getAll() {
-                return req.cookies.getAll();
-            },
-            setAll(cookiesToSet) {
-                cookiesToSet.forEach(({ name, value, options }) => res.cookies.set(name, value, options));
-            },
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return req.cookies.getAll();
         },
-    });
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            res.cookies.set(name, value, options)
+          );
+        },
+      },
+    }
+  );
 }

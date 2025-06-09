@@ -34,7 +34,5 @@ export async function GET({ request }) {
 		search
 	});
 
-	console.log('Fetched news data:', data);
-
 	return json({ success: true, data });
 }
