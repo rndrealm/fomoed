@@ -1,0 +1,120 @@
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useGetAISignal } from "@/services/queries/signals";
+import { zodResolver } from "@hookform/resolvers/zod";
+import React from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
+
+interface AISignalBuilderProps {
+  onAiPromptResponse: (
+    name: string,
+    description: string,
+    condition: object
+  ) => void;
+}
+
+const aiBuilderFormSchema = z.object({
+  prompt: z.string().min(1, "Prompt is required"),
+});
+
+const AISignalPromptInput: React.FC<AISignalBuilderProps> = ({
+  onAiPromptResponse,
+}) => {
+  const { mutateAsync: getAiSignal, isPending } = useGetAISignal();
+
+  const form = useForm<z.infer<typeof aiBuilderFormSchema>>({
+    resolver: zodResolver(aiBuilderFormSchema),
+    defaultValues: {
+      prompt: "",
+    },
+  });
+
+  const prompt = form.watch("prompt");
+
+  const onSubmit = async (values: z.infer<typeof aiBuilderFormSchema>) => {
+    const res = await getAiSignal(values.prompt);
+    console.log(res);
+
+    if (res.success && res.signal) {
+      onAiPromptResponse(
+        res.signal.name,
+        res.signal.description,
+        res.signal.condition
+      );
+      form.reset();
+      toast.success("Signal generated successfully!");
+    } else {
+      toast.error("Something went wrong. Please try again.");
+    }
+  };
+
+  return (
+    <Card className="mb-6 bg-[#0A0A0A]">
+      <CardHeader>
+        <CardTitle>AI Signal Assistant</CardTitle>
+        <CardDescription>Prompt your way to a smart signal</CardDescription>
+      </CardHeader>
+      <CardContent className="pt-2">
+        <div className="flex flex-col gap-4 ">
+          <div className="flex gap-2 w-full">
+            <Form {...form}>
+              <form
+                className="w-full flex items-end gap-4"
+                onSubmit={form.handleSubmit(onSubmit)}
+              >
+                <FormField
+                  control={form.control}
+                  name="prompt"
+                  render={({ field }) => (
+                    <FormItem className="w-full">
+                      <FormControl>
+                        <div className="flex gap-2 items-end">
+                          <Input
+                            className="w-full"
+                            placeholder="Alert me when BTC price exceeds $100,000 and social media sentiment is positive"
+                            {...field}
+                          />
+
+                          <Button
+                            type="submit"
+                            className="bg-fomoed-red text-white   hover:bg-fomoed-red/80"
+                            disabled={isPending || !prompt.trim()}
+                          >
+                            {isPending ? "Processing..." : "Generate"}
+                          </Button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </form>
+            </Form>
+          </div>
+          <div className="text-xs text-muted-foreground italic">
+            Try phrases like &apos;Alert me when BTC price exceeds $100,000 and
+            social media sentiment is positive&apos;
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default AISignalPromptInput;

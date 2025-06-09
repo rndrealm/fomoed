@@ -7,3 +7,9 @@ export interface PublicUserDataRow {
     created_at?: string;
     // Add any other fields from your public_user_data table
 }
+
+export interface UsersRow {
+    id: number;
+    user_id: string;
+    email: string;
+}

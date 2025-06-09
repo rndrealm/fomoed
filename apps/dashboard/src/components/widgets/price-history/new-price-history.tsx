@@ -93,36 +93,42 @@ export default function NewPriceHistory(props: IProps) {
 
   return (
     <div className="flex flex-col gap-2 bg-[#000] pt-6 pb-4 rounded-[30px] h-full">
-      <div className="px-4 flex items-center justify-between mb-3">
-        <div className="">
-          <PriceTokenDropdown
-            options={coinData}
-            setValue={(coin: string) => {
-              // setSelectedPair(newPairs[0]);
-              updateWidgetPropsFromAtom({
-                tabId: activeLayout.id,
-                widgetId: widget.id,
-                widgetProps: {
-                  ...widget.props,
-                  token: coin,
-                },
-              });
-            }}
-            value={widget?.props?.token}
-          />
+      <div className="flex flex-col gap-1">
+        <div className="flex justify-center">
+          <div className="cursor-grab w-[36px] h-[5px] bg-[#444] rounded-[2px]"></div>
         </div>
-        <div className="">
-          <PeriodDropdown
-            options={pricePeriodOptions}
-            value={widget?.props?.period}
-            setValue={(value: string) => {
-              updateWidgetPropsFromAtom({
-                tabId: activeLayout.id,
-                widgetId: widget.id,
-                widgetProps: { ...widget.props, period: value },
-              });
-            }}
-          />
+
+        <div className="px-4 flex items-center justify-between mb-3">
+          <div className="">
+            <PriceTokenDropdown
+              options={coinData}
+              setValue={(coin: string) => {
+                // setSelectedPair(newPairs[0]);
+                updateWidgetPropsFromAtom({
+                  tabId: activeLayout.id,
+                  widgetId: widget.id,
+                  widgetProps: {
+                    ...widget.props,
+                    token: coin,
+                  },
+                });
+              }}
+              value={widget?.props?.token}
+            />
+          </div>
+          <div className="">
+            <PeriodDropdown
+              options={pricePeriodOptions}
+              value={widget?.props?.period}
+              setValue={(value: string) => {
+                updateWidgetPropsFromAtom({
+                  tabId: activeLayout.id,
+                  widgetId: widget.id,
+                  widgetProps: { ...widget.props, period: value },
+                });
+              }}
+            />
+          </div>
         </div>
       </div>
       <div className="flex justify-between items-center px-4">

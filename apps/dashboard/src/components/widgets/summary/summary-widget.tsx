@@ -62,8 +62,6 @@ export default function SummaryWidget() {
 
   const { data: coinData = [] } = useReadCoinList(true);
 
-  console.log(coinData);
-
   const { date, weekday } = formatSummaryDate();
 
   useEffect(() => {

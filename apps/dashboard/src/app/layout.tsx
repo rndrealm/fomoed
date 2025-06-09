@@ -1,11 +1,13 @@
-import type { Metadata } from "next";
-import { Toaster } from "@/components/ui/sonner";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
 import QueryProvider from "@/components/providers/QueryProvider";
+import { Toaster } from "@/components/ui/sonner";
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
+import "./globals.css";
 
-import "../../node_modules/react-grid-layout/css/styles.css";
 import { UserProvider } from "@/components/providers/UserProvider";
+import { NotificationProvider } from "@/components/providers/NotificationProvider";
+import "../../node_modules/react-grid-layout/css/styles.css";
 import { ReactScan } from "@/components/shared/ReactScan";
 
 const geistSans = Geist({
@@ -56,7 +58,13 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased h-full bg-[#0C0C0C]`}
       >
         <QueryProvider>
-          <UserProvider>{children}</UserProvider>
+          <NuqsAdapter>
+            <UserProvider>
+              <NotificationProvider>
+                {children}
+              </NotificationProvider>
+            </UserProvider>
+          </NuqsAdapter>
         </QueryProvider>
         <Toaster />
       </body>

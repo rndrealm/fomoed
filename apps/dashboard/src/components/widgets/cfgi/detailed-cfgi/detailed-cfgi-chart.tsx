@@ -1,22 +1,24 @@
 "use client";
 
-import React, { useEffect, useRef, useCallback } from "react";
-import Chart from "chart.js/auto";
-import type { ChartDataset } from "chart.js/auto";
-import "chartjs-adapter-dayjs-4/dist/chartjs-adapter-dayjs-4.esm";
-import type { ZoomPluginOptions } from "chartjs-plugin-zoom/types/options";
-import dayjs from "dayjs";
 import {
   commaFormatNumber,
   registerChartPluginZoomInBrowser,
 } from "@/charts/helpers";
 import { CfgiDataResponse } from "@/services/queries/charts/types";
+import type { ChartDataset } from "chart.js/auto";
+import Chart from "chart.js/auto";
+import "chartjs-adapter-dayjs-4/dist/chartjs-adapter-dayjs-4.esm";
+import type { ZoomPluginOptions } from "chartjs-plugin-zoom/types/options";
+import dayjs from "dayjs";
+import { useCallback, useEffect, useRef } from "react";
 
 import {
-  CrosshairPluginConfig,
   CrosshairPlugin,
+  CrosshairPluginConfig,
 } from "@/charts/plugins/CrosshairPlugin";
 import { TabOptions } from "@/constant/cfgi-data";
+import { signalModalConfigAtom } from "@/lib/atoms/signalModalAtom";
+import { useAtom } from "jotai";
 
 Chart.register(CrosshairPlugin);
 
@@ -32,6 +34,8 @@ const DetailedCfgiChart = (props: ICfgiCard) => {
   const { cfgiData, viewOption } = props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
+  const [_, setSignalModalConfig] = useAtom(signalModalConfigAtom);
+
   function get_data_color(data: number) {
     return data <= 25
       ? "#FF3B10"
@@ -141,7 +145,9 @@ const DetailedCfgiChart = (props: ICfgiCard) => {
       };
 
       const options = {
-        interaction: false,
+        interaction: {
+          mode: "nearest",
+        },
         responsive: false,
         maintainAspectRatio: false,
         animations: false,
@@ -209,6 +215,48 @@ const DetailedCfgiChart = (props: ICfgiCard) => {
             type: "time",
           },
         },
+        onClick: (e: any) => {
+          const chart = chartRef.current;
+          if (!chart) return;
+
+          const rect = e.native
+            ? e.native.target.getBoundingClientRect()
+            : chart.canvas.getBoundingClientRect();
+
+          const canvasPosition = {
+            x: e.native ? e.native.clientX - rect.left : e.x,
+            y: e.native ? e.native.clientY - rect.top : e.y,
+          };
+
+          // Get the y-axis values at the click position for both datasets
+          const indexYValue = chart.scales.indexY.getValueForPixel(
+            canvasPosition.y
+          );
+          let priceYValue = null;
+
+          // Only get price value if the price dataset is shown
+          if (viewOption !== TabOptions[0].value) {
+            priceYValue = chart.scales.priceY.getValueForPixel(
+              canvasPosition.y
+            );
+          }
+
+          setSignalModalConfig({
+            isOpen: true,
+            data: [
+              {
+                dataSource: "cfgi",
+                value: Math.round(indexYValue as number),
+                topic: `cfgi_${data[0].symbol}`,
+              },
+              {
+                dataSource: "price",
+                value: priceYValue ? Math.round(priceYValue as number) : 0,
+                topic: `${data[0].symbol}-USD`,
+              },
+            ],
+          });
+        },
         plugins: {
           legend: {
             display: false,
@@ -238,7 +286,7 @@ const DetailedCfgiChart = (props: ICfgiCard) => {
 
       chartRef.current?.resize();
     },
-    [cfgiData, viewOption]
+    [cfgiData, viewOption, setSignalModalConfig]
   );
 
   useEffect(() => {

@@ -186,6 +186,7 @@ export class NewsService extends BaseService {
 			.from('news')
 			.select('*, news_likes(id), news_bookmarks(id)')
 			.gte('published_at', dayAgo.toISOString())
+			.eq('metadata->>region', 'en') // filter for region 'en'
 			.order('likes_count', { ascending: false })
 			.limit(3);
 
