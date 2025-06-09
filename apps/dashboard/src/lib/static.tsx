@@ -33,6 +33,8 @@ import { pricePeriodOptions } from "@/constant";
 import Dominance from "@/components/widgets/dominance/dominance";
 import OrderBook from "@/components/widgets/order-book/order-book";
 import { Tour } from "nextstepjs";
+import CoinStats from "@/components/widgets/coin-stats/coin-stats";
+import SummaryWidget from "@/components/widgets/summary/summary-widget";
 
 export const layoutClassMap = {
   SinglePane: "grid-rows-1 grid-cols-1",
@@ -186,23 +188,41 @@ export const layoutOptionsMap = [
   //   tags: ["charts"],
   // },
 
-  {
-    id: 113,
-    name: "BTC Dominance",
-    slug: "btc-dominance",
-    image: dashboard.cfgi,
-    category: "charts",
-    tags: ["charts"],
-  },
+  // {
+  //   id: 113,
+  //   name: "BTC Dominance",
+  //   slug: "btc-dominance",
+  //   image: dashboard.cfgi,
+  //   category: "charts",
+  //   tags: ["charts"],
+  // },
 
-  {
-    id: 114,
-    name: "Order Book",
-    slug: "order-book",
-    image: dashboard.cfgi,
-    category: "charts",
-    tags: ["charts"],
-  },
+  // {
+  //   id: 114,
+  //   name: "Order Book",
+  //   slug: "order-book",
+  //   image: dashboard.cfgi,
+  //   category: "charts",
+  //   tags: ["charts"],
+  // },
+
+  // {
+  //   id: 115,
+  //   name: "Coin Stats",
+  //   slug: "coin-stats",
+  //   image: dashboard.cfgi,
+  //   category: "charts",
+  //   tags: ["charts"],
+  // },
+
+  // {
+  //   id: 116,
+  //   name: "Summary",
+  //   slug: "summary",
+  //   image: dashboard.cfgi,
+  //   category: "charts",
+  //   tags: ["charts"],
+  // },
 
   // {
   //   id: 10,
@@ -303,13 +323,33 @@ export const chartsMap = {
   "btc-dominance": {
     name: "BTC Dominance",
     extra: [""],
-    component: (widget: LayoutType["widgets"][0]) => <Dominance />,
+    component: (widget: LayoutType["widgets"][0]) => (
+      <Dominance widget={widget} />
+    ),
   },
 
   "order-book": {
     name: "Order Book",
+    extra: ["token"],
+    component: (widget: LayoutType["widgets"][0]) => (
+      <OrderBook widget={widget} />
+    ),
+  },
+
+  "coin-stats": {
+    name: "Coin Stats",
     extra: [""],
-    component: (widget: LayoutType["widgets"][0]) => <OrderBook />,
+    component: (widget: LayoutType["widgets"][0]) => (
+      <CoinStats widget={widget} />
+    ),
+  },
+
+  summary: {
+    name: "Summary",
+    extra: [""],
+    component: (widget: LayoutType["widgets"][0]) => (
+      <SummaryWidget widget={widget} />
+    ),
   },
 };
 
@@ -436,11 +476,29 @@ export const widgetPropsDefaults = {
     },
   },
   "order-book": {
-    // token: "BTC",
+    token: "BTC",
     // period: pricePeriodOptions[11].value,
     meta: {
       w: 2,
       h: 2,
+    },
+  },
+
+  "coin-stats": {
+    token: "BTC",
+    // period: pricePeriodOptions[11].value,
+    meta: {
+      w: 2,
+      h: 2,
+    },
+  },
+
+  summary: {
+    // token: "BTC",
+    // period: pricePeriodOptions[11].value,
+    meta: {
+      w: 2,
+      h: 1,
     },
   },
 };
