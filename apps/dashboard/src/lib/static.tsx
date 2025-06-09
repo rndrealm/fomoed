@@ -30,6 +30,8 @@ import PriceHistory from "@/components/widgets/price-history/price-history";
 import Heatmap from "@/components/widgets/heatmap/heatmap";
 import NewPriceHistory from "@/components/widgets/price-history/new-price-history";
 import { pricePeriodOptions } from "@/constant";
+import Dominance from "@/components/widgets/dominance/dominance";
+import OrderBook from "@/components/widgets/order-book/order-book";
 import { Tour } from "nextstepjs";
 
 export const layoutClassMap = {
@@ -184,6 +186,24 @@ export const layoutOptionsMap = [
   //   tags: ["charts"],
   // },
 
+  {
+    id: 113,
+    name: "BTC Dominance",
+    slug: "btc-dominance",
+    image: dashboard.cfgi,
+    category: "charts",
+    tags: ["charts"],
+  },
+
+  {
+    id: 114,
+    name: "Order Book",
+    slug: "order-book",
+    image: dashboard.cfgi,
+    category: "charts",
+    tags: ["charts"],
+  },
+
   // {
   //   id: 10,
   //   name: "Heatmap",
@@ -279,6 +299,17 @@ export const chartsMap = {
     component: (widget: LayoutType["widgets"][0]) => (
       <NewPriceHistory widget={widget} />
     ),
+  },
+  "btc-dominance": {
+    name: "BTC Dominance",
+    extra: [""],
+    component: (widget: LayoutType["widgets"][0]) => <Dominance />,
+  },
+
+  "order-book": {
+    name: "Order Book",
+    extra: [""],
+    component: (widget: LayoutType["widgets"][0]) => <OrderBook />,
   },
 };
 
@@ -392,6 +423,23 @@ export const widgetPropsDefaults = {
     period: pricePeriodOptions[11].value,
     meta: {
       w: 4,
+      h: 2,
+    },
+  },
+
+  "btc-dominance": {
+    // token: "BTC",
+    // period: pricePeriodOptions[11].value,
+    meta: {
+      w: 4,
+      h: 1,
+    },
+  },
+  "order-book": {
+    // token: "BTC",
+    // period: pricePeriodOptions[11].value,
+    meta: {
+      w: 2,
       h: 2,
     },
   },

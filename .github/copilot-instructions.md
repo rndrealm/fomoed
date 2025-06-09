@@ -2,9 +2,11 @@
 
 - Prefer to use shadcn component wherever possible.
 - Always use tailwind, do not generate your own styles.
-- Use Jotai for state management in react applications.
 - When creating icons, default to lucide-react
 - Never add try/catch unless told to.
+
+## Frontend writing instructions
+- Prefer to use padding instead of margin
 
 ## Monorepo structure
 

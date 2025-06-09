@@ -4,6 +4,7 @@ import api from "../../api";
 import {
   BinanceKlineFormatted,
   BinanceKlineRaw,
+  BtcDominanceResponse,
   CfgiDataResponse,
   CoinListResponse,
   FormatLiquidationDataResult,
@@ -47,7 +48,7 @@ export const useReadCoinList = (summary = false) => {
     queryKey: hash,
     queryFn: async () => {
       const response = await api.get({
-        url: "https://api.coin-stats.com/v4/coins?skip=0&limit=2500",
+        url: "https://api.coin-stats.com/v4/coins?skip=0&limit=2500&sortBy=marketCap",
       });
       return response as unknown as CoinListResponse;
     },
@@ -281,4 +282,20 @@ export const useFetchTopGainerLoser = () => {
     ...res,
     data: newData,
   };
+};
+
+export const useFetchMarkeData = () => {
+  const hash = ["get-market-data"];
+  const response = useQuery<BtcDominanceResponse>({
+    queryKey: hash,
+    queryFn: async () => {
+      const res = await api.get({
+        url: "https://api.coingecko.com/api/v3/global",
+      });
+      console.log("response", res);
+      return res?.data;
+    },
+  });
+
+  return response;
 };

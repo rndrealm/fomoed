@@ -1,16 +1,19 @@
-import React, { useEffect, useRef, useCallback } from "react";
-import Chart from "chart.js/auto";
+import { registerChartPluginZoomInBrowser } from "@/charts/helpers";
+import { CfgiDataResponse } from "@/services/queries/charts/types";
 import type { ChartDataset } from "chart.js/auto";
+import Chart from "chart.js/auto";
+
 import "chartjs-adapter-dayjs-4/dist/chartjs-adapter-dayjs-4.esm";
 import type { ZoomPluginOptions } from "chartjs-plugin-zoom/types/options";
 import dayjs from "dayjs";
-import { registerChartPluginZoomInBrowser } from "@/charts/helpers";
-import { CfgiDataResponse } from "@/services/queries/charts/types";
+import { useCallback, useEffect, useRef } from "react";
 
 import {
-  CrosshairPluginConfig,
   CrosshairPlugin,
+  CrosshairPluginConfig,
 } from "@/charts/plugins/CrosshairPlugin";
+import { signalModalConfigAtom } from "@/lib/atoms/signalModalAtom";
+import { useAtom } from "jotai";
 
 Chart.register(CrosshairPlugin);
 
@@ -29,6 +32,7 @@ const SimpleCfgiChart = (props: ICfgiCard) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [_, setSignalModalConfig] = useAtom(signalModalConfigAtom);
 
   const chart_init = useCallback(
     (ctx: CanvasRenderingContext2D) => {
@@ -104,7 +108,9 @@ const SimpleCfgiChart = (props: ICfgiCard) => {
         },
         responsive: false,
         maintainAspectRatio: false,
-        interaction: false,
+        interaction: {
+          mode: "nearest",
+        },
         scales: {
           y: {
             beginAtZero: true,
@@ -149,6 +155,35 @@ const SimpleCfgiChart = (props: ICfgiCard) => {
             // }
           },
         },
+        onClick: (e: any) => {
+          const chart = chartRef.current;
+          if (!chart) return;
+
+          const rect = e.native
+            ? e.native.target.getBoundingClientRect()
+            : chart.canvas.getBoundingClientRect();
+
+          console.log(chart.scales);
+
+          const canvasPosition = {
+            x: e.native ? e.native.clientX - rect.left : e.x,
+            y: e.native ? e.native.clientY - rect.top : e.y,
+          };
+
+          // Get the y-axis values at the click position for both datasets
+          const indexYValue = chart.scales.y.getValueForPixel(canvasPosition.y);
+
+          setSignalModalConfig({
+            isOpen: true,
+            data: [
+              {
+                dataSource: "cfgi",
+                value: Math.round(indexYValue as number),
+                topic: `cfgi_${data[0].symbol}`,
+              },
+            ],
+          });
+        },
         plugins: {
           legend: {
             display: false,
@@ -186,7 +221,8 @@ const SimpleCfgiChart = (props: ICfgiCard) => {
 
       chartRef.current.resize();
     },
-    [data]
+
+    [data, setSignalModalConfig]
   );
 
   useEffect(() => {

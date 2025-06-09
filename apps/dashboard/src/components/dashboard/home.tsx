@@ -1,25 +1,24 @@
 "use client";
-import React, { useEffect, useState } from "react";
 import {
   DashboardContent,
   FullscreenBtn,
   Toolbar,
 } from "@/components/dashboard";
 import { NextStepProvider, NextStep } from "nextstepjs";
-import { useAtom, useSetAtom } from "jotai";
-import { utilsAtom } from "@/lib/atoms/utilsAtom";
-import { cn } from "@/lib/utils";
-import { IDashboardData } from "@/services/queries/home/types";
-import { loadTabsFromApiAtom } from "@/lib/atoms/tabsAtom";
 import { loadLayoutsFromApiAtom } from "@/lib/atoms/layoutAtom";
 import { loadSettingsFromApiAtom } from "@/lib/atoms/settingsAtom";
-import { Navbar } from "../shared";
-import { TourProvider } from "@reactour/tour";
+import { loadTabsFromApiAtom } from "@/lib/atoms/tabsAtom";
+import { utilsAtom } from "@/lib/atoms/utilsAtom";
 import { tourSteps } from "@/lib/static";
+import { cn } from "@/lib/utils";
+import { IDashboardData } from "@/services/queries/home/types";
+import { TourProvider } from "@reactour/tour";
+import { useEffect, useState } from "react";
+import CreateSignalFromChartModal from "../signals/create-signal-from-chart-modal";
 import { OnboardingModal } from "./shared/onboarding-modal";
-import { useFetchTokenNews } from "@/services/queries/news";
 import TourContent from "./shared/tour-card";
 import TourCard from "./shared/tour-card";
+import { useAtom, useSetAtom } from "jotai";
 
 interface IProps {
   dashboardData: IDashboardData;

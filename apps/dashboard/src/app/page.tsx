@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAtomValue } from "jotai";
 import { authUserAtom, isLoadingUserAtom } from "@/lib/atoms/userAtom";
 import { Loader2 } from "lucide-react";
-import { getLegacyLoginUrl } from "@/lib/utils";
+import { getLoginUrl } from "@/lib/utils";
 
 export default function Home() {
   const authUser = useAtomValue(authUserAtom);
@@ -14,7 +14,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!authUser && !isLoadingUser) {
-      window.location.href = getLegacyLoginUrl();
+      window.location.href = getLoginUrl();
     } else if (authUser && !isLoadingUser) {
       router.replace("/dashboard");
     }
