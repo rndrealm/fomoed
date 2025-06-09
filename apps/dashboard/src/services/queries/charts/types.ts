@@ -207,3 +207,10 @@ export interface BtcDominanceResponse {
   market_cap_change_percentage_24h_usd: number;
   updated_at: number;
 }
+
+export interface BinanceSymbolInfo {
+  symbol: string;
+  baseAsset: string;
+  quoteAsset: string;
+  status: string;
+}

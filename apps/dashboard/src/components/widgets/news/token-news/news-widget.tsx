@@ -5,6 +5,7 @@ import { Dominance, NewsItemIcon } from "@/components/icons/icons";
 import CoinStatsTokenDropdown from "../../shared/coin-stats-token-dropdown";
 import { useReadCoinList } from "@/services/queries/charts";
 import { formatNewsDate } from "@/lib/utils";
+import { LayoutType } from "@/lib/atoms/layoutAtom";
 
 const data = [
   {
@@ -53,7 +54,12 @@ function NewsItem(props: INewsItem) {
   );
 }
 
-export default function NewsWidget() {
+interface IProps {
+  widget: LayoutType["widgets"][0];
+}
+
+export default function NewsWidget(props: IProps) {
+  const { widget } = props;
   const { data: coinData = [] } = useReadCoinList();
 
   const [selectedCoin, setSelectedCoin] = useState("BTC");
@@ -81,7 +87,7 @@ export default function NewsWidget() {
               value={selectedCoin}
               align="end"
             />
-            <OptionsDropdown />
+            <OptionsDropdown widget={widget} />
           </div>
         </div>
       </div>

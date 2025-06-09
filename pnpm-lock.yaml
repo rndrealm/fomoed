@@ -149,6 +149,9 @@ importers:
       lightweight-charts:
         specifier: ^5.0.7
         version: 5.0.7
+      lightweight-charts-react-components:
+        specifier: ^0.4.1
+        version: 0.4.1(lightweight-charts@5.0.7)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21
@@ -5358,6 +5361,13 @@ packages:
   lightningcss@1.29.2:
     resolution: {integrity: sha512-6b6gd/RUXKaw5keVdSEtqFVdzWnU5jMxTUjA2bVcMNPLwSQ08Sv/UodBVtETLCn7k4S1Ibxwh7k68IwLZPgKaA==}
     engines: {node: '>= 12.0.0'}
+
+  lightweight-charts-react-components@0.4.1:
+    resolution: {integrity: sha512-7e5m+RNptAyvtOiktlsg/7Fd42f9qbNfRhOroyQBAihH0AdMu/1RySqv5K9A1veL0nWvqjluhcgtK3nwH/Wl+A==}
+    peerDependencies:
+      lightweight-charts: '>=5 < 6'
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
 
   lightweight-charts@5.0.7:
     resolution: {integrity: sha512-A4GqwYKRLhZREJEsSpORNNIWceOy5TS30s/WdAP2apKCDhAcIZDAI76TQHCCSf60oHwM7B92exXdQS9UykjXhw==}
@@ -13319,6 +13329,12 @@ snapshots:
       lightningcss-linux-x64-musl: 1.29.2
       lightningcss-win32-arm64-msvc: 1.29.2
       lightningcss-win32-x64-msvc: 1.29.2
+
+  lightweight-charts-react-components@0.4.1(lightweight-charts@5.0.7)(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
+    dependencies:
+      lightweight-charts: 5.0.7
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
 
   lightweight-charts@5.0.7:
     dependencies:
