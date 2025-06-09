@@ -8,7 +8,7 @@ import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 import dashboard from "@/lib/assets/dashboard";
 import Image from "next/image";
 import { useFetchTokenNews, useReadTokenNews } from "@/services/queries/news";
-import { cn, timeAgo } from "@/lib/utils";
+import { cleanSpecialChars, cn, timeAgo } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import AssetPill from "../../shared/asset-pill";
 
@@ -68,7 +68,7 @@ const TokenNewsWidget = (props: IProps) => {
                 </div>
                 <div className="">
                   <span className="text-sm font-medium text-white ">
-                    {item.title}
+                    {cleanSpecialChars(item.title)}
                   </span>
                 </div>
                 <div className="flex items-center gap-1 mt-2">

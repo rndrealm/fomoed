@@ -381,3 +381,27 @@ export const removeDecimal = (
   }
   return isNegative ? "-" + retValue : retValue;
 };
+
+/**
+ * Cleans special HTML entities and characters from a text string.
+ * @param text The input text containing special characters/entities.
+ * @returns The cleaned, human-readable string.
+ */
+export function cleanSpecialChars(text: string): string {
+  if (!text) return "";
+  return text
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&#x2F;/g, "/")
+    .replace(/&#x60;/g, "`")
+    .replace(/&#x3D;/g, "=")
+    .replace(/&#x27;/g, "'")
+    .replace(/&#8217;/g, "'")
+    .replace(/&#8216;/g, "'")
+    .replace(/&#8220;/g, '"')
+    .replace(/&#8221;/g, '"');
+}
