@@ -36,9 +36,9 @@ export function DashboardWidgets(props: IProps) {
         breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
         cols={{ lg: 8, md: 8, sm: 8, xs: 4, xxs: 2 }}
         draggableHandle=".cursor-grab"
-        rowHeight={210}
+        rowHeight={220}
         isResizable={false}
-        margin={[20, 20]}
+        margin={[4, 4]}
         onDragStop={(newLayouts) => {
           // Check if the current layout id on active tab is null or undefined
           const syncCondition = dashboardSetting.auto_save || currLayout?.draft;

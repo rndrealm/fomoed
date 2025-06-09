@@ -11,6 +11,7 @@ import { OptionsDropdown } from "../shared/options-dropwdown";
 import { cn, formatPriceSignificant } from "@/lib/utils";
 import { RenderIf } from "@/components/shared";
 import { useFetchMarkeData } from "@/services/queries/charts";
+import { LayoutType } from "@/lib/atoms/layoutAtom";
 
 const colorMap = {
   BTC: "#ffdb43",
@@ -136,7 +137,12 @@ function DominanceItem(props: IDominanceItem) {
   );
 }
 
-export default function Dominance() {
+interface IProps {
+  widget: LayoutType["widgets"][0];
+}
+
+export default function Dominance(props: IProps) {
+  const { widget } = props;
   const { data, isSuccess } = useFetchMarkeData();
 
   const btcDominance = formatPriceSignificant(
@@ -151,7 +157,7 @@ export default function Dominance() {
   );
 
   return (
-    <div className="flex flex-col gap-4 p-4 rounded-[30px] bg-[#000] relative overflow-hidden h-full">
+    <div className="flex flex-col gap-4 p-4 rounded-2xl bg-[#000] relative overflow-hidden h-full">
       <div className="flex flex-col gap-[2px]">
         <div className="flex justify-center">
           <div className="cursor-grab w-[36px] h-[5px] bg-[#444] rounded-[2px]"></div>
@@ -168,7 +174,7 @@ export default function Dominance() {
             <button type="button" onClick={() => {}}>
               <Favourite />
             </button>
-            <OptionsDropdown />
+            <OptionsDropdown widget={widget} />
           </div>
         </div>
       </div>

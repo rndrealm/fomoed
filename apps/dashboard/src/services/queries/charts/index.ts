@@ -4,9 +4,12 @@ import api from "../../api";
 import {
   BinanceKlineFormatted,
   BinanceKlineRaw,
+  BinanceSymbolInfo,
   BtcDominanceResponse,
   CfgiDataResponse,
+  CoinDataInterface,
   CoinListResponse,
+  CoinStatsTokenInfo,
   FormatLiquidationDataResult,
   LiquidExchangeResponse,
   LiquidHeatmapResponse,
@@ -17,6 +20,7 @@ import {
 import { supportedExchangePairsToOptions } from "@/lib/utils";
 import { ExchangePairOption } from "@/charts/types";
 import { formatLiquidationData, formatMergetLiquidMapData } from "./helpers";
+import axios from "axios";
 
 export const useReadCfgiData = (
   token?: string,
@@ -298,4 +302,94 @@ export const useFetchMarkeData = () => {
   });
 
   return response;
+};
+
+export const useFetchBinanceTokens = () => {
+  const queryKey = ["binance-tokens"];
+
+  const res = useQuery<BinanceSymbolInfo[]>({
+    queryKey,
+    queryFn: async () => {
+      const response = await api.get({
+        url: `https://api.binance.com/api/v3/exchangeInfo`,
+      });
+
+      return response?.symbols;
+    },
+  });
+
+  // const usdtPairs = res?.data?.filter(
+  //   (item) => item.quoteAsset === "USDT" && item.status === "TRADING"
+  // );
+
+  const mapped: CoinDataInterface[] = [];
+
+  res?.data?.forEach((item) => {
+    if (item.quoteAsset === "USDT" && item.status === "TRADING") {
+      const newItem = {
+        price: 0,
+        priceChange: 0,
+        marketCap: 0,
+        volume: 0,
+        icon: `https://bin.bnbstatic.com/static/assets/logos/${item.baseAsset}.png`,
+        symbol: item.baseAsset,
+        name: item?.baseAsset,
+        slug: "",
+        is_free: true,
+        color: undefined,
+      };
+
+      mapped.push(newItem);
+    }
+  });
+
+  return {
+    ...res,
+    data: mapped || [],
+  };
+};
+
+export const useFetchCoinStatsToken = () => {
+  const queryKey = ["coin-stats-tokens"];
+
+  const res = useQuery<CoinStatsTokenInfo[]>({
+    queryKey,
+    queryFn: async () => {
+      const response = await axios.get(
+        "https://openapiv1.coinstats.app/coins?limit=200",
+        {
+          headers: {
+            "X-API-KEY": "WvGNSh8jIvpDJ0hjsgNZu1MFMYeohhiYMqDuzcZplTk=",
+          },
+        }
+      );
+
+      return response?.data?.result;
+    },
+  });
+
+  return res;
+};
+
+export const useFetchCoinStatsSingleToken = (token = "") => {
+  const queryKey = ["coin-stats-single-token", token];
+
+  const res = useQuery<CoinStatsTokenInfo>({
+    queryKey,
+    queryFn: async () => {
+      const response = await axios.get(
+        `https://openapiv1.coinstats.app/coins/${token}`,
+        {
+          headers: {
+            "X-API-KEY": "WvGNSh8jIvpDJ0hjsgNZu1MFMYeohhiYMqDuzcZplTk=",
+          },
+        }
+      );
+
+      return response?.data;
+    },
+    enabled: !!token,
+  });
+
+  return res;
 };

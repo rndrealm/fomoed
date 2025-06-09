@@ -15,47 +15,15 @@ import {
   useReadCoinList,
 } from "@/services/queries/charts";
 import { News } from "./news";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { OptionsDropdown } from "../shared/options-dropwdown";
+import { LayoutType } from "@/lib/atoms/layoutAtom";
 
-function OptionsDropdown() {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button
-          type="button"
-          className="w-[24px] h-[24px] flex items-center justify-between"
-        >
-          <Ellipsis />
-        </button>
-      </DropdownMenuTrigger>
-
-      <DropdownMenuContent
-        className="w-[210px] rounded-lg bg-[#090909] border border-[#333]"
-        align="end"
-      >
-        <DropdownMenuGroup>
-          <DropdownMenuItem
-            className="text-[#D4D4D4] text-[13px] leading-[1.25] p-[10px] font-normal focus:bg-[#171717] focus:text-[#C3C3C3] cursor-pointer w-full flex items-center justify-between"
-            onSelect={(e) => {
-              e.preventDefault();
-            }}
-          >
-            Delete widget
-            <Delete fill="#A2A2A2" />
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
+interface IProps {
+  widget: LayoutType["widgets"][0];
 }
 
-export default function SummaryWidget() {
+export default function SummaryWidget(props: IProps) {
+  const { widget } = props;
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = React.useState(0);
@@ -78,17 +46,23 @@ export default function SummaryWidget() {
   }, [api]);
 
   return (
-    <div className="bg-[#000] p-4 flex flex-col gap-4 rounded-[30px] justify-between">
-      <div className="flex justify-between items-center">
-        <div className="flex gap-2 items-center gap-4">
-          <Summary />
-          <h3 className="font-semibold text-base text-[#878787] leading-[1.35]">
-            SUMMARY
-          </h3>
+    <div className="bg-[#000] p-4 flex flex-col gap-4 rounded-2xl justify-between">
+      <div className="flex flex-col gap-1">
+        <div className="flex justify-center">
+          <div className="cursor-grab w-[36px] h-[5px] bg-[#444] rounded-[2px]"></div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <OptionsDropdown />
+        <div className="flex justify-between items-center">
+          <div className="flex gap-2 items-center gap-4">
+            <Summary />
+            <h3 className="font-semibold text-base text-[#878787] leading-[1.35]">
+              SUMMARY
+            </h3>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <OptionsDropdown widget={widget} />
+          </div>
         </div>
       </div>
 

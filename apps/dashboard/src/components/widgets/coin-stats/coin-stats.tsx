@@ -12,22 +12,34 @@ import {
   Twitter,
 } from "@/components/icons/icons";
 import { OptionsDropdown } from "../shared/options-dropwdown";
-import { useReadCoinList } from "@/services/queries/charts";
+import {
+  useFetchCoinStatsSingleToken,
+  useFetchCoinStatsToken,
+  useReadCoinList,
+} from "@/services/queries/charts";
 import CoinStatsTokenDropdown from "../shared/coin-stats-token-dropdown";
 import { AnimatePresence, motion } from "motion/react";
+import { LayoutType, updateWidgetPropsAtom } from "@/lib/atoms/layoutAtom";
+import { activeTabAtom } from "@/lib/atoms/tabsAtom";
+import { useAtomValue, useSetAtom } from "jotai";
+import CoinDropdown from "./coin-dropdown";
+import { formatMarketCapNumber } from "@/lib/utils";
 
 interface ILinkItem {
   icon: () => React.JSX.Element;
   label: string;
+  href?: string;
 }
 
 function LinkItem(props: ILinkItem) {
-  const { icon, label } = props;
+  const { icon, label, href } = props;
   return (
-    <div className="py-1 px-[6px] rounded-lg bg-[#141414] flex items-center gap-1">
-      {icon()}
-      <p className="text-sm font-normal text-white">{label}</p>
-    </div>
+    <a target="_blank" href={href}>
+      <div className="py-1 px-[6px] rounded-lg bg-[#141414] flex items-center gap-1">
+        {icon()}
+        <p className="text-sm font-normal text-white">{label}</p>
+      </div>
+    </a>
   );
 }
 
@@ -55,14 +67,26 @@ const modalSlide = {
   },
 };
 
-export default function CoinStats() {
-  const { data: coinData = [] } = useReadCoinList();
+interface IProps {
+  widget: LayoutType["widgets"][0];
+}
 
-  const [selectedCoin, setSelectedCoin] = useState("BTC");
+export default function CoinStats(props: IProps) {
+  const { widget } = props;
+  const { data = [] } = useFetchCoinStatsToken();
+  const { data: coinStats } = useFetchCoinStatsSingleToken(
+    widget?.props?.token
+  );
+
+  console.log(coinStats);
+
   const [showInfo, setShowInfo] = useState(false);
 
+  const activeLayout = useAtomValue(activeTabAtom);
+  const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
+
   return (
-    <div className="flex flex-col gap-4 p-4 rounded-[30px] bg-[#000] relative overflow-hidden ">
+    <div className="flex flex-col gap-3 p-4 rounded-2xl bg-[#000] relative overflow-hidden h-full justify-between">
       <div className="flex flex-col gap-1">
         <div className="flex justify-center">
           <div className="cursor-grab w-[36px] h-[5px] bg-[#444] rounded-[2px]"></div>
@@ -84,28 +108,37 @@ export default function CoinStats() {
             >
               <Question />
             </button>
-            <OptionsDropdown />
+            <OptionsDropdown widget={widget} />
           </div>
         </div>
       </div>
 
       <div className="flex justify-center">
-        <CoinStatsTokenDropdown
-          options={coinData}
+        <CoinDropdown
+          options={data}
           setValue={(coin) => {
-            setSelectedCoin(coin);
+            updateWidgetPropsFromAtom({
+              tabId: activeLayout.id,
+              widgetId: widget.id,
+              widgetProps: {
+                ...widget.props,
+                token: coin,
+              },
+            });
           }}
-          value={selectedCoin}
+          value={widget?.props?.token}
         />
       </div>
 
-      <div className="flex flex-col gap-8 flex-1 pb-4">
+      <div className="flex flex-col gap-6 pb-4">
         <div className="flex justify-center items-center gap-8">
           <div className="flex flex-col items-center">
             <h3 className="text-sm text-[#878787] leading-[1.35] font-medium">
               Rank
             </h3>
-            <h3 className="text-xl text-white leading-[1.35] font-bold">1</h3>
+            <h3 className="text-xl text-white leading-[1.35] font-bold">
+              {coinStats?.rank}
+            </h3>
           </div>
 
           <div className="flex flex-col items-center">
@@ -114,17 +147,19 @@ export default function CoinStats() {
             </h3>
             <div className="flex items-center">
               <h3 className="text-xl text-white leading-[1.35] font-bold">
-                $2.61T
+                {formatMarketCapNumber(coinStats?.marketCap || "")}
+
+                {/* $2.61T */}
               </h3>
-              <ArrowUp />
+              {/* <ArrowUp />
               <p className="text-xs text-[#84ebb4] leading-[1.35] font-semibold">
                 2.98%
-              </p>
+              </p> */}
             </div>
           </div>
         </div>
 
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-5">
           <div className="flex flex-col gap-3">
             <div className="flex justify-center relative">
               <div className="flex justify-center gap-1 bg-[#000] px-1 relative z-2">
@@ -137,22 +172,32 @@ export default function CoinStats() {
             </div>
 
             <div className="flex justify-center gap-1 pb-4 border-b border-[#161616]">
-              <LinkItem icon={Globe} label="Website" />
+              {/* <LinkItem icon={Globe} label="Website" />
               <LinkItem icon={Twitter} label="X (Twitter)" />
-              <LinkItem icon={Explorer} label="Explorer" />
+              <LinkItem icon={Explorer} label="Explorer" /> */}
+
+              <LinkItem icon={Globe} label="" href={coinStats?.websiteUrl} />
+              <LinkItem icon={Twitter} label="" href={coinStats?.twitterUrl} />
+              <LinkItem
+                icon={Explorer}
+                label=""
+                href={coinStats?.explorers[0]}
+              />
             </div>
           </div>
 
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3">
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2">
                 <p className="font-medium text-sm text-[#878787] leading-[1.35]">
-                  24h Volume
+                  {/* 24h Volume */}
+                  Volume
                 </p>
               </div>
 
               <p className="font-bold text-sm text-[#fff] leading-[1.35]">
-                $42.61b
+                {/* $42.61b */}
+                {formatMarketCapNumber(coinStats?.volume || "")}
               </p>
             </div>
 
@@ -165,7 +210,7 @@ export default function CoinStats() {
               </div>
 
               <p className="font-bold text-sm text-[#fff] leading-[1.35]">
-                $2,161,244,123,269
+                {formatMarketCapNumber(coinStats?.fullyDilutedValuation || "")}
               </p>
             </div>
 
@@ -178,7 +223,7 @@ export default function CoinStats() {
               </div>
 
               <p className="font-bold text-sm text-[#fff] leading-[1.35]">
-                20,000,00
+                {formatMarketCapNumber(coinStats?.availableSupply || "", false)}
               </p>
             </div>
 
@@ -191,7 +236,7 @@ export default function CoinStats() {
               </div>
 
               <p className="font-bold text-sm text-[#fff] leading-[1.35]">
-                20,000,00
+                {formatMarketCapNumber(coinStats?.totalSupply || "", false)}
               </p>
             </div>
           </div>
