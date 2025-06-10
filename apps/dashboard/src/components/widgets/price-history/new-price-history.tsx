@@ -121,7 +121,7 @@ export default function NewPriceHistory(props: IProps) {
 
   return (
     <Fragment>
-      <div className="flex flex-col gap-2 bg-[#000] pt-6 pb-4 rounded-[30px] h-full">
+      <div className="flex flex-col gap-2 bg-[#000] pt-6 pb-4 rounded-2xl h-full">
         <div className="flex flex-col gap-1">
           <div className="flex justify-center">
             <div className="cursor-grab w-[36px] h-[5px] bg-[#444] rounded-[2px]"></div>

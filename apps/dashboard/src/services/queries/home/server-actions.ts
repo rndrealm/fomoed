@@ -1,5 +1,6 @@
 import { createSupabaseServerComponentClient } from "@/lib/utils/supabase/server-client";
 import { v4 as uuidv4 } from "uuid";
+import { notFound, redirect } from "next/navigation";
 
 export const getDashboardData = async () => {
   const supabase = await createSupabaseServerComponentClient();
@@ -9,7 +10,7 @@ export const getDashboardData = async () => {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    throw new Error("Please login to view your tabs.");
+    redirect("login");
   }
 
   // Try to fetch existing layouts for the user

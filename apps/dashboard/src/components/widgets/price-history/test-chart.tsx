@@ -1,5 +1,5 @@
 "use client";
-import React, { FC, ReactNode, useRef, useState } from "react";
+import React, { FC, ReactNode, useEffect, useRef, useState } from "react";
 import {
   CandlestickSeries,
   Chart,
@@ -24,20 +24,6 @@ import {
 } from "@/services/queries/charts";
 import { formatChartTooltipDate, formatPriceSignificant } from "@/lib/utils";
 
-const data = [
-  { time: "2019-04-11", value: 80.01 },
-  { time: "2019-04-12", value: 96.63 },
-  { time: "2019-04-13", value: 76.64 },
-  { time: "2019-04-14", value: 81.89 },
-  { time: "2019-04-15", value: 74.43 },
-  { time: "2019-04-16", value: 80.01 },
-  { time: "2019-04-17", value: 96.63 },
-  { time: "2019-04-18", value: 76.64 },
-  { time: "2019-04-19", value: 81.89 },
-  { time: "2019-04-20", value: 74.43 },
-  { time: "2019-04-21", value: 90.43 },
-];
-
 interface ITooltip {
   x: number | null;
   y: number | null;
@@ -57,24 +43,12 @@ const toolTipWidth = 240;
 const toolTipHeight = 24;
 const toolTipMargin = 25;
 
-const Tooltip = (props: ITooltip) => {
-  const { children, height, show, width, x, y } = props;
-
-  return (
-    <div className="absolute w-[240px] h-[24px] top-0 left-0 bg-[red]">
-      {children}
-    </div>
-  );
-};
-
 export default function TestChart(props: IProps) {
   const { isCandleStick, period, token } = props;
   const { data = [], refetch } = useFetchBinancePriceData(
     `${token}USDT`,
     period
   );
-
-  const [show, setShow] = useState(false);
 
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
@@ -153,6 +127,40 @@ export default function TestChart(props: IProps) {
   // const len = data?.length;
   // const from = data[len - 20]?.time as Time;
   // const to = data[len - 1]?.time as Time;
+
+  useEffect(() => {
+    if (!token || !period) return;
+
+    const ws = new WebSocket(
+      `wss://stream.binance.com:9443/ws/${token.toLowerCase()}usdt@kline_${period}`
+    );
+
+    ws.onmessage = (event) => {
+      const msg = JSON.parse(event.data);
+      const k = msg.k;
+
+      const newData = {
+        time: Math.floor(k.t / 1000),
+        open: parseFloat(k.o),
+        high: parseFloat(k.h),
+        low: parseFloat(k.l),
+        close: parseFloat(k.c),
+        value: parseFloat(k.c),
+      };
+
+      if ((lineSeriesRef.current || candleSeriesRef.current) && data?.length) {
+        if (isCandleStick) {
+          candleSeriesRef.current?.api()?.update(newData as any);
+        } else {
+          lineSeriesRef?.current?.api()?.update(newData as any);
+        }
+      }
+    };
+
+    return () => {
+      ws.close();
+    };
+  }, [token, period, data, isCandleStick]);
 
   return (
     // <div className="flex-1 relative">

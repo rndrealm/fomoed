@@ -2,6 +2,11 @@ import layoutPlaceholder from "../../../../public/media/images/dashboard/layout-
 import layout from "../../../../public/media/images/dashboard/layout.png";
 import logo from "../../../../public/media/images/logo.svg";
 import cfgi from "../../../../public/media/images/dashboard/cfgi.png";
+import tokenHistory from "../../../../public/media/images/dashboard/token-history.png";
+import orderBook from "../../../../public/media/images/dashboard/order-book.png";
+import bitcoinDominance from "../../../../public/media/images/dashboard/bitcoin-dominance.png";
+import coinStats from "../../../../public/media/images/dashboard/coin-stats.png";
+import summary from "../../../../public/media/images/dashboard/summary.png";
 import cfgi2 from "../../../../public/media/images/dashboard/cfgi2.png";
 import simpleCfgi from "../../../../public/media/images/dashboard/simple-cfgi.png";
 import liq from "../../../../public/media/images/dashboard/liq.png";
@@ -58,6 +63,11 @@ const dashboard = {
   chevronDown,
   successCheck,
   explore,
+  tokenHistory,
+  orderBook,
+  bitcoinDominance,
+  coinStats,
+  summary,
 };
 
 export default dashboard;

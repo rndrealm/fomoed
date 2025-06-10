@@ -46,7 +46,7 @@ export default function SummaryWidget(props: IProps) {
   }, [api]);
 
   return (
-    <div className="bg-[#000] p-4 flex flex-col gap-4 rounded-[30px] justify-between">
+    <div className="bg-[#000] p-4 flex flex-col gap-4 rounded-2xl justify-between">
       <div className="flex flex-col gap-1">
         <div className="flex justify-center">
           <div className="cursor-grab w-[36px] h-[5px] bg-[#444] rounded-[2px]"></div>
