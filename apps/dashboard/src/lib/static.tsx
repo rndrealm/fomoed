@@ -131,6 +131,51 @@ export const layoutOptionsMap = [
   //   tags: ["new"],
   // },
   {
+    id: 112,
+    name: "New Price History",
+    slug: "new-price-history",
+    image: dashboard.tokenHistory,
+    category: "charts",
+    tags: ["charts", "new"],
+  },
+
+  {
+    id: 113,
+    name: "BTC Dominance",
+    slug: "btc-dominance",
+    image: dashboard.bitcoinDominance,
+    category: "charts",
+    tags: ["charts", "new"],
+  },
+
+  {
+    id: 114,
+    name: "Order Book",
+    slug: "order-book",
+    image: dashboard.orderBook,
+    category: "charts",
+    tags: ["charts", "new"],
+  },
+
+  {
+    id: 115,
+    name: "Coin Stats",
+    slug: "coin-stats",
+    image: dashboard.coinStats,
+    category: "charts",
+    tags: ["charts", "new"],
+  },
+
+  {
+    id: 116,
+    name: "Summary",
+    slug: "summary",
+    image: dashboard.summary,
+    category: "charts",
+    tags: ["charts", "new"],
+  },
+
+  {
     id: 6,
     name: "Token News",
     slug: "token-news",
@@ -178,51 +223,6 @@ export const layoutOptionsMap = [
     category: "charts",
     tags: ["charts"],
   },
-
-  // {
-  //   id: 112,
-  //   name: "New Price History",
-  //   slug: "new-price-history",
-  //   image: dashboard.cfgi,
-  //   category: "charts",
-  //   tags: ["charts"],
-  // },
-
-  // {
-  //   id: 113,
-  //   name: "BTC Dominance",
-  //   slug: "btc-dominance",
-  //   image: dashboard.cfgi,
-  //   category: "charts",
-  //   tags: ["charts"],
-  // },
-
-  // {
-  //   id: 114,
-  //   name: "Order Book",
-  //   slug: "order-book",
-  //   image: dashboard.cfgi,
-  //   category: "charts",
-  //   tags: ["charts"],
-  // },
-
-  // {
-  //   id: 115,
-  //   name: "Coin Stats",
-  //   slug: "coin-stats",
-  //   image: dashboard.cfgi,
-  //   category: "charts",
-  //   tags: ["charts"],
-  // },
-
-  // {
-  //   id: 116,
-  //   name: "Summary",
-  //   slug: "summary",
-  //   image: dashboard.cfgi,
-  //   category: "charts",
-  //   tags: ["charts"],
-  // },
 
   // {
   //   id: 10,
