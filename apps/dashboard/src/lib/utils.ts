@@ -477,3 +477,39 @@ export function formatMarketCapNumber(
 
   return `$${_formatMarketCapNumber(num)}`;
 }
+
+export const modalSlide = {
+  hidden: {
+    y: 100,
+    opacity: 0,
+  },
+  visible: {
+    y: "0%",
+    opacity: 1,
+    transition: {
+      type: "tween",
+      ease: "easeInOut",
+      duration: 0.2,
+    },
+  },
+  exit: {
+    y: 100,
+    opacity: 0,
+    transition: {
+      ease: "easeInOut",
+      duration: 0.2,
+    },
+  },
+};
+
+export function handleFearGreedLabel(value: number) {
+  if (!value || value < 0 || value > 100) {
+    return "";
+  }
+
+  if (value <= 19) return "EXTREME FEAR";
+  if (value <= 39) return "FEAR";
+  if (value <= 59) return "NEUTRAL";
+  if (value <= 79) return "GREED";
+  return "EXTREME GREED";
+}

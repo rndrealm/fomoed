@@ -10,10 +10,7 @@ import {
   CarouselItem,
 } from "@/components/ui/carousel";
 import { Loser } from "./loser";
-import {
-  useFetchTopGainerLoser,
-  useReadCoinList,
-} from "@/services/queries/charts";
+import { useReadCoinList } from "@/services/queries/charts";
 import { News } from "./news";
 import { OptionsDropdown } from "../shared/options-dropwdown";
 import { LayoutType } from "@/lib/atoms/layoutAtom";
@@ -76,7 +73,7 @@ export default function SummaryWidget(props: IProps) {
           </p>
         </div>
 
-        <Carousel setApi={setApi}>
+        <Carousel setApi={setApi} className="select-none">
           <CarouselContent>
             <CarouselItem>
               <Mover data={coinData?.[0]} />

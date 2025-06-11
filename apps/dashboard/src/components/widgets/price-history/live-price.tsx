@@ -1,4 +1,6 @@
+import { geoLocationAtom } from "@/lib/atoms/geoLocation";
 import { formatPriceSignificant } from "@/lib/utils";
+import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 
 interface IProps {
@@ -11,12 +13,27 @@ export function LivePrice(props: IProps) {
   const [tokenPrice, setTokenPrice] = useState("");
   const [percentChange, setPercentChange] = useState(0);
 
+  const location = useAtomValue(geoLocationAtom);
+
   useEffect(() => {
+    if (!location?.country) return;
     setTokenPrice("");
     setPercentChange(0);
-    const ws = new WebSocket(
-      `wss://stream.binance.com:9443/stream?streams=${token.toLowerCase()}usdt@trade/${token.toLowerCase()}usdt@miniTicker`
-    );
+    // const ws = new WebSocket(
+    //   `wss://stream.binance.com:9443/stream?streams=${token.toLowerCase()}usdt@trade/${token.toLowerCase()}usdt@miniTicker`
+    // );
+
+    let ws: WebSocket;
+
+    if (location?.country === "US") {
+      ws = new WebSocket(
+        `wss://ws-api.binance.us:443/ws-api/v3/stream?streams=${token.toLowerCase()}usdt@trade/${token.toLowerCase()}usdt@miniTicker`
+      );
+    } else {
+      ws = new WebSocket(
+        `wss://stream.binance.com:9443/stream?streams=${token.toLowerCase()}usdt@trade/${token.toLowerCase()}usdt@miniTicker`
+      );
+    }
 
     ws.onmessage = (event) => {
       const message = JSON.parse(event.data);
@@ -36,8 +53,12 @@ export function LivePrice(props: IProps) {
       }
     };
 
-    return () => ws.close();
-  }, [token]);
+    return () => {
+      if (ws) {
+        ws.close();
+      }
+    };
+  }, [token, location?.country]);
 
   return (
     <div className="flex flex-col gap-1">
