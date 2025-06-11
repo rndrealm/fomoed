@@ -393,3 +393,19 @@ export const useFetchCoinStatsSingleToken = (token = "") => {
 
   return res;
 };
+
+export const useFetchFearAndGreed = () => {
+  const hash = ["fetch-fear-and-greed"];
+  // const apiKey = "7876_e2b3a_054fb63f52" || process.env.CFGI_API_KEY;
+  const response = useQuery<CfgiDataResponse[]>({
+    queryKey: hash,
+    queryFn: async () => {
+      const response = await api.get({
+        url: `/api/cfgi?token=BTC&period=4&values=1&token_slug=BTC`,
+      });
+      return response.data;
+    },
+  });
+
+  return response;
+};

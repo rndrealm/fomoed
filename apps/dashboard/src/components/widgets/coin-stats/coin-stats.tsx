@@ -23,7 +23,7 @@ import { LayoutType, updateWidgetPropsAtom } from "@/lib/atoms/layoutAtom";
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 import { useAtomValue, useSetAtom } from "jotai";
 import CoinDropdown from "./coin-dropdown";
-import { formatMarketCapNumber } from "@/lib/utils";
+import { formatMarketCapNumber, modalSlide } from "@/lib/utils";
 
 interface ILinkItem {
   icon: () => React.JSX.Element;
@@ -37,35 +37,11 @@ function LinkItem(props: ILinkItem) {
     <a target="_blank" href={href}>
       <div className="py-1 px-[6px] rounded-lg bg-[#141414] flex items-center gap-1">
         {icon()}
-        <p className="text-sm font-normal text-white">{label}</p>
+        {/* <p className="text-sm font-normal text-white">{label}</p> */}
       </div>
     </a>
   );
 }
-
-const modalSlide = {
-  hidden: {
-    y: 100,
-    opacity: 0,
-  },
-  visible: {
-    y: "0%",
-    opacity: 1,
-    transition: {
-      type: "tween",
-      ease: "easeInOut",
-      duration: 0.2,
-    },
-  },
-  exit: {
-    y: 100,
-    opacity: 0,
-    transition: {
-      ease: "easeInOut",
-      duration: 0.2,
-    },
-  },
-};
 
 interface IProps {
   widget: LayoutType["widgets"][0];
@@ -77,8 +53,6 @@ export default function CoinStats(props: IProps) {
   const { data: coinStats } = useFetchCoinStatsSingleToken(
     widget?.props?.token
   );
-
-  console.log(coinStats);
 
   const [showInfo, setShowInfo] = useState(false);
 

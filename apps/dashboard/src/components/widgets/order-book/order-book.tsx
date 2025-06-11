@@ -9,6 +9,7 @@ import CoinStatsTokenDropdown from "../shared/coin-stats-token-dropdown";
 import { useFetchBinanceTokens } from "@/services/queries/charts";
 import { useAtomValue, useSetAtom } from "jotai";
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
+import { geoLocationAtom } from "@/lib/atoms/geoLocation";
 
 type IOrder = [string, string]; // [price, quantity]
 
@@ -104,12 +105,26 @@ export default function OrderBook(props: IProps) {
   const { data: coinData = [] } = useFetchBinanceTokens();
   const activeLayout = useAtomValue(activeTabAtom);
   const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
+  const location = useAtomValue(geoLocationAtom);
 
   useEffect(() => {
+    if (!location?.country) return;
     const tokenOption = `${widget?.props?.token?.toLowerCase()}usdt`;
-    const ws = new WebSocket(
-      `wss://stream.binance.com:9443/stream?streams=${tokenOption}@depth5@100ms/${tokenOption}@trade`
-    );
+    // const ws = new WebSocket(
+    //   `wss://stream.binance.com:9443/stream?streams=${tokenOption}@depth5@100ms/${tokenOption}@trade`
+    // );
+
+    let ws: WebSocket;
+
+    if (location?.country === "US") {
+      ws = new WebSocket(
+        `wss://ws-api.binance.us:443/ws-api/v3/stream?streams=${tokenOption}@depth5@100ms/${tokenOption}@trade`
+      );
+    } else {
+      ws = new WebSocket(
+        `wss://stream.binance.com:9443/stream?streams=${tokenOption}@depth5@100ms/${tokenOption}@trade`
+      );
+    }
 
     ws.onmessage = (event) => {
       const message = JSON.parse(event.data);
@@ -126,8 +141,12 @@ export default function OrderBook(props: IProps) {
       }
     };
 
-    return () => ws.close();
-  }, [widget?.props?.token]);
+    return () => {
+      if (ws) {
+        ws.close();
+      }
+    };
+  }, [widget?.props?.token, location?.country]);
 
   return (
     <div className="flex flex-col gap-2 p-4 rounded-2xl bg-[#000] relative overflow-hidden h-full">

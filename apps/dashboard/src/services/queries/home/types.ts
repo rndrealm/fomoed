@@ -1,3 +1,5 @@
+import { UserGeoLocation } from "../geolocation/types";
+
 export interface IDashboardData {
   tabs: {
     id: any;
@@ -32,4 +34,5 @@ export interface IDashboardData {
     auto_save: boolean;
     active_tab_id?: string | null;
   };
+  location: UserGeoLocation;
 }
