@@ -1,6 +1,7 @@
 import { createSupabaseServerComponentClient } from "@/lib/utils/supabase/server-client";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
+import { notFound, redirect } from "next/navigation";
 import { UserGeoLocation } from "../geolocation/types";
 
 export const getDashboardData = async () => {
@@ -13,7 +14,7 @@ export const getDashboardData = async () => {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    throw new Error("Please login to view your tabs.");
+    redirect("login");
   }
 
   // Try to fetch existing layouts for the user
