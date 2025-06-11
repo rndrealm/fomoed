@@ -34,5 +34,5 @@ export interface IDashboardData {
     auto_save: boolean;
     active_tab_id?: string | null;
   };
-  location: UserGeoLocation;
+  location?: UserGeoLocation;
 }
