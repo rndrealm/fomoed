@@ -103,7 +103,7 @@ export const getDashboardData = async () => {
       tabs: existingTabs,
       layouts: layoutData,
       settings: returnSettings,
-      location: res,
+      // location: res,
     };
   }
 
@@ -141,6 +141,6 @@ export const getDashboardData = async () => {
     tabs: [newTab],
     layouts: layoutData,
     settings: returnSettings,
-    location: res,
+    // location: res,
   };
 };
