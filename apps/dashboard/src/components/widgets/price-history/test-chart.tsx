@@ -23,6 +23,8 @@ import {
   useFetchBinanceTokens,
 } from "@/services/queries/charts";
 import { formatChartTooltipDate, formatPriceSignificant } from "@/lib/utils";
+import { useAtomValue } from "jotai";
+import { geoLocationAtom } from "@/lib/atoms/geoLocation";
 
 interface ITooltip {
   x: number | null;
@@ -49,6 +51,8 @@ export default function TestChart(props: IProps) {
     `${token}USDT`,
     period
   );
+
+  const location = useAtomValue(geoLocationAtom);
 
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
@@ -129,11 +133,19 @@ export default function TestChart(props: IProps) {
   // const to = data[len - 1]?.time as Time;
 
   useEffect(() => {
-    if (!token || !period) return;
+    if (!token || !period || !location?.country) return;
 
-    const ws = new WebSocket(
-      `wss://stream.binance.com:9443/ws/${token.toLowerCase()}usdt@kline_${period}`
-    );
+    let ws: WebSocket;
+
+    if (location.country === "US") {
+      ws = new WebSocket(
+        `wss://ws-api.binance.us:443/ws-api/v3/${token.toLowerCase()}usdt@kline_${period}`
+      );
+    } else {
+      ws = new WebSocket(
+        `wss://stream.binance.com:9443/ws/${token.toLowerCase()}usdt@kline_${period}`
+      );
+    }
 
     ws.onmessage = (event) => {
       const msg = JSON.parse(event.data);
@@ -158,9 +170,11 @@ export default function TestChart(props: IProps) {
     };
 
     return () => {
-      ws.close();
+      if (ws) {
+        ws.close();
+      }
     };
-  }, [token, period, data, isCandleStick]);
+  }, [token, period, data, isCandleStick, location?.country]);
 
   return (
     // <div className="flex-1 relative">
