@@ -1,19 +1,27 @@
 import { geoLocationAtom } from "@/lib/atoms/geoLocation";
 import { formatPriceSignificant } from "@/lib/utils";
+import {
+  useFetchBinancePriceData,
+  useFetchBinanceTokenPrice,
+} from "@/services/queries/charts";
 import { useAtomValue } from "jotai";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface IProps {
   token?: string;
+  period?: string;
 }
 
 export function LivePrice(props: IProps) {
-  const { token = "btc" } = props;
-
-  const [tokenPrice, setTokenPrice] = useState("");
-  const [percentChange, setPercentChange] = useState(0);
+  const { token = "" } = props;
 
   const location = useAtomValue(geoLocationAtom);
+
+  const { data: price } = useFetchBinanceTokenPrice(token, location?.country);
+
+  const hasLivePrice = useRef(false);
+  const [tokenPrice, setTokenPrice] = useState("");
+  const [percentChange, setPercentChange] = useState(0);
 
   useEffect(() => {
     if (!location?.country) return;
@@ -27,7 +35,7 @@ export function LivePrice(props: IProps) {
 
     if (location?.country === "US") {
       ws = new WebSocket(
-        `wss://ws-api.binance.us:443/ws-api/v3/stream?streams=${token.toLowerCase()}usdt@trade/${token.toLowerCase()}usdt@miniTicker`
+        `wss://stream.binance.us:9443/stream?streams=${token.toLowerCase()}usdt@trade/${token.toLowerCase()}usdt@miniTicker`
       );
     } else {
       ws = new WebSocket(
@@ -42,6 +50,7 @@ export function LivePrice(props: IProps) {
 
       if (stream.endsWith("@trade")) {
         setTokenPrice(data.p);
+        hasLivePrice.current = true;
       }
 
       if (stream.endsWith("@miniTicker")) {
@@ -50,6 +59,7 @@ export function LivePrice(props: IProps) {
         const change = ((current - open) / open) * 100;
 
         setPercentChange(change);
+        hasLivePrice.current = true;
       }
     };
 
@@ -59,6 +69,17 @@ export function LivePrice(props: IProps) {
       }
     };
   }, [token, location?.country]);
+
+  useEffect(() => {
+    if (price?.lastPrice && !hasLivePrice.current) {
+      setTokenPrice(price?.lastPrice);
+      setPercentChange(Number(price?.priceChangePercent));
+    }
+  }, [price]);
+
+  useEffect(() => {
+    hasLivePrice.current = false;
+  }, [token]);
 
   return (
     <div className="flex flex-col gap-1">
