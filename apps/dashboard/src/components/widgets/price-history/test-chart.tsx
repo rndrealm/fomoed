@@ -18,10 +18,7 @@ import {
   Time,
 } from "lightweight-charts";
 import { RenderIf } from "@/components/shared";
-import {
-  useFetchBinancePriceData,
-  useFetchBinanceTokens,
-} from "@/services/queries/charts";
+import { useFetchBinancePriceData } from "@/services/queries/charts";
 import { formatChartTooltipDate, formatPriceSignificant } from "@/lib/utils";
 import { useAtomValue } from "jotai";
 import { geoLocationAtom } from "@/lib/atoms/geoLocation";
@@ -47,12 +44,15 @@ const toolTipMargin = 25;
 
 export default function TestChart(props: IProps) {
   const { isCandleStick, period, token } = props;
-  const { data = [], refetch } = useFetchBinancePriceData(
-    `${token}USDT`,
-    period
-  );
 
   const location = useAtomValue(geoLocationAtom);
+
+  const { data = [] } = useFetchBinancePriceData(
+    `${token}USDT`,
+    period,
+    100,
+    location?.country
+  );
 
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
@@ -139,7 +139,7 @@ export default function TestChart(props: IProps) {
 
     if (location.country === "US") {
       ws = new WebSocket(
-        `wss://ws-api.binance.us:443/ws-api/v3/${token.toLowerCase()}usdt@kline_${period}`
+        `wss://stream.binance.us:9443/ws/${token.toLowerCase()}usdt@kline_${period}`
       );
     } else {
       ws = new WebSocket(
