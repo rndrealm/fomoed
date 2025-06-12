@@ -26,7 +26,7 @@ import {
   useWalletClient,
 } from "wagmi";
 import { shortenAddress } from "@/lib/utils";
-import WalletImage from "./wallet-image";
+import WalletImage from "./shared/wallet-image";
 import Link from "next/link";
 
 interface IAccountDropdownProps {
@@ -54,50 +54,62 @@ const AccountDropdown = (props: IAccountDropdownProps) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center gap-1 bg-[#121212] border border-[#141414] px-2 h-8 rounded-[6px]">
-          <WalletImage icon={connections[0].connector.icon} />
-          <p className="font-medium text-xxs">{account?.displayBalance}</p>
-          <p className="text-[#A6A6A6] font-medium text-xxs bg-[#080808] rounded-[3px] p-1">
+        <button className="flex items-center gap-1 bg-[#161616] border border-[#141414] pl-1 pr-2 py-1 rounded-[10px]">
+          <WalletImage
+            icon={connections[0].connector.icon}
+            width={24}
+            height={24}
+          />
+          {/* <p className="font-medium text-xxs">{account?.displayBalance}</p> */}
+          <p className="text-[#4B4B4B] font-semibold text-sm pl-2 ">
             {account?.displayName}
           </p>
+          {/* <ChevronDown className="w-4 text-[#878787]" /> */}
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className=" h-9 bg-[#121212] flex items-center gap-2 border-[1.5px] border-[#1E1E1E]">
-        <div>
-          <div className="flex items-center gap-1">
+      <DropdownMenuContent className="bg-[#161616] flex flex-col gap-1 border border-[#222222] w-[13.4375rem]">
+        <Link
+          className="flex items-center justify-between bg-[#121212] rounded-[6px] p-2"
+          href={`${activeChain?.blockExplorers?.default.url}/address/${account?.address}`}
+          title={`View wallet on ${activeChain?.blockExplorers?.default.name}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <div className="flex items-center gap-1 ">
             <WalletImage
               icon={connections[0].connector.icon}
               width={24}
               height={24}
             />
-            <div>
-              <h3 className="font-medium text-white text-xxs">
-                {connections[0]?.connector.name}
-              </h3>
-              <div>
-                <p className="text-[#A6A6A6] text-xxxs font-medium">
-                  {account?.displayName}
-                </p>
-              </div>
-            </div>
+            <h3 className="font-medium text-white text-ideal">
+              {connections[0]?.connector.name}
+            </h3>
           </div>
-        </div>
-        <div className="flex items-center gap-1">
-          <Link
-            className="bg-[#080808] rounded-[3px] w-7 h-7 flex justify-center items-center"
+          <div>
+            <p className="text-[#4B4B4B] text-sm  font-medium">
+              {account?.displayName}
+            </p>
+          </div>
+        </Link>
+        <div className="flex items-center gap-1 p-3">
+          {/* <Link
+            className=" rounded-[3px] w-7 h-7 flex justify-center items-center"
             href={`${activeChain?.blockExplorers?.default.url}/address/${account?.address}`}
             title={`View wallet on ${activeChain?.blockExplorers?.default.name}`}
             target="_blank"
             rel="noopener noreferrer"
           >
             <Image src={dashboard.explore} alt="Explore icon" />
-          </Link>
+          </Link> */}
+          <div className="">
+            <Image src={dashboard.disconnect} alt="Disconnect icon" />
+          </div>
           <button
-            className="text-xxs font-medium text-[#C3C3C3] bg-[#080808] rounded-[3px] h-7 w-[4.375rem]"
+            className="text-sm font-medium text-[#4B4B4B]  "
             onClick={() => disconnect()}
             title="Disconnect wallet"
           >
-            Disconnect
+            Disconnect Wallet
           </button>
         </div>
       </DropdownMenuContent>

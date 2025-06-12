@@ -4,11 +4,10 @@ import React from "react";
 interface IProps {
   inputValue: string;
   updateInputValue: (value: string) => void;
-  setMax: () => void;
 }
 
 const AmountInput = (props: IProps) => {
-  const { inputValue, updateInputValue, setMax } = props;
+  const { inputValue, updateInputValue } = props;
   return (
     <div className="flex items-center gap-1 jus">
       <input
@@ -18,14 +17,8 @@ const AmountInput = (props: IProps) => {
         onChange={(e) => {
           updateInputValue(e.target.value);
         }}
-        className="p-1 text-xs font-medium outline-none max-w-[3rem]"
+        className="p-1 text-xl font-bold text-white outline-none placeholder:text-white"
       />
-      <button
-        className="flex items-center justify-center w-8 h-5 font-medium text-xxxs bg-[#202020] rounded-[20px]"
-        onClick={setMax}
-      >
-        Max
-      </button>
     </div>
   );
 };

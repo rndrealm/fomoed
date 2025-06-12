@@ -1,14 +1,18 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { OptionsDropdown } from "../shared/options-dropwdown";
 import { CoinStats, Question } from "@/components/icons/icons";
 import { cn, formatPriceSignificant } from "@/lib/utils";
 import { LayoutType, updateWidgetPropsAtom } from "@/lib/atoms/layoutAtom";
 import CoinStatsTokenDropdown from "../shared/coin-stats-token-dropdown";
-import { useFetchBinanceTokens } from "@/services/queries/charts";
+import {
+  useFetchBinanceTokenPrice,
+  useFetchBinanceTokens,
+} from "@/services/queries/charts";
 import { useAtomValue, useSetAtom } from "jotai";
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
+import { geoLocationAtom } from "@/lib/atoms/geoLocation";
 
 type IOrder = [string, string]; // [price, quantity]
 
@@ -100,16 +104,36 @@ export default function OrderBook(props: IProps) {
   const [buys, setBuys] = useState<IOrderWithWidth[]>([]);
   const [sales, setSales] = useState<IOrderWithWidth[]>([]);
   const [livePrice, setLivePrice] = useState("");
+  const hasLivePrice = useRef(false);
 
-  const { data: coinData = [] } = useFetchBinanceTokens();
+  const location = useAtomValue(geoLocationAtom);
   const activeLayout = useAtomValue(activeTabAtom);
   const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
 
+  const { data: coinData = [] } = useFetchBinanceTokens(location?.country);
+  const { data: price } = useFetchBinanceTokenPrice(
+    widget?.props?.token,
+    location?.country
+  );
+
   useEffect(() => {
+    if (!location?.country) return;
     const tokenOption = `${widget?.props?.token?.toLowerCase()}usdt`;
-    const ws = new WebSocket(
-      `wss://stream.binance.com:9443/stream?streams=${tokenOption}@depth5@100ms/${tokenOption}@trade`
-    );
+    // const ws = new WebSocket(
+    //   `wss://stream.binance.com:9443/stream?streams=${tokenOption}@depth5@100ms/${tokenOption}@trade`
+    // );
+
+    let ws: WebSocket;
+
+    if (location?.country === "US") {
+      ws = new WebSocket(
+        `wss://stream.binance.us:9443/stream?streams=${tokenOption}@depth5@100ms/${tokenOption}@trade`
+      );
+    } else {
+      ws = new WebSocket(
+        `wss://stream.binance.com:9443/stream?streams=${tokenOption}@depth5@100ms/${tokenOption}@trade`
+      );
+    }
 
     ws.onmessage = (event) => {
       const message = JSON.parse(event.data);
@@ -123,10 +147,23 @@ export default function OrderBook(props: IProps) {
 
       if (stream === `${tokenOption}@trade`) {
         setLivePrice(data.p); // last price
+        hasLivePrice.current = true;
       }
     };
 
-    return () => ws.close();
+    return () => {
+      ws.close();
+    };
+  }, [widget?.props?.token, location?.country]);
+
+  useEffect(() => {
+    if (price?.lastPrice && !hasLivePrice.current) {
+      setLivePrice(price?.lastPrice);
+    }
+  }, [price]);
+
+  useEffect(() => {
+    hasLivePrice.current = false;
   }, [widget?.props?.token]);
 
   return (

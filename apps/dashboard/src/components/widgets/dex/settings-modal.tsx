@@ -32,7 +32,7 @@ const SettingsModal = (props: IProps) => {
       {isOpen ? (
         // Dropdown content
         <motion.div
-          className="absolute top-0 left-0 w-full h-full bg-[#080808] p-3 rounded-[15px] flex flex-col"
+          className="absolute top-0 left-0 w-full h-full bg-[#080808] p-3 rounded-[15px] flex flex-col z-[10]"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}

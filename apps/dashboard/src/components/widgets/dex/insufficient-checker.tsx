@@ -13,12 +13,12 @@ const InsufficientChecker = (props: IProps) => {
   const isInSufficient = parseFloat(balance || "0") < parseFloat(amount || "0");
 
   return isInSufficient ? (
-    <button className="w-full h-10 text-xs font-medium bg-[#202020] rounded-[6px]">
+    <button className="w-full h-16 text-base text-[#0C0C0C] font-semibold bg-white !backdrop-opacity-10 rounded-[24px]">
       Insufficient Funds
     </button>
   ) : (
     <button
-      className="w-full h-10 text-xs font-medium bg-[#FF3B10] rounded-[6px]"
+      className="w-full h-16 text-base text-white font-semibold bg-[#FF3B10] !backdrop-opacity-10 rounded-[24px]"
       onClick={toggleReviewModal}
     >
       Swap {fromSymbol} for {toSymbol}

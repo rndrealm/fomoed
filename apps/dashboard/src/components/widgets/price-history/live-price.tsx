@@ -1,22 +1,47 @@
+import { geoLocationAtom } from "@/lib/atoms/geoLocation";
 import { formatPriceSignificant } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import {
+  useFetchBinancePriceData,
+  useFetchBinanceTokenPrice,
+} from "@/services/queries/charts";
+import { useAtomValue } from "jotai";
+import { useEffect, useRef, useState } from "react";
 
 interface IProps {
   token?: string;
+  period?: string;
 }
 
 export function LivePrice(props: IProps) {
-  const { token = "btc" } = props;
+  const { token = "" } = props;
 
+  const location = useAtomValue(geoLocationAtom);
+
+  const { data: price } = useFetchBinanceTokenPrice(token, location?.country);
+
+  const hasLivePrice = useRef(false);
   const [tokenPrice, setTokenPrice] = useState("");
   const [percentChange, setPercentChange] = useState(0);
 
   useEffect(() => {
+    if (!location?.country) return;
     setTokenPrice("");
     setPercentChange(0);
-    const ws = new WebSocket(
-      `wss://stream.binance.com:9443/stream?streams=${token.toLowerCase()}usdt@trade/${token.toLowerCase()}usdt@miniTicker`
-    );
+    // const ws = new WebSocket(
+    //   `wss://stream.binance.com:9443/stream?streams=${token.toLowerCase()}usdt@trade/${token.toLowerCase()}usdt@miniTicker`
+    // );
+
+    let ws: WebSocket;
+
+    if (location?.country === "US") {
+      ws = new WebSocket(
+        `wss://stream.binance.us:9443/stream?streams=${token.toLowerCase()}usdt@trade/${token.toLowerCase()}usdt@miniTicker`
+      );
+    } else {
+      ws = new WebSocket(
+        `wss://stream.binance.com:9443/stream?streams=${token.toLowerCase()}usdt@trade/${token.toLowerCase()}usdt@miniTicker`
+      );
+    }
 
     ws.onmessage = (event) => {
       const message = JSON.parse(event.data);
@@ -25,6 +50,7 @@ export function LivePrice(props: IProps) {
 
       if (stream.endsWith("@trade")) {
         setTokenPrice(data.p);
+        hasLivePrice.current = true;
       }
 
       if (stream.endsWith("@miniTicker")) {
@@ -33,10 +59,26 @@ export function LivePrice(props: IProps) {
         const change = ((current - open) / open) * 100;
 
         setPercentChange(change);
+        hasLivePrice.current = true;
       }
     };
 
-    return () => ws.close();
+    return () => {
+      if (ws) {
+        ws.close();
+      }
+    };
+  }, [token, location?.country]);
+
+  useEffect(() => {
+    if (price?.lastPrice && !hasLivePrice.current) {
+      setTokenPrice(price?.lastPrice);
+      setPercentChange(Number(price?.priceChangePercent));
+    }
+  }, [price]);
+
+  useEffect(() => {
+    hasLivePrice.current = false;
   }, [token]);
 
   return (

@@ -18,11 +18,10 @@ import {
   Time,
 } from "lightweight-charts";
 import { RenderIf } from "@/components/shared";
-import {
-  useFetchBinancePriceData,
-  useFetchBinanceTokens,
-} from "@/services/queries/charts";
+import { useFetchBinancePriceData } from "@/services/queries/charts";
 import { formatChartTooltipDate, formatPriceSignificant } from "@/lib/utils";
+import { useAtomValue } from "jotai";
+import { geoLocationAtom } from "@/lib/atoms/geoLocation";
 
 interface ITooltip {
   x: number | null;
@@ -45,9 +44,14 @@ const toolTipMargin = 25;
 
 export default function TestChart(props: IProps) {
   const { isCandleStick, period, token } = props;
-  const { data = [], refetch } = useFetchBinancePriceData(
+
+  const location = useAtomValue(geoLocationAtom);
+
+  const { data = [] } = useFetchBinancePriceData(
     `${token}USDT`,
-    period
+    period,
+    100,
+    location?.country
   );
 
   const chartContainerRef = useRef<HTMLDivElement>(null);
@@ -129,11 +133,19 @@ export default function TestChart(props: IProps) {
   // const to = data[len - 1]?.time as Time;
 
   useEffect(() => {
-    if (!token || !period) return;
+    if (!token || !period || !location?.country) return;
 
-    const ws = new WebSocket(
-      `wss://stream.binance.com:9443/ws/${token.toLowerCase()}usdt@kline_${period}`
-    );
+    let ws: WebSocket;
+
+    if (location.country === "US") {
+      ws = new WebSocket(
+        `wss://stream.binance.us:9443/ws/${token.toLowerCase()}usdt@kline_${period}`
+      );
+    } else {
+      ws = new WebSocket(
+        `wss://stream.binance.com:9443/ws/${token.toLowerCase()}usdt@kline_${period}`
+      );
+    }
 
     ws.onmessage = (event) => {
       const msg = JSON.parse(event.data);
@@ -158,9 +170,11 @@ export default function TestChart(props: IProps) {
     };
 
     return () => {
-      ws.close();
+      if (ws) {
+        ws.close();
+      }
     };
-  }, [token, period, data, isCandleStick]);
+  }, [token, period, data, isCandleStick, location?.country]);
 
   return (
     // <div className="flex-1 relative">

@@ -1,9 +1,5 @@
+import { createSupabaseServerWithAnonKey } from "@/lib/utils/supabase/server-client";
 import {
-  createSupabaseServerComponentClient,
-  createSupabaseServerWithAnonKey,
-} from "@/lib/utils/supabase/server-client";
-import {
-  ApiNewsLabPost,
   CryptopanicNewsApiResponse,
   NewsFeedResponseData,
   NewsRowInsert,
@@ -72,7 +68,6 @@ async function fetchNews() {
   const res = await fetch(url);
 
   if (!res.ok) {
-    console.log(await res.text());
     throw new Error("Failed to fetch news from CryptoPanic");
   }
 

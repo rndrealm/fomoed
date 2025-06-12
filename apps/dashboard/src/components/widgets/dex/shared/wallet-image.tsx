@@ -17,6 +17,7 @@ const WalletImage = (props: IProps) => {
         <img
           src={icon}
           alt="Wallet Connector Icon"
+          className="rounded-full"
           style={{ width: width || 16, height: height || 16 }}
         />
       ) : (

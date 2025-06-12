@@ -5,16 +5,24 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Delete, ThreeDots } from "../icons/icons";
+import { cn } from "@/lib/utils";
 
-export function WidgetDropdownMenu({
-  deleteAction,
-}: {
+interface IProps {
   deleteAction: () => void;
-}) {
+  triggerClassName?: string;
+}
+
+export function WidgetDropdownMenu(props: IProps) {
+  const { deleteAction, triggerClassName } = props;
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="rounded-sm border-[0.5px] border-[#222222] w-6 h-6  flex items-center justify-center">
+        <button
+          className={cn(
+            "rounded-sm border-[0.5px] border-[#222222] w-6 h-6  flex items-center justify-center",
+            triggerClassName
+          )}
+        >
           <ThreeDots />
         </button>
       </DropdownMenuTrigger>

@@ -15,31 +15,34 @@ const TokenTrigger = (props: IProps) => {
   const { value, toggle } = props;
   return (
     <button
-      className={cn(
-        " text-xxxs border border-[#202020] px-1 h-6 rounded-[20px] font-medium flex items-center justify-between ",
-        {
-          "bg-[#202020]": !!value,
-        }
-      )}
+      className={cn(" flex items-center justify-between gap-[0.375rem]", {
+        "": !!value,
+      })}
       onClick={toggle}
     >
+      <ChevronDown className="w-4 text-[#878787]" />
       {value ? (
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
           <div>
             <RemoteImage
               src={value.logoURI}
               alt={value.name}
-              width={16}
-              height={16}
+              width={24}
+              height={24}
               className="rounded-full"
             />
           </div>
-          <p className="font-medium text-xxxs">{value.symbol}</p>
+          <p className="text-xl font-bold ">{value.symbol}</p>
         </div>
       ) : (
-        <p> Select a token</p>
+        <div className="flex items-center gap-1">
+          <div className="rounded-full bg-[#1D1D1D] w-6 h-6 flex items-center justify-center">
+            <Image src={dashboard.plus} alt="Plus Icon" />
+          </div>
+          <p className="text-xl font-bold">***</p>
+        </div>
       )}
-      <ChevronDown className="w-3" />
+      {/* <ChevronDown className="w-3" /> */}
     </button>
   );
 };
