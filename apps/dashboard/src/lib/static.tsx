@@ -176,14 +176,14 @@ export const layoutOptionsMap = [
     tags: ["charts", "new"],
   },
 
-  {
-    id: 116,
-    name: "CFGI",
-    slug: "cfgi",
-    image: dashboard.summary,
-    category: "charts",
-    tags: ["charts", "new"],
-  },
+  // {
+  //   id: 116,
+  //   name: "CFGI",
+  //   slug: "cfgi",
+  //   image: dashboard.summary,
+  //   category: "charts",
+  //   tags: ["charts", "new"],
+  // },
 
   {
     id: 6,
