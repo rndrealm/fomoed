@@ -423,17 +423,21 @@ export const useFetchCoinStatsSingleToken = (token = "") => {
   return res;
 };
 
-export const useFetchFearAndGreed = () => {
-  const hash = ["fetch-fear-and-greed"];
+export const useFetchFearAndGreed = (token: string) => {
+  const hash = ["fetch-fear-and-greed", token];
   // const apiKey = "7876_e2b3a_054fb63f52" || process.env.CFGI_API_KEY;
   const response = useQuery<CfgiDataResponse[]>({
     queryKey: hash,
     queryFn: async () => {
       const response = await api.get({
-        url: `/api/cfgi?token=BTC&period=4&values=1&token_slug=BTC`,
+        url: `/api/cfgi?token=${token}&period=4&values=1&token_slug=${token}`,
       });
       return response.data;
     },
+    enabled: !!token,
+    // refetchOnMount: "always",
+    // refetchOnWindowFocus: "always",
+    // refetchOnReconnect: "always",
   });
 
   return response;

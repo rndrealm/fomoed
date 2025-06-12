@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from "react";
 import { Close, CoinStats, Question } from "@/components/icons/icons";
 import { OptionsDropdown } from "../../shared/options-dropwdown";
@@ -5,17 +6,41 @@ import { AnimatePresence, motion } from "motion/react";
 import { modalSlide } from "@/lib/utils";
 import { Progress } from "./progress";
 import { useFetchFearAndGreed } from "@/services/queries/charts";
+import CoinStatsTokenDropdown from "../../shared/coin-stats-token-dropdown";
+import { tokenArray } from "./tokenArray";
+import { LayoutType, updateWidgetPropsAtom } from "@/lib/atoms/layoutAtom";
+import { activeTabAtom } from "@/lib/atoms/tabsAtom";
+import { useAtomValue, useSetAtom } from "jotai";
 
-export default function CFGI() {
+const colors = [
+  "#FF004D",
+  "#FF540B",
+  "#FFD600",
+  "#90FF00",
+  "#03EBF3",
+  "#03EBF3",
+];
+
+interface IProps {
+  widget: LayoutType["widgets"][0];
+}
+
+export default function CFGI(props: IProps) {
+  const { widget } = props;
   const [showInfo, setShowInfo] = useState(false);
 
-  const { data = [] } = useFetchFearAndGreed();
+  const { data = [] } = useFetchFearAndGreed(widget?.props?.token);
+
+  const activeLayout = useAtomValue(activeTabAtom);
+  const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
 
   return (
     <div className="flex flex-col gap-3 p-4 rounded-2xl bg-[#000] relative overflow-hidden h-[440px] justify-between">
       <div className="flex flex-col gap-1">
         <div className="flex justify-center">
-          <div className="cursor-grab w-[36px] h-[5px] bg-[#444] rounded-[2px]"></div>
+          <div className=" cursor-grab ">
+            <div className="w-[36px] h-[5px] bg-[#444] rounded-[2px]"></div>
+          </div>
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -34,20 +59,43 @@ export default function CFGI() {
             >
               <Question />
             </button>
-            {/* <OptionsDropdown widget={widget} /> */}
+            <OptionsDropdown widget={widget} />
           </div>
         </div>
       </div>
-
-      <div className="flex-1 flex flex-col items-center justify-center gap-6">
-        <Progress
-          progress={data[0]?.cfgi}
-          // progress={20 * 1}
-          // progress={20 * 2}
-          // progress={20 * 3}
-          // progress={20 * 4}
-          // progress={20 * 5}
+      <div className="flex justify-center">
+        <CoinStatsTokenDropdown
+          options={tokenArray}
+          setValue={(coin) => {
+            updateWidgetPropsFromAtom({
+              tabId: activeLayout.id,
+              widgetId: widget.id,
+              widgetProps: {
+                ...widget.props,
+                token: coin,
+              },
+            });
+          }}
+          value={widget?.props?.token}
+          align="center"
         />
+      </div>
+
+      <div className="flex-1 flex flex-col items-center justify-center gap-0">
+        <div className="flex flex-col gap-4">
+          <Progress
+            progress={data[data?.length - 1]?.cfgi}
+            // progress={20 * 1}
+            // progress={20 * 2}
+            // progress={20 * 3}
+            // progress={20 * 4}
+            // progress={20 * 5}
+          />
+        </div>
+        <p className="text-base leading-[1.35] text-[#878787]">
+          <span className="text-[white]">{data[0]?.cfgi || 0}</span> Avg.
+          yesterday
+        </p>
       </div>
 
       <AnimatePresence>
@@ -77,6 +125,65 @@ export default function CFGI() {
                   overheated, offering a quick snapshot of current market
                   psychology.
                 </p>
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-4">
+                    <p
+                      className={
+                        "w-[50px] font-medium leading-[1.35] text-[13px]"
+                      }
+                      style={{ color: colors[0] }}
+                    >
+                      0-19
+                    </p>
+                    <p className="font-medium leading-[1.35] text-[#696969] text-[13px]">
+                      Extreme Fear
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <p
+                      className="w-[50px] font-medium leading-[1.35] text-[13px]"
+                      style={{ color: colors[1] }}
+                    >
+                      20-39
+                    </p>
+                    <p className="font-medium leading-[1.35] text-[#696969] text-[13px]">
+                      Fear
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <p
+                      className="w-[50px] font-medium leading-[1.35] text-[13px]"
+                      style={{ color: colors[2] }}
+                    >
+                      40-59
+                    </p>
+                    <p className="font-medium leading-[1.35] text-[#696969] text-[13px]">
+                      Neutral
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <p
+                      className="w-[50px] font-medium leading-[1.35] text-[13px]"
+                      style={{ color: colors[3] }}
+                    >
+                      60-79
+                    </p>
+                    <p className="font-medium leading-[1.35] text-[#696969] text-[13px]">
+                      Greed
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <p
+                      className="w-[50px] font-medium leading-[1.35] text-[13px]"
+                      style={{ color: colors[4] }}
+                    >
+                      80-100
+                    </p>
+                    <p className="font-medium leading-[1.35] text-[#696969] text-[13px]">
+                      Extreme Greed
+                    </p>
+                  </div>
+                </div>
               </div>
 
               <div className="flex justify-center">
