@@ -3,7 +3,6 @@
 	import NewsHeadlineCard from '../NewsHeadlineCard/NewsHeadlineCard.svelte';
 
 	let { article } = $props<{ article: AppNewsItem }>();
-	// console.log('article', article);
 </script>
 
 <div class="grid overflow-hidden">

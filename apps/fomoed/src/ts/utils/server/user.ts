@@ -21,6 +21,15 @@ export async function createOrLinkUserFromOAuth(
 
 	const existingUser = await getUserByEmail(user.email);
 
+	const insertPublicRes = await supabase.from('public_user_data').upsert({
+		display_name: user.email?.split('@')[0],
+		user_id: user.id
+	});
+
+	if (insertPublicRes.error) {
+		throw new Error('Failed to create new user row. User data: ' + JSON.stringify(user));
+	}
+
 	// If the user exists, link the ID from oauth to the existing user
 	if (existingUser) {
 		linkAuthIdToEmail(user.email, user.id);
