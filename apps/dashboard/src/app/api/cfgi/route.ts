@@ -123,10 +123,10 @@ export async function GET(request: Request) {
     }
 
     const response = await fetch(
-      `https://cfgi.io/api/api_request.php?api_key=${apiKey}&token=${token}&period=${period}&values=${values}`,
-      {
-        cache: "no-store",
-      }
+      `https://cfgi.io/api/api_request.php?api_key=${apiKey}&token=${token}&period=${period}&values=${values}`
+      // {
+      //   cache: "no-store",
+      // }
     );
     const resText = await response.text();
 

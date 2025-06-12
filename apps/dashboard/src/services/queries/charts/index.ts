@@ -423,18 +423,17 @@ export const useFetchCoinStatsSingleToken = (token = "") => {
   return res;
 };
 
-export const useFetchFearAndGreed = (token: string) => {
+export const useFetchFearAndGreed = (token: string, token_slug?: string) => {
   const hash = ["fetch-fear-and-greed", token];
-  // const apiKey = "7876_e2b3a_054fb63f52" || process.env.CFGI_API_KEY;
   const response = useQuery<CfgiDataResponse[]>({
     queryKey: hash,
     queryFn: async () => {
       const response = await api.get({
-        url: `/api/cfgi?token=${token}&period=4&values=1&token_slug=${token}`,
+        url: `/api/cfgi?token=${token}&period=4&values=1&token_slug=${token_slug}`,
       });
       return response.data;
     },
-    enabled: !!token,
+    enabled: !!token && !!token_slug,
     // refetchOnMount: "always",
     // refetchOnWindowFocus: "always",
     // refetchOnReconnect: "always",

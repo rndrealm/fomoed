@@ -5,14 +5,14 @@
 	import SharePopupButton from '../SharePopup/SharePopupButton.svelte';
 	import type { AppNewsItem } from '$ts/client/services/NewsService.client.svelte';
 	import { timeAgo } from '$ts/client/utils';
+	import LikeIconFull from '$lib/icons/LikeIconFull.svelte';
 
 	export let article: AppNewsItem;
+	console.log('articke:', article);
 </script>
 
 <div
-	class="flex items-center justify-between
-             text-white
-            px-0 py-0 rounded-md w-full mt-5 mb-2 font-inter -desktop:flex-wrap gap-y-2"
+	class="flex items-center justify-between w-full px-0 py-0 mt-5 mb-2 text-white rounded-md font-inter -desktop:flex-wrap gap-y-2"
 >
 	<!-- Left section: Source, Time, Status -->
 	<div class="flex items-center gap-3">
@@ -37,17 +37,22 @@
 	<div class="flex items-center gap-3 text-gray-400">
 		<!-- Likes -->
 		<button
-			class="flex items-center space-x-1 hover:text-gray-200 transition-colors"
+			class="flex items-center space-x-1 transition-colors hover:text-gray-200"
 			onclick={() => console.log('Liked')}
 		>
-			<LikeIcon />
+			<!-- <LikeIcon /> -->
+			{#if article?.userLiked}
+				<LikeIconFull />
+			{:else}
+				<LikeIcon />
+			{/if}
 			<span>{article.likes_count}</span>
 		</button>
 
 		<div class="separator-dot"></div>
 
 		<!-- Comments -->
-		<a class="flex items-center space-x-1 hover:text-gray-200 transition-colors" href="#comments">
+		<a class="flex items-center space-x-1 transition-colors hover:text-gray-200" href="#comments">
 			<CommentIcon />
 			<span>{article.comments_count}</span>
 		</a>

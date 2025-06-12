@@ -15,6 +15,7 @@ export type AppComment = CommentRow & {
 
 export class CommentsService extends BaseService {
 	private readonly COMMENTS_SELECT =
+		// '*, users:users!comments_user_id_fkey1(*), reply_count:comments!parent_id(count), user_likes:comment_likes!id(*)';
 		'*, public_user_data(user_id, display_name, avatar_url), reply_count:comments!parent_id(count), user_likes:comment_likes!id(*)';
 
 	async fetchComments(newsId: string, loadReplies = false): Promise<AppComment[] | null> {
@@ -32,6 +33,7 @@ export class CommentsService extends BaseService {
 
 		const { data, error } = await query;
 
+		console.log('data:', data);
 		if (error) {
 			console.error('Error fetching comments:', error);
 			return null;

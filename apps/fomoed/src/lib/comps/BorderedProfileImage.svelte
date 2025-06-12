@@ -4,6 +4,12 @@
 	import { userService } from '$ts/client/services/UserService.svelte';
 
 	$: premium = $auth_user?.has_valid_sub;
+
+	let imgSrc = `${userService.authUser?.user_metadata.avatar_url}`;
+
+	function handleError() {
+		imgSrc = `https://ui-avatars.com/api/?background=random&name=${userService.authUser?.user_metadata.name}`;
+	}
 </script>
 
 <div
@@ -13,9 +19,10 @@
 >
 	{#if userService.authUser}
 		<img
-			src={userService.authUser.user_metadata.avatar_url}
+			src={imgSrc}
 			alt=""
-			class="rounded-full w-full aspect-square object-cover"
+			class="object-cover w-full rounded-full aspect-square"
+			onerror={handleError}
 		/>
 	{:else}
 		<ProfileIcon />

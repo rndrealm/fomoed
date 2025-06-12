@@ -1,5 +1,6 @@
 import stripe from "@/lib/utils/stripe";
 import { createSupabaseServerClient } from "@/lib/utils/supabase/server-client";
+import { redirect } from "next/navigation";
 
 import { NextResponse } from "next/server";
 
@@ -16,7 +17,7 @@ const fetchUserPlans = async () => {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    throw new Error("Please login.");
+    redirect("login");
   }
   // For some reason, on stripe there are multiple customers with the same email
   // Here we are searching for all customers with the email and retrieving all their subscriptions

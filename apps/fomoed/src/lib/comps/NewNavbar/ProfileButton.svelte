@@ -10,6 +10,12 @@
 	import { displayLogoutPopup } from '$lib/stores/ui';
 
 	let open = $state(false);
+
+	let imgSrc = $state(`${userService.authUser?.user_metadata.avatar_url}`);
+
+	function handleError() {
+		imgSrc = `https://ui-avatars.com/api/?background=random&name=${userService.authUser?.user_metadata.name}`;
+	}
 </script>
 
 {#if browser}
@@ -21,7 +27,8 @@
 				>
 					{#if userService.authUser}
 						<img
-							src={userService.authUser.user_metadata.avatar_url}
+							src={imgSrc}
+							onerror={handleError}
 							alt=""
 							class="object-cover w-full rounded-full aspect-square"
 						/>

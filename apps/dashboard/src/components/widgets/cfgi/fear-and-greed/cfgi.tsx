@@ -1,11 +1,14 @@
 "use client";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Close, CoinStats, Question } from "@/components/icons/icons";
 import { OptionsDropdown } from "../../shared/options-dropwdown";
 import { AnimatePresence, motion } from "motion/react";
 import { modalSlide } from "@/lib/utils";
 import { Progress } from "./progress";
-import { useFetchFearAndGreed } from "@/services/queries/charts";
+import {
+  useFetchFearAndGreed,
+  useReadCoinList,
+} from "@/services/queries/charts";
 import CoinStatsTokenDropdown from "../../shared/coin-stats-token-dropdown";
 import { tokenArray } from "./tokenArray";
 import { LayoutType, updateWidgetPropsAtom } from "@/lib/atoms/layoutAtom";
@@ -29,7 +32,16 @@ export default function CFGI(props: IProps) {
   const { widget } = props;
   const [showInfo, setShowInfo] = useState(false);
 
-  const { data = [] } = useFetchFearAndGreed(widget?.props?.token);
+  const { data: coinData } = useReadCoinList();
+
+  const activeCoinSlug = useMemo(() => {
+    return coinData?.find((coin) => coin.symbol === widget.props?.token)?.slug;
+  }, [widget.props?.token, coinData]);
+
+  const { data = [] } = useFetchFearAndGreed(
+    widget?.props?.token,
+    activeCoinSlug
+  );
 
   const activeLayout = useAtomValue(activeTabAtom);
   const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
@@ -38,7 +50,7 @@ export default function CFGI(props: IProps) {
     <div className="flex flex-col gap-3 p-4 rounded-2xl bg-[#000] relative overflow-hidden h-[440px] justify-between">
       <div className="flex flex-col gap-1">
         <div className="flex justify-center">
-          <div className=" cursor-grab ">
+          <div className=" cursor-grab">
             <div className="w-[36px] h-[5px] bg-[#444] rounded-[2px]"></div>
           </div>
         </div>
@@ -81,7 +93,7 @@ export default function CFGI(props: IProps) {
         />
       </div>
 
-      <div className="flex-1 flex flex-col items-center justify-center gap-0">
+      <div className="flex flex-col items-center justify-center flex-1 gap-0">
         <div className="flex flex-col gap-4">
           <Progress
             progress={data[data?.length - 1]?.cfgi}
