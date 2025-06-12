@@ -35,6 +35,7 @@ import OrderBook from "@/components/widgets/order-book/order-book";
 import { Tour } from "nextstepjs";
 import CoinStats from "@/components/widgets/coin-stats/coin-stats";
 import SummaryWidget from "@/components/widgets/summary/summary-widget";
+import CFGI from "@/components/widgets/cfgi/fear-and-greed/cfgi";
 
 export const layoutClassMap = {
   SinglePane: "grid-rows-1 grid-cols-1",
@@ -170,6 +171,15 @@ export const layoutOptionsMap = [
     id: 116,
     name: "Summary",
     slug: "summary",
+    image: dashboard.summary,
+    category: "charts",
+    tags: ["charts", "new"],
+  },
+
+  {
+    id: 116,
+    name: "CFGI",
+    slug: "cfgi",
     image: dashboard.summary,
     category: "charts",
     tags: ["charts", "new"],
@@ -351,6 +361,12 @@ export const chartsMap = {
       <SummaryWidget widget={widget} />
     ),
   },
+
+  cfgi: {
+    name: "CFGI",
+    extra: ["token"],
+    component: (widget: LayoutType["widgets"][0]) => <CFGI widget={widget} />,
+  },
 };
 
 export const widgetIdJoin = "@/$";
@@ -499,6 +515,15 @@ export const widgetPropsDefaults = {
     meta: {
       w: 3,
       h: 1,
+    },
+  },
+
+  cfgi: {
+    token: "BTC",
+    // period: pricePeriodOptions[11].value,
+    meta: {
+      w: 2,
+      h: 2,
     },
   },
 };
