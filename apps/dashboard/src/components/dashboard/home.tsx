@@ -19,6 +19,8 @@ import { OnboardingModal } from "./shared/onboarding-modal";
 import TourContent from "./shared/tour-card";
 import TourCard from "./shared/tour-card";
 import { useAtom, useSetAtom } from "jotai";
+import { setGeoLocationAtom } from "@/lib/atoms/geoLocation";
+import { useFetchUserLocation } from "@/services/queries/geolocation";
 
 interface IProps {
   dashboardData: IDashboardData;
@@ -27,6 +29,9 @@ export default function Home({ dashboardData }: IProps) {
   const loadTabsFromApi = useSetAtom(loadTabsFromApiAtom);
   const loadLayoutsFromApi = useSetAtom(loadLayoutsFromApiAtom);
   const loadSettingsFromApi = useSetAtom(loadSettingsFromApiAtom);
+  const loadUserGeoLocation = useSetAtom(setGeoLocationAtom);
+
+  const { data: geoLocation } = useFetchUserLocation();
 
   // const { data: newsData } = useFetchTokenNews();
 
@@ -34,14 +39,22 @@ export default function Home({ dashboardData }: IProps) {
     loadTabsFromApi(dashboardData.tabs, dashboardData.settings.active_tab_id);
     loadLayoutsFromApi(dashboardData.layouts);
     loadSettingsFromApi(dashboardData.settings);
+    // loadUserGeoLocation(dashboardData.location);
   }, [
     dashboardData.tabs,
     dashboardData.layouts,
     dashboardData.settings,
+    dashboardData.location,
     loadTabsFromApi,
     loadLayoutsFromApi,
     loadSettingsFromApi,
   ]);
+
+  useEffect(() => {
+    if (geoLocation) {
+      loadUserGeoLocation(geoLocation);
+    }
+  }, [geoLocation, loadUserGeoLocation]);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [utils, setUtils] = useAtom(utilsAtom);
 

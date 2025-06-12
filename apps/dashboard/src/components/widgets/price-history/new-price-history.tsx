@@ -31,6 +31,7 @@ import PriceTokenDropdown from "../shared/price-token-dropdown";
 import { ConfirmationModal } from "@/components/modals";
 import { chartsMap } from "@/lib/static";
 import TestChart from "./test-chart";
+import { geoLocationAtom } from "@/lib/atoms/geoLocation";
 
 interface IOptionsDropdown {
   widget: LayoutType["widgets"][0];
@@ -114,7 +115,9 @@ export default function NewPriceHistory(props: IProps) {
 
   const [isCandleStick, setIsCandleStick] = useState(false);
 
-  const { data: coinData = [] } = useFetchBinanceTokens();
+  const location = useAtomValue(geoLocationAtom);
+
+  const { data: coinData = [] } = useFetchBinanceTokens(location?.country);
 
   const activeLayout = useAtomValue(activeTabAtom);
   const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);

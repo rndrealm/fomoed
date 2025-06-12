@@ -5,6 +5,7 @@ import {
   BinanceKlineFormatted,
   BinanceKlineRaw,
   BinanceSymbolInfo,
+  BinanceTicker,
   BtcDominanceResponse,
   CfgiDataResponse,
   CoinDataInterface,
@@ -216,20 +217,24 @@ export const useFetchLiquidDataMerged = (
 export const useFetchBinancePriceData = (
   symbol?: string, // e.g., 'BTCUSDT'
   interval?: string, // e.g., '1h', '1d'
-  limit: number = 100 // Number of candles (max 1000)
+  limit = 100, // Number of candles (max 1000)
+  country = ""
 ) => {
-  const queryKey = ["binance-price", symbol, interval, limit];
+  const isUS = country === "US";
+  const queryKey = ["binance-price", symbol, interval, limit, isUS];
+
+  const baseUrl = isUS ? "https://api.binance.us" : "https://api.binance.com";
 
   const res = useQuery<unknown>({
     queryKey,
     queryFn: async () => {
       const response = await api.get({
-        url: `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`,
+        url: `${baseUrl}/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`,
       });
 
       return response;
     },
-    enabled: !!symbol && !!interval,
+    enabled: !!symbol && !!interval && !!country,
   });
 
   const transformedData: BinanceKlineFormatted[] | undefined = (
@@ -304,18 +309,22 @@ export const useFetchMarkeData = () => {
   return response;
 };
 
-export const useFetchBinanceTokens = () => {
-  const queryKey = ["binance-tokens"];
+export const useFetchBinanceTokens = (country = "") => {
+  const isUS = country === "US";
+  const queryKey = ["binance-tokens", isUS];
+
+  const baseUrl = isUS ? "https://api.binance.us" : "https://api.binance.com";
 
   const res = useQuery<BinanceSymbolInfo[]>({
     queryKey,
     queryFn: async () => {
       const response = await api.get({
-        url: `https://api.binance.com/api/v3/exchangeInfo`,
+        url: `${baseUrl}/api/v3/exchangeInfo`,
       });
 
       return response?.symbols;
     },
+    enabled: !!country,
   });
 
   // const usdtPairs = res?.data?.filter(
@@ -347,6 +356,26 @@ export const useFetchBinanceTokens = () => {
     ...res,
     data: mapped || [],
   };
+};
+
+export const useFetchBinanceTokenPrice = (token: string, country = "") => {
+  const isUS = country === "US";
+  const queryKey = ["binance-token-price", token, isUS];
+
+  const baseUrl = isUS ? "https://api.binance.us" : "https://api.binance.com";
+
+  const res = useQuery<BinanceTicker>({
+    queryKey,
+    queryFn: async () => {
+      const response = await api.get({
+        url: `${baseUrl}/api/v3/ticker/24hr?symbol=${token.toUpperCase()}USDT`,
+      });
+
+      return response;
+    },
+  });
+
+  return res;
 };
 
 export const useFetchCoinStatsToken = () => {
@@ -392,4 +421,24 @@ export const useFetchCoinStatsSingleToken = (token = "") => {
   });
 
   return res;
+};
+
+export const useFetchFearAndGreed = (token: string) => {
+  const hash = ["fetch-fear-and-greed", token];
+  // const apiKey = "7876_e2b3a_054fb63f52" || process.env.CFGI_API_KEY;
+  const response = useQuery<CfgiDataResponse[]>({
+    queryKey: hash,
+    queryFn: async () => {
+      const response = await api.get({
+        url: `/api/cfgi?token=${token}&period=4&values=1&token_slug=${token}`,
+      });
+      return response.data;
+    },
+    enabled: !!token,
+    // refetchOnMount: "always",
+    // refetchOnWindowFocus: "always",
+    // refetchOnReconnect: "always",
+  });
+
+  return response;
 };
