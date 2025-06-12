@@ -5,7 +5,7 @@ import Image from "next/image";
 import dashboard from "@/lib/assets/dashboard";
 import RemoteImage from "../../shared/remote-image";
 import { cn } from "@/lib/utils";
-import PriceSummary from "../price-summary";
+import PriceSummary from "../shared/price-summary";
 import { useBuildTransaction } from "@/services/queries/dex";
 import {
   useChainId,
@@ -86,17 +86,17 @@ const ReviewModal = (props: IProps) => {
       {isOpen ? (
         // Dropdown content
         <motion.div
-          className="absolute top-0 left-0 w-full h-full bg-[#080808] p-3 rounded-[15px] flex flex-col"
+          className="absolute top-0 left-0 w-full h-full bg-[#080808] pt-3 rounded-[15px] flex flex-col z-[10]"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
         >
-          <div className="flex items-center justify-between pb-2">
+          <div className="flex items-center justify-between px-3 pb-3">
             <h1 className="font-semibold text-mid">
-              {isSuccess ? "Successful" : "Estimated Summary"}
+              {isSuccess ? "Successful" : "Swap Details"}
             </h1>
             <button
-              className="bg-[#121212] border border-[#141414] rounded-[6px] w-7 h-7 flex items-center justify-center"
+              className="bg-[#1D1D1D]  rounded-full w-6 h-6 flex items-center justify-center"
               onClick={() => {
                 toggle();
                 // setIsSuccess(false);
@@ -107,73 +107,6 @@ const ReviewModal = (props: IProps) => {
             </button>
           </div>
           {/* If transaction is not successful */}
-          {!isSuccess ? (
-            <div className="bg-[#121212] px-3 py-4 rounded-t-[16px]">
-              <div className="">
-                <h3 className="text-[#A5A5A5] font-normal text-xs">From:</h3>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1 p-1 bg-[#202020] rounded-[20px]">
-                    <div>
-                      <RemoteImage
-                        src={input.token.logoURI}
-                        alt={input.token.symbol}
-                        width={24}
-                        height={24}
-                      />
-                    </div>
-                    <p className="text-xs font-semibold">
-                      {input.token.symbol}
-                    </p>
-                  </div>
-                  {/* <div className="flex flex-col items-end">
-                    <p className="pb-1 text-xl tracking-normal font-lg">
-                      {parseFloat(
-                        removeDecimal(input.amount, input.token.decimals)
-                      ).toFixed(3)}
-                      {input.token.symbol}
-                    </p>
-                    <p className="text-[#A5A5A5] text-xs">
-                      ≈${input.priceInUsd}
-                    </p>
-                  </div> */}
-
-                  <SummaryPriceAndEstimate value={input} />
-                </div>
-              </div>
-
-              <div className="flex justify-end w-full">
-                <div className="bg-[#202020] rounded-full h-6 w-6 flex items-center justify-center my-sm">
-                  <Image
-                    src={dashboard.chevronDown}
-                    alt="Arrow down icon"
-                    width={8}
-                    height={9}
-                    className="mx-auto my-2"
-                  />
-                </div>
-              </div>
-
-              <div className="">
-                <h3 className="text-[#A5A5A5] font-normal text-xs">To:</h3>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1 p-1 bg-[#202020] rounded-[20px]">
-                    <div>
-                      <RemoteImage
-                        src={output.token.logoURI}
-                        alt={output.token.symbol}
-                        width={24}
-                        height={24}
-                      />
-                    </div>
-                    <p className="text-xs font-semibold">
-                      {output.token.symbol}
-                    </p>
-                  </div>
-                  <SummaryPriceAndEstimate value={output} />
-                </div>
-              </div>
-            </div>
-          ) : null}
 
           {/* If transaction is successful */}
           {isSuccess ? (
@@ -185,12 +118,40 @@ const ReviewModal = (props: IProps) => {
               explorerLink={`${chainExplorer}/tx/${hash}`}
             />
           ) : (
-            <div className="bg-[#121212] px-3 py-4 rounded-b-[16px] mt-[2px] flex flex-col justify-between gap-8">
-              <PriceSummary quoteData={quoteData} />
+            <div className=" py-0 rounded-b-[16px] mt-[2px] flex flex-col justify-between gap-8 flex-1">
+              <div className="px-4 ">
+                <div className="flex items-center gap-2 mb-3">
+                  <p className="text-[#878787] font-semibold text-ideal">
+                    You’re about to Swap{" "}
+                    <span className="text-white">{input.token.symbol}</span> for{" "}
+                    <span className="text-white">{output.token.symbol}</span>
+                  </p>
+                  <div className="flex items-center">
+                    <div>
+                      <RemoteImage
+                        src={input.token.logoURI}
+                        width={24}
+                        height={24}
+                        alt={input.token.name}
+                      />
+                    </div>
+                    <div className="-ml-3.5">
+                      <RemoteImage
+                        src={output.token.logoURI}
+                        width={24}
+                        height={24}
+                        alt={output.token.name}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <PriceSummary quoteData={quoteData} />
+              </div>
 
               <button
                 className={cn(
-                  "w-full h-10 text-xs font-medium bg-[#FF3B10] rounded-[6px]",
+                  "w-full h-16 text-base text-[#0C0C0C] font-semibold bg-[#FF3B10] !backdrop-opacity-10 rounded-[24px]",
                   {
                     "opacity-90 cursor-not-allowed":
                       isPending || isPendingTransaction,

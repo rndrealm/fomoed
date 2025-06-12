@@ -22,16 +22,24 @@ import heat from "../../../../public/media/images/dashboard/heat.png";
 import simple from "../../../../public/media/images/dashboard/simple.png";
 import successCheck from "../../../../public/media/images/dashboard/success-check.png";
 import settings from "../../../../public/media/images/dashboard/settings.svg";
+import settingsV2 from "../../../../public/media/images/dashboard/settings-v2.svg";
+import settingsV3 from "../../../../public/media/images/dashboard/settings-v3.svg";
+import refresh from "../../../../public/media/images/dashboard/refresh.svg";
 import left from "../../../../public/media/images/dashboard/left.svg";
 import right from "../../../../public/media/images/dashboard/right.svg";
 import swap from "../../../../public/media/images/dashboard/swap.svg";
+import swapGrey from "../../../../public/media/images/dashboard/swap-grey.svg";
 import x from "../../../../public/media/images/dashboard/x.svg";
 import search from "../../../../public/media/images/dashboard/search.svg";
 import eth from "../../../../public/media/images/dashboard/eth.svg";
 import check from "../../../../public/media/images/dashboard/check.svg";
+import checkV2 from "../../../../public/media/images/dashboard/check-v2.svg";
 import token from "../../../../public/media/images/dashboard/token.svg";
 import explore from "../../../../public/media/images/dashboard/explore.svg";
 import chevronDown from "../../../../public/media/images/dashboard/chevron-down.svg";
+import plus from "../../../../public/media/images/dashboard/plus.svg";
+import disconnect from "../../../../public/media/images/dashboard/disconnect.svg";
+import info from "../../../../public/media/images/dashboard/info.svg";
 
 const dashboard = {
   layoutPlaceholder,
@@ -55,10 +63,12 @@ const dashboard = {
   left,
   right,
   swap,
+  swapGrey,
   x,
   search,
   eth,
   check,
+  checkV2,
   token,
   chevronDown,
   successCheck,
@@ -68,6 +78,12 @@ const dashboard = {
   bitcoinDominance,
   coinStats,
   summary,
+  settingsV2,
+  settingsV3,
+  plus,
+  refresh,
+  disconnect,
+  info,
 };
 
 export default dashboard;

@@ -21,7 +21,7 @@ const NetworkSelect = (props: IProps) => {
   return (
     <div className="relative">
       <button
-        className="flex items-center border-[#121212] bg-[#080808] rounded-[20px]  px-2"
+        className="flex items-center gap-1 rounded-[20px]  px-2"
         onClick={toggle}
       >
         {networkValue ? (
@@ -29,8 +29,8 @@ const NetworkSelect = (props: IProps) => {
             <Image
               src={networkValue.icon || dashboard.token}
               alt={networkValue.name}
-              width={16}
-              height={16}
+              width={24}
+              height={24}
               className="rounded-full "
             />
           </div>
@@ -38,51 +38,53 @@ const NetworkSelect = (props: IProps) => {
           <p className="text-[#A6A6A6] font-medium text-xxs">Network</p>
         )}
         <ChevronDown
-          className={cn("w-3 transition-transform", {
+          className={cn("w-3 transition-transform text-[#878787]", {
             "rotate-180": isOpen,
           })}
         />
       </button>
       {isOpen ? (
         <>
-          <div
-            className="fixed inset-0 bg-black opacity-0 z-[100]"
-            onClick={toggle}
-          ></div>
-          <div className="absolute top-7 right-0 max-h-[200px] w-[110px] overflow-y-auto bg-[#080808] px-2 py-4 z-[101] flex flex-col gap-4 scrollbar">
-            {networkList?.map((network, i) => (
-              <button
-                key={i}
-                className="flex items-center justify-between "
-                onClick={() => {
-                  updateNetworkValue(network);
-                  setIsOpen(false);
-                }}
-              >
-                <div className="flex items-center gap-1">
-                  <div>
-                    <RemoteImage
-                      src={network.icon || dashboard.token}
-                      alt={network.name}
-                      width={16}
-                      height={16}
-                      className="rounded-full"
-                    />
+          <div className="fixed inset-0  z-[100]" onClick={toggle}></div>
+          <div className="absolute top-7 right-0 max-h-[200px] w-[166px] overflow-y-auto bg-[#090909] border border-[#191919] rounded-[10px] p-[0.875rem] z-[101]  scrollbar">
+            <h1 className="text-[#373737] text-ideal font-semibold py-[0.35rem]">
+              Select Network
+            </h1>
+            <div className="flex flex-col gap-2 mt-2">
+              {networkList?.map((network, i) => (
+                <button
+                  key={i}
+                  className="flex items-center justify-between py-[0.4375rem]"
+                  onClick={() => {
+                    updateNetworkValue(network);
+                    setIsOpen(false);
+                  }}
+                >
+                  <div className="flex items-center gap-2 text-[#C3C3C3]">
+                    <div>
+                      <RemoteImage
+                        src={network.icon || dashboard.token}
+                        alt={network.name}
+                        width={20}
+                        height={20}
+                        className="rounded-full"
+                      />
+                    </div>
+                    <p className="font-medium text-ideal">{network.name}</p>
                   </div>
-                  <p className="font-medium text-xxs">{network.name}</p>
-                </div>
-                {networkValue?.chainId === network.chainId ? (
-                  <div>
-                    <Image
-                      src={dashboard.check}
-                      alt="Selected icon"
-                      width={12}
-                      height={12}
-                    />
-                  </div>
-                ) : null}
-              </button>
-            ))}
+                  {networkValue?.chainId === network.chainId ? (
+                    <div>
+                      <Image
+                        src={dashboard.checkV2}
+                        alt="Selected icon"
+                        width={12}
+                        height={12}
+                      />
+                    </div>
+                  ) : null}
+                </button>
+              ))}
+            </div>
           </div>
         </>
       ) : null}

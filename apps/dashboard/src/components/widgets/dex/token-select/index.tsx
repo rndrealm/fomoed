@@ -14,7 +14,7 @@ import TokenList from "./token-list";
 import { useAccount } from "wagmi";
 import TokenTrigger from "./token-trigger";
 import NetworkSelect from "./network-select";
-import TokenListSummary from "./token-list-summary";
+import { swapFromTo } from "@/lib/utils";
 
 interface IProps {
   tokenData: {
@@ -31,21 +31,32 @@ interface IProps {
     value: SingleTokenType | ChainType | null
   ) => void;
   slug: "from" | "to";
+
+  currentNetwork: ChainType | null;
+  updateCurrentNetwork: (network: ChainType | null) => void;
 }
 
 const TokenSelect = (props: IProps) => {
-  const { tokenData, otherTokenData, updateSwapData, slug } = props;
-  const { data: networkList } = useFetchSupportedChains();
+  const {
+    tokenData,
+    otherTokenData,
+    updateSwapData,
+    slug,
+    currentNetwork,
+    updateCurrentNetwork,
+  } = props;
+
   const [isOpen, setIsOpen] = useState(false);
   const [networkValue, setNetworkValue] = useState<ChainType | null>(
-    tokenData.network
+    currentNetwork
   );
 
   const updateNetworkValue = (network: ChainType) => {
     setNetworkValue(network);
   };
   const updateTokenValue = (token: SingleTokenType) => {
-    updateSwapData(slug, "network", networkValue);
+    // updateSwapData(slug, "network", networkValue);
+    updateCurrentNetwork(networkValue);
 
     // Todo: improve the ux when the user selects the same token and network
     if (
@@ -54,9 +65,13 @@ const TokenSelect = (props: IProps) => {
     ) {
       setIsOpen(false);
       return;
-    } else {
-      updateSwapData(slug, "token", token);
     }
+
+    if (networkValue?.chainId !== currentNetwork?.chainId) {
+      updateSwapData(swapFromTo(slug), "token", null);
+    }
+
+    updateSwapData(slug, "token", token);
 
     setIsOpen(false);
   };
@@ -69,31 +84,6 @@ const TokenSelect = (props: IProps) => {
     address
   );
   const { data: searchTokenList } = useSearchTokenList(debouncedSearchValue);
-
-  // useEffect(() => {
-  //   if (tokenList && !tokenData.token) {
-  //     const selectedIndex = slug === "from" ? 0 : 1;
-  //     updateSwapData(
-  //       slug,
-  //       "token",
-  //       tokenList[networkValueWithFallback][selectedIndex]
-  //     );
-  //   }
-  // }, [
-  //   tokenList,
-  //   tokenData.token,
-  //   networkValueWithFallback,
-  //   updateSwapData,
-  //   slug,
-  // ]);
-
-  useEffect(() => {
-    if (networkList && !networkValue) {
-      updateNetworkValue(networkList[0]);
-      updateSwapData(slug, "network", networkList[0]);
-    }
-  }, [networkList, networkValue, updateSwapData, slug]);
-
   return (
     <Fragment>
       {/* Dropdown trigger */}
@@ -102,18 +92,20 @@ const TokenSelect = (props: IProps) => {
         {isOpen ? (
           // Dropdown content
           <motion.div
-            className="absolute top-0 left-0 w-full h-full bg-[#080808] p-3 rounded-[15px] flex flex-col"
+            className="absolute top-0 left-0 w-full h-full bg-[#111111]  py-8 px-3 rounded-[15px] flex flex-col z-[10]"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
           >
-            <div>
-              <div className="flex items-center justify-between">
-                <h1 className="font-semibold text-mid">Select Token</h1>
+            <div className="px-2">
+              <div className="flex items-center justify-between ">
+                <h1 className="text-base font-semibold">
+                  {slug === "from" ? "Send" : "Receive"}
+                </h1>
                 <button
-                  className="bg-[#121212] border border-[#141414] rounded-[6px] w-7 h-7 flex items-center justify-center"
+                  className="bg-[#1D1D1D] rounded-full w-6 h-6 flex items-center justify-center"
                   onClick={() => {
-                    setNetworkValue(tokenData.network);
+                    setNetworkValue(currentNetwork);
                     setIsOpen(false);
                   }}
                 >
@@ -121,7 +113,7 @@ const TokenSelect = (props: IProps) => {
                 </button>
               </div>
 
-              <div className="relative my-2 bg-[#121212] rounded-[8px]">
+              <div className="relative my-3  bg-[#161616] rounded-[10px]">
                 <div className="absolute left-3 top-[30%]">
                   <Image src={dashboard.search} alt="Search icon" />
                 </div>
@@ -130,7 +122,7 @@ const TokenSelect = (props: IProps) => {
                   placeholder="Search Token"
                   value={searchValue}
                   onChange={(e) => setSearchValue(e.target.value)}
-                  className="w-full h-10 pl-9 text-xs font-medium text-[#D4D4D4]"
+                  className="w-full h-11 pl-9 text-xs font-medium text-[#D4D4D4]"
                 />
                 <div className="absolute right-3 top-[20%]">
                   <NetworkSelect
@@ -142,7 +134,7 @@ const TokenSelect = (props: IProps) => {
             </div>
 
             {!!searchValue && searchTokenList ? (
-              <div className="pt-3 overflow-y-auto scrollbar">
+              <div className="pt-0 overflow-y-auto scrollbar">
                 {searchTokenList?.[networkValueWithFallback]?.length > 0 ? (
                   <>
                     <p className="text-left text-xs text-[#A5A5A5]">
@@ -172,14 +164,14 @@ const TokenSelect = (props: IProps) => {
                 )}
               </div>
             ) : (
-              <div className="bg-[#121212] rounded-[6px] p-sm  overflow-y-auto scrollbar mt-3">
-                <TokenListSummary
+              <div className="px-1 overflow-y-auto scrollbar">
+                {/* <TokenListSummary
                   value={tokenData.token}
                   list={
                     tokenList?.[networkValueWithFallback]?.slice(0, 4) || []
                   }
                   updateTokenValue={updateTokenValue}
-                />
+                /> */}
                 <TokenList
                   value={tokenData.token}
                   list={tokenList?.[networkValueWithFallback] || []}
