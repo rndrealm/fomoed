@@ -17,7 +17,11 @@ let currentAbortController: AbortController | null = null;
 export const loadSettingsFromApiAtom = atom(
   null,
   (_, set, newSetting: IDashboardData["settings"]) => {
-    set(settingAtom, newSetting);
+    const formatSettings = {
+      ...newSetting,
+      auto_save: newSetting.auto_save ?? true,
+    };
+    set(settingAtom, formatSettings);
   }
 );
 
@@ -32,8 +36,11 @@ export const updateSettingAtom = atom(
     // Create a new controller for this request
     currentAbortController = new AbortController();
     const signal = currentAbortController.signal;
-
-    set(settingAtom, newSetting);
+    const formatSettings = {
+      ...newSetting,
+      auto_save: newSetting.auto_save ?? true,
+    };
+    set(settingAtom, formatSettings);
 
     console.log(newSetting);
 

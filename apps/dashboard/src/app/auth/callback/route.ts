@@ -33,7 +33,7 @@ async function linkAuthIdToEmail(email: string, authId: string) {
   }
 }
 
-async function getUserByEmail(email: string): Promise<IUser | null> {
+async function getUserByEmail(email: string) {
   const supabase = await createSupabaseServerComponentClient();
 
   const user = await supabase

@@ -100,7 +100,10 @@ export const getDashboardData = async () => {
   // If user has tabs, return them
   if (existingTabs && existingTabs.length > 0) {
     return {
-      tabs: existingTabs,
+      tabs: existingTabs.map((tb) => ({
+        ...tb,
+        name: tb.name || "",
+      })),
       layouts: layoutData,
       settings: returnSettings,
       // location: res,
@@ -138,7 +141,7 @@ export const getDashboardData = async () => {
   }
 
   return {
-    tabs: [newTab],
+    tabs: [{ ...newTab, name: newTab.name || "" }],
     layouts: layoutData,
     settings: returnSettings,
     // location: res,
