@@ -23,7 +23,7 @@ export default function Home() {
   return (
     <div className="grid place-items-center bg-[#0D0D0D] min-h-screen">
       <div className="flex flex-col items-center gap-4">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
         <span>Loading...</span>
       </div>
     </div>

@@ -22,6 +22,7 @@ import { supportedExchangePairsToOptions } from "@/lib/utils";
 import { ExchangePairOption } from "@/charts/types";
 import { formatLiquidationData, formatMergetLiquidMapData } from "./helpers";
 import axios from "axios";
+import { fetchFearAndGreed } from "./actions";
 
 export const useReadCfgiData = (
   token?: string,
@@ -440,4 +441,21 @@ export const useFetchFearAndGreed = (token: string, token_slug?: string) => {
   });
 
   return response;
+};
+
+export const useReadFearAndGridFromDb = (token: string) => {
+  const hash = ["read-fear-and-grid-from-db", token];
+  const { data, isPending, error, isSuccess } = useQuery({
+    queryKey: hash,
+    queryFn: async () => {
+      const response = await fetchFearAndGreed(token);
+      return response;
+    },
+  });
+  return {
+    data: data,
+    isPending,
+    isSuccess,
+    error,
+  };
 };
