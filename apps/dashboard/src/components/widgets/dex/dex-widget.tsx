@@ -117,8 +117,8 @@ const DexWidget = () => {
 
   const parsedBalance = tokenBalance
     ? parseFloat(
-        removeDecimal(tokenBalance.balance, tokenBalance.decimals)
-      ).toFixed(3)
+      removeDecimal(tokenBalance.balance, tokenBalance.decimals)
+    ).toFixed(3)
     : "0.00";
 
   const { data, isLoading, isSuccess, isError } = useGetQuote({
@@ -150,7 +150,7 @@ const DexWidget = () => {
   };
 
   return (
-    <div className="text-white border border-[#1E1E1E] rounded-2xl pt-3 px-1 font-inter font-semibold bg-[#0C0C0C] h-full relative">
+    <div className="text-white border border-[#1E1E1E] rounded-2xl pt-1 px-1 font-inter font-semibold bg-[#0C0C0C] h-full relative">
       {data && data.manualRoutes && data.manualRoutes.length > 0 ? (
         <ReviewModal
           isOpen={isReviewModalOpen}
@@ -305,9 +305,9 @@ const DexWidget = () => {
             ) : null}
             {/* Wallet has been connected and quote has been fetched successfully */}
             {isConnected &&
-            isSuccess &&
-            data?.manualRoutes &&
-            data?.manualRoutes.length > 0 ? (
+              isSuccess &&
+              data?.manualRoutes &&
+              data?.manualRoutes.length > 0 ? (
               <InsufficientChecker
                 toggleReviewModal={toggleReviewModal}
                 fromSymbol={data?.input?.token?.symbol}
@@ -319,7 +319,7 @@ const DexWidget = () => {
 
             {/* Wallet has been connected but there is an error or no quote found */}
             {(isConnected && isError) ||
-            (isConnected && data?.manualRoutes.length === 0) ? (
+              (isConnected && data?.manualRoutes.length === 0) ? (
               <button className="w-full h-16 text-base text-[#0C0C0C] font-semibold bg-white !backdrop-opacity-10 rounded-[24px]">
                 No Quote Found
               </button>
