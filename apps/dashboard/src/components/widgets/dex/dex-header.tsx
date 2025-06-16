@@ -7,8 +7,8 @@ import React from "react";
 const DexHeader = () => {
   return (
     <div>
-      <div className="flex justify-center">
-        <div className="cursor-grab w-[36px] h-[5px] bg-[#444] rounded-[2px]"></div>
+      <div className="cursor-grab flex justify-center pt-4 pb-1">
+        <div className="w-[36px] h-[5px] bg-[#444] rounded-[2px]"></div>
       </div>
       <div className="flex items-center justify-between px-3 mb-4">
         <div className="flex items-center gap-4">

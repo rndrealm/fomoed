@@ -1,3 +1,4 @@
+"use client";
 import { getGridPosition } from "@/charts/helpers";
 import dashboard from "@/lib/assets/dashboard";
 import {

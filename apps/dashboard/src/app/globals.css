@@ -463,3 +463,26 @@ input[type="number"] {
 .scrollbar-small-dark::-webkit-scrollbar-track {
   background-color: #1a1a1a;
 }
+
+.app_news_widget {
+  /* background: radial-gradient(
+    162.33% 162.33% at 85.58% -30.17%,
+    rgb(0, 0, 0) 48.54436814785004%,
+    rgb(0, 89, 246) 61.168646812438965%,
+    rgb(0, 85, 233) 63.300180435180664%,
+    rgb(0, 79, 217) 76.90951824188232%,
+    rgb(0, 75, 205) 88.87878656387329%,
+    rgb(0, 55, 151) 100%
+  ); */
+  background-image: url(../../public/media/images/dashboard/news-bg.png);
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.app_dashboard_content {
+  background-image: url(../../public/media/images/dashboard/dashboard-bg.png);
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}

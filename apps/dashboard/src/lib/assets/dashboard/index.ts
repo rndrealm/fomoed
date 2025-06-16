@@ -1,6 +1,7 @@
 import layoutPlaceholder from "../../../../public/media/images/dashboard/layout-placeholder.png";
 import layout from "../../../../public/media/images/dashboard/layout.png";
 import logo from "../../../../public/media/images/logo.svg";
+import logoMobile from "../../../../public/media/images/logo-mobile.png";
 import cfgi from "../../../../public/media/images/dashboard/cfgi.png";
 import tokenHistory from "../../../../public/media/images/dashboard/token-history.png";
 import orderBook from "../../../../public/media/images/dashboard/order-book.png";
@@ -84,6 +85,7 @@ const dashboard = {
   refresh,
   disconnect,
   info,
+  logoMobile,
 };
 
 export default dashboard;

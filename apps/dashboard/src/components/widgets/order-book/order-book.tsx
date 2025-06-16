@@ -167,10 +167,10 @@ export default function OrderBook(props: IProps) {
   }, [widget?.props?.token]);
 
   return (
-    <div className="flex flex-col gap-2 p-4 rounded-2xl bg-[#000] relative overflow-hidden h-full">
+    <div className="flex flex-col gap-2 p-4 pt-0 rounded-2xl bg-[#000] relative overflow-hidden h-full">
       <div className="flex flex-col gap-1">
-        <div className="flex justify-center">
-          <div className="cursor-grab w-[36px] h-[5px] bg-[#444] rounded-[2px]"></div>
+        <div className="cursor-grab flex justify-center pt-4 pb-1">
+          <div className="w-[36px] h-[5px] bg-[#444] rounded-[2px]"></div>
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -181,7 +181,7 @@ export default function OrderBook(props: IProps) {
           </div>
 
           <div className="flex items-center gap-2">
-            <button type="button" onClick={() => {}}>
+            <button type="button" onClick={() => { }}>
               <Question />
             </button>
             <OptionsDropdown widget={widget} />
