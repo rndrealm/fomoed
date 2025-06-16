@@ -38,6 +38,13 @@ function organizeTokenData(data: any[]) {
 //! REQUEST HANDLER FOR /api/scrape-cfgi
 export async function GET(request: Request) {
   try {
+    const authHeader = request.headers.get("authorization");
+    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+      return new Response("Unauthorized", {
+        status: 401,
+      });
+    }
+
     // API key is safely stored on server
     const apiKey = process.env.CFGI_API_KEY;
 
