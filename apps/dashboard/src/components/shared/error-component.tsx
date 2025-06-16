@@ -24,7 +24,7 @@ const ErrorComponent = ({ content }: { content: ErrorContent }) => {
             <DotsBackground />
 
             <div className="absolute z-[1] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-              <h1 className="font-inter !font-[400] leading-[1.35] text-[200px] text-[#212121] pointer-events-auto">
+              <h1 className="font-inter font-medium leading-[1.35] text-[200px] text-[#212121] pointer-events-auto">
                 {content.error}
               </h1>
             </div>
