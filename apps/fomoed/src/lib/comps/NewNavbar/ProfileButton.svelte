@@ -11,7 +11,16 @@
 
 	let open = $state(false);
 
-	let imgSrc = $state(`${userService.authUser?.user_metadata.avatar_url}`);
+	// Initialize imgSrc as an empty string
+	let imgSrc = $state('');
+
+	// When userService.authUser updates, update imgSrc.
+	$effect(() => {
+		const avatar = userService.authUser?.user_metadata.avatar_url;
+		if (avatar) {
+			imgSrc = `${avatar}`;
+		}
+	});
 
 	function handleError() {
 		imgSrc = `https://ui-avatars.com/api/?background=random&name=${userService.authUser?.user_metadata.name}`;
@@ -25,12 +34,12 @@
 				<div
 					class="border border-[#2B2B2B] bg-[#110F0E] rounded-full size-full grid place-items-center"
 				>
-					{#if userService.authUser}
+					{#if imgSrc}
 						<img
 							src={imgSrc}
-							onerror={handleError}
 							alt=""
 							class="object-cover w-full rounded-full aspect-square"
+							onerror={handleError}
 						/>
 						<!-- <ProfileIcon /> -->
 					{:else}
