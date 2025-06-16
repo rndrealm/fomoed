@@ -4,7 +4,7 @@ import Link from "next/link";
 import NavbarProfileButton from "../ui/NavbarProfileButton";
 import Image from "next/image";
 import dashboard from "@/lib/assets/dashboard";
-import { Dashboard, Misc, News, Notification } from "../icons/icons";
+import { Dashboard, Hamburger, Misc, News, Notification } from "../icons/icons";
 import { AppRoutes } from "@/lib/routes";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -60,10 +60,15 @@ export const Navbar = (props: IProps) => {
 
   return (
     <RenderIf condition={!utils.isFullScreen}>
-      <nav className="bg-[#0C0C0C] border-b border-[#161616] py-4 px-4 sm:px-10 flex items-center">
+      <nav className="bg-[#0C0C0C] border-b border-[#161616] py-3 px-4 md:px-10 md:py-4 flex items-center">
         <div className="flex items-center justify-between w-full mx-auto">
-          {/* Logo section */}
-          <div className="flex items-center gap-10">
+          <div className="w-[24px] h-[24px] md:hidden">
+            <Link href="/">
+              <Image src={dashboard.logoMobile} alt="logo" />
+            </Link>
+          </div>
+
+          <div className="hidden md:flex items-center gap-10">
             <Link href="/">
               <Image src={dashboard.logo} alt="logo" />
             </Link>
@@ -84,25 +89,23 @@ export const Navbar = (props: IProps) => {
             </div>
           </div>
 
-          {/* Navigation buttons */}
-          {/* <div className="flex items-center space-x-4">
-          <DashboardButton />
-          <NavbarProfileButton />
-        </div> */}
-
           <RenderIf condition={!isNews}>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-[10px]">
               {/* <div className="w-[32px] h-[32px] border border-[#0b0b0b] rounded-md flex items-center justify-center">
               <Misc />
             </div> */}
               {/* <div className="w-[32px] h-[32px] border border-[#444] rounded-md flex items-center justify-center">
               <Notification />
             </div> */}
-              <div className="w-[32px] h-[32px] overflow-hidden rounded-md flex items-center justify-center cursor-pointer">
+              <div className="w-[24px] h-[24px] md:w-[32px] md:h-[32px] overflow-hidden rounded-md flex items-center justify-center cursor-pointer">
                 <NavbarProfileButton>
                   <ProfileIcon />
                 </NavbarProfileButton>
               </div>
+
+              <button type="button" className="w-[24px] h-[24px] md:hidden">
+                <Hamburger />
+              </button>
             </div>
           </RenderIf>
         </div>
