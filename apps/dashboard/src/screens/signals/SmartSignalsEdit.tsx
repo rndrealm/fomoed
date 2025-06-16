@@ -50,7 +50,12 @@ const SmartSignalsEdit = () => {
   }, [data]);
 
   const handleSave = async () => {
-    const actions: object[] = [];
+    const actions: Array<{
+      type: string;
+      subject?: string;
+      content?: string;
+      description?: string;
+    }> = [];
 
     if (signalActions.email)
       actions.push({
@@ -68,7 +73,7 @@ const SmartSignalsEdit = () => {
     if (!condition || !user?.id) return;
 
     const payload = {
-      id: signalId as string,
+      id: Number(signalId),
       name: signalName,
       description: signalDescription,
       condition: JSON.stringify(condition),
