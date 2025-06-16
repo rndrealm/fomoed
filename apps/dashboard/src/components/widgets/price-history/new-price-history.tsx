@@ -124,7 +124,7 @@ export default function NewPriceHistory(props: IProps) {
 
   return (
     <Fragment>
-      <div className="flex flex-col gap-2 bg-[#000] pt-6 pb-4 rounded-2xl h-full">
+      <div className="flex flex-col gap-2 bg-[#000] pt-6 pb-4 rounded-2xl h-full relative">
         <div className="flex flex-col gap-1">
           <div className="flex justify-center">
             <div className="cursor-grab w-[36px] h-[5px] bg-[#444] rounded-[2px]"></div>
@@ -212,7 +212,10 @@ export default function NewPriceHistory(props: IProps) {
             period={widget?.props?.period}
           />
         </div>
+
+        {/* <div className="absolute bottom-[16px] right-[16px] w-[28px] h-[28px] bg-[red] rounded-md cursor-pointer z-[9]"></div> */}
       </div>
+      {/* <div className="fixed top-[0] bottom-[0] left-[0] right-[0] bg-[blue] z-[999]"></div> */}
     </Fragment>
   );
 }

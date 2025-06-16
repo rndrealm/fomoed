@@ -1,3 +1,4 @@
+"use client";
 import React, { Fragment, useState } from "react";
 import { AddWidget } from "./add-widget";
 import { QuickWidgets } from "./quick-widgets";
