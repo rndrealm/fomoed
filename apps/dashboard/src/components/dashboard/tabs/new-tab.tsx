@@ -157,7 +157,7 @@ export function NewTabs() {
 
   return (
     <Fragment>
-      <div className="flex items-center flex-1 w-full gap-2 overflow-hidden">
+      <div className="hidden md:flex items-center flex-1 w-full gap-2 overflow-hidden">
         <button
           type="button"
           className="h-[32px] w-[32px] flex items-center justify-center rounded-md border border-[#121212]"

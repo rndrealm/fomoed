@@ -34,7 +34,7 @@ export function DashboardWidgets(props: IProps) {
         className="layout"
         // layouts={layout}
         breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
-        cols={{ lg: 8, md: 8, sm: 8, xs: 4, xxs: 2 }}
+        cols={{ lg: 8, md: 6, sm: 6, xs: 2, xxs: 2 }}
         draggableHandle=".cursor-grab"
         rowHeight={220}
         isResizable={false}
