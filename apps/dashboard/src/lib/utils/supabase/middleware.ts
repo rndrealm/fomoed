@@ -51,6 +51,17 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  //TODO:  move this to indifidual API routes
+  if (
+    !user &&
+    request.nextUrl.pathname.startsWith("/api") &&
+    !request.nextUrl.pathname.includes("/news") &&
+    !request.nextUrl.pathname.includes("/scrape-cfgi") &&
+    !request.nextUrl.pathname.includes("/newslab")
+  ) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   // IMPORTANT: You *must* return the supabaseResponse object as it is.
   // If you're creating a new response object with NextResponse.next() make sure to:
   // 1. Pass the request in it, like so:
