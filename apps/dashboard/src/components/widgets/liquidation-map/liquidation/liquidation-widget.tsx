@@ -96,7 +96,7 @@ export default function LiquidationWidget(props: IProps) {
         </div>
         <div
           className={cn(
-            "flex flex-col justify-center w-full h-full rounded-sm"
+            "flex flex-col justify-center w-full h-full rounded-sm relative"
           )}
         >
           <div className="py-4">
