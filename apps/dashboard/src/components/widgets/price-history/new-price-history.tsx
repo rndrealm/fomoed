@@ -5,6 +5,7 @@ import {
   CandleStick,
   Delete,
   Ellipsis,
+  FullScreen,
   Learn,
   LineChart,
 } from "@/components/icons/icons";
@@ -32,6 +33,8 @@ import { ConfirmationModal } from "@/components/modals";
 import { chartsMap } from "@/lib/static";
 import TestChart from "./test-chart";
 import { geoLocationAtom } from "@/lib/atoms/geoLocation";
+import { ModalContainer } from "@/components/shared";
+import { TradingViewPriceHistory } from "./price-history";
 
 interface IOptionsDropdown {
   widget: LayoutType["widgets"][0];
@@ -114,6 +117,7 @@ export default function NewPriceHistory(props: IProps) {
   const { widget } = props;
 
   const [isCandleStick, setIsCandleStick] = useState(false);
+  const [isFullScreen, setIsFullscreen] = useState(false);
 
   const location = useAtomValue(geoLocationAtom);
 
@@ -213,9 +217,38 @@ export default function NewPriceHistory(props: IProps) {
           />
         </div>
 
-        {/* <div className="absolute bottom-[16px] right-[16px] w-[28px] h-[28px] bg-[red] rounded-md cursor-pointer z-[9]"></div> */}
+        <div
+          className="absolute bottom-[16px] right-[9px] w-[28px] h-[28px] rounded-md z-[9] border border-[#1c1c1c]"
+          style={{
+            background:
+              "linear-gradient(180deg, #1b1b1b 0%, rgba(0, 0, 0, 0.38) 72.15%)",
+            backdropFilter: "blur(7px)",
+          }}
+        >
+          <button
+            className="w-full h-full flex justify-center items-center"
+            onClick={() => {
+              setIsFullscreen(true);
+            }}
+          >
+            <FullScreen />
+          </button>
+        </div>
       </div>
       {/* <div className="fixed top-[0] bottom-[0] left-[0] right-[0] bg-[blue] z-[999]"></div> */}
+
+      <ModalContainer
+        open={isFullScreen}
+        handleClose={() => {
+          setIsFullscreen(false);
+        }}
+        className="!max-w-[90%] h-full"
+      >
+        <TradingViewPriceHistory
+          token={widget.props?.token || ""}
+          duration={widget?.props?.period}
+        />
+      </ModalContainer>
     </Fragment>
   );
 }
