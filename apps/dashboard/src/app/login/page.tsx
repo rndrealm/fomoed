@@ -15,7 +15,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-md bg-gray-800 border-gray-700">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold tracking-tight text-white">
-            Sign in!
+            Sign in
           </CardTitle>
           <CardDescription className="text-gray-400">
             Sign in to your account to continue
