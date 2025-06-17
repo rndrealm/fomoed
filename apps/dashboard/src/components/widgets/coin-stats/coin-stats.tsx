@@ -62,13 +62,13 @@ export default function CoinStats(props: IProps) {
   return (
     <div className="flex flex-col gap-3 p-4 pt-0 rounded-2xl bg-[#000] relative overflow-hidden h-full justify-between">
       <div className="flex flex-col gap-1">
-        <div className="cursor-grab flex justify-center pt-4 pb-1">
+        <div className="flex justify-center pt-4 pb-1 cursor-grab">
           <div className="w-[36px] h-[5px] bg-[#444] rounded-[2px]"></div>
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <CoinStatsIcon />
-            <h4 className="text-base text-[#878787] leading-[1.35] font-semibold">
+            <h4 className="text-base text-[#878787] leading-[1.35] font-semibold select-none">
               COIN STATS
             </h4>
           </div>
@@ -105,9 +105,9 @@ export default function CoinStats(props: IProps) {
       </div>
 
       <div className="flex flex-col gap-6 pb-4">
-        <div className="flex justify-center items-center gap-8">
+        <div className="flex items-center justify-center gap-8">
           <div className="flex flex-col items-center">
-            <h3 className="text-sm text-[#878787] leading-[1.35] font-medium">
+            <h3 className="text-sm text-[#878787] leading-[1.35] font-medium select-none">
               Rank
             </h3>
             <h3 className="text-xl text-white leading-[1.35] font-bold">
@@ -116,11 +116,11 @@ export default function CoinStats(props: IProps) {
           </div>
 
           <div className="flex flex-col items-center">
-            <h3 className="text-sm text-[#878787] leading-[1.35] font-medium">
+            <h3 className="text-sm text-[#878787] leading-[1.35] font-medium select-none">
               Market Cap
             </h3>
             <div className="flex items-center">
-              <h3 className="text-xl text-white leading-[1.35] font-bold">
+              <h3 className="text-xl text-white leading-[1.35] font-bold select-none">
                 {formatMarketCapNumber(coinStats?.marketCap || "")}
 
                 {/* $2.61T */}
@@ -135,8 +135,8 @@ export default function CoinStats(props: IProps) {
 
         <div className="flex flex-col gap-5">
           <div className="flex flex-col gap-3">
-            <div className="flex justify-center relative">
-              <div className="flex justify-center gap-1 bg-[#000] px-1 relative z-2">
+            <div className="relative flex justify-center">
+              <div className="flex justify-center gap-1 bg-[#000] px-1 relative z-2 select-none">
                 <Link />
                 <p className="text-sm text-[#878787] leading-[1.35] font-medium">
                   Links
@@ -161,9 +161,9 @@ export default function CoinStats(props: IProps) {
           </div>
 
           <div className="flex flex-col gap-3">
-            <div className="flex justify-between items-center">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <p className="font-medium text-sm text-[#878787] leading-[1.35]">
+                <p className="font-medium text-sm text-[#878787] leading-[1.35] select-none">
                   {/* 24h Volume */}
                   Volume
                 </p>
@@ -175,9 +175,9 @@ export default function CoinStats(props: IProps) {
               </p>
             </div>
 
-            <div className="flex justify-between items-center">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <p className="font-medium text-sm text-[#878787] leading-[1.35]">
+                <p className="font-medium text-sm text-[#878787] leading-[1.35] select-none">
                   FDV
                 </p>
                 <Info />
@@ -188,9 +188,9 @@ export default function CoinStats(props: IProps) {
               </p>
             </div>
 
-            <div className="flex justify-between items-center">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <p className="font-medium text-sm text-[#878787] leading-[1.35]">
+                <p className="font-medium text-sm text-[#878787] leading-[1.35] select-none">
                   Circulating Supply
                 </p>
                 <Info />
@@ -201,9 +201,9 @@ export default function CoinStats(props: IProps) {
               </p>
             </div>
 
-            <div className="flex justify-between items-center">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <p className="font-medium text-sm text-[#878787] leading-[1.35]">
+                <p className="font-medium text-sm text-[#878787] leading-[1.35] select-none">
                   Total Supply
                 </p>
                 <Info />

@@ -54,7 +54,7 @@ export default function SimpleCfgiWidget(props: IProps) {
         <div className="grid items-center w-full grid-cols-3">
           <WidgetHeader widget={widget} />
         </div>
-        <div className="flex flex-col justify-center w-full h-full rounded-sm ">
+        <div className="relative flex flex-col justify-center w-full h-full rounded-sm">
           <div className="py-4 ">
             {coinData ? (
               <div className="flex items-center justify-between">

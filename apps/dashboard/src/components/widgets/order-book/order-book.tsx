@@ -51,12 +51,12 @@ function OrderBookSection(props: IOrderBookSection) {
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex justify-between items-center">
-        <p className="text-[#878787] text-sm font-semibold leading-[1.35]">
+      <div className="flex items-center justify-between">
+        <p className="text-[#878787] text-sm font-semibold leading-[1.35] select-none">
           Price (USDT)
         </p>
 
-        <p className="text-[#878787] text-sm font-semibold leading-[1.35]">
+        <p className="text-[#878787] text-sm font-semibold leading-[1.35] select-none">
           Amount ({token})
         </p>
       </div>
@@ -169,19 +169,19 @@ export default function OrderBook(props: IProps) {
   return (
     <div className="flex flex-col gap-2 p-4 pt-0 rounded-2xl bg-[#000] relative overflow-hidden h-full">
       <div className="flex flex-col gap-1">
-        <div className="cursor-grab flex justify-center pt-4 pb-1">
+        <div className="flex justify-center pt-4 pb-1 cursor-grab">
           <div className="w-[36px] h-[5px] bg-[#444] rounded-[2px]"></div>
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <CoinStats />
-            <h4 className="text-base text-[#878787] leading-[1.35] font-semibold">
+            <h4 className="text-base text-[#878787] leading-[1.35] font-semibold select-none">
               ORDER BOOK
             </h4>
           </div>
 
           <div className="flex items-center gap-2">
-            <button type="button" onClick={() => { }}>
+            <button type="button" onClick={() => {}}>
               <Question />
             </button>
             <OptionsDropdown widget={widget} />
@@ -207,7 +207,7 @@ export default function OrderBook(props: IProps) {
         />
       </div>
 
-      <div className="px-4 flex-1 flex flex-col justify-between">
+      <div className="flex flex-col justify-between flex-1 px-4">
         <OrderBookSection data={sales} token={widget?.props?.token} />
         <div className="flex flex-col items-center justify-center py-[5px] px-[10px]">
           <p className="text-[#FF8970] font-semibold text-base leading-[1.35]">
