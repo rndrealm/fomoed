@@ -71,7 +71,7 @@ export default function CoinDropdown(props: IProps) {
                 </RenderIf>
               </div>
             </div>
-            <p className="text-[13px] font-medium text-[#c3c3c3]">
+            <p className="text-[13px] font-medium text-[#c3c3c3] select-none">
               {activeCoin?.symbol}
             </p>
           </div>
@@ -102,7 +102,7 @@ export default function CoinDropdown(props: IProps) {
           </div>
         </div>
 
-        <div className="flex flex-col gap-2 flex-1 overflow-auto">
+        <div className="flex flex-col flex-1 gap-2 overflow-auto">
           {filteredCoins.map((item, index) => (
             <button
               key={index}
