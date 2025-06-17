@@ -1,4 +1,5 @@
 import { LayoutType } from "@/lib/atoms/layoutAtom";
+import { Json } from "@/lib/database/supabase";
 import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
 
 export const createLayoutAndAttachToTabAction = async ({
@@ -35,6 +36,7 @@ export const createLayoutAndAttachToTabAction = async ({
   // Save the widget with the new layout ID
   const widgetToSave = {
     ...widgetData,
+    meta: widgetData.meta as unknown as Json,
     layout_id: savedLayout.id,
     user_id: user.id,
   };
