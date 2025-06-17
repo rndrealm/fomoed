@@ -21,22 +21,25 @@ export const useSignalNotifications = () => {
       const supabase = createSupabaseBrowserClient();
       const { data, error } = await supabase
         .from("notifications")
-        .select(`
+        .select(
+          `
           *,
           smart_signals:smart_signal_id (
             name
           )
-        `)
-        .eq("user_id", userData?.user_id)
+        `
+        )
+        .eq("user_id", userData!.user_id)
         .order("created_at", { ascending: false });
 
       if (error) {
         throw new Error("Failed to fetch notifications");
       }
 
-      return (data || []).map(notification => ({
+      return (data || []).map((notification) => ({
         ...notification,
-        signal_name: notification.smart_signals?.name || 'Unnamed Signal'
+        read: notification.read ?? false,
+        signal_name: notification.smart_signals?.name || "Unnamed Signal",
       }));
     },
     enabled: !!userData?.user_id,
@@ -49,18 +52,17 @@ export const useMarkNotificationAsRead = () => {
 
   return useMutation({
     mutationFn: async (notificationId: string) => {
-      const { error } = await supabase.rpc('mark_notification_as_read', {
-        notification_id: notificationId
+      const { error } = await supabase.rpc("mark_notification_as_read", {
+        notification_id: notificationId,
       });
 
       if (error) {
-        throw new Error('Failed to mark notification as read');
+        throw new Error("Failed to mark notification as read");
       }
     },
     onSuccess: () => {
       // Invalidate and refetch notifications
       queryClient.invalidateQueries({ queryKey: ["signal-notifications"] });
-    }
+    },
   });
 };
-

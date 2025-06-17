@@ -7,6 +7,7 @@ import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
 import {
   useSignalNotifications,
   useMarkNotificationAsRead,
+  NotificationRow,
 } from "@/services/queries/signal-notifications";
 import SignalNotificationIcon from "../icons/SignalNotificationIcon";
 import dayjs from "dayjs";
@@ -16,8 +17,13 @@ dayjs.extend(relativeTime);
 
 function SignalNotificationsPopover() {
   const [activeTab, setActiveTab] = useState<string>("unread");
-  const { data: allNotifications = [] } = useSignalNotifications();
+  const { data } = useSignalNotifications();
   const { mutate: markAsRead } = useMarkNotificationAsRead();
+
+  const allNotifications = useMemo(
+    () => (data || []) as NotificationRow[],
+    [data]
+  );
 
   const { readNotifications, unreadNotifications } = useMemo(() => {
     const read = allNotifications.filter((n) => n.read);
@@ -41,7 +47,9 @@ function SignalNotificationsPopover() {
       // mark as read on close
       if (unreadNotifications.length > 0) {
         await Promise.all(
-          unreadNotifications.map((notification) => markAsRead(notification.id))
+          unreadNotifications.map((notification: NotificationRow) =>
+            markAsRead(notification.id)
+          )
         );
       }
     }

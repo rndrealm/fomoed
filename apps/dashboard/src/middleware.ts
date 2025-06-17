@@ -1,5 +1,6 @@
 import { createSupabaseReqResClient } from "@/lib/utils/supabase/server-client";
 import { NextResponse, type NextRequest } from "next/server";
+import { updateSession } from "./lib/utils/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next({
@@ -15,6 +16,7 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   // Authenticate API routes
+  //TODO:  move this to indifidual API routes
   if (
     !user &&
     request.nextUrl.pathname.startsWith("/api") &&
@@ -25,15 +27,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!user && request.nextUrl.pathname.startsWith("/dashboard")) {
-    return NextResponse.redirect(new URL("/", request.url));
-  }
-
-  if (!user && request.nextUrl.pathname.startsWith("/signals")) {
-    return NextResponse.redirect(new URL("/", request.url));
-  }
-
-  return response;
+  return await updateSession(request);
 }
 
 export const config = {
