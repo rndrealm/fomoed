@@ -385,16 +385,8 @@ export const useFetchCoinStatsToken = () => {
   const res = useQuery<CoinStatsTokenInfo[]>({
     queryKey,
     queryFn: async () => {
-      const response = await axios.get(
-        "https://openapiv1.coinstats.app/coins?limit=200",
-        {
-          headers: {
-            "X-API-KEY": "WvGNSh8jIvpDJ0hjsgNZu1MFMYeohhiYMqDuzcZplTk=",
-          },
-        }
-      );
-
-      return response?.data?.result;
+      const response = await axios.get("/api/coinstats-coins");
+      return response.data;
     },
   });
 
@@ -407,16 +399,8 @@ export const useFetchCoinStatsSingleToken = (token = "") => {
   const res = useQuery<CoinStatsTokenInfo>({
     queryKey,
     queryFn: async () => {
-      const response = await axios.get(
-        `https://openapiv1.coinstats.app/coins/${token}`,
-        {
-          headers: {
-            "X-API-KEY": "WvGNSh8jIvpDJ0hjsgNZu1MFMYeohhiYMqDuzcZplTk=",
-          },
-        }
-      );
-
-      return response?.data;
+      const response = await axios.get(`/api/coinstats-coins?token=${token}`);
+      return response.data;
     },
     enabled: !!token,
   });

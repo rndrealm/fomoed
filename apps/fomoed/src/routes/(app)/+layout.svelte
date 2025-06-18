@@ -1,6 +1,5 @@
 <script lang="ts">
 	import 'simplebar';
-	import 'simplebar/dist/simplebar.css';
 	import '$lib/app.css';
 
 	import ResizeObserver from 'resize-observer-polyfill';
@@ -21,6 +20,7 @@
 	import { signOut } from '$lib/utils/user.js';
 	import { supabaseStore } from '$ts/client/utils/supabase.svelte';
 	import { Toaster } from 'svelte-5-french-toast';
+	import { coinstats_coin_list } from '$lib/stores/index.js';
 
 	// const supabase = getContext<SupabaseClient>('supabase');
 
@@ -29,8 +29,12 @@
 	export let data;
 	$: ({ session, supabase, user } = data);
 
+        async function getCoins() {
+		 coinstats_coin_list.set((await refresh_coinstats_coin_list()));
+        }
+
 	onMount(() => {
-		refresh_coinstats_coin_list();
+                getCoins();
 		fetch_global_data();
 
 		const { data } = supabase.auth.onAuthStateChange((event, newSession) => {
