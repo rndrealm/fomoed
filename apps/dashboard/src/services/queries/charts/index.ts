@@ -235,7 +235,7 @@ export const useFetchBinancePriceData = (
 
       return response;
     },
-    enabled: !!symbol && !!interval && !!country,
+    enabled: !!symbol && !!interval,
   });
 
   const transformedData: BinanceKlineFormatted[] | undefined = (
@@ -325,7 +325,7 @@ export const useFetchBinanceTokens = (country = "") => {
 
       return response?.symbols;
     },
-    enabled: !!country,
+    // enabled: !!country,
   });
 
   // const usdtPairs = res?.data?.filter(

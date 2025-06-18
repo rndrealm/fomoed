@@ -219,66 +219,75 @@ export default function CoinStats(props: IProps) {
 
       <AnimatePresence>
         {showInfo && (
-          <motion.div
-            className="absolute bottom-[10px] left-[10px] right-[10px] bg-[#111] rounded-[22px] py-4 px-5 z-9"
-            variants={modalSlide}
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-          >
-            <div className="flex flex-col gap-4">
+          <div className="absolute  bottom-[10px] left-[10px] right-[10px] top-[10px] z-9 flex items-end">
+            <motion.div
+              className="bg-[#111] rounded-[22px] py-4 px-5 overflow-auto max-h-full scrollbar"
+              variants={modalSlide}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+            >
               <div className="flex flex-col gap-4">
-                <div className="flex flex-col">
-                  <h3 className="font-semibold text-base leading-[1.35] text-white">
-                    MARKET CAP
-                  </h3>
-                  <p className="font-light text-[13px] leading-[1.25] text-[#878787]">
-                    Learn about the Marketcap
-                  </p>
-                </div>
-                <p className="font-medium text-[13px] leading-[1.35] text-white">
-                  Market capitalization (market cap) is the total value of a
-                  cryptocurrency. It’s calculated by multiplying the current
-                  price by the total circulating supply. It gives an idea of a
-                  coin&apos;s overall size and importance in the market.
-                </p>
-              </div>
-
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-col">
-                  <h3 className="font-semibold text-base leading-[1.35] text-white">
-                    Volume
-                  </h3>
-                  <p className="font-light text-[13px] leading-[1.25] text-[#878787]">
-                    Learn about the Volume
-                  </p>
-                </div>
-                <p className="font-medium text-[13px] leading-[1.35] text-white">
-                  Volume measures how much of a cryptocurrency has been traded
-                  over a specific period, usually 24 hours. It shows how active
-                  and liquid a market is — higher volume often means more
-                  interest and easier buying or selling.
-                </p>
-              </div>
-
-              <div className="flex justify-center">
-                <button
-                  type="button"
-                  className="rounded-[40px] bg-[#272727] flex items-center justify-center gap-1 h-[26px] app_widget_button"
-                  onClick={() => {
-                    setShowInfo(false);
-                  }}
-                >
-                  <p className="font-medium text-[13px] text-white whitespace-nowrap app_widget_button__text">
-                    Close
-                  </p>
-                  <div className="app_widget_button__icon">
-                    <Close fill="#878787" />
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col">
+                    <h3 className="font-semibold text-base leading-[1.35] text-white">
+                      MARKET CAP
+                    </h3>
+                    <p className="font-light text-[13px] leading-[1.25] text-[#878787]">
+                      Learn about the Marketcap
+                    </p>
                   </div>
-                </button>
+                  <p className="font-medium text-[13px] leading-[1.35] text-white">
+                    Market capitalization (market cap) is the total value of a
+                    cryptocurrency. It’s calculated by multiplying the current
+                    price by the total circulating supply. It gives an idea of a
+                    coin&apos;s overall size and importance in the market.
+                  </p>
+                </div>
+
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col">
+                    <h3 className="font-semibold text-base leading-[1.35] text-white">
+                      Volume
+                    </h3>
+                    <p className="font-light text-[13px] leading-[1.25] text-[#878787]">
+                      Learn about the Volume
+                    </p>
+                  </div>
+                  <p className="font-medium text-[13px] leading-[1.35] text-white">
+                    Volume measures how much of a cryptocurrency has been traded
+                    over a specific period, usually 24 hours. It shows how
+                    active and liquid a market is — higher volume often means
+                    more interest and easier buying or selling.
+                  </p>
+                </div>
+
+                <p className="text-[#696969] text-xs font-semibold text-[1.25]">
+                  We use data from{" "}
+                  <a href="https://coinstats.app/" target="_blank">
+                    coinstats.app
+                  </a>
+                </p>
+
+                <div className="flex justify-center">
+                  <button
+                    type="button"
+                    className="rounded-[40px] bg-[#272727] flex items-center justify-center gap-1 h-[26px] app_widget_button"
+                    onClick={() => {
+                      setShowInfo(false);
+                    }}
+                  >
+                    <p className="font-medium text-[13px] text-white whitespace-nowrap app_widget_button__text">
+                      Close
+                    </p>
+                    <div className="app_widget_button__icon">
+                      <Close fill="#878787" />
+                    </div>
+                  </button>
+                </div>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </div>

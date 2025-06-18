@@ -3,13 +3,15 @@ import React, { Fragment, useState } from "react";
 
 import {
   CandleStick,
+  Close,
   Delete,
   Ellipsis,
   FullScreen,
   Learn,
   LineChart,
+  Question,
 } from "@/components/icons/icons";
-import { cn, splitWidgetSlug } from "@/lib/utils";
+import { cn, modalSlide, splitWidgetSlug } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,6 +37,7 @@ import TestChart from "./test-chart";
 import { geoLocationAtom } from "@/lib/atoms/geoLocation";
 import { ModalContainer } from "@/components/shared";
 import { TradingViewPriceHistory } from "./price-history";
+import { AnimatePresence, motion } from "motion/react";
 
 interface IOptionsDropdown {
   widget: LayoutType["widgets"][0];
@@ -118,6 +121,7 @@ export default function NewPriceHistory(props: IProps) {
 
   const [isCandleStick, setIsCandleStick] = useState(false);
   const [isFullScreen, setIsFullscreen] = useState(false);
+  const [showInfo, setShowInfo] = useState(false);
 
   const location = useAtomValue(geoLocationAtom);
 
@@ -128,7 +132,7 @@ export default function NewPriceHistory(props: IProps) {
 
   return (
     <Fragment>
-      <div className="flex flex-col gap-2 bg-[#000] pt-6 pb-4 rounded-2xl h-full relative">
+      <div className="flex flex-col gap-2 bg-[#000] pt-0 pb-4 rounded-2xl h-full relative">
         <div className="flex flex-col gap-1">
           <div className="cursor-grab flex justify-center pt-4 pb-1">
             <div className="w-[36px] h-[5px] bg-[#444] rounded-[2px]"></div>
@@ -152,18 +156,16 @@ export default function NewPriceHistory(props: IProps) {
                 value={widget?.props?.token}
               />
             </div>
-            <div className="">
-              <PeriodDropdown
-                options={pricePeriodOptions}
-                value={widget?.props?.period}
-                setValue={(value: string) => {
-                  updateWidgetPropsFromAtom({
-                    tabId: activeLayout.id,
-                    widgetId: widget.id,
-                    widgetProps: { ...widget.props, period: value },
-                  });
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowInfo(true);
                 }}
-              />
+              >
+                <Question />
+              </button>
+              <OptionsDropdown widget={widget} />
             </div>
           </div>
         </div>
@@ -198,7 +200,17 @@ export default function NewPriceHistory(props: IProps) {
               </button>
             </div>
 
-            <OptionsDropdown widget={widget} />
+            <PeriodDropdown
+              options={pricePeriodOptions}
+              value={widget?.props?.period}
+              setValue={(value: string) => {
+                updateWidgetPropsFromAtom({
+                  tabId: activeLayout.id,
+                  widgetId: widget.id,
+                  widgetProps: { ...widget.props, period: value },
+                });
+              }}
+            />
           </div>
         </div>
         <div className="flex-1">
@@ -236,6 +248,70 @@ export default function NewPriceHistory(props: IProps) {
         </div>
       </div>
       {/* <div className="fixed top-[0] bottom-[0] left-[0] right-[0] bg-[blue] z-[999]"></div> */}
+
+      <AnimatePresence>
+        {showInfo && (
+          <div className="absolute  bottom-[10px] left-[10px] right-[10px] top-[10px] z-9 flex items-end">
+            <motion.div
+              className="bg-[#111] rounded-[22px] py-4 px-5 overflow-auto max-h-full scrollbar"
+              variants={modalSlide}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+            >
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-3">
+                  <div className="flex flex-col">
+                    <h3 className="font-semibold text-base leading-[1.35] text-white">
+                      Price Chart
+                    </h3>
+                    <p className="font-light text-[13px] leading-[1.25] text-[#878787]">
+                      Learn about the Price Chart
+                    </p>
+                  </div>
+                  <p className="font-medium text-[13px] leading-[1.35] text-white">
+                    A price chart is a graphical representation of an
+                    asset&apos;s price movements over a specific period.
+                    It&apos;s a fundamental tool used in financial analysis,
+                    particularly in technical analysis, to identify trends,
+                    patterns, and potential trading opportunities.
+                  </p>
+
+                  <div className="flex flex-col">
+                    <p className="text-[#696969] text-xs font-semibold text-[1.25]">
+                      We use data from{" "}
+                      <a href="https://www.binance.com/" target="_blank">
+                        Binance.com
+                      </a>{" "}
+                      &{" "}
+                      <a href="https://www.binance.us/" target="_blank">
+                        Binance.us
+                      </a>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex justify-center">
+                  <button
+                    type="button"
+                    className="rounded-[40px] bg-[#272727] flex items-center justify-center gap-1 h-[26px] app_widget_button"
+                    onClick={() => {
+                      setShowInfo(false);
+                    }}
+                  >
+                    <p className="font-medium text-[13px] text-white whitespace-nowrap app_widget_button__text">
+                      Close
+                    </p>
+                    <div className="app_widget_button__icon">
+                      <Close fill="#878787" />
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       <ModalContainer
         open={isFullScreen}
