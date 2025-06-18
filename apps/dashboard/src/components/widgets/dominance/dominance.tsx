@@ -162,21 +162,18 @@ export default function Dominance(props: IProps) {
   return (
     <div className="flex flex-col gap-4 p-4 pt-0 rounded-2xl bg-[#000] relative overflow-hidden h-full">
       <div className="flex flex-col gap-[2px]">
-        <div className="cursor-grab flex justify-center pt-4 pb-1">
+        <div className="flex justify-center pt-4 pb-1 cursor-grab">
           <div className="w-[36px] h-[5px] bg-[#444] rounded-[2px]"></div>
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <DominanceIcon />
-            <h4 className="text-base text-[#878787] leading-[1.35] font-semibold">
+            <h4 className="text-base text-[#878787] leading-[1.35] font-semibold select-none">
               DOMINANCE
             </h4>
           </div>
 
           <div className="flex items-center gap-2">
-            {/* <button type="button" onClick={() => { }}>
-              <Favourite />
-            </button> */}
             <button
               type="button"
               onClick={() => {
@@ -192,11 +189,11 @@ export default function Dominance(props: IProps) {
 
       <div className="flex flex-col">
         <div className="flex flex-col">
-          <h4 className="font-medium text-sm text-[#878787] leading-[1.35]">
+          <h4 className="font-medium text-sm text-[#878787] leading-[1.35] select-none">
             Bitcoin Dominance
           </h4>
           <div className="flex items-center gap-1">
-            <p className="text-white text-xl font-bold">{btcDominance}%</p>
+            <p className="text-xl font-bold text-white">{btcDominance}%</p>
             {/* <div className="flex items-center">
               <ArrowUp />
               <p className="font-semibold text-xs leading-[1.35] text-[#84ebb4]">

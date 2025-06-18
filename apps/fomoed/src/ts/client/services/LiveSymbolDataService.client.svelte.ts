@@ -1,4 +1,5 @@
 import { browser } from '$app/environment';
+import { refresh_coinstats_coin_list } from '$lib/utils';
 
 export type LiveSymbolData = {
 	symbol: string;
@@ -26,17 +27,8 @@ export class LiveDataService {
 	constructor() {}
 
 	async refreshData() {
-		let coins: any[] = [];
+                const coins = await refresh_coinstats_coin_list();
 		let globalData: GlobalMarketData | null = null;
-
-		try {
-			const response = await fetch('https://api.coin-stats.com/v4/coins?skip=0&limit=2500');
-			const data = await response.json();
-			coins = data?.coins || [];
-		} catch (error) {
-			console.error('Failed to fetch cryptocurrency data:', error);
-			return;
-		}
 
 		// Create a new map with updated data
 		const updatedData = new Map<string, LiveSymbolData>();

@@ -37,7 +37,14 @@ export async function updateSession(request: NextRequest) {
 
   const {
     data: { user },
+    error,
   } = await supabase.auth.getUser();
+  if (error) {
+    await supabase.auth.signOut();
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    return NextResponse.redirect(url);
+  }
   if (
     !user &&
     (request.nextUrl.pathname.startsWith("/dashboard") ||
@@ -49,6 +56,17 @@ export async function updateSession(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
+  }
+
+  //TODO:  move this to indifidual API routes
+  if (
+    !user &&
+    request.nextUrl.pathname.startsWith("/api") &&
+    !request.nextUrl.pathname.includes("/news") &&
+    !request.nextUrl.pathname.includes("/scrape-cfgi") &&
+    !request.nextUrl.pathname.includes("/newslab")
+  ) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is.

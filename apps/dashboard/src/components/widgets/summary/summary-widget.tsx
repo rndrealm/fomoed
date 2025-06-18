@@ -53,14 +53,14 @@ export default function SummaryWidget(props: IProps) {
   return (
     <div className="bg-[#000] p-4 pt-0 flex flex-col gap-4 rounded-2xl justify-between">
       <div className="flex flex-col gap-1">
-        <div className="cursor-grab flex justify-center pt-4 pb-1">
+        <div className="flex justify-center pt-4 pb-1 cursor-grab">
           <div className="w-[36px] h-[5px] bg-[#444] rounded-[2px]"></div>
         </div>
 
-        <div className="flex justify-between items-center">
-          <div className="flex gap-2 items-center gap-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 gap-4">
             <Summary />
-            <h3 className="font-semibold text-base text-[#878787] leading-[1.35]">
+            <h3 className="font-semibold text-base text-[#878787] leading-[1.35] select-none">
               SUMMARY
             </h3>
           </div>
@@ -81,10 +81,10 @@ export default function SummaryWidget(props: IProps) {
 
       <div className="flex flex-col gap-[10px] flex-1">
         <div className="">
-          <p className="text-semibold text-[13px] leading-[1.25] text-[#878787]">
+          <p className="text-semibold text-[13px] leading-[1.25] text-[#878787] select-none">
             {date}
           </p>
-          <p className="text-semibold text-[13px] leading-[1.25] text-[#4B4B4B]">
+          <p className="text-semibold text-[13px] leading-[1.25] text-[#4B4B4B] select-none">
             {weekday}
           </p>
         </div>

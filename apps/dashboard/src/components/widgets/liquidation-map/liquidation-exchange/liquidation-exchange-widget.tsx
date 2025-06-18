@@ -63,7 +63,7 @@ export default function LiquidationExchangeWidget(props: IProps) {
         </div>
         <div
           className={cn(
-            "flex flex-col justify-center w-full h-full rounded-sm"
+            "flex flex-col justify-center w-full h-full rounded-sm relative"
           )}
         >
           <div className="px-3 py-4">
