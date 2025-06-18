@@ -40,8 +40,10 @@ export async function updateSession(request: NextRequest) {
     error,
   } = await supabase.auth.getUser();
   if (error) {
-    supabase.auth.signOut();
-    NextResponse.redirect("login");
+    await supabase.auth.signOut();
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    return NextResponse.redirect(url);
   }
   if (
     !user &&
