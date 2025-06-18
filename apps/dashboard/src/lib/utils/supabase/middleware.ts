@@ -37,7 +37,12 @@ export async function updateSession(request: NextRequest) {
 
   const {
     data: { user },
+    error,
   } = await supabase.auth.getUser();
+  if (error) {
+    supabase.auth.signOut();
+    NextResponse.redirect("login");
+  }
   if (
     !user &&
     (request.nextUrl.pathname.startsWith("/dashboard") ||
