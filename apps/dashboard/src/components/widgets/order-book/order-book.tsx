@@ -1,9 +1,9 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { OptionsDropdown } from "../shared/options-dropwdown";
-import { CoinStats, Question } from "@/components/icons/icons";
-import { cn, formatPriceSignificant } from "@/lib/utils";
+import { Close, CoinStats, Question } from "@/components/icons/icons";
+import { cn, formatPriceSignificant, modalSlide } from "@/lib/utils";
 import { LayoutType, updateWidgetPropsAtom } from "@/lib/atoms/layoutAtom";
 import CoinStatsTokenDropdown from "../shared/coin-stats-token-dropdown";
 import {
@@ -104,6 +104,12 @@ export default function OrderBook(props: IProps) {
   const [buys, setBuys] = useState<IOrderWithWidth[]>([]);
   const [sales, setSales] = useState<IOrderWithWidth[]>([]);
   const [livePrice, setLivePrice] = useState("");
+  const previousPriceRef = useRef<number | null>(null);
+  const [priceDirection, setPriceDirection] = useState<"up" | "down" | null>(
+    null
+  );
+  const [showInfo, setShowInfo] = useState(false);
+
   const hasLivePrice = useRef(false);
 
   const location = useAtomValue(geoLocationAtom);
@@ -117,7 +123,7 @@ export default function OrderBook(props: IProps) {
   );
 
   useEffect(() => {
-    if (!location?.country) return;
+    // if (!location?.country) return;
     const tokenOption = `${widget?.props?.token?.toLowerCase()}usdt`;
     // const ws = new WebSocket(
     //   `wss://stream.binance.com:9443/stream?streams=${tokenOption}@depth5@100ms/${tokenOption}@trade`
@@ -146,7 +152,18 @@ export default function OrderBook(props: IProps) {
       }
 
       if (stream === `${tokenOption}@trade`) {
+        const currentPrice = parseFloat(data.p);
         setLivePrice(data.p); // last price
+
+        if (previousPriceRef.current !== null) {
+          if (currentPrice > previousPriceRef.current) {
+            setPriceDirection("up");
+          } else if (currentPrice < previousPriceRef.current) {
+            setPriceDirection("down");
+          }
+        }
+
+        previousPriceRef.current = currentPrice;
         hasLivePrice.current = true;
       }
     };
@@ -158,7 +175,18 @@ export default function OrderBook(props: IProps) {
 
   useEffect(() => {
     if (price?.lastPrice && !hasLivePrice.current) {
-      setLivePrice(price?.lastPrice);
+      const currentPrice = parseFloat(price.lastPrice);
+      setLivePrice(price.lastPrice);
+
+      if (previousPriceRef.current !== null) {
+        if (currentPrice > previousPriceRef.current) {
+          setPriceDirection("up");
+        } else if (currentPrice < previousPriceRef.current) {
+          setPriceDirection("down");
+        }
+      }
+
+      previousPriceRef.current = currentPrice;
     }
   }, [price]);
 
@@ -181,7 +209,12 @@ export default function OrderBook(props: IProps) {
           </div>
 
           <div className="flex items-center gap-2">
-            <button type="button" onClick={() => { }}>
+            <button
+              type="button"
+              onClick={() => {
+                setShowInfo(true);
+              }}
+            >
               <Question />
             </button>
             <OptionsDropdown widget={widget} />
@@ -210,7 +243,14 @@ export default function OrderBook(props: IProps) {
       <div className="px-4 flex-1 flex flex-col justify-between">
         <OrderBookSection data={sales} token={widget?.props?.token} />
         <div className="flex flex-col items-center justify-center py-[5px] px-[10px]">
-          <p className="text-[#FF8970] font-semibold text-base leading-[1.35]">
+          <p
+            className={cn(
+              "font-semibold text-base leading-[1.35]",
+              priceDirection === "up" && "text-[#1FC16B]",
+              priceDirection === "down" && "text-[#FF8970]",
+              !priceDirection && "text-white"
+            )}
+          >
             {formatPriceSignificant(livePrice)}
           </p>
           <p className="text-[#878787] text-xs font-semibold leading-[1.35]">
@@ -223,6 +263,68 @@ export default function OrderBook(props: IProps) {
           token={widget?.props?.token}
         />
       </div>
+
+      <AnimatePresence>
+        {showInfo && (
+          <div className="absolute  bottom-[10px] left-[10px] right-[10px] top-[10px] z-9 flex items-end">
+            <motion.div
+              className="bg-[#111] rounded-[22px] py-4 px-5 overflow-auto max-h-full scrollbar"
+              variants={modalSlide}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+            >
+              <div className="flex flex-col gap-4 overflow-auto">
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col">
+                    <h3 className="font-semibold text-base leading-[1.35] text-white">
+                      Order Book
+                    </h3>
+                    <p className="font-light text-[13px] leading-[1.25] text-[#878787]">
+                      Learn about the Order Book
+                    </p>
+                  </div>
+                  <p className="font-medium text-[13px] leading-[1.35] text-white">
+                    An order book displays all outstanding buy and sell orders
+                    for an asset, grouped by price. It provides a transparent,
+                    real-time view of market liquidity and the potential supply
+                    and demand at different price points, helping traders
+                    understand market depth and sentiment.
+                  </p>
+                </div>
+
+                <p className="text-[#696969] text-xs font-semibold text-[1.25]">
+                  We use data from{" "}
+                  <a href="https://www.binance.com/" target="_blank">
+                    Binance.com
+                  </a>{" "}
+                  &{" "}
+                  <a href="https://www.binance.us/" target="_blank">
+                    Binance.us
+                  </a>
+                </p>
+
+                <div className="flex justify-center">
+                  <button
+                    type="button"
+                    className="rounded-[40px] bg-[#272727] flex items-center justify-center gap-1 h-[26px] app_widget_button"
+                    onClick={() => {
+                      setShowInfo(false);
+                    }}
+                  >
+                    <p className="font-medium text-[13px] text-white whitespace-nowrap app_widget_button__text">
+                      Close
+                    </p>
+                    <div className="app_widget_button__icon">
+                      <Close fill="#878787" />
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

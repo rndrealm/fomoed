@@ -1,11 +1,12 @@
 "use client";
-import React, { FC, ReactNode, useEffect, useRef, useState } from "react";
+import React, { ReactNode, useEffect, useRef } from "react";
 import {
   CandlestickSeries,
   Chart,
   LineSeries,
   SeriesApiRef,
   TimeScale,
+  TimeScaleApiRef,
   TimeScaleFitContentTrigger,
 } from "lightweight-charts-react-components";
 import {
@@ -42,7 +43,7 @@ const toolTipWidth = 240;
 const toolTipHeight = 24;
 const toolTipMargin = 25;
 
-export default function TestChart(props: IProps) {
+function TestChart(props: IProps) {
   const { isCandleStick, period, token } = props;
 
   const location = useAtomValue(geoLocationAtom);
@@ -58,6 +59,18 @@ export default function TestChart(props: IProps) {
   const tooltipRef = useRef<HTMLDivElement>(null);
   const lineSeriesRef = useRef<SeriesApiRef<"Line">>(null);
   const candleSeriesRef = useRef<SeriesApiRef<"Candlestick">>(null);
+  const timeScaleRef = useRef<TimeScaleApiRef>(null);
+  const dataRef = useRef<(LineData | CandlestickData)[]>([]);
+
+  const visibleRangeRef = useRef<{
+    from?: Time;
+    to?: Time;
+  } | null>(null);
+
+  const visibleLogicalRangeRef = useRef<{
+    from?: number;
+    to?: number;
+  } | null>(null);
 
   const onCrosshairMove = (param: MouseEventParams<Time>) => {
     const container = chartContainerRef.current!;
@@ -128,16 +141,16 @@ export default function TestChart(props: IProps) {
     tooltip.style.top = `${coordinateY}px`;
   };
 
-  // const len = data?.length;
+  const len = data?.length;
   // const from = data[len - 20]?.time as Time;
   // const to = data[len - 1]?.time as Time;
 
   useEffect(() => {
-    if (!token || !period || !location?.country) return;
+    if (!token || !period) return;
 
     let ws: WebSocket;
 
-    if (location.country === "US") {
+    if (location?.country === "US") {
       ws = new WebSocket(
         `wss://stream.binance.us:9443/ws/${token.toLowerCase()}usdt@kline_${period}`
       );
@@ -160,6 +173,8 @@ export default function TestChart(props: IProps) {
         value: parseFloat(k.c),
       };
 
+      dataRef.current.push(newData as any);
+
       if ((lineSeriesRef.current || candleSeriesRef.current) && data?.length) {
         if (isCandleStick) {
           candleSeriesRef.current?.api()?.update(newData as any);
@@ -175,6 +190,20 @@ export default function TestChart(props: IProps) {
       }
     };
   }, [token, period, data, isCandleStick, location?.country]);
+
+  // useEffect(() => {
+  //   if (!data?.length) return;
+
+  //   dataRef.current = data as any;
+
+  //   if (isCandleStick && candleSeriesRef.current?.api()) {
+  //     candleSeriesRef.current.api()?.setData(dataRef.current as any);
+  //   }
+
+  //   if (!isCandleStick && lineSeriesRef.current?.api()) {
+  //     lineSeriesRef.current.api()?.setData(dataRef.current as any);
+  //   }
+  // }, [data, isCandleStick]);
 
   return (
     // <div className="flex-1 relative">
@@ -217,8 +246,8 @@ export default function TestChart(props: IProps) {
               color: "#fff",
               lineType: LineType.Curved,
             }}
+            // data={[]}
             data={data as any}
-            reactive
           />
         </RenderIf>
 
@@ -226,19 +255,68 @@ export default function TestChart(props: IProps) {
           <CandlestickSeries ref={candleSeriesRef} data={data as any} />
         </RenderIf>
         <TimeScale
+          ref={timeScaleRef}
           options={{
             borderColor: "transparent",
-            tickMarkFormatter: (time: number) => {
-              const date = new Date(time * 1000); // time is in seconds
-              const day = date.getDate();
-              const month = date
-                .toLocaleString("en-US", { month: "short" })
-                .toUpperCase(); // e.g., MAR
+            // tickMarkFormatter: (time: number) => {
+            //   const date = new Date(time * 1000);
+            //   const day = date.getDate();
+            //   const month = date
+            //     .toLocaleString("en-US", { month: "short" })
+            //     .toUpperCase(); // e.g., MAR
 
-              return `${day} ${month}`;
+            //   console.log(123);
+
+            //   return `${day} ${month}`;
+            // },
+            tickMarkFormatter: (time: number) => {
+              const date = new Date(time * 1000); // time is UNIX timestamp (seconds)
+
+              const range = timeScaleRef.current?.api()?.getVisibleRange();
+              // const from = Number(visibleRangeRef?.current?.from) || 0;
+              // const to = Number(visibleRangeRef?.current?.to) || 0;
+              // const rangeDuration = to - from;
+              const rangeDuration = Number(range?.to) - Number(range?.from);
+
+              // Determine format based on range length (example threshold: 2 days)
+              const TWO_DAYS_IN_SECONDS = 2 * 24 * 60 * 60;
+
+              if (rangeDuration < TWO_DAYS_IN_SECONDS) {
+                // Show time like 14:30
+                return date.toLocaleTimeString("en-US", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: false,
+                });
+              } else {
+                // Show date like Jun 17
+                return date.toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                });
+              }
             },
           }}
-          // visibleRange={data?.length === 0 ? undefined : { from, to }}
+          visibleLogicalRange={
+            data?.length === 0
+              ? undefined
+              : {
+                  from: visibleLogicalRangeRef?.current?.from || len - 20,
+                  to: visibleLogicalRangeRef?.current?.to || len - 1,
+                }
+          }
+          onVisibleTimeRangeChange={(e) => {
+            visibleRangeRef.current = {
+              from: e?.from,
+              to: e?.to,
+            };
+          }}
+          onVisibleLogicalRangeChange={(e) => {
+            visibleLogicalRangeRef.current = {
+              from: e?.from,
+              to: e?.to,
+            };
+          }}
         >
           <TimeScaleFitContentTrigger deps={[]} />
         </TimeScale>
@@ -252,3 +330,5 @@ export default function TestChart(props: IProps) {
     // </div>
   );
 }
+
+export default React.memo(TestChart);

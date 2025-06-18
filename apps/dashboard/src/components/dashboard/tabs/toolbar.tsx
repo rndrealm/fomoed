@@ -190,7 +190,7 @@ export function Toolbar() {
             </button>
           </div> */}
 
-          <div className="hidden md:flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <div id="third-step">
               <RenderIf condition={!!currLayout && currLayout?.draft}>
                 <ToolbarItem

@@ -486,3 +486,8 @@ input[type="number"] {
   background-repeat: no-repeat;
   background-size: cover;
 }
+
+.react-grid-item.react-grid-placeholder {
+  background: #fff !important;
+  opacity: 0.2;
+}
