@@ -34,6 +34,7 @@ interface MySignalCardProps {
   hasInAppNotifications?: boolean;
   hasEmailNotifications?: boolean;
   lastUpdated: string;
+  firedAt?: string | null;
 }
 
 const calculateConditionCount = (conditions: object) => {
@@ -70,6 +71,7 @@ export default function MySmartSignalCard({
   hasInAppNotifications = true,
   hasEmailNotifications = true,
   lastUpdated,
+  firedAt,
 }: MySignalCardProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -195,8 +197,22 @@ export default function MySmartSignalCard({
         </CardContent>
 
         <CardFooter className="border-t border-gray-800 p-0 text-sm">
-          <span className="text-muted-foreground">Last Updated • &nbsp;</span>
-          <span>{dayjs(lastUpdated).fromNow(true)}</span>
+          <div className="flex justify-between w-full">
+            <div>
+              <span className="text-muted-foreground">
+                Last Updated • &nbsp;
+              </span>
+              <span>{dayjs(lastUpdated).fromNow(true)}</span>
+            </div>
+            {firedAt && (
+              <div>
+                <span className="text-muted-foreground">
+                  Triggered • &nbsp;
+                </span>
+                <span>{dayjs(firedAt).fromNow(true)} ago</span>
+              </div>
+            )}
+          </div>
         </CardFooter>
       </Card>
     </>

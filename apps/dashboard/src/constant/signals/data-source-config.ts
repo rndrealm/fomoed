@@ -25,6 +25,11 @@ export const signalDataSources: SignalDataSourceGroup[] = [
       { name: "CFGI", id: "cfgi" },
       { name: "Trading Volume", id: "volume_24h" },
       { name: "Market Capitalization", id: "market_cap", disabled: true },
+      {
+        name: "Active Addresses 24h",
+        id: "active_addresses_24h",
+        disabled: false,
+      },
     ],
   },
   {
@@ -42,6 +47,11 @@ export const signalDataSources: SignalDataSourceGroup[] = [
         name: "Social Dominance",
         id: "social_dominance_total",
         disabled: true,
+      },
+      {
+        name: "Weighted Sentiment",
+        id: "weighted_sentiment",
+        disabled: false,
       },
     ],
   },
