@@ -33,8 +33,11 @@ export function QuickWidgets(props: IProps) {
       const tags = widget.tags;
       // const category = widget.category.toLowerCase();
       const search = searchValue.toLowerCase();
-      const tag = selectedTag.toLowerCase() === "all" ? "" : selectedTag;
-      return name.includes(search) && tags.includes(tag);
+
+      return (
+        name.includes(search) &&
+        (tags.includes(selectedTag) || selectedTag === "all")
+      );
     });
   }, [searchValue, selectedTag]);
 
@@ -105,7 +108,7 @@ export function QuickWidgets(props: IProps) {
             </div>
           </RenderIf>
           <RenderIf condition={filteredWidget.length > 0}>
-            <div className="grid min-h-0 grid-cols-1 sm:grid-cols-2 overflow-auto gap-x-2 gap-y-4 scrollbar">
+            <div className="grid min-h-0 grid-cols-1 overflow-auto sm:grid-cols-2 gap-x-2 gap-y-4 scrollbar">
               {filteredWidget.map((widget, index) => (
                 <QuickWidgetItem
                   tag={selectedTag}
