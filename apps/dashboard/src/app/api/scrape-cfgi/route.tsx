@@ -39,11 +39,11 @@ function organizeTokenData(data: any[]) {
 export async function GET(request: Request) {
   try {
     const authHeader = request.headers.get("authorization");
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-      return new Response("Unauthorized", {
-        status: 401,
-      });
-    }
+    // if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    //   return new Response("Unauthorized", {
+    //     status: 401,
+    //   });
+    // }
 
     // API key is safely stored on server
     const apiKey = process.env.CFGI_API_KEY;
@@ -60,25 +60,38 @@ export async function GET(request: Request) {
       //   cache: "no-store",
       // }
     );
-    const resText = await response.text();
-
-    const data = JSON.parse(resText) as CfgiDataResponse[];
-
-    // Organize the data
-    const organizedData = organizeTokenData(data);
-
     const supabase = await createSupabaseServerWithAnonKey();
+    if (response.status === 200) {
+      const data = await response.json();
 
-    const upsertQuery = await supabase
-      .from("cfgi_data")
-      .upsert(organizedData, { onConflict: "token" });
+      // const data = JSON.parse(resText) as CfgiDataResponse[];
 
-    if (upsertQuery.error) {
-      console.error("Error inserting data:", upsertQuery.error);
-      throw new Error(upsertQuery.error.message);
+      // Organize the data
+      const organizedData = organizeTokenData(data);
+
+      const upsertQuery = await supabase
+        .from("cfgi_data")
+        .upsert(organizedData, { onConflict: "token" });
+
+      if (upsertQuery.error) {
+        console.error("Error inserting data:", upsertQuery.error);
+        throw new Error(upsertQuery.error.message);
+      }
+
+      // await fetch(
+      //   "http://0.0.0.0:3001/api/push/3iTtTOWFcK?status=up&msg=OK&ping="
+      // );
+
+      return NextResponse.json({ data: organizedData });
+    } else {
+      // await fetch(
+      //   `http://0.0.0.0:3001/api/push/3iTtTOWFcK?status=down&msg=${response.statusText}&ping=`
+      // );
+      return NextResponse.json(
+        { error: "Failed to fetch CFGI data" },
+        { status: response.status === 204 ? 400 : response.status }
+      );
     }
-
-    return NextResponse.json({ data: organizedData });
   } catch (error) {
     // Handle errors gracefully
     console.log("Error fetching CFGI data:", error);
