@@ -18,7 +18,7 @@ export const useSmartSignalById = (signalId: string | null) => {
       const { data, error } = await supabase
         .from("smart_signals")
         .select("*")
-        .eq("id", signalId)
+        .eq("id", +signalId!)
         .single();
 
       if (error) {
@@ -28,7 +28,7 @@ export const useSmartSignalById = (signalId: string | null) => {
       if (!data) {
         throw new Error("No smart signal found");
       }
-      return data;
+      return data as SmartSignalRow;
     },
     enabled: !!signalId,
   });
@@ -45,7 +45,7 @@ export const useSmartSignals = () => {
       const { data, error } = await supabase
         .from("smart_signals")
         .select("*")
-        .eq("user_id", userData?.id)
+        .eq("user_id", userData!.id)
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -55,7 +55,7 @@ export const useSmartSignals = () => {
       if (!data) {
         throw new Error("No smart signals found");
       }
-      return data;
+      return data as SmartSignalRow[];
     },
     enabled: !!userData,
   });

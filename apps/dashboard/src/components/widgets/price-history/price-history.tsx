@@ -8,17 +8,49 @@ import CoinDropdown from "../shared/coin-dropdown";
 import { useAtomValue, useSetAtom } from "jotai";
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 
+export const pricePeriodOptions = [
+  { value: "1m", label: "1M" },
+  { value: "3m", label: "3M" },
+  { value: "5m", label: "5M" },
+  { value: "15m", label: "15M" },
+  { value: "30m", label: "30M" },
+  { value: "1h", label: "1H" },
+  { value: "2h", label: "2H" },
+  { value: "4h", label: "4H" },
+  { value: "6h", label: "6H" },
+  { value: "8h", label: "8H" },
+  { value: "12h", label: "12H" },
+  { value: "1d", label: "1D" },
+  { value: "3d", label: "3D" },
+  { value: "1w", label: "1W" },
+];
+
+const tradingViewDurationMap = {
+  "1m": "1",
+  "3m": "3",
+  "5m": "5",
+  "15m": "15",
+  "30m": "30",
+  "1h": "60",
+  "2h": "120",
+  "4h": "240",
+  "1d": "D",
+  "1w": "W",
+};
+
 interface IProps {
   widget: LayoutType["widgets"][0];
 }
 
 interface ITradingViewPriceHistory {
   token: string;
+  duration?: keyof typeof tradingViewDurationMap;
 }
 
-function TradingViewPriceHistory(props: ITradingViewPriceHistory) {
-  const { token } = props;
+export function TradingViewPriceHistory(props: ITradingViewPriceHistory) {
+  const { token, duration = "15m" } = props;
   const widgetRef = useRef<HTMLDivElement>(null);
+  const period = tradingViewDurationMap[duration] || "15";
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -28,21 +60,22 @@ function TradingViewPriceHistory(props: ITradingViewPriceHistory) {
     script.innerHTML = JSON.stringify({
       autosize: true,
       symbol: `BINANCE:${token}USDT`,
-      interval: "D",
+      interval: period,
       timezone: "Etc/UTC",
       theme: "dark",
       style: "1",
       locale: "en",
       hide_legend: true,
-      allow_symbol_change: !true,
+      allow_symbol_change: true,
       support_host: "https://www.tradingview.com",
+      hide_side_toolbar: false,
     });
 
     if (widgetRef.current) {
       widgetRef.current.innerHTML = ""; // Clear previous
       widgetRef.current.appendChild(script);
     }
-  }, [token]);
+  }, [token, period]);
 
   return (
     <div className="tradingview-widget-container w-full h-full">

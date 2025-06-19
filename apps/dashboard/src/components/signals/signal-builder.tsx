@@ -71,7 +71,12 @@ const SignalBuilder = ({}) => {
       toast.error("Please fill in all fields");
       return;
     }
-    const actions: object[] = [];
+    const actions: Array<{
+      type: string;
+      subject?: string;
+      content?: string;
+      description?: string;
+    }> = [];
 
     if (signalActions.email)
       actions.push({

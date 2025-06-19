@@ -22,6 +22,7 @@ import { supportedExchangePairsToOptions } from "@/lib/utils";
 import { ExchangePairOption } from "@/charts/types";
 import { formatLiquidationData, formatMergetLiquidMapData } from "./helpers";
 import axios from "axios";
+import { fetchFearAndGreed } from "./actions";
 
 export const useReadCfgiData = (
   token?: string,
@@ -234,7 +235,7 @@ export const useFetchBinancePriceData = (
 
       return response;
     },
-    enabled: !!symbol && !!interval && !!country,
+    enabled: !!symbol && !!interval,
   });
 
   const transformedData: BinanceKlineFormatted[] | undefined = (
@@ -324,7 +325,7 @@ export const useFetchBinanceTokens = (country = "") => {
 
       return response?.symbols;
     },
-    enabled: !!country,
+    // enabled: !!country,
   });
 
   // const usdtPairs = res?.data?.filter(
@@ -384,16 +385,8 @@ export const useFetchCoinStatsToken = () => {
   const res = useQuery<CoinStatsTokenInfo[]>({
     queryKey,
     queryFn: async () => {
-      const response = await axios.get(
-        "https://openapiv1.coinstats.app/coins?limit=200",
-        {
-          headers: {
-            "X-API-KEY": "WvGNSh8jIvpDJ0hjsgNZu1MFMYeohhiYMqDuzcZplTk=",
-          },
-        }
-      );
-
-      return response?.data?.result;
+      const response = await axios.get("/api/coinstats-coins");
+      return response.data;
     },
   });
 
@@ -406,16 +399,8 @@ export const useFetchCoinStatsSingleToken = (token = "") => {
   const res = useQuery<CoinStatsTokenInfo>({
     queryKey,
     queryFn: async () => {
-      const response = await axios.get(
-        `https://openapiv1.coinstats.app/coins/${token}`,
-        {
-          headers: {
-            "X-API-KEY": "WvGNSh8jIvpDJ0hjsgNZu1MFMYeohhiYMqDuzcZplTk=",
-          },
-        }
-      );
-
-      return response?.data;
+      const response = await axios.get(`/api/coinstats-coins?token=${token}`);
+      return response.data;
     },
     enabled: !!token,
   });
@@ -440,4 +425,21 @@ export const useFetchFearAndGreed = (token: string, token_slug?: string) => {
   });
 
   return response;
+};
+
+export const useReadFearAndGridFromDb = (token: string) => {
+  const hash = ["read-fear-and-grid-from-db", token];
+  const { data, isPending, error, isSuccess } = useQuery({
+    queryKey: hash,
+    queryFn: async () => {
+      const response = await fetchFearAndGreed(token);
+      return response;
+    },
+  });
+  return {
+    data: data,
+    isPending,
+    isSuccess,
+    error,
+  };
 };

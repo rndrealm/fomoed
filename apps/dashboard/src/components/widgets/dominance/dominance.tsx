@@ -1,14 +1,15 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import {
   ArrowUp,
+  Close,
   Dominance as DominanceIcon,
   Favourite,
   Question,
 } from "@/components/icons/icons";
 import { OptionsDropdown } from "../shared/options-dropwdown";
-import { cn, formatPriceSignificant } from "@/lib/utils";
+import { cn, formatPriceSignificant, modalSlide } from "@/lib/utils";
 import { RenderIf } from "@/components/shared";
 import { useFetchMarkeData } from "@/services/queries/charts";
 import { LayoutType } from "@/lib/atoms/layoutAtom";
@@ -145,6 +146,8 @@ export default function Dominance(props: IProps) {
   const { widget } = props;
   const { data, isSuccess } = useFetchMarkeData();
 
+  const [showInfo, setShowInfo] = useState(false);
+
   const btcDominance = formatPriceSignificant(
     data?.market_cap_percentage?.btc || 0
   );
@@ -157,22 +160,27 @@ export default function Dominance(props: IProps) {
   );
 
   return (
-    <div className="flex flex-col gap-4 p-4 rounded-2xl bg-[#000] relative overflow-hidden h-full">
+    <div className="flex flex-col gap-4 p-4 pt-0 rounded-2xl bg-[#000] relative overflow-hidden h-full">
       <div className="flex flex-col gap-[2px]">
-        <div className="flex justify-center">
-          <div className="cursor-grab w-[36px] h-[5px] bg-[#444] rounded-[2px]"></div>
+        <div className="flex justify-center pt-4 pb-1 cursor-grab">
+          <div className="w-[36px] h-[5px] bg-[#444] rounded-[2px]"></div>
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <DominanceIcon />
-            <h4 className="text-base text-[#878787] leading-[1.35] font-semibold">
+            <h4 className="text-base text-[#878787] leading-[1.35] font-semibold select-none">
               DOMINANCE
             </h4>
           </div>
 
           <div className="flex items-center gap-2">
-            <button type="button" onClick={() => {}}>
-              <Favourite />
+            <button
+              type="button"
+              onClick={() => {
+                setShowInfo(true);
+              }}
+            >
+              <Question />
             </button>
             <OptionsDropdown widget={widget} />
           </div>
@@ -181,11 +189,11 @@ export default function Dominance(props: IProps) {
 
       <div className="flex flex-col">
         <div className="flex flex-col">
-          <h4 className="font-medium text-sm text-[#878787] leading-[1.35]">
+          <h4 className="font-medium text-sm text-[#878787] leading-[1.35] select-none">
             Bitcoin Dominance
           </h4>
           <div className="flex items-center gap-1">
-            <p className="text-white text-xl font-bold">{btcDominance}%</p>
+            <p className="text-xl font-bold text-white">{btcDominance}%</p>
             {/* <div className="flex items-center">
               <ArrowUp />
               <p className="font-semibold text-xs leading-[1.35] text-[#84ebb4]">
@@ -214,6 +222,64 @@ export default function Dominance(props: IProps) {
           </RenderIf>
         </div>
       </div>
+
+      <AnimatePresence>
+        {showInfo && (
+          <div className="absolute  bottom-[10px] left-[10px] right-[10px] top-[10px] z-9 flex items-end">
+            <motion.div
+              className="bg-[#111] rounded-[22px] py-4 px-5 overflow-auto max-h-full scrollbar"
+              variants={modalSlide}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+            >
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-3">
+                  <div className="flex flex-col">
+                    <h3 className="font-semibold text-base leading-[1.35] text-white">
+                      BTC Dominance
+                    </h3>
+                    <p className="font-light text-[13px] leading-[1.25] text-[#878787]">
+                      Learn about the BTC Dominance
+                    </p>
+                  </div>
+                  <p className="font-medium text-[13px] leading-[1.35] text-white">
+                    Bitcoin (BTC) dominance is the percentage of the total
+                    cryptocurrency market&apos;s value that Bitcoin accounts
+                    for.
+                  </p>
+
+                  <div className="flex flex-col">
+                    <p className="text-[#696969] text-xs font-semibold text-[1.25]">
+                      We use data from{" "}
+                      <a href="https://www.coingecko.com/" target="_blank">
+                        Coingecko.com
+                      </a>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex justify-center">
+                  <button
+                    type="button"
+                    className="rounded-[40px] bg-[#272727] flex items-center justify-center gap-1 h-[26px] app_widget_button"
+                    onClick={() => {
+                      setShowInfo(false);
+                    }}
+                  >
+                    <p className="font-medium text-[13px] text-white whitespace-nowrap app_widget_button__text">
+                      Close
+                    </p>
+                    <div className="app_widget_button__icon">
+                      <Close fill="#878787" />
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

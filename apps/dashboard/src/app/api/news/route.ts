@@ -6,6 +6,8 @@ import {
 } from "@/services/queries/news/types";
 import { NextResponse } from "next/server";
 
+type PartialExcept<T, K extends keyof T> = Partial<Omit<T, K>> & Pick<T, K>;
+
 // async function fetchRowsFromNewsLab() {
 //   const newsRows: Partial<NewsRowInsert>[] = [];
 
@@ -74,7 +76,7 @@ async function fetchNews() {
   const json: CryptopanicNewsApiResponse = await res.json();
   const news = json.results;
 
-  const newsRows: Partial<NewsRowInsert>[] = [];
+  const newsRows: PartialExcept<NewsRowInsert, "id">[] = [];
   const ids: string[] = [];
 
   for (const i of news) {
@@ -129,6 +131,13 @@ async function fetchNews() {
 
 //! REQUEST HANDLER FOR /api/news
 export async function GET(request: Request) {
+  const authHeader = request.headers.get("authorization");
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return new Response("Unauthorized", {
+      status: 401,
+    });
+  }
+
   try {
     const data = await fetchNews();
 

@@ -1,5 +1,5 @@
 import { toast } from '@zerodevx/svelte-toast';
-import type { ICoinCfgiPriceData, TCoinStatsCoin } from '$lib';
+import type { ICoinCfgiPriceData } from '$lib';
 import {
 	cfgi_chart_loading,
 	cfgi_period,
@@ -101,33 +101,14 @@ export function copy_social_link(platform: SocialSites, link: string) {
 }
 
 export async function refresh_coinstats_coin_list() {
-	const coins = await fetch('https://api.coin-stats.com/v4/coins?skip=0&limit=2500')
-		.then((res) => res.json())
-		.then((res) => (res?.coins as TCoinStatsCoin[]) || [])
-		.catch((err) => {
-			console.error(err);
-
-			return [];
-		});
-
-	coinstats_coin_list.set(
-		coins.map((coin) => {
-			return {
-				price: coin.pu,
-				priceChange: coin.p24,
-				marketCap: coin.m,
-				volume: coin.v,
-				icon: coin.ic,
-				symbol: coin.s,
-				name: coin.n,
-				color: coin.c,
-				slug: coin.i,
-				is_free: coin.i === 'bitcoin' || coin.i === 'ethereum'
-			};
-		})
-	);
+  return await fetch('/api/coinstats-coins')
+    .then((res) => res.json())
+    .catch((err) => {
+      console.error(err);
+      return [];
+    });
 }
-
+ 
 export async function fetch_global_data() {
 	const global_data = await fetch('https://api.coin-stats.com/v2/markets/global')
 		.then((res) => res.json())

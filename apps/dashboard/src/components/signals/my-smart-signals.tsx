@@ -81,6 +81,7 @@ const MySignals = () => {
                 hasInAppNotifications={true}
                 hasEmailNotifications={true}
                 lastUpdated={signal.updated_at}
+                firedAt={signal.fired_at}
               />
             ))}
         </RenderIf>

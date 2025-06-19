@@ -24,7 +24,7 @@ export function LivePrice(props: IProps) {
   const [percentChange, setPercentChange] = useState(0);
 
   useEffect(() => {
-    if (!location?.country) return;
+    // if (!location?.country) return;
     setTokenPrice("");
     setPercentChange(0);
     // const ws = new WebSocket(

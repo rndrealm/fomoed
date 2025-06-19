@@ -103,7 +103,7 @@ export const loadTabsFromApiAtom = atom(
     tabsFromApi: {
       id: string;
       name: string;
-      layout_id: string;
+      layout_id: string | null;
       // Any other tab fields can go here (like label/editMode if needed)
     }[],
     active_tab_id?: string | null

@@ -158,7 +158,7 @@ export function Toolbar() {
 
   return (
     <Fragment>
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center justify-end md:justify-between gap-4">
         <NewTabs />
 
         <div className="flex items-center gap-2">
@@ -190,45 +190,46 @@ export function Toolbar() {
             </button>
           </div> */}
 
-          <div id="third-step">
-            <RenderIf condition={!!currLayout && currLayout?.draft}>
-              <ToolbarItem
-                icon={isPending ? <Loader /> : <SaveDraft />}
-                label="Save Draft"
-                onClick={() => {
-                  if (isPending) return;
+          <div className="flex items-center gap-2">
+            <div id="third-step">
+              <RenderIf condition={!!currLayout && currLayout?.draft}>
+                <ToolbarItem
+                  icon={isPending ? <Loader /> : <SaveDraft />}
+                  label="Save Draft"
+                  onClick={() => {
+                    if (isPending) return;
 
-                  handleSaveLayout();
-                }}
-              />
+                    handleSaveLayout();
+                  }}
+                />
+              </RenderIf>
+            </div>
+
+            <RenderIf condition={!!currLayout && !currLayout?.draft}>
+              <Fragment>
+                <RenderIf
+                  condition={!settings.auto_save && !isError && !layoutChange}
+                >
+                  <ToolbarItem
+                    disabled={true}
+                    icon={isPending ? <Loader /> : <Unsaved />}
+                    label="Saved"
+                    onClick={isPending ? () => {} : handleSaveLayout}
+                  />
+                </RenderIf>
+
+                <RenderIf
+                  condition={isError || (layoutChange && !settings.auto_save)}
+                >
+                  <ToolbarItem
+                    icon={isPending ? <Loader /> : <ErrorSave />}
+                    label="Save layout changes"
+                    onClick={isPending ? () => {} : handleSaveLayout}
+                  />
+                </RenderIf>
+              </Fragment>
             </RenderIf>
-          </div>
-
-          <RenderIf condition={!!currLayout && !currLayout?.draft}>
-            <Fragment>
-              <RenderIf
-                condition={!settings.auto_save && !isError && !layoutChange}
-              >
-                <ToolbarItem
-                  disabled={true}
-                  icon={isPending ? <Loader /> : <Unsaved />}
-                  label="Saved"
-                  onClick={isPending ? () => {} : handleSaveLayout}
-                />
-              </RenderIf>
-
-              <RenderIf
-                condition={isError || (layoutChange && !settings.auto_save)}
-              >
-                <ToolbarItem
-                  icon={isPending ? <Loader /> : <ErrorSave />}
-                  label="Save layout changes"
-                  onClick={isPending ? () => {} : handleSaveLayout}
-                />
-              </RenderIf>
-            </Fragment>
-          </RenderIf>
-          {/* {currLayout && !currLayout?.draft ? (
+            {/* {currLayout && !currLayout?.draft ? (
             <ToolbarItem
               icon={isPending ? <Loader /> : <Unsaved />}
               label="Save"
@@ -236,9 +237,10 @@ export function Toolbar() {
             />
           ) : null} */}
 
-          <LayoutDropdown />
+            <LayoutDropdown />
 
-          <SettingsDropdown />
+            <SettingsDropdown />
+          </div>
         </div>
       </div>
 

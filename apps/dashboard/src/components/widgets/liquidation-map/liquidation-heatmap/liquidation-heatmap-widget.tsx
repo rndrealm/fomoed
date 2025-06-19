@@ -55,7 +55,14 @@ export default function LiquidationHeatmapWidget(props: IProps) {
       widgetId: widget.id,
       widgetProps: { ...widget.props, exchange_token: pairsData[0].label },
     });
-  }, [pairsData, selectedPair, activeLayout.id, updateWidgetPropsFromAtom, widget.id, widget.props]);
+  }, [
+    pairsData,
+    selectedPair,
+    activeLayout.id,
+    updateWidgetPropsFromAtom,
+    widget.id,
+    widget.props,
+  ]);
 
   const filteredData = useMemo(() => {
     if (!pairsData) return [];
@@ -76,7 +83,7 @@ export default function LiquidationHeatmapWidget(props: IProps) {
         </div>
         <div
           className={cn(
-            "flex flex-col justify-center w-full h-full rounded-sm"
+            "flex flex-col justify-center w-full h-full rounded-sm relative"
           )}
         >
           <div className="py-4 ">

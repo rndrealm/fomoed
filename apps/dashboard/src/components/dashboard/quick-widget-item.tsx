@@ -1,3 +1,4 @@
+"use client";
 import { getGridPosition } from "@/charts/helpers";
 import dashboard from "@/lib/assets/dashboard";
 import {
@@ -12,7 +13,7 @@ import { capitalizeFirst, joinWidgetSlug, maxTabsByPlan } from "@/lib/utils";
 import { useGetUserPlans } from "@/services/queries/subscriptions";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import Image from "next/image";
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { RenderIf } from "../shared";
 import { ModalContainer } from "../shared";
@@ -39,11 +40,15 @@ export function QuickWidgetItem(props: IProps) {
 
   const tour = useNextStep();
 
+  const isClicked = useRef(false);
+
   return (
     <Fragment>
       <button
         className="flex flex-col gap-x-[6px] gap-y-[6px] cursor-pointer"
+        disabled={isClicked.current}
         onClick={() => {
+          isClicked.current = true;
           const currLayoutId = activeTab.layout_id;
           const currLayout = layouts.find((item) => item.id === currLayoutId);
 
@@ -84,6 +89,7 @@ export function QuickWidgetItem(props: IProps) {
             addWidgetToNewLayout({ newWidget });
           }
           handleGoBack();
+          isClicked.current = false;
           if (tour.currentStep === 1) {
             tour.setCurrentStep(tour.currentStep + 1);
           }

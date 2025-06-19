@@ -1,6 +1,4 @@
 import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
-import { PostgrestSingleResponse } from "@supabase/supabase-js";
-import { ISubscription } from "./types";
 
 export const getActivePlan = async () => {
   const supabase = createSupabaseBrowserClient();
@@ -13,10 +11,7 @@ export const getActivePlan = async () => {
     throw new Error("Please login.");
   }
 
-  const {
-    data: subscriptions,
-    error: sub_error,
-  }: PostgrestSingleResponse<ISubscription[]> = await supabase
+  const { data: subscriptions, error: sub_error } = await supabase
     .from("subscriptions")
     .select()
     .eq("user_id", user.id);
@@ -30,7 +25,7 @@ export const getActivePlan = async () => {
   console.log("subscriptions:", subscriptions);
 
   const subs = subscriptions.filter(
-    (sub) => new Date(sub.end_timestamp).getTime() > Date.now()
+    (sub) => new Date(sub.end_timestamp || "").getTime() > Date.now()
   );
 
   if (subs.find((i) => i.plan_name === "plus")) {
