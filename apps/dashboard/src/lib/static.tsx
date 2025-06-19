@@ -158,14 +158,14 @@ export const layoutOptionsMap = [
     tags: ["charts", "new"],
   },
 
-  {
-    id: 115,
-    name: "Coin Stats",
-    slug: "coin-stats",
-    image: dashboard.coinStats,
-    category: "charts",
-    tags: ["charts", "new"],
-  },
+  // {
+  //   id: 115,
+  //   name: "Coin Stats",
+  //   slug: "coin-stats",
+  //   image: dashboard.coinStats,
+  //   category: "charts",
+  //   tags: ["charts", "new"],
+  // },
 
   {
     id: 116,
@@ -176,14 +176,14 @@ export const layoutOptionsMap = [
     tags: ["charts", "new"],
   },
 
-  // {
-  //   id: 116,
-  //   name: "CFGI",
-  //   slug: "cfgi",
-  //   image: dashboard.summary,
-  //   category: "charts",
-  //   tags: ["charts", "new"],
-  // },
+  {
+    id: 116,
+    name: "CFGI",
+    slug: "cfgi",
+    image: dashboard.summary,
+    category: "charts",
+    tags: ["charts", "new"],
+  },
 
   {
     id: 6,

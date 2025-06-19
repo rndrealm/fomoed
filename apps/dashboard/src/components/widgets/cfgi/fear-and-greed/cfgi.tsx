@@ -200,7 +200,7 @@ export default function CFGI(props: IProps) {
                     <p className="text-[#696969] text-xs font-semibold text-[1.25]">
                       We use data from{" "}
                       <a href="https://cfgi.io/" target="_blank">
-                        CFGI.com
+                        CFGI.io
                       </a>
                     </p>
                   </div>
