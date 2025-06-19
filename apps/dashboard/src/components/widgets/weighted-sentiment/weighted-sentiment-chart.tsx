@@ -256,269 +256,279 @@ const WeightedSentimentChart = (props: IWeightedSentimentChart) => {
     value: number;
   }>({ visible: false, top: 0, left: 0, value: 0 });
 
-  const chart_init = useCallback(
-    (ctx: CanvasRenderingContext2D) => {
-      // Only filter out completely invalid data.
-      const filteredSentimentData = sentimentData.filter(
-        (d) => d.value !== null && d.value !== undefined && !isNaN(d.value)
-      );
-      const filteredPriceData = priceData.filter(
-        (d) => d.price !== null && d.price !== undefined && !isNaN(d.price)
-      );
+  useEffect(() => {
+    if (!canvasRef.current) return;
 
-      // Sort data by date to ensure correct rendering
-      filteredSentimentData.sort(
-        (a, b) =>
-          new Date(a.datetime).getTime() - new Date(b.datetime).getTime()
-      );
-      filteredPriceData.sort(
-        (a, b) =>
-          new Date(a.datetime).getTime() - new Date(b.datetime).getTime()
-      );
+    const ctx = canvasRef.current.getContext("2d");
+    if (!ctx) return;
 
-      if (
-        filteredSentimentData.length === 0 ||
-        filteredPriceData.length === 0
-      ) {
-        console.warn("No valid data to display");
-        return;
-      }
-
-      const sentiment_chart_data = filteredSentimentData.map((d) => {
-        return { x: new Date(d.datetime), y: d.value };
-      });
-
-      const price_chart_data = filteredPriceData.map((d) => {
-        return { x: new Date(d.datetime), y: Math.round(d.price) };
-      });
-
-      // Create gradient for sentiment area
-      const gradient = ctx.createLinearGradient(0, 0, 0, 200);
-      gradient.addColorStop(0, "rgba(71, 166, 99, 0.4)");
-      gradient.addColorStop(1, "rgba(71, 166, 99, 0)");
-
-      // Single dataset for sentiment with dynamic segment coloring
-      const sentiment_dataset: any = {
-        type: "line",
-        data: sentiment_chart_data as any,
-        backgroundColor: gradient,
-        borderColor: "#47A663", // fallback, will be overridden by plugin
-        borderWidth: 2,
-        fill: true,
-        yAxisID: "sentimentY",
-        xAxisID: "x",
-        label: "Sentiment",
-        order: 2,
-        spanGaps: true,
-        pointRadius: 0,
-        parsing: false,
-      };
-
-      const price_dataset: any = {
-        type: "line",
-        data: price_chart_data as any,
-        yAxisID: "priceY",
-        xAxisID: "x",
-        label: "Price",
-        order: 1,
-        spanGaps: true,
-        pointRadius: 0,
-        borderColor: "white",
-        borderWidth: 2,
-        parsing: false,
-      };
-
-      const minDate = Math.min(
-        sentiment_chart_data[0]?.x?.getTime() || Date.now(),
-        price_chart_data[0]?.x?.getTime() || Date.now()
-      );
-      const maxDate = Math.max(
-        sentiment_chart_data[sentiment_chart_data.length - 1]?.x?.getTime() ||
-          Date.now(),
-        price_chart_data[price_chart_data.length - 1]?.x?.getTime() ||
-          Date.now()
-      );
-
-      // Calculate period in seconds for zoom limits
-      const periodSeconds =
-        period === "15m"
-          ? 15 * 60
-          : period === "1h"
-            ? 60 * 60
-            : period === "4h"
-              ? 4 * 60 * 60
-              : period === "1d"
-                ? 24 * 60 * 60
-                : 15 * 60;
-
-      const zoomPluginOptions: ZoomPluginOptions = {
-        zoom: {
-          wheel: {
-            enabled: true,
-          },
-          pinch: {
-            enabled: true,
-          },
-          mode: "x",
-        },
-        pan: {
+    const zoomPluginOptions: ZoomPluginOptions = {
+      zoom: {
+        wheel: {
           enabled: true,
-          mode: "x",
-          threshold: 0,
         },
-        limits: {
-          x: {
-            minRange: periodSeconds * 1000,
-            min: minDate,
-            max: maxDate,
-          },
+        pinch: {
+          enabled: true,
         },
-      };
+        mode: "x",
+      },
+      pan: {
+        enabled: true,
+        mode: "x",
+        threshold: 0,
+      },
+      limits: {
+        x: {
+          minRange: 15 * 60 * 1000,
+        },
+      },
+    };
 
-      const crosshairPluginOptions: CrosshairPluginConfig = {
-        labels: [
-          {
-            scaleId: "x",
-            label: "Date & Time",
-            getText: () => (val) => {
-              return dayjs(val).format("DD MMM YYYY HH:mm");
-            },
+    const crosshairPluginOptions: CrosshairPluginConfig = {
+      labels: [
+        {
+          scaleId: "x",
+          label: "Date & Time",
+          getText: () => (val) => {
+            return dayjs(val).format("DD MMM YYYY HH:mm");
           },
-          {
-            scaleId: "sentimentY",
-            label: "Sentiment",
-            getText: () => (val) => val.toFixed(4),
-            getTextColor: () => (val) => (val >= 0 ? "#47A663" : "#FF3B10"),
-          },
-          {
-            scaleId: "priceY",
-            label: "Price",
-            getText: () => (val) => "$" + commaFormatNumber(Math.round(val)),
-          },
-        ],
-        crosshairEnableDelay: 200,
-        labelStackDirection: "vertical",
-      };
-
-      const options = {
-        interaction: {
-          mode: "nearest",
         },
-        responsive: true,
-        maintainAspectRatio: false,
-        animations: false,
-        scales: {
-          priceY: {
-            beginAtZero: false,
-            ticks: {
-              font: { family: "sans-serif", size: 10 },
-              source: "data",
-              stepSize: 5000,
-              callback: (value: number) => {
-                return `$${Math.round(value / 1000)}k`;
-              },
-            },
-            position: "left",
-            grid: {
-              display: true,
-              color: "rgba(255, 255, 255, 0.1)",
+        {
+          scaleId: "sentimentY",
+          label: "Sentiment",
+          getText: () => (val) => val.toFixed(4),
+          getTextColor: () => (val) => (val >= 0 ? "#47A663" : "#FF3B10"),
+        },
+        {
+          scaleId: "priceY",
+          label: "Price",
+          getText: () => (val) => "$" + commaFormatNumber(Math.round(val)),
+        },
+      ],
+      crosshairEnableDelay: 200,
+      labelStackDirection: "vertical",
+    };
+
+    const options = {
+      interaction: {
+        mode: "nearest",
+      },
+      responsive: true,
+      maintainAspectRatio: false,
+      animations: false,
+      scales: {
+        priceY: {
+          beginAtZero: false,
+          ticks: {
+            font: { family: "sans-serif", size: 10 },
+            source: "data",
+            stepSize: 5000,
+            callback: (value: number) => {
+              return `$${Math.round(value / 1000)}k`;
             },
           },
-          sentimentY: {
-            beginAtZero: false,
-            grid: {
-              display: true,
-              color: "rgba(255, 255, 255, 0.1)",
-              lineWidth: 0.5,
-            },
-            ticks: {
-              font: { family: "sans-serif", size: 10 },
-              callback: function (value: any) {
-                if (Math.abs(value) >= 10) {
-                  return value.toFixed(0);
-                } else if (Math.abs(value) >= 1) {
-                  return value.toFixed(1);
-                } else {
-                  return value.toFixed(2);
-                }
-              },
-              color: function (value: any) {
-                return value.tick.value === 0
-                  ? "rgba(255, 255, 255, 0.5)"
-                  : value.tick.value > 0 //
-                    ? "#47A663"
-                    : "#FF3B10";
-              },
-            },
-            position: "right",
+          position: "left",
+          grid: {
+            display: true,
+            color: "rgba(255, 255, 255, 0.1)",
           },
-          x: {
-            ticks: {
-              minRotation: 0,
-              maxRotation: 0,
-              offset: false,
-              source: "data",
-              padding: 10,
-              sampleSize: 1,
-              font: { family: "sans-serif", size: 10 },
+        },
+        sentimentY: {
+          beginAtZero: false,
+          grid: {
+            display: true,
+            color: "rgba(255, 255, 255, 0.1)",
+            lineWidth: 0.5,
+          },
+          ticks: {
+            font: { family: "sans-serif", size: 10 },
+            callback: function (value: any) {
+              if (Math.abs(value) >= 10) {
+                return value.toFixed(0);
+              } else if (Math.abs(value) >= 1) {
+                return value.toFixed(1);
+              } else {
+                return value.toFixed(2);
+              }
             },
-            time: {
-              unit:
-                period === "15m"
-                  ? "minute"
-                  : period === "1h"
-                    ? "hour"
-                    : period === "4h"
-                      ? "hour"
-                      : period === "1d"
-                        ? "day"
-                        : "minute",
-              displayFormats: {
-                minute: "HH:mm",
-                hour: "DD MMM HH:mm",
-                day: "DD MMM YY",
-              },
-              min: minDate,
-              max: maxDate,
+            color: function (value: any) {
+              return value.tick.value === 0
+                ? "rgba(255, 255, 255, 0.5)"
+                : value.tick.value > 0 //
+                  ? "#47A663"
+                  : "#FF3B10";
             },
+          },
+          position: "right",
+        },
+        x: {
+          ticks: {
+            minRotation: 0,
+            maxRotation: 0,
             offset: false,
-            type: "time",
-            grid: {
-              display: true,
-              color: "rgba(255, 255, 255, 0.1)",
+            source: "data",
+            padding: 10,
+            sampleSize: 1,
+            font: { family: "sans-serif", size: 10 },
+          },
+          time: {
+            displayFormats: {
+              minute: "HH:mm",
+              hour: "DD MMM HH:mm",
+              day: "DD MMM YY",
             },
           },
-        },
-        plugins: {
-          legend: {
-            display: false,
-          },
-          zoom: zoomPluginOptions,
-          tooltip: {
-            enabled: false,
-            mode: "nearest",
-            intersect: false,
-          },
-          crosshair: crosshairPluginOptions,
-          doubleTapResetZoom: true,
-          plusButton: {
-            onUpdate: (data: any) => {
-              setMenu(data);
-            },
+          offset: false,
+          type: "time",
+          grid: {
+            display: true,
+            color: "rgba(255, 255, 255, 0.1)",
           },
         },
-      };
+      },
+      plugins: {
+        legend: {
+          display: false,
+        },
+        zoom: zoomPluginOptions,
+        tooltip: {
+          enabled: false,
+          mode: "nearest",
+          intersect: false,
+        },
+        crosshair: crosshairPluginOptions,
+        doubleTapResetZoom: true,
+        plusButton: {
+          onUpdate: (data: any) => {
+            setMenu(data);
+          },
+        },
+      },
+    };
 
+    chartRef.current = new Chart(ctx, {
+      data: { datasets: [] },
+      options: options as any,
+    });
+
+    return () => {
       chartRef.current?.destroy();
-      if (canvasRef.current) {
-        chartRef.current = new Chart(canvasRef.current, {
-          data: { datasets: [price_dataset, sentiment_dataset] as any },
-          options: options as any,
-        });
+    };
+  }, []);
+
+  useEffect(() => {
+    const chart = chartRef.current;
+    if (!chart || !sentimentData || !priceData) return;
+
+    // Only filter out completely invalid data.
+    const filteredSentimentData = sentimentData.filter(
+      (d) => d.value !== null && d.value !== undefined && !isNaN(d.value)
+    );
+    const filteredPriceData = priceData.filter(
+      (d) => d.price !== null && d.price !== undefined && !isNaN(d.price)
+    );
+
+    // Sort data by date to ensure correct rendering
+    filteredSentimentData.sort(
+      (a, b) => new Date(a.datetime).getTime() - new Date(b.datetime).getTime()
+    );
+    filteredPriceData.sort(
+      (a, b) => new Date(a.datetime).getTime() - new Date(b.datetime).getTime()
+    );
+
+    if (filteredSentimentData.length === 0 || filteredPriceData.length === 0) {
+      chart.data.datasets = [];
+      chart.update();
+      return;
+    }
+
+    const sentiment_chart_data = filteredSentimentData.map((d) => {
+      return { x: new Date(d.datetime), y: d.value };
+    });
+
+    const price_chart_data = filteredPriceData.map((d) => {
+      return { x: new Date(d.datetime), y: Math.round(d.price) };
+    });
+
+    // Single dataset for sentiment with dynamic segment coloring
+    const sentiment_dataset: any = {
+      type: "line",
+      data: sentiment_chart_data as any,
+      borderColor: "#47A663", // fallback, will be overridden by plugin
+      borderWidth: 2,
+      fill: true,
+      yAxisID: "sentimentY",
+      xAxisID: "x",
+      label: "Sentiment",
+      order: 2,
+      spanGaps: true,
+      pointRadius: 0,
+      parsing: false,
+    };
+
+    const price_dataset: any = {
+      type: "line",
+      data: price_chart_data as any,
+      yAxisID: "priceY",
+      xAxisID: "x",
+      label: "Price",
+      order: 1,
+      spanGaps: true,
+      pointRadius: 0,
+      borderColor: "white",
+      borderWidth: 2,
+      parsing: false,
+    };
+
+    chart.data.datasets = [price_dataset, sentiment_dataset];
+
+    const minDate = Math.min(
+      sentiment_chart_data[0]?.x?.getTime() || Date.now(),
+      price_chart_data[0]?.x?.getTime() || Date.now()
+    );
+    const maxDate = Math.max(
+      sentiment_chart_data[sentiment_chart_data.length - 1]?.x?.getTime() ||
+        Date.now(),
+      price_chart_data[price_chart_data.length - 1]?.x?.getTime() || Date.now()
+    );
+
+    // Calculate period in seconds for zoom limits
+    const periodSeconds =
+      period === "15m"
+        ? 15 * 60
+        : period === "1h"
+          ? 60 * 60
+          : period === "4h"
+            ? 4 * 60 * 60
+            : period === "1d"
+              ? 24 * 60 * 60
+              : 15 * 60;
+
+    if (chart.options.plugins?.zoom?.limits?.x) {
+      chart.options.plugins.zoom.limits.x.minRange = periodSeconds * 1000;
+      chart.options.plugins.zoom.limits.x.min = minDate;
+      chart.options.plugins.zoom.limits.x.max = maxDate;
+    }
+
+    if (chart.options.scales?.x && chart.options.scales.x.type === "time") {
+      chart.options.scales.x.min = minDate;
+      chart.options.scales.x.max = maxDate;
+      if (chart.options.scales.x.time) {
+        chart.options.scales.x.time.unit =
+          period === "15m"
+            ? "minute"
+            : period === "1h"
+              ? "hour"
+              : period === "4h"
+                ? "hour"
+                : period === "1d"
+                  ? "day"
+                  : "minute";
       }
-    },
-    [sentimentData, priceData, period]
-  );
+    }
+
+    chart.update();
+  }, [sentimentData, priceData, period]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -535,13 +545,6 @@ const WeightedSentimentChart = (props: IWeightedSentimentChart) => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [menu.visible]);
-
-  useEffect(() => {
-    if (!canvasRef.current) return;
-    const ctx = canvasRef.current?.getContext("2d");
-    if (!ctx) return;
-    chart_init(ctx);
-  }, [sentimentData, priceData, period, chart_init]);
 
   return (
     <div style={{ position: "relative", height: "100%" }} ref={containerRef}>
