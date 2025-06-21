@@ -138,7 +138,7 @@ export default function NewPriceHistory(props: IProps) {
             <div className="w-[36px] h-[5px] bg-[#444] rounded-[2px]"></div>
           </div>
 
-          <div className="px-4 flex items-center justify-between mb-3">
+          <div className="px-2 sm:px-4 flex items-center justify-between mb-3">
             <div className="">
               <PriceTokenDropdown
                 options={coinData}
@@ -169,10 +169,10 @@ export default function NewPriceHistory(props: IProps) {
             </div>
           </div>
         </div>
-        <div className="flex justify-between items-center px-4">
+        <div className="flex justify-between items-end sm:items-center px-2 sm:px-4">
           <LivePrice token={widget?.props?.token} />
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2">
             <div className="flex items-center gap-[2px] bg-[#161616] rounded-[5px] p-[1px]">
               <button
                 type="button"
