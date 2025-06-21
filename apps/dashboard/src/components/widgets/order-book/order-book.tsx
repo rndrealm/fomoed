@@ -1,8 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { OptionsDropdown } from "../shared/options-dropwdown";
-import { Close, CoinStats, Question } from "@/components/icons/icons";
+import { Close } from "@/components/icons/icons";
 import { cn, formatPriceSignificant, modalSlide } from "@/lib/utils";
 import { LayoutType, updateWidgetPropsAtom } from "@/lib/atoms/layoutAtom";
 import CoinStatsTokenDropdown from "../shared/coin-stats-token-dropdown";
@@ -13,6 +12,7 @@ import {
 import { useAtomValue, useSetAtom } from "jotai";
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 import { geoLocationAtom } from "@/lib/atoms/geoLocation";
+import { WidgetWrapper } from "../shared";
 
 type IOrder = [string, string]; // [price, quantity]
 
@@ -195,33 +195,13 @@ export default function OrderBook(props: IProps) {
   }, [widget?.props?.token]);
 
   return (
-    <div className="flex flex-col gap-2 p-4 pt-0 rounded-2xl bg-[#000] relative overflow-hidden h-full">
-      <div className="flex flex-col gap-1">
-        <div className="flex justify-center pt-4 pb-1 cursor-grab">
-          <div className="w-[36px] h-[5px] bg-[#444] rounded-[2px]"></div>
-        </div>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <CoinStats />
-            <h4 className="text-base text-[#878787] leading-[1.35] font-semibold select-none">
-              ORDER BOOK
-            </h4>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                setShowInfo(true);
-              }}
-            >
-              <Question />
-            </button>
-            <OptionsDropdown widget={widget} />
-          </div>
-        </div>
-      </div>
-
+    <WidgetWrapper
+      title="ORDER BOOK"
+      widget={widget}
+      handleLearnMore={() => {
+        setShowInfo(true);
+      }}
+    >
       <div className="">
         <CoinStatsTokenDropdown
           options={coinData}
@@ -240,7 +220,7 @@ export default function OrderBook(props: IProps) {
         />
       </div>
 
-      <div className="flex flex-col justify-between flex-1 px-4">
+      <div className="flex flex-col justify-between flex-1 sm:px-2 md:px-4">
         <OrderBookSection data={sales} token={widget?.props?.token} />
         <div className="flex flex-col items-center justify-center py-[5px] px-[10px]">
           <p
@@ -325,6 +305,6 @@ export default function OrderBook(props: IProps) {
           </div>
         )}
       </AnimatePresence>
-    </div>
+    </WidgetWrapper>
   );
 }

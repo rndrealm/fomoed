@@ -106,17 +106,17 @@ export default function Home({ dashboardData }: IProps) {
         {/* <OnboardingModal isOpen={isOpen} onOpenChange={handleOpenChange} /> */}
         <div
           className={cn(
-            "h-screen pt-[66px] md:pt-[96px] md:px-4 pb-4 overflow-hidden bg-[#0C0C0C]",
+            "h-screen pt-[66px] md:px-4 pb-4 overflow-hidden bg-[#0C0C0C]",
             !utils.isFullScreen
-              ? "pt-[66px] md:pt-[96px] md:px-4 pb-4"
+              ? "pt-[66px] md:pt-[72px] md:px-4 pb-4"
               : "p-1 md:pt-1"
           )}
         >
-          <div className="relative flex flex-col w-full h-full gap-4">
+          <div className="relative flex flex-col w-full h-full gap-2">
             <div className="px-4 md:px-6">
               <Toolbar />
             </div>
-            <div className="flex-1 md:border border-[#333333] bg-[#0F0F0F] overflow-auto rounded-[20px] scrollbar app_dashboard_content p-4 md:p-0">
+            <div className="flex-1 md:border border-[#333333] bg-[#0F0F0F] overflow-auto rounded-[20px] scrollbar app_dashboard_content p-2 sm:p4 md:p-0">
               <DashboardContent />
             </div>
             <FullscreenBtn
