@@ -1,9 +1,14 @@
 import { CoinStats, Question, Summary } from "@/components/icons/icons";
-import { cn } from "@/lib/utils";
+import { cn, splitWidgetSlug } from "@/lib/utils";
 import React, { ReactNode } from "react";
 import { OptionsDropdown } from "./options-dropwdown";
 import { LayoutType } from "@/lib/atoms/layoutAtom";
 import { RenderIf } from "@/components/shared";
+import StarFilled from "@/components/icons/StarFilled";
+import { useAtomValue, useSetAtom } from "jotai";
+import { settingAtom, updateSettingAtom } from "@/lib/atoms/settingsAtom";
+import Star from "@/components/icons/Star";
+import { motion } from "motion/react";
 
 interface IProps {
   children: ReactNode;
@@ -24,6 +29,11 @@ export function WidgetWrapper(props: IProps) {
     titleIcon = "coinstats",
   } = props;
 
+  const settings = useAtomValue(settingAtom);
+  const updateSettings = useSetAtom(updateSettingAtom);
+
+  const widgetSlug = splitWidgetSlug(widget.meta.i).slug;
+
   return (
     <div
       className={cn(
@@ -32,7 +42,7 @@ export function WidgetWrapper(props: IProps) {
       )}
     >
       <div className="flex flex-col gap-1">
-        <div className="cursor-grab flex justify-center pt-4 pb-1">
+        <div className="flex justify-center pt-4 pb-1 cursor-grab">
           <div className="w-[36px] h-[5px] bg-[#444] rounded-[2px]"></div>
         </div>
 
@@ -51,6 +61,41 @@ export function WidgetWrapper(props: IProps) {
           </div>
 
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                const isFavorite =
+                  settings.favorite_widgets.includes(widgetSlug);
+
+                let newWidgetArray: string[] = [];
+
+                if (isFavorite) {
+                  newWidgetArray = settings.favorite_widgets.filter(
+                    (item) => item !== widgetSlug
+                  );
+                } else {
+                  newWidgetArray = [...settings.favorite_widgets, widgetSlug];
+                }
+                updateSettings({
+                  ...settings,
+                  favorite_widgets: newWidgetArray,
+                });
+              }}
+            >
+              {settings.favorite_widgets.includes(widgetSlug) ? (
+                <motion.div
+                  initial={{ rotate: 0 }}
+                  animate={{ rotate: [-30, 30, -15, 15, 0] }}
+                  transition={{
+                    duration: 1,
+                    times: [0, 0.2, 0.4, 0.8, 1],
+                  }}
+                >
+                  <StarFilled />
+                </motion.div>
+              ) : (
+                <Star />
+              )}
+            </button>
             <button type="button" onClick={handleLearnMore}>
               <Question />
             </button>

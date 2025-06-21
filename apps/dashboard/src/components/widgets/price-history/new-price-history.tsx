@@ -38,6 +38,9 @@ import { geoLocationAtom } from "@/lib/atoms/geoLocation";
 import { ModalContainer } from "@/components/shared";
 import { TradingViewPriceHistory } from "./price-history";
 import { AnimatePresence, motion } from "motion/react";
+import Star from "@/components/icons/Star";
+import { settingAtom, updateSettingAtom } from "@/lib/atoms/settingsAtom";
+import StarFilled from "@/components/icons/StarFilled";
 
 interface IOptionsDropdown {
   widget: LayoutType["widgets"][0];
@@ -55,9 +58,9 @@ function OptionsDropdown(props: IOptionsDropdown) {
     <Fragment>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <div className="w-[24px] h-[24px] bg-[#161616] rounded-sm flex items-center justify-center">
+          <button className="w-[24px] h-[24px]  flex items-center justify-center">
             <Ellipsis />
-          </div>
+          </button>
         </DropdownMenuTrigger>
 
         <DropdownMenuContent
@@ -130,15 +133,20 @@ export default function NewPriceHistory(props: IProps) {
   const activeLayout = useAtomValue(activeTabAtom);
   const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
 
+  const settings = useAtomValue(settingAtom);
+  const updateSettings = useSetAtom(updateSettingAtom);
+
+  const widgetSlug = splitWidgetSlug(widget.meta.i).slug;
+
   return (
     <Fragment>
       <div className="flex flex-col gap-2 bg-[#000] pt-0 pb-4 rounded-2xl h-full relative">
         <div className="flex flex-col gap-1">
-          <div className="cursor-grab flex justify-center pt-4 pb-1">
+          <div className="flex justify-center pt-4 pb-1 cursor-grab">
             <div className="w-[36px] h-[5px] bg-[#444] rounded-[2px]"></div>
           </div>
 
-          <div className="px-2 sm:px-4 flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between px-4 mb-3">
             <div className="">
               <PriceTokenDropdown
                 options={coinData}
@@ -158,6 +166,41 @@ export default function NewPriceHistory(props: IProps) {
             </div>
             <div className="flex items-center gap-2">
               <button
+                onClick={() => {
+                  const isFavorite =
+                    settings.favorite_widgets.includes(widgetSlug);
+
+                  let newWidgetArray: string[] = [];
+
+                  if (isFavorite) {
+                    newWidgetArray = settings.favorite_widgets.filter(
+                      (item) => item !== widgetSlug
+                    );
+                  } else {
+                    newWidgetArray = [...settings.favorite_widgets, widgetSlug];
+                  }
+                  updateSettings({
+                    ...settings,
+                    favorite_widgets: newWidgetArray,
+                  });
+                }}
+              >
+                {settings.favorite_widgets.includes(widgetSlug) ? (
+                  <motion.div
+                    initial={{ rotate: 0 }}
+                    animate={{ rotate: [-30, 30, -15, 15, 0] }}
+                    transition={{
+                      duration: 1,
+                      times: [0, 0.2, 0.4, 0.8, 1],
+                    }}
+                  >
+                    <StarFilled />
+                  </motion.div>
+                ) : (
+                  <Star />
+                )}
+              </button>
+              <button
                 type="button"
                 onClick={() => {
                   setShowInfo(true);
@@ -169,10 +212,10 @@ export default function NewPriceHistory(props: IProps) {
             </div>
           </div>
         </div>
-        <div className="flex justify-between items-end sm:items-center px-2 sm:px-4">
+        <div className="flex items-center justify-between px-4">
           <LivePrice token={widget?.props?.token} />
 
-          <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2">
+          <div className="flex items-center gap-2">
             <div className="flex items-center gap-[2px] bg-[#161616] rounded-[5px] p-[1px]">
               <button
                 type="button"
@@ -210,6 +253,7 @@ export default function NewPriceHistory(props: IProps) {
                   widgetProps: { ...widget.props, period: value },
                 });
               }}
+              triggerClassName="h-6 w-15"
             />
           </div>
         </div>
@@ -238,7 +282,7 @@ export default function NewPriceHistory(props: IProps) {
           }}
         >
           <button
-            className="w-full h-full flex justify-center items-center"
+            className="flex items-center justify-center w-full h-full"
             onClick={() => {
               setIsFullscreen(true);
             }}
