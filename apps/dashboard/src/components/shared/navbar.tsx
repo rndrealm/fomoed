@@ -71,7 +71,7 @@ export const Navbar = (props: IProps) => {
 
   return (
     <RenderIf condition={!utils.isFullScreen}>
-      <nav className="bg-[#0C0C0C] border-b border-[#161616] py-3 px-4 md:px-10 md:py-4 flex flex-col items-center overflow-hidden">
+      <nav className="bg-[#0C0C0C] border-b border-[#161616] py-3 px-2 sm:px-4 md:px-10 md:py-4 flex flex-col items-center overflow-hidden">
         <div className="flex items-center justify-between w-full mx-auto">
           <div className="w-[24px] h-[24px] md:hidden">
             <Link href="/">
@@ -116,7 +116,7 @@ export const Navbar = (props: IProps) => {
 
               <button
                 type="button"
-                className="w-[24px] h-[24px] md:hidden"
+                className="w-[24px] h-[24px] md:hidden flex items-center justify-center"
                 onClick={() => {
                   setIsMenuOpen(!isMenuOpen);
                 }}
