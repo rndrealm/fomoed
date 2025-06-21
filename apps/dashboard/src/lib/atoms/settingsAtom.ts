@@ -5,9 +5,10 @@ import {
 } from "@/services/queries/settings/actions";
 import { atom } from "jotai";
 
-export const initialSetting = {
+export const initialSetting: IDashboardData["settings"] = {
   id: "",
   auto_save: true,
+  favorite_widgets: [],
 };
 
 export const settingAtom = atom(initialSetting);
