@@ -42,6 +42,8 @@ Connection is made from the Next.js edge function. Connection is secured over TL
 
 ⚠️ This is fine for just the widget data. We absolutely CANNOT store any user data or sensitive info in this instance, as it is not safe.
 
+The same instance is used for all deploys.
+
 ### Troubleshooting
 
 **API edge function are not connecting to redis DB**
