@@ -157,15 +157,14 @@ export const layoutOptionsMap = [
     category: "charts",
     tags: ["charts", "new"],
   },
-
-  // {
-  //   id: 115,
-  //   name: "Coin Stats",
-  //   slug: "coin-stats",
-  //   image: dashboard.coinStats,
-  //   category: "charts",
-  //   tags: ["charts", "new"],
-  // },
+  {
+    id: 115,
+    name: "Coin Stats",
+    slug: "coin-stats",
+    image: dashboard.coinStats,
+    category: "charts",
+    tags: ["charts", "new"],
+  },
 
   {
     id: 116,

@@ -6,7 +6,10 @@ import { CoinStatsTokenInfo } from '@/services/queries/charts/types';
 const redis = new Redis(
   process.env.REDIS_URL != ""
     ? (process.env.REDIS_URL as string)
-    : 'redis://localhost:6379'
+    : 'redis://localhost:6379',
+    {
+      password: process.env.REDIS_PASSWORD || undefined,
+    }
 );
 
 const COIN_KEY_PREFIX = 'coin:';
