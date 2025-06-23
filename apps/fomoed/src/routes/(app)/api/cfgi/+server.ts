@@ -129,10 +129,9 @@ export async function POST({ request, locals: { supabase, user } }: RequestEvent
 	const token_symbol = formData.token_symbol;
 	const period: CFGI_SUPPORTED_PERIODS_ENUM = formData.period || CFGI_SUPPORTED_PERIODS_ENUM.DAY1;
 	const daysBack: number | null = formData.days_back | null;
-	const token_slug = formData.token_slug;
 
-	if (!token_symbol || !token_slug) {
-		return error(400, { message: 'Bad Request' });
+	if (!token_symbol) {
+		return error(400, { message: 'Bad Request. Missing token_symbol form data field.' });
 	}
 
 	// Check subscription
@@ -176,7 +175,7 @@ export async function POST({ request, locals: { supabase, user } }: RequestEvent
 	// Fallback
 	// Token History
 	const token_historical_price = uniqBy(
-		await fetch(`https://api.coin-stats.com/v2/coin_chart/${token_slug}?type=all`)
+		await fetch(`https://api.coin-stats.com/v2/coin_chart/${token_symbol}?type=all`)
 			.then((res) => res.json())
 			.then(
 				(res) =>
