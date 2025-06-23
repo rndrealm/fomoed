@@ -9,15 +9,25 @@ import {
 import { maxBy, range, sumBy } from 'lodash-es';
 import { get } from 'svelte/store';
 
-export async function fetchCfgi(daysBack: number) {
+export async function fetchCfgi(
+	daysBack: number,
+	options: { allowDatapointsWithoutPrice?: boolean } = { allowDatapointsWithoutPrice: false }
+): Promise<ICoinCfgiPriceData[]> {
+	const { allowDatapointsWithoutPrice } = options;
+
 	const _selectedCoin = get(coinstats_selected_coin);
 
-	const data = await fetch(`/api/cfgi`, {
+	const url = new URL('/api/cfgi', window.location.origin);
+
+	if (allowDatapointsWithoutPrice) {
+		url.searchParams.set('allow_datapoints_without_price', 'true');
+	}
+
+	const data = await fetch(url, {
 		method: 'POST',
 		body: JSON.stringify({
 			token_symbol: _selectedCoin.symbol,
 			token_name: _selectedCoin.name,
-			token_slug: _selectedCoin.slug,
 			days_back: daysBack
 		})
 	})

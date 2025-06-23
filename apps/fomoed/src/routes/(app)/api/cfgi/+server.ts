@@ -108,6 +108,7 @@ async function fetch_cfgi_data(
 
 		if (resText.toString().length) {
 			const data = JSON.parse(resText.toString()) as ICoinCfgiPriceData[];
+
 			return data
 				.map((d) => ({ ...d, symbol: token_symbol, cfgi: parseInt(d.cfgi.toString()) }))
 				.filter((d) => d.cfgi);
@@ -129,6 +130,11 @@ export async function POST({ request, locals: { supabase, user } }: RequestEvent
 	const token_symbol = formData.token_symbol;
 	const period: CFGI_SUPPORTED_PERIODS_ENUM = formData.period || CFGI_SUPPORTED_PERIODS_ENUM.DAY1;
 	const daysBack: number | null = formData.days_back | null;
+
+	const urlString = request.url;
+	const url = new URL(urlString);
+	const allowDatapointsWithoutPrice =
+		url.searchParams.get('allow_datapoints_without_price') === 'true';
 
 	if (!token_symbol) {
 		return error(400, { message: 'Bad Request. Missing token_symbol form data field.' });
@@ -152,21 +158,29 @@ export async function POST({ request, locals: { supabase, user } }: RequestEvent
 
 		const cfgi_data = await fetch_cfgi_data(token_symbol, period, startTimestamp, endTimestamp);
 
+		console.log({ cfgi_data });
+
 		if (cfgi_data.length) {
+			const filteredCfgiData = cfgi_data.filter((d) => d?.cfgi);
+
+			const transformedData = filteredCfgiData.map((d) => ({
+				...d,
+				cfgi: parseInt(d.cfgi.toString()),
+				date: new Date(d.date).getTime()
+			}));
+
+			let predicate = (d: any) => d.date && d.cfgi && !isNaN(d.cfgi);
+
+			if (!allowDatapointsWithoutPrice) {
+				predicate = (d: any) => d.date && d.price && d.cfgi && !isNaN(d.cfgi);
+			}
+
+			const validData = transformedData.filter(predicate);
+
+			const sortedData = sortBy(validData, ['date']);
+
 			return json({
-				data: sortBy(
-					cfgi_data
-						.filter((d) => d?.cfgi)
-						.map((d) => ({
-							...d,
-							cfgi: parseInt(d.cfgi.toString()),
-							date: new Date(d.date).getTime()
-							// period,
-							// symbol: token_symbol
-						}))
-						.filter((d) => d.date && d.price && d.cfgi && !isNaN(d.cfgi)),
-					['date']
-				),
+				data: sortedData,
 				source: 'cfgi.io'
 			});
 		}
