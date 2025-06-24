@@ -16,7 +16,7 @@ interface IProps {
   widget: LayoutType["widgets"][0];
   handleLearnMore: () => void;
   title: string;
-  titleIcon?: "coinstats" | "summary";
+  titleIcon?: "coinstats" | "summary" | "none";
 }
 
 export function WidgetWrapper(props: IProps) {

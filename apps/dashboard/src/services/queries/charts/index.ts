@@ -443,3 +443,17 @@ export const useReadFearAndGridFromDb = (token: string) => {
     error,
   };
 };
+
+export const useFetchCoinStatsScreener = () => {
+  const queryKey = ["coin-stats-screener"];
+
+  const res = useQuery<CoinStatsTokenInfo[]>({
+    queryKey,
+    queryFn: async () => {
+      const response = await axios.get("/api/coinstats-coins");
+      return response.data;
+    },
+  });
+
+  return res;
+};

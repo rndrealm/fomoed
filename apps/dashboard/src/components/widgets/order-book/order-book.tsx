@@ -13,6 +13,11 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 import { geoLocationAtom } from "@/lib/atoms/geoLocation";
 import { WidgetWrapper } from "../shared";
+import { OrderBookSection } from "./order-book-section";
+import {
+  BinanceTicker,
+  CoinDataInterface,
+} from "@/services/queries/charts/types";
 
 type IOrder = [string, string]; // [price, quantity]
 
@@ -22,10 +27,10 @@ interface IOrderWithWidth {
   width: number; // 0 to 1
 }
 
-interface IOrderBookSection {
-  variant?: "sell" | "buy";
-  data: IOrderWithWidth[];
-  token: string;
+interface IOrders {
+  price?: BinanceTicker;
+  widget: LayoutType["widgets"][0];
+  coinData: CoinDataInterface[];
 }
 
 interface IProps {
@@ -42,64 +47,8 @@ const normalizeOrders = (orders: IOrder[]): IOrderWithWidth[] => {
   }));
 };
 
-function OrderBookSection(props: IOrderBookSection) {
-  const { variant = "sell", data, token } = props;
-
-  const textColor = variant === "sell" ? "text-[#FF8970]" : "text-[#1FC16B]";
-  const bgColor =
-    variant === "sell" ? "bg-[rgba(255,137,112,0.3)]" : "bg-[#1e4f35]";
-
-  return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center justify-between">
-        <p className="text-[#878787] text-sm font-semibold leading-[1.35] select-none">
-          Price (USDT)
-        </p>
-
-        <p className="text-[#878787] text-sm font-semibold leading-[1.35] select-none">
-          Amount ({token})
-        </p>
-      </div>
-
-      <div className="flex flex-col gap-[3px]">
-        {data?.map((item, index) => {
-          return (
-            <div
-              key={index}
-              className="flex justify-between items-center px-[3px] relative"
-            >
-              <p
-                className={cn(
-                  "text-sm font-semibold leading-[1.35] relative z-9",
-                  textColor
-                )}
-              >
-                {formatPriceSignificant(item?.price)}
-              </p>
-
-              <p className="text-[#b9b9b9] text-sm font-semibold leading-[1.35] relative z-9">
-                {Number(item.quantity).toFixed(6)}
-              </p>
-
-              <motion.div
-                className={cn(
-                  "absolute top-[0] right-[0] bottom-[0]  h-full rounded-[3px]",
-                  bgColor
-                )}
-                animate={{
-                  width: `${item.width * 100}%`,
-                }}
-              ></motion.div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-export default function OrderBook(props: IProps) {
-  const { widget } = props;
+function Orders(props: IOrders) {
+  const { widget, coinData, price } = props;
 
   const [buys, setBuys] = useState<IOrderWithWidth[]>([]);
   const [sales, setSales] = useState<IOrderWithWidth[]>([]);
@@ -115,12 +64,6 @@ export default function OrderBook(props: IProps) {
   const location = useAtomValue(geoLocationAtom);
   const activeLayout = useAtomValue(activeTabAtom);
   const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
-
-  const { data: coinData = [] } = useFetchBinanceTokens(location?.country);
-  const { data: price } = useFetchBinanceTokenPrice(
-    widget?.props?.token,
-    location?.country
-  );
 
   useEffect(() => {
     // if (!location?.country) return;
@@ -307,4 +250,18 @@ export default function OrderBook(props: IProps) {
       </AnimatePresence>
     </WidgetWrapper>
   );
+}
+
+export default function OrderBook(props: IProps) {
+  const { widget } = props;
+
+  const location = useAtomValue(geoLocationAtom);
+
+  const { data: coinData = [] } = useFetchBinanceTokens(location?.country);
+  const { data: price } = useFetchBinanceTokenPrice(
+    widget?.props?.token,
+    location?.country
+  );
+
+  return <Orders widget={widget} price={price} coinData={coinData} />;
 }
