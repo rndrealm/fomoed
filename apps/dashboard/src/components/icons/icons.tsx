@@ -729,6 +729,7 @@ export function Question() {
 interface IArrowUp {
   small?: boolean;
   negative?: boolean;
+  fill?: string;
 }
 
 export function ArrowUp(props: IArrowUp) {
@@ -996,3 +997,26 @@ export function FloatingSettings(props: IDashboard) {
     </svg>
   );
 }
+
+interface ITableHeaderArrow {
+  up?: boolean;
+}
+
+export const TableHeaderArrow = (props: ITableHeaderArrow) => {
+  const { up = true } = props;
+  return (
+    <svg
+      width="8"
+      height="9"
+      viewBox="0 0 8 9"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ transform: up ? "rotate(0deg)" : "rotate(180deg)" }}
+    >
+      <path
+        d="M4.00003 8.71146L0.288574 5L1.06253 4.22604L3.45837 6.62187V0.208332H4.5417V6.62187L6.93753 4.22604L7.71149 5L4.00003 8.71146Z"
+        fill="white"
+      />
+    </svg>
+  );
+};
