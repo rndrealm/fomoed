@@ -4,7 +4,7 @@ import Link from "next/link";
 import NavbarProfileButton from "../ui/NavbarProfileButton";
 import Image from "next/image";
 import dashboard from "@/lib/assets/dashboard";
-import { Dashboard, Misc, News, Notification } from "../icons/icons";
+import { Dashboard, Misc, News, Notification, Signals } from "../icons/icons";
 import { AppRoutes } from "@/lib/routes";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -21,6 +21,7 @@ const links = [
     href: AppRoutes.dashboard.path,
   },
   { id: 2, label: "News", icon: News, href: "https://app.fomoed.io/news" },
+  { id: 3, label: "Signals", icon: Signals, href: AppRoutes.signals.path },
 ];
 
 interface INavLink {
