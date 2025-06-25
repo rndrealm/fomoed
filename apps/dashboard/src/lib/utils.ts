@@ -284,7 +284,7 @@ export const shortenAddress = (
 export const swapFromTo = (slug: "from" | "to") => {
   return slug === "from" ? "to" : "from";
 };
-export function formatPriceSignificant(value: string | number) {
+export function formatPriceSignificant(value: string | number, fixedNum = 8) {
   const num = Number(value);
   if (num === 0) return "0";
 
@@ -296,7 +296,7 @@ export function formatPriceSignificant(value: string | number) {
     });
   } else {
     // For small numbers < 1, show up to 8 decimals, trimming trailing zeros
-    let fixed = num.toFixed(8);
+    let fixed = num.toFixed(fixedNum);
     fixed = fixed.replace(/\.?0+$/, ""); // remove trailing zeros and dot if integer
     return fixed;
   }

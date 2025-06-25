@@ -1,8 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { OptionsDropdown } from "../shared/options-dropwdown";
-import { Close, CoinStats, Question } from "@/components/icons/icons";
+import { Close } from "@/components/icons/icons";
 import { cn, formatPriceSignificant, modalSlide } from "@/lib/utils";
 import { LayoutType, updateWidgetPropsAtom } from "@/lib/atoms/layoutAtom";
 import CoinStatsTokenDropdown from "../shared/coin-stats-token-dropdown";
@@ -13,6 +12,12 @@ import {
 import { useAtomValue, useSetAtom } from "jotai";
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 import { geoLocationAtom } from "@/lib/atoms/geoLocation";
+import { WidgetWrapper } from "../shared";
+import { OrderBookSection } from "./order-book-section";
+import {
+  BinanceTicker,
+  CoinDataInterface,
+} from "@/services/queries/charts/types";
 
 type IOrder = [string, string]; // [price, quantity]
 
@@ -22,10 +27,10 @@ interface IOrderWithWidth {
   width: number; // 0 to 1
 }
 
-interface IOrderBookSection {
-  variant?: "sell" | "buy";
-  data: IOrderWithWidth[];
-  token: string;
+interface IOrders {
+  price?: BinanceTicker;
+  widget: LayoutType["widgets"][0];
+  coinData: CoinDataInterface[];
 }
 
 interface IProps {
@@ -42,64 +47,8 @@ const normalizeOrders = (orders: IOrder[]): IOrderWithWidth[] => {
   }));
 };
 
-function OrderBookSection(props: IOrderBookSection) {
-  const { variant = "sell", data, token } = props;
-
-  const textColor = variant === "sell" ? "text-[#FF8970]" : "text-[#1FC16B]";
-  const bgColor =
-    variant === "sell" ? "bg-[rgba(255,137,112,0.3)]" : "bg-[#1e4f35]";
-
-  return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center justify-between">
-        <p className="text-[#878787] text-sm font-semibold leading-[1.35] select-none">
-          Price (USDT)
-        </p>
-
-        <p className="text-[#878787] text-sm font-semibold leading-[1.35] select-none">
-          Amount ({token})
-        </p>
-      </div>
-
-      <div className="flex flex-col gap-[3px]">
-        {data?.map((item, index) => {
-          return (
-            <div
-              key={index}
-              className="flex justify-between items-center px-[3px] relative"
-            >
-              <p
-                className={cn(
-                  "text-sm font-semibold leading-[1.35] relative z-9",
-                  textColor
-                )}
-              >
-                {formatPriceSignificant(item?.price)}
-              </p>
-
-              <p className="text-[#b9b9b9] text-sm font-semibold leading-[1.35] relative z-9">
-                {Number(item.quantity).toFixed(6)}
-              </p>
-
-              <motion.div
-                className={cn(
-                  "absolute top-[0] right-[0] bottom-[0]  h-full rounded-[3px]",
-                  bgColor
-                )}
-                animate={{
-                  width: `${item.width * 100}%`,
-                }}
-              ></motion.div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-export default function OrderBook(props: IProps) {
-  const { widget } = props;
+function Orders(props: IOrders) {
+  const { widget, coinData, price } = props;
 
   const [buys, setBuys] = useState<IOrderWithWidth[]>([]);
   const [sales, setSales] = useState<IOrderWithWidth[]>([]);
@@ -115,12 +64,6 @@ export default function OrderBook(props: IProps) {
   const location = useAtomValue(geoLocationAtom);
   const activeLayout = useAtomValue(activeTabAtom);
   const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
-
-  const { data: coinData = [] } = useFetchBinanceTokens(location?.country);
-  const { data: price } = useFetchBinanceTokenPrice(
-    widget?.props?.token,
-    location?.country
-  );
 
   useEffect(() => {
     // if (!location?.country) return;
@@ -195,33 +138,13 @@ export default function OrderBook(props: IProps) {
   }, [widget?.props?.token]);
 
   return (
-    <div className="flex flex-col gap-2 p-4 pt-0 rounded-2xl bg-[#000] relative overflow-hidden h-full">
-      <div className="flex flex-col gap-1">
-        <div className="flex justify-center pt-4 pb-1 cursor-grab">
-          <div className="w-[36px] h-[5px] bg-[#444] rounded-[2px]"></div>
-        </div>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <CoinStats />
-            <h4 className="text-base text-[#878787] leading-[1.35] font-semibold select-none">
-              ORDER BOOK
-            </h4>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                setShowInfo(true);
-              }}
-            >
-              <Question />
-            </button>
-            <OptionsDropdown widget={widget} />
-          </div>
-        </div>
-      </div>
-
+    <WidgetWrapper
+      title="ORDER BOOK"
+      widget={widget}
+      handleLearnMore={() => {
+        setShowInfo(true);
+      }}
+    >
       <div className="">
         <CoinStatsTokenDropdown
           options={coinData}
@@ -240,7 +163,7 @@ export default function OrderBook(props: IProps) {
         />
       </div>
 
-      <div className="flex flex-col justify-between flex-1 px-4">
+      <div className="flex flex-col justify-between flex-1 sm:px-2 md:px-4">
         <OrderBookSection data={sales} token={widget?.props?.token} />
         <div className="flex flex-col items-center justify-center py-[5px] px-[10px]">
           <p
@@ -325,6 +248,20 @@ export default function OrderBook(props: IProps) {
           </div>
         )}
       </AnimatePresence>
-    </div>
+    </WidgetWrapper>
   );
+}
+
+export default function OrderBook(props: IProps) {
+  const { widget } = props;
+
+  const location = useAtomValue(geoLocationAtom);
+
+  const { data: coinData = [] } = useFetchBinanceTokens(location?.country);
+  const { data: price } = useFetchBinanceTokenPrice(
+    widget?.props?.token,
+    location?.country
+  );
+
+  return <Orders widget={widget} price={price} coinData={coinData} />;
 }

@@ -28,7 +28,7 @@ export function ConfirmationModal(props: IProps) {
       handleClose={handleCloseModal}
       open={open}
       noHeader
-      className="!max-w-[460px] w-full p-0"
+      className="!max-w-[460px] w-full px-2 bg-[transparent]"
     >
       <div className="bg-[#090909] border border-[#333] rounded-[10px] p-6 min-h-[190px] flex flex-col">
         <div className="flex flex-col gap-5 justify-between h-full flex-1">

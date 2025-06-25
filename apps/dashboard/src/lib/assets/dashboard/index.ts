@@ -41,6 +41,7 @@ import chevronDown from "../../../../public/media/images/dashboard/chevron-down.
 import plus from "../../../../public/media/images/dashboard/plus.svg";
 import disconnect from "../../../../public/media/images/dashboard/disconnect.svg";
 import info from "../../../../public/media/images/dashboard/info.svg";
+import star from "../../../../public/media/images/dashboard/star.svg";
 
 const dashboard = {
   layoutPlaceholder,
@@ -86,6 +87,7 @@ const dashboard = {
   disconnect,
   info,
   logoMobile,
+  star,
 };
 
 export default dashboard;

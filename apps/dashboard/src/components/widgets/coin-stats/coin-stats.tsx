@@ -1,29 +1,24 @@
 "use client";
 import React, { useState } from "react";
 import {
-  ArrowUp,
   Close,
-  CoinStats as CoinStatsIcon,
   Explorer,
   Globe,
   Info,
   Link,
-  Question,
   Twitter,
 } from "@/components/icons/icons";
-import { OptionsDropdown } from "../shared/options-dropwdown";
 import {
   useFetchCoinStatsSingleToken,
   useFetchCoinStatsToken,
-  useReadCoinList,
 } from "@/services/queries/charts";
-import CoinStatsTokenDropdown from "../shared/coin-stats-token-dropdown";
 import { AnimatePresence, motion } from "motion/react";
 import { LayoutType, updateWidgetPropsAtom } from "@/lib/atoms/layoutAtom";
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 import { useAtomValue, useSetAtom } from "jotai";
 import CoinDropdown from "./coin-dropdown";
 import { formatMarketCapNumber, modalSlide } from "@/lib/utils";
+import { WidgetWrapper } from "../shared";
 
 interface ILinkItem {
   icon: () => React.JSX.Element;
@@ -60,33 +55,14 @@ export default function CoinStats(props: IProps) {
   const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
 
   return (
-    <div className="flex flex-col gap-3 p-4 pt-0 rounded-2xl bg-[#000] relative overflow-hidden h-full justify-between">
-      <div className="flex flex-col gap-1">
-        <div className="flex justify-center pt-4 pb-1 cursor-grab">
-          <div className="w-[36px] h-[5px] bg-[#444] rounded-[2px]"></div>
-        </div>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <CoinStatsIcon />
-            <h4 className="text-base text-[#878787] leading-[1.35] font-semibold select-none">
-              COIN STATS
-            </h4>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                setShowInfo(true);
-              }}
-            >
-              <Question />
-            </button>
-            <OptionsDropdown widget={widget} />
-          </div>
-        </div>
-      </div>
-
+    <WidgetWrapper
+      title="COIN STATS"
+      widget={widget}
+      handleLearnMore={() => {
+        setShowInfo(true);
+      }}
+      className="justify-between gap-3"
+    >
       <div className="flex justify-center">
         <CoinDropdown
           options={data}
@@ -290,6 +266,6 @@ export default function CoinStats(props: IProps) {
           </div>
         )}
       </AnimatePresence>
-    </div>
+    </WidgetWrapper>
   );
 }

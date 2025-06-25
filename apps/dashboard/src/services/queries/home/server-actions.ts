@@ -43,7 +43,8 @@ export const getDashboardData = async () => {
         id,
         user_id,
         auto_save,
-        active_tab_id
+        active_tab_id,
+        favorite_widgets
       `
     )
     .eq("user_id", user.id);
@@ -59,6 +60,7 @@ export const getDashboardData = async () => {
       user_id: user.id,
       auto_save: true,
       active_tab_id: null,
+      favorite_widgets: [],
     };
 
     const { error: insertError } = await supabase

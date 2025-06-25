@@ -1,7 +1,6 @@
 "use client";
 import React, { useMemo, useState } from "react";
-import { Close, CoinStats, Question } from "@/components/icons/icons";
-import { OptionsDropdown } from "../../shared/options-dropwdown";
+import { Close } from "@/components/icons/icons";
 import { AnimatePresence, motion } from "motion/react";
 import { modalSlide } from "@/lib/utils";
 import { Progress } from "./progress";
@@ -14,6 +13,7 @@ import { tokenArray } from "./tokenArray";
 import { LayoutType, updateWidgetPropsAtom } from "@/lib/atoms/layoutAtom";
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 import { useAtomValue, useSetAtom } from "jotai";
+import { WidgetWrapper } from "../../shared";
 
 const colors = [
   "#FF004D",
@@ -47,33 +47,14 @@ export default function CFGI(props: IProps) {
   const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
 
   return (
-    <div className="flex flex-col gap-3 p-4 pt-0 rounded-2xl bg-[#000] relative overflow-hidden h-[440px] justify-between">
-      <div className="flex flex-col gap-1">
-        <div className="cursor-grab flex justify-center pt-4 pb-1">
-          <div className="w-[36px] h-[5px] bg-[#444] rounded-[2px]"></div>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <CoinStats />
-            <h4 className="text-base text-[#878787] leading-[1.35] font-semibold">
-              CFGI
-            </h4>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                setShowInfo(true);
-              }}
-            >
-              <Question />
-            </button>
-            <OptionsDropdown widget={widget} />
-          </div>
-        </div>
-      </div>
+    <WidgetWrapper
+      title="CFGI"
+      widget={widget}
+      handleLearnMore={() => {
+        setShowInfo(true);
+      }}
+      className="gap-3"
+    >
       <div className="flex justify-center">
         <CoinStatsTokenDropdown
           options={tokenArray}
@@ -227,6 +208,6 @@ export default function CFGI(props: IProps) {
           </div>
         )}
       </AnimatePresence>
-    </div>
+    </WidgetWrapper>
   );
 }

@@ -64,8 +64,8 @@ async function fetchNews() {
   const url = new URL("https://cryptopanic.com/api/growth/v2/posts/");
 
   url.searchParams.set("auth_token", process.env.PRIVATE_CRYPTOPANIC_KEY!);
-  url.searchParams.set("metadata", "true");
-  url.searchParams.set("approved", "true");
+  // url.searchParams.set("metadata", "true");
+  // url.searchParams.set("approved", "true");
 
   const res = await fetch(url);
 

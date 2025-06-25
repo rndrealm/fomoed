@@ -4,6 +4,7 @@ import { Suspense } from "react";
 
 export default async function Page() {
   const dashboardData = await getDashboardData();
+
   return (
     <Suspense fallback={<p>Error</p>}>
       <Home dashboardData={dashboardData} />

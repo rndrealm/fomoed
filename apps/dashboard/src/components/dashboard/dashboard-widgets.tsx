@@ -38,7 +38,7 @@ export function DashboardWidgets(props: IProps) {
         draggableHandle=".cursor-grab"
         rowHeight={220}
         isResizable={false}
-        margin={[4, 4]}
+        margin={[12, 12]}
         onDragStop={(newLayouts) => {
           // Check if the current layout id on active tab is null or undefined
           const syncCondition = dashboardSetting.auto_save || currLayout?.draft;
@@ -49,6 +49,7 @@ export function DashboardWidgets(props: IProps) {
           console.log("onLayoutChange", newLayouts);
         }}
         onLayoutChange={(test) => {}}
+        verticalCompact={false}
       >
         {data?.widgets.map((layout, index) => {
           const { x, y } = layout.meta;

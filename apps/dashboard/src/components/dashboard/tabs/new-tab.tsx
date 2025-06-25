@@ -14,6 +14,7 @@ import { ConfirmationModal, Upgrade } from "../../modals";
 import { ModalContainer, RenderIf } from "../../shared";
 import { useGetUserPlans } from "@/services/queries/subscriptions";
 import { deleteLayoutAtom, layoutAtom } from "@/lib/atoms/layoutAtom";
+import { MobileTab } from "./mobile-tab";
 
 interface ITabButton {
   handleClick?: () => void;
@@ -136,6 +137,7 @@ export function NewTabs() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [deleteTab, setDeleteTab] = useState<typeof activeTab>();
+  const [showTabsModal, setShowTabsModal] = useState(false);
 
   const currentLayout = layouts.find(
     (item) => item.id === deleteTab?.layout_id
@@ -157,6 +159,19 @@ export function NewTabs() {
 
   return (
     <Fragment>
+      <div className="flex-1 flex md:hidden">
+        <button
+          type="button"
+          className="w-[26px] h-[26px] rounded-md flex items-center justify-center border-2 border-[#505050]"
+          onClick={() => {
+            setShowTabsModal(true);
+          }}
+        >
+          <p className="text-xs font-medium leading-[18px] text-[#7A7A7A]">
+            {tabs?.length}
+          </p>
+        </button>
+      </div>
       <div className="hidden md:flex items-center flex-1 w-full gap-2 overflow-hidden">
         <button
           type="button"
@@ -201,7 +216,8 @@ export function NewTabs() {
           setShowDeleteModal(false);
         }}
         open={showDeleteModal}
-        title={`Close "${deleteTab?.name}" Tab`}
+        // title={`Close "${deleteTab?.name}" Tab`}
+        title={`Close Tab`}
         details={
           currentLayout?.draft
             ? "Unsaved Draft and Tab will be lost forever and cannot be recovered"
@@ -225,12 +241,35 @@ export function NewTabs() {
           setShowUpgradeModal(false);
         }}
         noHeader
-        className="!max-w-[410px] !p-0 rounded-[24px]"
+        className="!md:max-w-[410px] !p-0 bg-[transparent]"
       >
         <Upgrade
           plan={data?.planType}
           handleClose={() => {
             setShowUpgradeModal(false);
+          }}
+        />
+      </ModalContainer>
+
+      <ModalContainer
+        open={showTabsModal}
+        handleClose={() => {
+          setShowTabsModal(false);
+        }}
+        noHeader
+        className="!max-w-[100%] !w-[100%] !sm:w-[100%] rounded-[0] !p-0 bg-[transparent] h-[100%] max-h-[100%]"
+      >
+        <MobileTab
+          handleAddNewTab={handleAddNewTab}
+          handleClick={(item) => {
+            updateActiveTab(item);
+          }}
+          handleCloseTab={(item) => {
+            setDeleteTab(item);
+            setShowDeleteModal(true);
+          }}
+          handleCloseModal={() => {
+            setShowTabsModal(false);
           }}
         />
       </ModalContainer>

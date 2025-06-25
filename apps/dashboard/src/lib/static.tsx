@@ -36,6 +36,7 @@ import { Tour } from "nextstepjs";
 import CoinStats from "@/components/widgets/coin-stats/coin-stats";
 import SummaryWidget from "@/components/widgets/summary/summary-widget";
 import CFGI from "@/components/widgets/cfgi/fear-and-greed/cfgi";
+import Screener from "@/components/widgets/screener/screener";
 
 export const layoutClassMap = {
   SinglePane: "grid-rows-1 grid-cols-1",
@@ -176,12 +177,21 @@ export const layoutOptionsMap = [
   },
 
   {
-    id: 116,
+    id: 117,
     name: "CFGI",
     slug: "cfgi",
     image: dashboard.summary,
     category: "charts",
     tags: ["charts", "new"],
+  },
+
+  {
+    id: 18,
+    name: "Screener",
+    slug: "screener",
+    image: dashboard.orderBook,
+    category: "charts",
+    tags: ["new"],
   },
 
   {
@@ -366,6 +376,14 @@ export const chartsMap = {
     extra: ["token"],
     component: (widget: LayoutType["widgets"][0]) => <CFGI widget={widget} />,
   },
+
+  screener: {
+    name: "Screener",
+    extra: [""],
+    component: (widget: LayoutType["widgets"][0]) => (
+      <Screener widget={widget} />
+    ),
+  },
 };
 
 export const widgetIdJoin = "@/$";
@@ -522,6 +540,13 @@ export const widgetPropsDefaults = {
     // period: pricePeriodOptions[11].value,
     meta: {
       w: 2,
+      h: 2,
+    },
+  },
+
+  screener: {
+    meta: {
+      w: 4,
       h: 2,
     },
   },
