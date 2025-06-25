@@ -15,7 +15,7 @@ const categoriesOptions = [
   { id: 4, label: "New", value: "new" },
   { id: 2, label: "Charts", value: "charts" },
   { id: 3, label: "News", value: "news" },
-  { id: 3, label: "Favorite", value: "favorite" },
+  { id: 5, label: "Favorite", value: "favorite" },
   // { id: 4, label: "Custom Widgets", value: "custom-widgets" },
 ];
 

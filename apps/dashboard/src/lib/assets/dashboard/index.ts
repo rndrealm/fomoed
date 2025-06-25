@@ -22,6 +22,7 @@ import folder from "../../../../public/media/images/dashboard/folder.png";
 import heat from "../../../../public/media/images/dashboard/heat.png";
 import simple from "../../../../public/media/images/dashboard/simple.png";
 import successCheck from "../../../../public/media/images/dashboard/success-check.png";
+import successCheckV2 from "../../../../public/media/images/dashboard/success-check.svg";
 import settings from "../../../../public/media/images/dashboard/settings.svg";
 import settingsV2 from "../../../../public/media/images/dashboard/settings-v2.svg";
 import settingsV3 from "../../../../public/media/images/dashboard/settings-v3.svg";
@@ -74,6 +75,7 @@ const dashboard = {
   token,
   chevronDown,
   successCheck,
+  successCheckV2,
   explore,
   tokenHistory,
   orderBook,

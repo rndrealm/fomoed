@@ -5,7 +5,6 @@ import {
   ChainType,
   DexQuoteParams,
   DexQuoteResult,
-  TokenBalance,
   TokenBalanceResponse,
   TokenListResponse,
 } from "./types";

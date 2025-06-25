@@ -11,18 +11,18 @@ interface IProps {
 const SuccessContent = (props: IProps) => {
   const { completeFn, explorerLink } = props;
   return (
-    <div className="bg-[#121212] px-3 py-4 rounded-[16px] mt-[2px] ">
-      <div className="flex flex-col items-center justify-center py-11">
-        <div className="">
+    <div className="  mt-[2px] pt-4 pb-1 ">
+      <div className="flex flex-col items-center justify-center px-3 py-11">
+        <div className="pb-4">
           <Image
-            src={dashboard.successCheck}
+            src={dashboard.successCheckV2}
             alt="Check icon"
-            width={154}
-            height={153}
+            width={80}
+            height={80}
           />
         </div>
-        <h3 className="py-1 text-base font-medium">Swapping successful</h3>
-        <p className="text-[#878787] text-sm text-center">
+        <h3 className="py-1 text-base font-semibold">Swap successful</h3>
+        <p className="text-[#878787] text-mid font-medium text-center">
           Transaction completed. View on{" "}
           <Link href={explorerLink} target="_blank" rel="noreferrer noopener">
             <span className="text-white underline">explorer</span>
@@ -30,7 +30,7 @@ const SuccessContent = (props: IProps) => {
         </p>
       </div>
       <button
-        className="w-full h-10 text-xs font-medium bg-[#202020] rounded-[6px]"
+        className="w-full h-16 text-base text-white font-semibold bg-[#202020] !backdrop-opacity-10 rounded-[24px]"
         onClick={completeFn}
       >
         Done

@@ -123,14 +123,14 @@ export const layoutOptionsMap = [
   //   category: "charts",
   //   tags: ["charts", "new"],
   // },
-  // {
-  //   id: 7,
-  //   name: "Dex",
-  //   slug: "dex",
-  //   image: dashboard.tokenNews,
-  //   category: "news",
-  //   tags: ["new"],
-  // },
+  {
+    id: 7,
+    name: "Dex",
+    slug: "dex",
+    image: dashboard.tokenNews,
+    category: "news",
+    tags: ["new"],
+  },
   {
     id: 112,
     name: "New Price History",
@@ -158,14 +158,14 @@ export const layoutOptionsMap = [
     tags: ["charts", "new"],
   },
 
-  // {
-  //   id: 115,
-  //   name: "Coin Stats",
-  //   slug: "coin-stats",
-  //   image: dashboard.coinStats,
-  //   category: "charts",
-  //   tags: ["charts", "new"],
-  // },
+  {
+    id: 115,
+    name: "Coin Stats",
+    slug: "coin-stats",
+    image: dashboard.coinStats,
+    category: "charts",
+    tags: ["charts", "new"],
+  },
 
   {
     id: 116,
@@ -193,19 +193,20 @@ export const layoutOptionsMap = [
     category: "news",
     tags: ["news", "new"],
   },
-  {
-    id: 5,
-    name: "Exchange Liquidation Map",
-    slug: "exchange-liquidation-map",
-    image: dashboard.cfgi2,
-    category: "charts",
-    tags: ["charts"],
-  },
+
   {
     id: 4,
     name: "Liquidation Heat Map",
     slug: "liquidation-heat-map",
     image: dashboard.heat,
+    category: "charts",
+    tags: ["charts"],
+  },
+  {
+    id: 1,
+    name: "Crypto Fear and Greed Map",
+    slug: "detailed-cfgi",
+    image: dashboard.cfgi,
     category: "charts",
     tags: ["charts"],
   },
@@ -225,11 +226,12 @@ export const layoutOptionsMap = [
     category: "charts",
     tags: ["charts"],
   },
+
   {
-    id: 1,
-    name: "Crypto Fear and Greed Map",
-    slug: "detailed-cfgi",
-    image: dashboard.cfgi,
+    id: 5,
+    name: "Exchange Liquidation Map",
+    slug: "exchange-liquidation-map",
+    image: dashboard.cfgi2,
     category: "charts",
     tags: ["charts"],
   },
