@@ -12,6 +12,7 @@ import {
 import SignalNotificationIcon from "../icons/SignalNotificationIcon";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { NotificationItem } from "../ui/notification";
 
 dayjs.extend(relativeTime);
 
@@ -22,7 +23,7 @@ function SignalNotificationsPopover() {
 
   const allNotifications = useMemo(
     () => (data || []) as NotificationRow[],
-    [data]
+    [data],
   );
 
   const { readNotifications, unreadNotifications } = useMemo(() => {
@@ -48,8 +49,8 @@ function SignalNotificationsPopover() {
       if (unreadNotifications.length > 0) {
         await Promise.all(
           unreadNotifications.map((notification: NotificationRow) =>
-            markAsRead(notification.id)
-          )
+            markAsRead(notification.id),
+          ),
         );
       }
     }
@@ -58,9 +59,18 @@ function SignalNotificationsPopover() {
   return (
     <Popover onOpenChange={handleOpenChange}>
       <PopoverTrigger>
-        <Notification />
+        <div className="relative">
+          <Notification />
+          {unreadNotifications.length > 0 && (
+            <div className="absolute -top-1 -right-1 w-2 h-2 bg-fomoed-red rounded-full" />
+          )}
+        </div>
       </PopoverTrigger>
-      <PopoverContent className="dark bg-[#0F0F0F] w-[440px] p-0 h-[565px] flex flex-col relative">
+
+      <PopoverContent
+        className="dark bg-[#0F0F0F] w-[440px] p-0 h-[565px] flex flex-col relative mr-4 transform translate-x-6 translate-y-3"
+        align="end"
+      >
         <div className="p-5">
           <div className="font-medium text-lg">Notifications</div>
         </div>
@@ -78,13 +88,14 @@ function SignalNotificationsPopover() {
               size={"sm"}
               value="unread"
               aria-label="Toggle unread"
-              className="px-3 rounded-sm"
+              className="px-5 rounded-sm"
             >
               Unread
-              <div className="w-[14px] h-[14px] bg-fomoed-red rounded-xs text-[0.62rem] flex items-center justify-center shrink-0">
+              {/* <div className="w-[14px] h-[14px] bg-fomoed-red rounded-xs text-[0.62rem] flex items-center justify-center shrink-0">
                 {unreadNotifications.length}
-              </div>
+              </div> */}
             </ToggleGroupItem>
+
             <ToggleGroupItem
               size={"sm"}
               value="read"
@@ -92,10 +103,11 @@ function SignalNotificationsPopover() {
               className="px-3 rounded-md"
             >
               Read
-              <div className="w-[14px] h-[14px] bg-fomoed-red rounded-xs text-[0.62rem] flex items-center justify-center">
+              {/* <div className="w-[14px] h-[14px] bg-fomoed-red rounded-xs text-[0.62rem] flex items-center justify-center">
                 {readNotifications.length}
-              </div>
+              </div> */}
             </ToggleGroupItem>
+
             <ToggleGroupItem
               size={"sm"}
               value="all"
@@ -103,41 +115,27 @@ function SignalNotificationsPopover() {
               className="px-3 rounded-md"
             >
               All
-              <div className="w-[14px] h-[14px] bg-fomoed-red rounded-xs text-[0.62rem] flex items-center justify-center">
+              {/* <div className="w-[14px] h-[14px] bg-fomoed-red rounded-xs text-[0.62rem] flex items-center justify-center">
                 {allNotifications.length}
-              </div>
+              </div> */}
             </ToggleGroupItem>
           </ToggleGroup>
         </div>
 
         <Separator />
 
-        <div className="h-full px-5 py-2 text-xs flex flex-col gap-4 pt-6 overflow-auto scrollbar-small-dark relative pb-14">
+        <div className="h-full px-2 py-2 text-xs flex flex-col gap-1 pt-6 overflow-auto scrollbar-small-dark relative pb-14">
           {displayedNotifications.length > 0 ? (
             displayedNotifications.map((notification) => (
-              <div
+              <NotificationItem
                 key={notification.id}
-                className="flex gap-2 p-2 hover:bg-white/5 rounded-md select-none"
-              >
-                <div className="w-8 h-8 bg-[#1B1B1B] rounded-sm flex items-center justify-center shrink-0">
-                  <SignalNotificationIcon />
-                </div>
-                <div className="flex flex-col w-full">
-                  <div className="font-medium">{notification.signal_name}</div>
-                  <div className="text-xs text-[#808080]">
-                    {notification.description}
-                  </div>
-                </div>
-                <div className="flex justify-end items-center">
-                  <div className="text-xs text-[#808080] text-end whitespace-nowrap">
-                    {dayjs(notification.created_at).fromNow()}
-                  </div>
-                </div>
-              </div>
+                notification={notification}
+                unread={!notification.read}
+              />
             ))
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-center">
-              Your smart signal notifications <br /> will appear here.
+            <div className="w-full h-full flex items-center justify-center text-center text-base text-white/30">
+              Your smart signal and other notifications <br /> will appear here.
             </div>
           )}
         </div>

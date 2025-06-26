@@ -103,7 +103,7 @@ export const Navbar = (props: IProps) => {
               {/* <div className="w-[32px] h-[32px] border border-[#444] rounded-md flex items-center justify-center">
               <Notification />
             </div> */}
-              <div className="w-[32px] h-[32px] overflow-hidden rounded-md flex items-center justify-center cursor-pointer">
+              <div className="w-[32px] h-[32px] overflow-hidden rounded-md flex items-center justify-center cursor-pointer pr-2">
                 <SignalNotificationsPopover />
               </div>
 
