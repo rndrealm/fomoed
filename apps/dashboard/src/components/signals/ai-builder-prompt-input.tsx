@@ -58,7 +58,7 @@ const AISignalPromptInput: React.FC<AISignalBuilderProps> = ({
         res.signal.condition,
       );
       form.reset();
-      toast.success("Signal generated successfully!");
+      // toast.success("Signal generated successfully!");
     } else {
       toast.error("Something went wrong. Please try again.");
     }
