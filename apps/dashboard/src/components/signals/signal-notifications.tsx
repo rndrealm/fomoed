@@ -140,14 +140,14 @@ function SignalNotificationsPopover() {
           )}
         </div>
 
-        {displayedNotifications.length > 5 && (
+        {/* {displayedNotifications.length > 5 && (
           <div
             className="w-full h-14 bg-gradient-to-t from-[#0F0F0F] via-[#0F0F0F] to-transparent absolute 
         bottom-0 left-0 right-0 z-10 text-center flex justify-center items-end pb-2"
           >
             <div className="text-xs text-white underline">View More</div>
           </div>
-        )}
+        )} */}
       </PopoverContent>
     </Popover>
   );
