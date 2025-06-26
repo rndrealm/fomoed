@@ -26,6 +26,8 @@ import { Favourite } from "@/components/icons/icons";
 import DexHeader from "./dex-header";
 import { SettingsDropdown } from "./settings-dropdown";
 import SuccessContent from "./review/success-content";
+import { WidgetWrapper } from "../shared";
+import { LayoutType } from "@/lib/atoms/layoutAtom";
 
 interface SwapData {
   from: {
@@ -49,8 +51,12 @@ const initialSwapData = {
   },
 };
 
-const DexWidget = () => {
-  useFetchSupportedChains();
+interface IProps {
+  widget: LayoutType["widgets"][0];
+}
+
+const DexWidget = (props: IProps) => {
+  const { widget } = props;
   const [swapData, setSwapData] = useState<SwapData>(initialSwapData);
 
   const [isSuccessState, setIsSuccessState] = useState(false);
@@ -170,47 +176,54 @@ const DexWidget = () => {
     : "0.0";
 
   return (
-    <div className="text-white border border-[#1E1E1E] rounded-[30px] pt-1 px-1 font-inter font-semibold bg-[#0C0C0C] h-full relative">
-      {data && data.manualRoutes && data.manualRoutes.length > 0 ? (
-        <ReviewModal
-          isOpen={isReviewModalOpen}
-          toggle={toggleReviewModal}
-          quoteData={data}
-          // chainExplorer={swapData.to.network?.explorers[0]}
-          // completeFn={completeFn}
-          isSuccess={isSuccessState}
-          updateSuccess={updateSuccess}
-          updateHash={updateHash}
+    <WidgetWrapper
+      title="Exchange"
+      widget={widget}
+      className="relative justify-between gap-3 px-0 sm:px-0 sm:pb-1"
+      headerClassName="px-4"
+      titleIcon="exchange"
+    >
+      <div className="text-white  rounded-2xl pt-1 px-1 font-inter font-semibold bg-[#000] h-full  flex flex-col">
+        {data && data.manualRoutes && data.manualRoutes.length > 0 ? (
+          <ReviewModal
+            isOpen={isReviewModalOpen}
+            toggle={toggleReviewModal}
+            quoteData={data}
+            // chainExplorer={swapData.to.network?.explorers[0]}
+            // completeFn={completeFn}
+            isSuccess={isSuccessState}
+            updateSuccess={updateSuccess}
+            updateHash={updateHash}
+          />
+        ) : null}
+
+        <SettingsModal
+          isOpen={isSettingsModalOpen}
+          toggle={toggleSettingsModal}
+          slippage={slippage}
+          updateSlippage={updateSlippage}
         />
-      ) : null}
 
-      <SettingsModal
-        isOpen={isSettingsModalOpen}
-        toggle={toggleSettingsModal}
-        slippage={slippage}
-        updateSlippage={updateSlippage}
-      />
+        {/* Header */}
+        {/* <DexHeader /> */}
 
-      {/* Header */}
-      <DexHeader />
-
-      {isSuccessState ? (
-        <SuccessContent
-          completeFn={completeFn}
-          explorerLink={`${currentNetwork?.explorers[0]}/tx/${hash}`}
-        />
-      ) : (
-        <>
-          <div className="flex items-center justify-between px-3 mb-2">
-            {isConnected ? (
-              <div className="flex items-center justify-between ">
-                <ConnectButton />
-              </div>
-            ) : (
-              <div />
-            )}
-            <div className="flex items-center gap-2">
-              {/* <button className="" onClick={toggleSettingsModal}>
+        {isSuccessState ? (
+          <SuccessContent
+            completeFn={completeFn}
+            explorerLink={`${currentNetwork?.explorers[0]}/tx/${hash}`}
+          />
+        ) : (
+          <>
+            <div className="flex items-center justify-between px-3 mb-2">
+              {isConnected ? (
+                <div className="flex items-center justify-between ">
+                  <ConnectButton />
+                </div>
+              ) : (
+                <div />
+              )}
+              <div className="flex items-center gap-2">
+                {/* <button className="" onClick={toggleSettingsModal}>
             <Image
               src={dashboard.refresh}
               alt="Settings icon"
@@ -218,152 +231,152 @@ const DexWidget = () => {
               height={20}
             />
           </button> */}
-              <SettingsDropdown
-                slippage={slippage}
-                updateSlippage={updateSlippage}
-              />
+                <SettingsDropdown
+                  slippage={slippage}
+                  updateSlippage={updateSlippage}
+                />
+              </div>
             </div>
-          </div>
 
-          {/* Main */}
-          <div className="">
-            {/* Transfer section */}
-            <div className="flex flex-col gap-1">
-              {/* From */}
-              <div className="bg-[#111111] rounded-[10px] p-3 ">
-                <div className="flex items-center justify-between text-xs font-medium text-[#878787] mb-1">
-                  <p className="">You Send:</p>
-                  <p className="">Available: {parsedBalance}</p>
-                </div>
-                <div className="flex items-center justify-between ">
-                  <AmountInput
-                    inputValue={formatNumber(inputValue)}
-                    updateInputValue={(val) => setInputValue(val)}
-                  />
-                  {currentNetwork ? (
-                    <TokenSelect
-                      tokenData={swapData.from}
-                      otherTokenData={swapData.to}
-                      updateSwapData={updateSwapData}
-                      slug="from"
-                      currentNetwork={currentNetwork}
-                      updateCurrentNetwork={updateCurrentNetwork}
-                      key={currentNetwork?.chainId}
+            {/* Main */}
+            <div className="flex flex-col justify-between flex-1">
+              {/* Transfer section */}
+              <div className="flex flex-col gap-1">
+                {/* From */}
+                <div className="bg-[#111111] rounded-[10px] p-3 ">
+                  <div className="flex items-center justify-between text-xs font-medium text-[#878787] mb-1">
+                    <p className="select-none">You Send:</p>
+                    <p className="">Available: {parsedBalance}</p>
+                  </div>
+                  <div className="flex items-center justify-between ">
+                    <AmountInput
+                      inputValue={formatNumber(inputValue)}
+                      updateInputValue={(val) => setInputValue(val)}
                     />
-                  ) : (
-                    <div className="w-[6.875rem] rounded-full h-7 animate-pulse bg-[#242323] " />
-                  )}
+                    {currentNetwork ? (
+                      <TokenSelect
+                        tokenData={swapData.from}
+                        otherTokenData={swapData.to}
+                        updateSwapData={updateSwapData}
+                        slug="from"
+                        currentNetwork={currentNetwork}
+                        updateCurrentNetwork={updateCurrentNetwork}
+                        key={currentNetwork?.chainId}
+                      />
+                    ) : (
+                      <div className="w-[6.875rem] rounded-full h-7 animate-pulse bg-[#242323] " />
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between mt-1">
+                    <div>
+                      <p className="font-medium text-xs text-[#878787]">
+                        = ${data?.input.priceInUsd.toFixed(4) || "0.0"}
+                      </p>
+                    </div>
+                    <div>
+                      <button
+                        className="flex items-center justify-center h-6 font-medium text-xs bg-[#0D0D0D] rounded-[8px] px-[0.375rem] select-none"
+                        onClick={setMax}
+                      >
+                        Use Max
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between mt-1">
-                  <div>
-                    <p className="font-medium text-xs text-[#878787]">
-                      = ${data?.input.priceInUsd.toFixed(4) || "0.0"}
+                <div className="flex z-[9] items-center justify-center -my-3 ">
+                  <div className="w-5 h-5 flex items-center justify-center rounded-[6px] bg-[#111111] border border-[#252525] ">
+                    <ChevronDown className="text-[#5F5F5F] w-3" />
+                  </div>
+                </div>
+
+                {/* To */}
+                <div className="bg-[#111111] rounded-[10px] p-3 ">
+                  <div className="flex items-center justify-between text-xs font-medium text-[#878787] mb-1">
+                    <p className="">You Receive:</p>
+                    <p className="">Choose Asset</p>
+                  </div>
+                  <div className="flex items-center justify-between ">
+                    <p className="text-xl font-bold">
+                      <NumberFlow
+                        value={parseFloat(toValue)}
+                        format={{
+                          notation: "standard",
+                          maximumFractionDigits: 4,
+                        }} // Intl.NumberFormat options
+                        locales="en-US" // Intl.NumberFormat locales
+                        className="text-2xl font-geist-medium text-grey-300"
+                      />
                     </p>
+                    {currentNetwork ? (
+                      <TokenSelect
+                        tokenData={swapData.to}
+                        otherTokenData={swapData.from}
+                        updateSwapData={updateSwapData}
+                        slug="to"
+                        currentNetwork={currentNetwork}
+                        updateCurrentNetwork={updateCurrentNetwork}
+                        key={currentNetwork?.chainId}
+                      />
+                    ) : (
+                      <div className="w-[6.875rem] rounded-full h-7 animate-pulse bg-[#242323] " />
+                    )}
                   </div>
-                  <div>
+                </div>
+              </div>
+
+              <div className="flex flex-col justify-between select-none">
+                {/* Connect button */}
+                <div className="px-0 mt-6">
+                  {/* If wallet has not been conncted */}
+                  {!isConnected ? (
                     <button
-                      className="flex items-center justify-center h-6 font-medium text-xs bg-[#0D0D0D] rounded-[8px] px-[0.375rem]"
-                      onClick={setMax}
+                      className="w-full h-16 text-base text-[#0C0C0C] font-semibold bg-white !backdrop-opacity-10 rounded-[24px]"
+                      onClick={openConnectModal}
                     >
-                      Use Max
+                      Connect Wallet
                     </button>
-                  </div>
-                </div>
-              </div>
-              <div className="flex z-[9] items-center justify-center -my-3 ">
-                <div className="w-5 h-5 flex items-center justify-center rounded-[6px] bg-[#111111] border border-[#252525] ">
-                  <ChevronDown className="text-[#5F5F5F] w-3" />
-                </div>
-              </div>
+                  ) : null}
+                  {/* Wallet has been connected but quote is being fetched */}
+                  {isConnected && isLoading ? (
+                    <button className="w-full h-16 text-base text-white font-semibold bg-[#111111] !backdrop-opacity-10 rounded-[24px]">
+                      Fetching best routes...
+                    </button>
+                  ) : null}
+                  {/* Wallet has been connected and quote has been fetched successfully */}
+                  {isConnected &&
+                  isSuccess &&
+                  data?.manualRoutes &&
+                  data?.manualRoutes.length > 0 ? (
+                    <InsufficientChecker
+                      toggleReviewModal={toggleReviewModal}
+                      fromSymbol={data?.input?.token?.symbol}
+                      toSymbol={swapData.to.token?.symbol}
+                      balance={tokenBalance?.balance}
+                      amount={data?.input?.amount}
+                    />
+                  ) : null}
 
-              {/* To */}
-              <div className="bg-[#111111] rounded-[10px] p-3 ">
-                <div className="flex items-center justify-between text-xs font-medium text-[#878787] mb-1">
-                  <p className="">You Receive:</p>
-                  <p className="">Choose Asset</p>
-                </div>
-                <div className="flex items-center justify-between ">
-                  <p className="text-xl font-bold">
-                    <NumberFlow
-                      value={parseFloat(toValue)}
-                      format={{
-                        notation: "standard",
-                        maximumFractionDigits: 4,
-                      }} // Intl.NumberFormat options
-                      locales="en-US" // Intl.NumberFormat locales
-                      className="text-2xl font-geist-medium text-grey-300"
-                    />
-                  </p>
-                  {currentNetwork ? (
-                    <TokenSelect
-                      tokenData={swapData.to}
-                      otherTokenData={swapData.from}
-                      updateSwapData={updateSwapData}
-                      slug="to"
-                      currentNetwork={currentNetwork}
-                      updateCurrentNetwork={updateCurrentNetwork}
-                      key={currentNetwork?.chainId}
-                    />
-                  ) : (
-                    <div className="w-[6.875rem] rounded-full h-7 animate-pulse bg-[#242323] " />
-                  )}
+                  {/* Wallet has been connected but there is an error or no quote found */}
+                  {(isConnected && isError) ||
+                  (isConnected && data?.manualRoutes.length === 0) ? (
+                    <button className="w-full h-16 text-base text-[#0C0C0C] font-semibold bg-white !backdrop-opacity-10 rounded-[24px]">
+                      No Quote Found
+                    </button>
+                  ) : null}
+
+                  {/* Wallet has been connected, no error, no loading, but no success (rest state) */}
+                  {isConnected && !isError && !isLoading && !isSuccess ? (
+                    <button className="w-full h-16 text-base text-[#0C0C0C] font-semibold bg-white !backdrop-opacity-10 rounded-[24px]">
+                      Swap
+                    </button>
+                  ) : null}
                 </div>
               </div>
             </div>
-
-            {/* Summary section */}
-            <div className="flex flex-col justify-between ">
-              {/* Connect button */}
-              <div className="px-0 mt-6">
-                {/* If wallet has not been conncted */}
-                {!isConnected ? (
-                  <button
-                    className="w-full h-16 text-base text-[#0C0C0C] font-semibold bg-white !backdrop-opacity-10 rounded-[24px]"
-                    onClick={openConnectModal}
-                  >
-                    Connect Wallet
-                  </button>
-                ) : null}
-                {/* Wallet has been connected but quote is being fetched */}
-                {isConnected && isLoading ? (
-                  <button className="w-full h-16 text-base text-white font-semibold bg-[#111111] !backdrop-opacity-10 rounded-[24px]">
-                    Fetching best routes...
-                  </button>
-                ) : null}
-                {/* Wallet has been connected and quote has been fetched successfully */}
-                {isConnected &&
-                isSuccess &&
-                data?.manualRoutes &&
-                data?.manualRoutes.length > 0 ? (
-                  <InsufficientChecker
-                    toggleReviewModal={toggleReviewModal}
-                    fromSymbol={data?.input?.token?.symbol}
-                    toSymbol={swapData.to.token?.symbol}
-                    balance={tokenBalance?.balance}
-                    amount={data?.input?.amount}
-                  />
-                ) : null}
-
-                {/* Wallet has been connected but there is an error or no quote found */}
-                {(isConnected && isError) ||
-                (isConnected && data?.manualRoutes.length === 0) ? (
-                  <button className="w-full h-16 text-base text-[#0C0C0C] font-semibold bg-white !backdrop-opacity-10 rounded-[24px]">
-                    No Quote Found
-                  </button>
-                ) : null}
-
-                {/* Wallet has been connected, no error, no loading, but no success (rest state) */}
-                {isConnected && !isError && !isLoading && !isSuccess ? (
-                  <button className="w-full h-16 text-base text-[#0C0C0C] font-semibold bg-white !backdrop-opacity-10 rounded-[24px]">
-                    Swap
-                  </button>
-                ) : null}
-              </div>
-            </div>
-          </div>
-        </>
-      )}
-    </div>
+          </>
+        )}
+      </div>
+    </WidgetWrapper>
   );
 };
 

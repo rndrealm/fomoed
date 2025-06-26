@@ -69,7 +69,8 @@ const ReviewModal = (props: IProps) => {
 
   const handleSwap = () => {
     if (!buildData) return;
-    if (!isRightChain && transactionRequiredChainId) {
+    if (!transactionRequiredChainId) return;
+    if (!isRightChain) {
       switchChain({ chainId: transactionRequiredChainId });
     } else {
       sendTransaction({
@@ -87,75 +88,77 @@ const ReviewModal = (props: IProps) => {
       {isOpen ? (
         // Dropdown content
         <motion.div
-          className="absolute top-0 left-0 w-full h-full bg-[#080808] pt-3 rounded-[15px] flex flex-col z-[10]"
+          className="absolute w-full h-full top-0 left-0 flex items-center justify-center z-[10] "
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
         >
-          <div className="flex items-center justify-between px-3 pb-3">
-            <h1 className="font-semibold text-mid">
-              {isSuccess ? "Successful" : "Swap Details"}
-            </h1>
-            <button
-              className="bg-[#1D1D1D]  rounded-full w-6 h-6 flex items-center justify-center"
-              onClick={() => {
-                toggle();
-              }}
-            >
-              <Image src={dashboard.x} alt="Cancel icon" />
-            </button>
-          </div>
-
-          <div className=" py-0 rounded-b-[16px] mt-[2px] flex flex-col justify-between gap-8 flex-1">
-            <div className="px-4 ">
-              <div className="flex items-center gap-2 mb-3">
-                <p className="text-[#878787] font-semibold text-ideal">
-                  You’re about to Swap{" "}
-                  <span className="text-white">{input.token.symbol}</span> for{" "}
-                  <span className="text-white">{output.token.symbol}</span>
-                </p>
-                <div className="flex items-center">
-                  <div>
-                    <RemoteImage
-                      src={input.token.logoURI}
-                      width={24}
-                      height={24}
-                      alt={input.token.name}
-                    />
-                  </div>
-                  <div className="-ml-3.5">
-                    <RemoteImage
-                      src={output.token.logoURI}
-                      width={24}
-                      height={24}
-                      alt={output.token.name}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <PriceSummary quoteData={quoteData} />
+          <div className="w-[98%] h-[98%] bg-[#111111] pt-8 rounded-2xl flex flex-col">
+            <div className="flex items-center justify-between px-4 pb-3">
+              <h1 className="font-semibold text-mid">
+                {isSuccess ? "Successful" : "Swap Details"}
+              </h1>
+              <button
+                className="bg-[#1D1D1D]  rounded-full w-6 h-6 flex items-center justify-center"
+                onClick={() => {
+                  toggle();
+                }}
+              >
+                <Image src={dashboard.x} alt="Cancel icon" />
+              </button>
             </div>
 
-            <button
-              className={cn(
-                "w-full h-16 text-base text-[#0C0C0C] font-semibold bg-[#FF3B10] !backdrop-opacity-10 rounded-[24px]",
-                {
-                  "opacity-90 cursor-not-allowed":
-                    isPending || isPendingTransaction,
-                }
-              )}
-              onClick={() => {
-                if (isPending || !buildData || isPendingTransaction) return;
-                handleSwap();
-              }}
-            >
-              {isPendingTransaction
-                ? "Swapping..."
-                : isRightChain
-                  ? "Confirm Swap"
-                  : `Switch Chain to ${fromChain?.name}`}
-            </button>
+            <div className=" py-0 rounded-b-[16px] mt-[2px] flex flex-col justify-between gap-8 flex-1">
+              <div className="px-4 ">
+                <div className="flex items-center gap-2 mb-3">
+                  <p className="text-[#878787] font-semibold text-ideal">
+                    You’re about to Swap{" "}
+                    <span className="text-white">{input.token.symbol}</span> for{" "}
+                    <span className="text-white">{output.token.symbol}</span>
+                  </p>
+                  <div className="flex items-center">
+                    <div>
+                      <RemoteImage
+                        src={input.token.logoURI}
+                        width={24}
+                        height={24}
+                        alt={input.token.name}
+                      />
+                    </div>
+                    <div className="-ml-3.5">
+                      <RemoteImage
+                        src={output.token.logoURI}
+                        width={24}
+                        height={24}
+                        alt={output.token.name}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <PriceSummary quoteData={quoteData} />
+              </div>
+
+              <button
+                className={cn(
+                  "w-full h-16 text-base text-[#0C0C0C] font-semibold bg-[rgba(255,255,255,0.7)] !backdrop-opacity-10 rounded-[24px] mx-0",
+                  {
+                    "opacity-90 cursor-not-allowed":
+                      isPending || isPendingTransaction,
+                  }
+                )}
+                onClick={() => {
+                  if (isPending || !buildData || isPendingTransaction) return;
+                  handleSwap();
+                }}
+              >
+                {isPendingTransaction
+                  ? "Swapping..."
+                  : isRightChain
+                    ? "Confirm Swap"
+                    : `Switch Chain to ${fromChain?.name}`}
+              </button>
+            </div>
           </div>
         </motion.div>
       ) : null}

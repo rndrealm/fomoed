@@ -1,4 +1,9 @@
-import { CoinStats, Question, Summary } from "@/components/icons/icons";
+import {
+  CoinStats,
+  ExchangeIcon,
+  Question,
+  Summary,
+} from "@/components/icons/icons";
 import { cn, splitWidgetSlug } from "@/lib/utils";
 import React, { ReactNode } from "react";
 import { OptionsDropdown } from "./options-dropwdown";
@@ -13,16 +18,18 @@ import { motion } from "motion/react";
 interface IProps {
   children: ReactNode;
   className?: string;
+  headerClassName?: string;
   widget: LayoutType["widgets"][0];
-  handleLearnMore: () => void;
+  handleLearnMore?: () => void;
   title: string;
-  titleIcon?: "coinstats" | "summary";
+  titleIcon?: "coinstats" | "summary" | "exchange";
 }
 
 export function WidgetWrapper(props: IProps) {
   const {
     children,
     className = "",
+    headerClassName = "",
     widget,
     handleLearnMore,
     title,
@@ -41,7 +48,7 @@ export function WidgetWrapper(props: IProps) {
         className
       )}
     >
-      <div className="flex flex-col gap-1">
+      <div className={cn("flex flex-col gap-1", headerClassName)}>
         <div className="flex justify-center pt-4 pb-1 cursor-grab">
           <div className="w-[36px] h-[5px] bg-[#444] rounded-[2px]"></div>
         </div>
@@ -55,7 +62,10 @@ export function WidgetWrapper(props: IProps) {
             <RenderIf condition={titleIcon === "summary"}>
               <Summary />
             </RenderIf>
-            <h4 className="text-base text-[#878787] leading-[1.35] font-semibold">
+            <RenderIf condition={titleIcon === "exchange"}>
+              <ExchangeIcon />
+            </RenderIf>
+            <h4 className="text-base text-[#878787] leading-[1.35] font-semibold select-none">
               {title}
             </h4>
           </div>

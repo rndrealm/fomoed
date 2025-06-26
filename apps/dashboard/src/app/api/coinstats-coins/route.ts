@@ -26,7 +26,6 @@ async function fetchSingleToken(
     }
 
     // Fetch from API
-    console.log(`Fetching single token: ${token}`);
     const response = await fetch(
       `https://openapiv1.coinstats.app/coins/${token}`,
       {

@@ -295,7 +295,9 @@ export const chartsMap = {
   dex: {
     name: "Dex",
     extra: [""],
-    component: (widget: LayoutType["widgets"][0]) => <DexWidget />,
+    component: (widget: LayoutType["widgets"][0]) => (
+      <DexWidget widget={widget} />
+    ),
   },
   "cignals-chart": {
     name: "Cignals Chart",

@@ -11,7 +11,7 @@ interface IProps {
 const SuccessContent = (props: IProps) => {
   const { completeFn, explorerLink } = props;
   return (
-    <div className="  mt-[2px] pt-4 pb-1 ">
+    <div className="h-full  mt-[2px] pt-4 pb-0 flex flex-col justify-between ">
       <div className="flex flex-col items-center justify-center px-3 py-11">
         <div className="pb-4">
           <Image

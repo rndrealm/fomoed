@@ -1,15 +1,14 @@
 import { NextResponse } from "next/server";
 import { BUNGEE_API_BASE_URL } from "../static";
 
-//! REQUEST HANDLER FOR /api/dex/fetch-token
+//! REQUEST HANDLER FOR /api/dex/search-token
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const chainId = searchParams.get("chainId");
-    const userAddress = searchParams.get("userAddress");
+    const q = searchParams.get("q");
 
     // Ensure required parameters are present
-    if (!chainId || !userAddress) {
+    if (!q) {
       return NextResponse.json(
         { error: "Missing required query parameters" },
         { status: 400 }
@@ -17,7 +16,7 @@ export async function GET(request: Request) {
     }
 
     const response = await fetch(
-      `${BUNGEE_API_BASE_URL}/tokens/list?chainIds=${chainId}&userAddress=${userAddress}`,
+      `${BUNGEE_API_BASE_URL}/tokens/search?q=${q}`,
       {
         headers: {
           "x-api-key": process.env.BUNGEE_API_KEY!, // Ensure the API key is set in your environment variables

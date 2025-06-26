@@ -5,6 +5,7 @@ import React from "react";
 import RemoteImage from "../../shared/remote-image";
 import { RenderIf } from "@/components/shared";
 import ConnectButton from "../connect-button";
+import DexTooltip from "./dex-tooltip";
 
 interface IProps {
   quoteData?: DexQuoteResult;
@@ -21,7 +22,7 @@ const PriceSummary = (props: IProps) => {
   return (
     <div className="flex flex-col gap-3 px-0">
       <div className="flex items-center justify-between font-medium ">
-        <h3 className="text-sm text-[#878787] ">Rate</h3>
+        <h3 className="text-sm text-[#878787] font-medium ">Rate</h3>
         {isQuoteReady ? (
           <p className="text-sm text-white ">
             1 {quoteData.input.token.symbol} = {ratio}{" "}
@@ -32,7 +33,10 @@ const PriceSummary = (props: IProps) => {
         )}
       </div>
       <div className="flex items-center justify-between font-medium ">
-        <h3 className="text-sm text-[#878787] ">Gas Fees</h3>
+        <div className="flex items-center gap-1">
+          <h3 className="text-sm text-[#878787] font-medium ">Gas Fees</h3>
+          <DexTooltip content="Network fee to process your transaction on the blockchain." />
+        </div>
         {isQuoteReady ? (
           <p className="text-sm text-white ">
             <span className="text-[#878787]">
@@ -51,7 +55,10 @@ const PriceSummary = (props: IProps) => {
         )}
       </div>
       <div className="flex items-center justify-between font-medium ">
-        <h3 className="text-sm text-[#878787] ">Fomoed Fees</h3>
+        <div className="flex items-center gap-1">
+          <h3 className="text-sm text-[#878787] font-medium ">Fomoed Fees</h3>
+          <DexTooltip content="We take a 0.1% fee to keep things running." />
+        </div>
         {isQuoteReady ? (
           <p className="text-sm text-white ">
             <span className="text-[#878787]">(0.02%) </span>
@@ -71,7 +78,10 @@ const PriceSummary = (props: IProps) => {
       </div>
 
       <div className="flex items-center justify-between ">
-        <h3 className="text-sm text-[#878787] ">Route</h3>
+        <div className="flex items-center gap-1">
+          <h3 className="text-sm text-[#878787] font-medium">Route</h3>
+          <DexTooltip content="The path your trade takes across liquidity sources." />
+        </div>
         <RenderIf condition={!!quoteData?.manualRoutes[0]?.routeDetails?.name}>
           <div className="flex items-center gap-1">
             <div>
@@ -91,7 +101,10 @@ const PriceSummary = (props: IProps) => {
       </div>
 
       <div className="flex items-center justify-between ">
-        <h3 className="text-sm text-[#878787] ">Slippage</h3>
+        <div className="flex items-center gap-1">
+          <h3 className="text-sm text-[#878787] font-medium">Swap Slippage</h3>
+          <DexTooltip content="Price difference in DEX trade execution." />
+        </div>
         <p className="text-sm font-medium text-white ">
           {quoteData?.manualRoutes[0]?.slippage}%
         </p>
