@@ -13,6 +13,7 @@ import { ProfileIcon } from "./profile-icon";
 import { utilsAtom } from "@/lib/atoms/utilsAtom";
 import { useAtomValue } from "jotai";
 import { RenderIf } from "./render-if";
+import SignalNotificationsPopover from "../signals/signal-notifications";
 
 const links = [
   {
@@ -42,7 +43,7 @@ function NavLink(props: INavLink) {
         <p
           className={cn(
             "leading-[1.35] text-sm md:text-base",
-            active ? "text-white" : "md:text-[#9b9b9b] text-[#5F5F5F]"
+            active ? "text-white" : "md:text-[#9b9b9b] text-[#5F5F5F]",
           )}
         >
           {label}
@@ -102,6 +103,10 @@ export const Navbar = (props: IProps) => {
               {/* <div className="w-[32px] h-[32px] border border-[#444] rounded-md flex items-center justify-center">
               <Notification />
             </div> */}
+              <div className="w-[32px] h-[32px] overflow-hidden rounded-md flex items-center justify-center cursor-pointer">
+                <SignalNotificationsPopover />
+              </div>
+
               <div className="w-[24px] h-[24px] md:w-[32px] md:h-[32px] overflow-hidden rounded-md flex items-center justify-center cursor-pointer">
                 <NavbarProfileButton>
                   <ProfileIcon />
