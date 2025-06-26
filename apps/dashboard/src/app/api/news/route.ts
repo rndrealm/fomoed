@@ -1,9 +1,5 @@
 import { createSupabaseServerWithAnonKey } from "@/lib/utils/supabase/server-client";
-import {
-  CryptopanicNewsApiResponse,
-  NewsFeedResponseData,
-  NewsRowInsert,
-} from "@/services/queries/news/types";
+import { CryptopanicNewsApiResponse, NewsFeedResponseData, NewsRowInsert } from "@/services/queries/news/types";
 import { NextResponse } from "next/server";
 
 type PartialExcept<T, K extends keyof T> = Partial<Omit<T, K>> & Pick<T, K>;
@@ -93,11 +89,7 @@ async function fetchNews() {
       source: i.source.title,
       image_url: null,
       sentiment:
-        i.votes.positive > i.votes.negative
-          ? "bullish"
-          : i.votes.positive < i.votes.negative
-            ? "bearish"
-            : "neutral",
+        i.votes.positive > i.votes.negative ? "bullish" : i.votes.positive < i.votes.negative ? "bearish" : "neutral",
       summary: i.description,
       symbols: i.instruments?.map((c) => c.code) || [],
       title: i.title,
@@ -141,13 +133,12 @@ export async function GET(request: Request) {
   try {
     const data = await fetchNews();
 
+    await fetch("https://kuma.fomoed.io/api/push/FJSwB7iaUW?status=up&msg=OK&ping=");
+
     return NextResponse.json({ success: "true", data });
   } catch (error) {
     // Handle errors gracefully
     console.log("Error fetching news data:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch News data" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch News data" }, { status: 500 });
   }
 }
