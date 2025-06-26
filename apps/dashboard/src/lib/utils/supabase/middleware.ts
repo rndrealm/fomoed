@@ -15,15 +15,11 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            request.cookies.set(name, value)
-          );
+          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value));
           supabaseResponse = NextResponse.next({
             request,
           });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          );
+          cookiesToSet.forEach(({ name, value, options }) => supabaseResponse.cookies.set(name, value, options));
         },
       },
     }
@@ -39,16 +35,15 @@ export async function updateSession(request: NextRequest) {
     data: { user },
     error,
   } = await supabase.auth.getUser();
-  if (error) {
-    await supabase.auth.signOut();
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    return NextResponse.redirect(url);
-  }
+  // if (error) {
+  //   await supabase.auth.signOut();
+  //   const url = request.nextUrl.clone();
+  //   url.pathname = "/login";
+  //   return NextResponse.redirect(url);
+  // }
   if (
     !user &&
-    (request.nextUrl.pathname.startsWith("/dashboard") ||
-      request.nextUrl.pathname.startsWith("/signals"))
+    (request.nextUrl.pathname.startsWith("/dashboard") || request.nextUrl.pathname.startsWith("/signals"))
     // !request.nextUrl.pathname.startsWith("/login") &&
     // !request.nextUrl.pathname.startsWith("/auth")
   ) {
@@ -58,13 +53,16 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  //TODO:  move this to indifidual API routes
+  const isMonitorRequest = request.headers.get("x-monitor-secret") === process.env.MONITOR_SECRET;
+
+  //TODO:  move this to individual API routes
   if (
     !user &&
     request.nextUrl.pathname.startsWith("/api") &&
     !request.nextUrl.pathname.includes("/news") &&
     !request.nextUrl.pathname.includes("/scrape-cfgi") &&
-    !request.nextUrl.pathname.includes("/newslab")
+    !request.nextUrl.pathname.includes("/newslab") &&
+    !isMonitorRequest
   ) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

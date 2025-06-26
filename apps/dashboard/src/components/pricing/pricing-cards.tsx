@@ -13,7 +13,7 @@ export type PricingCard = {
   price: string;
   description: string;
   features: Feature[];
-  buttonConent?: string
+  buttonConent?: string;
 };
 
 type PricingCardsContent = {
@@ -21,10 +21,15 @@ type PricingCardsContent = {
 };
 
 const PricingCards = ({ prcingCardsConent }: PricingCardsContent) => {
-
-  const basicPlanCardContent = prcingCardsConent.find((item) => item.title === "Basic") as PricingCard;
-  const proPlanCardContent = prcingCardsConent.find((item) => item.title === "Pro") as PricingCard;
-  const plusPlanCardContent = prcingCardsConent.find((item) => item.title === "Plus") as PricingCard;
+  const basicPlanCardContent = prcingCardsConent.find(
+    (item) => item.title === "Basic"
+  ) as PricingCard;
+  const proPlanCardContent = prcingCardsConent.find(
+    (item) => item.title === "Pro"
+  ) as PricingCard;
+  const plusPlanCardContent = prcingCardsConent.find(
+    (item) => item.title === "Plus"
+  ) as PricingCard;
 
   return (
     <section className="relative mt-[3rem]">
@@ -33,7 +38,6 @@ const PricingCards = ({ prcingCardsConent }: PricingCardsContent) => {
         <ProPlanCard {...proPlanCardContent} />
         <PlusPlanCard {...plusPlanCardContent} />
       </div>
-
     </section>
   );
 };
