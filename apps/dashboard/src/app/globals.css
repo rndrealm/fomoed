@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 html {
-  scrollbar-gutter: stable;
+  /* scrollbar-gutter: stable; */
   background: #0c0c0c;
   min-height: 100%;
 }
@@ -79,6 +79,42 @@ html {
     #51170a 56.81%,
     #220d09 74.77%,
     #080808 101.05%
+  );
+
+  --background-image-gradient-basicplan: linear-gradient(
+    132.51deg,
+    #080808 -28.55%,
+    #111111 -0.85%,
+    #141414 7.39%,
+    #1c1c1c 38.99%,
+    #262626 56.96%,
+    #373737 81.83%,
+    #080808 116.13%
+  );
+
+  --background-image-gradient-pricing-number: linear-gradient(
+    180deg,
+    #a5a5a5 -71.79%,
+    #f5390f 241.61%
+  );
+
+  --background-image-gradient-pricing-recommended: linear-gradient(
+    105.26deg,
+    #080808 18.51%,
+    #161616 112.22%
+  );
+
+  --background-image-gradient-proplan-hover: linear-gradient(
+    180deg,
+    #ff3b10 -29.61%,
+    #e4350f 55.63%,
+    #080808 127.29%
+  );
+
+  --background-image-gradient-plusplan-hover: linear-gradient(
+    180deg,
+    #00d743 -17.86%,
+    #080808 114.16%
   );
 
   --color-fomoed-red: #ff3b10;
@@ -179,6 +215,62 @@ html {
     #000000 0%,
     #666666 50%,
     #000000 100%
+  );
+  animation: animate_gradient 5s linear infinite;
+  inset: -10000%;
+}
+
+.gradient_border_basicplan {
+  position: absolute;
+
+  border-radius: inherit;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    #111111 0%,
+    #777777 50%,
+    #111111 100%
+  );
+  animation: animate_gradient 5s linear infinite;
+  inset: -10000%;
+}
+
+.gradient_border_proplan {
+  position: absolute;
+
+  border-radius: inherit;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    #000000 0%,
+    #1e1e1e 50%,
+    #666666 100%
+  );
+  animation: animate_gradient 5s linear infinite;
+  inset: -10000%;
+}
+
+.gradient_border_plusplan {
+  position: absolute;
+
+  border-radius: inherit;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    #000000 0%,
+    #222222 50%,
+    #000000 100%
+  );
+  animation: animate_gradient 5s linear infinite;
+  inset: -10000%;
+}
+
+.gradient_border_proplan_button {
+  position: absolute;
+
+  border-radius: inherit;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    #ff9f8a 0%,
+    #2a2a2a 50%,
+    #666666 100%
   );
   animation: animate_gradient 5s linear infinite;
   inset: -10000%;
