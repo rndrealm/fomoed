@@ -25,11 +25,11 @@ export const signalDataSources: SignalDataSourceGroup[] = [
       { name: "Fear & Greed Index", id: "cfgi" },
       { name: "Trading Volume", id: "volume_24h" },
       // { name: "Market Capitalization", id: "market_cap", disabled: true },
-      {
-        name: "Active Addresses 24h",
-        id: "active_addresses_24h",
-        disabled: false,
-      },
+      // {
+      //   name: "Active Addresses 24h",
+      //   id: "active_addresses_24h",
+      //   disabled: false,
+      // },
     ],
   },
   // Commented out, because they are disabled
@@ -41,19 +41,19 @@ export const signalDataSources: SignalDataSourceGroup[] = [
   //   ],
   // },
   {
-    group: "Social Sentiment",
+    group: "Social Networks",
     dataSources: [
       { name: "YouTube Streaming Status", id: "youtube" },
-      {
-        name: "Social Dominance",
-        id: "social_dominance_total",
-        // disabled: true,
-      },
-      {
-        name: "Weighted Sentiment",
-        id: "weighted_sentiment",
-        disabled: false,
-      },
+      // {
+      //   name: "Social Dominance",
+      //   id: "social_dominance_total",
+      //   // disabled: true,
+      // },
+      // {
+      //   name: "Weighted Sentiment",
+      //   id: "weighted_sentiment",
+      //   disabled: false,
+      // },
     ],
   },
 ];
