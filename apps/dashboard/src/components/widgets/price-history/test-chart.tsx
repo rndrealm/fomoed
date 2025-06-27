@@ -1,5 +1,5 @@
 "use client";
-import React, { ReactNode, useEffect, useRef } from "react";
+import React, { ReactNode, useEffect, useRef, useState } from "react";
 import {
   CandlestickSeries,
   Chart,
@@ -61,6 +61,7 @@ function TestChart(props: IProps) {
   const candleSeriesRef = useRef<SeriesApiRef<"Candlestick">>(null);
   const timeScaleRef = useRef<TimeScaleApiRef>(null);
   const dataRef = useRef<(LineData | CandlestickData)[]>([]);
+  const [dimension, setDimension] = useState({ width: 0, height: 0 });
 
   const visibleRangeRef = useRef<{
     from?: Time;
@@ -191,6 +192,20 @@ function TestChart(props: IProps) {
     };
   }, [token, period, data, isCandleStick, location?.country]);
 
+  useEffect(() => {
+    if (!chartContainerRef.current) return;
+    const observer = new ResizeObserver(() => {
+      if (chartContainerRef.current) {
+        const width = chartContainerRef.current.clientWidth;
+        const height = chartContainerRef.current.clientHeight;
+
+        setDimension({ width, height });
+      }
+    });
+
+    observer.observe(chartContainerRef.current);
+  }, []);
+
   // useEffect(() => {
   //   if (!data?.length) return;
 
@@ -210,7 +225,7 @@ function TestChart(props: IProps) {
     <div
       ref={chartContainerRef}
       style={{ width: "100%", height: "100%" }}
-      className="app_line_chart_component flex-1 relative"
+      className="app_line_chart_component flex-1 relative flex"
     >
       <Chart
         options={{
@@ -219,6 +234,7 @@ function TestChart(props: IProps) {
             attributionLogo: false,
             textColor: "#C3C3C3",
           },
+
           grid: {
             horzLines: {
               visible: false,
@@ -230,11 +246,16 @@ function TestChart(props: IProps) {
           rightPriceScale: {
             visible: isCandleStick,
           },
-          autoSize: true,
+          autoSize: !true,
+          width: dimension.width,
+          height: dimension.height,
         }}
         containerProps={{
           style: {
-            height: "100%",
+            flexGrow: 1,
+
+            // background: "yellow",
+            // height: "100%",
           },
         }}
         onCrosshairMove={onCrosshairMove}
