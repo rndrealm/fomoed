@@ -12,7 +12,7 @@ import { splitWidgetSlug } from "@/lib/utils";
 import { settingAtom } from "@/lib/atoms/settingsAtom";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
-
+const availableHandles = ["s", "w", "e", "n", "sw", "nw", "se", "ne"];
 interface IProps {
   data: LayoutType;
 }
@@ -34,10 +34,11 @@ export function DashboardWidgets(props: IProps) {
         className="layout"
         // layouts={layout}
         breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
-        cols={{ lg: 8, md: 6, sm: 6, xs: 2, xxs: 2 }}
+        cols={{ lg: 16, md: 12, sm: 12, xs: 4, xxs: 4 }}
         draggableHandle=".cursor-grab"
-        rowHeight={220}
-        isResizable={false}
+        // resizeHandles={availableHandles}
+        rowHeight={110}
+        // isResizable={false}
         margin={[12, 12]}
         onDragStop={(newLayouts) => {
           // Check if the current layout id on active tab is null or undefined
@@ -46,10 +47,17 @@ export function DashboardWidgets(props: IProps) {
             newLayouts: newLayouts,
             sync: syncCondition,
           });
-          console.log("onLayoutChange", newLayouts);
+          // console.log("onLayoutChange", newLayouts);
         }}
         onLayoutChange={(test) => {}}
-        verticalCompact={false}
+        onResizeStop={(newLayouts) => {
+          const syncCondition = dashboardSetting.auto_save || currLayout?.draft;
+          syncLayoutChangeFromAtom({
+            newLayouts: newLayouts,
+            sync: syncCondition,
+          });
+        }}
+        verticalCompact={!false}
       >
         {data?.widgets.map((layout, index) => {
           const { x, y } = layout.meta;
@@ -58,9 +66,12 @@ export function DashboardWidgets(props: IProps) {
               splitWidgetSlug(layout.meta.i)
                 .slug as keyof typeof widgetPropsDefaults
             ]?.meta;
-          const { w, h } = dimensionDefault;
+          const { w, h, minH, minW, maxH, maxW } = dimensionDefault;
           return (
-            <div key={layout.meta.i} data-grid={{ x, y, w, h }}>
+            <div
+              key={layout.meta.i}
+              data-grid={{ x, y, w, h, minW, minH, maxH, maxW }}
+            >
               {chartsMap[
                 splitWidgetSlug(layout.meta.i).slug as keyof typeof chartsMap
               ]?.component(layout)}

@@ -55,10 +55,10 @@ function DominanceItem(props: IDominanceItem) {
       animate={{ width: `${value}%` }}
       transition={transition(duration, 0)}
     >
-      <div className="overflow-hidden" style={{ height: "content-fit" }}>
+      <motion.div className="" style={{ height: "content-fit" }}>
         <motion.div
           className={cn(
-            "flex flex-col overflow-hidden",
+            "flex flex-col overflow-visible",
             alternate ? "visible" : "invisible"
           )}
           initial={{ y: 55 }}
@@ -73,7 +73,7 @@ function DominanceItem(props: IDominanceItem) {
           >
             {variant}
           </p>
-          <p className="text-white text-xs font-bold leading-[1.35]">
+          <p className="text-white text-xs font-bold leading-[1.35] overflow-visible">
             {value}%
           </p>
           {/* <div className="flex items-center gap-1">
@@ -88,7 +88,7 @@ function DominanceItem(props: IDominanceItem) {
             </p>
           </div> */}
         </motion.div>
-      </div>
+      </motion.div>
       <motion.div
         className="h-[8px] w-full rounded-sm"
         initial={{ background: color, width: "0" }}

@@ -257,7 +257,14 @@ export default function NewPriceHistory(props: IProps) {
             />
           </div>
         </div>
-        <div className="flex-1">
+        <div className="flex-1 flex relative">
+          <div className="absolute top-0 left-0 right-0 bottom-0">
+            <TestChart
+              isCandleStick={isCandleStick}
+              token={widget?.props?.token}
+              period={widget?.props?.period}
+            />
+          </div>
           {/* <div className=""></div> */}
 
           {/* <ChartComponent
@@ -266,11 +273,11 @@ export default function NewPriceHistory(props: IProps) {
             period={widget?.props?.period}
             isCandleStick={isCandleStick}
           /> */}
-          <TestChart
+          {/* <TestChart
             isCandleStick={isCandleStick}
             token={widget?.props?.token}
             period={widget?.props?.period}
-          />
+          /> */}
         </div>
 
         <div
@@ -362,7 +369,7 @@ export default function NewPriceHistory(props: IProps) {
         handleClose={() => {
           setIsFullscreen(false);
         }}
-        className="!max-w-[90%] h-full"
+        className="!max-w-[100%] !w-[100%] !sm:w-[100%] rounded-[0] !p-4 h-[100%] max-h-[100%]"
       >
         <TradingViewPriceHistory
           token={widget.props?.token || ""}

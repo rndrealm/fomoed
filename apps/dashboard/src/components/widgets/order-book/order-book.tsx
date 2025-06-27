@@ -18,6 +18,7 @@ import {
   BinanceTicker,
   CoinDataInterface,
 } from "@/services/queries/charts/types";
+import { slice } from "lodash-es";
 
 type IOrder = [string, string]; // [price, quantity]
 
@@ -31,6 +32,7 @@ interface IOrders {
   price?: BinanceTicker;
   widget: LayoutType["widgets"][0];
   coinData: CoinDataInterface[];
+  slice: number;
 }
 
 interface IProps {
@@ -48,7 +50,7 @@ const normalizeOrders = (orders: IOrder[]): IOrderWithWidth[] => {
 };
 
 function Orders(props: IOrders) {
-  const { widget, coinData, price } = props;
+  const { widget, coinData, price, slice } = props;
 
   const [buys, setBuys] = useState<IOrderWithWidth[]>([]);
   const [sales, setSales] = useState<IOrderWithWidth[]>([]);
@@ -76,11 +78,11 @@ function Orders(props: IOrders) {
 
     if (location?.country === "US") {
       ws = new WebSocket(
-        `wss://stream.binance.us:9443/stream?streams=${tokenOption}@depth5@100ms/${tokenOption}@trade`
+        `wss://stream.binance.us:9443/stream?streams=${tokenOption}@depth20@100ms/${tokenOption}@trade`
       );
     } else {
       ws = new WebSocket(
-        `wss://stream.binance.com:9443/stream?streams=${tokenOption}@depth5@100ms/${tokenOption}@trade`
+        `wss://stream.binance.com:9443/stream?streams=${tokenOption}@depth20@100ms/${tokenOption}@trade`
       );
     }
 
@@ -89,7 +91,7 @@ function Orders(props: IOrders) {
       const data = message.data;
       const stream = message.stream;
 
-      if (stream === `${tokenOption}@depth5@100ms`) {
+      if (stream === `${tokenOption}@depth20@100ms`) {
         setBuys(normalizeOrders(data.bids));
         setSales(normalizeOrders(data.asks));
       }
@@ -164,7 +166,10 @@ function Orders(props: IOrders) {
       </div>
 
       <div className="flex flex-col justify-between flex-1 sm:px-2 md:px-4">
-        <OrderBookSection data={sales} token={widget?.props?.token} />
+        <OrderBookSection
+          data={sales?.slice(0, slice)}
+          token={widget?.props?.token}
+        />
         <div className="flex flex-col items-center justify-center py-[5px] px-[10px]">
           <p
             className={cn(
@@ -182,7 +187,7 @@ function Orders(props: IOrders) {
         </div>
         <OrderBookSection
           variant="buy"
-          data={buys}
+          data={buys?.slice(0, slice)}
           token={widget?.props?.token}
         />
       </div>
@@ -252,8 +257,16 @@ function Orders(props: IOrders) {
   );
 }
 
+const dataLengthMap = {
+  "4": 6,
+  "5": 9,
+  "6": 11,
+};
+
 export default function OrderBook(props: IProps) {
   const { widget } = props;
+
+  console.log(widget?.meta?.h);
 
   const location = useAtomValue(geoLocationAtom);
 
@@ -263,5 +276,14 @@ export default function OrderBook(props: IProps) {
     location?.country
   );
 
-  return <Orders widget={widget} price={price} coinData={coinData} />;
+  return (
+    <Orders
+      widget={widget}
+      price={price}
+      coinData={coinData}
+      slice={
+        dataLengthMap[`${widget?.meta?.h}` as keyof typeof dataLengthMap] || 4
+      }
+    />
+  );
 }
