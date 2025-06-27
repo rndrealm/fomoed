@@ -22,9 +22,9 @@ export const signalDataSources: SignalDataSourceGroup[] = [
     group: "Market data",
     dataSources: [
       { name: "Price", id: "price", suggestionsEnabled: true },
-      { name: "CFGI", id: "cfgi" },
+      { name: "Fear & Greed Index", id: "cfgi" },
       { name: "Trading Volume", id: "volume_24h" },
-      { name: "Market Capitalization", id: "market_cap", disabled: true },
+      // { name: "Market Capitalization", id: "market_cap", disabled: true },
       {
         name: "Active Addresses 24h",
         id: "active_addresses_24h",
@@ -32,13 +32,14 @@ export const signalDataSources: SignalDataSourceGroup[] = [
       },
     ],
   },
-  {
-    group: "Technical indicators",
-    dataSources: [
-      { name: "RSI", id: "rsi", disabled: true },
-      { name: "MACD", id: "macd", disabled: true },
-    ],
-  },
+  // Commented out, because they are disabled
+  // {
+  //   group: "Technical indicators",
+  //   dataSources: [
+  //     { name: "RSI", id: "rsi", disabled: true },
+  //     { name: "MACD", id: "macd", disabled: true },
+  //   ],
+  // },
   {
     group: "Social Sentiment",
     dataSources: [
@@ -46,7 +47,7 @@ export const signalDataSources: SignalDataSourceGroup[] = [
       {
         name: "Social Dominance",
         id: "social_dominance_total",
-        disabled: true,
+        // disabled: true,
       },
       {
         name: "Weighted Sentiment",

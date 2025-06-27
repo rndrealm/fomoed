@@ -19,6 +19,7 @@ const SignalDataSourceSelector = (props: DataSourceDropDownProps) => {
   return (
     <div className="w-full">
       <Label className="mb-2 text-muted-foreground">Data source</Label>
+
       <Select
         disabled={false}
         value={props.value || undefined}
@@ -27,12 +28,14 @@ const SignalDataSourceSelector = (props: DataSourceDropDownProps) => {
         <SelectTrigger className="w-full bg-background">
           <SelectValue placeholder="Select data source" />
         </SelectTrigger>
-        <SelectContent className="max-h-[300px] overflow-y-auto bg-[#080808] ">
+
+        <SelectContent className="max-h-[300px] overflow-y-auto bg-[#080808]">
           {signalDataSources.map((source) => (
             <SelectGroup key={source.group}>
               <SelectLabel className="font-semibold text-sm text-fomoed-red">
                 {source.group}
               </SelectLabel>
+
               {source.dataSources.map((dataSource) => (
                 <SelectItem
                   key={dataSource.id}
