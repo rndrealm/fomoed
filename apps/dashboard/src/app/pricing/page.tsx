@@ -54,35 +54,32 @@ const prcingCardsConent = [
 
 const Pricing = () => {
   return (
-    <main className="min-h-screen w-full bg-[#000] text-white font-inter flex items-center justify-center">
-      <div className="flex flex-col items-center justify-center mt-22 gap-14">
+    <main className="min-h-screen w-full relative bg-[#000] text-white font-inter flex items-start justify-center pb-8">
+      <div className="overflow-hidden px-6 h-full mt-28 sm:mt-[120px] flex flex-col items-center justify-center gap-[50px]">
         <div className="flex flex-col items-center justify-center">
           <div className="relative p-[1px] overflow-hidden rounded-lg">
             <div className="gradient_border" />
             <div className="relative flex flex-row justify-between items-center gap-1 pl-4 pr-2.5 py-[5px] bg-gradient-100 rounded-lg">
-              <p className="text-[#B9B9B9] text-[15px] font-semibold leading-[1.55]">
-                Plans
-              </p>
+              <p className="text-[#B9B9B9] text-[14px] sm:text-[15px] font-semibold leading-[1.55]">Plans</p>
               <ChevronRight height="20" />
             </div>
           </div>
-          <h1 className="text-[2rem] font-medium pt-4 pb-2">
+          <h1 className="text-[1.5rem] sm:text-[2rem] font-medium pt-4 pb-2">
             Get your free trial to Unlock More
           </h1>
-          <h3 className="text-base font-medium text-[#B9B9B9]">
-            Get <span className="font-semibold text-white">Fomoed Pro</span> to
-            unlock more tools.
+          <h3 className="text-[0.925rem] sm:text-base font-medium text-[#B9B9B9]">
+            Get <span className="font-semibold text-white">Fomoed Pro</span> to unlock more
+            tools.
           </h3>
         </div>
+
         <PricingCards prcingCardsConent={prcingCardsConent} />
-        <h2 className="relative bottom-[-6px] text-xs text-[#A5A5A5]">
-          Subscribe for a yearly plan to get{" "}
-          <span className="font-bold text-transparent bg-gradient-pricing-number bg-clip-text">
-            10%
-          </span>{" "}
-          off
+
+        <h2 className="text-xs text-[#A5A5A5]">
+          Subscribe for a yearly plan to get <span className="font-bold bg-gradient-pricing-number bg-clip-text text-transparent">10%</span> off
         </h2>
       </div>
+
     </main>
   );
 };

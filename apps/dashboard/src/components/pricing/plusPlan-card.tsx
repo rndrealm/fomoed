@@ -19,7 +19,7 @@ const PlusPlanCard = ({ title, price, description, features, buttonConent }: Pri
                 <motion.div
                     style={{ transformOrigin: 'top center', willChange: 'transform' }}
                     className='inset-0 z-0 absolute w-full h-full rounded-[18px] bg-gradient-plusplan-hover pt-[9px] pl-4.5'
-                    animate={{ scaleX: isHovered ? 1.025 : 1, scaleY: isHovered ? 1.1075 : 1 }}
+                    animate={{ scaleX: isHovered ? 1.025 : 1, scaleY: isHovered ? 1.109 : 1 }}
                     transition={{ ease: [0.4, 0, 0.2, 1], duration: 0.5 }}
                 >
                     <div className='flex flex-row items-center justify-start gap-2.5'>

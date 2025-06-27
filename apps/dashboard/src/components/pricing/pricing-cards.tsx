@@ -32,8 +32,8 @@ const PricingCards = ({ prcingCardsConent }: PricingCardsContent) => {
   ) as PricingCard;
 
   return (
-    <section className="relative mt-[3rem]">
-      <div className="flex flex-row gap-5">
+    <section className="relative mt-[2rem] sm:mt-[3rem] flex justify-center items-center">
+      <div style={{ transformOrigin: 'top center' }} className="scale-100 lg:scale-85 xl:scale-100  flex flex-col lg:flex-row gap-20 lg:gap-5">
         <BasicPlanCard {...basicPlanCardContent} />
         <ProPlanCard {...proPlanCardContent} />
         <PlusPlanCard {...plusPlanCardContent} />

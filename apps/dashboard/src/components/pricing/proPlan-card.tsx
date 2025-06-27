@@ -14,11 +14,16 @@ const ProPlanCard = ({ title, price, description, features, buttonConent }: Pric
     const [isHovered, setIsHovered] = useState(false);
 
     return (
-        <div className='relative h-fit w-[360px] flex flex-col justify-between gap-1.5'>
-            <div className='absolute left-0 top-[-36px] rounded-tr-[12px]'>
+        <motion.div
+            style={{ willChange: 'transform' }}
+            className='relative h-fit w-[360px] flex flex-col justify-between gap-1.5'
+            animate={{ y: isHovered ? '-16px' : '0' }}
+            transition={{ ease: [0.4, 0, 0.2, 1], duration: 0.5 }}
+        >
+            <div className='absolute left-0 top-[-38px] rounded-tr-[12px]'>
                 <div className="relative p-[0.5px] overflow-hidden rounded-tr-[12px]">
                     <div className="gradient_border_proplan_button" />
-                    <div className='relative px-2.5 pt-1.5 pb-8 bg-gradient-pricing-recommended rounded-tr-[12px]'>
+                    <div className='relative pl-2.5 pr-3 pt-1.5 pb-8 bg-gradient-pricing-recommended rounded-tr-[12px]'>
                         <h3 className='text-[14px] text-white'>Recommended</h3>
                     </div>
                 </div>
@@ -120,7 +125,7 @@ const ProPlanCard = ({ title, price, description, features, buttonConent }: Pric
                     </div>
                 </motion.div>
             </div>
-        </div >
+        </motion.div >
     )
 }
 
