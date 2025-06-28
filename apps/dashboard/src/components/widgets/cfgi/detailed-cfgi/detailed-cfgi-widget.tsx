@@ -2,7 +2,7 @@
 
 import { useReadCfgiData, useReadCoinList } from "@/services/queries/charts";
 import CoinDropdown from "../../shared/coin-dropdown";
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import PeriodDropdown from "../../shared/period-dropdown";
 import { CFGI_SUPPORTED_PERIODS_ENUM, CfgiPeriods } from "@/constant/cfgi-data";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -13,6 +13,11 @@ import { cn } from "@/lib/utils";
 import { useAtomValue, useSetAtom } from "jotai";
 import { LayoutType, updateWidgetPropsAtom } from "@/lib/atoms/layoutAtom";
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
+import Image from "next/image";
+import dashboard from "@/lib/assets/dashboard";
+import { Camera } from "lucide-react";
+import { useScreenshotWithWatermark } from "@/hooks/useScreenshotWithWatermark";
+import CameraAndRefresh from "../../shared/camera-and-refresh";
 import WidgetHeader from "../../shared/widget-header";
 
 const colorToCfgi = [
@@ -49,26 +54,23 @@ export default function DetailedCfgiWidget(props: IProps) {
     return coinData?.find((coin) => coin.symbol === widget.props?.token)?.slug;
   }, [widget.props?.token, coinData]);
 
-  const { data } = useReadCfgiData(
-    widget.props?.token,
-    widget.props?.period,
-    activeCoinSlug
-  );
+  const { data, refetch, isFetching } = useReadCfgiData(widget.props?.token, widget.props?.period, activeCoinSlug);
 
   const activeLayout = useAtomValue(activeTabAtom);
   const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
 
+  const chartRef = useRef<HTMLDivElement>(null);
+
   return (
-    <div className="bg-[#080808] border border-[#1b1b1b] rounded-2xl px-6 py-3 flex flex-col gap-4 h-full">
+    <div
+      className="flex h-full flex-col gap-4 rounded-2xl border border-[#1b1b1b] bg-[#080808] px-6 py-3"
+      ref={chartRef}
+    >
       <div className="flex flex-col items-center justify-center w-full h-full">
         <div className="grid items-center w-full grid-cols-3">
           <WidgetHeader widget={widget} />
         </div>
-        <div
-          className={cn(
-            "flex flex-col justify-center w-full h-full rounded-sm"
-          )}
-        >
+        <div className={cn("flex h-full w-full flex-col justify-center rounded-sm")}>
           <div className="py-4">
             {coinData ? (
               <div className="flex items-center justify-between">
@@ -97,10 +99,7 @@ export default function DetailedCfgiWidget(props: IProps) {
                   />
                   <PeriodDropdown
                     options={CfgiPeriods}
-                    value={
-                      widget.props?.period ||
-                      (CFGI_SUPPORTED_PERIODS_ENUM.DAY1 as string)
-                    }
+                    value={widget.props?.period || (CFGI_SUPPORTED_PERIODS_ENUM.DAY1 as string)}
                     setValue={(value: string) => {
                       updateWidgetPropsFromAtom({
                         tabId: activeLayout.id,
@@ -109,16 +108,19 @@ export default function DetailedCfgiWidget(props: IProps) {
                       });
                     }}
                   />
+                  <CameraAndRefresh
+                    isFetching={isFetching}
+                    chartRef={chartRef}
+                    file="Detailed Fear and Greed Chart.png"
+                    refetch={refetch}
+                  />
                 </div>
               </div>
             ) : null}
           </div>
           <div className="h-full mx-3">
             {data ? (
-              <DetailedCfgiChart
-                cfgiData={data}
-                viewOption={widget.props?.sentiment_tab || "both"}
-              />
+              <DetailedCfgiChart cfgiData={data} viewOption={widget.props?.sentiment_tab || "both"} />
             ) : (
               <Skeleton className="w-full h-full bg-widget-background-200" />
             )}

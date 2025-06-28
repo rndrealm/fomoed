@@ -11,6 +11,8 @@ import { ChevronDown } from "lucide-react";
 import { CFGI_SUPPORTED_PERIODS_ENUM, OptionsType } from "@/constant/cfgi-data";
 import { useGetUserPlans } from "@/services/queries/subscriptions";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
+import dashboard from "@/lib/assets/dashboard";
 
 interface ICoinDropdownProps {
   options: OptionsType[];
@@ -30,36 +32,33 @@ const PeriodDropdown = (props: ICoinDropdownProps) => {
       <DropdownMenuTrigger asChild>
         <button
           className={cn(
-            "flex items-center justify-center h-8 gap-2 border rounded-sm cursor-pointer border-border-200 w-19 bg-widget-background-300",
+            "border-border-200 bg-widget-background-300 flex h-8 w-19 cursor-pointer items-center justify-center gap-2 rounded-sm border",
             triggerClassName
           )}
         >
           <div className="flex items-center gap-1">
-            <h1 className="text-[13px] font-medium text-grey-400 font-inter">
-              {activePeriod?.label}
-            </h1>
+            <h1 className="text-grey-400 font-inter text-[13px] font-medium">{activePeriod?.label}</h1>
             <ChevronDown color="white" className="w-4 h-4" />
           </div>
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent
-        className="w-56 max-h-[200px] bg-widget-background-200"
-        align="end"
-      >
-        {options.map((coin, i) => (
+      <DropdownMenuContent className="max-h-[200px] w-56 bg-[#090909]" align="end">
+        {options.map((period, i) => (
           <DropdownMenuCheckboxItem
-            className="text-white focus:bg-widget-background focus:text-white"
+            className="justify-between text-white focus:bg-widget-background focus:text-white"
             key={i}
-            disabled={
-              !userPlans?.hasPlan &&
-              coin.value !== (CFGI_SUPPORTED_PERIODS_ENUM.DAY1 as string)
-            }
-            checked={value === coin.value}
+            disabled={!userPlans?.hasPlan && period.value !== (CFGI_SUPPORTED_PERIODS_ENUM.DAY1 as string)}
+            // checked={value === period.value}
             onCheckedChange={() => {
-              setValue(coin.value);
+              setValue(period.value);
             }}
           >
-            {coin.label}
+            <p>{period.label}</p>
+            {period.value === value ? (
+              <div>
+                <Image src={dashboard.checkV2} alt="Selected icon" width={12} height={12} />
+              </div>
+            ) : null}
           </DropdownMenuCheckboxItem>
         ))}
       </DropdownMenuContent>

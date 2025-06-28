@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
-import { createSupabaseBrowserClient } from '@/lib/utils/supabase/browser-client';
-import { toast } from 'sonner';
-import useUserData from './use-user-data';
-import React from 'react';
+import { useEffect } from "react";
+import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
+import { toast } from "sonner";
+import useUserData from "./use-user-data";
+import React from "react";
 
 export const useNotificationSubscription = () => {
   const userData = useUserData();
@@ -18,23 +18,22 @@ export const useNotificationSubscription = () => {
 
     // Subscribe to notification inserts only
     const channel = supabase
-      .channel('notifications')
+      .channel("notifications")
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: 'INSERT', // Only listen to INSERT events
-          schema: 'public',
-          table: 'notifications',
+          event: "INSERT", // Only listen to INSERT events
+          schema: "public",
+          table: "notifications",
           filter: `user_id=eq.${userData.user_id}`,
         },
         async (payload) => {
- 
           try {
             // Fetch the signal name for the notification
             const { data: signalData, error } = await supabase
-              .from('smart_signals')
-              .select('name')
-              .eq('id', payload.new.smart_signal_id)
+              .from("smart_signals")
+              .select("name")
+              .eq("id", payload.new.smart_signal_id)
               .single();
 
             if (error) {
@@ -42,7 +41,7 @@ export const useNotificationSubscription = () => {
               return;
             }
 
-            const signalName = signalData?.name || 'Unnamed Signal';
+            const signalName = signalData?.name || "Unnamed Signal";
 
             // Show toast with notification details
             toast(`Signal "${signalName}" has been triggered`, {
@@ -55,11 +54,11 @@ export const useNotificationSubscription = () => {
         }
       )
       .subscribe((status) => {
-        if (status === 'SUBSCRIBED') {
+        if (status === "SUBSCRIBED") {
           console.log("Successfully subscribed to notifications");
-        } else if (status === 'CLOSED') {
+        } else if (status === "CLOSED") {
           console.log("Subscription closed");
-        } else if (status === 'CHANNEL_ERROR') {
+        } else if (status === "CHANNEL_ERROR") {
           console.error("Channel error occurred");
         }
       });
@@ -69,4 +68,4 @@ export const useNotificationSubscription = () => {
       supabase.removeChannel(channel);
     };
   }, [userData?.user_id, supabase]);
-}; 
+};
