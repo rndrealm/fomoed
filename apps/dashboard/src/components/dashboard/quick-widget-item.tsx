@@ -7,7 +7,7 @@ import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 import { LayoutOptionType, widgetPropsDefaults } from "@/lib/static";
 import { capitalizeFirst, joinWidgetSlug, maxTabsByPlan } from "@/lib/utils";
 import { useGetUserPlans } from "@/services/queries/subscriptions";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import Image from "next/image";
 import React, { Fragment, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
@@ -42,7 +42,6 @@ export function QuickWidgetItem(props: IProps) {
     <Fragment>
       <button
         className="flex cursor-pointer flex-col gap-x-[6px] gap-y-[6px]"
-        disabled={isClicked.current}
         onClick={() => {
           isClicked.current = true;
           const currLayoutId = activeTab.layout_id;
