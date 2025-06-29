@@ -13,10 +13,6 @@ import { cn } from "@/lib/utils";
 import { useAtomValue, useSetAtom } from "jotai";
 import { LayoutType, updateWidgetPropsAtom } from "@/lib/atoms/layoutAtom";
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
-import Image from "next/image";
-import dashboard from "@/lib/assets/dashboard";
-import { Camera } from "lucide-react";
-import { useScreenshotWithWatermark } from "@/hooks/useScreenshotWithWatermark";
 import CameraAndRefresh from "../../shared/camera-and-refresh";
 import WidgetHeader from "../../shared/widget-header";
 

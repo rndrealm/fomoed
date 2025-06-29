@@ -14,9 +14,7 @@ export async function registerChartPluginZoomInBrowser() {
 export async function registerCandleStickPluginBrowser() {
   // if (!window) return;
 
-  const { CandlestickController, CandlestickElement } = await import(
-    "chartjs-chart-financial"
-  );
+  const { CandlestickController, CandlestickElement } = await import("chartjs-chart-financial");
   Chart.register(CandlestickElement, CandlestickController);
 }
 
@@ -439,11 +437,7 @@ export function getPointerEventDistance(p1: PointerEvent, p2: PointerEvent) {
  * @param color2 - The ending RGB color.
  * @returns The resulting RGB color.
  */
-export function mapValueToRgbColor(
-  value: number,
-  color1: RGB,
-  color2: RGB
-): RGB {
+export function mapValueToRgbColor(value: number, color1: RGB, color2: RGB): RGB {
   // Ensure the value is clamped within the range
   // value = Math.max(min, Math.min(max, value));
 
@@ -510,4 +504,46 @@ export function formatPriceScaleValue(n: number, priceStep: number) {
 
 export function rgbToString(rgb: RGB, alpha = 1) {
   return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
+}
+
+import { RefObject, useCallback } from "react";
+import html2canvas from "html2canvas-pro";
+
+interface ScreenshotOptions {
+  watermarkText?: string;
+  font?: string;
+  color?: string;
+  file?: string;
+  elementRef: RefObject<HTMLElement | null>;
+}
+
+export async function takeScreenshot({
+  watermarkText = "app.fomoed.io",
+  font = "46px sans-serif",
+  color = "rgba(255, 255, 255, 0.5)",
+  file = "chart.png",
+  elementRef,
+}: ScreenshotOptions) {
+  if (!elementRef?.current) return;
+
+  const canvas = await html2canvas(elementRef.current, {
+    backgroundColor: null,
+    scale: 1,
+    removeContainer: true,
+  });
+
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+
+  // Add watermark
+  ctx.font = font;
+  ctx.fillStyle = color;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(watermarkText, canvas.width / 2, canvas.height / 2);
+
+  const link = document.createElement("a");
+  link.download = file;
+  link.href = canvas.toDataURL("image/png");
+  link.click();
 }

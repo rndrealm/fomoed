@@ -2,7 +2,7 @@
 
 import { useFetchLiquidHeatMapData, useGetSupportedxchangePairs, useReadCoinList } from "@/services/queries/charts";
 import CoinDropdown from "../../shared/coin-dropdown";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import PeriodDropdown from "../../shared/period-dropdown";
 import { liquidHeatMapTimeframeOptions } from "@/constant/cfgi-data";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -17,6 +17,7 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { exchangePairDefault } from "@/lib/static";
 import WidgetHeader from "../../shared/widget-header";
 import PremiumOverlay from "../../shared/premium-overlay";
+import CameraAndRefresh from "../../shared/camera-and-refresh";
 
 const colorToCfgi = [
   {
@@ -58,14 +59,18 @@ export default function LiquidationHeatmapWidget(props: IProps) {
     return pairsData.filter((i) => i.value.baseAsset === widget.props?.token);
   }, [pairsData, widget.props?.token]);
 
-  const { data: liquidationData } = useFetchLiquidHeatMapData(
-    widget.props?.period,
-    selectedPair?.value.exchange,
-    selectedPair?.value.symbol
-  );
+  const {
+    data: liquidationData,
+    isFetching,
+    refetch,
+  } = useFetchLiquidHeatMapData(widget.props?.period, selectedPair?.value.exchange, selectedPair?.value.symbol);
+  const chartRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className="flex h-full flex-col gap-4 rounded-2xl border border-[#1b1b1b] bg-[#080808] px-6 py-3">
+    <div
+      className="flex h-full flex-col gap-4 rounded-2xl border border-[#1b1b1b] bg-[#080808] px-6 py-3"
+      ref={chartRef}
+    >
       <div className="flex flex-col items-center justify-center w-full h-full">
         <div className="grid items-center w-full grid-cols-3">
           <WidgetHeader widget={widget} />
@@ -117,6 +122,12 @@ export default function LiquidationHeatmapWidget(props: IProps) {
                         widgetProps: { ...widget.props, period: value },
                       });
                     }}
+                  />
+                  <CameraAndRefresh
+                    isFetching={isFetching}
+                    chartRef={chartRef}
+                    file="Liquidation Heatmap Chart.png"
+                    refetch={refetch}
                   />
                 </div>
               </div>

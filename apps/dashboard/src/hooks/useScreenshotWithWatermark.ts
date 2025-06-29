@@ -12,8 +12,7 @@ interface ScreenshotOptions {
 export function useScreenshotWithWatermark({
   watermarkText = "app.fomoed.io",
   font = "46px sans-serif",
-  color = "#ff0000",
-  // color = "rgba(255, 255, 255, 0.5)",
+  color = "rgba(255, 255, 255, 0.5)",
   file = "chart.png",
 }: ScreenshotOptions = {}) {
   const takeScreenshot = useCallback(
@@ -33,8 +32,7 @@ export function useScreenshotWithWatermark({
       ctx.fillStyle = color;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillText(watermarkText, 0, 0);
-      // ctx.fillText(watermarkText, canvas.width / 2, canvas.height / 2);
+      ctx.fillText(watermarkText, canvas.width / 2, canvas.height / 2);
 
       const link = document.createElement("a");
       link.download = file;

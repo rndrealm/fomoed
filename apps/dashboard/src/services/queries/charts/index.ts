@@ -185,7 +185,7 @@ export const useFetchLiquidMapData = (
 
 export const useFetchLiquidHeatMapData = (timeframe?: string, exchange?: string, symbol?: string) => {
   const hash = ["get-liquid-heat-map", timeframe, exchange, symbol];
-  const { data, isPending, error, isSuccess } = useQuery<LiquidHeatmapResponse>({
+  const { data, isPending, error, isSuccess, isFetching, refetch } = useQuery<LiquidHeatmapResponse>({
     queryKey: hash,
     queryFn: async () => {
       const response = await api.get({
@@ -202,11 +202,13 @@ export const useFetchLiquidHeatMapData = (timeframe?: string, exchange?: string,
     isPending,
     isSuccess,
     error,
+    isFetching,
+    refetch,
   };
 };
 export const useFetchLiquidDataMerged = (timeframe?: string, asset?: string) => {
   const hash = ["get-liquid-exchange-map", timeframe, asset];
-  const { data, isPending, error, isSuccess } = useQuery<LiquidExchangeResponse>({
+  const { data, isPending, error, isSuccess, isFetching, refetch } = useQuery<LiquidExchangeResponse>({
     queryKey: hash,
     queryFn: async () => {
       const response = await api.get({
@@ -227,6 +229,8 @@ export const useFetchLiquidDataMerged = (timeframe?: string, asset?: string) => 
     isPending,
     isSuccess,
     error,
+    isFetching,
+    refetch,
   };
 };
 
