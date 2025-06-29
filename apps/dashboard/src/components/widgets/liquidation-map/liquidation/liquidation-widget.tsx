@@ -1,12 +1,8 @@
 "use client";
 
-import {
-  useFetchLiquidMapData,
-  useGetSupportedxchangePairs,
-  useReadCoinList,
-} from "@/services/queries/charts";
+import { useFetchLiquidMapData, useGetSupportedxchangePairs, useReadCoinList } from "@/services/queries/charts";
 import CoinDropdown from "../../shared/coin-dropdown";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import PeriodDropdown from "../../shared/period-dropdown";
 import { LiquidTabOptions, liquidTimeframeOptions } from "@/constant/cfgi-data";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,6 +17,9 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { exchangePairDefault } from "@/lib/static";
 import WidgetHeader from "../../shared/widget-header";
 import PremiumOverlay from "../../shared/premium-overlay";
+import Image from "next/image";
+import dashboard from "@/lib/assets/dashboard";
+import CameraAndRefresh from "../../shared/camera-and-refresh";
 
 const colorToCfgi = [
   {
@@ -64,21 +63,18 @@ export default function LiquidationWidget(props: IProps) {
       widgetId: widget.id,
       widgetProps: { ...widget.props, exchange_token: pairsData[0].label },
     });
-  }, [
-    pairsData,
-    selectedPair,
-    activeLayout.id,
-    updateWidgetPropsFromAtom,
-    widget.id,
-    widget.props,
-  ]);
+  }, [pairsData, selectedPair, activeLayout.id, updateWidgetPropsFromAtom, widget.id, widget.props]);
 
   const filteredData = useMemo(() => {
     if (!pairsData) return [];
     return pairsData.filter((i) => i.value.baseAsset === widget.props?.token);
   }, [pairsData, widget.props?.token]);
 
-  const { data: liquidationData } = useFetchLiquidMapData(
+  const {
+    data: liquidationData,
+    isFetching,
+    refetch,
+  } = useFetchLiquidMapData(
     widget.props?.period,
     selectedPair?.value.exchange,
     selectedPair?.value.instrumentId,
@@ -88,17 +84,17 @@ export default function LiquidationWidget(props: IProps) {
 
   const [chartViewOptions] = useState(LiquidTabOptions[1].value);
 
+  const chartRef = useRef<HTMLDivElement>(null);
   return (
-    <div className="bg-[#080808] border border-[#1b1b1b] rounded-2xl px-6 py-3 flex flex-col gap-4 h-full">
+    <div
+      className="flex h-full flex-col gap-4 rounded-2xl border border-[#1b1b1b] bg-[#080808] px-6 py-3"
+      ref={chartRef}
+    >
       <div className="flex flex-col items-center justify-center w-full h-full">
         <div className="grid items-center w-full grid-cols-3">
           <WidgetHeader widget={widget} />
         </div>
-        <div
-          className={cn(
-            "flex flex-col justify-center w-full h-full rounded-sm relative"
-          )}
-        >
+        <div className={cn("relative flex h-full w-full flex-col justify-center rounded-sm")}>
           <div className="py-4">
             {coinData && filteredData?.length > 0 ? (
               <div className="flex items-center justify-between">
@@ -106,9 +102,7 @@ export default function LiquidationWidget(props: IProps) {
                   options={coinData || []}
                   value={widget.props?.token}
                   setValue={(coin: string) => {
-                    const newPairs = pairsData.filter(
-                      (i) => i.value.baseAsset === coin
-                    );
+                    const newPairs = pairsData.filter((i) => i.value.baseAsset === coin);
                     // setSelectedPair(newPairs[0]);
                     updateWidgetPropsFromAtom({
                       tabId: activeLayout.id,
@@ -139,9 +133,7 @@ export default function LiquidationWidget(props: IProps) {
                   />
                   <PeriodDropdown
                     options={liquidTimeframeOptions}
-                    value={
-                      widget.props?.period || liquidTimeframeOptions[0].value
-                    }
+                    value={widget.props?.period || liquidTimeframeOptions[0].value}
                     setValue={(value: string) => {
                       updateWidgetPropsFromAtom({
                         tabId: activeLayout.id,
@@ -150,17 +142,20 @@ export default function LiquidationWidget(props: IProps) {
                       });
                     }}
                   />
+                  <CameraAndRefresh
+                    isFetching={isFetching}
+                    chartRef={chartRef}
+                    file="Liquidation Chart.png"
+                    refetch={refetch}
+                  />
                 </div>
               </div>
             ) : null}
           </div>
           <PremiumOverlay>
-            <div className="flex-grow mx-3 ">
+            <div className="flex-grow mx-3">
               {liquidationData ? (
-                <LiquidationChart
-                  liquidationData={liquidationData}
-                  viewOption={chartViewOptions}
-                />
+                <LiquidationChart liquidationData={liquidationData} viewOption={chartViewOptions} />
               ) : (
                 <Skeleton className="w-full h-full bg-widget-background-200" />
               )}
