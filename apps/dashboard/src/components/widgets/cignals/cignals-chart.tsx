@@ -1,10 +1,7 @@
 "use client";
 import { CignalsChart } from "@/charts/cignals-chart/cignalsChart";
 import { CignalsChartDataProviderAPI } from "@/charts/cignals-chart/cignalsChartDataProvider";
-import {
-  CignalsChartOptions,
-  ParsedCignalsInstrumentArray,
-} from "@/charts/cignals-chart/types";
+import { CignalsChartOptions, ParsedCignalsInstrumentArray } from "@/charts/cignals-chart/types";
 import { capitalizeFirst, cn } from "@/lib/utils";
 import React, { useEffect, useRef, useState } from "react";
 import PremiumOverlay from "../shared/premium-overlay";
@@ -35,8 +32,7 @@ const CignalsChartComp = ({ widget }: IProps) => {
     priceStep: widget?.props?.priceStep,
   });
 
-  const [availableInstruments, setAvailableInstruments] =
-    useState<ParsedCignalsInstrumentArray>([]);
+  const [availableInstruments, setAvailableInstruments] = useState<ParsedCignalsInstrumentArray>([]);
 
   const [connsectionStatus, setConnectionStatus] = useState("disconnected");
 
@@ -91,27 +87,18 @@ const CignalsChartComp = ({ widget }: IProps) => {
   };
 
   return (
-    <div
-      className={cn("flex flex-col justify-center w-full h-full rounded-sm")}
-    >
-      <div className="flex items-center justify-between my-1">
+    <div className={cn("flex h-full w-full flex-col justify-center rounded-sm")}>
+      <div className="my-1 flex items-center justify-between">
         <div className="flex flex-col gap-[0.1rem] py-2 text-base font-medium">
           <p className="text-[white]">Volume Footprint Chart</p>
           <h3 className="text-xs text-white">
             {chartOptions?.instrument?.base_currency
-              ? (
-                  chartOptions?.instrument?.base_currency +
-                  "/" +
-                  chartOptions?.instrument?.quote_currency
-                ).toUpperCase()
+              ? (chartOptions?.instrument?.base_currency + "/" + chartOptions?.instrument?.quote_currency).toUpperCase()
               : null}
           </h3>
         </div>
         <div className="relative">
-          <button
-            onClick={() => setOpenOptionModal(true)}
-            className="bg-[#121212]  p-2 rounded-[6px]"
-          >
+          <button onClick={() => setOpenOptionModal(true)} className="rounded-[6px] bg-[#121212] p-2">
             <Image src={dashboard.settings} alt="settings icon" />
           </button>
           {openOptionModal ? (
@@ -125,21 +112,19 @@ const CignalsChartComp = ({ widget }: IProps) => {
         </div>
       </div>
       {/* <PremiumOverlay> */}
-      <div className="relative flex flex-col w-full h-full">
+      <div className="relative flex h-full w-full flex-col">
         <div className="flex-grow">
-          <canvas className="w-full h-full touch-none" ref={canvasRef}></canvas>
+          <canvas className="h-full w-full touch-none rounded-[10px]" ref={canvasRef}></canvas>
         </div>
-        <div className="absolute top-0 left-4 flex items-center gap-1 mt-4 bg-[#1C1C1C] rounded-[6px] px-2 py-1">
+        <div className="absolute top-0 left-4 mt-4 flex items-center gap-1 rounded-[6px] bg-[#1C1C1C] px-2 py-1">
           <div
-            className={cn("w-2 h-2 rounded-full", {
+            className={cn("h-2 w-2 rounded-full", {
               "bg-[#399F57]": connsectionStatus === "connected",
               "bg-[#FFB800]": connsectionStatus === "connecting",
               "bg-[#FF3D3D]": connsectionStatus === "disconnected",
             })}
           />
-          <p className="text-[#9B9FA4] text-xs font-semibold ">
-            {capitalizeFirst(connsectionStatus)}
-          </p>
+          <p className="text-xs font-semibold text-[#9B9FA4]">{capitalizeFirst(connsectionStatus)}</p>
         </div>
       </div>
       {/* </PremiumOverlay> */}
