@@ -50,17 +50,17 @@ const CoinDropdown = (props: ICoinDropdownProps) => {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <button className="flex items-center gap-2 cursor-pointer whitespace-nowrap">
+        <button className="flex cursor-pointer items-center gap-2 whitespace-nowrap">
           <div className="flex-shrink-0">
             <RenderIf condition={!!activeCoin?.icon}>
               <Image width={32} height={32} src={activeCoin?.icon || ""} alt="Coin Icon" />
             </RenderIf>
           </div>
           <div>
-            <h1 className="text-base font-medium text-white font-inter">{title}</h1>
+            <h1 className="font-inter text-base font-medium text-white">{title}</h1>
             <div className="flex items-center gap-2">
-              <p className="text-xs font-light text-left text-white font-inter">{value}</p>
-              <ChevronDown color="white" className="w-4 h-4" />
+              <p className="font-inter text-left text-xs font-light text-white">{value}</p>
+              <ChevronDown color="white" className="h-4 w-4" />
             </div>
           </div>
         </button>
@@ -87,7 +87,7 @@ const CoinDropdown = (props: ICoinDropdownProps) => {
             </div>
           </div>
 
-          <div className="flex flex-col flex-1 gap-2 mt-1 overflow-auto scrollbar">
+          <div className="scrollbar mt-1 flex flex-1 flex-col gap-2 overflow-auto">
             {filteredCoins.map((item, index) => (
               <CommandItem
                 key={index}
@@ -99,7 +99,7 @@ const CoinDropdown = (props: ICoinDropdownProps) => {
               >
                 <div className="flex items-center gap-2">
                   <div className="h-[20px] w-[20px]">
-                    <Image width={20} height={20} src={item?.icon || ""} alt="Coin Icon" className="w-full h-full" />
+                    <Image width={20} height={20} src={item?.icon || ""} alt="Coin Icon" className="h-full w-full" />
                   </div>
                   <p className="line-clamp-1 flex-1 text-left text-[13px] leading-[1.25] font-medium text-[#c3c3c3]">
                     {item.name}
