@@ -260,27 +260,27 @@ export const chartsMap = {
   "detailed-cfgi": {
     name: "Crypto Fear and Greed Map",
     extra: ["period", "token", "chart-tab", "exchange-token"],
-    component: (widget: LayoutType["widgets"][0]) => <DetailedCfgiWidget widget={widget} />,
+    component: (widget: LayoutType["widgets"][0]) => <DetailedCfgiWidget widget={widget} fullScreenButton />,
   },
   "simple-cfgi": {
     name: "Simplified Crypto Fear and Greed Map",
     extra: ["period", "token"],
-    component: (widget: LayoutType["widgets"][0]) => <SimpleCfgiWidget widget={widget} />,
+    component: (widget: LayoutType["widgets"][0]) => <SimpleCfgiWidget widget={widget} fullScreenButton />,
   },
   "liquidation-map": {
     name: "Liquidation Map",
     extra: ["period", "token", "exchange-token"],
-    component: (widget: LayoutType["widgets"][0]) => <LiquidationWidget widget={widget} />,
+    component: (widget: LayoutType["widgets"][0]) => <LiquidationWidget widget={widget} fullScreenButton />,
   },
   "liquidation-heat-map": {
     name: "Liquidation Heat Map",
     extra: ["period", "token", "exchange-token"],
-    component: (widget: LayoutType["widgets"][0]) => <LiquidationHeatmapWidget widget={widget} />,
+    component: (widget: LayoutType["widgets"][0]) => <LiquidationHeatmapWidget widget={widget} fullScreenButton />,
   },
   "exchange-liquidation-map": {
     name: "Exchange Liquidation Map",
     extra: ["period", "token", "exchange-token"],
-    component: (widget: LayoutType["widgets"][0]) => <LiquidationExchangeWidget widget={widget} />,
+    component: (widget: LayoutType["widgets"][0]) => <LiquidationExchangeWidget widget={widget} fullScreenButton />,
   },
   "token-news": {
     name: "Token News",
