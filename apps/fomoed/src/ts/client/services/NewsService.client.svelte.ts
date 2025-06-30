@@ -150,6 +150,7 @@ export class NewsService extends BaseService {
 			.select('*, news_likes(id), news_bookmarks(id)')
 			.order('published_at', { ascending: false })
 			.eq('metadata->>region', 'en')
+			.not('original_url', 'ilike', '%youtube%')
 			.range(from, to);
 
 		// Filter by currency if set and not 'all'

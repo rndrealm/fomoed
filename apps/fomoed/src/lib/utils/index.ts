@@ -101,14 +101,14 @@ export function copy_social_link(platform: SocialSites, link: string) {
 }
 
 export async function refresh_coinstats_coin_list() {
-  return await fetch('/api/coinstats-coins')
-    .then((res) => res.json())
-    .catch((err) => {
-      console.error(err);
-      return [];
-    });
+	return await fetch('/api/coinstats-coins')
+		.then((res) => res.json())
+		.catch((err) => {
+			console.error(err);
+			return [];
+		});
 }
- 
+
 export async function fetch_global_data() {
 	const global_data = await fetch('https://api.coin-stats.com/v2/markets/global')
 		.then((res) => res.json())
