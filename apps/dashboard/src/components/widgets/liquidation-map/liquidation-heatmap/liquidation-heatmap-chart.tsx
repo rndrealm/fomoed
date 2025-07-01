@@ -223,7 +223,7 @@ const LiquidationHeatmapChart = (props: ICfgiCard) => {
     <div className="relative w-full h-full pb-1 pl-6">
       <div
         className={cn(
-          "pl-2 flex flex-col text-[#FFFFFF66] font-paralucent font-medium text-xs gap-y-[5px] duration-500 absolute -top-3 bottom-2 left-0 opacity-100",
+          "font-paralucent absolute -top-3 bottom-2 left-0 flex flex-col gap-y-[5px] pl-2 text-xs font-medium text-[#FFFFFF66] opacity-100 duration-500",
           {
             "opacity-0": !humanizedMaxLiqValue,
           }
@@ -234,8 +234,7 @@ const LiquidationHeatmapChart = (props: ICfgiCard) => {
         <div
           className="flex-grow w-2 rounded"
           style={{
-            background:
-              "linear-gradient(180deg, #E7E60B 0%, #63C752 22.5%, #27A77D 47%, #2F5C86 75%, #44095F 100%)",
+            background: "linear-gradient(180deg, #E7E60B 0%, #63C752 22.5%, #27A77D 47%, #2F5C86 75%, #44095F 100%)",
           }}
         ></div>
 

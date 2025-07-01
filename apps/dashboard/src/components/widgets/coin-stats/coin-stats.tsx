@@ -136,7 +136,7 @@ export default function CoinStats(props: IProps) {
               <LinkItem
                 icon={Explorer}
                 label=""
-                href={coinStats?.explorers[0]}
+                href={coinStats?.explorers?.[0]}
               />
             </div>
           </div>

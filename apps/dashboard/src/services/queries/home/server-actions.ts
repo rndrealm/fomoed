@@ -6,7 +6,6 @@ import { notFound, redirect } from "next/navigation";
 
 export const getDashboardData = async () => {
   // const res: UserGeoLocation = (await axios.get("https://ipinfo.io/json")).data;
-
   const supabase = await createSupabaseServerComponentClient();
 
   const {
@@ -63,9 +62,7 @@ export const getDashboardData = async () => {
       favorite_widgets: [],
     };
 
-    const { error: insertError } = await supabase
-      .from("dashboard_settings")
-      .insert(defaultSettings);
+    const { error: insertError } = await supabase.from("dashboard_settings").insert(defaultSettings);
 
     if (insertError) {
       console.log("Error creating default settings:", insertError);

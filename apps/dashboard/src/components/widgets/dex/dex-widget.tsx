@@ -156,7 +156,7 @@ const DexWidget = () => {
           isOpen={isReviewModalOpen}
           toggle={toggleReviewModal}
           quoteData={data}
-          chainExplorer={swapData.to.network?.explorers[0]}
+          chainExplorer={swapData.to.network?.explorers?.[0]}
           completeFn={completeFn}
         />
       ) : null}
