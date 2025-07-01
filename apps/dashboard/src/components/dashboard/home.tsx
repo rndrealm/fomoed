@@ -21,6 +21,7 @@ import TourCard from "./shared/tour-card";
 import { useAtom, useSetAtom } from "jotai";
 import { setGeoLocationAtom } from "@/lib/atoms/geoLocation";
 import { useFetchUserLocation } from "@/services/queries/geolocation";
+import { KeyboardShortcuts } from "./shared/keyboard-shortcuts";
 
 interface IProps {
   dashboardData: IDashboardData;
@@ -125,6 +126,7 @@ export default function Home({ dashboardData }: IProps) {
             />
           </div>
         </div>
+        <KeyboardShortcuts />
       </NextStep>
     </NextStepProvider>
   );

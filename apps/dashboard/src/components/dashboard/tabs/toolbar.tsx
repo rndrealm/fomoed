@@ -37,6 +37,10 @@ import { useGetUserPlans } from "@/services/queries/subscriptions";
 import { cn, maxTabsByPlan } from "@/lib/utils";
 import { useTour } from "@reactour/tour";
 import { useNextStep } from "nextstepjs";
+import {
+  quickWidgetsVisibleAtom,
+  toggleQuickWidgetsAtom,
+} from "@/lib/atoms/shortcuts";
 
 interface IToolbarItem {
   onClick?: () => void;
@@ -71,7 +75,7 @@ function ToolbarItem(props: IToolbarItem) {
 }
 
 export function Toolbar() {
-  const [showWidgetsModal, setShowWidgetsModal] = useState(false);
+  // const [showWidgetsModal, setShowWidgetsModal] = useState(false);
   const [showNameModal, setShowNameModal] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [newLayoutName, setNewLayoutName] = useState("");
@@ -84,6 +88,8 @@ export function Toolbar() {
   const settings = useAtomValue(settingAtom);
   const setLayoutDraftFalse = useSetAtom(setLayoutDraftFalseAtom);
   const [layoutChange, setLayoutChange] = useAtom(layoutChangedAtom);
+  const setShowWidgetsModal = useSetAtom(toggleQuickWidgetsAtom);
+  const showWidgetsModal = useAtomValue(quickWidgetsVisibleAtom);
 
   const currLayoutId = activeTab.layout_id;
   const currLayout = layouts.find((item) => item.id === currLayoutId);

@@ -604,3 +604,54 @@ export const editLayoutNameAtom = atom(
     }
   }
 );
+
+// This function deletes all widget from the layout
+// It is called when all widgets are removed from the dashboard
+export const deleteAllWidgetsAtom = atom(null, (get, set) => {
+  // Get active tab
+  const layouts = get(layoutAtom);
+  const activeTab = get(activeTabAtom);
+
+  // If tab doesn't exist, return
+  if (!activeTab) {
+    return;
+  }
+
+  // Get the layout_id from the tab
+  const layoutId = activeTab.layout_id;
+
+  // Find the layout with matching layout_id
+  const layoutIndex = layouts.findIndex((layout) => layout.id === layoutId);
+
+  // If layout doesn't exist, return
+  if (layoutIndex === -1) {
+    return;
+  }
+
+  // Get the current layout
+  const currentLayout = layouts[layoutIndex];
+
+  // Create updated layouts array
+  const updatedLayouts = [...layouts];
+  updatedLayouts[layoutIndex] = {
+    ...currentLayout,
+    widgets: [],
+  };
+
+  // Update layouts with the updated widget list
+  set(layoutAtom, updatedLayouts);
+  const dashboardSetting = get(settingAtom);
+  const syncCondition = dashboardSetting.auto_save || currentLayout?.draft;
+
+  set(layoutChangedAtom, true);
+
+  if (syncCondition) {
+    set(syncWidgetsToDb, {
+      layoutData: {
+        id: currentLayout.id,
+        name: currentLayout.name,
+      },
+      widgetData: [],
+    });
+  }
+});
