@@ -55,10 +55,10 @@ class UserService extends BaseService {
 			.single();
 
 		if (userError) {
-			throw userError;
+			console.error('[ERROR]: Failed to fetch public user data:', userError);
+		} else {
+			this.publicUserData = publicUserData;
 		}
-
-		this.publicUserData = publicUserData;
 	}
 }
 
