@@ -58,7 +58,7 @@ const ConditionRow = ({
   }, [condition.dataSource]);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 h-12">
       <SignalDataSourceSelector
         onChange={(value) =>
           onChange({ ...condition, dataSource: value, topic: null })
@@ -98,7 +98,7 @@ const ConditionRow = ({
             <Input
               type={valueType}
               placeholder="Value"
-              className="w-full"
+              className="w-full !h-12"
               value={
                 typeof condition.value === "string" ||
                 typeof condition.value === "number"
@@ -117,7 +117,7 @@ const ConditionRow = ({
               max={100}
               min={0}
               placeholder="Percentage %"
-              className="w-full"
+              className="w-full !h-12"
               value={
                 typeof condition.value === "string" ||
                 typeof condition.value === "number"
@@ -136,7 +136,7 @@ const ConditionRow = ({
               onClick={() =>
                 onChange({ ...condition, value: !condition.value })
               }
-              className="w-fit flex-1 justify-between "
+              className="w-fit justify-between !h-12"
             >
               {condition.value ? "True" : "False"}
             </Button>
@@ -148,7 +148,7 @@ const ConditionRow = ({
               onClick={() =>
                 onChange({ ...condition, value: !condition.value })
               }
-              className="w-full grow justify-between "
+              className="w-full grow justify-between !h-12"
             >
               Select value
             </Button>
@@ -164,7 +164,9 @@ const ConditionRow = ({
             )}
           </div>
         </div>
+
         <Separator orientation="vertical" />
+
         {isRemovable && (
           <Button
             variant="ghost"

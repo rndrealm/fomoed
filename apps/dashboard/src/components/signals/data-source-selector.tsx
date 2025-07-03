@@ -25,7 +25,7 @@ const SignalDataSourceSelector = (props: DataSourceDropDownProps) => {
         value={props.value || undefined}
         onValueChange={props.onChange}
       >
-        <SelectTrigger className="w-full bg-background">
+        <SelectTrigger className="w-full bg-background !h-12">
           <SelectValue placeholder="Select data source" />
         </SelectTrigger>
 

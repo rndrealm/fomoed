@@ -1,6 +1,7 @@
 import DexProvider from "@/components/providers/DexProvider";
 import { Navbar } from "@/components/shared";
 import "@rainbow-me/rainbowkit/styles.css";
+import 'simplebar-react/dist/simplebar.min.css';
 
 export default function DashboardLayout({
   children,

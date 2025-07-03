@@ -23,7 +23,7 @@ const Operator = (props: OperatorProps) => {
         value={props.value || undefined}
         onValueChange={props.onChange || (() => {})}
       >
-        <SelectTrigger className="w-full bg-background">
+        <SelectTrigger className="w-full bg-background !h-12">
           <SelectValue placeholder="Select operator" />
         </SelectTrigger>
         <SelectContent className="max-h-[300px] overflow-y-auto">

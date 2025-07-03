@@ -43,7 +43,7 @@ export const signalDataSources: SignalDataSourceGroup[] = [
   {
     group: "Social Networks",
     dataSources: [
-      { name: "YouTube Streaming Status", id: "youtube" },
+      { name: "YouTube Streaming Status", id: "isStreamingYoutube" },
       // {
       //   name: "Social Dominance",
       //   id: "social_dominance_total",
@@ -79,7 +79,7 @@ export const topicSelectorMap: Record<
     allowedOperators: [">", "<", "==", "!="],
     valueType: "number",
   },
-  youtube: {
+  isStreamingYoutube: {
     component: YouTubeChannelConfig,
     allowedOperators: ["==", "!="],
     valueType: "boolean",
