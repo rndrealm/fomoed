@@ -10,7 +10,7 @@ export async function GET(request: Request) {
     if (!id) {
       return NextResponse.json(
         { error: "News item ID is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -20,19 +20,19 @@ export async function GET(request: Request) {
       .from("news")
       .select("*")
       .eq("id", id)
-      .single();
+      .maybeSingle();
 
     if (error) {
       return NextResponse.json(
         { error: "Failed to fetch news item" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     if (!newsItem) {
       return NextResponse.json(
         { error: "News item not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -42,7 +42,7 @@ export async function GET(request: Request) {
     console.log("Error fetching news data:", error);
     return NextResponse.json(
       { error: "Failed to fetch News data" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
