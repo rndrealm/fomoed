@@ -158,8 +158,6 @@ export async function POST({ request, locals: { supabase, user } }: RequestEvent
 
 		const cfgi_data = await fetch_cfgi_data(token_symbol, period, startTimestamp, endTimestamp);
 
-		console.log({ cfgi_data });
-
 		if (cfgi_data.length) {
 			const filteredCfgiData = cfgi_data.filter((d) => d?.cfgi);
 
