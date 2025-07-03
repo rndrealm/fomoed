@@ -1,8 +1,9 @@
 import { createSupabaseServerComponentClient } from "@/lib/utils/supabase/server-client";
 // import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
-import { notFound, redirect } from "next/navigation";
 // import { UserGeoLocation } from "../geolocation/types";
+import { redirect } from "next/navigation";
+import { AppRoutes } from "@/lib/routes";
 
 export const getDashboardData = async () => {
   // const res: UserGeoLocation = (await axios.get("https://ipinfo.io/json")).data;
@@ -13,7 +14,7 @@ export const getDashboardData = async () => {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("login");
+    redirect(AppRoutes.auth.login.path);
   }
 
   // Try to fetch existing layouts for the user

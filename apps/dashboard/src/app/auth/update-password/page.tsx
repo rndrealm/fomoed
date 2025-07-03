@@ -1,38 +1,61 @@
 "use client";
-import React, { useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { FormBottomLink, SubmitButton, TextInput } from "@/components/auth";
 import ArrowRight from "@/components/icons/ArrowRight";
 import FormLogo from "@/components/icons/FormLogo";
-import { GoogleLogin } from "@/components/auth/google-login";
 import FormBottomDivider from "@/components/icons/FormBottomDivider";
-import Link from "next/link";
 import { AppRoutes } from "@/lib/routes";
-import { useRouter } from "next/navigation";
-import { loginUser } from "@/services/queries/auth/server-actions";
+import { setNewPassword, signInWithTokenHash } from "@/services/queries/auth/server-actions";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
 const validationSchema = Yup.object().shape({
-  email: Yup.string().email("Please enter a valid email address").required("Please enter your email address"),
-
-  password: Yup.string().required("Please enter your password"),
+  password: Yup.string()
+    .required("Please enter your password")
+    .min(8, "Password must be at least 8 characters")
+    .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .matches(/[a-z]/, "Password must contain at least one lowercase letter")
+    .matches(/[0-9]/, "Password must contain at least one number")
+    .matches(/[^A-Za-z0-9]/, "Password must contain at least one special character"),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref("password")], "Passwords must match")
+    .required("Please confirm your password"),
 });
 
 const initialValues = {
-  email: "",
   password: "",
+  confirmPassword: "",
 };
 
 type InitialValues = ReturnType<() => typeof initialValues>;
 
 export default function Page() {
+  return (
+    <Suspense>
+      <UpdatePassword />
+    </Suspense>
+  );
+}
+
+const UpdatePassword = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const searchParams = useSearchParams();
+
+  const token_hash = searchParams.get("token_hash");
+
+  useEffect(() => {
+    if (token_hash) {
+      signInWithTokenHash(token_hash);
+    }
+  }, [token_hash]);
+
   const onSubmit = async (_values: InitialValues) => {
     try {
       setIsLoading(true);
-      const retUser = await loginUser(_values);
+      const retUser = await setNewPassword({ password: _values.password });
       if (retUser.success) {
         router.push(AppRoutes.dashboard.path);
       } else {
@@ -44,7 +67,6 @@ export default function Page() {
       setIsLoading(false);
     }
   };
-
   return (
     <div className="flex min-h-screen w-full flex-col bg-[#000] px-4 pb-8">
       <div className="flex h-full flex-1 items-center justify-center">
@@ -55,50 +77,41 @@ export default function Page() {
 
           <div className="relative rounded-2xl">
             <div className="auth_border"></div>
-            <div className="relative flex w-full flex-col gap-12 rounded-2xl bg-[#070707] px-6 py-[48px]">
+            <div className="relative flex w-full flex-col gap-12 rounded-2xl bg-[#080808] px-6 py-[48px]">
               <div className="mx-auto flex max-w-[313px] flex-col gap-2">
-                <h3 className="text-center text-xl leading-[1.35] font-medium text-white">Welcome Back</h3>
-                <p className="text-center text-base leading-[1.35] font-medium text-[#5f5f5f]">
-                  Login to access more tools.
-                </p>
+                <h3 className="text-center text-xl leading-[1.35] font-medium text-white">Create Password</h3>
+                <p className="text-center text-base leading-[1.35] font-medium text-[#5f5f5f]">Create a new password</p>
               </div>
-              <Formik
-                initialValues={initialValues}
-                validationSchema={validationSchema}
-                onSubmit={onSubmit}
-                validateOnBlur
-                validateOnMount
-                validateOnChange
-              >
+              <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
                 {(props) => {
                   const { values, handleChange, handleBlur, handleSubmit } = props;
-                  const isError = !values.email || !values.password;
+                  const isError = !values.confirmPassword || !values.password;
 
                   return (
                     <form onSubmit={handleSubmit} className="">
                       <div className="flex flex-col gap-4">
                         <TextInput
-                          name="email"
-                          id="email"
-                          placeholder="you@email.com"
-                          type="email"
-                          value={values.email}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                        />
-
-                        <TextInput
                           name="password"
                           id="password"
-                          placeholder="password"
+                          placeholder="New Password"
                           type="password"
                           value={values.password}
                           onChange={handleChange}
                           onBlur={handleBlur}
                         />
+
+                        <TextInput
+                          name="confirmPassword"
+                          id="confirmPassword"
+                          placeholder="Confirm Password"
+                          type="password"
+                          value={values.confirmPassword}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                        />
                         <div className="">
                           <SubmitButton isLoading={isLoading} disabled={isError}>
-                            Login
+                            Continue
                             <ArrowRight fill={isError ? "#7d7d7d" : undefined} />
                           </SubmitButton>
                         </div>
@@ -109,27 +122,14 @@ export default function Page() {
               </Formik>
             </div>
           </div>
-
-          <div className="relative flex flex-col gap-6">
-            <div className="mt-3 flex justify-center">
-              <GoogleLogin />
-            </div>
-
-            <div className="flex items-center justify-center gap-[3px]">
-              <p className="text-center text-sm leading-[1.35] font-medium text-[#5c5c5c]">Forgot Password? </p>
-              <Link href={AppRoutes.auth.forgotPassword.path}>
-                <p className="text-center text-sm leading-[1.35] font-medium text-white">Reset</p>
-              </Link>
-            </div>
-          </div>
         </div>
       </div>
       <div className="relative mx-auto flex w-full max-w-[440px] flex-col items-center gap-5">
         <div className="flex w-full">
           <FormBottomDivider />
         </div>
-        <FormBottomLink href={AppRoutes.auth.path} linkText="Sign Up" />
+        <FormBottomLink href={AppRoutes.auth.login.path} infoText="Return To" linkText="Sign In" />
       </div>
     </div>
   );
-}
+};
