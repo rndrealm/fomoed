@@ -17,6 +17,7 @@ import TourCard from "./shared/tour-card";
 import { useAtom, useSetAtom } from "jotai";
 import { setGeoLocationAtom } from "@/lib/atoms/geoLocation";
 import { useFetchUserLocation } from "@/services/queries/geolocation";
+import { KeyboardShortcuts } from "./shared/keyboard-shortcuts";
 import { useGetSupportedxchangePairs, useReadCoinList } from "@/services/queries/charts";
 
 interface IProps {
@@ -118,6 +119,7 @@ export default function Home({ dashboardData }: IProps) {
             <FullscreenBtn isFullscreen={utils.isFullScreen} handleFullscreen={handleFullscreen} />
           </div>
         </div>
+        <KeyboardShortcuts />
       </NextStep>
     </NextStepProvider>
   );

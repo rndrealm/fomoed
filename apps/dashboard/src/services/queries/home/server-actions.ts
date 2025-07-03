@@ -1,8 +1,11 @@
 import { createSupabaseServerComponentClient } from "@/lib/utils/supabase/server-client";
+// import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+// import { UserGeoLocation } from "../geolocation/types";
 
 export const getDashboardData = async () => {
+  // const res: UserGeoLocation = (await axios.get("https://ipinfo.io/json")).data;
   const supabase = await createSupabaseServerComponentClient();
 
   const {

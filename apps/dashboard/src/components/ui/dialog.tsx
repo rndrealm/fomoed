@@ -47,14 +47,20 @@ function DialogOverlay({
   );
 }
 
+interface IDialogContent
+  extends React.ComponentProps<typeof DialogPrimitive.Content> {
+  dialogOverlayClassName?: string;
+}
+
 function DialogContent({
   className,
   children,
+  dialogOverlayClassName = "",
   ...props
-}: React.ComponentProps<typeof DialogPrimitive.Content>) {
+}: IDialogContent) {
   return (
     <DialogPortal data-slot="dialog-portal">
-      <DialogOverlay />
+      <DialogOverlay className={dialogOverlayClassName} />
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(

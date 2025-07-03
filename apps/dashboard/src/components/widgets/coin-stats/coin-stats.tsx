@@ -19,6 +19,11 @@ import { useAtomValue, useSetAtom } from "jotai";
 import CoinDropdown from "./coin-dropdown";
 import { formatMarketCapNumber, modalSlide } from "@/lib/utils";
 import { WidgetWrapper } from "../shared";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface ILinkItem {
   icon: () => React.JSX.Element;
@@ -156,7 +161,20 @@ export default function CoinStats(props: IProps) {
                 <p className="font-medium text-sm text-[#878787] leading-[1.35] select-none">
                   FDV
                 </p>
-                <Info />
+
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Info />
+                  </TooltipTrigger>
+                  <TooltipContent
+                    className="bg-[#1C1C1C] px-[6px] py-[3px] rounded-lg mb-[2px]"
+                    showArrow={false}
+                  >
+                    <p className="text-[13px] leading-[1.35] text-[#878787] font-semibold">
+                      Fully Diluted Value
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
 
               <p className="font-bold text-sm text-[#fff] leading-[1.35]">
@@ -169,7 +187,7 @@ export default function CoinStats(props: IProps) {
                 <p className="font-medium text-sm text-[#878787] leading-[1.35] select-none">
                   Circulating Supply
                 </p>
-                <Info />
+                {/* <Info /> */}
               </div>
 
               <p className="font-bold text-sm text-[#fff] leading-[1.35]">
@@ -182,7 +200,7 @@ export default function CoinStats(props: IProps) {
                 <p className="font-medium text-sm text-[#878787] leading-[1.35] select-none">
                   Total Supply
                 </p>
-                <Info />
+                {/* <Info /> */}
               </div>
 
               <p className="font-bold text-sm text-[#fff] leading-[1.35]">
