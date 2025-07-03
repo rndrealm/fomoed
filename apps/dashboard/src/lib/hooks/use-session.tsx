@@ -5,21 +5,21 @@ import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client
 import { Session } from "@supabase/supabase-js";
 
 export default function useSession() {
-    const [session, setSession] = useState<Session | null | undefined>(undefined);
+  const [session, setSession] = useState<Session | null | undefined>(undefined);
 
-    useEffect(() => {
-        const supabase = createSupabaseBrowserClient();
+  useEffect(() => {
+    const supabase = createSupabaseBrowserClient();
 
-        const getSession = async () => {
-            const {
-                data: { session },
-            } = await supabase.auth.getSession();
+    const getSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
-            setSession(session);
-        };
+      setSession(session);
+    };
 
-        getSession();
-    }, []);
+    getSession();
+  }, []);
 
-    return session;
+  return session;
 }
