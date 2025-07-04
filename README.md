@@ -31,21 +31,16 @@ To develop all apps and packages, run the following command:
 pnpm dev
 ```
 
-## Environment
+## Manual Dev Env CRON job triggers
 
-### Redis DB
+Because of rate limits on the various APIs, CRON jobs, which are enabled
+in production need to be triggered manually in the dev env. Use the following URLs to trigger CRON jobs in the dev env.
 
-A redis DB is used for caching data of the coinstats widget and may be used also for other widgets in the future.
+| Name        | URL                                             |
+| ----------- | ----------------------------------------------- |
+| Scrape news | https://dashboard-dev.fomoed.io/api/news        |
+| Scrape CFGI | https://dashboard-dev.fomoed.io/api/scrape-cfgi |
 
-The redis DB is set up on the VPS `api.fomoed.io` on port `6379`.
-Connection is made from the Next.js edge function. Connection is secured over TLS. DB is secured with a password.
+# Please check [fomoed-docs](https://github.com/fomoed-dev/fomoed-docs) for project documentation
 
-⚠️ This is fine for just the widget data. We absolutely CANNOT store any user data or sensitive info in this instance, as it is not safe.
-
-The same instance is used for all deploys.
-
-### Troubleshooting
-
-**API edge function are not connecting to redis DB**
-
-1. Check if TLS certificates are expired on the VPS.
+- https://github.com/fomoed-dev/fomoed-docs
