@@ -8,7 +8,6 @@
 	import LikeIconFull from '$lib/icons/LikeIconFull.svelte';
 
 	export let article: AppNewsItem;
-	console.log('articke:', article);
 </script>
 
 <div

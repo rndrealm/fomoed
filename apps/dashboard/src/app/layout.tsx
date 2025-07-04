@@ -5,10 +5,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import "./globals.css";
 
-import { UserProvider } from "@/components/providers/UserProvider";
 import { NotificationProvider } from "@/components/providers/NotificationProvider";
 import "../../node_modules/react-grid-layout/css/styles.css";
-import { ReactScan } from "@/components/shared/ReactScan";
+import { headers } from "next/headers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,8 +21,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Fomoed",
-  description:
-    "Navigate crypto emotions, access Altcoins, and get precise market sentiment analysis effortlessly.",
+  description: "Navigate crypto emotions, access Altcoins, and get precise market sentiment analysis effortlessly.",
   keywords: [
     "web3",
     "ethereum",
@@ -45,7 +43,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -54,16 +52,10 @@ export default function RootLayout({
     // Keep h-full for filling vertical space in iframes.
     <html lang="en" className="h-full">
       {/* <ReactScan /> */}
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full bg-[#0C0C0C]`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} h-full bg-[#0C0C0C] antialiased`}>
         <QueryProvider>
           <NuqsAdapter>
-            <UserProvider>
-              <NotificationProvider>
-                {children}
-              </NotificationProvider>
-            </UserProvider>
+            <NotificationProvider>{children}</NotificationProvider>
           </NuqsAdapter>
         </QueryProvider>
         <Toaster />
