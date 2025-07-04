@@ -36,7 +36,6 @@ interface IProps {
   fullScreenButton?: boolean;
 }
 
-
 export default function LiquidationHeatmapWidget(props: IProps) {
   const { widget } = props;
   const { data: coinData } = useReadCoinList();
@@ -71,7 +70,6 @@ export default function LiquidationHeatmapWidget(props: IProps) {
   } = useFetchLiquidHeatMapData(widget.props?.period, selectedPair?.value.exchange, selectedPair?.value.symbol);
   const chartRef = useRef<HTMLDivElement>(null);
 
-
   const { fullScreenButton } = props;
 
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -82,8 +80,8 @@ export default function LiquidationHeatmapWidget(props: IProps) {
         className="flex h-full flex-col gap-4 rounded-2xl border border-[#1b1b1b] bg-[#080808] px-6 py-3"
         ref={chartRef}
       >
-        <div className="flex flex-col items-center justify-center w-full h-full">
-          <div className="grid items-center w-full grid-cols-3">
+        <div className="flex h-full w-full flex-col items-center justify-center">
+          <div className="grid w-full grid-cols-3 items-center">
             <WidgetHeader widget={widget} />
           </div>
           <div className={cn("relative flex h-full w-full flex-col justify-center rounded-sm")}>
@@ -145,11 +143,11 @@ export default function LiquidationHeatmapWidget(props: IProps) {
               ) : null}
             </div>
             <PremiumOverlay>
-              <div className="flex-grow mx-3">
+              <div className="mx-3 flex-grow">
                 {liquidationData ? (
                   <LiquidationHeatmapChart liquidationData={liquidationData} />
                 ) : (
-                  <Skeleton className="w-full h-full bg-widget-background-200" />
+                  <Skeleton className="bg-widget-background-200 h-full w-full" />
                 )}
               </div>
 
@@ -162,17 +160,15 @@ export default function LiquidationHeatmapWidget(props: IProps) {
 
         {fullScreenButton && (
           <div
-
-            className="absolute bottom-[16px] right-[9px] w-[28px] h-[28px] rounded-md z-[9] border border-[#1c1c1c]"
+            className="absolute right-[9px] bottom-[16px] z-[9] h-[28px] w-[28px] rounded-md border border-[#1c1c1c]"
             style={{
-              background:
-                "linear-gradient(180deg, #1b1b1b 0%, rgba(0, 0, 0, 0.38) 72.15%)",
+              background: "linear-gradient(180deg, #1b1b1b 0%, rgba(0, 0, 0, 0.38) 72.15%)",
               backdropFilter: "blur(7px)",
               opacity: isFullscreen ? 0 : 1,
             }}
           >
             <button
-              className="flex items-center justify-center w-full h-full"
+              className="flex h-full w-full items-center justify-center"
               onClick={() => {
                 setIsFullscreen(true);
               }}
@@ -181,7 +177,6 @@ export default function LiquidationHeatmapWidget(props: IProps) {
             </button>
           </div>
         )}
-
       </div>
     </WidgetModalWrapper>
   );

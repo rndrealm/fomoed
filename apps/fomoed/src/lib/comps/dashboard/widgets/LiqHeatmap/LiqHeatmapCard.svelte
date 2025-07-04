@@ -24,7 +24,8 @@
 	export let hideCard = false;
 	export let chart: any;
 
-	let symbol = $coinstats_selected_coin?.symbol || 'BTC';
+	let symbol = 'BTC';
+	$: symbol = $coinstats_selected_coin?.symbol || 'BTC';
 
 	const enablePlusFeatures = ClientSubscriptionManager.enableProFeatures;
 
@@ -79,7 +80,9 @@
 		refreshData();
 	}
 
-	$: browser && $auth_user && symbol && loadExchangeOptions();
+	$: if (browser && $auth_user && symbol) {
+		loadExchangeOptions();
+	}
 
 	$: title =
 		($selectedExchangeOption?.value.baseAsset || $coinstats_selected_coin?.symbol) +
