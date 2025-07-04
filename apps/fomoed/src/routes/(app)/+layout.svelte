@@ -90,8 +90,6 @@
 	$: ((supabase) => browser && setContext('supabase', supabase))(supabase);
 
 	$: supabaseStore.set(supabase);
-
-	$: console.log('display logout popup:', $displayLogoutPopup);
 </script>
 
 <MetaTags

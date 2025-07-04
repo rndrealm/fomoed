@@ -30,9 +30,6 @@ export const GET: RequestHandler = async ({ url }) => {
 		timestampsToFetch.push(timestamp);
 	}
 
-	console.log({ start_range, end_range, time_step });
-	console.log(timestampsToFetch);
-
 	// Fetch those footprints from cignals
 	const fetchPromises = timestampsToFetch.map((timestamp) => {
 		console.log('Fetching footprints for timestamp', timestamp);
