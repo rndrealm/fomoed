@@ -31,21 +31,6 @@ To develop all apps and packages, run the following command:
 pnpm dev
 ```
 
-## Environment
+# Please check [fomoed-docs](https://github.com/fomoed-dev/fomoed-docs) for project documentation
 
-### Redis DB
-
-A redis DB is used for caching data of the coinstats widget and may be used also for other widgets in the future.
-
-The redis DB is set up on the VPS `api.fomoed.io` on port `6379`.
-Connection is made from the Next.js edge function. Connection is secured over TLS. DB is secured with a password.
-
-⚠️ This is fine for just the widget data. We absolutely CANNOT store any user data or sensitive info in this instance, as it is not safe.
-
-The same instance is used for all deploys.
-
-### Troubleshooting
-
-**API edge function are not connecting to redis DB**
-
-1. Check if TLS certificates are expired on the VPS.
+- https://github.com/fomoed-dev/fomoed-docs
