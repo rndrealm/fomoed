@@ -133,7 +133,11 @@ export async function GET(request: Request) {
   try {
     const data = await fetchNews();
 
-    await fetch("https://kuma.fomoed.io/api/push/FJSwB7iaUW?status=up&msg=OK&ping=");
+    const monitorUrl = process.env.KUMA_MONITOR_PUSH_URL_CRONJOB_NEWS;
+
+    if (monitorUrl) {
+      await fetch(monitorUrl);
+    }
 
     return NextResponse.json({ success: "true", data });
   } catch (error) {
