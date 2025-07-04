@@ -24,6 +24,7 @@ export async function createSupabaseServerClient(component: boolean = false) {
         },
       },
       cookieOptions: supabaseCookieOpts,
+      cookieEncoding: "raw",
     }
   );
 }
@@ -55,6 +56,7 @@ export async function createSupabaseReqResClient(req: NextRequest, res: NextResp
         },
       },
       cookieOptions: supabaseCookieOpts,
+      cookieEncoding: "raw",
     }
   );
 }
