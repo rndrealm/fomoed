@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 import { Database } from "@/lib/database/supabase";
+import { supabaseCookieOpts } from "./cookie-options";
 
 // server component can only get cookies and not set them, hence the "component" check
 export async function createSupabaseServerClient(component: boolean = false) {
@@ -22,6 +23,7 @@ export async function createSupabaseServerClient(component: boolean = false) {
           cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
         },
       },
+      cookieOptions: supabaseCookieOpts,
     }
   );
 }
@@ -52,6 +54,7 @@ export async function createSupabaseReqResClient(req: NextRequest, res: NextResp
           cookiesToSet.forEach(({ name, value, options }) => res.cookies.set(name, value, options));
         },
       },
+      cookieOptions: supabaseCookieOpts,
     }
   );
 }
