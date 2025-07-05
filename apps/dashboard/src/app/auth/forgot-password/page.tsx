@@ -41,7 +41,7 @@ export default function Page() {
   };
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-[#000] px-4 pb-8">
+    <div className="relative flex min-h-screen w-full flex-col px-4 pb-8">
       <div className="flex h-full flex-1 items-center justify-center">
         <div className="flex w-full max-w-[418px] flex-col gap-5">
           <div className="flex justify-center">
