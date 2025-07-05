@@ -128,7 +128,7 @@ export default function Page() {
         <div className="flex w-full">
           <FormBottomDivider />
         </div>
-        <FormBottomLink href={AppRoutes.auth.login.path} linkText="Sign In" />
+        <FormBottomLink href={AppRoutes.auth.login.path} infoText="Already on Fomoed?" linkText="Sign In" />
       </div>
     </div>
   );
