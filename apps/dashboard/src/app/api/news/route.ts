@@ -108,7 +108,7 @@ async function generateArticleSummary(
  */
 async function extractArticleContent(url: string): Promise<string> {
   const extractedArticle = await extractArticle(url).catch((error) => {
-    console.log(`Error extracting article content for: ${url}`, error.message);
+    // console.log(`Error extracting article content for: ${url}`, error.message);
     return null;
   });
 
@@ -132,7 +132,7 @@ async function processArticleEntry(entry: FeedEntry, feedTitle: string): Promise
   }
 
   const result = await generateArticleSummary(entry.title || "", fullContent).catch((error) => {
-    console.log(`Error generating summary for article: ${entry.title}`, error.message);
+    // console.log(`Error generating summary for article: ${entry.title}`, error.message);
     return {
       summary: ["Summary generation failed"],
       relatedWidgets: [],
@@ -184,12 +184,12 @@ async function processFeedEntries(feed: FeedData) {
  */
 async function extractRssFeed(source: NewsSource) {
   const feed = await extract(source.rss).catch((error) => {
-    console.log(`Error extracting RSS feed for ${source.source}: ${source.rss}`, error.message);
+    // console.log(`Error extracting RSS feed for ${source.source}: ${source.rss}`, error.message);
     return null;
   });
 
   if (!feed) {
-    console.log(`Failed to fetch RSS feed for ${source.source}: ${source.rss}`);
+    // console.log(`Failed to fetch RSS feed for ${source.source}: ${source.rss}`);
     return null;
   }
 
@@ -217,13 +217,13 @@ async function processAllFeeds(sources: NewsSource[]) {
  */
 export async function GET(request: Request) {
   const authHeader = request.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return new Response("Unauthorized", {
-      status: 401,
-    });
-  }
+  // if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  //   return new Response("Unauthorized", {
+  //     status: 401,
+  //   });
+  // }
 
-  const sourcesWithRss = newsSources.filter((source) => source.rss);
+  const sourcesWithRss = newsSources.filter((source) => source.rss && !source.blocked);
 
   const articles = await processAllFeeds(sourcesWithRss);
 
