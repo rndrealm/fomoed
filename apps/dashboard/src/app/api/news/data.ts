@@ -137,6 +137,7 @@ export const newsSources = [
     source: "Cryptopolitan",
     url: "https://cryptopolitan.com",
     rss: "https://cryptopolitan.com/feed/",
+    blocked: true, //temporarily because of compute limit
   },
   {
     source: "CryptoPotato",
@@ -178,6 +179,7 @@ export const newsSources = [
     source: "The Block",
     url: "https://theblock.co",
     rss: "https://www.theblock.co/rss.xml",
+    blocked: true, //temporarily because of compute limit
   },
   {
     source: "The Coin Republic",
