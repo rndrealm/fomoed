@@ -131,14 +131,14 @@ async function processArticleEntry(entry: FeedEntry, feedTitle: string): Promise
     return null;
   }
 
-  const result = await generateArticleSummary(entry.title || "", fullContent).catch((error) => {
-    // console.log(`Error generating summary for article: ${entry.title}`, error.message);
-    return {
-      summary: ["Summary generation failed"],
-      relatedWidgets: [],
-      symbols: [],
-    };
-  });
+  // const result = await generateArticleSummary(entry.title || "", fullContent).catch((error) => {
+  //   // console.log(`Error generating summary for article: ${entry.title}`, error.message);
+  //   return {
+  //     summary: ["Summary generation failed"],
+  //     relatedWidgets: [],
+  //     symbols: [],
+  //   };
+  // });
 
   return {
     id: generateUrlId(entry.id),
@@ -153,9 +153,9 @@ async function processArticleEntry(entry: FeedEntry, feedTitle: string): Promise
       region: "en",
     },
     summary: entry.description || "",
-    ai_summary: result.summary,
-    related_widgets: result.relatedWidgets,
-    symbols: result.symbols,
+    ai_summary: [""],
+    related_widgets: [],
+    symbols: [],
   };
 }
 
@@ -217,11 +217,11 @@ async function processAllFeeds(sources: NewsSource[]) {
  */
 export async function GET(request: Request) {
   const authHeader = request.headers.get("authorization");
-  // if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-  //   return new Response("Unauthorized", {
-  //     status: 401,
-  //   });
-  // }
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return new Response("Unauthorized", {
+      status: 401,
+    });
+  }
 
   const sourcesWithRss = newsSources.filter((source) => source.rss && !source.blocked);
 
