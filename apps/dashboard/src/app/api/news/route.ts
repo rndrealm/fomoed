@@ -120,16 +120,16 @@ async function extractArticleContent(url: string): Promise<string> {
  * Returns null if content cannot be extracted
  */
 async function processArticleEntry(entry: FeedEntry, feedTitle: string): Promise<ProcessedArticle | null> {
-  let fullContent = "";
+  // let fullContent = "";
 
-  if (entry.link) {
-    fullContent = await extractArticleContent(entry.link);
-  }
+  // if (entry.link) {
+  //   fullContent = await extractArticleContent(entry.link);
+  // }
 
   // Skip processing if no content can be extracted
-  if (!fullContent) {
-    return null;
-  }
+  // if (!fullContent) {
+  //   return null;
+  // }
 
   // const result = await generateArticleSummary(entry.title || "", fullContent).catch((error) => {
   //   // console.log(`Error generating summary for article: ${entry.title}`, error.message);
@@ -217,11 +217,11 @@ async function processAllFeeds(sources: NewsSource[]) {
  */
 export async function GET(request: Request) {
   const authHeader = request.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return new Response("Unauthorized", {
-      status: 401,
-    });
-  }
+  // if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  //   return new Response("Unauthorized", {
+  //     status: 401,
+  //   });
+  // }
 
   const sourcesWithRss = newsSources.filter((source) => source.rss && !source.blocked);
 
