@@ -8,7 +8,7 @@ export default function AuthLayout({
 }>) {
   return (
     <div className="relative bg-black">
-      <div className="absolute inset-0 h-screen w-screen">
+      <div className="absolute inset-0 h-screen w-[105vw]">
         <Image src={authAssets.BgIllustration} alt="Auth page pattern" fill />
       </div>
       {children}

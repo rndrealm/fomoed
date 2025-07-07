@@ -54,7 +54,14 @@ export default function Page() {
                 we’ll send you a link to reset your password
               </p>
             </div>
-            <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
+            <Formik
+              initialValues={initialValues}
+              validationSchema={validationSchema}
+              onSubmit={onSubmit}
+              validateOnBlur={false}
+              validateOnMount={false}
+              validateOnChange={false}
+            >
               {(props) => {
                 const { values, handleChange, handleBlur, handleSubmit } = props;
 

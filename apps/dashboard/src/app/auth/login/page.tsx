@@ -66,13 +66,12 @@ export default function Page() {
                 initialValues={initialValues}
                 validationSchema={validationSchema}
                 onSubmit={onSubmit}
-                validateOnBlur
-                validateOnMount
-                validateOnChange
+                validateOnBlur={false}
+                validateOnMount={false}
+                validateOnChange={false}
               >
                 {(props) => {
                   const { values, handleChange, handleBlur, handleSubmit } = props;
-                  const isError = !values.email || !values.password;
 
                   return (
                     <form onSubmit={handleSubmit} className="">
@@ -81,7 +80,6 @@ export default function Page() {
                           name="email"
                           id="email"
                           placeholder="you@email.com"
-                          type="email"
                           value={values.email}
                           onChange={handleChange}
                           onBlur={handleBlur}
@@ -97,9 +95,9 @@ export default function Page() {
                           onBlur={handleBlur}
                         />
                         <div className="">
-                          <SubmitButton isLoading={isLoading} disabled={isError}>
+                          <SubmitButton isLoading={isLoading} disabled={isLoading}>
                             Login
-                            <ArrowRight fill={isError ? "#7d7d7d" : undefined} />
+                            <ArrowRight fill={"#7d7d7d"} />
                           </SubmitButton>
                         </div>
                       </div>
