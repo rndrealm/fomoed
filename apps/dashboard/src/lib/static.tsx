@@ -112,7 +112,7 @@ export const layoutOptionsMap = [
     id: 8,
     name: "Cignals Chart",
     slug: "cignals-chart",
-    image: dashboard.tokenNews,
+    image: dashboard.footprint,
     category: "charts",
     tags: ["charts", "new"],
   },
