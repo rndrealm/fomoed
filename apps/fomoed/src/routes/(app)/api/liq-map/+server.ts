@@ -41,7 +41,7 @@ export async function GET({ request, locals: { supabase, user } }: RequestEvent)
 	const liquidationData = await fetchCoinglassLiqMap(timeframe, exchange, instrumentId);
 	const pairMarketsData = await fetchPairMarkets(baseAsset);
 
-	const pairMarketData = pairMarketsData.data.data.find(
+	const pairMarketData = pairMarketsData.data.find(
 		(i: any) => i.symbol === baseAsset + '/' + quoteAsset
 	);
 

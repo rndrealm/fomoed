@@ -60,7 +60,7 @@ export default function LiquidationHeatmapWidget(props: IProps) {
 
   const filteredData = useMemo(() => {
     if (!pairsData) return [];
-    return pairsData.filter((i) => i.value.baseAsset === widget.props?.token);
+    return pairsData.filter((i) => i.value.base_asset === widget.props?.token);
   }, [pairsData, widget.props?.token]);
 
   const {
@@ -93,7 +93,7 @@ export default function LiquidationHeatmapWidget(props: IProps) {
                     value={widget.props?.token}
                     setValue={(coin: string) => {
                       // setActiveCoin(coin);
-                      const newPairs = pairsData.filter((i) => i.value.baseAsset === coin);
+                      const newPairs = pairsData.filter((i) => i.value.base_asset === coin);
                       updateWidgetPropsFromAtom({
                         tabId: activeLayout.id,
                         widgetId: widget.id,

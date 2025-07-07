@@ -46,6 +46,7 @@ export async function fetchHeatmapData(timeframe: string, exchange: string, symb
 	const res = await fetch(
 		`/api/liquidity-heatmap?timeframe=${timeframe}&exchange=${exchange}&symbol=${symbol}`
 	);
+	console.log('res:', res);
 
 	if (!res.ok) {
 		failure('Failed to fetch data!');
@@ -80,9 +81,9 @@ export type LiqMapData = {
 
 type FetchLiqMapDataInstrument = {
 	exchange: string;
-	instrumentId: string;
-	baseAsset: string;
-	quoteAsset: string;
+	instrument_id: string;
+	base_asset: string;
+	quote_asset: string;
 };
 
 function getLiqBarColorFromLevRatio(leverage: number) {
@@ -114,7 +115,7 @@ export async function fetchLiqMapData(
 
 	for (const instrument of instruments) {
 		const res = await fetch(
-			`/api/liq-map?timeframe=${timeframe}&exchange=${instrument.exchange}&instrumentId=${instrument.instrumentId}&baseAsset=${instrument.baseAsset}&quoteAsset=${instrument.quoteAsset}`
+			`/api/liq-map?timeframe=${timeframe}&exchange=${instrument.exchange}&instrumentId=${instrument.instrument_id}&baseAsset=${instrument.base_asset}&quoteAsset=${instrument.quote_asset}`
 		);
 
 		if (!res.ok) {
@@ -140,7 +141,7 @@ export async function fetchLiqMapData(
 		// Use current price of base asset from the first exchange
 		if (currentPrice === null) {
 			// Current price is indeed 'price' and not 'indexPrice'
-			currentPrice = data_.data.pairMarketData.price;
+			currentPrice = data_.data.pairMarketData.current_price;
 		}
 	}
 
@@ -343,7 +344,7 @@ export async function getSupportedLiqMapInstrumentOptions(): Promise<InstrumentO
 	const data = await getCacheOrFetchSupportedExchangePairs();
 	const options = supportedExchangePairsToOptions(data);
 
-	const filtered = options.filter((i) => i.value.baseAsset === symbol);
+	const filtered = options.filter((i) => i.value.base_asset === symbol);
 
 	return filtered;
 }
