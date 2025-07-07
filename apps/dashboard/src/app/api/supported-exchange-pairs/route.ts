@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 export async function GET() {
   try {
     //Todo move this api call to another function
-    const url = "https://open-api-v3.coinglass.com/api/futures/supported-exchange-pairs";
+    const url = "https://open-api-v4.coinglass.com/api/futures/supported-exchange-pairs";
 
     const res = await fetch(url, {
       method: "GET",
@@ -16,7 +16,7 @@ export async function GET() {
     });
     const data = await res.json();
 
-    if (!res.ok || !data.success) {
+    if (!res.ok || !data.data) {
       return NextResponse.json({ error: "Failed to fetch CFGI data" }, { status: 500 });
     }
 

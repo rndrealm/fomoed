@@ -56,9 +56,10 @@
 		// console.log('options', options);
 
 		// Filter by selected coin
-		const filtered = options.filter((o) => o.value.baseAsset === symbol);
+		const filtered = options.filter((o) => o.value.base_asset === symbol);
 
 		exchangeOptions = filtered;
+		console.log('filtered:', filtered);
 
 		if (filtered.length < 1) {
 			console.error('No exchange options found for', symbol);
@@ -85,9 +86,9 @@
 	}
 
 	$: title =
-		($selectedExchangeOption?.value.baseAsset || $coinstats_selected_coin?.symbol) +
+		($selectedExchangeOption?.value.base_asset || $coinstats_selected_coin?.symbol) +
 		'/' +
-		($selectedExchangeOption?.value.quoteAsset || 'USDT');
+		($selectedExchangeOption?.value.quote_asset || 'USDT');
 </script>
 
 <div class="relative w-full h-full overflow-hidden">
@@ -142,7 +143,7 @@
 						bind:loading
 						timeframe={selectedTimeframe.value}
 						exchange={$selectedExchangeOption?.value.exchange}
-						symbol={$selectedExchangeOption?.value.instrumentId}
+						symbol={$selectedExchangeOption?.value.instrument_id}
 					/>
 				</InCardChartContainer>
 			</div>

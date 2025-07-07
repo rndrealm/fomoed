@@ -35,7 +35,7 @@ const colorToCfgi = [
 
 interface IProps {
   widget: LayoutType["widgets"][0];
-  fullScreenButton?: boolean
+  fullScreenButton?: boolean;
 }
 
 export default function LiquidationExchangeWidget(props: IProps) {
@@ -64,8 +64,8 @@ export default function LiquidationExchangeWidget(props: IProps) {
         className="flex h-full flex-col gap-4 rounded-2xl border border-[#1b1b1b] bg-[#080808] px-6 py-3"
         ref={chartRef}
       >
-        <div className="flex flex-col items-center justify-center w-full h-full">
-          <div className="grid items-center w-full grid-cols-3">
+        <div className="flex h-full w-full flex-col items-center justify-center">
+          <div className="grid w-full grid-cols-3 items-center">
             <WidgetHeader widget={widget} />
           </div>
           <div className={cn("relative flex h-full w-full flex-col justify-center rounded-sm")}>
@@ -76,7 +76,7 @@ export default function LiquidationExchangeWidget(props: IProps) {
                     options={coinData || []}
                     value={widget.props?.token}
                     setValue={(coin: string) => {
-                      const newPairs = pairsData.filter((i) => i.value.baseAsset === coin);
+                      const newPairs = pairsData.filter((i) => i.value.base_asset === coin);
                       updateWidgetPropsFromAtom({
                         tabId: activeLayout.id,
                         widgetId: widget.id,
@@ -112,11 +112,11 @@ export default function LiquidationExchangeWidget(props: IProps) {
               ) : null}
             </div>
             <PremiumOverlay>
-              <div className="flex-grow mx-3">
+              <div className="mx-3 flex-grow">
                 {liquidationData ? (
                   <LiquidationChart liquidationData={liquidationData} />
                 ) : (
-                  <Skeleton className="w-full h-full bg-widget-background-200" />
+                  <Skeleton className="bg-widget-background-200 h-full w-full" />
                 )}
               </div>
 
@@ -129,17 +129,15 @@ export default function LiquidationExchangeWidget(props: IProps) {
 
         {fullScreenButton && (
           <div
-
-            className="absolute bottom-[16px] right-[9px] w-[28px] h-[28px] rounded-md z-[9] border border-[#1c1c1c]"
+            className="absolute right-[9px] bottom-[16px] z-[9] h-[28px] w-[28px] rounded-md border border-[#1c1c1c]"
             style={{
-              background:
-                "linear-gradient(180deg, #1b1b1b 0%, rgba(0, 0, 0, 0.38) 72.15%)",
+              background: "linear-gradient(180deg, #1b1b1b 0%, rgba(0, 0, 0, 0.38) 72.15%)",
               backdropFilter: "blur(7px)",
               opacity: isFullscreen ? 0 : 1,
             }}
           >
             <button
-              className="flex items-center justify-center w-full h-full"
+              className="flex h-full w-full items-center justify-center"
               onClick={() => {
                 setIsFullscreen(true);
               }}
@@ -148,7 +146,6 @@ export default function LiquidationExchangeWidget(props: IProps) {
             </button>
           </div>
         )}
-
       </div>
     </WidgetModalWrapper>
   );

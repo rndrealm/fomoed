@@ -4,7 +4,7 @@ import { now } from "lodash-es";
 
 const maxCacheAgeSeconds = 120;
 async function fetchPairMarkets(symbol: string) {
-  const url = `https://open-api-v3.coinglass.com/api/futures/pairs-markets?symbol=${symbol}`;
+  const url = `https://open-api-v4.coinglass.com/api/futures/pairs-markets?symbol=${symbol}`;
   const options = {
     method: "GET",
     headers: {
@@ -17,7 +17,7 @@ async function fetchPairMarkets(symbol: string) {
   const data = await res.json();
 
   if (!res.ok) {
-    return NextResponse.json({ error: "Failed to fetch Liquidation data" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to fetch Liquidation data1" }, { status: 500 });
   }
 
   return data;
@@ -27,13 +27,12 @@ async function fetchPairMarkets(symbol: string) {
 async function fetchAssetPriceUsd(symbol: string): Promise<number> {
   const pairMarketsData = await fetchPairMarkets(symbol);
 
-  const pairMarketData = pairMarketsData.data.data.find((i: any) => i.symbol === symbol + "/" + "USDT");
-
-  return pairMarketData.price;
+  const pairMarketData = pairMarketsData.data.find((i: any) => i.symbol === symbol + "/" + "USDT");
+  return pairMarketData.current_price;
 }
 
 async function fetchCoinglassSupportedPairs() {
-  const url = "https://open-api-v3.coinglass.com/api/futures/supported-exchange-pairs";
+  const url = "https://open-api-v4.coinglass.com/api/futures/supported-exchange-pairs";
   const options = {
     method: "GET",
     headers: {
@@ -45,15 +44,14 @@ async function fetchCoinglassSupportedPairs() {
   const res = await fetch(url, options);
   const data = await res.json();
 
-  if (!res.ok || !data.success) {
-    return NextResponse.json({ error: "Failed to fetch Liquidation data" }, { status: 500 });
+  if (!res.ok || !data.data) {
+    return NextResponse.json({ error: "Failed to fetch Liquidation data2" }, { status: 500 });
   }
-
   return data;
 }
 
 async function fetchCoinglassLiqMap(range: string, exchange: string, symbol: string) {
-  const url = `https://open-api-v3.coinglass.com/api/futures/liquidation/map?exchange=${exchange}&symbol=${symbol}&range=${range}`;
+  const url = `https://open-api-v4.coinglass.com/api/futures/liquidation/map?exchange=${exchange}&symbol=${symbol}&range=${range}`;
   const options = {
     method: "GET",
     headers: {
@@ -103,12 +101,12 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const supportedFuturePairs: Record<string, { baseAsset: string; instrumentId: string }[]> = (
+    const supportedFuturePairs: Record<string, { base_asset: string; instrument_id: string }[]> = (
       await fetchCoinglassSupportedPairs()
     ).data;
 
     if (!supportedFuturePairs) {
-      return NextResponse.json({ error: "Failed to fetch Liquidation data" }, { status: 500 });
+      return NextResponse.json({ error: "Failed to fetch Liquidation data3" }, { status: 500 });
     }
 
     const aggregatedExchanges = ["Binance", "OKX", "Bybit"];
@@ -129,7 +127,7 @@ export async function GET(request: NextRequest) {
 
     // Keep only instruments with requested asset
     for (const [exchange, instruments] of Object.entries(supportedFuturePairs)) {
-      supportedFuturePairs[exchange] = instruments.filter((i) => i.baseAsset === asset);
+      supportedFuturePairs[exchange] = instruments.filter((i) => i.base_asset === asset);
     }
 
     // Replace the nested for loops with parallel requests
@@ -138,14 +136,14 @@ export async function GET(request: NextRequest) {
     for (const [exchange, instruments] of Object.entries(supportedFuturePairs)) {
       for (const instrument of instruments) {
         fetchPromises.push(
-          fetchCoinglassLiqMap(timeframe, exchange, instrument.instrumentId)
+          fetchCoinglassLiqMap(timeframe, exchange, instrument.instrument_id)
             .then((response) => ({
               exchange,
-              instrumentId: instrument.instrumentId,
+              instrumentId: instrument.instrument_id,
               data: response?.data?.data,
             }))
             .catch((err) => {
-              console.error(`Error fetching data for ${exchange}/${instrument.instrumentId}:`, err);
+              console.error(`Error fetching data for ${exchange}/${instrument.instrument_id}:`, err);
               return null;
             })
         );
@@ -183,6 +181,6 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     // Handle errors gracefully
     console.log("Error fetching liquidation data:", error);
-    return NextResponse.json({ error: "Failed to fetch Liquidation data" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to fetch Liquidation data4" }, { status: 500 });
   }
 }
