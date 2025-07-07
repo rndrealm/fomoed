@@ -32,8 +32,8 @@ const ProPlanTriangleUp = () => {
                         <path d="M262.492 103.617C315.453 103.617 354.898 122.22 368 131.522L368 -8L-8.00005 -7.99997L-8.00004 119.12C-8.00003 175.445 32.8583 208 104.231 208C175.604 208 196.292 103.617 262.492 103.617Z" fill="url(#paint0_linear_4417_172)" />
                     </g>
                     <defs>
-                        <filter id="filter0_f_4417_172" x="-68" y="-68" width="496" height="336" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                            <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                        <filter id="filter0_f_4417_172" x="-68" y="-68" width="496" height="336" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                            <feFlood floodOpacity="0" result="BackgroundImageFix" />
                             <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
                             <feGaussianBlur stdDeviation="30" result="effect1_foregroundBlur_4417_172" />
                         </filter>

@@ -513,3 +513,8 @@ export function handleFearGreedLabel(value: number) {
   if (value <= 79) return "GREED";
   return "EXTREME GREED";
 }
+
+export function getOverlayRoot(): HTMLElement | null {
+  if (typeof window === "undefined") return null;
+  return document.getElementById("overlay-root");
+}

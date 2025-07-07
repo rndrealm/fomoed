@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { ComboboxComp } from "@/components/shared/combobox";
 import {
@@ -12,24 +12,36 @@ import { SelectComp } from "@/components/shared/select";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import useOutsideClick from "@/hooks/useOutsideClick";
+import { CignalsChartDataProviderAPI } from "@/charts/cignals-chart/cignalsChartDataProvider";
 
 interface IProps {
-  availableInstruments: ParsedCignalsInstrumentArray;
   onClose: () => void;
   onSave: (newOptions: CignalsChartOptions) => void;
   originalOptions: CignalsChartOptions;
 }
 
 const CignalsDropdown = (props: IProps) => {
-  const { availableInstruments, onClose, onSave, originalOptions } = props;
+  const { onClose, onSave, originalOptions } = props;
   const [ref] = useOutsideClick(() => {});
   // const [ref] = useOutsideClick(onClose);
 
+  const [availableInstruments, setAvailableInstruments] = useState<ParsedCignalsInstrumentArray>([]);
   const [cignalForm, setCignalForm] = useState({
     instrument: originalOptions.instrument?.label?.toLowerCase() || "",
     timeframe: originalOptions.timeInterval,
     priceStep: originalOptions.priceStep,
   });
+
+  async function refreshAvailableInstruments() {
+    const dataProvider = new CignalsChartDataProviderAPI();
+    const currInstruments = await dataProvider.fetchInstruments();
+    setAvailableInstruments(currInstruments);
+  }
+
+  useEffect(() => {
+    refreshAvailableInstruments();
+  }, []);
+
   const handleChange = (name: string, value: string | number) => {
     setCignalForm((prev) => ({
       ...prev,
@@ -37,7 +49,16 @@ const CignalsDropdown = (props: IProps) => {
     }));
   };
   const instrumentOptions = useMemo(() => {
-    return availableInstruments
+    const originalInstrumentOption = originalOptions.instrument
+      ? [
+          {
+            label: originalOptions.instrument.label.replace("Binance futures", "").replace("PERP", ""),
+            value: originalOptions.instrument.label.toLowerCase(),
+          },
+        ]
+      : [];
+
+    const fetchedInstrumentOptions = availableInstruments
       .filter((i) => i.perpetual && i.exchange === "binance_futures" && !i.label.includes("testnet"))
       .toSorted((a, b) => (a.id > b.id ? 1 : -1))
       .map((instrument) => {
@@ -48,7 +69,9 @@ const CignalsDropdown = (props: IProps) => {
           value: instrument.label.toLowerCase(),
         };
       });
-  }, [availableInstruments]);
+
+    return [...originalInstrumentOption, ...fetchedInstrumentOptions];
+  }, [availableInstruments, originalOptions.instrument]);
 
   const periodOptions = useMemo(() => {
     return availableCignalTimesteps.map((timestep) => ({

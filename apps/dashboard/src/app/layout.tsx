@@ -8,6 +8,7 @@ import "./globals.css";
 import { NotificationProvider } from "@/components/providers/NotificationProvider";
 import "../../node_modules/react-grid-layout/css/styles.css";
 import { headers } from "next/headers";
+import OverlayRoot from "@/components/ui/overlay-root";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,7 +44,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -53,12 +54,16 @@ export default async function RootLayout({
     <html lang="en" className="h-full">
       {/* <ReactScan /> */}
       <body className={`${geistSans.variable} ${geistMono.variable} h-full bg-[#0C0C0C] antialiased`}>
-        <QueryProvider>
-          <NuqsAdapter>
-            <NotificationProvider>{children}</NotificationProvider>
-          </NuqsAdapter>
-        </QueryProvider>
-        <Toaster />
+        <OverlayRoot />
+
+        <div id="root" className="h-full">
+          <QueryProvider>
+            <NuqsAdapter>
+              <NotificationProvider>{children}</NotificationProvider>
+            </NuqsAdapter>
+          </QueryProvider>
+          <Toaster />
+        </div>
       </body>
     </html>
   );

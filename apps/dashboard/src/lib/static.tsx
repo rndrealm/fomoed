@@ -108,14 +108,14 @@ export const layoutOptionsMap = [
   //   category: "charts",
   //   tags: ["charts", "new"],
   // },
-  // {
-  //   id: 8,
-  //   name: "Cignals Chart",
-  //   slug: "cignals-chart",
-  //   image: dashboard.tokenNews,
-  //   category: "charts",
-  //   tags: ["charts", "new"],
-  // },
+  {
+    id: 8,
+    name: "Cignals Chart",
+    slug: "cignals-chart",
+    image: dashboard.tokenNews,
+    category: "charts",
+    tags: ["charts", "new"],
+  },
   // {
   //   id: 7,
   //   name: "Cryptocurrency Market",

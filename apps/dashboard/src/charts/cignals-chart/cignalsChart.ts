@@ -323,8 +323,7 @@ export class CignalsChart {
     if (this._options.instrument.id === DEFAULT_INSTRUMENT_ID) {
       instrumentLabel = DEFAULT_LIVE_INSTRUMENT_ID;
     } else {
-      instrumentLabel =
-        `${i.exchange}.${i.base_currency}.${i.quote_currency}` + perp;
+      instrumentLabel = `${i.exchange}.${i.base_currency}.${i.quote_currency}` + perp;
     }
 
     const liveDataProviderOptions: LiveDataProviderOptions = {
@@ -342,9 +341,7 @@ export class CignalsChart {
       onAccUpdate: this.#onAccUpdate.bind(this),
     };
 
-    this._liveDataProvider = new CignalsChartLiveDataProvider(
-      liveDataProviderOptions
-    );
+    this._liveDataProvider = new CignalsChartLiveDataProvider(liveDataProviderOptions);
     this._liveDataProvider.connectWs();
   }
 
@@ -413,10 +410,7 @@ export class CignalsChart {
     const multiplier = 0.01;
     const deltaDatapoints = -event.deltaY * multiplier;
 
-    this._nDatapointsShown = Math.max(
-      this._minDatapointsShown,
-      this._nDatapointsShown + deltaDatapoints
-    );
+    this._nDatapointsShown = Math.max(this._minDatapointsShown, this._nDatapointsShown + deltaDatapoints);
 
     this.#updateMeasurements();
 
@@ -469,10 +463,7 @@ export class CignalsChart {
       const distanceDelta = newDistance - currentDistance;
 
       const datapointSizeFraction = distanceDelta / this._datapointWidth;
-      this._nDatapointsShown = Math.max(
-        1,
-        this._nDatapointsShown - datapointSizeFraction
-      );
+      this._nDatapointsShown = Math.max(1, this._nDatapointsShown - datapointSizeFraction);
 
       this.#updateMeasurements();
 
@@ -491,7 +482,7 @@ export class CignalsChart {
 
       const deltaY = e.clientY - this._startY;
       const priceRange = this._startMaxPrice - this._startMinPrice;
-      const pricePerPixel = priceRange / window.innerHeight;
+      const pricePerPixel = priceRange / this.chartAreaHeight; // Updated line
 
       this._shownMinPrice = this._startMinPrice + deltaY * pricePerPixel;
       this._shownMaxPrice = this._startMaxPrice + deltaY * pricePerPixel;
@@ -567,10 +558,7 @@ export class CignalsChart {
     this._liveDataProvider?.destroyWs();
   }
 
-  #prependOhlcWithPlaceholders(
-    ohlcData: PriceDataArray,
-    nPlaceholders: number
-  ): PriceDataArray {
+  #prependOhlcWithPlaceholders(ohlcData: PriceDataArray, nPlaceholders: number): PriceDataArray {
     const placeholders = Array.from({ length: nPlaceholders }, () => ({
       close: -1,
       high: -1,
@@ -586,9 +574,7 @@ export class CignalsChart {
   }
 
   #updateVisibleData() {
-    const offsetCandlesFromNow = Math.floor(
-      this._xPanOffsetPx / this._datapointWidth
-    );
+    const offsetCandlesFromNow = Math.floor(this._xPanOffsetPx / this._datapointWidth);
 
     this._nPannedDatapoints = offsetCandlesFromNow;
 
@@ -604,19 +590,15 @@ export class CignalsChart {
     );
 
     const minCandleTimestamp = this._visibleCandles[0].timestamp;
-    const maxCandleTimestamp =
-      this._visibleCandles[this._visibleCandles.length - 1].timestamp;
+    const maxCandleTimestamp = this._visibleCandles[this._visibleCandles.length - 1].timestamp;
 
     this._filteredFootprints = this.#footprintData.filter(
-      (fp) =>
-        fp.timestamp >= minCandleTimestamp && fp.timestamp <= maxCandleTimestamp
+      (fp) => fp.timestamp >= minCandleTimestamp && fp.timestamp <= maxCandleTimestamp
     );
   }
 
   get estimatedCurrentPrice(): number | null {
-    const lastCandleWithFootprints = this._data.findLast(
-      (d) => d.footprints.length > 0
-    );
+    const lastCandleWithFootprints = this._data.findLast((d) => d.footprints.length > 0);
 
     if (!lastCandleWithFootprints) {
       return null;
@@ -700,8 +682,7 @@ export class CignalsChart {
 
   // TODO cache this
   private _getSmoothScalingChartPositionOffset() {
-    const firstRenderedBoxFraction =
-      Math.ceil(this._nDatapointsShown) - this._nDatapointsShown;
+    const firstRenderedBoxFraction = Math.ceil(this._nDatapointsShown) - this._nDatapointsShown;
 
     return this._datapointWidth * firstRenderedBoxFraction * -1;
   }
@@ -711,8 +692,7 @@ export class CignalsChart {
     this._maxPriceTextWidth = 0;
 
     for (
-      let price =
-        Math.ceil(this._shownMinPrice / this._priceStep) * this._priceStep;
+      let price = Math.ceil(this._shownMinPrice / this._priceStep) * this._priceStep;
       price <= this._shownMaxPrice;
       price += this._priceStep
     ) {
@@ -735,8 +715,7 @@ export class CignalsChart {
     const candleWidth = this._candelWidth;
     const tsBoxWidth = this._datapointWidth;
     const spacing = tsBoxWidth - candleWidth;
-    const smoothScalingChartPositionOffset =
-      this._getSmoothScalingChartPositionOffset();
+    const smoothScalingChartPositionOffset = this._getSmoothScalingChartPositionOffset();
     const xOffset = this._measurements.panOriginatedXOffset;
 
     this._tsInfo = [];
@@ -748,38 +727,18 @@ export class CignalsChart {
       const high = candle.high;
       const low = candle.low;
 
-      const positionedClose =
-        ((close - this._shownMinPrice) /
-          (this._shownMaxPrice - this._shownMinPrice)) *
-        height;
-      const positionedOpen =
-        ((open - this._shownMinPrice) /
-          (this._shownMaxPrice - this._shownMinPrice)) *
-        height;
+      const positionedClose = ((close - this._shownMinPrice) / (this._shownMaxPrice - this._shownMinPrice)) * height;
+      const positionedOpen = ((open - this._shownMinPrice) / (this._shownMaxPrice - this._shownMinPrice)) * height;
       const candleHeight = positionedOpen - positionedClose;
       const isRed = open > close;
 
-      const xPos =
-        i * (candleWidth + spacing) +
-        smoothScalingChartPositionOffset +
-        xOffset;
+      const xPos = i * (candleWidth + spacing) + smoothScalingChartPositionOffset + xOffset;
 
       ctx.fillStyle = isRed ? this._themeRed : this._themeGreen;
-      ctx.fillRect(
-        xPos,
-        height - positionedOpen,
-        candleWidth - 2,
-        candleHeight
-      );
+      ctx.fillRect(xPos, height - positionedOpen, candleWidth - 2, candleHeight);
 
-      const positionedHigh =
-        ((high - this._shownMinPrice) /
-          (this._shownMaxPrice - this._shownMinPrice)) *
-        height;
-      const positionedLow =
-        ((low - this._shownMinPrice) /
-          (this._shownMaxPrice - this._shownMinPrice)) *
-        height;
+      const positionedHigh = ((high - this._shownMinPrice) / (this._shownMaxPrice - this._shownMinPrice)) * height;
+      const positionedLow = ((low - this._shownMinPrice) / (this._shownMaxPrice - this._shownMinPrice)) * height;
 
       const bodyLow = Math.min(positionedOpen, positionedClose);
       const bodyHigh = Math.max(positionedOpen, positionedClose);
@@ -818,9 +777,7 @@ export class CignalsChart {
     const footprints: (FootprintData & {
       candleIndexInVisibleCandles: number;
     })[] = this._filteredFootprints.map((i) => {
-      const candleIndex = this._visibleCandles.findIndex(
-        (c) => c.timestamp === i.timestamp
-      );
+      const candleIndex = this._visibleCandles.findIndex((c) => c.timestamp === i.timestamp);
 
       return {
         ...i,
@@ -839,8 +796,7 @@ export class CignalsChart {
     // This needs to be moved outside the draw loop, preferably move this into _cacheData
     for (const footprint of footprints) {
       let priceTsFootprint = parsedFootprints.find(
-        (i) =>
-          i.price === footprint.price && i.timestamp === footprint.timestamp
+        (i) => i.price === footprint.price && i.timestamp === footprint.timestamp
       );
 
       if (!priceTsFootprint) {
@@ -896,33 +852,11 @@ export class CignalsChart {
       const left = this.#getDatapointtLeft(footprint.timestamp);
 
       if (this._footprintDisplayMode === "buy-sell") {
-        this.#drawSplitFootprint(
-          left,
-          top,
-          rectWidth,
-          footprintHeight,
-          footprint
-        );
+        this.#drawSplitFootprint(left, top, rectWidth, footprintHeight, footprint);
       } else if (this._footprintDisplayMode === "delta") {
-        this.#drawDeltaFootprint(
-          left,
-          top,
-          rectWidth,
-          footprintHeight,
-          footprint,
-          minDelta,
-          maxDelta
-        );
+        this.#drawDeltaFootprint(left, top, rectWidth, footprintHeight, footprint, minDelta, maxDelta);
       } else {
-        this.#drawVolumeFootprint(
-          left,
-          top,
-          rectWidth,
-          footprintHeight,
-          footprint,
-          minVol,
-          maxVol
-        );
+        this.#drawVolumeFootprint(left, top, rectWidth, footprintHeight, footprint, minVol, maxVol);
       }
 
       // Draw a mark inicating that this foorpting is the highest volume footprint
@@ -938,57 +872,32 @@ export class CignalsChart {
       }
 
       // Draw footprint highlight outline
-      if (
-        footprint.timestamp === lastCandleTs &&
-        this._highlightFootprintPrice !== null
-      ) {
+      if (footprint.timestamp === lastCandleTs && this._highlightFootprintPrice !== null) {
         const lowPriceBound = footprint.price - this._priceStep / 2;
         const highPriceBound = footprint.price + this._priceStep / 2;
 
-        if (
-          lowPriceBound < this._highlightFootprintPrice &&
-          this._highlightFootprintPrice < highPriceBound
-        ) {
-          const highlightRectWidth =
-            this._footprintDisplayMode === "buy-sell"
-              ? rectWidth / 2
-              : rectWidth;
+        if (lowPriceBound < this._highlightFootprintPrice && this._highlightFootprintPrice < highPriceBound) {
+          const highlightRectWidth = this._footprintDisplayMode === "buy-sell" ? rectWidth / 2 : rectWidth;
 
           let highlightRectX = left;
 
           const highlightIsOnRightSide =
-            (this._footprintOrientation === "buy-sell" &&
-              this._footprintHighlightSide === "sell") ||
-            (this._footprintOrientation === "sell-buy" &&
-              this._footprintHighlightSide === "buy");
+            (this._footprintOrientation === "buy-sell" && this._footprintHighlightSide === "sell") ||
+            (this._footprintOrientation === "sell-buy" && this._footprintHighlightSide === "buy");
 
-          if (
-            this._footprintDisplayMode === "buy-sell" &&
-            highlightIsOnRightSide
-          ) {
+          if (this._footprintDisplayMode === "buy-sell" && highlightIsOnRightSide) {
             highlightRectX += rectWidth / 2;
           }
 
           ctx.strokeStyle = this._footprintHighlightColor;
           ctx.lineWidth = 2;
-          ctx.strokeRect(
-            highlightRectX,
-            top,
-            highlightRectWidth,
-            footprintHeight
-          );
+          ctx.strokeRect(highlightRectX, top, highlightRectWidth, footprintHeight);
         }
       }
     }
   }
 
-  #drawSplitFootprint(
-    left: number,
-    top: number,
-    width: number,
-    height: number,
-    footprint: DrawReadyFootprintData
-  ) {
+  #drawSplitFootprint(left: number, top: number, width: number, height: number, footprint: DrawReadyFootprintData) {
     const halfWidth = width / 2;
     const ctx = this._ctx;
 
@@ -1016,17 +925,9 @@ export class CignalsChart {
 
       ctx.fillStyle = this._footprintTextColor;
 
-      ctx.fillText(
-        numberToChars(footprint.buySize, nChars),
-        left - 2 + halfWidth - sizePaddingRight,
-        textY
-      );
+      ctx.fillText(numberToChars(footprint.buySize, nChars), left - 2 + halfWidth - sizePaddingRight, textY);
 
-      ctx.fillText(
-        numberToChars(footprint.sellSize, nChars),
-        left - 2 - sizePaddingRight + width,
-        textY
-      );
+      ctx.fillText(numberToChars(footprint.sellSize, nChars), left - 2 - sizePaddingRight + width, textY);
     }
   }
 
@@ -1052,11 +953,7 @@ export class CignalsChart {
 
     const nChars = ~~(width / this._footprintTextCharWidth / 2);
 
-    this._ctx.fillText(
-      numberToChars(delta, nChars),
-      left + width - 2,
-      top + height / 2 + 3
-    );
+    this._ctx.fillText(numberToChars(delta, nChars), left + width - 2, top + height / 2 + 3);
   }
 
   #drawVolumeFootprint(
@@ -1068,29 +965,16 @@ export class CignalsChart {
     minVol: number,
     maxVol: number
   ) {
-    this._ctx.fillStyle = this.#mapVolumeToColor(
-      footprint.totalVol,
-      minVol,
-      maxVol
-    );
+    this._ctx.fillStyle = this.#mapVolumeToColor(footprint.totalVol, minVol, maxVol);
     this._ctx.fillRect(left, top, width, height);
     this._ctx.fillStyle = this._footprintTextColor;
 
     const nChars = ~~(width / this._footprintTextCharWidth) - 2;
 
-    this._ctx.fillText(
-      numberToChars(footprint.totalVol, nChars),
-      left + width - 2,
-      top + height / 2 + 3
-    );
+    this._ctx.fillText(numberToChars(footprint.totalVol, nChars), left + width - 2, top + height / 2 + 3);
   }
 
-  #mapFootprintSizeToColor(
-    size: number,
-    side: "buy" | "sell",
-    low: number,
-    high: number
-  ): string {
+  #mapFootprintSizeToColor(size: number, side: "buy" | "sell", low: number, high: number): string {
     const baseColor = side === "buy" ? this._themeGreen : this._themeRed;
 
     const minOpacity = 0.2;
@@ -1104,11 +988,7 @@ export class CignalsChart {
   #mapVolumeToColor(volume: number, low: number, high: number): string {
     const normVol = (volume - low) / (high - low);
 
-    const color = mapValueToRgbColor(
-      normVol,
-      volColorScaleLow,
-      volColorScaleHigh
-    );
+    const color = mapValueToRgbColor(normVol, volColorScaleLow, volColorScaleHigh);
     // const opacity = normVol < 0.5 ? 0.5 : 1;
     const opacity = 1;
     const asRgbString = rgbToString(color, opacity);
@@ -1128,12 +1008,7 @@ export class CignalsChart {
   #getPriceTickY(price: number) {
     const height = this.chartAreaHeight;
 
-    return (
-      height -
-      ((price - this._shownMinPrice) /
-        (this._shownMaxPrice - this._shownMinPrice)) *
-        height
-    );
+    return height - ((price - this._shownMinPrice) / (this._shownMaxPrice - this._shownMinPrice)) * height;
   }
 
   #getDatapointtLeft(ts: number) {
@@ -1141,16 +1016,12 @@ export class CignalsChart {
     const visibleTimestamps = this._visibleCandles.map((c) => c.timestamp);
     const candleIndex = visibleTimestamps.indexOf(ts);
 
-    const smoothScalingChartPositionOffset =
-      this._getSmoothScalingChartPositionOffset();
+    const smoothScalingChartPositionOffset = this._getSmoothScalingChartPositionOffset();
     const spacing = this._datapointWidth - this._candelWidth;
     const xOffset = this._measurements.panOriginatedXOffset;
 
     const left =
-      candleIndex * (this._candelWidth + spacing) +
-      this._candelWidth +
-      smoothScalingChartPositionOffset +
-      xOffset;
+      candleIndex * (this._candelWidth + spacing) + this._candelWidth + smoothScalingChartPositionOffset + xOffset;
 
     return left;
   }
@@ -1166,8 +1037,7 @@ export class CignalsChart {
     this._ctx.textAlign = "left";
 
     const lineX = this._chartAreaRight + this._priceTickLineLeftMargin;
-    const priceTickLabelX =
-      lineX + this._tickLineWidth + this._tickLineTextSpacing;
+    const priceTickLabelX = lineX + this._tickLineWidth + this._tickLineTextSpacing;
 
     for (const [price, formatted] of this._priceTicksToRender.entries()) {
       const yPos = this.#getPriceTickY(price);
@@ -1185,12 +1055,7 @@ export class CignalsChart {
   }
 
   get priceTickLabelLeft() {
-    return (
-      this._chartAreaRight +
-      this._tickLineWidth +
-      this._tickLineTextSpacing +
-      this._priceTickLineLeftMargin
-    );
+    return this._chartAreaRight + this._tickLineWidth + this._tickLineTextSpacing + this._priceTickLineLeftMargin;
   }
 
   drawCurrentPrice() {
@@ -1201,39 +1066,26 @@ export class CignalsChart {
     }
 
     const height = this.chartAreaHeight;
-    const yPos =
-      height -
-      ((currentPrice - this._shownMinPrice) /
-        (this._shownMaxPrice - this._shownMinPrice)) *
-        height;
+    const yPos = height - ((currentPrice - this._shownMinPrice) / (this._shownMaxPrice - this._shownMinPrice)) * height;
 
     // Line
     // this._ctx.fillStyle = '#ffffff88';
     // this._ctx.fillRect(0, yPos, this.canvas.clientWidth, 1);
 
-    const currentPriceText = formatPriceScaleValue(
-      currentPrice,
-      this._priceStep
-    );
+    const currentPriceText = formatPriceScaleValue(currentPrice, this._priceStep);
     const currentPriceTextMeasurement = this._ctx.measureText(currentPriceText);
     const currentPriceTextHeight = currentPriceTextMeasurement.emHeightAscent;
 
     // Background behind current price
     const currentPriceBgHeight = currentPriceTextHeight + 40;
-    const currentPriceBgWidth =
-      this._maxPriceTextWidth + this._rightPadding + this._tickLineWidth;
+    const currentPriceBgWidth = this._maxPriceTextWidth + this._rightPadding + this._tickLineWidth;
 
     const currentPriceBgY = yPos - currentPriceBgHeight / 2;
     const currentPriceBgX = this.priceTickLabelLeft;
 
     this._ctx.fillStyle = this._bgColor + "cc";
     // this._ctx.fillStyle = '#ff0000';
-    this._ctx.fillRect(
-      currentPriceBgX,
-      currentPriceBgY,
-      currentPriceBgWidth,
-      currentPriceBgHeight
-    );
+    this._ctx.fillRect(currentPriceBgX, currentPriceBgY, currentPriceBgWidth, currentPriceBgHeight);
 
     // Draw price line
     this._ctx.fillStyle = "#ffffff";
@@ -1252,11 +1104,7 @@ export class CignalsChart {
       this.canvas.clientWidth - 100,
       this.canvas.clientHeight - 10
     );
-    this._ctx.fillText(
-      `Max: ${commaFormatNumber(maxPrice)}`,
-      this.canvas.clientWidth - 100,
-      20
-    );
+    this._ctx.fillText(`Max: ${commaFormatNumber(maxPrice)}`, this.canvas.clientWidth - 100, 20);
   }
 
   #drawBottomVolumeArea() {
@@ -1268,12 +1116,7 @@ export class CignalsChart {
 
     // Background
     ctx.fillStyle = this._bgColor;
-    ctx.fillRect(
-      0,
-      height - barAreaHeight,
-      width,
-      barAreaHeight - barAreaBottomOffset
-    );
+    ctx.fillRect(0, height - barAreaHeight, width, barAreaHeight - barAreaBottomOffset);
 
     // Dashed line separating chart area and bar area
     ctx.strokeStyle = "#ffffff88";
@@ -1313,12 +1156,7 @@ export class CignalsChart {
     const chartAreaRight = this._chartAreaRight;
 
     ctx.fillStyle = this._bgColor;
-    ctx.fillRect(
-      chartAreaRight,
-      height - barAreaHeight,
-      width - chartAreaRight,
-      barAreaHeight + barAreaBottomOffset
-    );
+    ctx.fillRect(chartAreaRight, height - barAreaHeight, width - chartAreaRight, barAreaHeight + barAreaBottomOffset);
 
     this._measurements.bottomVolumeAreaScaleHeight = maxBarHeight;
 
@@ -1388,8 +1226,7 @@ export class CignalsChart {
       tickAlignFactor = 10;
     }
 
-    const tickSpacing =
-      tickSpacingInValues - (tickSpacingInValues % tickAlignFactor);
+    const tickSpacing = tickSpacingInValues - (tickSpacingInValues % tickAlignFactor);
 
     const ticksToTopFromZero: number[] = [];
     const ticksToBottomFromZero: number[] = [];
@@ -1423,11 +1260,7 @@ export class CignalsChart {
     }
 
     // Render from zero to bottom, skip zero
-    for (
-      let tickVal = 0 - tickSpacing;
-      tickVal >= min;
-      tickVal -= tickSpacing
-    ) {
+    for (let tickVal = 0 - tickSpacing; tickVal >= min; tickVal -= tickSpacing) {
       const y = zeroTickY + (tickVal / min) * totalNegativeHeight;
 
       this._ctx.fillText(humanizeNumber(tickVal), scaleX + textOffsetX, y);
@@ -1489,62 +1322,39 @@ export class CignalsChart {
       info.total += vol;
     }
 
-    const maxTotalVol = Math.max(
-      ...Object.values(priceToVolInfo).map((i) => i.total)
-    );
-    const minTotalVol = Math.min(
-      ...Object.values(priceToVolInfo).map((i) => i.total)
-    );
-    const maxDelta = Math.max(
-      ...Object.values(priceToVolInfo).map((i) => i.delta)
-    );
-    const minDelta = Math.min(
-      ...Object.values(priceToVolInfo).map((i) => i.delta)
-    );
+    const maxTotalVol = Math.max(...Object.values(priceToVolInfo).map((i) => i.total));
+    const minTotalVol = Math.min(...Object.values(priceToVolInfo).map((i) => i.total));
+    const maxDelta = Math.max(...Object.values(priceToVolInfo).map((i) => i.delta));
+    const minDelta = Math.min(...Object.values(priceToVolInfo).map((i) => i.delta));
 
     const priceStepPx = this._priceStepPx;
     const left = this.rightVolAreaLeft;
 
     const totalDeltaRange = maxDelta - minDelta;
     const zeroNormalizedInDeltaRange = -minDelta / totalDeltaRange;
-    const zeroX =
-      left + this._rightVolumeAreaWidth * zeroNormalizedInDeltaRange;
+    const zeroX = left + this._rightVolumeAreaWidth * zeroNormalizedInDeltaRange;
 
     for (const [price, info] of Object.entries(priceToVolInfo)) {
       const top = this.#getPriceTickY(parseFloat(price)) - priceStepPx / 2;
 
       if (this._rightSideVolumeMode === "stack") {
-        const buyWidth =
-          (info.buyVolume / maxTotalVol) * this._rightVolumeAreaWidth;
-        const sellWidth =
-          (info.sellVolume / maxTotalVol) * this._rightVolumeAreaWidth;
+        const buyWidth = (info.buyVolume / maxTotalVol) * this._rightVolumeAreaWidth;
+        const sellWidth = (info.sellVolume / maxTotalVol) * this._rightVolumeAreaWidth;
 
         this._ctx.fillStyle = this._themeGreen;
         this._ctx.fillRect(left, top + 1, buyWidth, priceStepPx - 2);
 
         this._ctx.fillStyle = this._themeRed;
-        this._ctx.fillRect(
-          left + buyWidth,
-          top + 1,
-          sellWidth,
-          priceStepPx - 2
-        );
+        this._ctx.fillRect(left + buyWidth, top + 1, sellWidth, priceStepPx - 2);
       } else if (this._rightSideVolumeMode === "delta") {
-        const deltaWidth =
-          (info.delta / totalDeltaRange) * this._rightVolumeAreaWidth;
+        const deltaWidth = (info.delta / totalDeltaRange) * this._rightVolumeAreaWidth;
 
-        this._ctx.fillStyle =
-          info.delta > 0 ? this._themeGreen : this._themeRed;
+        this._ctx.fillStyle = info.delta > 0 ? this._themeGreen : this._themeRed;
         this._ctx.fillRect(zeroX, top + 1, deltaWidth, priceStepPx - 2);
       } else {
-        const totalWidth =
-          (info.total / maxTotalVol) * this._rightVolumeAreaWidth;
+        const totalWidth = (info.total / maxTotalVol) * this._rightVolumeAreaWidth;
 
-        this._ctx.fillStyle = this.#mapVolumeToColor(
-          info.total,
-          minTotalVol,
-          maxTotalVol
-        );
+        this._ctx.fillStyle = this.#mapVolumeToColor(info.total, minTotalVol, maxTotalVol);
         this._ctx.fillRect(left, top + 1, totalWidth, priceStepPx - 2);
       }
     }
@@ -1570,9 +1380,7 @@ export class CignalsChart {
 
     // Aggregate footprint data before normalization
     for (const candleRenderInfo of this._tsInfo) {
-      const footprints = this._filteredFootprints.filter(
-        (fp) => fp.timestamp === candleRenderInfo.candle.timestamp
-      );
+      const footprints = this._filteredFootprints.filter((fp) => fp.timestamp === candleRenderInfo.candle.timestamp);
 
       const buyFootprints = footprints.filter((fp) => fp.side === "buy");
       const sellFootprints = footprints.filter((fp) => fp.side === "sell");
@@ -1600,8 +1408,7 @@ export class CignalsChart {
     const ctx = this._ctx;
     const height = this.canvas.clientHeight;
     const xOffset = this._measurements.panOriginatedXOffset;
-    const smoothScalingChartPositionOffset =
-      this._getSmoothScalingChartPositionOffset();
+    const smoothScalingChartPositionOffset = this._getSmoothScalingChartPositionOffset();
 
     const barBbox = this._datapointWidth;
     const barWidth = barBbox * 0.8;
@@ -1615,12 +1422,7 @@ export class CignalsChart {
       ctx.fillStyle = sellColor;
       ctx.fillRect(
         xPos + barOffsetX,
-        ~~(
-          height -
-          (a.relativeBuyHeight + a.relativeSellHeight) * barAreaHeight
-        ) +
-          1 -
-          barAreaBottomOffset,
+        ~~(height - (a.relativeBuyHeight + a.relativeSellHeight) * barAreaHeight) + 1 - barAreaBottomOffset,
         barWidth,
         ~~(a.relativeSellHeight * barAreaHeight)
       );
@@ -1648,9 +1450,7 @@ export class CignalsChart {
 
     // Aggregate footprint data before normalization
     for (const candleRenderInfo of this._tsInfo) {
-      const footprints = this._filteredFootprints.filter(
-        (fp) => fp.timestamp === candleRenderInfo.candle.timestamp
-      );
+      const footprints = this._filteredFootprints.filter((fp) => fp.timestamp === candleRenderInfo.candle.timestamp);
 
       let totalVolume = 0;
 
@@ -1675,15 +1475,9 @@ export class CignalsChart {
     for (let i = 0; i < totalVolumes.length; i++) {
       const volume = totalVolumes[i];
 
-      const xPos =
-        i * barBbox +
-        this._getSmoothScalingChartPositionOffset() +
-        this._measurements.panOriginatedXOffset;
+      const xPos = i * barBbox + this._getSmoothScalingChartPositionOffset() + this._measurements.panOriginatedXOffset;
 
-      const yPos =
-        this.canvas.clientHeight -
-        zeroRelativeHeight * barAreaHeight -
-        barAreaBottomOffset;
+      const yPos = this.canvas.clientHeight - zeroRelativeHeight * barAreaHeight - barAreaBottomOffset;
 
       const barHeight = (volume / span) * barAreaHeight;
 
@@ -1710,9 +1504,7 @@ export class CignalsChart {
     const totalVolumes: number[] = [];
 
     for (const candleRenderInfo of this._tsInfo) {
-      const footprints = this._filteredFootprints.filter(
-        (fp) => fp.timestamp === candleRenderInfo.candle.timestamp
-      );
+      const footprints = this._filteredFootprints.filter((fp) => fp.timestamp === candleRenderInfo.candle.timestamp);
 
       let totalVolume = 0;
 
@@ -1733,20 +1525,13 @@ export class CignalsChart {
     for (let i = 0; i < totalVolumes.length; i++) {
       const volume = totalVolumes[i];
 
-      const xPos =
-        i * barBbox +
-        this._getSmoothScalingChartPositionOffset() +
-        this._measurements.panOriginatedXOffset;
+      const xPos = i * barBbox + this._getSmoothScalingChartPositionOffset() + this._measurements.panOriginatedXOffset;
 
       const yPos = this.canvas.clientHeight - barAreaBottomOffset;
       const normalizedVolume = volume / maxTotalVolume;
       const barHeight = normalizedVolume * barAreaHeight;
 
-      this._ctx.fillStyle = this.#mapVolumeToColor(
-        volume,
-        minTotalVolume,
-        maxTotalVolume
-      );
+      this._ctx.fillStyle = this.#mapVolumeToColor(volume, minTotalVolume, maxTotalVolume);
       this._ctx.fillRect(xPos + barOffsetX, yPos, barWidth, -barHeight);
     }
 
@@ -1758,19 +1543,14 @@ export class CignalsChart {
 
     // Background
     this._ctx.fillStyle = this._bgColor;
-    this._ctx.fillRect(
-      0,
-      this.canvas.clientHeight - height,
-      this.canvas.clientWidth,
-      height
-    );
+    this._ctx.fillRect(0, this.canvas.clientHeight - height, this.canvas.clientWidth, height);
 
     // Line
     const lineY = this.canvas.clientHeight - height;
     const width = this._chartAreaRight;
 
     this._ctx.fillStyle = this._scaleTextColor;
-    this._ctx.font = "10px Paralucent";
+    this._ctx.font = "10px sans-serif";
     this._ctx.textAlign = "center";
     this._ctx.textBaseline = "middle";
 
@@ -1794,10 +1574,8 @@ export class CignalsChart {
     const left = this.liveOrderBookAreaLeft;
     const squareSpacing = 2;
 
-    const restingOrdersCellWidth =
-      this._liveRightAreaWidth * (4 / 6) - squareSpacing;
-    const ofiAndActivityWidth =
-      this._liveRightAreaWidth * (1 / 6) - squareSpacing;
+    const restingOrdersCellWidth = this._liveRightAreaWidth * (4 / 6) - squareSpacing;
+    const ofiAndActivityWidth = this._liveRightAreaWidth * (1 / 6) - squareSpacing;
     const binHeight = this._priceStepPx - 2;
 
     this._measurements.restingOrderCellWidth = restingOrdersCellWidth;
@@ -1807,21 +1585,13 @@ export class CignalsChart {
       return price >= this._shownMinPrice && price <= this._shownMaxPrice;
     });
 
-    const maxAbsRestingOrder = Math.max(
-      ...Object.values(visibleObEntries).map((data) => Math.abs(data.dom))
-    );
-    this._restingOrderColorScale
-      .domain([-maxAbsRestingOrder, 0, maxAbsRestingOrder])
-      .exponent(0.5);
+    const maxAbsRestingOrder = Math.max(...Object.values(visibleObEntries).map((data) => Math.abs(data.dom)));
+    this._restingOrderColorScale.domain([-maxAbsRestingOrder, 0, maxAbsRestingOrder]).exponent(0.5);
 
-    const maxAbsFlow = Math.max(
-      ...Object.values(visibleObEntries).map((data) => Math.abs(data.flow))
-    );
+    const maxAbsFlow = Math.max(...Object.values(visibleObEntries).map((data) => Math.abs(data.flow)));
     this._flowColorScale.domain([-maxAbsFlow, 0, maxAbsFlow]);
 
-    const maxAbsDelta = Math.max(
-      ...Object.values(visibleObEntries).map((data) => Math.abs(data.delta))
-    );
+    const maxAbsDelta = Math.max(...Object.values(visibleObEntries).map((data) => Math.abs(data.delta)));
     this._deltaColorScale.domain([-maxAbsDelta, 0, maxAbsDelta]);
 
     for (const [priceStr, bookData] of Object.entries(this._orderBookData)) {
@@ -1834,12 +1604,7 @@ export class CignalsChart {
 
       // Order flow
       this._ctx.fillStyle = this._flowColorScale(bookData.flow);
-      this._ctx.fillRect(
-        left + restingOrdersCellWidth + squareSpacing,
-        top,
-        ofiAndActivityWidth,
-        binHeight
-      );
+      this._ctx.fillRect(left + restingOrdersCellWidth + squareSpacing, top, ofiAndActivityWidth, binHeight);
 
       // Delta
       this._ctx.fillStyle = this._deltaColorScale(bookData.delta);
@@ -1890,8 +1655,7 @@ export class CignalsChart {
   }
 
   #drawSigmaScale() {
-    const lineX =
-      this.liveOrderBookAreaLeft + this._measurements.restingOrderCellWidth;
+    const lineX = this.liveOrderBookAreaLeft + this._measurements.restingOrderCellWidth;
     const lineY = this.canvas.clientHeight - this._xScaleHeight;
 
     const tickLength = 8;
@@ -1901,12 +1665,7 @@ export class CignalsChart {
 
     // Line
     this._ctx.fillStyle = this._scaleTextColor;
-    this._ctx.fillRect(
-      lineX,
-      lineY,
-      1,
-      -this._measurements.bottomVolumeAreaScaleHeight
-    );
+    this._ctx.fillRect(lineX, lineY, 1, -this._measurements.bottomVolumeAreaScaleHeight);
 
     // Calculate tick positions
     const maxSigma = 6;
@@ -1932,11 +1691,7 @@ export class CignalsChart {
 
     for (const [sigma, y] of tickPositions) {
       this._ctx.fillRect(lineX, y, -tickLength, 1);
-      this._ctx.fillText(
-        sigma.toString(),
-        lineX - tickLength - sigmaValueSpacing - tickLineTextSpacing,
-        y
-      );
+      this._ctx.fillText(sigma.toString(), lineX - tickLength - sigmaValueSpacing - tickLineTextSpacing, y);
     }
 
     // Draw sigma bar
@@ -1944,8 +1699,7 @@ export class CignalsChart {
     const barHeight = this._last_z * pixelsPerSigma * -1;
     const textPaddingY = this._last_z > 0 ? 3 : -5;
 
-    this._ctx.fillStyle =
-      (this._last_z > 0 ? this._themeGreen : this._themeRed) + "99";
+    this._ctx.fillStyle = (this._last_z > 0 ? this._themeGreen : this._themeRed) + "99";
     this._ctx.fillRect(lineX + 2, zeroTickY, barWidth, barHeight);
 
     // Draw sigma text
@@ -1953,11 +1707,7 @@ export class CignalsChart {
     this._ctx.textAlign = "center";
     this._ctx.font = "9px Arial";
     this._ctx.textBaseline = this._last_z > 0 ? "top" : "bottom";
-    this._ctx.fillText(
-      `${this._last_z.toFixed(2)}\u03C3`,
-      lineX + barWidth / 2,
-      zeroTickY + textPaddingY
-    );
+    this._ctx.fillText(`${this._last_z.toFixed(2)}\u03C3`, lineX + barWidth / 2, zeroTickY + textPaddingY);
   }
 
   #drawPocs() {
@@ -1971,15 +1721,12 @@ export class CignalsChart {
     this._ctx.textBaseline = "hanging";
 
     const lastTs = this._data[this._data.length - 1].candle.timestamp;
-    const mostRecentVisibleTs =
-      this._visibleCandles[this._visibleCandles.length - 1].timestamp;
+    const mostRecentVisibleTs = this._visibleCandles[this._visibleCandles.length - 1].timestamp;
 
     for (const pocHelper of this._pocHelpers) {
       const y = this.#getPriceTickY(pocHelper.price) - this._priceStepPx / 2;
 
-      const drawAtTimestamps = this._footprintTimestamps.filter(
-        (t) => t > pocHelper.fromTs && t < pocHelper.toTs
-      );
+      const drawAtTimestamps = this._footprintTimestamps.filter((t) => t > pocHelper.fromTs && t < pocHelper.toTs);
 
       let reachesLastCandle = false;
 
@@ -1988,12 +1735,7 @@ export class CignalsChart {
       for (const ts of drawAtTimestamps) {
         const x = this.#getDatapointtLeft(ts) - this._candelWidth;
 
-        this._ctx.fillRect(
-          x + pad,
-          y + pad,
-          this._datapointWidth - pad,
-          this._priceStepPx - pad
-        );
+        this._ctx.fillRect(x + pad, y + pad, this._datapointWidth - pad, this._priceStepPx - pad);
 
         if (ts === lastTs) {
           reachesLastCandle = true;
@@ -2086,16 +1828,11 @@ export class CignalsChart {
     const nPannedDatapointsFract = this._xPanOffsetPx / this._datapointWidth;
     const pannedDurationMs = nPannedDatapointsFract * this._timestempMs;
     const rightSideTimestamp =
-      this._data[this._data.length - 1].candle.timestamp +
-      Math.floor(this._timestempMs / 2) -
-      pannedDurationMs;
-    const leftSideTimestamp =
-      rightSideTimestamp - this._timestempMs * this._nDatapointsShown;
+      this._data[this._data.length - 1].candle.timestamp + Math.floor(this._timestempMs / 2) - pannedDurationMs;
+    const leftSideTimestamp = rightSideTimestamp - this._timestempMs * this._nDatapointsShown;
 
     const normalizedPointerPos = x / this._chartAreaRight;
-    const tsAtPointer =
-      (rightSideTimestamp - leftSideTimestamp) * normalizedPointerPos +
-      leftSideTimestamp;
+    const tsAtPointer = (rightSideTimestamp - leftSideTimestamp) * normalizedPointerPos + leftSideTimestamp;
 
     return tsAtPointer;
   }
@@ -2107,8 +1844,7 @@ export class CignalsChart {
         (this._data[this._data.length - 1].candle.timestamp +
           this._timestempMs / 2 -
           this._timestempMs * this._nDatapointsShown +
-          (x / this._chartAreaRight) *
-            (this._timestempMs * this._nDatapointsShown) -
+          (x / this._chartAreaRight) * (this._timestempMs * this._nDatapointsShown) -
           tsAtX)) /
       this._timestempMs;
 
@@ -2116,27 +1852,21 @@ export class CignalsChart {
   }
 
   #handleModeChange(event: PointerEvent) {
-    const isInsideBarArea =
-      event.clientY >
-      this.canvas.clientHeight * (1 - this._barAreaHeightNormalized);
+    const isInsideBarArea = event.clientY > this.canvas.clientHeight * (1 - this._barAreaHeightNormalized);
 
     if (isInsideBarArea) {
       this.cycleBarAreaDisplayMode();
       return;
     }
 
-    const isInsideChartArea =
-      event.clientY < this.chartAreaHeight &&
-      event.clientX < this._chartAreaRight;
+    const isInsideChartArea = event.clientY < this.chartAreaHeight && event.clientX < this._chartAreaRight;
 
     if (isInsideChartArea) {
       this.cycleFootprintDisplayMode();
       return;
     }
 
-    const isInRightVolumeArea =
-      event.clientX > this.rightVolAreaLeft &&
-      event.clientY < this.chartAreaHeight;
+    const isInRightVolumeArea = event.clientX > this.rightVolAreaLeft && event.clientY < this.chartAreaHeight;
 
     if (isInRightVolumeArea) {
       this.cycleRightSideVolumeMode();
@@ -2144,24 +1874,15 @@ export class CignalsChart {
   }
 
   cycleBarAreaDisplayMode() {
-    this._barAreaDisplayMode = getNextFromArray(
-      barAreaDisplayModes,
-      this._barAreaDisplayMode
-    );
+    this._barAreaDisplayMode = getNextFromArray(barAreaDisplayModes, this._barAreaDisplayMode);
   }
 
   cycleFootprintDisplayMode() {
-    this._footprintDisplayMode = getNextFromArray(
-      footprintDisplayModes,
-      this._footprintDisplayMode
-    );
+    this._footprintDisplayMode = getNextFromArray(footprintDisplayModes, this._footprintDisplayMode);
   }
 
   cycleRightSideVolumeMode() {
-    this._rightSideVolumeMode = getNextFromArray(
-      rightSideVolumeModes,
-      this._rightSideVolumeMode
-    );
+    this._rightSideVolumeMode = getNextFromArray(rightSideVolumeModes, this._rightSideVolumeMode);
   }
 
   moveTsToPixel(xPixel: number, ts: number) {
@@ -2191,7 +1912,9 @@ export class CignalsChart {
 
       const remainingTime = nextCandleTs - currentTs;
 
-      if (remainingTime <= 0) {
+      const isLastCandleClosed = lastCandle.close !== lastCandle.open;
+
+      if (remainingTime <= 0 && isLastCandleClosed) {
         this._data.push({
           candle: {
             timestamp: nextCandleTs,
@@ -2245,8 +1968,7 @@ export class CignalsChart {
     const priceBins: { [price: number]: OrderBookUpdateDataItem[] } = {};
 
     for (const item of data) {
-      const binPrice =
-        Math.round(item.price / this._priceStep) * this._priceStep;
+      const binPrice = Math.round(item.price / this._priceStep) * this._priceStep;
 
       if (!priceBins[binPrice]) {
         priceBins[binPrice] = [];
@@ -2275,8 +1997,7 @@ export class CignalsChart {
       orderBookBin.delta = 0;
 
       for (const item of items) {
-        const placedOrders =
-          item.side === "buy" ? item.placedOrders : -item.placedOrders;
+        const placedOrders = item.side === "buy" ? item.placedOrders : -item.placedOrders;
 
         orderBookBin.dom += placedOrders;
         orderBookBin.flow += item.smallOne;
@@ -2312,8 +2033,7 @@ export class CignalsChart {
     const priceBins: { [price: number]: FootprintData[] } = {};
 
     for (const footprint of this._cachedFootprintData) {
-      const binPrice =
-        Math.floor(footprint.price / this._priceStep) * this._priceStep;
+      const binPrice = Math.floor(footprint.price / this._priceStep) * this._priceStep;
 
       if (!priceBins[binPrice]) {
         priceBins[binPrice] = [];
@@ -2376,20 +2096,13 @@ export class CignalsChart {
     this.#updateLastZ({ lastVol: data.vol, lastNTrades: data.n });
   }
 
-  #updateLastZ({
-    lastVol,
-    lastNTrades,
-  }: {
-    lastVol: number;
-    lastNTrades: number;
-  }) {
+  #updateLastZ({ lastVol, lastNTrades }: { lastVol: number; lastNTrades: number }) {
     const lastVolPerTrade = lastVol / lastNTrades;
 
     const acc = this._acc!;
     const mean = acc.volume / acc.n;
 
-    const variance =
-      acc.n > 1 ? (acc.size_sq - acc.volume ** 2 / acc.n) / (acc.n - 1) : null;
+    const variance = acc.n > 1 ? (acc.size_sq - acc.volume ** 2 / acc.n) / (acc.n - 1) : null;
     const stddev = variance ? Math.sqrt(variance) : null;
 
     if (variance && stddev) {
@@ -2410,10 +2123,7 @@ export class CignalsChart {
     for (const datapoint of this._data) {
       for (const fp of datapoint.footprints) {
         let tradedVol: TradedVol | null =
-          tradedVols.find(
-            (tv) =>
-              tv.ts === datapoint.candle.timestamp && tv.price === fp.price
-          ) || null;
+          tradedVols.find((tv) => tv.ts === datapoint.candle.timestamp && tv.price === fp.price) || null;
         if (!tradedVol) {
           tradedVol = {
             ts: datapoint.candle.timestamp,
@@ -2447,10 +2157,7 @@ export class CignalsChart {
         revisitedAt = datapoint.candle.timestamp;
 
         for (const fp of datapoint.footprints) {
-          if (
-            fp.price === highVol.price &&
-            datapoint.candle.timestamp > highVol.ts
-          ) {
+          if (fp.price === highVol.price && datapoint.candle.timestamp > highVol.ts) {
             break datapointLooper;
           }
         }
@@ -2469,7 +2176,6 @@ export class CignalsChart {
   }
 
   #updateMeasurements() {
-    this._measurements.panOriginatedXOffset =
-      this._xPanOffsetPx - (this._nPannedDatapoints + 1) * this._datapointWidth;
+    this._measurements.panOriginatedXOffset = this._xPanOffsetPx - (this._nPannedDatapoints + 1) * this._datapointWidth;
   }
 }

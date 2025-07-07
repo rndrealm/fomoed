@@ -3,7 +3,7 @@
     "version": "0.1.0",
     "private": true,
     "scripts": {
-        "dev": "next dev --turbopack",
+        "dev": "next dev --turbopack -p 3001",
         "build": "next build",
         "start": "next start",
         "lint": "next lint",
@@ -60,7 +60,7 @@
         "lodash-es": "^4.17.21",
         "lodash.merge": "^4.6.2",
         "lucide-react": "^0.488.0",
-        "motion": "^12.12.1",
+        "motion": "^12.16.0",
         "nanoid": "^5.1.5",
         "next": "15.3.0",
         "next-router-mock": "^1.0.2",

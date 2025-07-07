@@ -1,3 +1,4 @@
+import { logger } from "@/lib/utils/logger";
 import { createSupabaseServerWithAnonKey } from "@/lib/utils/supabase/server-client";
 import { CryptopanicNewsApiResponse, NewsFeedResponseData, NewsRowInsert } from "@/services/queries/news/types";
 import { NextResponse } from "next/server";
@@ -66,6 +67,8 @@ async function fetchNews() {
   const res = await fetch(url);
 
   if (!res.ok) {
+    logger.error(res.statusText);
+    logger.error(await res.text());
     throw new Error("Failed to fetch news from CryptoPanic");
   }
 

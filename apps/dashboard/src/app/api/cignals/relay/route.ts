@@ -9,7 +9,11 @@ export const GET = async (req: Request) => {
   }
 
   const path = atob(pathBase64);
-  const apiKey = process.env.PRIVATE_CIGNALS_KEY!;
+  const apiKey = process.env.PRIVATE_CIGNALS_KEY;
+
+  if (!apiKey) {
+    return new Response("Invalid environment!", { status: 500 });
+  }
 
   const cignalsUrl = new URL(path);
 
