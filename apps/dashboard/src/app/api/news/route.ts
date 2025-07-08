@@ -217,18 +217,18 @@ async function processAllFeeds(sources: NewsSource[]) {
  */
 export async function GET(request: Request) {
   const authHeader = request.headers.get("authorization");
-  // if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-  //   return new Response("Unauthorized", {
-  //     status: 401,
-  //   });
-  // }
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return new Response("Unauthorized", {
+      status: 401,
+    });
+  }
 
   const sourcesWithRss = newsSources.filter((source) => source.rss && !source.blocked);
 
   const articles = await processAllFeeds(sourcesWithRss);
 
   const supabase = await createSupabaseServerWithAnonKey();
-  const { error } = await supabase.from("news").upsert(articles.slice(0, 10));
+  const { error } = await supabase.from("news").upsert(articles);
   if (error) {
     console.log("Error inserting news:", error);
     throw new Error(error.message);
