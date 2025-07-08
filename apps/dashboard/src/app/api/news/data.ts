@@ -24,6 +24,7 @@ export const newsSources = [
     source: "BeInCrypto",
     url: "https://beincrypto.com",
     rss: "https://beincrypto.com/feed/",
+    blocked: true,
   },
   {
     source: "Benzinga",
