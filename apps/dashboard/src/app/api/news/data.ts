@@ -281,4 +281,64 @@ export const newsSources = [
     url: "https://yolowire.com",
     rss: "",
   },
+  {
+    source: "TheCryptoBasic",
+    url: "https://yolowire.com",
+    rss: "https://thecryptobasic.com/",
+  },
+  {
+    source: "Coin Paper",
+    url: "https://coinpaper.com/",
+    rss: "https://coinpaper.com/feed",
+  },
+  {
+    source: "Finance in Bold",
+    url: "https://finbold.com/",
+    rss: "https://finbold.com/feed/",
+  },
+  {
+    source: "Finance Feeds",
+    url: "https://financefeeds.com/",
+    rss: "https://financefeeds.com/feed/",
+  },
+  {
+    source: "CoinEdition",
+    url: "https://coinedition.com/",
+    rss: "https://coinedition.com/feed/",
+  },
+  {
+    source: "Coinotag",
+    url: "https://en.coinotag.com/",
+    rss: "https://en.coinotag.com/feed/",
+  },
+  {
+    source: "Pro Market",
+    url: "https://www.promarket.org/",
+    rss: "https://www.promarket.org/feed/",
+  },
+  {
+    source: "Times Tabloid",
+    url: "https://timestabloid.com/",
+    rss: "https://timestabloid.com/feed/",
+  },
+  {
+    source: "DailyCoin",
+    url: "https://dailycoin.com/",
+    rss: "https://dailycoin.com/feed/",
+  },
+  {
+    source: "CoinGeek",
+    url: "https://coingeek.com/",
+    rss: "https://coingeek.com/feed/",
+  },
+  {
+    source: "36Crypto",
+    url: "https://36crypto.com/",
+    rss: "https://36crypto.com/feed/",
+  },
+  {
+    source: "crypto.news",
+    url: "https://crypto.news/",
+    rss: "https://crypto.news/feed/",
+  },
 ];
