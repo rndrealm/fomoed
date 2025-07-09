@@ -359,11 +359,12 @@ export const widgetIdJoin = "@/$";
 export const exchangePairDefault = {
   label: "Binance BTC/USDT",
   value: {
-    instrumentId: "BTCUSDT",
-    baseAsset: "BTC",
-    quoteAsset: "USDT",
+    instrument_id: "BTCUSDT",
+    base_asset: "BTC",
+    quote_asset: "USDT",
     exchange: "Binance",
     symbol: "BTCUSDT",
+    onboard_date: Date.now(),
   },
 };
 

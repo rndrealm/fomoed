@@ -47,8 +47,9 @@ const CoinDropdown = (props: ICoinDropdownProps) => {
       return nameMatch || symbolMatch;
     });
   }, [searchValue, options]);
+
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <button className="flex cursor-pointer items-center gap-2 whitespace-nowrap">
           <div className="flex-shrink-0">
@@ -86,33 +87,35 @@ const CoinDropdown = (props: ICoinDropdownProps) => {
               />
             </div>
           </div>
-
-          <div className="scrollbar mt-1 flex flex-1 flex-col gap-2 overflow-auto">
-            {filteredCoins.map((item, index) => (
-              <CommandItem
-                key={index}
-                className="flex cursor-pointer items-center justify-between bg-[transparent] px-2 py-[7px] data-[selected=true]:bg-[#171717]"
-                onClick={() => {
-                  setValue(item.symbol);
-                }}
-                disabled={!userPlans?.hasPlan && item.symbol !== "BTC" && item.symbol !== "ETH"}
-              >
-                <div className="flex items-center gap-2">
-                  <div className="h-[20px] w-[20px]">
-                    <Image width={20} height={20} src={item?.icon || ""} alt="Coin Icon" className="h-full w-full" />
+          <CommandList>
+            <div className="scrollbar mt-1 flex flex-1 flex-col gap-2 overflow-auto">
+              {filteredCoins.map((item, index) => (
+                <CommandItem
+                  key={index}
+                  className="flex cursor-pointer items-center justify-between bg-[transparent] px-2 py-[7px] data-[selected=true]:bg-[#171717]"
+                  onSelect={() => {
+                    setOpen(false);
+                    setValue(item.symbol);
+                  }}
+                  disabled={!userPlans?.hasPlan && item.symbol !== "BTC" && item.symbol !== "ETH"}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="h-[20px] w-[20px]">
+                      <Image width={20} height={20} src={item?.icon || ""} alt="Coin Icon" className="h-full w-full" />
+                    </div>
+                    <p className="line-clamp-1 flex-1 text-left text-[13px] leading-[1.25] font-medium text-[#c3c3c3]">
+                      {item.name}
+                    </p>
                   </div>
-                  <p className="line-clamp-1 flex-1 text-left text-[13px] leading-[1.25] font-medium text-[#c3c3c3]">
-                    {item.name}
-                  </p>
-                </div>
-                {item.symbol === activeCoin?.symbol ? (
-                  <div>
-                    <Image src={dashboard.checkV2} alt="Selected icon" width={12} height={12} />
-                  </div>
-                ) : null}
-              </CommandItem>
-            ))}
-          </div>
+                  {item.symbol === activeCoin?.symbol ? (
+                    <div>
+                      <Image src={dashboard.checkV2} alt="Selected icon" width={12} height={12} />
+                    </div>
+                  ) : null}
+                </CommandItem>
+              ))}
+            </div>
+          </CommandList>
         </Command>
       </PopoverContent>
     </Popover>

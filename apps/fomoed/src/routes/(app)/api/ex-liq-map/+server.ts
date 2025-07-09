@@ -57,7 +57,7 @@ export async function GET({ request, locals: { user, supabase } }: RequestEvent)
 		}
 	}
 
-	const supportedFuturePairs: Record<string, { baseAsset: string; instrumentId: string }[]> = (
+	const supportedFuturePairs: Record<string, { base_asset: string; instrument_id: string }[]> = (
 		await fetchCoinglassSupportedPairs()
 	).data;
 
@@ -83,7 +83,7 @@ export async function GET({ request, locals: { user, supabase } }: RequestEvent)
 
 	// Keep only instruments with requested asset
 	for (const [exchange, instruments] of Object.entries(supportedFuturePairs)) {
-		supportedFuturePairs[exchange] = instruments.filter((i) => i.baseAsset === asset);
+		supportedFuturePairs[exchange] = instruments.filter((i) => i.base_asset === asset);
 	}
 
 	type CgLiquidationMapData = Record<number, [number, number, number, null][]>;
@@ -93,11 +93,11 @@ export async function GET({ request, locals: { user, supabase } }: RequestEvent)
 			console.info(
 				'[Exchange Liquidation Map API] Fetching instrument:',
 				exchange,
-				instrument.instrumentId
+				instrument.instrument_id
 			);
 
 			const liquidationData: CgLiquidationMapData = (
-				await fetchCoinglassLiqMap(timeframe, exchange, instrument.instrumentId)
+				await fetchCoinglassLiqMap(timeframe, exchange, instrument.instrument_id)
 			)?.data?.data;
 
 			// Sometimes data is not returned

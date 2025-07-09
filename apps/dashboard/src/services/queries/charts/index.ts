@@ -214,7 +214,6 @@ export const useFetchLiquidDataMerged = (timeframe?: string, asset?: string) => 
       const response = await api.get({
         url: `/api/ex-liq-map?timeframe=${timeframe}&asset=${asset}`,
       });
-      console.log("response", response);
       return response.data;
     },
     enabled: !!timeframe && !!asset,

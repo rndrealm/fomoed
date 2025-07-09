@@ -32,9 +32,9 @@ const LiquidationHeatmapChart = (props: ICfgiCard) => {
 
   const chart_init = useCallback(
     (ctx: CanvasRenderingContext2D) => {
-      const y = liquidationData.y;
-      const prices = liquidationData.prices;
-      const liq = liquidationData.liq;
+      const y = liquidationData.y_axis;
+      const prices = liquidationData.price_candlesticks;
+      const liq = liquidationData.liquidation_leverage_data;
 
       const liq_values = liq.map((i: any) => i[2]);
       const max_liq = Math.max(...liq_values);
@@ -220,7 +220,7 @@ const LiquidationHeatmapChart = (props: ICfgiCard) => {
 
   const humanizedMaxLiqValue = humanizeNumber(maxValue);
   return (
-    <div className="relative w-full h-full pb-1 pl-6">
+    <div className="relative h-full w-full pb-1 pl-6">
       <div
         className={cn(
           "font-paralucent absolute -top-3 bottom-2 left-0 flex flex-col gap-y-[5px] pl-2 text-xs font-medium text-[#FFFFFF66] opacity-100 duration-500",
@@ -232,7 +232,7 @@ const LiquidationHeatmapChart = (props: ICfgiCard) => {
         <div className="whitespace-nowrap">{humanizedMaxLiqValue}</div>
 
         <div
-          className="flex-grow w-2 rounded"
+          className="w-2 flex-grow rounded"
           style={{
             background: "linear-gradient(180deg, #E7E60B 0%, #63C752 22.5%, #27A77D 47%, #2F5C86 75%, #44095F 100%)",
           }}

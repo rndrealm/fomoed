@@ -6,7 +6,7 @@
   },
   "servers": [
     {
-      "url": "https://open-api-v3.coinglass.com"
+      "url": "https://open-api-v4.coinglass.com"
     }
   ],
   "components": {

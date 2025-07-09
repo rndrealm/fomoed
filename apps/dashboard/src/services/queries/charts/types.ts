@@ -58,9 +58,10 @@ export enum CFGIEnum {
 }
 
 export type ForeignInstrument = {
-  instrumentId: string;
-  baseAsset: string;
-  quoteAsset: string;
+  instrument_id: string;
+  base_asset: string;
+  quote_asset: string;
+  onboard_date: number;
 };
 
 type ExchangeName = string;
@@ -75,34 +76,33 @@ export type InstrumentInfo = ForeignInstrument & {
 export interface LiquidMapDataResponse {
   liquidationData: {
     code: string;
-    msg: string;
     data: {
       data: Record<string, Array<Array<number | undefined>>>;
+      last_price: number;
     };
-    success: boolean;
   };
   pairMarketData: {
-    instrumentId: string;
-    exName: string;
+    instrument_id: string;
+    exchange_name: string;
     symbol: string;
-    longVolUsd: number;
-    shortVolUsd: number;
-    longNumber: number;
-    shortNumber: number;
-    volUsd: number;
-    volUsdChangePercent24h: number;
-    price: number;
-    indexPrice: number;
-    priceChangePercent24h: number;
-    openInterestAmount: number;
-    openInterest: number;
-    oiChangePercent24h: number;
-    longLiquidationUsd24h: number;
-    shortLiquidationUsd24h: number;
-    fundingRate: number;
-    nextFundingTime: number;
-    oiVolRadio: number;
-    oiVolRadioChangePercent24h: number;
+    current_price: number;
+    index_price: number;
+    price_change_percent_24h: number;
+    volume_usd: number;
+    volume_usd_change_percent_24h: number;
+    long_volume_usd: number;
+    short_volume_usd: number;
+    long_volume_quantity: number;
+    short_volume_quantity: number;
+    open_interest_quantity: number;
+    open_interest_usd: number;
+    open_interest_change_percent_24h: number;
+    long_liquidation_usd_24h: number;
+    short_liquidation_usd_24h: number;
+    funding_rate: number;
+    next_funding_time: number;
+    open_interest_volume_radio: number;
+    oi_vol_ratio_change_percent_24h: number;
   };
 }
 
@@ -123,10 +123,9 @@ export interface FormatLiquidationDataResult {
 }
 
 export interface LiquidHeatmapResponse {
-  y: Array<number>;
-  liq: Array<Array<number>>;
-  prices: Array<[number, string, string, string, string, string]>;
-  updateTime: number;
+  y_axis: Array<number>;
+  liquidation_leverage_data: Array<Array<number>>;
+  price_candlesticks: Array<[number, string, string, string, string, string]>;
 }
 
 export interface LiquidExchangeResponse {
