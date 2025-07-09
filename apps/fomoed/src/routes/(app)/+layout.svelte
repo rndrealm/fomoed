@@ -21,6 +21,7 @@
 	import { supabaseStore } from '$ts/client/utils/supabase.svelte';
 	import { Toaster } from 'svelte-5-french-toast';
 	import { coinstats_coin_list } from '$lib/stores/index.js';
+	import { PUBLIC_DASHBOARD_URL } from '$env/static/public';
 
 	// const supabase = getContext<SupabaseClient>('supabase');
 
@@ -144,7 +145,7 @@ sentiment analysis"
 	<SignOutPopup
 		on:sign-out={async () => {
 			await signOut(supabase);
-			goto('/auth');
+			goto(PUBLIC_DASHBOARD_URL + '/auth/login');
 		}}
 		on:cancel={() => displayLogoutPopup.set(false)}
 	/>

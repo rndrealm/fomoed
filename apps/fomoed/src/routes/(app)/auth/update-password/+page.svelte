@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
 	import { failure, success } from '$lib/utils';
 	import { goto } from '$app/navigation';
 	import UpdatePasswordForm from '$lib/comps/forms/UpdatePasswordForm.svelte';
@@ -38,4 +38,4 @@
 	<form method="POST" on:submit={onSubmit}>
 		<UpdatePasswordForm />
 	</form>
-</TwoPaneLayout>
+</TwoPaneLayout> -->
