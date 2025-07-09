@@ -5,19 +5,13 @@ import { Close } from "@/components/icons/icons";
 import { cn, formatPriceSignificant, modalSlide } from "@/lib/utils";
 import { LayoutType, updateWidgetPropsAtom } from "@/lib/atoms/layoutAtom";
 import CoinStatsTokenDropdown from "../shared/coin-stats-token-dropdown";
-import {
-  useFetchBinanceTokenPrice,
-  useFetchBinanceTokens,
-} from "@/services/queries/charts";
+import { useFetchBinanceTokenPrice, useFetchBinanceTokens } from "@/services/queries/charts";
 import { useAtomValue, useSetAtom } from "jotai";
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 import { geoLocationAtom } from "@/lib/atoms/geoLocation";
 import { WidgetWrapper } from "../shared";
 import { OrderBookSection } from "./order-book-section";
-import {
-  BinanceTicker,
-  CoinDataInterface,
-} from "@/services/queries/charts/types";
+import { BinanceTicker, CoinDataInterface } from "@/services/queries/charts/types";
 import { slice } from "lodash-es";
 
 type IOrder = [string, string]; // [price, quantity]
@@ -56,9 +50,7 @@ function Orders(props: IOrders) {
   const [sales, setSales] = useState<IOrderWithWidth[]>([]);
   const [livePrice, setLivePrice] = useState("");
   const previousPriceRef = useRef<number | null>(null);
-  const [priceDirection, setPriceDirection] = useState<"up" | "down" | null>(
-    null
-  );
+  const [priceDirection, setPriceDirection] = useState<"up" | "down" | null>(null);
   const [showInfo, setShowInfo] = useState(false);
 
   const hasLivePrice = useRef(false);
@@ -165,15 +157,12 @@ function Orders(props: IOrders) {
         />
       </div>
 
-      <div className="flex flex-col justify-between flex-1 sm:px-2 md:px-4">
-        <OrderBookSection
-          data={sales?.slice(0, slice)}
-          token={widget?.props?.token}
-        />
-        <div className="flex flex-col items-center justify-center py-[5px] px-[10px]">
+      <div className="flex flex-1 flex-col justify-between sm:px-2 md:px-4">
+        <OrderBookSection data={sales?.slice(0, slice)} token={widget?.props?.token} />
+        <div className="flex flex-col items-center justify-center px-[10px] py-[5px]">
           <p
             className={cn(
-              "font-semibold text-base leading-[1.35]",
+              "text-base leading-[1.35] font-semibold",
               priceDirection === "up" && "text-[#1FC16B]",
               priceDirection === "down" && "text-[#FF8970]",
               !priceDirection && "text-white"
@@ -181,22 +170,16 @@ function Orders(props: IOrders) {
           >
             {formatPriceSignificant(livePrice)}
           </p>
-          <p className="text-[#878787] text-xs font-semibold leading-[1.35]">
-            =${formatPriceSignificant(livePrice)}
-          </p>
+          <p className="text-xs leading-[1.35] font-semibold text-[#878787]">=${formatPriceSignificant(livePrice)}</p>
         </div>
-        <OrderBookSection
-          variant="buy"
-          data={buys?.slice(0, slice)}
-          token={widget?.props?.token}
-        />
+        <OrderBookSection variant="buy" data={buys?.slice(0, slice)} token={widget?.props?.token} />
       </div>
 
       <AnimatePresence>
         {showInfo && (
-          <div className="absolute  bottom-[10px] left-[10px] right-[10px] top-[10px] z-9 flex items-end">
+          <div className="absolute top-[10px] right-[10px] bottom-[10px] left-[10px] z-9 flex items-end">
             <motion.div
-              className="bg-[#111] rounded-[22px] py-4 px-5 overflow-auto max-h-full scrollbar"
+              className="scrollbar max-h-full overflow-auto rounded-[22px] bg-[#111] px-5 py-4"
               variants={modalSlide}
               initial="hidden"
               animate="visible"
@@ -205,23 +188,17 @@ function Orders(props: IOrders) {
               <div className="flex flex-col gap-4 overflow-auto">
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-col">
-                    <h3 className="font-semibold text-base leading-[1.35] text-white">
-                      Order Book
-                    </h3>
-                    <p className="font-light text-[13px] leading-[1.25] text-[#878787]">
-                      Learn about the Order Book
-                    </p>
+                    <h3 className="text-base leading-[1.35] font-semibold text-white">Order Book</h3>
+                    <p className="text-[13px] leading-[1.25] font-light text-[#878787]">Learn about the Order Book</p>
                   </div>
-                  <p className="font-medium text-[13px] leading-[1.35] text-white">
-                    An order book displays all outstanding buy and sell orders
-                    for an asset, grouped by price. It provides a transparent,
-                    real-time view of market liquidity and the potential supply
-                    and demand at different price points, helping traders
-                    understand market depth and sentiment.
+                  <p className="text-[13px] leading-[1.35] font-medium text-white">
+                    An order book displays all outstanding buy and sell orders for an asset, grouped by price. It
+                    provides a transparent, real-time view of market liquidity and the potential supply and demand at
+                    different price points, helping traders understand market depth and sentiment.
                   </p>
                 </div>
 
-                <p className="text-[#696969] text-xs font-semibold text-[1.25]">
+                <p className="text-xs font-semibold text-[#696969] text-[1.25]">
                   We use data from{" "}
                   <a href="https://www.binance.com/" target="_blank">
                     Binance.com
@@ -235,12 +212,12 @@ function Orders(props: IOrders) {
                 <div className="flex justify-center">
                   <button
                     type="button"
-                    className="rounded-[40px] bg-[#272727] flex items-center justify-center gap-1 h-[26px] app_widget_button"
+                    className="app_widget_button flex h-[26px] items-center justify-center gap-1 rounded-[40px] bg-[#272727]"
                     onClick={() => {
                       setShowInfo(false);
                     }}
                   >
-                    <p className="font-medium text-[13px] text-white whitespace-nowrap app_widget_button__text">
+                    <p className="app_widget_button__text text-[13px] font-medium whitespace-nowrap text-white">
                       Close
                     </p>
                     <div className="app_widget_button__icon">
@@ -266,24 +243,17 @@ const dataLengthMap = {
 export default function OrderBook(props: IProps) {
   const { widget } = props;
 
-  console.log(widget?.meta?.h);
-
   const location = useAtomValue(geoLocationAtom);
 
   const { data: coinData = [] } = useFetchBinanceTokens(location?.country);
-  const { data: price } = useFetchBinanceTokenPrice(
-    widget?.props?.token,
-    location?.country
-  );
+  const { data: price } = useFetchBinanceTokenPrice(widget?.props?.token, location?.country);
 
   return (
     <Orders
       widget={widget}
       price={price}
       coinData={coinData}
-      slice={
-        dataLengthMap[`${widget?.meta?.h}` as keyof typeof dataLengthMap] || 4
-      }
+      slice={dataLengthMap[`${widget?.meta?.h}` as keyof typeof dataLengthMap] || 4}
     />
   );
 }

@@ -43,6 +43,10 @@ import plus from "../../../../public/media/images/dashboard/plus.svg";
 import disconnect from "../../../../public/media/images/dashboard/disconnect.svg";
 import info from "../../../../public/media/images/dashboard/info.svg";
 import star from "../../../../public/media/images/dashboard/star.svg";
+import news1 from "../../../../public/media/images/dashboard/news1.png";
+import news2 from "../../../../public/media/images/dashboard/news2.png";
+import news3 from "../../../../public/media/images/dashboard/news3.png";
+import bigNews from "../../../../public/media/images/dashboard/big-news.png";
 
 const dashboard = {
   layoutPlaceholder,
@@ -89,6 +93,10 @@ const dashboard = {
   info,
   logoMobile,
   star,
+  news1,
+  news2,
+  news3,
+  bigNews,
   footprint,
 };
 

@@ -233,7 +233,9 @@ export async function GET(request: Request) {
   );
 
   const supabase = await createSupabaseServerWithAnonKey();
-  const { error } = await supabase.from("news").upsert(uniqueArticles);
+  const { error } = await supabase.from("news").upsert(uniqueArticles, {
+    onConflict: "original_url",
+  });
   if (error) {
     console.log("Error inserting news:", error);
     throw new Error(error.message);
