@@ -1,3 +1,4 @@
+import { AppRoutes } from "@/lib/routes";
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
@@ -35,21 +36,16 @@ export async function updateSession(request: NextRequest) {
     data: { user },
     error,
   } = await supabase.auth.getUser();
-  // if (error) {
-  //   await supabase.auth.signOut();
-  //   const url = request.nextUrl.clone();
-  //   url.pathname = "/login";
-  //   return NextResponse.redirect(url);
-  // }
-  if (
-    !user &&
-    (request.nextUrl.pathname.startsWith("/dashboard") || request.nextUrl.pathname.startsWith("/signals"))
-    // !request.nextUrl.pathname.startsWith("/login") &&
-    // !request.nextUrl.pathname.startsWith("/auth")
-  ) {
+  if (error) {
+    await supabase.auth.signOut();
+    const url = request.nextUrl.clone();
+    url.pathname = AppRoutes.auth.login.path;
+    return NextResponse.redirect(url);
+  }
+  if (!user && (request.nextUrl.pathname.startsWith("/dashboard") || request.nextUrl.pathname.startsWith("/signals"))) {
     // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone();
-    url.pathname = "/login";
+    url.pathname = AppRoutes.auth.login.path;
     return NextResponse.redirect(url);
   }
 

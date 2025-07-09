@@ -1,3 +1,4 @@
+import { AppRoutes } from "@/lib/routes";
 import stripe from "@/lib/utils/stripe";
 import { createSupabaseServerClient } from "@/lib/utils/supabase/server-client";
 import { redirect } from "next/navigation";
@@ -17,7 +18,7 @@ const fetchUserPlans = async () => {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("login");
+    redirect(AppRoutes.auth.login.path);
   }
   // For some reason, on stripe there are multiple customers with the same email
   // Here we are searching for all customers with the email and retrieving all their subscriptions

@@ -8,8 +8,6 @@ async function fetchCfgiData(token_symbol: string, period: number) {
 
 	const res = await fetch(url);
 
-	console.log(res.status);
-
 	if (res.status !== 200) {
 		throw new Error(`Error fetching CFGI data: ${res.statusText}`);
 	}

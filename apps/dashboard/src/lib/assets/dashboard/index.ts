@@ -14,6 +14,7 @@ import liq from "../../../../public/media/images/dashboard/liq.png";
 import liq2 from "../../../../public/media/images/dashboard/liq2.png";
 import liqHeat from "../../../../public/media/images/dashboard/liq-heat.png";
 import exLiq from "../../../../public/media/images/dashboard/ex-liq.png";
+import footprint from "../../../../public/media/images/dashboard/footprint.png";
 import premiumLogo from "../../../../public/media/images/dashboard/premium-logo.png";
 import news from "../../../../public/media/images/dashboard/news.png";
 import cryptopanic from "../../../../public/media/images/dashboard/cryptopanic.svg";
@@ -96,6 +97,7 @@ const dashboard = {
   news2,
   news3,
   bigNews,
+  footprint,
 };
 
 export default dashboard;

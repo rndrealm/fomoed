@@ -110,14 +110,14 @@ export const layoutOptionsMap = [
   //   category: "charts",
   //   tags: ["charts", "new"],
   // },
-  // {
-  //   id: 8,
-  //   name: "Cignals Chart",
-  //   slug: "cignals-chart",
-  //   image: dashboard.tokenNews,
-  //   category: "charts",
-  //   tags: ["charts", "new"],
-  // },
+  {
+    id: 8,
+    name: "Cignals Chart",
+    slug: "cignals-chart",
+    image: dashboard.footprint,
+    category: "charts",
+    tags: ["charts", "new"],
+  },
   // {
   //   id: 7,
   //   name: "Cryptocurrency Market",
@@ -361,11 +361,12 @@ export const widgetIdJoin = "@/$";
 export const exchangePairDefault = {
   label: "Binance BTC/USDT",
   value: {
-    instrumentId: "BTCUSDT",
-    baseAsset: "BTC",
-    quoteAsset: "USDT",
+    instrument_id: "BTCUSDT",
+    base_asset: "BTC",
+    quote_asset: "USDT",
     exchange: "Binance",
     symbol: "BTCUSDT",
+    onboard_date: Date.now(),
   },
 };
 

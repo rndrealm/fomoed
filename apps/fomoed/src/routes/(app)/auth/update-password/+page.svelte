@@ -14,8 +14,6 @@
 		const formData = new FormData(form);
 		const data_ = Object.fromEntries(formData.entries());
 
-		console.log('data_', data_);
-
 		if (data_.password !== data_['confirm-password']) {
 			failure('Passwords do not match');
 			return;

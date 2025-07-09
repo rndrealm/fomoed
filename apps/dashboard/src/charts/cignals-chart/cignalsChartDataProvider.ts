@@ -15,15 +15,9 @@ import { smartRoundPriceStep } from "../helpers";
 abstract class CignalsChartDataProviderBase {
   lastUsedFootprintPriceStep = 0;
 
-  protected abstract fetchFootprints(
-    options: CignalsDatapointFetchOptions
-  ): Promise<FootprintDataArray>;
-  protected abstract fetchOHLC(
-    options: CignalsDatapointFetchOptions
-  ): Promise<PriceDataArray>;
-  abstract fetchDatapoints(
-    options: CignalsDatapointFetchOptions
-  ): Promise<CignalsDatapointArray>;
+  protected abstract fetchFootprints(options: CignalsDatapointFetchOptions): Promise<FootprintDataArray>;
+  protected abstract fetchOHLC(options: CignalsDatapointFetchOptions): Promise<PriceDataArray>;
+  abstract fetchDatapoints(options: CignalsDatapointFetchOptions): Promise<CignalsDatapointArray>;
   abstract fetchInstruments(): Promise<ParsedCignalsInstrumentArray>;
 
   static parsePriceData(data: any): PriceData {
@@ -66,9 +60,7 @@ class CignalsChartDataProviderAPI extends CignalsChartDataProviderBase {
       },
     });
     if (!response.ok) {
-      throw new Error(
-        `Error fetching through cignals relay: ${response.statusText}`
-      );
+      throw new Error(`Error fetching through cignals relay: ${response.statusText}`);
     }
 
     return response.json();
@@ -76,9 +68,7 @@ class CignalsChartDataProviderAPI extends CignalsChartDataProviderBase {
 
   async fetchInstruments(): Promise<ParsedCignalsInstrumentArray> {
     const url = new URL(this.#cignalsHost + "/v1/instruments");
-    const data = (await this.fetchThroughCignalsRelay(
-      url
-    )) as CignalsInstrument[];
+    const data = (await this.fetchThroughCignalsRelay(url)) as CignalsInstrument[];
 
     const parsed = data.map((i) => {
       const exchange = capitalize(i.exchange.replace("_", " "));
@@ -93,9 +83,7 @@ class CignalsChartDataProviderAPI extends CignalsChartDataProviderBase {
     return parsed;
   }
 
-  async fetchFootprints(
-    options: CignalsDatapointFetchOptions & { price_step: number }
-  ): Promise<FootprintDataArray> {
+  async fetchFootprints(options: CignalsDatapointFetchOptions & { price_step: number }): Promise<FootprintDataArray> {
     const url = new URL(window.location.origin + "/api/cignals/footprints");
 
     url.searchParams.append("instrument_id", options.instrument_id);
@@ -113,9 +101,7 @@ class CignalsChartDataProviderAPI extends CignalsChartDataProviderBase {
     return parsed;
   }
 
-  async fetchOHLC(
-    options: CignalsDatapointFetchOptions
-  ): Promise<PriceDataArray> {
+  async fetchOHLC(options: CignalsDatapointFetchOptions): Promise<PriceDataArray> {
     const url = new URL(this.#cignalsHost + "/v1/ohlc");
 
     url.searchParams.append("instrument_id", options.instrument_id);
@@ -129,9 +115,7 @@ class CignalsChartDataProviderAPI extends CignalsChartDataProviderBase {
     return parsed;
   }
 
-  async fetchDatapoints(
-    options: CignalsDatapointFetchOptions
-  ): Promise<CignalsDatapointArray> {
+  async fetchDatapoints(options: CignalsDatapointFetchOptions): Promise<CignalsDatapointArray> {
     const candles = await this.fetchOHLC(options);
 
     let priceStepToUse: number;
@@ -163,9 +147,7 @@ class CignalsChartDataProviderAPI extends CignalsChartDataProviderBase {
     for (const candle of candles) {
       // Optimize
       const candleTimestamp = candle.timestamp;
-      const candleFootprints = footprints.filter(
-        (footprint) => footprint.timestamp == candleTimestamp
-      );
+      const candleFootprints = footprints.filter((footprint) => footprint.timestamp == candleTimestamp);
 
       datapoints.push({
         candle,
@@ -187,29 +169,19 @@ class CignalsChartDataProviderDummy extends CignalsChartDataProviderBase {
 
   async fetchFootprints(): Promise<FootprintDataArray> {
     const footprintsRes = await fetch("/dummies/footprint_data.json");
-    const parsedFootprints = (await footprintsRes.json()).map(
-      CignalsChartDataProviderAPI.parseFootprintData
-    );
+    const parsedFootprints = (await footprintsRes.json()).map(CignalsChartDataProviderAPI.parseFootprintData);
     return parsedFootprints;
   }
 
   async fetchOHLC(): Promise<PriceDataArray> {
     const candlesRes = await fetch("/dummies/candle_data.json");
-    const parsedCandles = (await candlesRes.json()).map(
-      CignalsChartDataProviderAPI.parsePriceData
-    );
+    const parsedCandles = (await candlesRes.json()).map(CignalsChartDataProviderAPI.parsePriceData);
     return parsedCandles;
   }
 
-  async fetchDatapoints(
-    options: CignalsDatapointFetchOptions
-  ): Promise<CignalsDatapointArray> {
+  async fetchDatapoints(options: CignalsDatapointFetchOptions): Promise<CignalsDatapointArray> {
     throw new Error("Method not implemented.");
   }
 }
 
-export {
-  CignalsChartDataProviderBase,
-  CignalsChartDataProviderAPI,
-  CignalsChartDataProviderDummy,
-};
+export { CignalsChartDataProviderBase, CignalsChartDataProviderAPI, CignalsChartDataProviderDummy };

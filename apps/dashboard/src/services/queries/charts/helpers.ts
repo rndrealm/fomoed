@@ -1,8 +1,4 @@
-import {
-  LiquidationBar,
-  LiquidExchangeResponse,
-  LiquidMapDataResponse,
-} from "./types";
+import { LiquidationBar, LiquidExchangeResponse, LiquidMapDataResponse } from "./types";
 import { range, maxBy, sumBy } from "lodash-es";
 
 function getLiqBarColorFromLevRatio(leverage: number) {
@@ -25,9 +21,7 @@ function getLiqBarColorFromLevRatio(leverage: number) {
   return "#0000";
 }
 
-export const formatLiquidationData = (
-  liquidResponse: LiquidMapDataResponse
-) => {
+export const formatLiquidationData = (liquidResponse: LiquidMapDataResponse) => {
   const combinedLiqData: Record<number, [number, number, number, null][]> = {};
   const liquidationData = liquidResponse.liquidationData.data.data;
   const pairMarketData = liquidResponse.pairMarketData;
@@ -45,7 +39,7 @@ export const formatLiquidationData = (
   // Use current price of base asset from the first exchange
   if (currentPrice === null) {
     // Current price is indeed 'price' and not 'indexPrice'
-    currentPrice = pairMarketData.price;
+    currentPrice = pairMarketData.current_price;
   }
 
   const prices = Object.keys(combinedLiqData).map((i) => parseInt(i));
@@ -95,6 +89,7 @@ export const formatLiquidationData = (
 
   // Extract long cumulative liquidation leverage
   // [price, leverageValue]
+
   const cumulativeLongLiqLeverage: { x: number; y: number }[] = [];
   const cumulativeShortLiqLeverage: { x: number; y: number }[] = [];
   const lastCurrPriceIdx = liqBars.findLastIndex((i) => i.x < currentPrice) + 1;
@@ -126,10 +121,7 @@ export const formatLiquidationData = (
     currentPrice,
     cumulativeLongLiqLeverage,
     cumulativeShortLiqLeverage,
-    maxCumulativeValue: Math.max(
-      cumulativeLongLiqLeverageAcc,
-      cumulativeShortLiqLeverageAcc
-    ),
+    maxCumulativeValue: Math.max(cumulativeLongLiqLeverageAcc, cumulativeShortLiqLeverageAcc),
     minPrice,
     maxPrice,
   };
@@ -143,9 +135,7 @@ export const formatMergetLiquidMapData = (resData: LiquidExchangeResponse) => {
   const maxPrices = [];
 
   for (const ex in exLiqData) {
-    const exPrices = Object.keys(exLiqData[ex as keyof typeof exLiqData]).map(
-      (i) => parseInt(i)
-    );
+    const exPrices = Object.keys(exLiqData[ex as keyof typeof exLiqData]).map((i) => parseInt(i));
 
     minPrices.push(Math.min(...exPrices));
     maxPrices.push(Math.max(...exPrices));
@@ -163,15 +153,12 @@ export const formatMergetLiquidMapData = (resData: LiquidExchangeResponse) => {
   const cumulativeShortLiqLeverage: { x: number; y: number }[] = [];
 
   let cumulativeLongLiqLeverageAcc = 0;
-
-  for (const price of range(currentPriceUsd, maxPrice + 1)) {
+  for (const price of range(Math.ceil(currentPriceUsd), maxPrice + 1)) {
     const accBefore = cumulativeLongLiqLeverageAcc;
 
     for (const ex in exLiqData) {
-      cumulativeLongLiqLeverageAcc +=
-        exLiqData[ex as keyof typeof exLiqData][price] || 0;
+      cumulativeLongLiqLeverageAcc += exLiqData[ex as keyof typeof exLiqData][price] || 0;
     }
-
     if (cumulativeLongLiqLeverageAcc === accBefore) {
       continue;
     }
@@ -184,12 +171,11 @@ export const formatMergetLiquidMapData = (resData: LiquidExchangeResponse) => {
 
   let cumulativeShortLiqLeverageAcc = 0;
 
-  for (const price of range(currentPriceUsd, minPrice - 1, -1)) {
+  for (const price of range(Math.ceil(currentPriceUsd), minPrice - 1, -1)) {
     const accBefore = cumulativeShortLiqLeverageAcc;
 
     for (const ex in exLiqData) {
-      cumulativeShortLiqLeverageAcc +=
-        exLiqData[ex as keyof typeof exLiqData][price] || 0;
+      cumulativeShortLiqLeverageAcc += exLiqData[ex as keyof typeof exLiqData][price] || 0;
     }
 
     if (cumulativeShortLiqLeverageAcc === accBefore) {
@@ -230,7 +216,6 @@ export const formatMergetLiquidMapData = (resData: LiquidExchangeResponse) => {
       y: sumBy(liqValues, (i) => i.liqValue),
     });
   }
-
   return {
     cumulativeLongLiqLeverage,
     cumulativeShortLiqLeverage,
@@ -238,10 +223,6 @@ export const formatMergetLiquidMapData = (resData: LiquidExchangeResponse) => {
     currentPrice: currentPriceUsd,
     minPrice,
     maxPrice,
-    maxCumulativeValue:
-      maxBy(
-        [...cumulativeLongLiqLeverage, ...cumulativeShortLiqLeverage],
-        (i) => i.y
-      )?.y || 0,
+    maxCumulativeValue: maxBy([...cumulativeLongLiqLeverage, ...cumulativeShortLiqLeverage], (i) => i.y)?.y || 0,
   };
 };

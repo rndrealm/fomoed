@@ -3,16 +3,10 @@ import Chart from "chart.js/auto";
 
 import "chartjs-adapter-dayjs-4/dist/chartjs-adapter-dayjs-4.esm";
 import type { ZoomPluginOptions } from "chartjs-plugin-zoom/types/options";
-import {
-  commaFormatNumber,
-  registerChartPluginZoomInBrowser,
-} from "@/charts/helpers";
+import { commaFormatNumber, registerChartPluginZoomInBrowser } from "@/charts/helpers";
 import { FormatLiquidationDataResult } from "@/services/queries/charts/types";
 
-import {
-  CrosshairPluginConfig,
-  CrosshairPlugin,
-} from "@/charts/plugins/CrosshairPlugin";
+import { CrosshairPluginConfig, CrosshairPlugin } from "@/charts/plugins/CrosshairPlugin";
 import { humanizeNumber } from "@/lib/utils";
 
 Chart.register(CrosshairPlugin);
@@ -240,7 +234,7 @@ const LiquidationChart = (props: ICfgiCard) => {
   }, [liquidationData, viewOption, chart_init]);
 
   return (
-    <div className="relative w-full h-full pb-1">
+    <div className="relative h-full w-full pb-1">
       <canvas width="400" height={0} ref={canvasRef}></canvas>
     </div>
   );

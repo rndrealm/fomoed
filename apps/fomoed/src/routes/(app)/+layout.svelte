@@ -29,12 +29,12 @@
 	export let data;
 	$: ({ session, supabase, user } = data);
 
-        async function getCoins() {
-		 coinstats_coin_list.set((await refresh_coinstats_coin_list()));
-        }
+	async function getCoins() {
+		coinstats_coin_list.set(await refresh_coinstats_coin_list());
+	}
 
 	onMount(() => {
-                getCoins();
+		getCoins();
 		fetch_global_data();
 
 		const { data } = supabase.auth.onAuthStateChange((event, newSession) => {
@@ -90,8 +90,6 @@
 	$: ((supabase) => browser && setContext('supabase', supabase))(supabase);
 
 	$: supabaseStore.set(supabase);
-
-	$: console.log('display logout popup:', $displayLogoutPopup);
 </script>
 
 <MetaTags

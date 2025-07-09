@@ -92,3 +92,12 @@ const authGuard: Handle = async ({ event, resolve }) => {
 };
 
 export const handle: Handle = sequence(supabase, authGuard);
+
+process.on('unhandledRejection', (reason, promise) => {
+	console.error('=== UNHANDLED PROMISE REJECTION ===');
+	console.error('Promise:', promise);
+	console.error('Reason:', reason);
+	if (reason instanceof Error) {
+		console.error(reason.stack);
+	}
+});
