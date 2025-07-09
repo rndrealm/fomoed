@@ -12,3 +12,4 @@ export { SettingsDropdown } from "./settings-dropdown";
 export { Toolbar } from "./tabs/toolbar";
 export { WidgetPlaceholder } from "./widget-placeholder";
 export { WidgetWrapper } from "./widget-wrapper";
+export { WidgetsPreview } from "./widgets-preview";

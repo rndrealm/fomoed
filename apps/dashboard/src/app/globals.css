@@ -65,11 +65,7 @@ html {
 
   --font-inter: "Inter", sans-serif;
 
-  --background-image-gradient-100: linear-gradient(
-    180deg,
-    #121212 -22.5%,
-    #1e1e1e 217.5%
-  );
+  --background-image-gradient-100: linear-gradient(180deg, #121212 -22.5%, #1e1e1e 217.5%);
 
   --background-image-gradient-200: linear-gradient(
     180deg,
@@ -92,30 +88,13 @@ html {
     #080808 116.13%
   );
 
-  --background-image-gradient-pricing-number: linear-gradient(
-    180deg,
-    #a5a5a5 -71.79%,
-    #f5390f 241.61%
-  );
+  --background-image-gradient-pricing-number: linear-gradient(180deg, #a5a5a5 -71.79%, #f5390f 241.61%);
 
-  --background-image-gradient-pricing-recommended: linear-gradient(
-    105.26deg,
-    #080808 18.51%,
-    #161616 112.22%
-  );
+  --background-image-gradient-pricing-recommended: linear-gradient(105.26deg, #080808 18.51%, #161616 112.22%);
 
-  --background-image-gradient-proplan-hover: linear-gradient(
-    180deg,
-    #ff3b10 -29.61%,
-    #e4350f 55.63%,
-    #080808 127.29%
-  );
+  --background-image-gradient-proplan-hover: linear-gradient(180deg, #ff3b10 -29.61%, #e4350f 55.63%, #080808 127.29%);
 
-  --background-image-gradient-plusplan-hover: linear-gradient(
-    180deg,
-    #00d743 -17.86%,
-    #080808 114.16%
-  );
+  --background-image-gradient-plusplan-hover: linear-gradient(180deg, #00d743 -17.86%, #080808 114.16%);
 
   --color-fomoed-red: #ff3b10;
   --text-mid: 0.9375rem;
@@ -210,12 +189,7 @@ html {
   position: absolute;
 
   border-radius: inherit;
-  background: conic-gradient(
-    from 0deg at 50% 50%,
-    #000000 0%,
-    #666666 50%,
-    #000000 100%
-  );
+  background: conic-gradient(from 0deg at 50% 50%, #000000 0%, #666666 50%, #000000 100%);
   animation: animate_gradient 5s linear infinite;
   inset: -10000%;
 }
@@ -224,12 +198,7 @@ html {
   position: absolute;
 
   border-radius: inherit;
-  background: conic-gradient(
-    from 0deg at 50% 50%,
-    #111111 0%,
-    #777777 50%,
-    #111111 100%
-  );
+  background: conic-gradient(from 0deg at 50% 50%, #111111 0%, #777777 50%, #111111 100%);
   animation: animate_gradient 5s linear infinite;
   inset: -10000%;
 }
@@ -238,12 +207,7 @@ html {
   position: absolute;
 
   border-radius: inherit;
-  background: conic-gradient(
-    from 0deg at 50% 50%,
-    #000000 0%,
-    #1e1e1e 50%,
-    #666666 100%
-  );
+  background: conic-gradient(from 0deg at 50% 50%, #000000 0%, #1e1e1e 50%, #666666 100%);
   animation: animate_gradient 5s linear infinite;
   inset: -10000%;
 }
@@ -252,12 +216,7 @@ html {
   position: absolute;
 
   border-radius: inherit;
-  background: conic-gradient(
-    from 0deg at 50% 50%,
-    #000000 0%,
-    #222222 50%,
-    #000000 100%
-  );
+  background: conic-gradient(from 0deg at 50% 50%, #000000 0%, #222222 50%, #000000 100%);
   animation: animate_gradient 5s linear infinite;
   inset: -10000%;
 }
@@ -266,12 +225,7 @@ html {
   position: absolute;
 
   border-radius: inherit;
-  background: conic-gradient(
-    from 0deg at 50% 50%,
-    #ff9f8a 0%,
-    #2a2a2a 50%,
-    #666666 100%
-  );
+  background: conic-gradient(from 0deg at 50% 50%, #ff9f8a 0%, #2a2a2a 50%, #666666 100%);
   animation: animate_gradient 5s linear infinite;
   inset: -10000%;
 }
@@ -583,4 +537,8 @@ input[type="number"] {
 .react-grid-item.react-grid-placeholder {
   background: #fff !important;
   opacity: 0.2;
+}
+
+.app_widget_preview_modal {
+  /* max-width: 1200px !important; */
 }
