@@ -43,7 +43,8 @@ export const getDashboardData = async () => {
         user_id,
         auto_save,
         active_tab_id,
-        favorite_widgets
+        favorite_widgets,
+        favorite_tokens
       `
     )
     .eq("user_id", user.id);
@@ -60,6 +61,7 @@ export const getDashboardData = async () => {
       auto_save: true,
       active_tab_id: null,
       favorite_widgets: [],
+      favorite_tokens: [],
     };
 
     const { error: insertError } = await supabase.from("dashboard_settings").insert(defaultSettings);

@@ -342,4 +342,9 @@ export const newsSources = [
     url: "https://crypto.news/",
     rss: "https://crypto.news/feed/",
   },
+  {
+    source: "Blockworks",
+    url: "https://blockworks.co/",
+    rss: "https://blockworks.co/feed/",
+  },
 ];
