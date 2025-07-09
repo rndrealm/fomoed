@@ -7,6 +7,7 @@ import { generateObject } from "ai";
 import { z } from "zod";
 import crypto from "crypto";
 import { NewsSource, ProcessedArticle } from "./types";
+import { logger } from "@/lib/utils/logger";
 import { createSupabaseServerWithAnonKey } from "@/lib/utils/supabase/server-client";
 
 /**
@@ -184,12 +185,11 @@ async function processFeedEntries(feed: FeedData) {
  */
 async function extractRssFeed(source: NewsSource) {
   const feed = await extract(source.rss).catch((error) => {
-    // console.log(`Error extracting RSS feed for ${source.source}: ${source.rss}`, error.message);
     return null;
   });
 
   if (!feed) {
-    // console.log(`Failed to fetch RSS feed for ${source.source}: ${source.rss}`);
+    logger.error("Failed to extract feed for source:", source.source);
     return null;
   }
 
@@ -217,11 +217,11 @@ async function processAllFeeds(sources: NewsSource[]) {
  */
 export async function GET(request: Request) {
   const authHeader = request.headers.get("authorization");
-  // if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-  //   return new Response("Unauthorized", {
-  //     status: 401,
-  //   });
-  // }
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return new Response("Unauthorized", {
+      status: 401,
+    });
+  }
 
   const sourcesWithRss = newsSources.filter((source) => source.rss && !source.blocked);
 

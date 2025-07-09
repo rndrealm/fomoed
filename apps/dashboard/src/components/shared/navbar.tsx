@@ -5,14 +5,7 @@ import Image from "next/image";
 import { motion } from "motion/react";
 import NavbarProfileButton from "../ui/NavbarProfileButton";
 import dashboard from "@/lib/assets/dashboard";
-import {
-  Close,
-  Dashboard,
-  Hamburger,
-  Misc,
-  News,
-  Notification,
-} from "../icons/icons";
+import { Close, Dashboard, Hamburger, Misc, News, Notification } from "../icons/icons";
 import { AppRoutes } from "@/lib/routes";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -20,6 +13,7 @@ import { ProfileIcon } from "./profile-icon";
 import { utilsAtom } from "@/lib/atoms/utilsAtom";
 import { useAtomValue } from "jotai";
 import { RenderIf } from "./render-if";
+import useAuthUserData from "@/lib/hooks/use-auth-user-data";
 
 const links = [
   {
@@ -47,8 +41,8 @@ function NavLink(props: INavLink) {
         {icon}
         <p
           className={cn(
-            "leading-[1.35] text-sm md:text-base",
-            active ? "text-white" : "md:text-[#9b9b9b] text-[#5F5F5F]"
+            "text-sm leading-[1.35] md:text-base",
+            active ? "text-white" : "text-[#5F5F5F] md:text-[#9b9b9b]"
           )}
         >
           {label}
@@ -68,17 +62,18 @@ export const Navbar = (props: IProps) => {
   const utils = useAtomValue(utilsAtom);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const authUser = useAuthUserData();
 
   return (
-    <nav className="bg-[#0C0C0C] border-b border-[#161616] py-3 px-2 sm:px-4 md:px-10 md:py-4 flex flex-col items-center overflow-hidden">
-      <div className="flex items-center justify-between w-full mx-auto">
-        <div className="w-[24px] h-[24px] md:hidden">
+    <nav className="flex flex-col items-center overflow-hidden border-b border-[#161616] bg-[#0C0C0C] px-2 py-3 sm:px-4 md:px-10 md:py-4">
+      <div className="mx-auto flex w-full items-center justify-between">
+        <div className="h-[24px] w-[24px] md:hidden">
           <Link href="/">
             <Image src={dashboard.logoMobile} alt="logo" />
           </Link>
         </div>
 
-        <div className="hidden md:flex items-center gap-10">
+        <div className="hidden items-center gap-10 md:flex">
           <Link href="/">
             <Image src={dashboard.logo} alt="logo" />
           </Link>
@@ -107,15 +102,15 @@ export const Navbar = (props: IProps) => {
             {/* <div className="w-[32px] h-[32px] border border-[#444] rounded-md flex items-center justify-center">
               <Notification />
             </div> */}
-            <div className="w-[24px] h-[24px] md:w-[32px] md:h-[32px] overflow-hidden rounded-md flex items-center justify-center cursor-pointer">
-              <NavbarProfileButton>
-                <ProfileIcon />
+            <div className="flex h-[24px] w-[24px] cursor-pointer items-center justify-center overflow-hidden rounded-md md:h-[32px] md:w-[32px]">
+              <NavbarProfileButton authUser={authUser}>
+                <ProfileIcon user={authUser} />
               </NavbarProfileButton>
             </div>
 
             <button
               type="button"
-              className="w-[24px] h-[24px] md:hidden flex items-center justify-center"
+              className="flex h-[24px] w-[24px] items-center justify-center md:hidden"
               onClick={() => {
                 setIsMenuOpen(!isMenuOpen);
               }}
@@ -133,7 +128,7 @@ export const Navbar = (props: IProps) => {
       </div>
 
       <motion.div
-        className="w-full overflow-hidden h-[0]"
+        className="h-[0] w-full overflow-hidden"
         animate={{
           height: !isMenuOpen ? 0 : "unset",
           transition: {
@@ -141,7 +136,7 @@ export const Navbar = (props: IProps) => {
           },
         }}
       >
-        <div className="flex flex-col gap-1 pb-4 mt-6">
+        <div className="mt-6 flex flex-col gap-1 pb-4">
           {links.map((item) => {
             const active = pathName === item.href;
             return (

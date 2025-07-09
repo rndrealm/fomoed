@@ -33,7 +33,6 @@ export class CommentsService extends BaseService {
 
 		const { data, error } = await query;
 
-		console.log('data:', data);
 		if (error) {
 			console.error('Error fetching comments:', error);
 			return null;

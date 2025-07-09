@@ -13,7 +13,6 @@ export async function registerChartPluginZoomInBrowser() {
 }
 export async function registerCandleStickPluginBrowser() {
   // if (!window) return;
-
   const { CandlestickController, CandlestickElement } = await import("chartjs-chart-financial");
   Chart.register(CandlestickElement, CandlestickController);
 }
