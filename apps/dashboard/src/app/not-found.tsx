@@ -15,8 +15,8 @@ import Link from "next/link";
 
 const content = {
     error: "404",
-    message: "You seem lost",
-    message2: "Looks like the page you're trying to view does not exist",
+    message: "You seem a little off-course",
+    message2: "We couldn’t find the page you’re looking for, but we’ll help you get back on track.",
     label: "Go Back Home",
 };
 
