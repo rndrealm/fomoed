@@ -35,12 +35,10 @@ export function MarketCapConfig({ value, onChange }: MarketCapConfigProps) {
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-full justify-between bg-[#2A2A2A] border-[#3A3A3A] text-white px-4 py-2"
+            className="w-full justify-between bg-[#2A2A2A] border-[#3A3A3A] text-white px-4 py-2 h-12"
             id="symbol"
           >
-            {value
-              ? slugs.find((s) => s === value) || value
-              : "Select symbol"}
+            {value ? slugs.find((s) => s === value) || value : "Select symbol"}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
@@ -66,7 +64,7 @@ export function MarketCapConfig({ value, onChange }: MarketCapConfigProps) {
                     <Check
                       className={cn(
                         "mr-2 h-4 w-4",
-                        value === slug ? "opacity-100" : "opacity-0"
+                        value === slug ? "opacity-100" : "opacity-0",
                       )}
                     />
                     {slug}

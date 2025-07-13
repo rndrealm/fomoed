@@ -34,10 +34,13 @@ export function PriceTickerConfig({ value, onChange }: PriceTickerConfigProps) {
   }, [products, value]);
 
   // Memoize the onSelect handler
-  const handleSelect = useCallback((currentValue: string) => {
-    onChange(currentValue === value ? "" : currentValue);
-    setOpen(false);
-  }, [onChange, value]);
+  const handleSelect = useCallback(
+    (currentValue: string) => {
+      onChange(currentValue === value ? "" : currentValue);
+      setOpen(false);
+    },
+    [onChange, value],
+  );
 
   useEffect(() => {
     // Only fetch products once when component mounts
@@ -50,7 +53,7 @@ export function PriceTickerConfig({ value, onChange }: PriceTickerConfigProps) {
             data.map((p) => ({
               display_name: p.display_name,
               value: `ticker_${p.display_name?.replaceAll("-", "")}`,
-            }))
+            })),
           );
         }
       } catch (error) {
@@ -70,7 +73,7 @@ export function PriceTickerConfig({ value, onChange }: PriceTickerConfigProps) {
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-full justify-between bg-[#2A2A2A] border-[#3A3A3A] text-white px-4 py-2"
+            className="w-full justify-between bg-[#2A2A2A] border-[#3A3A3A] text-white px-4 py-2 h-12"
             id="symbol"
           >
             {value ? selectedProduct : "Select symbol"}
@@ -96,7 +99,7 @@ export function PriceTickerConfig({ value, onChange }: PriceTickerConfigProps) {
                     <Check
                       className={cn(
                         "mr-2 h-4 w-4",
-                        value === product.value ? "opacity-100" : "opacity-0"
+                        value === product.value ? "opacity-100" : "opacity-0",
                       )}
                     />
                     {product.display_name}

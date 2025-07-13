@@ -40,7 +40,7 @@ export function VolumeTickerConfig({
             data.map((p) => ({
               display_name: p.display_name,
               value: `ticker_${p.display_name?.replaceAll("-", "")}`,
-            }))
+            })),
           );
         }
       });
@@ -55,7 +55,7 @@ export function VolumeTickerConfig({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-full justify-between bg-[#2A2A2A] border-[#3A3A3A] text-white px-4 py-2"
+            className="w-full justify-between bg-[#2A2A2A] border-[#3A3A3A] text-white px-4 py-2 h-12"
             id="symbol"
           >
             {value
@@ -86,7 +86,7 @@ export function VolumeTickerConfig({
                     <Check
                       className={cn(
                         "mr-2 h-4 w-4",
-                        value === product.value ? "opacity-100" : "opacity-0"
+                        value === product.value ? "opacity-100" : "opacity-0",
                       )}
                     />
                     {product.display_name}
