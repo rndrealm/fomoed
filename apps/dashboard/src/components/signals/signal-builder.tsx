@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 
 import { LoaderCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 // import AISignalBuilder from "./AISignalBuilder";
 import useUserData from "@/lib/hooks/use-user-data";
@@ -10,6 +10,7 @@ import { SignalActions } from "@/lib/types/signal.types";
 import { extractTopicsFromJsonLogic } from "@/lib/utils/signal.utils";
 import {
   useCreateSignalMutation,
+  useGetAISignal,
   useSmartSignals,
 } from "@/services/queries/signals";
 import { CreateSignalDTO } from "@/services/queries/signals/types";
@@ -23,9 +24,11 @@ import { activeSignalTabAtom } from "@/lib/atoms/signalTabsAtom";
 import { useGetUserPlans } from "@/services/queries/subscriptions";
 import { ModalContainer } from "../shared";
 import { Upgrade } from "../modals";
+import SignalTitle from "./signal-title";
+import AutoGenerateButton from "./auto-generate-btn";
 
 const SignalBuilder = ({}) => {
-  const [signalName, setSignalName] = useState("");
+  const [signalPrompt, setSignalPrompt] = useState("");
   const [signalDescription, setSignalDescription] = useState("");
   const [logic, setLogic] = useState<object | null>(null);
   const [signalActions, setSignalActions] = useState<SignalActions>({
@@ -47,9 +50,9 @@ const SignalBuilder = ({}) => {
   const handleAIBuilderResponse = (
     name: string,
     description: string,
-    logic: object
+    logic: object,
   ) => {
-    setSignalName(name);
+    setSignalPrompt(name);
     setSignalDescription(description);
     setLogic(logic);
     setUpdateCount((prev) => prev + 1);
@@ -67,7 +70,7 @@ const SignalBuilder = ({}) => {
       return;
     }
 
-    if (signalName.length === 0 || signalDescription.length === 0) {
+    if (signalPrompt.length === 0 || signalDescription.length === 0) {
       toast.error("Please fill in all fields");
       return;
     }
@@ -81,18 +84,18 @@ const SignalBuilder = ({}) => {
     if (signalActions.email)
       actions.push({
         type: "email",
-        subject: `Smart Signal fired: ${signalName}`,
-        content: `Your smart signal "${signalName}" from fomoed.io has been triggered`,
+        subject: `Smart Signal fired: ${signalPrompt}`,
+        content: `Your smart signal "${signalPrompt}" from fomoed.io has been triggered`,
       });
 
     if (signalActions.notification)
       actions.push({
         type: "notification",
-        description: `Your smart signal "${signalName}" from fomoed.io has been triggered`,
+        description: `Your smart signal "${signalPrompt}" from fomoed.io has been triggered`,
       });
 
     const data: CreateSignalDTO = {
-      name: signalName,
+      name: signalPrompt,
       description: signalDescription,
       condition: JSON.stringify(logic),
       topics: extractTopicsFromJsonLogic(logic),
@@ -107,16 +110,53 @@ const SignalBuilder = ({}) => {
     setActiveSignalTab("my-signals");
   };
 
+  // Auto generate
+  const { mutateAsync: getAiSignal, isPending: isPendingAutoGenerate } =
+    useGetAISignal();
+
+  const autoGenerate = useCallback(async () => {
+    const res = await getAiSignal(signalPrompt);
+    console.log(res);
+
+    if (!res.success || !res.signal) {
+      toast.error("Failed to generate signal. Please try again.");
+      return;
+    }
+
+    handleAIBuilderResponse(
+      res.signal.name,
+      res.signal.description,
+      res.signal.condition,
+    );
+  }, [signalPrompt, getAiSignal]);
+
   return (
     <>
       <div className="my-6">
-        <h1 className="font-medium text-xl mt-5">Signal Conditions</h1>
+        {/* <h1 className="font-medium text-xl mt-5">Signal Conditions</h1>
         <h2 className="font-medium text-muted-foreground">
           Build your Smart signals
-        </h2>
+        </h2> */}
       </div>
       <div className="space-y-6">
-        <AISignalPromptInput onAiPromptResponse={handleAIBuilderResponse} />
+        {/* <SignalDetails
+          name={signalName}
+          description={signalDescription}
+          onNameChange={setSignalName}
+          onDescriptionChange={setSignalDescription}
+          jsonLogic={logic}
+        /> */}
+
+        <div className="px-4">
+          <SignalTitle title={signalPrompt} onTitleChange={setSignalPrompt}>
+            <AutoGenerateButton
+              onClick={autoGenerate}
+              isPending={isPendingAutoGenerate}
+            />
+          </SignalTitle>
+        </div>
+
+        {/* <AISignalPromptInput onAiPromptResponse={handleAIBuilderResponse} /> */}
 
         <ManualSignalBuilder
           key={updateCount}
@@ -127,14 +167,6 @@ const SignalBuilder = ({}) => {
         <NotificationSettings
           notifications={signalActions}
           onUpdate={setSignalActions}
-        />
-
-        <SignalDetails
-          name={signalName}
-          description={signalDescription}
-          onNameChange={setSignalName}
-          onDescriptionChange={setSignalDescription}
-          jsonLogic={logic}
         />
 
         <div className="flex justify-end gap-3">
