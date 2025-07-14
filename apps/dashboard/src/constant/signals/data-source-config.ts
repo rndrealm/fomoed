@@ -24,7 +24,7 @@ export const signalDataSources: SignalDataSourceGroup[] = [
       { name: "Price", id: "price", suggestionsEnabled: true },
       { name: "Fear & Greed Index", id: "cfgi" },
       { name: "Trading Volume", id: "volume_24h" },
-      // { name: "Market Capitalization", id: "market_cap", disabled: true },
+      { name: "Market Capitalization", id: "market_cap" },
       // {
       //   name: "Active Addresses 24h",
       //   id: "active_addresses_24h",
@@ -58,13 +58,16 @@ export const signalDataSources: SignalDataSourceGroup[] = [
   },
 ];
 
+type TopicSelectorT = React.FC<{
+  value: string | null;
+  onChange: (value: string) => void;
+  dataSourcePrefix: string;
+}>;
+
 export const topicSelectorMap: Record<
   string,
   {
-    component: React.FC<{
-      value: string | null;
-      onChange: (value: string) => void;
-    }>;
+    component: TopicSelectorT;
     allowedOperators: string[];
     valueType: "string" | "number" | "boolean" | "percentage";
   }

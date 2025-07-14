@@ -70,10 +70,11 @@ const SignalBuilder = ({}) => {
       return;
     }
 
-    if (signalPrompt.length === 0 || signalDescription.length === 0) {
+    if (signalPrompt.length === 0) {
       toast.error("Please fill in all fields");
       return;
     }
+
     const actions: Array<{
       type: string;
       subject?: string;

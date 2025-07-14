@@ -8,7 +8,7 @@ export const MAX_DEPTH = 3;
 export type Condition = {
   id: string;
   type: "condition";
-  dataSource: string | null;
+  dataSourceId: string | null;
   topic: string | null;
   operator: string | null;
   value: string | number | boolean | null;
@@ -27,7 +27,7 @@ export type GroupOperand = "and" | "or";
 export const defaultCondition = (): Condition => ({
   id: nanoid(),
   type: "condition",
-  dataSource: null,
+  dataSourceId: null,
   topic: null,
   operator: null,
   value: null,
@@ -150,7 +150,7 @@ const SignalConditionGroup = ({
                 onRemove={() => handleRemoveChild(child.id)}
               />
             </div>
-          )
+          ),
         )}
       </div>
     </div>

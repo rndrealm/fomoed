@@ -9,7 +9,7 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Separator } from "../ui/separator";
 import { Condition } from "./condition-group";
-import Operator from "./condition-operator";
+import DataSourceOperatorSelector from "./data-source-operator-selector";
 import SignalDataSourceSelector from "./data-source-selector";
 import ValueSuggestions from "./value-suggestions";
 
@@ -27,49 +27,50 @@ const ConditionRow = ({
   isRemovable,
 }: ConditionRowProps) => {
   const TopicSelector = useMemo(() => {
-    if (condition.dataSource) {
-      return topicSelectorMap[condition.dataSource]?.component || null;
+    if (condition.dataSourceId) {
+      return topicSelectorMap[condition.dataSourceId]?.component || null;
     }
     return null;
-  }, [condition.dataSource]);
+  }, [condition.dataSourceId]);
 
   const allowedOperators = useMemo(() => {
-    if (condition.dataSource) {
-      return topicSelectorMap[condition.dataSource]?.allowedOperators || [];
+    if (condition.dataSourceId) {
+      return topicSelectorMap[condition.dataSourceId]?.allowedOperators || [];
     }
     return [];
-  }, [condition.dataSource]);
+  }, [condition.dataSourceId]);
 
   const valueType = useMemo(() => {
-    if (condition.dataSource) {
-      return topicSelectorMap[condition.dataSource]?.valueType || null;
+    if (condition.dataSourceId) {
+      return topicSelectorMap[condition.dataSourceId]?.valueType || null;
     }
     return null;
-  }, [condition.dataSource]);
+  }, [condition.dataSourceId]);
 
   const suggestionsEnabled = useMemo(() => {
-    if (condition.dataSource) {
+    if (condition.dataSourceId) {
       const dataSource = signalDataSources
         .flatMap((group) => group.dataSources)
-        .find((ds) => ds.id === condition.dataSource);
+        .find((ds) => ds.id === condition.dataSourceId);
       return dataSource?.suggestionsEnabled || false;
     }
     return false;
-  }, [condition.dataSource]);
+  }, [condition.dataSourceId]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 h-12">
       <SignalDataSourceSelector
-        onChange={(value) =>
-          onChange({ ...condition, dataSource: value, topic: null })
+        onDataSourcePrefixChange={(value) =>
+          onChange({ ...condition, dataSourceId: value, topic: null })
         }
-        value={condition.dataSource}
+        value={condition.dataSourceId}
       />
 
-      {TopicSelector ? (
+      {TopicSelector && condition.dataSourceId ? (
         <TopicSelector
           value={condition.topic}
           onChange={(v) => onChange({ ...condition, topic: v })}
+          dataSourcePrefix={condition.dataSourceId}
         />
       ) : (
         <div className="w-full">
@@ -85,10 +86,10 @@ const ConditionRow = ({
         </div>
       )}
 
-      <Operator
-        allowedOperators={allowedOperators}
+      <DataSourceOperatorSelector
         value={condition.operator}
         onChange={(v) => onChange({ ...condition, operator: v })}
+        dataSourcePrefix={condition.dataSourceId}
       />
 
       <div className="flex items-center gap-4">
@@ -157,7 +158,7 @@ const ConditionRow = ({
           <div>
             {suggestionsEnabled && (
               <ValueSuggestions
-                dataSourceId={condition.dataSource}
+                dataSourceId={condition.dataSourceId}
                 topic={condition.topic}
                 onSelect={(value) => onChange({ ...condition, value })}
               />

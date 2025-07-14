@@ -13,99 +13,22 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useDataSources } from "@/hooks/smart-signals/use-data-sources";
 import { cn } from "@/lib/utils";
 import { Check, ChevronsUpDown } from "lucide-react";
-import { useState } from "react";
-
-const cfgiSupportedSymbols = [
-  "BTC",
-  "ETH",
-  // "BNB",
-  // "XRP",
-  // "SOL",
-  // "ADA",
-  // "LUNA",
-  // "AVAX",
-  // "DOGE",
-  // "DOT",
-  // "SHIB",
-  // "MATIC",
-  // "CRO",
-  // "TRX",
-  // "XLM",
-  // "LINK",
-  // "UNI",
-  // "FTM",
-  // "ALGO",
-  // "MANA",
-  // "LTC",
-  // "LEO",
-  // "FTT",
-  // "NEAR",
-  // "BCH",
-  // "ETC",
-  // "XMR",
-  // "ATOM",
-  // "VET",
-  // "HBAR",
-  // "FLOW",
-  // "ICP",
-  // "APE",
-  // "EGLD",
-  // "XTZ",
-  // "THETA",
-  // "HNT",
-  // "FIL",
-  // "BSV",
-  // "AXS",
-  // "SAND",
-  // "ZEC",
-  // "EOS",
-  // "IOTA",
-  // "PEPE",
-  // "ARB",
-  // "INJ",
-  // "GRT",
-  // "WIF",
-  // "SUI",
-  // "BGB",
-  // "BONK",
-  // "NOT",
-  // "AAVE",
-  // "JUP",
-  // "SEI",
-  // "GALA",
-  // "BTT",
-  // "TON",
-  // "NEIRO",
-  // "BABYDOGE",
-  // "FET",
-  // "EIGEN",
-  // "OG",
-  // "POLY",
-  // "APU",
-  // "SPX",
-  // "GIGA",
-  // "BITCOIN",
-  // "MOG",
-  // "POPCAT",
-  // "BOBO",
-  // "TET",
-  // "WOJAK",
-  // "KAS",
-  // "MOODENG",
-  // "FLOKI",
-  // "RUNE",
-  // "TRUMP",
-  // "MELANIA",
-];
+import { useEffect, useMemo, useState } from "react";
 
 interface CFGIConfigProps {
   value: string | null;
   onChange: (value: string) => void;
+  dataSourcePrefix: string;
 }
 
-export function CFGIConfig({ value, onChange }: CFGIConfigProps) {
+export function CFGIConfig({
+  value,
+  onChange,
+  dataSourcePrefix,
+}: CFGIConfigProps) {
   const [open, setOpen] = useState(false);
 
   const handleItemSelect = (currentValue: string) => {
@@ -113,6 +36,17 @@ export function CFGIConfig({ value, onChange }: CFGIConfigProps) {
 
     onChange(value === formattedCurrentValue ? "" : formattedCurrentValue);
   };
+
+  const { getDataSourceTopics } = useDataSources();
+
+  const [topics, setTopics] = useState<string[]>([]);
+
+  useEffect(() => {
+    setTopics(getDataSourceTopics(dataSourcePrefix));
+  }, [dataSourcePrefix, getDataSourceTopics]);
+
+  console.log("CFGI topics", topics);
+
   return (
     <div className="w-full">
       <Label className="mb-2 text-muted-foreground">CFGI Symbol</Label>
@@ -139,10 +73,10 @@ export function CFGIConfig({ value, onChange }: CFGIConfigProps) {
             <CommandList>
               <CommandEmpty>No symbol found.</CommandEmpty>
               <CommandGroup>
-                {cfgiSupportedSymbols.map((symbol) => (
+                {topics.map((topic) => (
                   <CommandItem
-                    key={symbol}
-                    value={symbol}
+                    key={topic}
+                    value={topic}
                     onSelect={(currentValue) => {
                       handleItemSelect(currentValue);
                       setOpen(false);
@@ -152,12 +86,12 @@ export function CFGIConfig({ value, onChange }: CFGIConfigProps) {
                     <Check
                       className={cn(
                         "mr-2 h-4 w-4",
-                        value?.replace("cfgi_", "") === symbol
+                        value?.replace("cfgi_", "") === topic
                           ? "opacity-100"
                           : "opacity-0",
                       )}
                     />
-                    {symbol}
+                    {topic}
                   </CommandItem>
                 ))}
               </CommandGroup>

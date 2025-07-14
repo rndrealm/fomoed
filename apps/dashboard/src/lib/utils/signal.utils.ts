@@ -55,7 +55,7 @@ export const jsonLogicToGroup = (logic: any, isRoot = true): any => {
     const operand = logic.and ? "and" : "or";
     const arr = logic[operand];
     const children: (Group | Condition)[] = arr.map((item: any) =>
-      jsonLogicToGroup(item, false)
+      jsonLogicToGroup(item, false),
     );
     return {
       id: nanoid(),
@@ -113,7 +113,7 @@ export const toJsonLogic = (group: Group): any => {
     .map((c) =>
       c.type === "condition"
         ? conditionToJsonLogic(c as Condition)
-        : toJsonLogic(c as Group)
+        : toJsonLogic(c as Group),
     )
     .filter(Boolean);
   return { [group.operand]: arr };
@@ -131,7 +131,7 @@ export const conditionToJsonLogic = (cond: Condition) => {
   return {
     [cond.operator]: [
       {
-        topic: [cond.topic, cond.dataSource],
+        topic: [cond.topic, cond.dataSourceId],
       },
       isNaN(Number(cond.value)) ? cond.value : Number(cond.value),
     ],
