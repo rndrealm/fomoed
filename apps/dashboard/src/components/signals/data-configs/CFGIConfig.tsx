@@ -123,7 +123,7 @@ export function CFGIConfig({ value, onChange }: CFGIConfigProps) {
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-full justify-between bg-[#2A2A2A] border-[#3A3A3A] text-white px-4 py-2 h-12in"
+            className="w-full justify-between bg-[#2A2A2A] border-[#3A3A3A] text-white px-4 py-2 h-12"
             id="cfgi-symbol"
           >
             {value ? value : "Select symbol"}
