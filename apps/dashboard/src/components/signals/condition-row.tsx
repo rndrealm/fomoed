@@ -1,9 +1,6 @@
-import {
-  signalDataSources,
-  topicSelectorMap,
-} from "@/constant/signals/data-source-config";
+import { topicSelectorMap } from "@/constant/signals/data-source-config";
 import { ChevronsUpDown, Trash2 } from "lucide-react";
-import { useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
@@ -12,6 +9,11 @@ import { Condition } from "./condition-group";
 import DataSourceOperatorSelector from "./data-source-operator-selector";
 import SignalDataSourceSelector from "./data-source-selector";
 import ValueSuggestions from "./value-suggestions";
+import {
+  DataSourceType,
+  useDataSources,
+} from "@/hooks/smart-signals/use-data-sources";
+import BoolValSelector from "./value-selectors/bool-val-selector";
 
 type ConditionRowProps = {
   condition: Condition;
@@ -26,6 +28,18 @@ const ConditionRow = ({
   onRemove,
   isRemovable,
 }: ConditionRowProps) => {
+  const { getDataSourceType } = useDataSources();
+
+  const [dataSourcePrefix, setDataSourcePrefix] = useState<string | null>(null);
+
+  const dataSourceType = useMemo<DataSourceType | null>(() => {
+    if (dataSourcePrefix) {
+      return getDataSourceType(dataSourcePrefix);
+    }
+
+    return null;
+  }, [dataSourcePrefix, getDataSourceType]);
+
   const TopicSelector = useMemo(() => {
     if (condition.dataSourceId) {
       return topicSelectorMap[condition.dataSourceId]?.component || null;
@@ -33,45 +47,41 @@ const ConditionRow = ({
     return null;
   }, [condition.dataSourceId]);
 
-  const allowedOperators = useMemo(() => {
-    if (condition.dataSourceId) {
-      return topicSelectorMap[condition.dataSourceId]?.allowedOperators || [];
-    }
-    return [];
-  }, [condition.dataSourceId]);
+  // TODO load this dynamically from API
+  const suggestionsEnabled = false;
 
-  const valueType = useMemo(() => {
-    if (condition.dataSourceId) {
-      return topicSelectorMap[condition.dataSourceId]?.valueType || null;
-    }
-    return null;
-  }, [condition.dataSourceId]);
+  const handleOnTopicChange = useCallback(
+    (topic: string) => {
+      const topicWithDataSourcePrefix = dataSourcePrefix + ":" + topic;
+      onChange({ ...condition, topic: topicWithDataSourcePrefix });
+    },
+    [condition, onChange, dataSourcePrefix],
+  );
 
-  const suggestionsEnabled = useMemo(() => {
-    if (condition.dataSourceId) {
-      const dataSource = signalDataSources
-        .flatMap((group) => group.dataSources)
-        .find((ds) => ds.id === condition.dataSourceId);
-      return dataSource?.suggestionsEnabled || false;
-    }
-    return false;
-  }, [condition.dataSourceId]);
+  console.info(JSON.stringify(condition, null, 2));
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 h-12">
       <SignalDataSourceSelector
-        onDataSourcePrefixChange={(value) =>
-          onChange({ ...condition, dataSourceId: value, topic: null })
-        }
+        onDataSourcePrefixChange={(value) => {
+          onChange({ ...condition, dataSourceId: value, topic: null });
+          setDataSourcePrefix(value);
+        }}
         value={condition.dataSourceId}
       />
 
-      {TopicSelector && condition.dataSourceId ? (
-        <TopicSelector
-          value={condition.topic}
-          onChange={(v) => onChange({ ...condition, topic: v })}
-          dataSourcePrefix={condition.dataSourceId}
-        />
+      {condition.dataSourceId ? (
+        (TopicSelector && (
+          <TopicSelector
+            selectedTopic={condition.topic?.replace(/.*:/, "") || null}
+            onChange={handleOnTopicChange}
+            dataSourcePrefix={condition.dataSourceId}
+          />
+        )) || (
+          <div className="bg-red-500 h-12 rounded-lg self-end grid place-items-center font-mono font-semibold">
+            MISSCONFIGURED
+          </div>
+        )
       ) : (
         <div className="w-full">
           <Label className="mb-2 text-muted-foreground">Topic</Label>
@@ -95,9 +105,9 @@ const ConditionRow = ({
       <div className="flex items-center gap-4">
         <div className="flex flex-col w-full">
           <Label className="mb-2 text-muted-foreground">Value</Label>
-          {(valueType === "number" || valueType === "string") && (
+          {(dataSourceType === "int" || dataSourceType === "string") && (
             <Input
-              type={valueType}
+              type={dataSourceType}
               placeholder="Value"
               className="w-full !h-12"
               value={
@@ -112,7 +122,7 @@ const ConditionRow = ({
             />
           )}
 
-          {valueType === "percentage" && (
+          {dataSourceType === "percentage" && (
             <Input
               type="number"
               max={100}
@@ -131,18 +141,14 @@ const ConditionRow = ({
             />
           )}
 
-          {valueType === "boolean" && (
-            <Button
-              variant="outline"
-              onClick={() =>
-                onChange({ ...condition, value: !condition.value })
-              }
-              className="w-fit justify-between !h-12"
-            >
-              {condition.value ? "True" : "False"}
-            </Button>
+          {dataSourceType === "bool" && (
+            <BoolValSelector
+              value={(condition.value as boolean) ?? true}
+              onChange={(value) => onChange({ ...condition, value })}
+            />
           )}
-          {!valueType && (
+
+          {!dataSourceType && (
             <Button
               disabled
               variant="outline"

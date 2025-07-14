@@ -1,9 +1,10 @@
-import { CFGIConfig } from "@/components/signals/data-configs/CFGIConfig";
-import { MarketCapConfig } from "@/components/signals/data-configs/MarketCapConfig";
-import { PriceTickerConfig } from "@/components/signals/data-configs/PriceTickerConfig";
-import { SocialDominanceConfig } from "@/components/signals/data-configs/SocialDominanceConfig";
-import { VolumeTickerConfig } from "@/components/signals/data-configs/VolumeTickerConfig";
-import { YouTubeChannelConfig } from "@/components/signals/data-configs/YouTubeChannelConfig";
+import { TopicSelectorSymbol } from "@/components/signals/topic-selectors/topic-selector-symbol";
+import { TopicSelectorYtChannel } from "@/components/signals/topic-selectors/topic-selector-yt-channel";
+// import { MarketCapConfig } from "@/components/signals/data-configs/MarketCapConfig";
+// import { PriceTickerConfig } from "@/components/signals/data-configs/PriceTickerConfig";
+// import { SocialDominanceConfig } from "@/components/signals/data-configs/SocialDominanceConfig";
+// import { VolumeTickerConfig } from "@/components/signals/data-configs/VolumeTickerConfig";
+// import { YouTubeChannelConfig } from "@/components/signals/data-configs/YouTubeChannelConfig";
 
 export type DataSource = {
   name: string;
@@ -17,6 +18,9 @@ export type SignalDataSourceGroup = {
   dataSources: DataSource[];
 };
 
+/**
+ * @deprecated This is newly dynamically loaded from the backend.
+ */
 export const signalDataSources: SignalDataSourceGroup[] = [
   {
     group: "Market data",
@@ -59,7 +63,7 @@ export const signalDataSources: SignalDataSourceGroup[] = [
 ];
 
 type TopicSelectorT = React.FC<{
-  value: string | null;
+  selectedTopic: string | null;
   onChange: (value: string) => void;
   dataSourcePrefix: string;
 }>;
@@ -68,38 +72,15 @@ export const topicSelectorMap: Record<
   string,
   {
     component: TopicSelectorT;
-    allowedOperators: string[];
-    valueType: "string" | "number" | "boolean" | "percentage";
   }
 > = {
-  price: {
-    component: PriceTickerConfig,
-    allowedOperators: [">", "<", "==", "!="],
-    valueType: "number",
-  },
   cfgi: {
-    component: CFGIConfig,
-    allowedOperators: [">", "<", "==", "!="],
-    valueType: "number",
+    component: TopicSelectorSymbol,
   },
-  isStreamingYoutube: {
-    component: YouTubeChannelConfig,
-    allowedOperators: ["==", "!="],
-    valueType: "boolean",
+  youtube_streaming_status: {
+    component: TopicSelectorYtChannel,
   },
-  volume_24h: {
-    component: VolumeTickerConfig,
-    allowedOperators: [">", "<"],
-    valueType: "number",
-  },
-  market_cap: {
-    component: MarketCapConfig,
-    allowedOperators: [">", "<"],
-    valueType: "number",
-  },
-  social_dominance_total: {
-    component: SocialDominanceConfig,
-    allowedOperators: [">", "<"],
-    valueType: "percentage",
+  active_addresses: {
+    component: TopicSelectorSymbol,
   },
 };

@@ -16,25 +16,24 @@ import {
 import { useDataSources } from "@/hooks/smart-signals/use-data-sources";
 import { cn } from "@/lib/utils";
 import { Check, ChevronsUpDown } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 interface CFGIConfigProps {
-  value: string | null;
-  onChange: (value: string) => void;
+  selectedTopic: string | null;
+  onChange: (topic: string) => void;
   dataSourcePrefix: string;
 }
 
-export function CFGIConfig({
-  value,
+export function TopicSelectorSymbol({
+  selectedTopic,
   onChange,
   dataSourcePrefix,
 }: CFGIConfigProps) {
   const [open, setOpen] = useState(false);
 
-  const handleItemSelect = (currentValue: string) => {
-    const formattedCurrentValue = `cfgi_${currentValue}`;
-
-    onChange(value === formattedCurrentValue ? "" : formattedCurrentValue);
+  const handleItemSelect = (newVal: string) => {
+    setOpen(false);
+    onChange(newVal);
   };
 
   const { getDataSourceTopics } = useDataSources();
@@ -45,11 +44,9 @@ export function CFGIConfig({
     setTopics(getDataSourceTopics(dataSourcePrefix));
   }, [dataSourcePrefix, getDataSourceTopics]);
 
-  console.log("CFGI topics", topics);
-
   return (
     <div className="w-full">
-      <Label className="mb-2 text-muted-foreground">CFGI Symbol</Label>
+      <Label className="mb-2 text-muted-foreground">Symbol</Label>
 
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
@@ -60,10 +57,11 @@ export function CFGIConfig({
             className="w-full justify-between bg-[#2A2A2A] border-[#3A3A3A] text-white px-4 py-2 h-12"
             id="cfgi-symbol"
           >
-            {value ? value : "Select symbol"}
+            {selectedTopic ? selectedTopic : "Select symbol"}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
+
         <PopoverContent className="w-full p-0 bg-[#222222] border-[#333333] text-white">
           <Command>
             <CommandInput
@@ -72,23 +70,19 @@ export function CFGIConfig({
             />
             <CommandList>
               <CommandEmpty>No symbol found.</CommandEmpty>
+
               <CommandGroup>
                 {topics.map((topic) => (
                   <CommandItem
                     key={topic}
                     value={topic}
-                    onSelect={(currentValue) => {
-                      handleItemSelect(currentValue);
-                      setOpen(false);
-                    }}
+                    onSelect={handleItemSelect}
                     className="cursor-pointer px-4 py-2"
                   >
                     <Check
                       className={cn(
                         "mr-2 h-4 w-4",
-                        value?.replace("cfgi_", "") === topic
-                          ? "opacity-100"
-                          : "opacity-0",
+                        topic === selectedTopic ? "opacity-100" : "opacity-0",
                       )}
                     />
                     {topic}

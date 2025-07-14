@@ -32,7 +32,7 @@ const SignalDataSourceSelector = (props: DataSourceDropDownProps) => {
           <SelectValue placeholder="Select data source" />
         </SelectTrigger>
 
-        <SelectContent className="max-h-[300px] overflow-y-auto bg-[#080808]">
+        <SelectContent className="overflow-y-auto bg-[#080808]">
           {Object.entries(dataSourcesByGroups).map(([group, sources]) => (
             <SelectGroup key={group}>
               <SelectLabel className="font-semibold text-sm text-fomoed-red">

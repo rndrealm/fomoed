@@ -24,9 +24,16 @@ import { useCallback, useMemo } from "react";
 }
  */
 
+export type DataSourceType =
+  | "decimal"
+  | "int"
+  | "string"
+  | "bool"
+  | "percentage";
+
 type DataSource = {
   prefix: string;
-  data_type: string;
+  data_type: DataSourceType;
   name: string;
   description: string;
   allowed_operators: string[];
@@ -108,6 +115,17 @@ export const useDataSources = () => {
     [getDataSourceByPrefix],
   );
 
+  const getDataSourceType = useCallback(
+    (prefix: string): DataSourceType | null => {
+      const dataSource = getDataSourceByPrefix(prefix);
+      if (dataSource) {
+        return dataSource.data_type;
+      }
+      return null;
+    },
+    [getDataSourceByPrefix],
+  );
+
   return {
     query,
     groups,
@@ -115,5 +133,6 @@ export const useDataSources = () => {
     getDataSourceByPrefix,
     getDataSourceTopics,
     getDataSourceAllowedOperators,
+    getDataSourceType,
   };
 };

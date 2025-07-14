@@ -7,7 +7,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import clsx from "clsx";
 
 const OperatorSelector = ({
   allowedOperators,
@@ -18,16 +19,25 @@ const OperatorSelector = ({
   value: string | null;
   onChange: (value: string) => void;
 }) => {
+  const disabled = useMemo(() => {
+    return allowedOperators.length === 0 || allowedOperators.length === 1;
+  }, [allowedOperators.length]);
+
   return (
     <div className="w-full">
       <Label className="mb-2 text-muted-foreground">Operator</Label>
 
       <Select
-        disabled={allowedOperators.length === 0}
+        disabled={disabled}
         value={value || undefined}
         onValueChange={onChange}
       >
-        <SelectTrigger className="w-full bg-background !h-12">
+        <SelectTrigger
+          className={clsx(
+            "w-full bg-background !h-12 group-disabled:pointer-events-none",
+            { "pointer-events-none": disabled },
+          )}
+        >
           <SelectValue placeholder="Select operator" />
         </SelectTrigger>
 

@@ -3,12 +3,12 @@ import { Label } from "@/components/ui/label";
 import { useEffect, useState } from "react";
 
 interface YouTubeChannelConfigProps {
-  value: string | null;
+  selectedTopic: string | null;
   onChange: (value: string) => void;
 }
 
-export function YouTubeChannelConfig({
-  value,
+export function TopicSelectorYtChannel({
+  selectedTopic,
   onChange,
 }: YouTubeChannelConfigProps) {
   const [selectedChannelId, setSelectedChannelId] = useState<string | null>(
@@ -18,10 +18,10 @@ export function YouTubeChannelConfig({
   useEffect(() => {
     const formattedValue = `youtube_streaming_${selectedChannelId}`;
 
-    if (value !== formattedValue) {
+    if (selectedTopic !== formattedValue) {
       onChange(formattedValue);
     }
-  }, [selectedChannelId, onChange, value]);
+  }, [selectedChannelId, onChange, selectedTopic]);
 
   return (
     <div className="w-full">
