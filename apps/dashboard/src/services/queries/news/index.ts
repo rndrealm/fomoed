@@ -1,7 +1,13 @@
 import api from "@/services/api";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { CryptopanicPost, NewsRowInsert, NewsFeedItem } from "./types";
-import { fetchNewslabPosts, fetchPopularNews, fetchSingleNewslabPosts, fetchNewsFeed } from "./actions";
+import {
+  fetchNewslabPosts,
+  fetchPopularNews,
+  fetchSingleNewslabPosts,
+  fetchNewsFeed,
+  fetchInfiniteNewsFeed,
+} from "./actions";
 
 export const useFetchTokenNews = () => {
   const hash = ["news"];
@@ -120,5 +126,38 @@ export const useReadNewsFeed = () => {
     isPending,
     isSuccess,
     error,
+  };
+};
+
+// Notes on this hook
+// Use fetchNextPage to fetch paginated news feed items
+// Use (hasNextPage && !isFetchingNextPage) to check before fetching next page
+// Use isFetchingNextPage to show loading state for next page
+export const useReadInfiniteNewsFeed = () => {
+  const hash = ["infinite-news-feed"];
+  const { data, isPending, error, isSuccess, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
+    queryKey: hash,
+    queryFn: async ({ pageParam = 1 }) => {
+      const response = await fetchInfiniteNewsFeed(pageParam, 20);
+      return response as NewsFeedItem[];
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, pages) => {
+      // If the last page has fewer than 20 items, we've reached the end
+      if (lastPage.length < 20) return undefined;
+      return pages.length + 1;
+    },
+    refetchInterval: 1000 * 60 * 5, // Refetch every 5 minutes
+    staleTime: 1000 * 60 * 2, // Data is fresh for 2 minutes
+  });
+
+  return {
+    data: data?.pages.flat() || [], // Flatten all pages into a single array
+    isPending,
+    isSuccess,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
   };
 };

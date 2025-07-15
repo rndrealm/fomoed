@@ -132,4 +132,5 @@ export type NewsFeedItem = {
   source: string;
   title: string;
   summary: string;
+  symbols: string[];
 };

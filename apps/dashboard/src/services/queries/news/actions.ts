@@ -72,3 +72,27 @@ export async function fetchNewsFeed() {
 
   return newsItem;
 }
+
+export async function fetchInfiniteNewsFeed(page: number = 1, limit: number = 20) {
+  const supabase = createSupabaseBrowserClient();
+  const twoDaysAgo = new Date(new Date().valueOf() - 2 * 24 * 60 * 60 * 1000);
+
+  const { from, to } = getPaginationMeta(page, limit);
+
+  const { data: feedData, error } = await supabase
+    .from("news")
+    .select("id, published_at, image_url, source, title, summary, symbols", { count: "exact" })
+    .gte("published_at", twoDaysAgo.toISOString())
+    .order("published_at", { ascending: false })
+    .eq("metadata->>region", "en")
+    .range(from, to)
+    .not("original_url", "ilike", "%youtube%")
+    .not("source", "eq", "BeInCrypto");
+
+  if (error) {
+    console.log("Error fetching news feed:", error);
+    throw new Error(error.message);
+  }
+
+  return feedData;
+}
