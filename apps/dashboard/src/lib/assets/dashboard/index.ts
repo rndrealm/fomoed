@@ -8,6 +8,7 @@ import orderBook from "../../../../public/media/images/dashboard/order-book.png"
 import bitcoinDominance from "../../../../public/media/images/dashboard/bitcoin-dominance.png";
 import coinStats from "../../../../public/media/images/dashboard/coin-stats.png";
 import summary from "../../../../public/media/images/dashboard/summary.png";
+import cfgi3 from "../../../../public/media/images/dashboard/cfgi3.png";
 import cfgi2 from "../../../../public/media/images/dashboard/cfgi2.png";
 import simpleCfgi from "../../../../public/media/images/dashboard/simple-cfgi.png";
 import liq from "../../../../public/media/images/dashboard/liq.png";
@@ -85,6 +86,7 @@ const dashboard = {
   bitcoinDominance,
   coinStats,
   summary,
+  cfgi3,
   settingsV2,
   settingsV3,
   plus,
