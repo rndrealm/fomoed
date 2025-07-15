@@ -152,7 +152,7 @@ export function SearchPopup() {
                              text-white placeholder:text-white placeholder:text-xs placeholder:font-normal"
                         />
                         <div className="absolute left-6 top-1/2 -translate-x-1/2 -translate-y-[40%]">
-                            {/* <SearchIcon color="#FFF" /> */}
+                            <SearchIcon color="#FFF" />
                         </div>
                     </div>
 
