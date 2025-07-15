@@ -3,9 +3,9 @@
 import SearchIcon from "@/components/icons/SearchIcon";
 import SoundIcon from "@/components/icons/SoundIcon";
 import PlayIcon from "@/components/icons/PlayIcon";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
-import { useReadNewsFeed } from "@/services/queries/news";
+import { useReadInfiniteNewsFeed } from "@/services/queries/news";
 
 const widgets = [
     {
@@ -108,27 +108,98 @@ const widgets = [
 
 const allTags = ["All", "Popular", "Bullish", "Bearish", "Bitcoin", "Ethereum"];
 
+const LoadingSpinner: React.FC = () => (
+    <div className="animate-spin h-10 w-10 border-2 border-white/10 border-opacity-80 rounded-full border-t-transparent" />
+);
+
+
 export function SearchPopup() {
     const [search, setSearch] = useState("");
     const [selectedTag, setSelectedTag] = useState("All");
 
-    const filtered = widgets.filter((w) => {
-        const matchesSearch = w.title.toLowerCase().includes(search.toLowerCase());
+    // const filtered = widgets.filter((w) => {
+    //     const matchesSearch = w.title.toLowerCase().includes(search.toLowerCase());
 
-        const matchesTag = selectedTag === "All" || w.tags.includes(selectedTag);
+    //     const matchesTag = selectedTag === "All" || w.tags.includes(selectedTag);
 
-        return matchesSearch && matchesTag;
-    });
+    //     return matchesSearch && matchesTag;
+    // });
 
-    const { data } = useReadNewsFeed();
-    const newsData = data?.slice(0, 50);
-    // console.log("newsData", newsData);
+    const bottomContainerRef = useRef(null);
+
+    const {
+        data: newsData,
+        isPending,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+        error,
+    } = useReadInfiniteNewsFeed();
 
 
+    useEffect(() => {
+        const bottomEl = bottomContainerRef.current;
+
+        if (!bottomEl || !hasNextPage) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting && !isFetchingNextPage) {
+                    console.log("bottom reached");
+                    fetchNextPage();
+                }
+            },
+            {
+                root: null,
+                rootMargin: '0px',
+                threshold: 1.0,
+            }
+        );
+
+        observer.observe(bottomEl);
+
+        return () => {
+            if (bottomEl) observer.unobserve(bottomEl);
+        };
+    }, [hasNextPage, isFetchingNextPage, fetchNextPage, newsData]);
+
+
+
+    const filteredNewsItems = useMemo(() => {
+
+        const itemsWithTags = newsData.map((item: any, index) => {
+
+            if (item?.tagIsSet) return item;
+
+            // const shouldAssignTag = index % 2 === 0;
+
+            const i = (Math.max(1, index % allTags.length));
+            const randomTag = allTags[i];
+            const randomTag2 = allTags[i - 1];
+
+            console.log("shouldAssignTag:", randomTag, randomTag2);
+            return {
+                ...item,
+                tags: ["All", randomTag, randomTag2],
+                tagIsSet: true
+            };
+
+        });
+
+
+        // console.log("itemsWithTags:", itemsWithTags);;
+
+        return itemsWithTags.filter((item) => item.tags?.includes(selectedTag));
+
+    }, [newsData, selectedTag])
+
+    // console.log("filteredNewsItems:", newsData);
 
     return (
-        <div className="h-full pb-4 bg-black">
+        <div className="h-full min-h-[100svh] pb-4 bg-black">
+
             <div className="relative flex flex-col items-start justify-between gap-2.5 pb-4">
+
                 <div className="absolute top-2 right-0 flex translate-y-0 flex-row gap-1.5 rounded-[40px] bg-[#2A2A2A] px-3.5 py-2.5 lg:top-1/2 lg:-translate-y-1/2">
                     <button>
                         <PlayIcon />
@@ -173,10 +244,22 @@ export function SearchPopup() {
                 </div>
             </div>
 
-            <div className="relative w-full">
+            <div className="relative min-h-[100svh] w-full">
+                {/* Loaders */}
+                {isPending &&
+                    <div className="absolute z-50 inset-0 w-full h-[calc(100vh-10rem)] bg-black flex justify-center items-center">
+                        <LoadingSpinner />
+                    </div>
+                }
+                {/* {isFetchingNextPage &&
+                    <div className="fixed z-50 inset-0 w-full h-screen bg-black flex items-center">
+                        <LoadingSpinner />
+                    </div>
+                } */}
+
                 {/* Filtered widgets */}
                 <div className="flex flex-col w-full gap-5 sm:grid sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 2xl:grid-cols-4">
-                    {newsData?.map((newsContent, index) => {
+                    {filteredNewsItems?.map((newsContent, index) => {
 
                         const publishedAt = newsContent.published_at;
                         const date = new Date(publishedAt);
@@ -222,10 +305,10 @@ export function SearchPopup() {
                                     <div className="gradient-blur">
                                         <div></div>
                                         <div></div>
-                                        <div></div>
-                                        <div></div>
-                                        <div></div>
-                                        <div></div>
+                                        {/* <div></div> */}
+                                        {/* <div></div> */}
+                                        {/* <div></div> */}
+                                        {/* <div></div> */}
                                     </div>
                                 </div>
 
@@ -245,7 +328,7 @@ export function SearchPopup() {
                                     }}
                                 />
 
-                                <div className="relative z-10 flex h-full w-[85%] flex-col items-start justify-end gap-1.5">
+                                <div className="relative z-[7] flex h-full w-[85%] flex-col items-start justify-end gap-1.5">
                                     <p className="text-xs font-normal text-[#A4A4A4]">{newsContent.source}</p>
                                     <p className="text-[18px] leading-[1.2] font-medium text-white">{newsContent.title}</p>
                                     <p className="text-[13px] leading-[1.3] font-semibold text-[#A4A4A4]">{newsContent.summary}</p>
@@ -255,6 +338,11 @@ export function SearchPopup() {
                             </div>
                         )
                     })}
+                </div>
+
+                {/* BottomContainer */}
+                <div ref={bottomContainerRef} className="absolute bottom-0 left-0 w-full h-10 bg-transparent">
+                    g
                 </div>
             </div>
         </div>
