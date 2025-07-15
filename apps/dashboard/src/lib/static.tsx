@@ -182,7 +182,7 @@ export const layoutOptionsMap = [
     id: 117,
     name: "CFGI",
     slug: "cfgi",
-    image: dashboard.summary,
+    image: dashboard.cfgi3,
     category: "charts",
     tags: ["charts", "new"],
   },
