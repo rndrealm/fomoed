@@ -178,7 +178,7 @@ export function SearchPopup() {
             const randomTag = allTags[i];
             const randomTag2 = allTags[i - 1];
 
-            console.log("shouldAssignTag:", randomTag, randomTag2);
+            // console.log("shouldAssignTag:", randomTag, randomTag2);
             return {
                 ...item,
                 tags: ["All", randomTag, randomTag2],
@@ -194,9 +194,7 @@ export function SearchPopup() {
 
     }, [newsData, selectedTag])
 
-    useEffect(() => {
-        // window.scrollTo(0, 0);
-    }, [])
+
     // console.log("filteredNewsItems:", newsData);
 
     return (
