@@ -17,7 +17,7 @@ export const fetchArticleContent = cache(async (id: string) => {
   const { data, error } = await supabase.from("news").select("*").eq("id", id).single();
 
   if (error) {
-    throw new Error("Failed to fetch article URL");
+    notFound();
   }
 
   if (!data.original_url) {

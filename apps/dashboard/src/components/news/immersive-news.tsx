@@ -11,6 +11,29 @@ import { FetchArticleContentType } from "@/services/server-actions";
 import { Play, Sound } from "../icons/icons";
 import Image from "next/image";
 import RemoteImage from "../widgets/shared/remote-image";
+import dashboard from "@/lib/assets/dashboard";
+import { newsSources } from "@/app/api/news/data";
+import TableOfContent from "./table-of-content";
+import TokenPill from "./token-pill";
+import RelatedArticles from "./related-articles";
+
+const tableData = [
+  {
+    id: 1,
+    name: "Headlines",
+    slug: "headlines",
+  },
+  {
+    id: 2,
+    name: "Article",
+    slug: "article",
+  },
+  {
+    id: 3,
+    name: "Charts",
+    slug: "charts",
+  },
+];
 
 interface IProps {
   articleData: FetchArticleContentType;
@@ -28,23 +51,45 @@ export function ImmersiveNews(props: IProps) {
   const { data: article } = useReadSingleNewslabPost(id);
 
   return (
-    <div className="mx-auto max-w-[640px] text-white">
-      <div className="mb-4">
-        <button
-          type="button"
-          className="flex items-center gap-1 rounded-[40px] bg-[#1E1E1E] px-[10px] py-2"
-          onClick={() => {}}
-        >
-          <Play />
-          <Sound />
-        </button>
+    <div className="mx-7 flex gap-[6.4375rem]">
+      <div className="">
+        <TableOfContent data={tableData} active="Headlines" />
       </div>
-      <div>
-        <RemoteImage width={637} height={356} src={extractedArticle.image || ""} alt={`${article?.title} image`} />
-      </div>
-      <p className="text-[1.75rem] font-semibold">{extractedArticle.title}</p>
-      <div>
-        <p></p>
+
+      <div className="text-white">
+        <div className="mb-4">
+          <button
+            type="button"
+            className="flex items-center gap-1 rounded-[40px] bg-[#1E1E1E] px-[10px] py-2"
+            onClick={() => {}}
+          >
+            <Play />
+            <Sound />
+          </button>
+        </div>
+        <div>
+          <RemoteImage width={637} height={356} src={extractedArticle.image || ""} alt={`${article?.title} image`} />
+        </div>
+        <div className="max-w-[39.8125rem]">
+          <p className="mt-6 text-[1.75rem] leading-[1.9rem] font-semibold">{extractedArticle.title}</p>
+          <div className="flex items-center gap-3 mt-4">
+            <p className="text-xs text-[#A4A4A4]">Tokens mentioned in article</p>
+            <div className="flex items-center gap-2">
+              {new Array(3).fill(0).map((_, i) => (
+                <TokenPill key={i} />
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="mt-5 mb-8">
+          <p className="text-xs text-[#A4A4A4] underline">+{newsSources.length} sources</p>
+        </div>
+        <div className="flex items-start gap-[6.4375rem]">
+          <div className="app_news_content flex max-w-[39.8125rem] flex-col gap-4">{parse(normalizedContent)}</div>
+          <div className="flex w-[25.9375rem]">
+            <RelatedArticles />
+          </div>
+        </div>
       </div>
     </div>
   );
