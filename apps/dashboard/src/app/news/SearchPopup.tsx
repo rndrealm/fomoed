@@ -138,13 +138,14 @@ export function SearchPopup() {
 
 
     useEffect(() => {
+
         const bottomEl = bottomContainerRef.current;
 
-        if (!bottomEl || !hasNextPage) return;
+        if (!bottomEl || !hasNextPage || isFetchingNextPage || isPending) return;
 
         const observer = new IntersectionObserver(
             (entries) => {
-                if (entries[0].isIntersecting && !isFetchingNextPage) {
+                if (entries[0].isIntersecting) {
                     console.log("bottom reached");
                     fetchNextPage();
                 }
@@ -161,7 +162,7 @@ export function SearchPopup() {
         return () => {
             if (bottomEl) observer.unobserve(bottomEl);
         };
-    }, [hasNextPage, isFetchingNextPage, fetchNextPage, newsData]);
+    }, [hasNextPage, isFetchingNextPage, fetchNextPage, newsData, isPending]);
 
 
 
@@ -193,10 +194,13 @@ export function SearchPopup() {
 
     }, [newsData, selectedTag])
 
+    useEffect(() => {
+        // window.scrollTo(0, 0);
+    }, [])
     // console.log("filteredNewsItems:", newsData);
 
     return (
-        <div className="h-full min-h-[100svh] pb-4 bg-black">
+        <div className="h-full min-h-[calc(100svh-86px)] w-full pb-4 bg-black">
 
             <div className="relative flex flex-col items-start justify-between gap-2.5 pb-4">
 
@@ -244,10 +248,10 @@ export function SearchPopup() {
                 </div>
             </div>
 
-            <div className="relative min-h-[100svh] w-full">
+            <div className="relative w-full">
                 {/* Loaders */}
                 {isPending &&
-                    <div className="absolute z-50 inset-0 w-full h-[calc(100vh-10rem)] bg-black flex justify-center items-center">
+                    <div className="absolute z-50 inset-0 w-full h-[calc(100svh-256px)] bg-black flex justify-center items-center">
                         <LoadingSpinner />
                     </div>
                 }
@@ -341,8 +345,8 @@ export function SearchPopup() {
                 </div>
 
                 {/* BottomContainer */}
-                <div ref={bottomContainerRef} className="absolute bottom-0 left-0 w-full h-10 bg-transparent">
-                    g
+                <div style={{ display: isPending ? "none" : "block" }} ref={bottomContainerRef} className="absolute bottom-0 left-0 w-full h-10 bg-transparent">
+
                 </div>
             </div>
         </div>
