@@ -184,13 +184,17 @@ export function SearchPopup() {
                             hour: 'numeric',
                             minute: '2-digit',
                             hour12: true,
-                            timeZone: 'GMT'
+                            // timeZone: 'GMT'
                         })} GMT, ${date.toLocaleString('en-US', {
                             month: 'long',
                             day: 'numeric',
                             year: 'numeric',
                             timeZone: 'GMT'
                         })}`;
+
+                        // if (index == 0 || index == 6) {
+                        //     newsContent.image_url = null
+                        // }
 
                         return (
 
@@ -206,7 +210,7 @@ export function SearchPopup() {
                                 {/* Background image */}
                                 <div
                                     style={{
-                                        backgroundImage: `url(${newsContent.image_url})`,
+                                        backgroundImage: `url(${newsContent.image_url || '/fallback.png'})`,
                                         backgroundSize: "cover",
                                         backgroundPosition: "center",
                                     }}
