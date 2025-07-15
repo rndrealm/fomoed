@@ -83,4 +83,13 @@ export const topicSelectorMap: Record<
   active_addresses: {
     component: TopicSelectorSymbol,
   },
+  santiment_rsi_4h: {
+    component: TopicSelectorSymbol,
+  },
+  santiment_rsi_1d: {
+    component: TopicSelectorSymbol,
+  },
+  santiment_rsi_7d: {
+    component: TopicSelectorSymbol,
+  },
 };
