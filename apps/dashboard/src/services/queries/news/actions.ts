@@ -42,14 +42,31 @@ export async function fetchNewslabPosts(page: number = 1, limit: number = 20) {
 export async function fetchSingleNewslabPosts(id: string) {
   const supabase = createSupabaseBrowserClient();
 
-  const { data: newsItem, error } = await supabase
-    .from("news")
-    .select("*")
-    .eq("id", id)
-    .single();
+  const { data: newsItem, error } = await supabase.from("news").select("*").eq("id", id).single();
 
   if (error) {
     console.log("Error fetching newslab posts:", error);
+    throw new Error(error.message);
+  }
+
+  return newsItem;
+}
+
+export async function fetchNewsFeed() {
+  const supabase = createSupabaseBrowserClient();
+  const twoDaysAgo = new Date(new Date().valueOf() - 2 * 24 * 60 * 60 * 1000);
+
+  const { data: newsItem, error } = await supabase
+    .from("news")
+    .select("id, published_at, image_url, source, title, summary")
+    .gte("published_at", twoDaysAgo.toISOString())
+    .order("published_at", { ascending: false })
+    .eq("metadata->>region", "en")
+    .not("original_url", "ilike", "%youtube%")
+    .not("source", "eq", "BeInCrypto");
+
+  if (error) {
+    console.log("Error fetching news feed:", error);
     throw new Error(error.message);
   }
 

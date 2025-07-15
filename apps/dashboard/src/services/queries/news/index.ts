@@ -1,11 +1,7 @@
 import api from "@/services/api";
 import { useQuery } from "@tanstack/react-query";
-import { CryptopanicPost, NewsRowInsert } from "./types";
-import {
-  fetchNewslabPosts,
-  fetchPopularNews,
-  fetchSingleNewslabPosts,
-} from "./actions";
+import { CryptopanicPost, NewsRowInsert, NewsFeedItem } from "./types";
+import { fetchNewslabPosts, fetchPopularNews, fetchSingleNewslabPosts, fetchNewsFeed } from "./actions";
 
 export const useFetchTokenNews = () => {
   const hash = ["news"];
@@ -99,6 +95,26 @@ export const useReadNewslabContent = (id: string = "") => {
       return response;
     },
   });
+  return {
+    data,
+    isPending,
+    isSuccess,
+    error,
+  };
+};
+
+export const useReadNewsFeed = () => {
+  const hash = ["news-feed"];
+  const { data, isPending, error, isSuccess } = useQuery({
+    queryKey: hash,
+    queryFn: async () => {
+      const response = await fetchNewsFeed();
+      return response as NewsFeedItem[];
+    },
+    refetchInterval: 1000 * 60 * 5, // Refetch every 5 minutes
+    staleTime: 1000 * 60 * 2, // Data is fresh for 2 minutes
+  });
+
   return {
     data,
     isPending,

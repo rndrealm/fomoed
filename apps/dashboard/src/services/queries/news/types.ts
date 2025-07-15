@@ -124,3 +124,12 @@ export type ApiNewsLabPost = {
     ref_tokens: string[];
   };
 };
+
+export type NewsFeedItem = {
+  id: string;
+  published_at: string;
+  image_url: string | null;
+  source: string;
+  title: string;
+  summary: string;
+};
