@@ -1,8 +1,8 @@
 "use client";
 
 import SearchIcon from "@/components/icons/SearchIcon";
-// import SoundIcon from "@/components/icons/SoundIcon";
-// import PlayIcon from "@/components/icons/PlayIcon";
+import SoundIcon from "@/components/icons/SoundIcon";
+import PlayIcon from "@/components/icons/PlayIcon";
 import { useState } from "react";
 import Image from "next/image";
 
@@ -123,9 +123,13 @@ export function SearchPopup() {
     <div className="h-full pb-4 bg-black">
       <div className="relative flex flex-col items-start justify-between gap-2.5 pb-4">
         <div className="absolute top-2 right-0 flex translate-y-0 flex-row gap-1.5 rounded-[40px] bg-[#2A2A2A] px-3.5 py-2.5 lg:top-1/2 lg:-translate-y-1/2">
-          <button>{/* <PlayIcon /> */}</button>
+          <button>
+            <PlayIcon />
+          </button>
 
-          <button>{/* <SoundIcon /> */}</button>
+          <button>
+            <SoundIcon />
+          </button>
         </div>
 
         <h2 className="text-[2.25rem] font-bold text-white">Popular</h2>
@@ -142,7 +146,7 @@ export function SearchPopup() {
               className="border-[#2A2A2A w-full rounded-[8px] border-[1px] bg-[#0C0C0C] py-2 pr-4 pl-[40px] text-white placeholder:text-xs placeholder:font-normal placeholder:text-white"
             />
             <div className="absolute top-1/2 left-6 -translate-x-1/2 -translate-y-[40%]">
-              {/* <SearchIcon color="#FFF" /> */}
+              <SearchIcon color="#FFF" />
             </div>
           </div>
 
