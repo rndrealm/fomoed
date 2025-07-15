@@ -105,7 +105,9 @@ const ConditionRow = ({
       <div className="flex items-center gap-4">
         <div className="flex flex-col w-full">
           <Label className="mb-2 text-muted-foreground">Value</Label>
-          {(dataSourceType === "int" || dataSourceType === "string") && (
+          {(dataSourceType === "int" ||
+            dataSourceType === "string" ||
+            dataSourceType === "decimal") && (
             <Input
               type={dataSourceType}
               placeholder="Value"

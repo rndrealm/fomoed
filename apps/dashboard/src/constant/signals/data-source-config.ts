@@ -92,4 +92,7 @@ export const topicSelectorMap: Record<
   santiment_rsi_7d: {
     component: TopicSelectorSymbol,
   },
+  price: {
+    component: TopicSelectorSymbol,
+  },
 };
