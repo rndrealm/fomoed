@@ -9,16 +9,19 @@ import {
 } from "../ui/select";
 import { useEffect, useMemo, useState } from "react";
 import clsx from "clsx";
+import { ConditionOperator } from "./condition-group";
+
+type ConditionOperatorProps = {
+  allowedOperators: string[];
+  value: ConditionOperator | null;
+  setValue: (operator: ConditionOperator) => void;
+};
 
 const OperatorSelector = ({
   allowedOperators,
   value,
-  onChange,
-}: {
-  allowedOperators: string[];
-  value: string | null;
-  onChange: (value: string) => void;
-}) => {
+  setValue,
+}: ConditionOperatorProps) => {
   const disabled = useMemo(() => {
     return allowedOperators.length === 0 || allowedOperators.length === 1;
   }, [allowedOperators.length]);
@@ -30,7 +33,7 @@ const OperatorSelector = ({
       <Select
         disabled={disabled}
         value={value || undefined}
-        onValueChange={onChange}
+        onValueChange={setValue}
       >
         <SelectTrigger
           className={clsx(
@@ -54,30 +57,39 @@ const OperatorSelector = ({
 };
 
 type DataSourceOperatorSelectorProps = {
-  value: string | null;
-  onChange: (value: string) => void;
+  operator: ConditionOperatorProps["value"];
+  setOperator: ConditionOperatorProps["setValue"];
   dataSourcePrefix: string | null;
 };
 
-const DataSourceOperatorSelector = (props: DataSourceOperatorSelectorProps) => {
+const DataSourceOperatorSelector = ({
+  operator,
+  setOperator,
+  dataSourcePrefix,
+}: DataSourceOperatorSelectorProps) => {
   const { getDataSourceAllowedOperators } = useDataSources();
 
-  const [allowedOperators, setAllowedOperators] = useState<string[]>([]);
+  const allowedOperators = useMemo(() => {
+    if (!dataSourcePrefix) {
+      return [];
+    }
+    return getDataSourceAllowedOperators(dataSourcePrefix);
+  }, [dataSourcePrefix, getDataSourceAllowedOperators]);
 
+  // Automatically set initial operator according to data source
   useEffect(() => {
-    if (!props.dataSourcePrefix) {
-      setAllowedOperators([]);
+    if (allowedOperators.length < 1 || operator) {
       return;
     }
 
-    setAllowedOperators(getDataSourceAllowedOperators(props.dataSourcePrefix));
-  }, [props.dataSourcePrefix, getDataSourceAllowedOperators]);
+    setOperator(allowedOperators[0] as ConditionOperator);
+  }, [operator, allowedOperators, setOperator]);
 
   return (
     <OperatorSelector
       allowedOperators={allowedOperators}
-      value={props.value || allowedOperators[0]}
-      onChange={props.onChange}
+      value={operator}
+      setValue={setOperator}
     />
   );
 };

@@ -5,12 +5,15 @@ import ConditionRow from "./condition-row";
 
 export const MAX_DEPTH = 3;
 
+const conditionOperators = [">", "<", "!="] as const;
+export type ConditionOperator = (typeof conditionOperators)[number];
+
 export type Condition = {
   id: string;
   type: "condition";
   dataSourceId: string | null;
   topic: string | null;
-  operator: string | null;
+  operator: ConditionOperator | null;
   value: string | number | boolean | null;
 };
 

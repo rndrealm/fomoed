@@ -13,7 +13,7 @@ const ManualSignalBuilder = ({
 }: ManualSignalBuilderProps) => {
   // The root group state (always present)
   const [rootGroup, setRootGroup] = useState<Group>(
-    initialLogic ? jsonLogicToGroup(initialLogic) : defaultGroup(0)
+    initialLogic ? jsonLogicToGroup(initialLogic) : defaultGroup(0),
   );
 
   // Recursively update a group or condition in the tree
@@ -22,15 +22,11 @@ const ManualSignalBuilder = ({
   }, []);
 
   useEffect(() => {
-    const testLogic = toJsonLogic(rootGroup);
-    console.log("🚀 ~ useEffect ~ testLogic:", testLogic, rootGroup);
+    const logic = toJsonLogic(rootGroup);
+    console.log("🚀 ~ useEffect ~ logic:", logic, rootGroup);
 
-    setLogic(testLogic);
+    setLogic(logic);
   }, [rootGroup, setLogic]);
-
-  useEffect(() => {
-    console.log("🚀 ~ ManualSignalBuilder ~ rootGroup:", rootGroup);
-  }, [rootGroup]);
 
   return (
     <SignalConditionGroup group={rootGroup} depth={0} onUpdate={updateGroup} />

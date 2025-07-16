@@ -1,11 +1,11 @@
 import { topicSelectorMap } from "@/constant/signals/data-source-config";
 import { ChevronsUpDown, Trash2 } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Separator } from "../ui/separator";
-import { Condition } from "./condition-group";
+import { Condition, ConditionOperator } from "./condition-group";
 import DataSourceOperatorSelector from "./data-source-operator-selector";
 import SignalDataSourceSelector from "./data-source-selector";
 import ValueSuggestions from "./value-suggestions";
@@ -31,6 +31,7 @@ const ConditionRow = ({
   const { getDataSourceType } = useDataSources();
 
   const [dataSourcePrefix, setDataSourcePrefix] = useState<string | null>(null);
+  const [operator, setOperator] = useState<ConditionOperator | null>(null);
 
   const dataSourceType = useMemo<DataSourceType | null>(() => {
     if (dataSourcePrefix) {
@@ -50,7 +51,7 @@ const ConditionRow = ({
   // TODO load this dynamically from API
   const suggestionsEnabled = false;
 
-  const handleOnTopicChange = useCallback(
+  const setTopicOnCond = useCallback(
     (topic: string) => {
       const topicWithDataSourcePrefix = dataSourcePrefix + ":" + topic;
       onChange({ ...condition, topic: topicWithDataSourcePrefix });
@@ -58,7 +59,12 @@ const ConditionRow = ({
     [condition, onChange, dataSourcePrefix],
   );
 
-  console.info(JSON.stringify(condition, null, 2));
+  // Propagate initial operator value into the condition object
+  useEffect(() => {
+    if (operator && condition.operator !== operator) {
+      onChange({ ...condition, operator });
+    }
+  }, [operator, condition, onChange]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 h-12">
@@ -74,7 +80,7 @@ const ConditionRow = ({
         (TopicSelector && (
           <TopicSelector
             selectedTopic={condition.topic?.replace(/.*:/, "") || null}
-            onChange={handleOnTopicChange}
+            onChange={setTopicOnCond}
             dataSourcePrefix={condition.dataSourceId}
           />
         )) || (
@@ -97,8 +103,8 @@ const ConditionRow = ({
       )}
 
       <DataSourceOperatorSelector
-        value={condition.operator}
-        onChange={(v) => onChange({ ...condition, operator: v })}
+        operator={operator}
+        setOperator={setOperator}
         dataSourcePrefix={condition.dataSourceId}
       />
 
