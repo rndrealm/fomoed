@@ -80,7 +80,10 @@ export const topicSelectorMap: Record<
   youtube_streaming_status: {
     component: TopicSelectorYtChannel,
   },
-  active_addresses: {
+  active_addresses_24h: {
+    component: TopicSelectorSymbol,
+  },
+  santiment_market_cap: {
     component: TopicSelectorSymbol,
   },
   santiment_rsi_4h: {
