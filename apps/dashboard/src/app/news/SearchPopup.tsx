@@ -106,7 +106,7 @@ const widgets = [
     },
 ];
 
-const allTags = ["All", "Popular", "Bullish", "Bearish", "Bitcoin", "Ethereum"];
+const allTags = ["All", "BTC", "ETH", "SOL", "XRP", "DOGE"];
 
 const LoadingSpinner: React.FC = () => (
     <div className="animate-spin h-10 w-10 border-2 border-white/10 border-opacity-80 rounded-full border-t-transparent" />
@@ -134,7 +134,9 @@ export function SearchPopup() {
         hasNextPage,
         isFetchingNextPage,
         error,
-    } = useReadInfiniteNewsFeed();
+    } = useReadInfiniteNewsFeed(selectedTag === "All" ? undefined : selectedTag);
+
+    // console.log("newsData", newsData);
 
 
     useEffect(() => {
@@ -146,7 +148,7 @@ export function SearchPopup() {
         const observer = new IntersectionObserver(
             (entries) => {
                 if (entries[0].isIntersecting) {
-                    console.log("bottom reached");
+                    // console.log("bottom reached");
                     fetchNextPage();
                 }
             },
@@ -164,38 +166,6 @@ export function SearchPopup() {
         };
     }, [hasNextPage, isFetchingNextPage, fetchNextPage, newsData, isPending]);
 
-
-
-    const filteredNewsItems = useMemo(() => {
-
-        const itemsWithTags = newsData.map((item: any, index) => {
-
-            if (item?.tagIsSet) return item;
-
-            // const shouldAssignTag = index % 2 === 0;
-
-            const i = (Math.max(1, index % allTags.length));
-            const randomTag = allTags[i];
-            const randomTag2 = allTags[i - 1];
-
-            // console.log("shouldAssignTag:", randomTag, randomTag2);
-            return {
-                ...item,
-                tags: ["All", randomTag, randomTag2],
-                tagIsSet: true
-            };
-
-        });
-
-
-        // console.log("itemsWithTags:", itemsWithTags);;
-
-        return itemsWithTags.filter((item) => item.tags?.includes(selectedTag));
-
-    }, [newsData, selectedTag])
-
-
-    // console.log("filteredNewsItems:", newsData);
 
     return (
         <div className="h-full min-h-[calc(100svh-86px)] w-full pb-4 bg-black">
@@ -261,7 +231,7 @@ export function SearchPopup() {
 
                 {/* Filtered widgets */}
                 <div className="flex flex-col w-full gap-5 sm:grid sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 2xl:grid-cols-4">
-                    {filteredNewsItems?.map((newsContent, index) => {
+                    {newsData?.map((newsContent, index) => {
 
                         const publishedAt = newsContent.published_at;
                         const date = new Date(publishedAt);
@@ -269,7 +239,7 @@ export function SearchPopup() {
                             hour: 'numeric',
                             minute: '2-digit',
                             hour12: true,
-                            // timeZone: 'GMT'
+                            timeZone: 'GMT'
                         })} GMT, ${date.toLocaleString('en-US', {
                             month: 'long',
                             day: 'numeric',
