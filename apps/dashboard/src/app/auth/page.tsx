@@ -68,10 +68,16 @@ export default function Page() {
                   Create an account and never miss out on anything again.
                 </p>
               </div>
-              <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
+              <Formik
+                initialValues={initialValues}
+                validationSchema={validationSchema}
+                onSubmit={onSubmit}
+                validateOnBlur={false}
+                validateOnMount={false}
+                validateOnChange={false}
+              >
                 {(props) => {
                   const { values, handleChange, handleBlur, handleSubmit } = props;
-                  const isError = !values.email || !values.password || !values.username;
 
                   return (
                     <form onSubmit={handleSubmit} className="">
@@ -105,9 +111,9 @@ export default function Page() {
                           onBlur={handleBlur}
                         />
                         <div className="">
-                          <SubmitButton isLoading={isLoading} disabled={isError}>
+                          <SubmitButton isLoading={isLoading}>
                             Continue
-                            <ArrowRight fill={isError ? "#7d7d7d" : undefined} />
+                            <ArrowRight fill={"#7d7d7d"} />
                           </SubmitButton>
                         </div>
                       </div>
@@ -128,7 +134,7 @@ export default function Page() {
         <div className="flex w-full">
           <FormBottomDivider />
         </div>
-        <FormBottomLink href={AppRoutes.auth.login.path} linkText="Sign In" />
+        <FormBottomLink href={AppRoutes.auth.login.path} infoText="Already on Fomoed?" linkText="Sign In" />
       </div>
     </div>
   );

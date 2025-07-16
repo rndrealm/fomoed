@@ -109,7 +109,7 @@ export default function Home({ dashboardData }: IProps) {
             //   : "p-1 md:pt-1"
           )}
         >
-          <div className="relative flex flex-col w-full h-full gap-2">
+          <div className="relative flex h-full w-full flex-col gap-2">
             <div className="px-4 md:px-6">
               <Toolbar />
             </div>

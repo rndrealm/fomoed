@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
 	import { writable } from 'svelte/store';
 	import type { ActionData } from './$types';
 	import { failure } from '$lib/utils';
@@ -56,4 +56,4 @@
 			/>
 		{/if}
 	</form>
-</TwoPaneLayout>
+</TwoPaneLayout> -->

@@ -82,10 +82,16 @@ const UpdatePassword = () => {
                 <h3 className="text-center text-xl leading-[1.35] font-medium text-white">Create Password</h3>
                 <p className="text-center text-base leading-[1.35] font-medium text-[#5f5f5f]">Create a new password</p>
               </div>
-              <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
+              <Formik
+                initialValues={initialValues}
+                validationSchema={validationSchema}
+                onSubmit={onSubmit}
+                validateOnBlur={false}
+                validateOnMount={false}
+                validateOnChange={false}
+              >
                 {(props) => {
                   const { values, handleChange, handleBlur, handleSubmit } = props;
-                  const isError = !values.confirmPassword || !values.password;
 
                   return (
                     <form onSubmit={handleSubmit} className="">
@@ -110,9 +116,9 @@ const UpdatePassword = () => {
                           onBlur={handleBlur}
                         />
                         <div className="">
-                          <SubmitButton isLoading={isLoading} disabled={isError}>
+                          <SubmitButton isLoading={isLoading}>
                             Continue
-                            <ArrowRight fill={isError ? "#7d7d7d" : undefined} />
+                            <ArrowRight fill={"#7d7d7d"} />
                           </SubmitButton>
                         </div>
                       </div>

@@ -7,8 +7,8 @@ export default function AuthLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="relative">
-      <div className="absolute inset-0 w-screen h-screen">
+    <div className="relative bg-black">
+      <div className="absolute inset-0 h-screen w-[105vw]">
         <Image src={authAssets.BgIllustration} alt="Auth page pattern" fill />
       </div>
       {children}
