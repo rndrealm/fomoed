@@ -16,10 +16,10 @@ export function TopicSelectorYtChannel({
   );
 
   useEffect(() => {
-    const formattedValue = `youtube_streaming_${selectedChannelId}`;
+    const newTopic = `youtube_streaming_${selectedChannelId}`;
 
-    if (selectedTopic !== formattedValue) {
-      onChange(formattedValue);
+    if (selectedTopic !== newTopic) {
+      onChange(newTopic);
     }
   }, [selectedChannelId, onChange, selectedTopic]);
 
