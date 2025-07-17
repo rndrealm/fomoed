@@ -5,32 +5,6 @@ import {
 } from "@/constant/signals/data-source-config";
 import { nanoid } from "nanoid";
 
-export function extractTopicsFromJsonLogic(logic: any): string[] {
-  const topics: string[] = [];
-
-  function traverse(node: any) {
-    if (!node || typeof node !== "object") return;
-    // Check for topic object
-    if (
-      node.topic &&
-      Array.isArray(node.topic) &&
-      typeof node.topic[0] === "string"
-    ) {
-      topics.push(node.topic[0]);
-    }
-    // Traverse arrays
-    if (Array.isArray(node)) {
-      node.forEach(traverse);
-    } else {
-      // Traverse object values
-      Object.values(node).forEach(traverse);
-    }
-  }
-
-  traverse(logic);
-  return topics;
-}
-
 // Converts a JSON Logic object to a Group/Condition tree using 'children' and 'operand'
 export const jsonLogicToGroup = (logic: any, isRoot = true): any => {
   if (!logic || typeof logic !== "object") {
@@ -128,10 +102,11 @@ export const conditionToJsonLogic = (cond: Condition) => {
     cond.value === undefined
   )
     return null;
+
   return {
     [cond.operator]: [
       {
-        topic: [cond.topic, cond.dataSourceId],
+        topic: cond.topic,
       },
       isNaN(Number(cond.value)) ? cond.value : Number(cond.value),
     ],

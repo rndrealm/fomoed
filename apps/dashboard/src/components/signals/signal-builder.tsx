@@ -7,7 +7,6 @@ import { toast } from "sonner";
 // import AISignalBuilder from "./AISignalBuilder";
 import useUserData from "@/lib/hooks/use-user-data";
 import { SignalActions } from "@/lib/types/signal.types";
-import { extractTopicsFromJsonLogic } from "@/lib/utils/signal.utils";
 import {
   useCreateSignalMutation,
   useGetAISignal,
@@ -99,7 +98,6 @@ const SignalBuilder = ({}) => {
       name: signalPrompt,
       description: signalDescription,
       condition: JSON.stringify(logic),
-      topics: extractTopicsFromJsonLogic(logic),
       user_id: user?.id,
 
       // actions?
