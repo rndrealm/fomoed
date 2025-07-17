@@ -41,6 +41,7 @@ type DataSource = {
   disabled: boolean;
   suggestions_enabled: boolean;
   group: string;
+  message_field: string;
 };
 
 const fetchDataSources = async (): Promise<{ data_sources: DataSource[] }> => {
@@ -115,17 +116,6 @@ export const useDataSources = () => {
     [getDataSourceByPrefix],
   );
 
-  const getDataSourceType = useCallback(
-    (prefix: string): DataSourceType | null => {
-      const dataSource = getDataSourceByPrefix(prefix);
-      if (dataSource) {
-        return dataSource.data_type;
-      }
-      return null;
-    },
-    [getDataSourceByPrefix],
-  );
-
   return {
     query,
     groups,
@@ -133,6 +123,5 @@ export const useDataSources = () => {
     getDataSourceByPrefix,
     getDataSourceTopics,
     getDataSourceAllowedOperators,
-    getDataSourceType,
   };
 };

@@ -9,10 +9,7 @@ import { Condition, ConditionOperator } from "./condition-group";
 import DataSourceOperatorSelector from "./data-source-operator-selector";
 import SignalDataSourceSelector from "./data-source-selector";
 import ValueSuggestions from "./value-suggestions";
-import {
-  DataSourceType,
-  useDataSources,
-} from "@/hooks/smart-signals/use-data-sources";
+import { useDataSources } from "@/hooks/smart-signals/use-data-sources";
 import BoolValSelector from "./value-selectors/bool-val-selector";
 
 type ConditionRowProps = {
@@ -28,18 +25,19 @@ const ConditionRow = ({
   onRemove,
   isRemovable,
 }: ConditionRowProps) => {
-  const { getDataSourceType } = useDataSources();
+  const { getDataSourceByPrefix } = useDataSources();
 
   const [dataSourcePrefix, setDataSourcePrefix] = useState<string | null>(null);
   const [operator, setOperator] = useState<ConditionOperator | null>(null);
 
-  const dataSourceType = useMemo<DataSourceType | null>(() => {
-    if (dataSourcePrefix) {
-      return getDataSourceType(dataSourcePrefix);
+  const dataSourceObj = useMemo(() => {
+    if (condition.dataSourceId) {
+      return getDataSourceByPrefix(condition.dataSourceId);
     }
-
     return null;
-  }, [dataSourcePrefix, getDataSourceType]);
+  }, [condition.dataSourceId, getDataSourceByPrefix]);
+
+  const dataSourceType = dataSourceObj?.data_type || null;
 
   const TopicSelector = useMemo(() => {
     if (condition.dataSourceId) {
@@ -53,8 +51,12 @@ const ConditionRow = ({
 
   const setTopicOnCond = useCallback(
     (topic: string) => {
-      const topicWithDataSourcePrefix = dataSourcePrefix + ":" + topic;
-      onChange({ ...condition, topic: topicWithDataSourcePrefix });
+      // We are adding the data source prefix, because when a smart
+      // signal is processed, the topics in the system are prefixed
+      // with the data source prefix
+
+      const topicWithPrefix = dataSourcePrefix + ":" + topic;
+      onChange({ ...condition, topic: topicWithPrefix });
     },
     [condition, onChange, dataSourcePrefix],
   );
