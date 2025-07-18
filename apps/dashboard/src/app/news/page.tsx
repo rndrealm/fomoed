@@ -8,7 +8,7 @@ export default async function Page() {
             <div className="flex flex-col w-full h-full px-6">
 
                 <div className="relative ml-10">
-                    {/* <NewsSection /> */}
+                    <NewsSection />
                 </div>
             </div>
 
