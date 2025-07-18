@@ -8,7 +8,7 @@ const LoadingSpinner: React.FC = () => (
     <div className="animate-spin h-10 w-10 border-2 border-white/10 border-opacity-80 rounded-full border-t-transparent" />
 );
 
-const NewsContent = ({ selectedTag }: { selectedTag: string }) => {
+const NewsContent = ({ isSearching, selectedTag }: { isSearching: boolean, selectedTag: string }) => {
 
     const {
         data: newsData,
@@ -19,12 +19,14 @@ const NewsContent = ({ selectedTag }: { selectedTag: string }) => {
         error,
     } = useReadInfiniteNewsFeed(selectedTag === "All" ? undefined : selectedTag);
 
+    // console.log("newsData", newsData);
+
     const bottomContainerRef = useRef<HTMLDivElement>(null);
     useEffect(() => {
 
         const bottomEl = bottomContainerRef.current;
 
-        if (!bottomEl || !hasNextPage || isFetchingNextPage || isPending) return;
+        if (!bottomEl || !hasNextPage || isFetchingNextPage || isPending || isSearching) return;
 
         const observer = new IntersectionObserver(
             (entries) => {
@@ -45,7 +47,9 @@ const NewsContent = ({ selectedTag }: { selectedTag: string }) => {
         return () => {
             if (bottomEl) observer.unobserve(bottomEl);
         };
-    }, [hasNextPage, isFetchingNextPage, fetchNextPage, newsData, isPending]);
+
+    }, [hasNextPage, isFetchingNextPage, fetchNextPage, newsData, isPending, isSearching]);
+
     return (
         <div className="relative w-full">
             {/* Loaders */}
@@ -61,64 +65,69 @@ const NewsContent = ({ selectedTag }: { selectedTag: string }) => {
                 } */}
 
             {/* Filtered widgets */}
-            <div className="flex flex-col w-full gap-5 sm:grid sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 2xl:grid-cols-4">
-                {newsData?.map((newsContent, index) => {
+            {!isSearching && (
 
-                    // const publishedAt = newsContent.published_at;
-                    // const date = new Date(publishedAt);
-                    // const formattedDate = `${date.toLocaleTimeString('en-US', {
-                    //     hour: 'numeric',
-                    //     minute: '2-digit',
-                    //     hour12: true,
-                    //     timeZone: 'GMT'
-                    // })} GMT, ${date.toLocaleString('en-US', {
-                    //     month: 'long',
-                    //     day: 'numeric',
-                    //     year: 'numeric',
-                    //     timeZone: 'GMT'
-                    // })}`;
 
-                    const formattedDate = timeAgo(newsContent.published_at)
+                <div className="flex flex-col w-full gap-5 sm:grid sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 2xl:grid-cols-4">
+                    {newsData?.map((newsContent, index) => {
 
-                    return (
 
-                        <div
-                            key={index}
-                            style={{
-                                gridColumn: `span ${1}`,
-                                gridRow: `span ${1}`,
-                                boxShadow: "0px 4px 4px 0px #00000040",
-                            }}
-                            className="relative h-[500px] gap-1.5 overflow-hidden rounded-[16px] bg-[#121212] px-4.5 pt-3 pb-3.5 sm:h-[354px]"
-                        >
-                            {/* Background image */}
+
+                        // const publishedAt = newsContent.published_at;
+                        // const date = new Date(publishedAt);
+                        // const formattedDate = `${date.toLocaleTimeString('en-US', {
+                        //     hour: 'numeric',
+                        //     minute: '2-digit',
+                        //     hour12: true,
+                        //     timeZone: 'GMT'
+                        // })} GMT, ${date.toLocaleString('en-US', {
+                        //     month: 'long',
+                        //     day: 'numeric',
+                        //     year: 'numeric',
+                        //     timeZone: 'GMT'
+                        // })}`;
+
+                        const formattedDate = timeAgo(newsContent.published_at)
+
+                        return (
+
                             <div
+                                key={index}
                                 style={{
-                                    backgroundImage: `url(${newsContent.image_url || '/fallback.png'})`,
-                                    backgroundSize: "cover",
-                                    backgroundPosition: "center",
+                                    gridColumn: `span ${1}`,
+                                    gridRow: `span ${1}`,
+                                    boxShadow: "0px 4px 4px 0px #00000040",
                                 }}
-                                className="absolute inset-0 z-0 rounded-[16px]"
-                            ></div>
+                                className="relative h-[500px] gap-1.5 overflow-hidden rounded-[16px] bg-[#121212] px-4.5 pt-3 pb-3.5 sm:h-[354px]"
+                            >
+                                {/* Background image */}
+                                <div
+                                    style={{
+                                        backgroundImage: `url(${newsContent.image_url || '/fallback.png'})`,
+                                        backgroundSize: "cover",
+                                        backgroundPosition: "center",
+                                    }}
+                                    className="absolute inset-0 z-0 rounded-[16px]"
+                                ></div>
 
-                            {/* Blur */}
-                            <div className="absolute inset-0 z-0 w-[1020%] h-full">
-                                <div className="gradient-blur">
-                                    <div></div>
-                                    <div></div>
-                                    {/* <div></div> */}
-                                    {/* <div></div> */}
-                                    {/* <div></div> */}
-                                    {/* <div></div> */}
+                                {/* Blur */}
+                                <div className="absolute inset-0 z-0 w-[1020%] h-full">
+                                    <div className="gradient-blur">
+                                        <div></div>
+                                        <div></div>
+                                        {/* <div></div> */}
+                                        {/* <div></div> */}
+                                        {/* <div></div> */}
+                                        {/* <div></div> */}
+                                    </div>
                                 </div>
-                            </div>
 
-                            {/* Dark */}
+                                {/* Dark */}
 
-                            <div
-                                className="absolute inset-0 z-0 w-full h-full"
-                                style={{
-                                    background: `linear-gradient(
+                                <div
+                                    className="absolute inset-0 z-0 w-full h-full"
+                                    style={{
+                                        background: `linear-gradient(
                                         to bottom,
                                         rgba(0, 0, 0, 0) 0%,
                                         rgba(0, 0, 0, 0.125) 12.56%,
@@ -126,20 +135,21 @@ const NewsContent = ({ selectedTag }: { selectedTag: string }) => {
                                         rgba(0, 0, 0, 0.5) 45.58%,
                                         rgba(0, 0, 0, 1) 100%
                                         )`,
-                                }}
-                            />
+                                    }}
+                                />
 
-                            <div className="relative z-[7] flex h-full w-[85%] flex-col items-start justify-end gap-1.5">
-                                <p className="text-xs font-normal text-[#A4A4A4]">{newsContent.source}</p>
-                                <p className="text-[18px] leading-[1.2] font-medium text-white">{newsContent.title}</p>
-                                <p className="text-[13px] leading-[1.3] font-semibold text-[#A4A4A4]">{newsContent.summary}</p>
-                                <p className="mt-1 text-xs font-normal text-[#A4A4A4]">{formattedDate}</p>
+                                <div className="relative z-[7] flex h-full w-[85%] flex-col items-start justify-end gap-1.5">
+                                    <p className="text-xs font-normal text-[#A4A4A4]">{newsContent.source}</p>
+                                    <p className="text-[18px] leading-[1.2] font-medium text-white">{newsContent.title}</p>
+                                    <p className="text-[13px] leading-[1.3] font-semibold text-[#A4A4A4]">{newsContent.summary}</p>
+                                    <p className="mt-1 text-xs font-normal text-[#A4A4A4]">{formattedDate}</p>
 
+                                </div>
                             </div>
-                        </div>
-                    )
-                })}
-            </div>
+                        )
+                    })}
+                </div>
+            )}
 
             {/* BottomContainer */}
             <div style={{ display: isPending ? "none" : "block" }} ref={bottomContainerRef} className="absolute bottom-0 left-0 w-full h-10 bg-transparent">
