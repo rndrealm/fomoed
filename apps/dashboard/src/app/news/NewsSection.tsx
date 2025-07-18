@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-// import { useQueryState } from "nuqs";
+import { useQueryState } from "nuqs";
 
 // import NewsMenu from "./NewsMenu";
 // import NewsPopup from "./NewsPopup";
 // import NewsContent from "./NewsContent";
 
 export function NewsSection() {
-    // const [selectedTag, setSelectedTag] = useQueryState("tag", { defaultValue: "All" });
+    const [selectedTag, setSelectedTag] = useQueryState("tag", {});
     const [isSearching, setIsSearching] = useState(false);
 
     // console.log("newsData", newsData);
