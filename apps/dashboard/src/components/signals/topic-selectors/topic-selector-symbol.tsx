@@ -13,22 +13,17 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { TopicSelectorProps } from "@/constant/signals/data-source-config";
 import { useDataSources } from "@/hooks/smart-signals/use-data-sources";
 import { cn } from "@/lib/utils";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useEffect, useState } from "react";
 
-interface CFGIConfigProps {
-  selectedTopic: string | null;
-  onChange: (topic: string) => void;
-  dataSourcePrefix: string;
-}
-
 export function TopicSelectorSymbol({
   selectedTopic,
   onChange,
   dataSourcePrefix,
-}: CFGIConfigProps) {
+}: TopicSelectorProps) {
   const [open, setOpen] = useState(false);
 
   const handleItemSelect = (newVal: string) => {

@@ -2,6 +2,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { nanoid } from "nanoid";
 import { Button } from "../ui/button";
 import ConditionRow from "./condition-row";
+import { useCallback } from "react";
 
 export const MAX_DEPTH = 3;
 
@@ -57,41 +58,47 @@ const SignalConditionGroup = ({
   onRemove,
 }: NavConditionGroupProps) => {
   // Toggle between and/or
-  const handleGroupOperandChange = () => {
+  const handleGroupOperandChange = useCallback(() => {
     onUpdate({ ...group, operand: group.operand === "and" ? "or" : "and" });
-  };
+  }, [group, onUpdate]);
 
   // Add a new condition at this level
-  const handleAddCondition = () => {
+  const handleAddCondition = useCallback(() => {
     onUpdate({ ...group, children: [...group.children, defaultCondition()] });
-  };
+  }, [group, onUpdate]);
 
   // Add a new group at this level (if depth < MAX_DEPTH)
-  const handleAddGroup = () => {
+  const handleAddGroup = useCallback(() => {
     if (depth < MAX_DEPTH - 1) {
       onUpdate({
         ...group,
         children: [...group.children, defaultGroup(depth + 1)],
       });
     }
-  };
+  }, [depth, group, onUpdate]);
 
   // Update a child (condition or group) by id
-  const handleUpdateChild = (id: string, updated: Condition | Group) => {
-    const next = group.children.map((c) => (c.id === id ? updated : c));
-    onUpdate({ ...group, children: next });
-  };
+  const handleUpdateChild = useCallback(
+    (id: string, updated: Condition | Group) => {
+      const next = group.children.map((c) => (c.id === id ? updated : c));
+      onUpdate({ ...group, children: next });
+    },
+    [group, onUpdate],
+  );
 
   // Remove a child (condition or group) by id
-  const handleRemoveChild = (id: string) => {
-    const next = group.children.filter((c) => c.id !== id);
-    // Always keep at least one condition in a group
-    if (next.length === 0 && depth === 0) {
-      onUpdate({ ...group, children: [defaultCondition()] });
-    } else {
-      onUpdate({ ...group, children: next });
-    }
-  };
+  const handleRemoveChild = useCallback(
+    (id: string) => {
+      const next = group.children.filter((c) => c.id !== id);
+      // Always keep at least one condition in a group
+      if (next.length === 0 && depth === 0) {
+        onUpdate({ ...group, children: [defaultCondition()] });
+      } else {
+        onUpdate({ ...group, children: next });
+      }
+    },
+    [depth, group, onUpdate],
+  );
 
   return (
     <div className="flex flex-col p-5 border border-border rounded-md bg-[#080808]">

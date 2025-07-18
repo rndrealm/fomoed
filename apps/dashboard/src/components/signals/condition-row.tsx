@@ -50,12 +50,12 @@ const ConditionRow = ({
   const suggestionsEnabled = false;
 
   const setTopicOnCond = useCallback(
-    (topic: string) => {
+    (topic: string | null) => {
       // We are adding the data source prefix, because when a smart
       // signal is processed, the topics in the system are prefixed
       // with the data source prefix
 
-      const topicWithPrefix = dataSourcePrefix + ":" + topic;
+      const topicWithPrefix = dataSourcePrefix + "-" + topic;
       onChange({ ...condition, topic: topicWithPrefix });
     },
     [condition, onChange, dataSourcePrefix],
@@ -81,7 +81,7 @@ const ConditionRow = ({
       {condition.dataSourceId ? (
         (TopicSelector && (
           <TopicSelector
-            selectedTopic={condition.topic?.replace(/.*:/, "") || null}
+            selectedTopic={condition.topic?.replace(/.*-/, "") || null}
             onChange={setTopicOnCond}
             dataSourcePrefix={condition.dataSourceId}
           />

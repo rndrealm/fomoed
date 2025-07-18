@@ -10,9 +10,7 @@ export default function YoutubeChannelSearchPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center p-8 max-w-64 mx-auto">
-      <YoutubeChannelSearchDialog
-        onChannelIdPick={(v) => setSelectedChannelId(v)}
-      />
+      <YoutubeChannelSearchDialog onChange={(v) => setSelectedChannelId(v)} />
     </div>
   );
 }

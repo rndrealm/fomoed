@@ -94,6 +94,8 @@ const SignalBuilder = ({}) => {
         description: `Your smart signal "${signalPrompt}" from fomoed.io has been triggered`,
       });
 
+    console.log({ logic });
+
     const data: CreateSignalDTO = {
       name: signalPrompt,
       description: signalDescription,
@@ -103,6 +105,8 @@ const SignalBuilder = ({}) => {
       // actions?
       actions,
     };
+
+    console.log({ data });
 
     await createSignal(data);
     toast.success("Signal saved successfully");

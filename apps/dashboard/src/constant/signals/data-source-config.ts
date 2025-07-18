@@ -62,11 +62,13 @@ export const signalDataSources: SignalDataSourceGroup[] = [
   },
 ];
 
-type TopicSelectorT = React.FC<{
+export type TopicSelectorProps = {
   selectedTopic: string | null;
-  onChange: (value: string) => void;
+  onChange: (value: string | null) => void;
   dataSourcePrefix: string;
-}>;
+};
+
+type TopicSelectorT = React.FC<TopicSelectorProps>;
 
 export const topicSelectorMap: Record<
   string,
@@ -96,6 +98,12 @@ export const topicSelectorMap: Record<
     component: TopicSelectorSymbol,
   },
   price: {
+    component: TopicSelectorSymbol,
+  },
+  weighted_sentiment: {
+    component: TopicSelectorSymbol,
+  },
+  social_dominance: {
     component: TopicSelectorSymbol,
   },
 };

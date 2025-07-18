@@ -61,9 +61,11 @@ function YoutubeChannelSearchResultCard({
 }
 
 export function YoutubeChannelSearchDialog({
-  onChannelIdPick,
+  onChange,
+  selectedTopic,
 }: {
-  onChannelIdPick: (channelId: string | null) => void;
+  onChange: (channelId: string | null) => void;
+  selectedTopic?: string | null;
 }) {
   const [pickedChannel, setPickedChannel] =
     useState<PickedYoutubeChannel | null>(null);
@@ -97,14 +99,16 @@ export function YoutubeChannelSearchDialog({
     return () => clearTimeout(timeout);
   }, [search]);
 
-  useEffect(() => {
-    if (pickedChannel) {
-      console.log("Picked channel:", pickedChannel);
-      onChannelIdPick(pickedChannel.id);
-    } else {
-      onChannelIdPick(null);
-    }
-  }, [pickedChannel, onChannelIdPick]);
+  // useEffect(() => {
+  //   if (pickedChannel) {
+  //     console.log("Picked channel:", pickedChannel);
+  //     onChange(pickedChannel.id);
+  //   } else {
+  //     if (selectedTopic !== null) {
+  //       onChange(null);
+  //     }
+  //   }
+  // }, [pickedChannel, onChange, selectedTopic]);
 
   function confirmSelectedChannel() {
     if (!selectedId) {
@@ -121,7 +125,7 @@ export function YoutubeChannelSearchDialog({
         avatarUrl: selected.avatar || selected.thumbnail || "",
       });
 
-      onChannelIdPick(selectedId);
+      onChange(selectedId);
     }
   }
 

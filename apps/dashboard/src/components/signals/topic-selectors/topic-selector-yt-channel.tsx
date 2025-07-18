@@ -1,33 +1,15 @@
 import YoutubeChannelSearchDialog from "@/components/modals/signal-builder/YoutubeChannelSearchDialog";
 import { Label } from "@/components/ui/label";
-import { useEffect, useState } from "react";
+import { TopicSelectorProps } from "@/constant/signals/data-source-config";
 
-interface YouTubeChannelConfigProps {
-  selectedTopic: string | null;
-  onChange: (value: string) => void;
-}
-
-export function TopicSelectorYtChannel({
-  selectedTopic,
-  onChange,
-}: YouTubeChannelConfigProps) {
-  const [selectedChannelId, setSelectedChannelId] = useState<string | null>(
-    null,
-  );
-
-  useEffect(() => {
-    const newTopic = `youtube_streaming_${selectedChannelId}`;
-
-    if (selectedTopic !== newTopic) {
-      onChange(newTopic);
-    }
-  }, [selectedChannelId, onChange, selectedTopic]);
-
+export function TopicSelectorYtChannel({ onChange }: TopicSelectorProps) {
   return (
     <div className="w-full">
       <Label className="mb-2 text-muted-foreground">YouTube Channel</Label>
       <YoutubeChannelSearchDialog
-        onChannelIdPick={(v) => setSelectedChannelId(v)}
+        onChange={(v) => {
+          onChange(v ? v : null);
+        }}
       />
     </div>
   );
