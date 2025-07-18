@@ -97,7 +97,7 @@ export const topicSelectorMap: Record<
   santiment_rsi_7d: {
     component: TopicSelectorSymbol,
   },
-  price: {
+  ticker: {
     component: TopicSelectorSymbol,
   },
   weighted_sentiment: {
