@@ -127,3 +127,29 @@ export const getDataSourceById = (id: string): DataSource | undefined => {
   }
   return undefined;
 };
+
+function isConditionValid(condition: Condition): boolean {
+  return (
+    !!condition.dataSourceId &&
+    !!condition.topic &&
+    !!condition.operator &&
+    !!condition.value
+  );
+}
+
+export function isConditionGroupValid(group: Group): boolean {
+  if (group.children.length === 0) return false;
+
+  // Check if all children are valid conditions or groups
+  for (const child of group.children) {
+    if (child.type === "condition") {
+      if (!isConditionValid(child as Condition)) return false;
+    } else if (child.type === "group") {
+      if (!isConditionGroupValid(child as Group)) return false;
+    } else {
+      return false; // Invalid type
+    }
+  }
+
+  return true;
+}

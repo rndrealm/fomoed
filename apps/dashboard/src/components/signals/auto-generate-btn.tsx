@@ -15,7 +15,9 @@ const AutoGenerateButton: FunctionComponent<AutoGenerateButtonProps> = ({
   return (
     <Button
       variant="secondary"
-      className={clsx("px-4 py-2 font-bold text-white")}
+      className={clsx(
+        "px-4 py-2 font-bold text-white h-12 border-white/10 border",
+      )}
       onClick={onClick}
       disabled={isPending}
     >

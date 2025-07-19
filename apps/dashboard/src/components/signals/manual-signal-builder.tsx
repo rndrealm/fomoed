@@ -5,11 +5,13 @@ import SignalConditionGroup, { defaultGroup, Group } from "./condition-group";
 type ManualSignalBuilderProps = {
   initialLogic?: object | null;
   setLogic: (logic: object | null) => void;
+  onRootGroupChange?: (group: Group) => void;
 };
 
 const ManualSignalBuilder = ({
   initialLogic,
   setLogic,
+  onRootGroupChange,
 }: ManualSignalBuilderProps) => {
   // The root group state (always present)
   const [rootGroup, setRootGroup] = useState<Group>(
@@ -17,9 +19,13 @@ const ManualSignalBuilder = ({
   );
 
   // Recursively update a group or condition in the tree
-  const updateGroup = useCallback((updated: Group) => {
-    setRootGroup(updated);
-  }, []);
+  const updateGroup = useCallback(
+    (updated: Group) => {
+      setRootGroup(updated);
+      onRootGroupChange?.(updated);
+    },
+    [onRootGroupChange],
+  );
 
   useEffect(() => {
     const logic = toJsonLogic(rootGroup);

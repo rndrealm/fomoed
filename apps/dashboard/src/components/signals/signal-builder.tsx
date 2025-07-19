@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 
-import { LoaderCircle } from "lucide-react";
+import { Check, LoaderCircle, SaveIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 // import AISignalBuilder from "./AISignalBuilder";
@@ -25,6 +25,8 @@ import { ModalContainer } from "../shared";
 import { Upgrade } from "../modals";
 import SignalTitle from "./signal-title";
 import AutoGenerateButton from "./auto-generate-btn";
+import { Group } from "./condition-group";
+import { isConditionGroupValid } from "@/lib/utils/signal.utils";
 
 const SignalBuilder = ({}) => {
   const [signalPrompt, setSignalPrompt] = useState("");
@@ -133,6 +135,12 @@ const SignalBuilder = ({}) => {
     );
   }, [signalPrompt, getAiSignal]);
 
+  const [isRootGroupValid, setIsRootGroupValid] = useState(false);
+
+  function onRootGroupChange(rootGroup: Group) {
+    setIsRootGroupValid(isConditionGroupValid(rootGroup));
+  }
+
   return (
     <>
       <div className="my-6">
@@ -141,7 +149,7 @@ const SignalBuilder = ({}) => {
           Build your Smart signals
         </h2> */}
       </div>
-      <div className="space-y-6">
+      <div className="flex flex-col gap-3">
         {/* <SignalDetails
           name={signalName}
           description={signalDescription}
@@ -165,6 +173,7 @@ const SignalBuilder = ({}) => {
           key={updateCount}
           initialLogic={logic}
           setLogic={setLogic}
+          onRootGroupChange={onRootGroupChange}
         />
 
         <NotificationSettings
@@ -174,14 +183,14 @@ const SignalBuilder = ({}) => {
 
         <div className="flex justify-end gap-3">
           <Button
-            className="bg-fomoed-red text-white hover:bg-fomoed-red/80"
-            disabled={isPending}
+            className="bg-fomoed-red text-white hover:bg-fomoed-red/80 font-semibold flex w-24"
+            disabled={isPending || !isRootGroupValid}
             onClick={handleSave}
           >
-            {isPending && (
-              <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+            Save
+            {(isPending && <LoaderCircle className="animate-spin" />) || (
+              <Check className="w-4" />
             )}
-            Save Signal
           </Button>
         </div>
 
