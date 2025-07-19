@@ -246,6 +246,17 @@ export const shortenAddress = (address: string, startChars = 6, endChars = 4): s
 };
 
 /**
+ * Function to truncate text to a specified length and append ellipsis if it exceeds the limit
+ * @param text
+ * @param maxLength defaults to 100
+ * @returns
+ */
+export const truncateText = (text: string | null, maxLength: number = 100): string => {
+  if (!text || text.length <= maxLength) return text || "";
+  return text.substring(0, maxLength).trim() + "...";
+};
+
+/**
  * Swaps 'from' and 'to' slugs
  * @param slug
  * @returns

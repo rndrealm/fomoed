@@ -97,12 +97,13 @@ html {
   --background-image-gradient-plusplan-hover: linear-gradient(180deg, #00d743 -17.86%, #080808 114.16%);
 
   --color-fomoed-red: #ff3b10;
-  --text-mid: 0.9375rem;
-  --text-mid: 0.9375rem;
-  --text-ideal: 0.8125rem;
-  --text-xxs: 0.625rem;
-  --text-xxxs: 0.5rem;
-  --spacing-sm: 0.625rem;
+  --text-mid: 0.9375rem; /* 15px */
+  --text-mid: 0.9375rem; /* 15px */
+  --text-ideal: 0.8125rem; /* 13px */
+  --text-xxs: 0.625rem; /* 10px */
+  --text-xxxs: 0.5rem; /* 8px */
+  --spacing-sm: 0.625rem; /* 10px */
+  --spacing-ideal: 0.8125rem; /* 13px */
 }
 
 :root {
@@ -437,11 +438,17 @@ button:hover {
 }
 
 .app_news_content p {
-  font-size: 17px;
+  font-size: 16px;
   line-height: 135%;
   color: #e1e1e1;
-  font-weight: 400;
+  font-weight: 500;
   display: block;
+}
+
+.app_news_content div {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .app_news_content h1,
@@ -468,6 +475,31 @@ button:hover {
   font-size: 20px;
   line-height: 135%;
   color: #e1e1e1;
+}
+
+.app_news_content ul,
+ol {
+  list-style: disc;
+  list-style-position: outside;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  color: #e1e1e1;
+}
+
+.app_news_content li {
+  font-size: 16px;
+  line-height: 135%;
+  color: #e1e1e1;
+  font-weight: 500;
+  padding-left: 0;
+}
+
+.app_news_content a {
+  font-size: 16px;
+  line-height: 135%;
+  color: #9391f7;
+  font-weight: 600;
 }
 
 .app_news_content img {

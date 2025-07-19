@@ -1,5 +1,5 @@
 import api from "@/services/api";
-import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
+import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { CryptopanicPost, NewsRowInsert, NewsFeedItem } from "./types";
 import {
   fetchNewslabPosts,
@@ -8,7 +8,12 @@ import {
   fetchNewsFeed,
   fetchInfiniteNewsFeed,
   fetchSingleNewsArticle,
+  fetchSimilarNewsFeed,
+  addNewsBookmark,
+  deleteNewsBookmark,
+  checkNewsBookmark,
 } from "./actions";
+import { toast } from "sonner";
 
 export const useFetchTokenNews = () => {
   const hash = ["news"];
@@ -190,4 +195,106 @@ export const useReadSingleNewsArticle = (id: string) => {
     isSuccess,
     error,
   };
+};
+
+// This hook fetches news articles for multiple tokens and returns a randomized selection
+// It's useful for showing similar/related articles based on multiple symbols
+export const useReadSimilarNewsFeed = (tokens?: string[], limit: number = 3) => {
+  const hash = ["similar-news-feed", tokens?.sort(), limit];
+  const { data, isPending, error, isSuccess } = useQuery({
+    queryKey: hash,
+    queryFn: async () => {
+      const response = await fetchSimilarNewsFeed(tokens || [], limit);
+      return response as NewsFeedItem[];
+    },
+    enabled: !!tokens && tokens.length > 0,
+    refetchInterval: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 2,
+  });
+
+  return {
+    data: data || [],
+    isPending,
+    isSuccess,
+    error,
+  };
+};
+
+export const useCheckNewsBookmark = (newsId: string) => {
+  const hash = ["news-bookmark", newsId];
+  const { data, isPending, error, isSuccess } = useQuery({
+    queryKey: hash,
+    queryFn: async () => {
+      const response = await checkNewsBookmark(newsId);
+      return response;
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    refetchOnWindowFocus: false,
+    enabled: !!newsId,
+  });
+
+  return {
+    isBookmarked: data || false,
+    isPending,
+    isSuccess,
+    error,
+  };
+};
+
+export const useAddNewsBookmark = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (newsId: string) => {
+      const response = await addNewsBookmark(newsId);
+      return response;
+    },
+    onMutate: async (newsId) => {
+      await queryClient.cancelQueries({ queryKey: ["news-bookmark", newsId] });
+
+      const previousBookmark = queryClient.getQueryData(["news-bookmark", newsId]);
+
+      queryClient.setQueryData(["news-bookmark", newsId], true);
+
+      return { previousBookmark };
+    },
+    onError: (err, newsId, context) => {
+      queryClient.setQueryData(["news-bookmark", newsId], context?.previousBookmark);
+      toast.error("Failed to add bookmark. Please try again.");
+    },
+    onSettled: (data, error, newsId) => {
+      queryClient.invalidateQueries({ queryKey: ["news-bookmark", newsId] });
+      queryClient.invalidateQueries({ queryKey: ["news-feed"] });
+      queryClient.invalidateQueries({ queryKey: ["popular-news"] });
+    },
+  });
+};
+
+export const useDeleteNewsBookmark = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (newsId: string) => {
+      const response = await deleteNewsBookmark(newsId);
+      return response;
+    },
+    onMutate: async (newsId) => {
+      await queryClient.cancelQueries({ queryKey: ["news-bookmark", newsId] });
+
+      const previousBookmark = queryClient.getQueryData(["news-bookmark", newsId]);
+
+      queryClient.setQueryData(["news-bookmark", newsId], false);
+
+      return { previousBookmark };
+    },
+    onError: (err, newsId, context) => {
+      queryClient.setQueryData(["news-bookmark", newsId], context?.previousBookmark);
+      toast.error("Failed to remove bookmark. Please try again.");
+    },
+    onSettled: (data, error, newsId) => {
+      queryClient.invalidateQueries({ queryKey: ["news-bookmark", newsId] });
+      queryClient.invalidateQueries({ queryKey: ["news-feed"] });
+      queryClient.invalidateQueries({ queryKey: ["popular-news"] });
+    },
+  });
 };
