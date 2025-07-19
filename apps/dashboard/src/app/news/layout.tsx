@@ -1,4 +1,5 @@
 import { Navbar } from "@/components/shared";
+import { NavbarNews } from "@/components/shared/navbar-news";
 import { Fragment } from "react";
 
 export default function RootLayout({
@@ -9,7 +10,7 @@ export default function RootLayout({
   return (
     <Fragment>
       <div className="absolute inset-x-0 top-0">
-        <Navbar isNews />
+        <NavbarNews />
       </div>
       {children}
     </Fragment>
