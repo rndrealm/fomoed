@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import parse, { DOMNode, Element } from "html-react-parser";
 import { useReadSingleNewsArticle } from "@/services/queries/news";
 import { useParams } from "next/navigation";
@@ -15,23 +15,30 @@ import { useScrollPercentage } from "@/hooks/useScrollPercentage";
 import { SheetContainer } from "../shared/sheet-container";
 import BookmarkComp from "./shared/BookmarkComp";
 import InlineTokenLink from "./inline-token-link";
+import SoundIcon from "../icons/SoundIcon";
+import PlayIcon from "../icons/PlayIcon";
+import { motion } from "motion/react";
 
 const tableData = [
   {
     id: 1,
     name: "Headlines",
     slug: "headlines",
+    sectionId: "headlines-section",
+    yOffset: 200,
   },
   {
     id: 2,
     name: "Article",
     slug: "article",
+    sectionId: "article-section",
+    yOffset: 55,
   },
-  {
-    id: 3,
-    name: "Charts",
-    slug: "charts",
-  },
+  // {
+  //   id: 3,
+  //   name: "Charts",
+  //   slug: "charts",
+  // },
 ];
 
 interface IProps {
@@ -116,48 +123,151 @@ export function ImmersiveNews(props: IProps) {
     ? replaceSymbolsInContent(normalizedContent, article.symbols)
     : parse(normalizedContent);
 
+  const [currentIndex, setCurrentIndex] = useState(0);
+  useEffect(() => {
+    const handleScroll = () => {
+      const viewportCenter = window.scrollY + window.innerHeight / 2;
+
+      tableData.forEach((item, index) => {
+        const section = document.getElementById(item.sectionId);
+        if (!section) return;
+
+        const rect = section.getBoundingClientRect();
+        const top = rect.top + window.scrollY;
+        const bottom = top + section.offsetHeight;
+
+        if (viewportCenter >= top && viewportCenter <= bottom) {
+          setCurrentIndex(index);
+        }
+      });
+      // console.log(activeIndex);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <>
-      <div className="mx-7 flex gap-[6.4375rem]">
-        <div className="">
-          <TableOfContent data={tableData} active="Headlines" />
+      <div className="relative flex flex-col items-center gap-[6.4375rem]">
+        <div className="fixed top-[114px] left-[120px] flex flex-row gap-3">
+          <div className="relative top-14 flex w-4.5 flex-col gap-1">
+            <motion.div
+              animate={{ width: currentIndex === 0 ? "16px" : "9px" }}
+              className="h-[0px] w-[16px] border-[1px] border-[#FFF]"
+            ></motion.div>
+
+            {tableData.map((item, index) => {
+              if (index === 0) return null;
+              if (index === tableData.length - 1)
+                return (
+                  <div key={index} className="flex flex-col gap-[3px]">
+                    <div className="h-[0px] w-[6px] border-[1px] border-[#333333]"></div>
+                    <div className="h-[0px] w-[6px] border-[1px] border-[#333333]"></div>
+                    <div className="h-[0px] w-[6px] border-[1px] border-[#333333]"></div>
+                    <div className="h-[0px] w-[6px] border-[1px] border-[#333333]"></div>
+                  </div>
+                );
+
+              return (
+                <div key={index} className="flex flex-col gap-[3px]">
+                  <motion.div
+                    style={{ willChange: "width" }}
+                    animate={{ width: currentIndex === index ? "16px" : "9px" }}
+                    transition={{ duration: 0.5, delay: 0.125, ease: [0.4, 0.0, 0.2, 1] }}
+                    className="h-[0px] w-[16px] border-[1px] border-[#FFF]"
+                  ></motion.div>
+                  <div className="h-[0px] w-[6px] border-[1px] border-[#333333]"></div>
+                  <div className="h-[0px] w-[6px] border-[1px] border-[#333333]"></div>
+                  <div className="h-[0px] w-[6px] border-[1px] border-[#333333]"></div>
+                  <div className="h-[0px] w-[6px] border-[1px] border-[#333333]"></div>
+                </div>
+              );
+            })}
+            <motion.div
+              animate={{ width: currentIndex === tableData.length - 1 ? "16px" : "9px" }}
+              className="h-[0px] w-[16px] border-[1px] border-[#FFF]"
+            ></motion.div>
+          </div>
+          <TableOfContent data={tableData} currentIndex={currentIndex} active="Headlines" />
         </div>
 
         <div className="text-white">
           <div className="mb-4 flex max-w-[39.8125rem] items-center justify-between">
-            <button
-              type="button"
-              className="flex items-center gap-1 rounded-[40px] bg-[#1E1E1E] px-[10px] py-2"
-              onClick={() => {}}
-            >
-              <Play />
-              <Sound />
-            </button>
+            <div className="flex flex-row gap-1.5 rounded-[40px] bg-[#2A2A2A] px-3 py-2">
+              <button>
+                <PlayIcon />
+              </button>
+
+              <button>
+                <SoundIcon />
+              </button>
+            </div>
             {article ? <BookmarkComp newsId={article?.id} /> : null}
           </div>
-          <div>
-            <RemoteImage width={637} height={356} src={extractedArticle.image || ""} alt={`${article?.title} image`} />
-          </div>
-          <div className="max-w-[39.8125rem]">
-            <p className="mt-6 text-[1.75rem] leading-[1.9rem] font-semibold">{extractedArticle.title}</p>
-            <RenderIf condition={!!article?.symbols && article?.symbols.length > 0}>
-              <div className="flex items-center gap-3 mt-4">
-                <p className="text-xs text-[#A4A4A4]">Tokens mentioned in article</p>
-                <div className="flex items-center gap-2">
-                  {article?.symbols.map((symbol, i) => (
-                    <TokenPill symbol={symbol} key={i} />
-                  ))}
+
+          <div id="headlines-section">
+            <div className="relative flex h-[356px] w-[637px] items-center justify-center">
+              <RemoteImage
+                width={637}
+                height={356}
+                src={extractedArticle.image || ""}
+                alt={`${article?.title} image`}
+              />
+
+              {/* Blur */}
+              <div className="absolute inset-0 z-0 h-full w-[100%]">
+                <div className="gradient-blur">
+                  <div className="hidden"></div>
+                  <div className="hidden"></div>
+                  <div></div>
+                  <div></div>
+                  {/* <div></div> */}
+                  {/* <div></div> */}
                 </div>
               </div>
-            </RenderIf>
+
+              {/* Dark */}
+
+              <div
+                className="absolute inset-0 z-0 h-full w-full"
+                style={{
+                  background: `linear-gradient(
+                                        to bottom,
+                                        rgba(0, 0, 0, 0) 0%,
+                                        rgba(0, 0, 0, 0.125) 12.56%,
+                                        rgba(0, 0, 0, 0.325) 32.33%,
+                                        rgba(0, 0, 0, 0.5) 45.58%,
+                                        rgba(0, 0, 0, 1) 100%
+                                        )`,
+                }}
+              />
+            </div>
+
+            <div className="max-w-[39.8125rem]">
+              <p className="mt-12 text-[1.75rem] leading-[1.9rem] font-semibold">{extractedArticle.title}</p>
+              <RenderIf condition={!!article?.symbols && article?.symbols.length > 0}>
+                <div className="mt-5 flex items-center gap-3">
+                  <p className="text-xs text-[#A4A4A4]">Tokens mentioned in article</p>
+                  <div className="flex items-center gap-2">
+                    {article?.symbols.map((symbol, i) => (
+                      <TokenPill symbol={symbol} key={i} />
+                    ))}
+                  </div>
+                </div>
+              </RenderIf>
+            </div>
+            <div className="mt-6 mb-8"></div>
+
+            <p className="pb-4 text-xs text-[#A4A4A4] underline">+{newsSources.length} sources</p>
           </div>
-          <div className="mt-5 mb-8">
-            <p className="text-xs text-[#A4A4A4] underline">+{newsSources.length} sources</p>
-          </div>
-          <div className="flex items-start gap-[6.4375rem]">
-            <div className="app_news_content flex max-w-[39.8125rem] flex-col gap-4">{parsedContent}</div>
-            <div className="flex w-[25.9375rem]">
-              <RelatedArticles symbols={article?.symbols} />
+
+          <div id="article-section">
+            <div className="flex items-start gap-[6.4375rem]">
+              <div className="app_news_content flex max-w-[39.8125rem] flex-col gap-4">{parsedContent}</div>
+              <div className="flex w-[25.9375rem]">
+                <RelatedArticles symbols={article?.symbols} />
+              </div>
             </div>
           </div>
         </div>
