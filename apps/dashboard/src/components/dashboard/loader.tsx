@@ -11,7 +11,7 @@ function TabLoader() {
 
 function WidgetLoader() {
   return (
-    <div className="flex flex-col gap-3 bg-[#080808]  rounded-2xl py-3 px-6 flex-1">
+    <div className="flex flex-1 flex-col gap-3 rounded-2xl bg-[#080808] px-6 py-3">
       <div className="flex justify-between">
         <div className="flex items-center gap-3">
           <SkeletonLoader width="32" height="32" borderRadius="4" />
@@ -21,7 +21,7 @@ function WidgetLoader() {
           </div>
         </div>
 
-        <div className="flex gap-2 items-center">
+        <div className="flex items-center gap-2">
           <SkeletonLoader width="250" height="34" borderRadius="4" />
         </div>
       </div>
@@ -43,11 +43,11 @@ export function Loader() {
   return (
     <div
       className={cn(
-        "h-screen pt-[96px] px-4 pb-4 overflow-hidden bg-[#0C0C0C]",
-        !utils.isFullScreen ? "pt-[96px] px-4 pb-4" : "p-1"
+        "h-screen overflow-hidden bg-[#0C0C0C] px-4 pt-[96px] pb-4",
+        !utils.isFullScreen ? "px-4 pt-[96px] pb-4" : "p-1"
       )}
     >
-      <div className="relative flex flex-col w-full h-full gap-4">
+      <div className="relative flex h-full w-full flex-col gap-4">
         <div className="px-6">
           <div className="flex items-center gap-2">
             <SkeletonLoader width="32" height="32" borderRadius="16" />
@@ -58,7 +58,7 @@ export function Loader() {
               })}
           </div>
         </div>
-        <div className="flex-1 border border-[#333333] bg-[#0F0F0F] overflow-hidden rounded-[20px] p-5 flex flex-col gap-5">
+        <div className="flex flex-1 flex-col gap-5 overflow-hidden rounded-[20px] border border-[#333333] bg-[#0F0F0F] p-5">
           {/* <DashboardContent /> */}
           <div className="flex gap-5">
             <WidgetLoader />

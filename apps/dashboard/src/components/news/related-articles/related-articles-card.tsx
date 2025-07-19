@@ -3,6 +3,7 @@ import { NewsFeedItem } from "@/services/queries/news/types";
 import { timeAgo, truncateText } from "@/lib/utils";
 import RemoteImage from "../../widgets/shared/remote-image";
 import BookmarkComp from "../shared/BookmarkComp";
+import dashboard from "@/lib/assets/dashboard";
 
 interface ICardProps {
   article: NewsFeedItem;
@@ -29,6 +30,7 @@ export const RelatedArticleCard = (props: ICardProps) => {
         <div className="relative h-[5.6875rem] w-[5.6875rem]">
           <RemoteImage
             src={article.image_url}
+            fallback={dashboard.fallback}
             width={91}
             height={91}
             alt="News mock"

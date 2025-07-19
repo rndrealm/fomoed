@@ -17,7 +17,7 @@ const RelatedArticles = (props: IProps) => {
   const handleOpenChange = (open: boolean) => {
     setOpen(open);
   };
-  return data ? (
+  return data && data.length > 0 ? (
     <>
       <aside>
         <h1 className="text-2xl font-semibold">Related Articles</h1>
@@ -29,7 +29,7 @@ const RelatedArticles = (props: IProps) => {
         <RenderIf condition={data?.length > 3}>
           <div className="pt-1">
             <button className="bg-transparent" onClick={() => handleOpenChange(true)}>
-              <p className="font-semibold underline text-ideal">View all articles</p>
+              <p className="text-ideal font-semibold underline">View all articles</p>
             </button>
           </div>
         </RenderIf>

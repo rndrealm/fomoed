@@ -50,6 +50,7 @@ import news1 from "../../../../public/media/images/dashboard/news1.png";
 import news2 from "../../../../public/media/images/dashboard/news2.png";
 import news3 from "../../../../public/media/images/dashboard/news3.png";
 import bigNews from "../../../../public/media/images/dashboard/big-news.png";
+import fallback from "../../../../public/fallback.png";
 
 const dashboard = {
   layoutPlaceholder,
@@ -104,6 +105,7 @@ const dashboard = {
   cfgi3,
   screener,
   dex,
+  fallback,
 };
 
 export default dashboard;

@@ -12,6 +12,7 @@ import {
   addNewsBookmark,
   deleteNewsBookmark,
   checkNewsBookmark,
+  searchNews,
 } from "./actions";
 import { toast } from "sonner";
 
@@ -236,6 +237,30 @@ export const useCheckNewsBookmark = (newsId: string) => {
   return {
     isBookmarked: data || false,
     isPending,
+    isSuccess,
+    error,
+  };
+};
+
+export const useSearchNews = (searchTerm: string, page: number = 1, limit: number = 20, enabled: boolean = true) => {
+  const hash = ["search-news", searchTerm, page, limit];
+  const { data, isPending, error, isSuccess, isFetching } = useQuery({
+    queryKey: hash,
+    queryFn: async () => {
+      const response = await searchNews(searchTerm, page, limit);
+      return response;
+    },
+    enabled: enabled && searchTerm.trim().length > 3,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    refetchOnWindowFocus: false,
+    retry: 1,
+  });
+
+  return {
+    data: data?.data || [],
+    count: data?.count || 0,
+    isPending,
+    isFetching,
     isSuccess,
     error,
   };

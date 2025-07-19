@@ -250,3 +250,26 @@ export async function checkNewsBookmark(newsId: string) {
 
   return !!data;
 }
+
+export async function searchNews(searchTerm: string, page: number = 1, limit: number = 20) {
+  const supabase = createSupabaseBrowserClient();
+
+  const { from, to } = getPaginationMeta(page, limit);
+
+  const { data, error, count } = await supabase
+    .from("news")
+    .select("id, published_at, image_url, source, title, summary, symbols", { count: "exact" })
+    .or(`title.ilike.%${searchTerm}%, summary.ilike.%${searchTerm}%`)
+    .eq("metadata->>region", "en")
+    .order("published_at", { ascending: false })
+    .range(from, to)
+    .not("original_url", "ilike", "%youtube%")
+    .not("source", "eq", "BeInCrypto");
+
+  if (error) {
+    console.log("Error searching news:", error);
+    throw new Error(error.message);
+  }
+
+  return { data, count };
+}
