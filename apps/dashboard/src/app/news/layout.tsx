@@ -12,7 +12,11 @@ export default function RootLayout({
       <div className="absolute inset-x-0 top-0">
         <NavbarNews />
       </div>
-      {children}
+      <div className="bg-black pt-[64px] md:pt-[86px]">
+        <div className="relative flex h-full w-full flex-col px-6">
+          <div className="ml-11">{children}</div>
+        </div>
+      </div>
     </Fragment>
   );
 }
