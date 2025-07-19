@@ -150,7 +150,7 @@ export function ImmersiveNews(props: IProps) {
   return (
     <>
       <div className="relative flex flex-col items-center gap-[6.4375rem]">
-        <div className="fixed top-[114px] left-[120px] flex flex-row gap-3">
+        <div className="hidden 2xl:flex fixed top-[56px] 2xl:top-[114px] left:1/2 left-[350px] 2xl:left-[120px] flex-row gap-3">
           <div className="relative top-14 flex w-4.5 flex-col gap-1">
             <motion.div
               animate={{ width: currentIndex === 0 ? "16px" : "9px" }}
@@ -192,8 +192,8 @@ export function ImmersiveNews(props: IProps) {
           <TableOfContent data={tableData} currentIndex={currentIndex} active="Headlines" />
         </div>
 
-        <div className="text-white">
-          <div className="mb-4 flex max-w-[39.8125rem] items-center justify-between">
+        <div className="text-white flex flex-col justify-center max-w-[400px] sm:max-w-[500px] md:max-w-full">
+          <div className="mb-4 flex max-w-[400px] sm:max-w-[500px] md:max-w-[39.8125rem] items-center justify-between">
             <div className="flex flex-row gap-1.5 rounded-[40px] bg-[#2A2A2A] px-3 py-2">
               <button>
                 <PlayIcon />
@@ -207,8 +207,9 @@ export function ImmersiveNews(props: IProps) {
           </div>
 
           <div id="headlines-section">
-            <div className="relative flex h-[356px] w-[637px] items-center justify-center">
+            <div className="relative flex h-[356px] max-w-[400px] sm:max-w-[500px] md:max-w-[39.8125rem] w-[637px] items-center justify-center">
               <RemoteImage
+                className="max-w-[400px] sm:max-w-[500px] md:max-w-[637px] object-cover"
                 width={637}
                 height={356}
                 src={extractedArticle.image || ""}
@@ -244,7 +245,7 @@ export function ImmersiveNews(props: IProps) {
               />
             </div>
 
-            <div className="max-w-[39.8125rem]">
+            <div className="max-w-[500px] md:max-w-[39.8125rem]">
               <p className="mt-12 text-[1.75rem] leading-[1.9rem] font-semibold">{extractedArticle.title}</p>
               <RenderIf condition={!!article?.symbols && article?.symbols.length > 0}>
                 <div className="mt-5 flex items-center gap-3">
@@ -263,8 +264,8 @@ export function ImmersiveNews(props: IProps) {
           </div>
 
           <div id="article-section">
-            <div className="flex items-start gap-[6.4375rem]">
-              <div className="app_news_content flex max-w-[39.8125rem] flex-col gap-4">{parsedContent}</div>
+            <div className="flex flex-col xl:flex-row items-center xl:items-start gap-[6.4375rem]">
+              <div className="app_news_content flex max-w-[400px] sm:max-w-[500px] md:max-w-[39.8125rem] flex-col gap-4">{parsedContent}</div>
               <div className="flex w-[25.9375rem]">
                 <RelatedArticles symbols={article?.symbols} />
               </div>
