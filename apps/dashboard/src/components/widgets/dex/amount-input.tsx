@@ -9,7 +9,7 @@ interface IProps {
 const AmountInput = (props: IProps) => {
   const { inputValue, updateInputValue } = props;
   return (
-    <div className="flex items-center gap-1 jus">
+    <div className="flex items-center gap-1">
       <input
         type="text"
         placeholder="0.00"
@@ -17,7 +17,7 @@ const AmountInput = (props: IProps) => {
         onChange={(e) => {
           updateInputValue(e.target.value);
         }}
-        className="p-1 text-xl font-bold text-white outline-none placeholder:text-white"
+        className="p-1 text-xl font-bold text-white outline-none placeholder:text-white max-w-[10rem]"
       />
     </div>
   );

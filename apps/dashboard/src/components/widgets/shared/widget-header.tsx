@@ -8,6 +8,10 @@ import { chartsMap } from "@/lib/static";
 import { splitWidgetSlug } from "@/lib/utils";
 import { useAtomValue, useSetAtom } from "jotai";
 import React, { useState } from "react";
+import { motion } from "motion/react";
+import StarFilled from "@/components/icons/StarFilled";
+import { settingAtom, updateSettingAtom } from "@/lib/atoms/settingsAtom";
+import Star from "@/components/icons/Star";
 
 interface IProps {
   widget: LayoutType["widgets"][0];
@@ -20,6 +24,11 @@ const WidgetHeader = (props: IProps) => {
   const [deleteWidget, setDeleteWidget] = useState<LayoutType["widgets"][0]>();
   const deleteWidgetFromAtom = useSetAtom(deleteWidgetAtom);
 
+  const settings = useAtomValue(settingAtom);
+  const updateSettings = useSetAtom(updateSettingAtom);
+
+  const widgetSlug = splitWidgetSlug(widget.meta.i).slug;
+
   return (
     <>
       <div className="col-span-1"></div>
@@ -27,7 +36,42 @@ const WidgetHeader = (props: IProps) => {
         <Drag />
       </button>
 
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-3">
+        <button
+          className=""
+          onClick={() => {
+            const isFavorite = settings.favorite_widgets.includes(widgetSlug);
+
+            let newWidgetArray: string[] = [];
+
+            if (isFavorite) {
+              newWidgetArray = settings.favorite_widgets.filter(
+                (item) => item !== widgetSlug
+              );
+            } else {
+              newWidgetArray = [...settings.favorite_widgets, widgetSlug];
+            }
+            updateSettings({
+              ...settings,
+              favorite_widgets: newWidgetArray,
+            });
+          }}
+        >
+          {settings.favorite_widgets.includes(widgetSlug) ? (
+            <motion.div
+              initial={{ rotate: 0 }}
+              animate={{ rotate: [-30, 30, -15, 15, 0] }}
+              transition={{
+                duration: 1,
+                times: [0, 0.2, 0.4, 0.8, 1],
+              }}
+            >
+              <StarFilled />
+            </motion.div>
+          ) : (
+            <Star />
+          )}
+        </button>
         <WidgetDropdownMenu
           deleteAction={() => {
             setDeleteWidget(widget);

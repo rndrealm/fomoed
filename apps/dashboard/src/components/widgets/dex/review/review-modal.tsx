@@ -14,20 +14,20 @@ import {
   useSwitchChain,
 } from "wagmi";
 import { toast } from "sonner";
-import SuccessContent from "./success-content";
-import SummaryPriceAndEstimate from "./summary-price-and-estmate";
 
 interface IProps {
   isOpen: boolean;
   toggle: () => void;
-  completeFn: () => void;
   quoteData: DexQuoteResult;
-  chainExplorer?: string;
+  isSuccess: boolean;
+  updateSuccess: (success: boolean) => void;
+  updateHash: (hash: string) => void;
 }
 
 const ReviewModal = (props: IProps) => {
-  const { isOpen, toggle, quoteData, chainExplorer, completeFn } = props;
-  const [isSuccess, setIsSuccess] = useState(false);
+  const { isOpen, toggle, quoteData, isSuccess, updateSuccess, updateHash } =
+    props;
+
   const input = quoteData.input;
   const output = quoteData.manualRoutes[0].output;
 
@@ -39,6 +39,7 @@ const ReviewModal = (props: IProps) => {
   const chains = useChains();
   const transactionRequiredChainId = buildData?.txData.chainId;
   const isRightChain = transactionRequiredChainId === chainId;
+
   const fromChain = chains.find(
     (chain) => chain.id === transactionRequiredChainId
   );
@@ -51,7 +52,9 @@ const ReviewModal = (props: IProps) => {
   } = useSendTransaction({
     mutation: {
       onSuccess: (successData) => {
-        setIsSuccess(true);
+        updateSuccess(true);
+        updateHash(successData);
+        toggle();
       },
       onError: (err) => {
         console.error("Error sending transaction:", err);
@@ -64,11 +67,10 @@ const ReviewModal = (props: IProps) => {
     },
   });
 
-  console.log("build data:", buildData);
-
   const handleSwap = () => {
     if (!buildData) return;
-    if (!isRightChain && transactionRequiredChainId) {
+    if (!transactionRequiredChainId) return;
+    if (!isRightChain) {
       switchChain({ chainId: transactionRequiredChainId });
     } else {
       sendTransaction({
@@ -86,38 +88,26 @@ const ReviewModal = (props: IProps) => {
       {isOpen ? (
         // Dropdown content
         <motion.div
-          className="absolute top-0 left-0 w-full h-full bg-[#080808] pt-3 rounded-[15px] flex flex-col z-[10]"
+          className="absolute w-full h-full top-0 left-0 flex items-center justify-center z-[10] "
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
         >
-          <div className="flex items-center justify-between px-3 pb-3">
-            <h1 className="font-semibold text-mid">
-              {isSuccess ? "Successful" : "Swap Details"}
-            </h1>
-            <button
-              className="bg-[#1D1D1D]  rounded-full w-6 h-6 flex items-center justify-center"
-              onClick={() => {
-                toggle();
-                // setIsSuccess(false);
-                // completeFn();
-              }}
-            >
-              <Image src={dashboard.x} alt="Cancel icon" />
-            </button>
-          </div>
-          {/* If transaction is not successful */}
+          <div className="w-[98%] h-[98%] bg-[#111111] pt-8 rounded-2xl flex flex-col">
+            <div className="flex items-center justify-between px-4 pb-3">
+              <h1 className="font-semibold text-mid">
+                {isSuccess ? "Successful" : "Swap Details"}
+              </h1>
+              <button
+                className="bg-[#1D1D1D]  rounded-full w-6 h-6 flex items-center justify-center"
+                onClick={() => {
+                  toggle();
+                }}
+              >
+                <Image src={dashboard.x} alt="Cancel icon" />
+              </button>
+            </div>
 
-          {/* If transaction is successful */}
-          {isSuccess ? (
-            <SuccessContent
-              completeFn={() => {
-                setIsSuccess(false);
-                completeFn();
-              }}
-              explorerLink={`${chainExplorer}/tx/${hash}`}
-            />
-          ) : (
             <div className=" py-0 rounded-b-[16px] mt-[2px] flex flex-col justify-between gap-8 flex-1">
               <div className="px-4 ">
                 <div className="flex items-center gap-2 mb-3">
@@ -151,7 +141,7 @@ const ReviewModal = (props: IProps) => {
 
               <button
                 className={cn(
-                  "w-full h-16 text-base text-[#0C0C0C] font-semibold bg-[#FF3B10] !backdrop-opacity-10 rounded-[24px]",
+                  "w-full h-16 text-base text-[#0C0C0C] font-semibold bg-[rgba(255,255,255,0.7)] !backdrop-opacity-10 rounded-[24px] mx-0",
                   {
                     "opacity-90 cursor-not-allowed":
                       isPending || isPendingTransaction,
@@ -169,7 +159,7 @@ const ReviewModal = (props: IProps) => {
                     : `Switch Chain to ${fromChain?.name}`}
               </button>
             </div>
-          )}
+          </div>
         </motion.div>
       ) : null}
     </AnimatePresence>

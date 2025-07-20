@@ -49,9 +49,10 @@ const DetailedCfgiChart = (props: ICfgiCard) => {
   const chart_init = useCallback(
     (ctx: CanvasRenderingContext2D) => {
       const data = cfgiData.filter((d) => d.price && d.cfgi);
-
+      console.log("cfgiData", cfgiData);
       const prices_data = data.map((d) => {
-        return { x: d.date, y: Math.round(d.price) };
+        return { x: d.date, y: d.price };
+        // return { x: d.date, y: Math.round(d.price) };
       });
       const cfgi_data = data.map((c) => {
         return { x: c.date, y: c.cfgi };
@@ -137,7 +138,12 @@ const DetailedCfgiChart = (props: ICfgiCard) => {
           {
             scaleId: "priceY",
             label: "Price",
-            getText: () => (val) => "$" + commaFormatNumber(Math.round(val)),
+            getText: () => (val) => {
+              if (val < 1000) {
+                return "$" + commaFormatNumber(val);
+              }
+              return "$" + commaFormatNumber(Math.round(val));
+            },
           },
         ],
         crosshairEnableDelay: 200,
@@ -159,6 +165,8 @@ const DetailedCfgiChart = (props: ICfgiCard) => {
               source: "data",
               stepSize: 5000,
               callback: (value: number) => {
+                // return `$${Math.round(value / 1000)}k`;
+                if (value < 1000) return `$${value.toFixed(2)}`;
                 return `$${Math.round(value / 1000)}k`;
               },
             },
