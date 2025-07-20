@@ -38,7 +38,7 @@ export const AppRoutes = {
 
     newsPage: {
       name: "Immersive News",
-      path: (id: string) => `/news-v2/${id}`,
+      path: (id: string) => `/news/${id}`,
     },
   },
   pricing: {

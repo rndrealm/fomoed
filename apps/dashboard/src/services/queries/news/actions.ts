@@ -236,8 +236,7 @@ export async function checkNewsBookmark(newsId: string) {
     .from("news_bookmarks")
     .select("id")
     .eq("news_id", newsId)
-    .eq("user_id", user.id)
-    .single();
+    .eq("user_id", user.id);
 
   if (error) {
     // If no bookmark found, return false instead of throwing error
@@ -248,7 +247,7 @@ export async function checkNewsBookmark(newsId: string) {
     throw new Error(error.message);
   }
 
-  return !!data;
+  return !!data && data.length > 0;
 }
 
 export async function searchNews(searchTerm: string, page: number = 1, limit: number = 20) {
