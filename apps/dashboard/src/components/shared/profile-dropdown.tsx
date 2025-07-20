@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { ProfileIcon } from "./profile-icon";
-import { cn, getLoginUrl } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { Logout } from "../icons/icons";
 import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
 import { useRouter } from "next/navigation";
@@ -51,7 +51,7 @@ export function ProfileDropdown(props: IProps) {
     return (
       <div className="px-5 py-2">
         <Link
-          href={getLoginUrl()}
+          href={AppRoutes.auth.login.path}
           className="block w-full rounded-sm bg-white px-2 py-1 text-center text-[13px] leading-[1.35] font-medium text-[#333]"
         >
           Login

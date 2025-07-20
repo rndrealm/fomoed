@@ -18,8 +18,6 @@ const NewsContent = ({ isSearching, selectedTag }: { isSearching: boolean; selec
     error,
   } = useReadInfiniteNewsFeed(selectedTag === "All" ? undefined : selectedTag);
 
-  // console.log("newsData", newsData);
-
   const bottomContainerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const bottomEl = bottomContainerRef.current;
@@ -29,7 +27,6 @@ const NewsContent = ({ isSearching, selectedTag }: { isSearching: boolean; selec
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
-          // console.log("bottom reached");
           fetchNextPage();
         }
       },

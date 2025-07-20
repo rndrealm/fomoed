@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { useQueryState } from "nuqs";
 
-import NewsMenu from "./NewsMenu";
-import NewsPopup from "./NewsPopup";
-import NewsContent from "./NewsContent";
+import NewsMenu from "./news-menu";
+import NewsPopup from "./news-popup";
+import NewsContent from "./news-content";
 
 export function NewsSection() {
   const [selectedTag, setSelectedTag] = useQueryState("tag", { defaultValue: "All" });

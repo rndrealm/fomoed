@@ -41,6 +41,10 @@ export const AppRoutes = {
       path: (id: string) => `/news/${id}`,
     },
   },
+  signals: {
+    name: "Signals",
+    path: "/signals",
+  },
   pricing: {
     name: "Pricing",
     path: "/pricing",

@@ -1,4 +1,5 @@
 import React from "react";
+import { motion } from "motion/react";
 
 interface IProps {
   data: {
@@ -27,20 +28,62 @@ const TableOfContent = (props: IProps) => {
   };
 
   return (
-    <nav className="mt-12">
-      <ul className="flex list-none flex-col gap-[5px]">
-        {data.map((item, index) => (
-          <li
-            style={{ color: currentIndex === index ? "#FFF" : "#A4A4A4" }}
-            key={index}
-            onClick={() => handleScroll(item)}
-            className="text-ideal cursor-pointer font-semibold text-white"
-          >
-            {item.name}
-          </li>
-        ))}
-      </ul>
-    </nav>
+    <div className="sticky top-[40px] hidden gap-3 self-start lg:flex">
+      {/* <div className="left:1/2 fixed top-[56px] left-[350px] hidden flex-row gap-3 2xl:top-[114px] 2xl:left-[120px] 2xl:flex"> */}
+      <div className="relative top-14 flex w-4.5 flex-col gap-1">
+        <motion.div
+          animate={{ width: currentIndex === 0 ? "16px" : "9px" }}
+          className="h-[0px] w-[16px] border-[1px] border-[#FFF]"
+        ></motion.div>
+
+        {data.map((item, index) => {
+          if (index === 0) return null;
+          if (index === data.length - 1)
+            return (
+              <div key={index} className="flex flex-col gap-[3px]">
+                <div className="h-[0px] w-[6px] border-[1px] border-[#333333]"></div>
+                <div className="h-[0px] w-[6px] border-[1px] border-[#333333]"></div>
+                <div className="h-[0px] w-[6px] border-[1px] border-[#333333]"></div>
+                <div className="h-[0px] w-[6px] border-[1px] border-[#333333]"></div>
+              </div>
+            );
+
+          return (
+            <div key={index} className="flex flex-col gap-[3px]">
+              <motion.div
+                style={{ willChange: "width" }}
+                animate={{ width: currentIndex === index ? "16px" : "9px" }}
+                transition={{ duration: 0.5, delay: 0.125, ease: [0.4, 0.0, 0.2, 1] }}
+                className="h-[0px] w-[16px] border-[1px] border-[#FFF]"
+              ></motion.div>
+              <div className="h-[0px] w-[6px] border-[1px] border-[#333333]"></div>
+              <div className="h-[0px] w-[6px] border-[1px] border-[#333333]"></div>
+              <div className="h-[0px] w-[6px] border-[1px] border-[#333333]"></div>
+              <div className="h-[0px] w-[6px] border-[1px] border-[#333333]"></div>
+            </div>
+          );
+        })}
+        <motion.div
+          animate={{ width: currentIndex === data.length - 1 ? "16px" : "9px" }}
+          className="h-[0px] w-[16px] border-[1px] border-[#FFF]"
+        ></motion.div>
+      </div>
+
+      <nav className="mt-12">
+        <ul className="flex list-none flex-col gap-[5px]">
+          {data.map((item, index) => (
+            <li
+              style={{ color: currentIndex === index ? "#FFF" : "#A4A4A4" }}
+              key={index}
+              onClick={() => handleScroll(item)}
+              className="text-ideal cursor-pointer font-semibold text-white"
+            >
+              {item.name}
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </div>
   );
 };
 

@@ -49,6 +49,8 @@ html {
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 
+  --breakpoint-smMac: 1380px;
+  --breakpoint-mac: 1440px;
   /* Custom breakpoints - lower than sm (640px) */
   --breakpoint-xs: 480px;
   --breakpoint-2xs: 380px;

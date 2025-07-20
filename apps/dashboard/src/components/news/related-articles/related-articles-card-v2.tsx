@@ -36,7 +36,7 @@ export const RelatedArticleCardV2 = (props: ICardProps) => {
       </div>
       <div className="pt-2">
         <h3 className="text-xs text-[#A4A4A4]">{article.source || "Fomoed news"}</h3>
-        <h1 className="pb-2 text-lg font-medium">{truncateText(article.title)}</h1>
+        <h1 className="pb-2 text-base font-medium md:text-lg">{truncateText(article.title)}</h1>
         <p className="text-xs text-[#A4A4A4]">{timeAgo(article.published_at || "")}</p>
       </div>
     </Link>
