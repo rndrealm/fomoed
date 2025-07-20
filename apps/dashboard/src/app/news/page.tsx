@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import { NewsSection } from "./NewsSection";
+import { NewsSection } from "../../components/news/feed/news-section";
 
 export default async function Page() {
   return (

@@ -236,8 +236,7 @@ export async function checkNewsBookmark(newsId: string) {
     .from("news_bookmarks")
     .select("id")
     .eq("news_id", newsId)
-    .eq("user_id", user.id)
-    .single();
+    .eq("user_id", user.id);
 
   if (error) {
     // If no bookmark found, return false instead of throwing error
@@ -248,5 +247,28 @@ export async function checkNewsBookmark(newsId: string) {
     throw new Error(error.message);
   }
 
-  return !!data;
+  return !!data && data.length > 0;
+}
+
+export async function searchNews(searchTerm: string, page: number = 1, limit: number = 20) {
+  const supabase = createSupabaseBrowserClient();
+
+  const { from, to } = getPaginationMeta(page, limit);
+
+  const { data, error, count } = await supabase
+    .from("news")
+    .select("id, published_at, image_url, source, title, summary, symbols", { count: "exact" })
+    .or(`title.ilike.%${searchTerm}%, summary.ilike.%${searchTerm}%`)
+    .eq("metadata->>region", "en")
+    .order("published_at", { ascending: false })
+    .range(from, to)
+    .not("original_url", "ilike", "%youtube%")
+    .not("source", "eq", "BeInCrypto");
+
+  if (error) {
+    console.log("Error searching news:", error);
+    throw new Error(error.message);
+  }
+
+  return { data, count };
 }

@@ -149,51 +149,11 @@ export function ImmersiveNews(props: IProps) {
 
   return (
     <>
-      <div className="relative flex flex-col items-center gap-[6.4375rem]">
-        <div className="hidden 2xl:flex fixed top-[56px] 2xl:top-[114px] left:1/2 left-[350px] 2xl:left-[120px] flex-row gap-3">
-          <div className="relative top-14 flex w-4.5 flex-col gap-1">
-            <motion.div
-              animate={{ width: currentIndex === 0 ? "16px" : "9px" }}
-              className="h-[0px] w-[16px] border-[1px] border-[#FFF]"
-            ></motion.div>
+      <div className="mac:gap-[6.4375rem] relative flex justify-center gap-[2.4375rem]">
+        <TableOfContent data={tableData} currentIndex={currentIndex} active="Headlines" />
 
-            {tableData.map((item, index) => {
-              if (index === 0) return null;
-              if (index === tableData.length - 1)
-                return (
-                  <div key={index} className="flex flex-col gap-[3px]">
-                    <div className="h-[0px] w-[6px] border-[1px] border-[#333333]"></div>
-                    <div className="h-[0px] w-[6px] border-[1px] border-[#333333]"></div>
-                    <div className="h-[0px] w-[6px] border-[1px] border-[#333333]"></div>
-                    <div className="h-[0px] w-[6px] border-[1px] border-[#333333]"></div>
-                  </div>
-                );
-
-              return (
-                <div key={index} className="flex flex-col gap-[3px]">
-                  <motion.div
-                    style={{ willChange: "width" }}
-                    animate={{ width: currentIndex === index ? "16px" : "9px" }}
-                    transition={{ duration: 0.5, delay: 0.125, ease: [0.4, 0.0, 0.2, 1] }}
-                    className="h-[0px] w-[16px] border-[1px] border-[#FFF]"
-                  ></motion.div>
-                  <div className="h-[0px] w-[6px] border-[1px] border-[#333333]"></div>
-                  <div className="h-[0px] w-[6px] border-[1px] border-[#333333]"></div>
-                  <div className="h-[0px] w-[6px] border-[1px] border-[#333333]"></div>
-                  <div className="h-[0px] w-[6px] border-[1px] border-[#333333]"></div>
-                </div>
-              );
-            })}
-            <motion.div
-              animate={{ width: currentIndex === tableData.length - 1 ? "16px" : "9px" }}
-              className="h-[0px] w-[16px] border-[1px] border-[#FFF]"
-            ></motion.div>
-          </div>
-          <TableOfContent data={tableData} currentIndex={currentIndex} active="Headlines" />
-        </div>
-
-        <div className="text-white flex flex-col justify-center max-w-[400px] sm:max-w-[500px] md:max-w-full">
-          <div className="mb-4 flex max-w-[400px] sm:max-w-[500px] md:max-w-[39.8125rem] items-center justify-between">
+        <div className="flex max-w-[400px] flex-col justify-center text-white sm:max-w-[500px] md:max-w-full">
+          {/* <div className="mb-4 flex max-w-[400px] items-center justify-between sm:max-w-[500px] md:max-w-[39.8125rem]">
             <div className="flex flex-row gap-1.5 rounded-[40px] bg-[#2A2A2A] px-3 py-2">
               <button>
                 <PlayIcon />
@@ -204,12 +164,12 @@ export function ImmersiveNews(props: IProps) {
               </button>
             </div>
             {article ? <BookmarkComp newsId={article?.id} /> : null}
-          </div>
+          </div> */}
 
           <div id="headlines-section">
-            <div className="relative flex h-[356px] max-w-[400px] sm:max-w-[500px] md:max-w-[39.8125rem] w-[637px] items-center justify-center">
+            <div className="relative flex h-[356px] w-[637px] max-w-[300px] items-center justify-center sm:max-w-[500px] md:max-w-[39.8125rem]">
               <RemoteImage
-                className="max-w-[400px] sm:max-w-[500px] md:max-w-[637px] object-cover"
+                className="max-w-[300px] object-cover sm:max-w-[500px] md:max-w-[637px]"
                 width={637}
                 height={356}
                 src={extractedArticle.image || ""}
@@ -234,13 +194,13 @@ export function ImmersiveNews(props: IProps) {
                 className="absolute inset-0 z-0 h-full w-full"
                 style={{
                   background: `linear-gradient(
-                                        to bottom,
-                                        rgba(0, 0, 0, 0) 0%,
-                                        rgba(0, 0, 0, 0.125) 12.56%,
-                                        rgba(0, 0, 0, 0.325) 32.33%,
-                                        rgba(0, 0, 0, 0.5) 45.58%,
-                                        rgba(0, 0, 0, 1) 100%
-                                        )`,
+                                to bottom,
+                                rgba(0, 0, 0, 0) 0%,
+                                rgba(0, 0, 0, 0.125) 12.56%,
+                                rgba(0, 0, 0, 0.325) 32.33%,
+                                rgba(0, 0, 0, 0.5) 45.58%,
+                                rgba(0, 0, 0, 1) 100%
+                                )`,
                 }}
               />
             </div>
@@ -259,14 +219,18 @@ export function ImmersiveNews(props: IProps) {
               </RenderIf>
             </div>
             <div className="mt-6 mb-8"></div>
-
-            <p className="pb-4 text-xs text-[#A4A4A4] underline">+{newsSources.length} sources</p>
+            <div className="flex items-center gap-2 pb-4">
+              <p className="text-xs font-semibold">{article?.source}</p>
+              <p className="text-xs text-[#A4A4A4] underline">+{newsSources.length} sources</p>
+            </div>
           </div>
 
           <div id="article-section">
-            <div className="flex flex-col xl:flex-row items-center xl:items-start gap-[6.4375rem]">
-              <div className="app_news_content flex max-w-[400px] sm:max-w-[500px] md:max-w-[39.8125rem] flex-col gap-4">{parsedContent}</div>
-              <div className="flex w-[25.9375rem]">
+            <div className="mac:items-start mac:flex-row flex flex-col items-start gap-[6.4375rem]">
+              <div className="app_news_content flex max-w-[400px] flex-col gap-4 sm:max-w-[500px] md:max-w-[39.8125rem]">
+                {parsedContent}
+              </div>
+              <div className="flex max-w-[25.9375rem]">
                 <RelatedArticles symbols={article?.symbols} />
               </div>
             </div>

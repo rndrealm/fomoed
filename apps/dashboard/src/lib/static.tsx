@@ -126,14 +126,14 @@ export const layoutOptionsMap = [
   //   category: "charts",
   //   tags: ["charts", "new"],
   // },
-  // {
-  //   id: 7,
-  //   name: "Dex",
-  //   slug: "dex",
-  //   image: dashboard.dex,
-  //   category: "news",
-  //   tags: ["new"],
-  // },
+  {
+    id: 7,
+    name: "Dex",
+    slug: "dex",
+    image: dashboard.dex,
+    category: "charts",
+    tags: ["new", "charts"],
+  },
   {
     id: 112,
     name: "New Price History",

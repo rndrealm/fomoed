@@ -27,7 +27,7 @@ const BookmarkComp = ({ newsId }: BookmarkCompProps) => {
       disabled={isLoading}
       className={`rounded p-1 transition-colors disabled:opacity-50 ${isLoading ? "animate-pulse" : ""}`}
     >
-      <Bookmark fill={isBookmarked ? "#3B82F6" : "#5F5F5F"} />
+      {/* <Bookmark fill={isBookmarked ? "red" : "#5F5F5F"} /> */}
     </button>
   );
 };

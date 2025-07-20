@@ -128,9 +128,19 @@ export type ApiNewsLabPost = {
 export type NewsFeedItem = {
   id: string;
   published_at: string;
-  image_url: string | null;
+  image_url: string;
   source: string;
   title: string;
   summary: string;
   symbols: string[];
+};
+
+export type NullableNewsFeedItem = {
+  id: string;
+  published_at: string | null;
+  image_url: string | null;
+  source: string | null;
+  title: string | null;
+  summary: string | null;
+  symbols: string[] | null;
 };
