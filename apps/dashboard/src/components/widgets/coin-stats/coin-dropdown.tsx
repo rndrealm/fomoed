@@ -102,7 +102,7 @@ export default function CoinDropdown(props: IProps) {
           </div>
         </div>
 
-        <div className="flex flex-col flex-1 gap-2 overflow-auto">
+        <div className="flex flex-col flex-1 gap-2 overflow-auto scrollbar">
           {filteredCoins.map((item, index) => (
             <button
               key={index}

@@ -49,9 +49,9 @@
 			return;
 		}
 
-		const y = data.y;
-		const prices = data.prices;
-		const liq = data.liq;
+		const y = data.y_axis;
+		const prices = data.price_candlesticks;
+		const liq = data.liquidation_leverage_data;
 
 		const liq_values = liq.map((i: any) => i[2]);
 		const max_liq = Math.max(...liq_values);
@@ -232,7 +232,7 @@
 		<div class="whitespace-nowrap">{humanizedMaxLiqValue}</div>
 
 		<div
-			class="rounded flex-grow w-2"
+			class="flex-grow w-2 rounded"
 			style="background: linear-gradient(180deg, #E7E60B 0%, #63C752 22.5%, #27A77D 47%, #2F5C86 75%, #44095F 100%);"
 		></div>
 

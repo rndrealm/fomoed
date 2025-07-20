@@ -1,5 +1,9 @@
 # Fomoed Monorepo
 
+## Changelog
+
+See [CHANGELOG.md](./CHANGELOG.md)
+
 ## What's inside?
 
 This Turborepo includes the following packages/apps:
@@ -30,3 +34,17 @@ To develop all apps and packages, run the following command:
 ```
 pnpm dev
 ```
+
+## Manual Dev Env CRON job triggers
+
+Because of rate limits on the various APIs, CRON jobs, which are enabled
+in production need to be triggered manually in the dev env. Use the following URLs to trigger CRON jobs in the dev env.
+
+| Name        | URL                                             |
+| ----------- | ----------------------------------------------- |
+| Scrape news | https://dashboard-dev.fomoed.io/api/news        |
+| Scrape CFGI | https://dashboard-dev.fomoed.io/api/scrape-cfgi |
+
+# Please check [fomoed-docs](https://github.com/fomoed-dev/fomoed-docs) for project documentation
+
+- https://github.com/fomoed-dev/fomoed-docs

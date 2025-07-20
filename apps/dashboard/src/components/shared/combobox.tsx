@@ -5,21 +5,12 @@ import { Check, ChevronsUpDown } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { RenderIf } from "./render-if";
 import { Label } from "../ui/label";
+import Image from "next/image";
+import dashboard from "@/lib/assets/dashboard";
 
 interface IProps {
   options: {
@@ -55,17 +46,15 @@ export function ComboboxComp(props: IProps) {
       </RenderIf>
       <PopoverTrigger asChild className={cn("", triggerClassName)}>
         <Button variant="outline" role="combobox" aria-expanded={open}>
-          {value
-            ? options.find((option) => option.value === value)?.label
-            : emptySearch}
+          {value ? options.find((option) => option.value === value)?.label : emptySearch}
           <ChevronsUpDown className="text-[#71717a] opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full p-0">
-        <Command>
-          <CommandInput placeholder={inputPlaceholder} className="h-9" />
-          <CommandList>
-            <CommandEmpty>{emptySelect}</CommandEmpty>
+      <PopoverContent className="w-full border-none bg-[#090909] p-2">
+        <Command className="max-h-[200px] w-56 rounded-none bg-[#090909]">
+          <CommandInput placeholder={inputPlaceholder} className="h-9 bg-[#121212] text-white" />
+          <CommandList className="mt-2">
+            <CommandEmpty className="p-2 text-xs text-white">{emptySelect}</CommandEmpty>
             <CommandGroup>
               {options.map((option) => (
                 <CommandItem
@@ -75,14 +64,15 @@ export function ComboboxComp(props: IProps) {
                     setValue(currentValue === value ? "" : currentValue);
                     setOpen(false);
                   }}
+                  className="data-[selected=true]:bg-widget-background flex items-center justify-between px-4 text-white focus:text-white data-[selected=true]:text-white"
                 >
-                  {option.label}
-                  <Check
-                    className={cn(
-                      "ml-auto",
-                      value === option.value ? "opacity-100" : "opacity-0"
-                    )}
-                  />
+                  <p className="font-inter text-xs">{option.label}</p>
+                  {/* <Check className={cn("ml-auto", value === option.value ? "opacity-100" : "opacity-0")} /> */}
+                  {option.value === value ? (
+                    <div>
+                      <Image src={dashboard.checkV2} alt="Selected icon" width={12} height={12} />
+                    </div>
+                  ) : null}
                 </CommandItem>
               ))}
             </CommandGroup>

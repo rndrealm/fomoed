@@ -21,6 +21,7 @@
 	import CfgiWidgetV2 from '$lib/comps/CfgiWidget/CfgiWidgetV2.svelte';
 
 	const { base64originalUrl } = page.params;
+	console.log('base:', base64originalUrl);
 
 	const supabase: SupabaseClient = getContext('supabase');
 

@@ -1,12 +1,12 @@
 import { createSupabaseServerComponentClient } from "@/lib/utils/supabase/server-client";
-import axios from "axios";
+// import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
-import { notFound, redirect } from "next/navigation";
-import { UserGeoLocation } from "../geolocation/types";
+import { redirect } from "next/navigation";
+import { AppRoutes } from "@/lib/routes";
+// import { UserGeoLocation } from "../geolocation/types";
 
 export const getDashboardData = async () => {
-  const res: UserGeoLocation = (await axios.get("https://ipinfo.io/json")).data;
-
+  // const res: UserGeoLocation = (await axios.get("https://ipinfo.io/json")).data;
   const supabase = await createSupabaseServerComponentClient();
 
   const {
@@ -14,7 +14,7 @@ export const getDashboardData = async () => {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("login");
+    redirect(AppRoutes.auth.login.path);
   }
 
   // Try to fetch existing layouts for the user
@@ -44,7 +44,8 @@ export const getDashboardData = async () => {
         user_id,
         auto_save,
         active_tab_id,
-        favorite_widgets
+        favorite_widgets,
+        favorite_tokens
       `
     )
     .eq("user_id", user.id);
@@ -61,11 +62,10 @@ export const getDashboardData = async () => {
       auto_save: true,
       active_tab_id: null,
       favorite_widgets: [],
+      favorite_tokens: [],
     };
 
-    const { error: insertError } = await supabase
-      .from("dashboard_settings")
-      .insert(defaultSettings);
+    const { error: insertError } = await supabase.from("dashboard_settings").insert(defaultSettings);
 
     if (insertError) {
       console.log("Error creating default settings:", insertError);

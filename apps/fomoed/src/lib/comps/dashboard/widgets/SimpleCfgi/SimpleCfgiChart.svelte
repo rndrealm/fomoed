@@ -52,6 +52,8 @@
 	}
 
 	async function chart_init(data: ICoinCfgiPriceData[]) {
+		console.log('chart_init', data);
+
 		const formatted_data = data.filter((d) => d.cfgi);
 		const cfgi_data = formatted_data.map((c) => c.cfgi);
 
@@ -213,7 +215,7 @@
 		let data: ICoinCfgiPriceData[];
 
 		try {
-			data = await fetchCfgi(daysBack);
+			data = await fetchCfgi(daysBack, { allowDatapointsWithoutPrice: true });
 		} finally {
 			loading = false;
 		}

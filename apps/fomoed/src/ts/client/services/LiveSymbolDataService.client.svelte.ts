@@ -27,7 +27,7 @@ export class LiveDataService {
 	constructor() {}
 
 	async refreshData() {
-                const coins = await refresh_coinstats_coin_list();
+		const coins = await refresh_coinstats_coin_list();
 		let globalData: GlobalMarketData | null = null;
 
 		// Create a new map with updated data
@@ -38,14 +38,22 @@ export class LiveDataService {
 				continue;
 			}
 
-			updatedData.set(coin.s, {
-				symbol: coin.s,
-				name: coin.n,
-				iconUrl: coin.ic,
-				price: coin.pu,
-				change24h: coin.p24,
-				volume24h: coin.v
+			updatedData.set(coin.symbol, {
+				symbol: coin.symbol,
+				name: coin.name,
+				iconUrl: coin.icon,
+				price: coin.price,
+				change24h: coin.priceChange,
+				volume24h: coin.volume
 			});
+			// updatedData.set(coin.s, {
+			// 	symbol: coin.s,
+			// 	name: coin.n,
+			// 	iconUrl: coin.ic,
+			// 	price: coin.pu,
+			// 	change24h: coin.p24,
+			// 	volume24h: coin.v
+			// });
 		}
 
 		// Update the reactive state
@@ -56,8 +64,6 @@ export class LiveDataService {
 		try {
 			const response = await fetch('https://api.coin-stats.com/v2/markets/global');
 			const data = await response.json();
-
-			console.log({ data });
 
 			if (data) {
 				this.globalMarketData = {

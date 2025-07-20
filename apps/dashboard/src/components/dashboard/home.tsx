@@ -1,9 +1,5 @@
 "use client";
-import {
-  DashboardContent,
-  FullscreenBtn,
-  Toolbar,
-} from "@/components/dashboard";
+import { DashboardContent, FullscreenBtn, Toolbar } from "@/components/dashboard";
 import { NextStepProvider, NextStep } from "nextstepjs";
 import { loadLayoutsFromApiAtom } from "@/lib/atoms/layoutAtom";
 import { loadSettingsFromApiAtom } from "@/lib/atoms/settingsAtom";
@@ -21,6 +17,8 @@ import TourCard from "./shared/tour-card";
 import { useAtom, useSetAtom } from "jotai";
 import { setGeoLocationAtom } from "@/lib/atoms/geoLocation";
 import { useFetchUserLocation } from "@/services/queries/geolocation";
+import { KeyboardShortcuts } from "./shared/keyboard-shortcuts";
+import { useGetSupportedxchangePairs, useReadCoinList } from "@/services/queries/charts";
 
 interface IProps {
   dashboardData: IDashboardData;
@@ -32,6 +30,8 @@ export default function Home({ dashboardData }: IProps) {
   const loadUserGeoLocation = useSetAtom(setGeoLocationAtom);
 
   const { data: geoLocation } = useFetchUserLocation();
+  useReadCoinList();
+  useGetSupportedxchangePairs();
 
   // const { data: newsData } = useFetchTokenNews();
 
@@ -86,10 +86,7 @@ export default function Home({ dashboardData }: IProps) {
 
     return () => {
       document.removeEventListener("fullscreenchange", onFullscreenChange);
-      document.removeEventListener(
-        "webkitfullscreenchange",
-        onFullscreenChange
-      );
+      document.removeEventListener("webkitfullscreenchange", onFullscreenChange);
       document.removeEventListener("mozfullscreenchange", onFullscreenChange);
       document.removeEventListener("MSFullscreenChange", onFullscreenChange);
     };
@@ -106,25 +103,23 @@ export default function Home({ dashboardData }: IProps) {
         {/* <OnboardingModal isOpen={isOpen} onOpenChange={handleOpenChange} /> */}
         <div
           className={cn(
-            "h-screen pt-[66px] md:px-4 pb-4 overflow-hidden bg-[#0C0C0C]",
-            !utils.isFullScreen
-              ? "pt-[66px] md:pt-[72px] md:px-4 pb-4"
-              : "p-1 md:pt-1"
+            "h-screen overflow-hidden bg-[#0C0C0C] pt-[66px] pb-4 md:px-4"
+            // !utils.isFullScreen
+            //   ? "pt-[66px] md:pt-[72px] md:px-4 pb-4"
+            //   : "p-1 md:pt-1"
           )}
         >
-          <div className="relative flex flex-col w-full h-full gap-2">
+          <div className="relative flex h-full w-full flex-col gap-2">
             <div className="px-4 md:px-6">
               <Toolbar />
             </div>
-            <div className="flex-1 md:border border-[#333333] bg-[#0F0F0F] overflow-auto rounded-[20px] scrollbar app_dashboard_content p-2 sm:p4 md:p-0">
+            <div className="scrollbar app_dashboard_content sm:p4 flex-1 overflow-auto rounded-[20px] border-[#333333] bg-[#0F0F0F] p-2 md:border md:p-0">
               <DashboardContent />
             </div>
-            <FullscreenBtn
-              isFullscreen={utils.isFullScreen}
-              handleFullscreen={handleFullscreen}
-            />
+            <FullscreenBtn isFullscreen={utils.isFullScreen} handleFullscreen={handleFullscreen} />
           </div>
         </div>
+        <KeyboardShortcuts />
       </NextStep>
     </NextStepProvider>
   );

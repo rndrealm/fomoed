@@ -9,6 +9,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
 import { ExchangePairOption } from "@/charts/types";
+import Image from "next/image";
+import dashboard from "@/lib/assets/dashboard";
 
 interface ICoinDropdownProps {
   options: ExchangePairOption[];
@@ -22,26 +24,28 @@ const PairDropdown = (props: ICoinDropdownProps) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center justify-center h-8 gap-2 border rounded-sm cursor-pointer border-border-200 w-[10rem] bg-widget-background-300">
+        <button className="border-border-200 bg-widget-background-300 flex h-8 w-[10rem] cursor-pointer items-center justify-center gap-2 rounded-sm border">
           <div className="flex items-center gap-1">
-            <h1 className="text-[13px] font-medium text-grey-400 font-inter">
-              {value?.label}
-            </h1>
+            <h1 className="text-grey-400 font-inter text-[13px] font-medium">{value?.label}</h1>
             <ChevronDown color="white" className="w-4 h-4" />
           </div>
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56 max-h-[200px] bg-widget-background-200">
+      <DropdownMenuContent className="max-h-[200px] w-56 bg-[#090909]">
         {options.map((opt, i) => (
           <DropdownMenuCheckboxItem
-            className="text-white focus:bg-widget-background focus:text-white"
+            className="justify-between px-4 text-white focus:bg-widget-background focus:text-white"
             key={i}
-            checked={value === opt}
             onCheckedChange={() => {
               setValue(opt);
             }}
           >
-            {opt.label}
+            <p className="font-inter">{opt.label}</p>
+            {opt === value ? (
+              <div>
+                <Image src={dashboard.checkV2} alt="Selected icon" width={12} height={12} />
+              </div>
+            ) : null}
           </DropdownMenuCheckboxItem>
         ))}
       </DropdownMenuContent>

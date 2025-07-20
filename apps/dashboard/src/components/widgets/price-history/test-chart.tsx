@@ -1,5 +1,5 @@
 "use client";
-import React, { ReactNode, useEffect, useRef } from "react";
+import React, { ReactNode, useEffect, useRef, useState } from "react";
 import {
   CandlestickSeries,
   Chart,
@@ -9,15 +9,7 @@ import {
   TimeScaleApiRef,
   TimeScaleFitContentTrigger,
 } from "lightweight-charts-react-components";
-import {
-  CandlestickData,
-  ColorType,
-  Coordinate,
-  LineData,
-  LineType,
-  MouseEventParams,
-  Time,
-} from "lightweight-charts";
+import { CandlestickData, ColorType, Coordinate, LineData, LineType, MouseEventParams, Time } from "lightweight-charts";
 import { RenderIf } from "@/components/shared";
 import { useFetchBinancePriceData } from "@/services/queries/charts";
 import { formatChartTooltipDate, formatPriceSignificant } from "@/lib/utils";
@@ -48,12 +40,7 @@ function TestChart(props: IProps) {
 
   const location = useAtomValue(geoLocationAtom);
 
-  const { data = [] } = useFetchBinancePriceData(
-    `${token}USDT`,
-    period,
-    100,
-    location?.country
-  );
+  const { data = [] } = useFetchBinancePriceData(`${token}USDT`, period, 100, location?.country);
 
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
@@ -61,6 +48,7 @@ function TestChart(props: IProps) {
   const candleSeriesRef = useRef<SeriesApiRef<"Candlestick">>(null);
   const timeScaleRef = useRef<TimeScaleApiRef>(null);
   const dataRef = useRef<(LineData | CandlestickData)[]>([]);
+  const [dimension, setDimension] = useState({ width: 0, height: 0 });
 
   const visibleRangeRef = useRef<{
     from?: Time;
@@ -111,9 +99,7 @@ function TestChart(props: IProps) {
         const res = param.seriesData.get(seriesApi) as CandlestickData;
         data.time = res.time as number;
         data.value = res.close;
-        coordinate = candleSeriesRef.current
-          .api()
-          ?.priceToCoordinate(data.value);
+        coordinate = candleSeriesRef.current.api()?.priceToCoordinate(data.value);
       }
     }
 
@@ -127,10 +113,7 @@ function TestChart(props: IProps) {
     if (!coordinate) return;
 
     let shiftedCoordinate = param.point.x - toolTipWidth / 2;
-    shiftedCoordinate = Math.max(
-      0,
-      Math.min(container.clientWidth - toolTipWidth, shiftedCoordinate)
-    );
+    shiftedCoordinate = Math.max(0, Math.min(container.clientWidth - toolTipWidth, shiftedCoordinate));
 
     const coordinateY =
       coordinate - toolTipHeight - toolTipMargin > 0
@@ -151,13 +134,9 @@ function TestChart(props: IProps) {
     let ws: WebSocket;
 
     if (location?.country === "US") {
-      ws = new WebSocket(
-        `wss://stream.binance.us:9443/ws/${token.toLowerCase()}usdt@kline_${period}`
-      );
+      ws = new WebSocket(`wss://stream.binance.us:9443/ws/${token.toLowerCase()}usdt@kline_${period}`);
     } else {
-      ws = new WebSocket(
-        `wss://stream.binance.com:9443/ws/${token.toLowerCase()}usdt@kline_${period}`
-      );
+      ws = new WebSocket(`wss://stream.binance.com:9443/ws/${token.toLowerCase()}usdt@kline_${period}`);
     }
 
     ws.onmessage = (event) => {
@@ -191,6 +170,20 @@ function TestChart(props: IProps) {
     };
   }, [token, period, data, isCandleStick, location?.country]);
 
+  useEffect(() => {
+    if (!chartContainerRef.current) return;
+    const observer = new ResizeObserver(() => {
+      if (chartContainerRef.current) {
+        const width = chartContainerRef.current.clientWidth;
+        const height = chartContainerRef.current.clientHeight;
+
+        setDimension({ width, height });
+      }
+    });
+
+    observer.observe(chartContainerRef.current);
+  }, []);
+
   // useEffect(() => {
   //   if (!data?.length) return;
 
@@ -210,7 +203,7 @@ function TestChart(props: IProps) {
     <div
       ref={chartContainerRef}
       style={{ width: "100%", height: "100%" }}
-      className="app_line_chart_component flex-1 relative"
+      className="app_line_chart_component relative flex flex-1"
     >
       <Chart
         options={{
@@ -219,6 +212,7 @@ function TestChart(props: IProps) {
             attributionLogo: false,
             textColor: "#C3C3C3",
           },
+
           grid: {
             horzLines: {
               visible: false,
@@ -228,13 +222,19 @@ function TestChart(props: IProps) {
             },
           },
           rightPriceScale: {
-            visible: isCandleStick,
+            // visible: isCandleStick,
+            visible: false,
           },
-          autoSize: true,
+          autoSize: !true,
+          width: dimension.width,
+          height: dimension.height,
         }}
         containerProps={{
           style: {
-            height: "100%",
+            flexGrow: 1,
+
+            // background: "yellow",
+            // height: "100%",
           },
         }}
         onCrosshairMove={onCrosshairMove}
@@ -252,7 +252,7 @@ function TestChart(props: IProps) {
         </RenderIf>
 
         <RenderIf condition={isCandleStick}>
-          <CandlestickSeries ref={candleSeriesRef} data={data as any} />
+          <CandlestickSeries ref={candleSeriesRef} data={data as any} reactive />
         </RenderIf>
         <TimeScale
           ref={timeScaleRef}
@@ -323,7 +323,7 @@ function TestChart(props: IProps) {
       </Chart>
       <div
         ref={tooltipRef}
-        className="absolute w-[240px] h-[24px] top-0 left-0 z-[9] overflow-visible whitespace-nowrap pointer-events-none"
+        className="pointer-events-none absolute top-0 left-0 z-[9] h-[24px] w-[240px] overflow-visible whitespace-nowrap"
       ></div>
     </div>
 

@@ -96,7 +96,7 @@ export default function PriceTokenDropdown(props: IProps) {
           </div>
         </div>
 
-        <div className="flex flex-col gap-2 flex-1 overflow-auto">
+        <div className="flex flex-col gap-2 flex-1 overflow-auto scrollbar">
           {filteredCoins.map((item, index) => (
             <button
               key={index}

@@ -21,6 +21,7 @@
 	import { supabaseStore } from '$ts/client/utils/supabase.svelte';
 	import { Toaster } from 'svelte-5-french-toast';
 	import { coinstats_coin_list } from '$lib/stores/index.js';
+	import { PUBLIC_DASHBOARD_URL } from '$env/static/public';
 
 	// const supabase = getContext<SupabaseClient>('supabase');
 
@@ -29,12 +30,12 @@
 	export let data;
 	$: ({ session, supabase, user } = data);
 
-        async function getCoins() {
-		 coinstats_coin_list.set((await refresh_coinstats_coin_list()));
-        }
+	async function getCoins() {
+		coinstats_coin_list.set(await refresh_coinstats_coin_list());
+	}
 
 	onMount(() => {
-                getCoins();
+		getCoins();
 		fetch_global_data();
 
 		const { data } = supabase.auth.onAuthStateChange((event, newSession) => {
@@ -90,8 +91,6 @@
 	$: ((supabase) => browser && setContext('supabase', supabase))(supabase);
 
 	$: supabaseStore.set(supabase);
-
-	$: console.log('display logout popup:', $displayLogoutPopup);
 </script>
 
 <MetaTags
@@ -146,7 +145,7 @@ sentiment analysis"
 	<SignOutPopup
 		on:sign-out={async () => {
 			await signOut(supabase);
-			goto('/auth');
+			goto(PUBLIC_DASHBOARD_URL + '/auth/login');
 		}}
 		on:cancel={() => displayLogoutPopup.set(false)}
 	/>

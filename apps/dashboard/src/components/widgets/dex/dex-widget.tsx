@@ -1,11 +1,7 @@
 "use client";
 import dashboard from "@/lib/assets/dashboard";
 import Image from "next/image";
-import {
-  useFetchSupportedChains,
-  useGetQuote,
-  useTokenBalanceRead,
-} from "@/services/queries/dex";
+import { useFetchSupportedChains, useGetQuote, useTokenBalanceRead } from "@/services/queries/dex";
 import { useEffect, useState } from "react";
 import { ChainType, SingleTokenType } from "@/services/queries/dex/types";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
@@ -91,9 +87,7 @@ const DexWidget = (props: IProps) => {
     value: SingleTokenType | ChainType | null
   ) => {
     if (type === "from" && slug === "token" && value && "balance" in value) {
-      setLocalBalance(
-        parseFloat(removeDecimal(value.balance, value.decimals)).toFixed(3)
-      );
+      setLocalBalance(parseFloat(removeDecimal(value.balance, value.decimals)).toFixed(3));
     }
     setSwapData((prevData) => ({
       ...prevData,
@@ -134,9 +128,7 @@ const DexWidget = (props: IProps) => {
   );
 
   const parsedBalance = tokenBalance
-    ? parseFloat(
-        removeDecimal(tokenBalance.balance, tokenBalance.decimals)
-      ).toFixed(3)
+    ? parseFloat(removeDecimal(tokenBalance.balance, tokenBalance.decimals)).toFixed(3)
     : "0.00";
 
   const { data, isLoading, isSuccess, isError } = useGetQuote({
@@ -146,10 +138,7 @@ const DexWidget = (props: IProps) => {
     destinationChainId: currentNetwork?.chainId.toString(),
     inputToken: swapData.from.token?.address,
     outputToken: swapData.to.token?.address,
-    inputAmount: appendDecimal(
-      debouncedInputValue,
-      swapData.from.token?.decimals
-    ),
+    inputAmount: appendDecimal(debouncedInputValue, swapData.from.token?.decimals),
     slippage: debouncedSlippage.toString(),
   });
 
@@ -162,17 +151,12 @@ const DexWidget = (props: IProps) => {
 
   const setMax = () => {
     if (!swapData.from.token || !tokenBalance) return;
-    const maxAmount = parseFloat(
-      removeDecimal(tokenBalance.balance, swapData.from.token.decimals)
-    ).toFixed(5);
+    const maxAmount = parseFloat(removeDecimal(tokenBalance.balance, swapData.from.token.decimals)).toFixed(5);
     setInputValue(maxAmount);
   };
 
   const toValue = data
-    ? removeDecimal(
-        data.manualRoutes[0]?.output.amount,
-        data.manualRoutes[0]?.output.token.decimals
-      )
+    ? removeDecimal(data.manualRoutes[0]?.output.amount, data.manualRoutes[0]?.output.token.decimals)
     : "0.0";
 
   return (
@@ -183,7 +167,7 @@ const DexWidget = (props: IProps) => {
       headerClassName="px-4"
       titleIcon="exchange"
     >
-      <div className="text-white  rounded-2xl pt-1 px-1 font-inter font-semibold bg-[#000] h-full  flex flex-col">
+      <div className="font-inter flex h-full flex-col rounded-2xl bg-[#000] px-1 pt-1 font-semibold text-white">
         {data && data.manualRoutes && data.manualRoutes.length > 0 ? (
           <ReviewModal
             isOpen={isReviewModalOpen}
@@ -208,15 +192,12 @@ const DexWidget = (props: IProps) => {
         {/* <DexHeader /> */}
 
         {isSuccessState ? (
-          <SuccessContent
-            completeFn={completeFn}
-            explorerLink={`${currentNetwork?.explorers[0]}/tx/${hash}`}
-          />
+          <SuccessContent completeFn={completeFn} explorerLink={`${currentNetwork?.explorers[0]}/tx/${hash}`} />
         ) : (
           <>
-            <div className="flex items-center justify-between px-3 mb-2">
+            <div className="mb-2 flex items-center justify-between px-3">
               {isConnected ? (
-                <div className="flex items-center justify-between ">
+                <div className="flex items-center justify-between">
                   <ConnectButton />
                 </div>
               ) : (
@@ -231,28 +212,22 @@ const DexWidget = (props: IProps) => {
               height={20}
             />
           </button> */}
-                <SettingsDropdown
-                  slippage={slippage}
-                  updateSlippage={updateSlippage}
-                />
+                <SettingsDropdown slippage={slippage} updateSlippage={updateSlippage} />
               </div>
             </div>
 
             {/* Main */}
-            <div className="flex flex-col justify-between flex-1">
+            <div className="flex flex-1 flex-col justify-between">
               {/* Transfer section */}
               <div className="flex flex-col gap-1">
                 {/* From */}
-                <div className="bg-[#111111] rounded-[10px] p-3 ">
-                  <div className="flex items-center justify-between text-xs font-medium text-[#878787] mb-1">
+                <div className="rounded-[10px] bg-[#111111] p-3">
+                  <div className="mb-1 flex items-center justify-between text-xs font-medium text-[#878787]">
                     <p className="select-none">You Send:</p>
                     <p className="">Available: {parsedBalance}</p>
                   </div>
-                  <div className="flex items-center justify-between ">
-                    <AmountInput
-                      inputValue={formatNumber(inputValue)}
-                      updateInputValue={(val) => setInputValue(val)}
-                    />
+                  <div className="flex items-center justify-between">
+                    <AmountInput inputValue={formatNumber(inputValue)} updateInputValue={(val) => setInputValue(val)} />
                     {currentNetwork ? (
                       <TokenSelect
                         tokenData={swapData.from}
@@ -264,18 +239,18 @@ const DexWidget = (props: IProps) => {
                         key={currentNetwork?.chainId}
                       />
                     ) : (
-                      <div className="w-[6.875rem] rounded-full h-7 animate-pulse bg-[#242323] " />
+                      <div className="h-7 w-[6.875rem] animate-pulse rounded-full bg-[#242323]" />
                     )}
                   </div>
-                  <div className="flex items-center justify-between mt-1">
+                  <div className="mt-1 flex items-center justify-between">
                     <div>
-                      <p className="font-medium text-xs text-[#878787]">
+                      <p className="text-xs font-medium text-[#878787]">
                         = ${data?.input.priceInUsd.toFixed(4) || "0.0"}
                       </p>
                     </div>
                     <div>
                       <button
-                        className="flex items-center justify-center h-6 font-medium text-xs bg-[#0D0D0D] rounded-[8px] px-[0.375rem] select-none"
+                        className="flex h-6 items-center justify-center rounded-[8px] bg-[#0D0D0D] px-[0.375rem] text-xs font-medium select-none"
                         onClick={setMax}
                       >
                         Use Max
@@ -283,19 +258,19 @@ const DexWidget = (props: IProps) => {
                     </div>
                   </div>
                 </div>
-                <div className="flex z-[9] items-center justify-center -my-3 ">
-                  <div className="w-5 h-5 flex items-center justify-center rounded-[6px] bg-[#111111] border border-[#252525] ">
-                    <ChevronDown className="text-[#5F5F5F] w-3" />
+                <div className="z-[9] -my-3 flex items-center justify-center">
+                  <div className="flex h-5 w-5 items-center justify-center rounded-[6px] border border-[#252525] bg-[#111111]">
+                    <ChevronDown className="w-3 text-[#5F5F5F]" />
                   </div>
                 </div>
 
                 {/* To */}
-                <div className="bg-[#111111] rounded-[10px] p-3 ">
-                  <div className="flex items-center justify-between text-xs font-medium text-[#878787] mb-1">
+                <div className="rounded-[10px] bg-[#111111] p-3">
+                  <div className="mb-1 flex items-center justify-between text-xs font-medium text-[#878787]">
                     <p className="">You Receive:</p>
                     <p className="">Choose Asset</p>
                   </div>
-                  <div className="flex items-center justify-between ">
+                  <div className="flex items-center justify-between">
                     <p className="text-xl font-bold">
                       <NumberFlow
                         value={parseFloat(toValue)}
@@ -304,7 +279,7 @@ const DexWidget = (props: IProps) => {
                           maximumFractionDigits: 4,
                         }} // Intl.NumberFormat options
                         locales="en-US" // Intl.NumberFormat locales
-                        className="text-2xl font-geist-medium text-grey-300"
+                        className="font-geist-medium text-grey-300 text-2xl"
                       />
                     </p>
                     {currentNetwork ? (
@@ -318,7 +293,7 @@ const DexWidget = (props: IProps) => {
                         key={currentNetwork?.chainId}
                       />
                     ) : (
-                      <div className="w-[6.875rem] rounded-full h-7 animate-pulse bg-[#242323] " />
+                      <div className="h-7 w-[6.875rem] animate-pulse rounded-full bg-[#242323]" />
                     )}
                   </div>
                 </div>
@@ -326,11 +301,11 @@ const DexWidget = (props: IProps) => {
 
               <div className="flex flex-col justify-between select-none">
                 {/* Connect button */}
-                <div className="px-0 mt-6">
+                <div className="mt-6 px-0">
                   {/* If wallet has not been conncted */}
                   {!isConnected ? (
                     <button
-                      className="w-full h-16 text-base text-[#0C0C0C] font-semibold bg-white !backdrop-opacity-10 rounded-[24px]"
+                      className="h-16 w-full rounded-[24px] bg-white text-base font-semibold text-[#0C0C0C] !backdrop-opacity-10"
                       onClick={openConnectModal}
                     >
                       Connect Wallet
@@ -338,15 +313,12 @@ const DexWidget = (props: IProps) => {
                   ) : null}
                   {/* Wallet has been connected but quote is being fetched */}
                   {isConnected && isLoading ? (
-                    <button className="w-full h-16 text-base text-white font-semibold bg-[#111111] !backdrop-opacity-10 rounded-[24px]">
+                    <button className="h-16 w-full rounded-[24px] bg-[#111111] text-base font-semibold text-white !backdrop-opacity-10">
                       Fetching best routes...
                     </button>
                   ) : null}
                   {/* Wallet has been connected and quote has been fetched successfully */}
-                  {isConnected &&
-                  isSuccess &&
-                  data?.manualRoutes &&
-                  data?.manualRoutes.length > 0 ? (
+                  {isConnected && isSuccess && data?.manualRoutes && data?.manualRoutes.length > 0 ? (
                     <InsufficientChecker
                       toggleReviewModal={toggleReviewModal}
                       fromSymbol={data?.input?.token?.symbol}
@@ -357,16 +329,15 @@ const DexWidget = (props: IProps) => {
                   ) : null}
 
                   {/* Wallet has been connected but there is an error or no quote found */}
-                  {(isConnected && isError) ||
-                  (isConnected && data?.manualRoutes.length === 0) ? (
-                    <button className="w-full h-16 text-base text-[#0C0C0C] font-semibold bg-white !backdrop-opacity-10 rounded-[24px]">
+                  {(isConnected && isError) || (isConnected && data?.manualRoutes.length === 0) ? (
+                    <button className="h-16 w-full rounded-[24px] bg-white text-base font-semibold text-[#0C0C0C] !backdrop-opacity-10">
                       No Quote Found
                     </button>
                   ) : null}
 
                   {/* Wallet has been connected, no error, no loading, but no success (rest state) */}
                   {isConnected && !isError && !isLoading && !isSuccess ? (
-                    <button className="w-full h-16 text-base text-[#0C0C0C] font-semibold bg-white !backdrop-opacity-10 rounded-[24px]">
+                    <button className="h-16 w-full rounded-[24px] bg-white text-base font-semibold text-[#0C0C0C] !backdrop-opacity-10">
                       Swap
                     </button>
                   ) : null}

@@ -8,12 +8,14 @@ import orderBook from "../../../../public/media/images/dashboard/order-book.png"
 import bitcoinDominance from "../../../../public/media/images/dashboard/bitcoin-dominance.png";
 import coinStats from "../../../../public/media/images/dashboard/coin-stats.png";
 import summary from "../../../../public/media/images/dashboard/summary.png";
+import cfgi3 from "../../../../public/media/images/dashboard/cfgi3.png";
 import cfgi2 from "../../../../public/media/images/dashboard/cfgi2.png";
 import simpleCfgi from "../../../../public/media/images/dashboard/simple-cfgi.png";
 import liq from "../../../../public/media/images/dashboard/liq.png";
 import liq2 from "../../../../public/media/images/dashboard/liq2.png";
 import liqHeat from "../../../../public/media/images/dashboard/liq-heat.png";
 import exLiq from "../../../../public/media/images/dashboard/ex-liq.png";
+import footprint from "../../../../public/media/images/dashboard/footprint.png";
 import premiumLogo from "../../../../public/media/images/dashboard/premium-logo.png";
 import news from "../../../../public/media/images/dashboard/news.png";
 import cryptopanic from "../../../../public/media/images/dashboard/cryptopanic.svg";
@@ -43,6 +45,10 @@ import plus from "../../../../public/media/images/dashboard/plus.svg";
 import disconnect from "../../../../public/media/images/dashboard/disconnect.svg";
 import info from "../../../../public/media/images/dashboard/info.svg";
 import star from "../../../../public/media/images/dashboard/star.svg";
+import news1 from "../../../../public/media/images/dashboard/news1.png";
+import news2 from "../../../../public/media/images/dashboard/news2.png";
+import news3 from "../../../../public/media/images/dashboard/news3.png";
+import bigNews from "../../../../public/media/images/dashboard/big-news.png";
 
 const dashboard = {
   layoutPlaceholder,
@@ -82,6 +88,7 @@ const dashboard = {
   bitcoinDominance,
   coinStats,
   summary,
+  cfgi3,
   settingsV2,
   settingsV3,
   plus,
@@ -90,6 +97,11 @@ const dashboard = {
   info,
   logoMobile,
   star,
+  news1,
+  news2,
+  news3,
+  bigNews,
+  footprint,
 };
 
 export default dashboard;

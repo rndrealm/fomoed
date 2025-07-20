@@ -124,6 +124,8 @@ export class CignalsChartLiveDataProvider {
 
   constructor(options: LiveDataProviderOptions) {
     this.#options = options;
+
+    console.debug("CignalsChartLiveDataProvider initialized with options:", this.#options);
   }
 
   connectWs() {
@@ -138,7 +140,13 @@ export class CignalsChartLiveDataProvider {
 
     console.info("Connecting to Cignals' WebSocket...");
 
-    const wsUrl = process.env.NEXT_PUBLIC_CIGNALS_WS_URL!;
+    const wsUrl = process.env.NEXT_PUBLIC_CIGNALS_WS_URL;
+
+    if (!wsUrl) {
+      console.error("Cignals NEXT_PUBLIC_CIGNALS_WS_URL missing!");
+      this.#options.onSocketDisconnected?.();
+      return;
+    }
 
     this.#enableReconnect = true;
     this.#options.onSocketConnecting?.();

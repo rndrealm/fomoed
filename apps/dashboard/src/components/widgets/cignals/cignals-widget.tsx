@@ -16,9 +16,9 @@ interface IProps {
 const CignalsWidget = (props: IProps) => {
   const { widget } = props;
   return (
-    <div className="bg-[#080808] border border-[#1b1b1b] rounded-2xl px-6 py-3 flex flex-col gap-4 h-full">
-      <div className="flex flex-col items-center justify-center w-full h-full">
-        <div className="grid items-center w-full grid-cols-3">
+    <div className="flex h-full flex-col gap-4 rounded-2xl border border-[#1b1b1b] bg-[#090909] px-6 py-3">
+      <div className="flex h-full w-full flex-col items-center justify-center">
+        <div className="grid w-full grid-cols-3 items-center">
           <WidgetHeader widget={widget} />
         </div>
         <CignalsChartComp widget={widget} />

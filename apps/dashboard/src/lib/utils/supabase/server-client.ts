@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 import { Database } from "@/lib/database/supabase";
+import { supabaseCookieOpts } from "./cookie-options";
 
 // server component can only get cookies and not set them, hence the "component" check
 export async function createSupabaseServerClient(component: boolean = false) {
@@ -19,20 +20,17 @@ export async function createSupabaseServerClient(component: boolean = false) {
         },
         setAll(cookiesToSet) {
           if (component) return;
-          cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options)
-          );
+          cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
         },
       },
+      cookieOptions: supabaseCookieOpts,
+      cookieEncoding: "raw",
     }
   );
 }
 // server component can only get cookies and not set them, hence the "component" check
 export async function createSupabaseServerWithAnonKey() {
-  return createClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.PRIVATE_SUPABASE_SECRET!
-  );
+  return createClient<Database>(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.PRIVATE_SUPABASE_SECRET!);
 }
 
 export async function createSupabaseServerComponentClient() {
@@ -41,10 +39,7 @@ export async function createSupabaseServerComponentClient() {
   return createSupabaseServerClient(true);
 }
 
-export async function createSupabaseReqResClient(
-  req: NextRequest,
-  res: NextResponse
-) {
+export async function createSupabaseReqResClient(req: NextRequest, res: NextResponse) {
   const cookieStore = await cookies();
   cookieStore.getAll();
 
@@ -57,11 +52,11 @@ export async function createSupabaseReqResClient(
           return req.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            res.cookies.set(name, value, options)
-          );
+          cookiesToSet.forEach(({ name, value, options }) => res.cookies.set(name, value, options));
         },
       },
+      cookieOptions: supabaseCookieOpts,
+      cookieEncoding: "raw",
     }
   );
 }

@@ -8,6 +8,7 @@ export default async function Page() {
   return (
     <Suspense fallback={<p>Error</p>}>
       <Home dashboardData={dashboardData} />
+      {/* <div /> */}
     </Suspense>
   );
 }

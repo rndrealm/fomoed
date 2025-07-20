@@ -1,18 +1,33 @@
-import DexProvider from "@/components/providers/DexProvider";
-import DexWidget from "@/components/widgets/dex/dex-widget";
+import SimpleCfgiWidget from "@/components/widgets/cfgi/simple-cfgi/simple-cfgi-widget";
 import React from "react";
-import "@rainbow-me/rainbowkit/styles.css";
 
-const Page = () => {
+const widgetData = {
+  id: "9d7cdcef-b5e1-4b55-bd15-1edc26e68df0",
+  meta: {
+    h: 2,
+    i: "9d7cdcef-b5e1-4b55-bd15-1edc26e68df0@/$simple-cfgi",
+    w: 4,
+    x: 4,
+    y: 0,
+  },
+  props: {
+    meta: {
+      h: 2,
+      w: 4,
+    },
+    token: "BTC",
+    period: 4,
+  },
+  token: null,
+  layout_id: "86a7c599-e37b-4f1a-be2e-baa2f623d86f",
+};
+
+const Test = () => {
   return (
-    <DexProvider>
-      <div className="flex items-center justify-center h-screen">
-        <div className="w-[450px] mx-auto">
-          <DexWidget />
-        </div>
-      </div>
-    </DexProvider>
+    <div className="h-[500px] w-[500px]">
+      <SimpleCfgiWidget widget={widgetData} />
+    </div>
   );
 };
 
-export default Page;
+export default Test;

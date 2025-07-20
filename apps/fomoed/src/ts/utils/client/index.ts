@@ -15,16 +15,16 @@ export function humanizeNumber(num: number) {
 }
 
 export type ForeignInstrument = {
-	instrumentId: string;
-	baseAsset: string;
-	quoteAsset: string;
+	instrument_id: string;
+	base_asset: string;
+	quote_asset: string;
 };
 
 export type InstrumentInfo = ForeignInstrument & { exchange: string; symbol: string };
 export const defaultSelectedInstrument: InstrumentInfo = {
-	instrumentId: 'BTCUSD_PERP',
-	baseAsset: 'BTC',
-	quoteAsset: 'USDT',
+	instrument_id: 'BTCUSD_PERP',
+	base_asset: 'BTC',
+	quote_asset: 'USDT',
 	exchange: 'Binance',
 	symbol: 'BTCUSDT'
 };
@@ -50,11 +50,11 @@ export function supportedExchangePairsToOptions(
 			}
 
 			options.push({
-				label: exchangeName + ' ' + instrument.baseAsset + '/' + instrument.quoteAsset,
+				label: exchangeName + ' ' + instrument.base_asset + '/' + instrument.quote_asset,
 				value: {
 					...instrument,
 					exchange: exchangeName,
-					symbol: instrument.baseAsset + instrument.quoteAsset
+					symbol: instrument.base_asset + instrument.quote_asset
 				}
 			});
 		}

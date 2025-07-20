@@ -4,8 +4,6 @@ import React from "react";
 
 const cln = "text-center font-semibold text-base leading-[1.35] text-[#5c5c5c]";
 
-const _infoText = "Already on Fomoed?";
-
 interface IProps {
   href: string;
   linkText: string;
@@ -13,7 +11,7 @@ interface IProps {
 }
 
 export function FormBottomLink(props: IProps) {
-  const { href, linkText, infoText = _infoText } = props;
+  const { href, linkText, infoText } = props;
 
   return (
     <div className="flex items-center gap-[4px]">
