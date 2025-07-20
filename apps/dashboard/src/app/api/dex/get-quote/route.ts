@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { BUNGEE_API_BASE_URL } from "../static";
+import { DEX_FEE } from "@/lib/constants";
 
 //! REQUEST HANDLER FOR /api/dex/get-quote
 export async function GET(request: Request) {
@@ -25,10 +26,7 @@ export async function GET(request: Request) {
       !slippage ||
       !receiverAddress
     ) {
-      return NextResponse.json(
-        { error: "Missing required query parameters" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Missing required query parameters" }, { status: 400 });
     }
 
     const response = await fetch(
@@ -44,7 +42,7 @@ export async function GET(request: Request) {
           slippage,
           enableManual: "true",
           feeTakerAddress: "0x8eF0ffa6c26607801B87C9f386AeD41aa2cE64f4",
-          feeBps: "10",
+          feeBps: DEX_FEE.toString(),
         }),
       {
         headers: {
@@ -53,13 +51,8 @@ export async function GET(request: Request) {
       }
     );
 
-    console.log("Response from Bungee API:", response);
-
     if (response.status !== 200) {
-      return NextResponse.json(
-        { error: response.statusText },
-        { status: response.status }
-      );
+      return NextResponse.json({ error: response.statusText }, { status: response.status });
     } else {
       const resJson = await response.json();
 
@@ -68,9 +61,6 @@ export async function GET(request: Request) {
   } catch (error) {
     // Handle errors gracefully
     console.log("Error fetching chain data:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch chain data" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch chain data" }, { status: 500 });
   }
 }

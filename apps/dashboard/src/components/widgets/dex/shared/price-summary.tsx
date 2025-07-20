@@ -6,6 +6,7 @@ import RemoteImage from "../../shared/remote-image";
 import { RenderIf } from "@/components/shared";
 import ConnectButton from "../connect-button";
 import DexTooltip from "./dex-tooltip";
+import { DEX_FEE, DEX_FEE_PERCENTAGE } from "@/lib/constants";
 
 interface IProps {
   quoteData?: DexQuoteResult;
@@ -13,35 +14,29 @@ interface IProps {
 
 const PriceSummary = (props: IProps) => {
   const { quoteData } = props;
-  const isQuoteReady =
-    quoteData && quoteData.manualRoutes && quoteData.manualRoutes.length > 0;
-  const ratio = isQuoteReady
-    ? quoteData.input.priceInUsd / quoteData.manualRoutes[0].output.priceInUsd
-    : undefined;
+  const isQuoteReady = quoteData && quoteData.manualRoutes && quoteData.manualRoutes.length > 0;
+  const ratio = isQuoteReady ? quoteData.input.priceInUsd / quoteData.manualRoutes[0].output.priceInUsd : undefined;
 
   return (
     <div className="flex flex-col gap-3 px-0">
-      <div className="flex items-center justify-between font-medium ">
-        <h3 className="text-sm text-[#878787] font-medium ">Rate</h3>
+      <div className="flex items-center justify-between font-medium">
+        <h3 className="text-sm font-medium text-[#878787]">Rate</h3>
         {isQuoteReady ? (
-          <p className="text-sm text-white ">
-            1 {quoteData.input.token.symbol} = {ratio}{" "}
-            {quoteData.manualRoutes[0].output.token.symbol}
+          <p className="text-sm text-white">
+            1 {quoteData.input.token.symbol} = {ratio} {quoteData.manualRoutes[0].output.token.symbol}
           </p>
         ) : (
-          <p className="text-white text-xxs ">0.00</p>
+          <p className="text-xxs text-white">0.00</p>
         )}
       </div>
-      <div className="flex items-center justify-between font-medium ">
+      <div className="flex items-center justify-between font-medium">
         <div className="flex items-center gap-1">
-          <h3 className="text-sm text-[#878787] font-medium ">Gas Fees</h3>
+          <h3 className="text-sm font-medium text-[#878787]">Gas Fees</h3>
           <DexTooltip content="Network fee to process your transaction on the blockchain." />
         </div>
         {isQuoteReady ? (
-          <p className="text-sm text-white ">
-            <span className="text-[#878787]">
-              (${quoteData.manualRoutes[0].gasFee.feeInUsd.toFixed(4)}){" "}
-            </span>
+          <p className="text-sm text-white">
+            <span className="text-[#878787]">(${quoteData.manualRoutes[0].gasFee.feeInUsd.toFixed(4)}) </span>
             {parseFloat(
               removeDecimal(
                 quoteData.manualRoutes[0].gasFee.estimatedFee,
@@ -51,35 +46,35 @@ const PriceSummary = (props: IProps) => {
             {quoteData.manualRoutes[0].gasFee.gasToken.symbol}
           </p>
         ) : (
-          <p className="text-white text-xxs ">0.00</p>
+          <p className="text-xxs text-white">0.00</p>
         )}
       </div>
-      <div className="flex items-center justify-between font-medium ">
+      <div className="flex items-center justify-between font-medium">
         <div className="flex items-center gap-1">
-          <h3 className="text-sm text-[#878787] font-medium ">Fomoed Fees</h3>
+          <h3 className="text-sm font-medium text-[#878787]">Fomoed Fees</h3>
           <DexTooltip content="We take a 0.1% fee to keep things running." />
         </div>
         {isQuoteReady ? (
-          <p className="text-sm text-white ">
-            <span className="text-[#878787]">(0.02%) </span>
+          <p className="text-sm text-white">
+            <span className="text-[#878787]">({DEX_FEE_PERCENTAGE}%) </span>
             {(
               parseFloat(
                 removeDecimal(
                   quoteData.manualRoutes[0].gasFee.estimatedFee,
                   quoteData.manualRoutes[0].gasFee.gasToken.decimals
                 )
-              ) * 0.02
+              ) * DEX_FEE_PERCENTAGE
             ).toFixed(4)}
             {quoteData.manualRoutes[0].gasFee.gasToken.symbol}
           </p>
         ) : (
-          <p className="text-white text-xxs ">0.00</p>
+          <p className="text-xxs text-white">0.00</p>
         )}
       </div>
 
-      <div className="flex items-center justify-between ">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-1">
-          <h3 className="text-sm text-[#878787] font-medium">Route</h3>
+          <h3 className="text-sm font-medium text-[#878787]">Route</h3>
           <DexTooltip content="The path your trade takes across liquidity sources." />
         </div>
         <RenderIf condition={!!quoteData?.manualRoutes[0]?.routeDetails?.name}>
@@ -93,25 +88,21 @@ const PriceSummary = (props: IProps) => {
               />
             </div>
 
-            <p className="text-sm font-medium text-white ">
-              {quoteData?.manualRoutes[0]?.routeDetails?.name}
-            </p>
+            <p className="text-sm font-medium text-white">{quoteData?.manualRoutes[0]?.routeDetails?.name}</p>
           </div>
         </RenderIf>
       </div>
 
-      <div className="flex items-center justify-between ">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-1">
-          <h3 className="text-sm text-[#878787] font-medium">Swap Slippage</h3>
+          <h3 className="text-sm font-medium text-[#878787]">Swap Slippage</h3>
           <DexTooltip content="Price difference in DEX trade execution." />
         </div>
-        <p className="text-sm font-medium text-white ">
-          {quoteData?.manualRoutes[0]?.slippage}%
-        </p>
+        <p className="text-sm font-medium text-white">{quoteData?.manualRoutes[0]?.slippage}%</p>
       </div>
 
-      <div className="flex items-center justify-between ">
-        <p className="text-[#878787] font-medium text-sm">Wallet</p>
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-medium text-[#878787]">Wallet</p>
         <ConnectButton />
       </div>
     </div>
