@@ -135,14 +135,7 @@ export const layoutOptionsMap = [
     category: "charts",
     tags: ["new", "charts"],
   },
-  {
-    id: 6,
-    name: "Token News",
-    slug: "token-news",
-    image: dashboard.newsWidget,
-    category: "news",
-    tags: ["news", "new"],
-  },
+
   {
     id: 112,
     name: "New Price History",
@@ -242,15 +235,6 @@ export const layoutOptionsMap = [
     name: "Simplified Crypto Fear and Greed Map",
     slug: "simple-cfgi",
     image: dashboard.simple,
-    category: "charts",
-    tags: ["charts"],
-  },
-
-  {
-    id: 5,
-    name: "Exchange Liquidation Map",
-    slug: "exchange-liquidation-map",
-    image: dashboard.cfgi2,
     category: "charts",
     tags: ["charts"],
   },

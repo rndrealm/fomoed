@@ -19,7 +19,7 @@ import { Fragment, RefObject, useRef } from "react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 import { useState } from "react";
 import { ConfirmationModal, NameLayout } from "../modals";
-import { useNextStep } from "nextstepjs";
+
 import { OnboardingEndModal } from "./shared/onboarding-end-modal";
 
 export function LayoutDropdown() {
@@ -43,7 +43,7 @@ export function LayoutDropdown() {
     setIsEndOpen(open);
   };
 
-  const tour = useNextStep();
+  // const tour = useNextStep();
 
   return (
     <Fragment>
@@ -51,19 +51,16 @@ export function LayoutDropdown() {
         <DropdownMenu
           onOpenChange={(e) => {
             setIsOpen(e);
-            if (tour.currentStep === 4) {
-              tour.closeNextStep();
 
-              setTimeout(() => {
-                handleOpenChange(true);
-              }, 1000);
-            }
+            setTimeout(() => {
+              handleOpenChange(true);
+            }, 1000);
           }}
         >
           <Tooltip>
             <TooltipTrigger id="fifth-step">
               <DropdownMenuTrigger asChild>
-                <div className="flex items-center justify-center rounded-sm group">
+                <div className="group flex items-center justify-center rounded-sm">
                   <ToolbarLayout active={isOpen} />
                 </div>
               </DropdownMenuTrigger>

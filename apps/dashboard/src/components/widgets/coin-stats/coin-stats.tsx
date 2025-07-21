@@ -12,7 +12,7 @@ import { WidgetWrapper } from "../shared";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface ILinkItem {
-  icon: (props?: any) => React.JSX.Element;
+  icon: React.JSX.Element;
   label: string;
   href?: string;
 }
@@ -22,7 +22,7 @@ function LinkItem(props: ILinkItem) {
   return (
     <a target="_blank" href={href}>
       <div className="flex items-center gap-1 rounded-lg bg-[#141414] px-[6px] py-1">
-        {icon()}
+        {icon}
         {/* <p className="text-sm font-normal text-white">{label}</p> */}
       </div>
     </a>
@@ -107,9 +107,9 @@ export default function CoinStats(props: IProps) {
               <LinkItem icon={Twitter} label="X (Twitter)" />
               <LinkItem icon={Explorer} label="Explorer" /> */}
 
-              <LinkItem icon={Globe} label="" href={coinStats?.websiteUrl} />
-              <LinkItem icon={Twitter} label="" href={coinStats?.twitterUrl} />
-              <LinkItem icon={Explorer} label="" href={coinStats?.explorers?.[0]} />
+              <LinkItem icon={<Globe />} label="" href={coinStats?.websiteUrl} />
+              <LinkItem icon={<Twitter />} label="" href={coinStats?.twitterUrl} />
+              <LinkItem icon={<Explorer />} label="" href={coinStats?.explorers?.[0]} />
             </div>
           </div>
 

@@ -19,7 +19,7 @@ import { NameLayout, Upgrade } from "@/components/modals";
 import { useGetUserPlans } from "@/services/queries/subscriptions";
 import { cn, maxTabsByPlan } from "@/lib/utils";
 import { useTour } from "@reactour/tour";
-import { useNextStep } from "nextstepjs";
+
 import { quickWidgetsVisibleAtom, toggleQuickWidgetsAtom } from "@/lib/atoms/shortcuts";
 import { WidgetsPreview } from "../widgets-preview";
 
@@ -91,11 +91,7 @@ export function Toolbar() {
 
     if (currentLayout.name === "" && newLayoutName === "") {
       setShowNameModal(true);
-      if (tour.currentStep === 2) {
-        setTimeout(() => {
-          tour.setCurrentStep(tour.currentStep + 1);
-        }, 500);
-      }
+
       return;
     }
 
@@ -131,8 +127,6 @@ export function Toolbar() {
     }
   }, [isSuccess, setLayoutChange]);
 
-  const tour = useNextStep();
-
   return (
     <Fragment>
       <div className="flex items-center justify-end gap-4 md:justify-between">
@@ -145,11 +139,6 @@ export function Toolbar() {
             className="flex h-[32px] w-[102px] items-center justify-center gap-[6px] rounded-md bg-[#FF3B10] text-xs font-medium text-white"
             onClick={() => {
               setShowWidgetsModal(true);
-              if (tour.currentStep === 0) {
-                setTimeout(() => {
-                  tour.setCurrentStep(tour.currentStep + 1);
-                }, 500);
-              }
             }}
           >
             <AddWidget />
@@ -264,10 +253,6 @@ export function Toolbar() {
           handleSaveLayout();
           setNewLayoutName("");
           setShowNameModal(false);
-
-          if (tour.currentStep === 3) {
-            tour.setCurrentStep(tour.currentStep + 1);
-          }
         }}
         title="Name Layout"
         details="Create a name for your Layout?"
