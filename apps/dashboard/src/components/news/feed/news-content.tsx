@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useReadInfiniteNewsFeed } from "@/services/queries/news";
+import { useReadNewsFeedUnified } from "@/services/queries/news";
 import FeedCard from "@/components/news/feed/feed-card";
 
 const LoadingSpinner: React.FC = () => (
@@ -16,13 +16,16 @@ const NewsContent = ({ isSearching, selectedTag }: { isSearching: boolean; selec
     hasNextPage,
     isFetchingNextPage,
     error,
-  } = useReadInfiniteNewsFeed(selectedTag === "All" ? undefined : selectedTag);
+    isBookmarksTab,
+  } = useReadNewsFeedUnified(selectedTag);
 
   const bottomContainerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const bottomEl = bottomContainerRef.current;
 
-    if (!bottomEl || !hasNextPage || isFetchingNextPage || isPending || isSearching) return;
+    // Only set up intersection observer for infinite scroll (not bookmarks)
+    if (!bottomEl || !hasNextPage || isFetchingNextPage || isPending || isSearching || isBookmarksTab || !fetchNextPage)
+      return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -42,7 +45,7 @@ const NewsContent = ({ isSearching, selectedTag }: { isSearching: boolean; selec
     return () => {
       if (bottomEl) observer.unobserve(bottomEl);
     };
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage, newsData, isPending, isSearching]);
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage, newsData, isPending, isSearching, isBookmarksTab]);
 
   return (
     <div className="relative w-full">
@@ -57,17 +60,19 @@ const NewsContent = ({ isSearching, selectedTag }: { isSearching: boolean; selec
       {!isSearching && (
         <div className="flex w-full flex-col gap-5 sm:grid sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 2xl:grid-cols-4">
           {newsData?.map((newsContent, index) => {
-            return <FeedCard article={newsContent} key={index} />;
+            return <FeedCard article={newsContent as any} key={index} />;
           })}
         </div>
       )}
 
-      {/* BottomContainer */}
-      <div
-        style={{ display: isPending ? "none" : "block" }}
-        ref={bottomContainerRef}
-        className="absolute bottom-0 left-0 h-10 w-full bg-transparent"
-      ></div>
+      {/* BottomContainer - only show for infinite scroll */}
+      {!isBookmarksTab && (
+        <div
+          style={{ display: isPending ? "none" : "block" }}
+          ref={bottomContainerRef}
+          className="absolute bottom-0 left-0 h-10 w-full bg-transparent"
+        ></div>
+      )}
     </div>
   );
 };

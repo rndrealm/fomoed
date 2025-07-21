@@ -5,6 +5,10 @@ export const AppRoutes = {
     login: {
       name: "Login",
       path: "/auth/login",
+      withNext: (nextUrl?: string) => {
+        if (!nextUrl) return "/auth/login";
+        return `/auth/login?next=${encodeURIComponent(nextUrl)}`;
+      },
     },
     forgotPassword: {
       name: "Forgot Password",

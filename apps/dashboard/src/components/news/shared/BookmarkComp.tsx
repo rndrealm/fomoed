@@ -1,5 +1,5 @@
 import React from "react";
-import { Bookmark } from "../../icons/icons";
+import { BookmarkV2 } from "../../icons/icons";
 import { useCheckNewsBookmark, useAddNewsBookmark, useDeleteNewsBookmark } from "@/services/queries/news";
 
 interface BookmarkCompProps {
@@ -27,7 +27,7 @@ const BookmarkComp = ({ newsId }: BookmarkCompProps) => {
       disabled={isLoading}
       className={`rounded p-1 transition-colors disabled:opacity-50 ${isLoading ? "animate-pulse" : ""}`}
     >
-      {/* <Bookmark fill={isBookmarked ? "red" : "#5F5F5F"} /> */}
+      <BookmarkV2 fill={isBookmarked ? "#fff" : "transparent"} stroke={isBookmarked ? "transparent" : "#5F5F5F"} />
     </button>
   );
 };

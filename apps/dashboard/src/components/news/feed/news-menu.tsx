@@ -3,8 +3,20 @@
 import { useEffect, useRef } from "react";
 import SearchIcon from "@/components/icons/SearchIcon";
 import NewsTags from "./news-tags";
+import useAuthUserData from "@/lib/hooks/use-auth-user-data";
 
 const allTags = ["All", "BTC", "ETH", "SOL", "XRP", "DOGE"];
+
+// Tag to display name mapping
+const tagDisplayMap: Record<string, string> = {
+  All: "Latest",
+  BTC: "Bitcoin",
+  ETH: "Ethereum",
+  SOL: "Solana",
+  XRP: "XRP",
+  DOGE: "Dogecoin",
+  Bookmarks: "Bookmarks",
+};
 
 const NewsMenu = ({
   selectedTag,
@@ -17,6 +29,17 @@ const NewsMenu = ({
 }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const tagRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const authUser = useAuthUserData();
+
+  // Create dynamic tags array based on login status
+  const getAvailableTags = () => {
+    if (authUser) {
+      return ["All", "Bookmarks", ...allTags.slice(1)]; // Insert Bookmarks after All
+    }
+    return allTags;
+  };
+
+  const availableTags = getAvailableTags();
 
   // Scroll to active tag on mount and when selectedTag changes
   useEffect(() => {
@@ -83,20 +106,8 @@ const NewsMenu = ({
 
         {/* Tag filters */}
         <div ref={scrollContainerRef} className="no-scrollbar flex w-full flex-row gap-3 overflow-x-auto py-2">
-          {allTags.map((tag) => {
-            // Todo: This data should be fetched from the backend
-            let stringTag = "Latest";
-            if (tag === "BTC") {
-              stringTag = "Bitcoin";
-            } else if (tag === "ETH") {
-              stringTag = "Ethereum";
-            } else if (tag === "SOL") {
-              stringTag = "Solana";
-            } else if (tag === "XRP") {
-              stringTag = "XRP";
-            } else if (tag === "DOGE") {
-              stringTag = "Dogecoin";
-            }
+          {availableTags.map((tag) => {
+            const stringTag = tagDisplayMap[tag] || tag;
 
             return (
               <div
