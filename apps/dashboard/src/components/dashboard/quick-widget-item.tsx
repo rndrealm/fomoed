@@ -14,7 +14,6 @@ import { v4 as uuidv4 } from "uuid";
 import { RenderIf } from "../shared";
 import { ModalContainer } from "../shared";
 import { Upgrade } from "../modals";
-import { useNextStep } from "nextstepjs";
 
 interface IProps {
   widget: LayoutOptionType[0];
@@ -33,8 +32,6 @@ export function QuickWidgetItem(props: IProps) {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   const { data } = useGetUserPlans();
-
-  const tour = useNextStep();
 
   const isClicked = useRef(false);
 
@@ -82,12 +79,12 @@ export function QuickWidgetItem(props: IProps) {
           }
           handleGoBack();
           isClicked.current = false;
-          if (tour.currentStep === 1) {
-            tour.setCurrentStep(tour.currentStep + 1);
-          }
+          // if (tour.currentStep === 1) {
+          //   tour.setCurrentStep(tour.currentStep + 1);
+          // }
         }}
       >
-       <RenderIf condition={widget.category === "charts" && tag !== "charts"}>
+        <RenderIf condition={widget.category === "charts" && tag !== "charts"}>
           <div className="mb-2 flex items-center gap-2">
             <Image src={dashboard.folder} width={22} height={22} alt="Folder Icon" />
             <p className="text-xs font-medium text-white">{capitalizeFirst(widget.category)}</p>

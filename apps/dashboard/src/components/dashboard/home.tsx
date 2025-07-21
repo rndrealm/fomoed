@@ -9,7 +9,7 @@ import { tourSteps } from "@/lib/static";
 import { cn } from "@/lib/utils";
 import { IDashboardData } from "@/services/queries/home/types";
 import { TourProvider } from "@reactour/tour";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import CreateSignalFromChartModal from "../signals/create-signal-from-chart-modal";
 import { OnboardingModal } from "./shared/onboarding-modal";
 import TourContent from "./shared/tour-card";
@@ -98,29 +98,27 @@ export default function Home({ dashboardData }: IProps) {
   };
 
   return (
-    <NextStepProvider>
-      <NextStep steps={tourSteps} cardComponent={TourCard}>
-        {/* <OnboardingModal isOpen={isOpen} onOpenChange={handleOpenChange} /> */}
-        <div
-          className={cn(
-            "h-screen overflow-hidden bg-[#000] pt-0 pb-4 md:px-2"
-            // !utils.isFullScreen
-            //   ? "pt-[66px] md:pt-[72px] md:px-4 pb-4"
-            //   : "p-1 md:pt-1"
-          )}
-        >
-          <div className="relative flex h-full w-full flex-col gap-2">
-            <div className="px-4 md:px-6">
-              <Toolbar />
-            </div>
-            <div className="scrollbar app_dashboard_content sm:p4 flex-1 overflow-auto rounded-[20px] border-[#333333] bg-[#0F0F0F] p-2 md:border md:p-0">
-              <DashboardContent />
-            </div>
-            <FullscreenBtn isFullscreen={utils.isFullScreen} handleFullscreen={handleFullscreen} />
+    <Fragment>
+      {/* <OnboardingModal isOpen={isOpen} onOpenChange={handleOpenChange} /> */}
+      <div
+        className={cn(
+          "h-full overflow-hidden bg-[#000] pt-0 pb-4 md:px-2"
+          // !utils.isFullScreen
+          //   ? "pt-[66px] md:pt-[72px] md:px-4 pb-4"
+          //   : "p-1 md:pt-1"
+        )}
+      >
+        <div className="relative flex h-full w-full flex-col gap-2">
+          <div className="px-4 md:px-6">
+            <Toolbar />
           </div>
+          <div className="scrollbar app_dashboard_content sm:p4 flex-1 overflow-auto rounded-[20px] border-[#333333] bg-[#0F0F0F] p-2 md:border md:p-0">
+            <DashboardContent />
+          </div>
+          <FullscreenBtn isFullscreen={utils.isFullScreen} handleFullscreen={handleFullscreen} />
         </div>
-        <KeyboardShortcuts />
-      </NextStep>
-    </NextStepProvider>
+      </div>
+      <KeyboardShortcuts />
+    </Fragment>
   );
 }
