@@ -52,7 +52,7 @@ import news3 from "../../../../public/media/images/dashboard/news3.png";
 import bigNews from "../../../../public/media/images/dashboard/big-news.png";
 import newsWidget from "../../../../public/media/images/dashboard/news-widget.png";
 import fallback from "../../../../public/fallback.png";
-
+import logoV2 from "../../../../public/media/images/logoV2.png";
 
 const dashboard = {
   layoutPlaceholder,
@@ -109,6 +109,7 @@ const dashboard = {
   screener,
   dex,
   fallback,
+  logoV2,
 };
 
 export default dashboard;

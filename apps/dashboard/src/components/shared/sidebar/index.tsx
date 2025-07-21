@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion } from "motion/react";
 import dashboard from "@/lib/assets/dashboard";
 import { MenuIconClosed, MenuIconOpened, StarSvg } from "../../icons/icons";
 import { cn } from "@/lib/utils";
 import { NavLink, INavLink } from "./nav-link";
+import { usePathname } from "next/navigation";
 
 const sideMenuVariants = {
   open: {
@@ -69,7 +70,7 @@ const PassiveNav = (props: IPassiveNavProps) => {
   const { navLinks, setIsSideMenuOpen, setIsHovered } = props;
   return (
     <div
-      className="font-inter pointer-events-auto relative z-50 hidden h-full w-full max-w-[52px] flex-col items-center justify-between border-l-[1px] border-[#2A2A2A] bg-[#000000] py-[24px] md:flex"
+      className="font-inter pointer-events-auto relative z-50 hidden h-full w-full max-w-[52px] flex-col items-center justify-between border-l-[1px] border-[#2A2A2A] bg-[#000000] py-4 md:flex"
       onClick={() => setIsSideMenuOpen(true)}
       onMouseEnter={() => {
         document.body.style.cursor = "pointer";
@@ -89,7 +90,7 @@ const PassiveNav = (props: IPassiveNavProps) => {
       <div className="flex h-full w-full flex-col items-center justify-between px-2 py-14">
         <div className="flex w-full flex-col gap-2">
           {navLinks.map((item, index) => {
-            const active = item.label === "News";
+            // const active = item.label === "News";
 
             return (
               <NavLink
@@ -97,7 +98,7 @@ const PassiveNav = (props: IPassiveNavProps) => {
                 label={item.label}
                 href={item.href}
                 icon={item.icon}
-                active={active}
+                active={item.active}
                 disabled={item.disabled}
                 variant="passive"
               />
@@ -123,7 +124,7 @@ const ActiveNav = (props: IActiveNavProps) => {
   return (
     <div
       style={{ pointerEvents: isSideMenuOpen ? "all" : "none" }}
-      className="font-inter absolute inset-0 z-50 flex h-full w-full min-w-[280px] flex-col items-center justify-between border-l-[1px] border-[#2A2A2A] bg-transparent py-[24px]"
+      className="font-inter absolute inset-0 z-50 flex h-full w-full min-w-[280px] flex-col items-center justify-between border-l-[1px] border-[#2A2A2A] bg-transparent py-4"
     >
       <div className="flex w-full flex-row items-center justify-between px-[10px]">
         <motion.button
@@ -145,7 +146,7 @@ const ActiveNav = (props: IActiveNavProps) => {
       <div className="flex h-full w-full flex-col items-center justify-between px-2 py-14">
         <div className="flex w-full flex-col gap-2">
           {navLinks.map((item, index) => {
-            const active = item.label === "News";
+            // const active = item.label === "Widget Dashboard";
             const comingSoon = item.label === "Community";
 
             return (
@@ -154,7 +155,7 @@ const ActiveNav = (props: IActiveNavProps) => {
                 label={item.label}
                 href={item.href}
                 icon={item.icon}
-                active={active}
+                active={item.active}
                 disabled={item.disabled}
                 comingSoon={comingSoon}
                 variant="active"
