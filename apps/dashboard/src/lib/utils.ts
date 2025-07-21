@@ -495,3 +495,13 @@ export function formatNewsWidgetTime(date?: string) {
 
   return timeString;
 }
+
+export function generateSocialLinks(newsUrl: string) {
+  const encodedUrl = encodeURIComponent(newsUrl);
+
+  return {
+    x: `https://twitter.com/intent/tweet?url=${encodedUrl}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
+    linkedin: `https://www.linkedin.com/shareArticle?mini=true&url=${encodedUrl}`,
+  };
+}
