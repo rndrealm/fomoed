@@ -72,6 +72,7 @@ export const useReadCoinList = (summary = false) => {
       color: undefined, // CoinStatsTokenInfo does not include a color field
       slug: coin.id,
       is_free: coin.id === "bitcoin" || coin.id === "ethereum",
+      explorer: coin.explorers,
     };
   });
 

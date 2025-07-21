@@ -30,11 +30,7 @@ export default function CFGI(props: IProps) {
 
   const { data = [] } = useFetchFearAndGreed(widget?.props?.token, activeCoinSlug);
 
-  console.log(widget?.props);
-
-  const { data: testt } = useReadFearAndGridFromDb(widget?.props?.token);
-
-  console.log(data, testt);
+  // const { data: testt } = useReadFearAndGridFromDb(widget?.props?.token);
 
   const activeLayout = useAtomValue(activeTabAtom);
   const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);

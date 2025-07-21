@@ -127,3 +127,150 @@ export async function fetchSingleNewsArticle(id: string) {
 
   return article;
 }
+
+export async function fetchSimilarNewsFeed(tokens: string[], limit: number = 10) {
+  if (!tokens || tokens.length === 0) {
+    return [];
+  }
+
+  const supabase = createSupabaseBrowserClient();
+  const oneDayAgo = new Date(new Date().valueOf() - 24 * 60 * 60 * 1000);
+
+  // Use a single query with OR condition for all tokens
+  let query = supabase
+    .from("news")
+    .select("id, published_at, image_url, source, title, summary, symbols")
+    .gte("published_at", oneDayAgo.toISOString())
+    .order("published_at", { ascending: false })
+    .eq("metadata->>region", "en")
+    .not("original_url", "ilike", "%youtube%")
+    .not("source", "eq", "BeInCrypto");
+
+  // Build OR condition for multiple tokens
+  const orConditions = tokens.map((token) => `symbols.cs.{${token}}`).join(",");
+  query = query.or(orConditions);
+
+  const { data: articles, error } = await query;
+
+  if (error) {
+    console.log("Error fetching similar news feed:", error);
+    throw new Error(error.message);
+  }
+
+  if (!articles || articles.length === 0) {
+    return [];
+  }
+
+  // Randomize the order
+  const shuffled = [...articles].sort(() => Math.random() - 0.5);
+
+  // Return limited number of articles
+  return shuffled.slice(0, limit);
+}
+
+export async function addNewsBookmark(newsId: string) {
+  const supabase = createSupabaseBrowserClient();
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    console.log("Error getting user:", userError);
+    throw new Error("User not authenticated");
+  }
+
+  const { data, error } = await supabase
+    .from("news_bookmarks")
+    .insert({
+      news_id: newsId,
+      user_id: user.id,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.log("Error adding news bookmark:", error);
+    throw new Error(error.message);
+  }
+
+  return data;
+}
+
+export async function deleteNewsBookmark(newsId: string) {
+  const supabase = createSupabaseBrowserClient();
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    console.log("Error getting user:", userError);
+    throw new Error("User not authenticated");
+  }
+
+  const { error } = await supabase.from("news_bookmarks").delete().eq("news_id", newsId).eq("user_id", user.id);
+
+  if (error) {
+    console.log("Error deleting news bookmark:", error);
+    throw new Error(error.message);
+  }
+
+  return { success: true };
+}
+
+export async function checkNewsBookmark(newsId: string) {
+  const supabase = createSupabaseBrowserClient();
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    console.log("Error getting user:", userError);
+    throw new Error("User not authenticated");
+  }
+
+  const { data, error } = await supabase
+    .from("news_bookmarks")
+    .select("id")
+    .eq("news_id", newsId)
+    .eq("user_id", user.id);
+
+  if (error) {
+    // If no bookmark found, return false instead of throwing error
+    if (error.code === "PGRST116") {
+      return false;
+    }
+    console.log("Error checking news bookmark:", error);
+    throw new Error(error.message);
+  }
+
+  return !!data && data.length > 0;
+}
+
+export async function searchNews(searchTerm: string, page: number = 1, limit: number = 20) {
+  const supabase = createSupabaseBrowserClient();
+
+  const { from, to } = getPaginationMeta(page, limit);
+
+  const { data, error, count } = await supabase
+    .from("news")
+    .select("id, published_at, image_url, source, title, summary, symbols", { count: "exact" })
+    .or(`title.ilike.%${searchTerm}%, summary.ilike.%${searchTerm}%`)
+    .eq("metadata->>region", "en")
+    .order("published_at", { ascending: false })
+    .range(from, to)
+    .not("original_url", "ilike", "%youtube%")
+    .not("source", "eq", "BeInCrypto");
+
+  if (error) {
+    console.log("Error searching news:", error);
+    throw new Error(error.message);
+  }
+
+  return { data, count };
+}
