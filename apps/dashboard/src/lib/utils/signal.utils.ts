@@ -5,6 +5,8 @@ import {
 } from "@/constant/signals/data-source-config";
 import { nanoid } from "nanoid";
 
+const dataSourceIdTopicSeparator = "-";
+
 // Converts a JSON Logic object to a Group/Condition tree using 'children' and 'operand'
 export const jsonLogicToGroup = (logic: any, isRoot = true): any => {
   if (!logic || typeof logic !== "object") {
@@ -17,7 +19,7 @@ export const jsonLogicToGroup = (logic: any, isRoot = true): any => {
         {
           id: nanoid(),
           type: "condition",
-          dataSource: null,
+          dataSourceId: null,
           topic: null,
           operator: null,
           value: null,
@@ -40,14 +42,33 @@ export const jsonLogicToGroup = (logic: any, isRoot = true): any => {
   }
   for (const op of [">", "<", "==", "!="]) {
     if (logic[op]) {
-      const [value, topicObj] = logic[op];
+      const [it1, it2] = logic[op];
+
+      let value: string | number | boolean | null = null;
+      let topicObj: { topic: string } | null = null;
+
+      if (typeof it1 === "object") {
+        topicObj = it1;
+        value = it2;
+      } else if (typeof it2 === "object") {
+        topicObj = it2;
+        value = it1;
+      }
+
+      const [dataSourceId, topic] = topicObj?.topic?.split(
+        dataSourceIdTopicSeparator,
+      ) || [null, null];
+
+      console.log({ value, topicObj });
+      console.log({ dataSourceId, topic });
+
       const condition = {
         id: nanoid(),
         type: "condition",
         operator: op,
         value: value,
-        dataSource: topicObj?.topic?.[1] || null,
-        topic: topicObj?.topic?.[0] || null,
+        dataSourceId,
+        topic,
       };
       // Only wrap in a group if this is the root
       if (isRoot) {
@@ -106,7 +127,7 @@ export const conditionToJsonLogic = (cond: Condition) => {
   return {
     [cond.operator]: [
       {
-        topic: cond.topic,
+        topic: cond.dataSourceId + dataSourceIdTopicSeparator + cond.topic,
       },
       isNaN(Number(cond.value)) ? cond.value : Number(cond.value),
     ],

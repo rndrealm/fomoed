@@ -28,8 +28,11 @@ const ManualSignalBuilder = ({
   );
 
   useEffect(() => {
+    console.log("Effect for updating logic triggered:", rootGroup);
+
     const logic = toJsonLogic(rootGroup);
-    console.log("🚀 ~ useEffect ~ logic:", logic, rootGroup);
+
+    console.log("New logic:", logic, rootGroup);
 
     setLogic(logic);
   }, [rootGroup, setLogic]);

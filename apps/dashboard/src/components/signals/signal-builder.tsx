@@ -59,10 +59,6 @@ const SignalBuilder = ({}) => {
     setUpdateCount((prev) => prev + 1);
   };
 
-  useEffect(() => {
-    console.log("🚀 ~ SignalBuilder ~ condition:", logic);
-  }, [logic]);
-
   const handleSave = async () => {
     if (!logic || !user?.user_id) return;
 
@@ -95,8 +91,6 @@ const SignalBuilder = ({}) => {
         type: "notification",
         description: `Your smart signal "${signalPrompt}" from fomoed.io has been triggered`,
       });
-
-    console.log({ logic });
 
     const data: CreateSignalDTO = {
       name: signalPrompt,

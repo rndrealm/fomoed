@@ -39,7 +39,6 @@ interface MySignalCardProps {
 
 const calculateConditionCount = (conditions: object) => {
   let count = 0;
-  console.log("sldkfjlskdjf", conditions);
   const traverseConditions = (obj: any): number => {
     if (typeof obj !== "object" || obj === null) {
       return 0;
