@@ -59,9 +59,6 @@ export const jsonLogicToGroup = (logic: any, isRoot = true): any => {
         dataSourceIdTopicSeparator,
       ) || [null, null];
 
-      console.log({ value, topicObj });
-      console.log({ dataSourceId, topic });
-
       const condition = {
         id: nanoid(),
         type: "condition",

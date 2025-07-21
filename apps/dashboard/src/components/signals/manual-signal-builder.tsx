@@ -1,44 +1,23 @@
-import { jsonLogicToGroup, toJsonLogic } from "@/lib/utils/signal.utils";
-import { useCallback, useEffect, useState } from "react";
-import SignalConditionGroup, { defaultGroup, Group } from "./condition-group";
+import { useEffect } from "react";
+import SignalConditionGroup, { Group } from "./condition-group";
 
 type ManualSignalBuilderProps = {
-  initialLogic?: object | null;
-  setLogic: (logic: object | null) => void;
-  onRootGroupChange?: (group: Group) => void;
+  rootGroup: Group;
+  onRootGroupChange: (group: Group) => void;
 };
 
 const ManualSignalBuilder = ({
-  initialLogic,
-  setLogic,
+  rootGroup,
   onRootGroupChange,
 }: ManualSignalBuilderProps) => {
-  // The root group state (always present)
-  const [rootGroup, setRootGroup] = useState<Group>(
-    initialLogic ? jsonLogicToGroup(initialLogic) : defaultGroup(0),
-  );
-
-  // Recursively update a group or condition in the tree
-  const updateGroup = useCallback(
-    (updated: Group) => {
-      setRootGroup(updated);
-      onRootGroupChange?.(updated);
-    },
-    [onRootGroupChange],
-  );
-
-  useEffect(() => {
-    console.log("Effect for updating logic triggered:", rootGroup);
-
-    const logic = toJsonLogic(rootGroup);
-
-    console.log("New logic:", logic, rootGroup);
-
-    setLogic(logic);
-  }, [rootGroup, setLogic]);
+  useEffect(() => console.debug("Root group:", rootGroup), [rootGroup]);
 
   return (
-    <SignalConditionGroup group={rootGroup} depth={0} onUpdate={updateGroup} />
+    <SignalConditionGroup
+      group={rootGroup}
+      depth={0}
+      onUpdate={onRootGroupChange}
+    />
   );
 };
 

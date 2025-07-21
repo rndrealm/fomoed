@@ -25,13 +25,17 @@ import { ModalContainer } from "../shared";
 import { Upgrade } from "../modals";
 import SignalTitle from "./signal-title";
 import AutoGenerateButton from "./auto-generate-btn";
-import { Group } from "./condition-group";
-import { isConditionGroupValid } from "@/lib/utils/signal.utils";
+import { Group, defaultGroup } from "./condition-group";
+import {
+  isConditionGroupValid,
+  jsonLogicToGroup,
+  toJsonLogic,
+} from "@/lib/utils/signal.utils";
 
 const SignalBuilder = ({}) => {
   const [signalPrompt, setSignalPrompt] = useState("");
   const [signalDescription, setSignalDescription] = useState("");
-  const [logic, setLogic] = useState<object | null>(null);
+  const [rootGroup, setRootGroup] = useState<Group>(defaultGroup(0));
   const [signalActions, setSignalActions] = useState<SignalActions>({
     email: true,
     notification: true,
@@ -48,19 +52,8 @@ const SignalBuilder = ({}) => {
 
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
-  const handleAIBuilderResponse = (
-    name: string,
-    description: string,
-    logic: object,
-  ) => {
-    setSignalPrompt(name);
-    setSignalDescription(description);
-    setLogic(logic);
-    setUpdateCount((prev) => prev + 1);
-  };
-
   const handleSave = async () => {
-    if (!logic || !user?.user_id) return;
+    if (!rootGroup || !user?.user_id) return;
 
     if (userPlanData?.planType === "FREE" && smartSignals.length >= 2) {
       setShowUpgradeModal(true);
@@ -92,6 +85,7 @@ const SignalBuilder = ({}) => {
         description: `Your smart signal "${signalPrompt}" from fomoed.io has been triggered`,
       });
 
+    const logic = toJsonLogic(rootGroup);
     const data: CreateSignalDTO = {
       name: signalPrompt,
       description: signalDescription,
@@ -122,36 +116,29 @@ const SignalBuilder = ({}) => {
       return;
     }
 
-    handleAIBuilderResponse(
-      res.signal.name,
-      res.signal.description,
-      res.signal.condition,
-    );
+    const newRootGroup = res.signal.condition
+      ? jsonLogicToGroup(res.signal.condition)
+      : defaultGroup(0);
+
+    setSignalPrompt(res.signal.name);
+    setSignalDescription(res.signal.description);
+    setRootGroup(newRootGroup);
+    setIsRootGroupValid(isConditionGroupValid(newRootGroup));
+    setUpdateCount((prev) => prev + 1);
   }, [signalPrompt, getAiSignal]);
 
   const [isRootGroupValid, setIsRootGroupValid] = useState(false);
 
-  function onRootGroupChange(rootGroup: Group) {
+  const onRootGroupChange = useCallback((rootGroup: Group) => {
+    setRootGroup(rootGroup);
     setIsRootGroupValid(isConditionGroupValid(rootGroup));
-  }
+  }, []);
 
   return (
     <>
-      <div className="my-6">
-        {/* <h1 className="font-medium text-xl mt-5">Signal Conditions</h1>
-        <h2 className="font-medium text-muted-foreground">
-          Build your Smart signals
-        </h2> */}
-      </div>
-      <div className="flex flex-col gap-3">
-        {/* <SignalDetails
-          name={signalName}
-          description={signalDescription}
-          onNameChange={setSignalName}
-          onDescriptionChange={setSignalDescription}
-          jsonLogic={logic}
-        /> */}
+      <div className="my-6"></div>
 
+      <div className="flex flex-col gap-3">
         <div className="px-4">
           <SignalTitle title={signalPrompt} onTitleChange={setSignalPrompt}>
             <AutoGenerateButton
@@ -161,12 +148,9 @@ const SignalBuilder = ({}) => {
           </SignalTitle>
         </div>
 
-        {/* <AISignalPromptInput onAiPromptResponse={handleAIBuilderResponse} /> */}
-
         <ManualSignalBuilder
           key={updateCount}
-          initialLogic={logic}
-          setLogic={setLogic}
+          rootGroup={rootGroup}
           onRootGroupChange={onRootGroupChange}
         />
 
