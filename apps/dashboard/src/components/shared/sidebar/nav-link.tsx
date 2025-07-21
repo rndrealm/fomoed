@@ -52,8 +52,8 @@ export function NavLink(props: INavLinkProps) {
     return (
       <div
         className={cn(
-          "flex max-h-[40px] items-center justify-center rounded-[10px] px-0 py-2",
-          active ? "bg-[#1A1A1A]" : "bg-[#000]"
+          "flex max-h-[40px] items-center justify-center rounded-[10px] px-0 py-2"
+          // active ? "bg-[#1A1A1A]" : "bg-[#000]"
         )}
       >
         <Link
@@ -64,7 +64,14 @@ export function NavLink(props: INavLinkProps) {
           })}
           aria-disabled={disabled}
         >
-          <div className="flex items-center gap-3 pt-0 pb-0">{icon}</div>
+          <div className="flex items-center gap-3 pt-0 pb-0">
+            {/* make the active icon white */}
+            <div key={label}>
+              {React.cloneElement(icon, {
+                ...(active && { color: "#fff" }),
+              })}
+            </div>
+          </div>
         </Link>
       </div>
     );
@@ -74,7 +81,7 @@ export function NavLink(props: INavLinkProps) {
   return (
     <motion.div
       className={cn(
-        "flex max-h-[40px] items-center rounded-[10px] px-2 py-2",
+        "relative flex max-h-[40px] items-center rounded-[10px] px-2 py-2",
         isBottomLink
           ? "justify-start gap-2 bg-[#000]"
           : active
@@ -95,10 +102,14 @@ export function NavLink(props: INavLinkProps) {
       >
         <div className="flex items-center gap-3 pt-0 pb-0">
           <div
-            className={cn(isBottomLink ? "" : "mt-[-2px]")}
+            className={cn(!active && !isBottomLink && "!opacity-100 md:!opacity-0", isBottomLink ? "" : "mt-[-2px]")}
             style={{ opacity: !isBottomLink && active ? 1 : isBottomLink ? 1 : 0 }}
           >
-            {icon}
+            <div key={label}>
+              {React.cloneElement(icon, {
+                ...(active && { color: "#fff" }),
+              })}
+            </div>
           </div>
           <motion.p
             className={cn(
@@ -116,7 +127,7 @@ export function NavLink(props: INavLinkProps) {
 
       {comingSoon && !isBottomLink && (
         <motion.div
-          className="rounded-[8px] border-[1px] border-[#3A2C4F] bg-[#2C233A] px-2 py-1"
+          className="absolute top-1/2 right-0 translate-y-[-50%] rounded-[8px] border-[1px] border-[#3A2C4F] bg-[#2C233A] px-2 py-1"
           initial="closed"
           variants={sideMenuVariants}
           animate={isSideMenuOpen ? "open" : "closed"}

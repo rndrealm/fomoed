@@ -1,17 +1,6 @@
 import React from "react";
 import Image from "next/image";
-import {
-  BigPlay,
-  Bookmark,
-  Close,
-  Ellipsis,
-  Expand,
-  Fire,
-  FullArticle,
-  Play,
-  Share,
-  Sound,
-} from "@/components/icons/icons";
+import { BigPlay, Bookmark, Close, Ellipsis, Expand, Fire, FullArticle, Play, Sound } from "@/components/icons/icons";
 import dashboard from "@/lib/assets/dashboard";
 import {
   DropdownMenu,
@@ -24,6 +13,7 @@ import { useReadSingleNewsArticle } from "@/services/queries/news";
 import { formatNewsWidgetTime } from "@/lib/utils";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { PlayButton } from "./play-button";
+import { ShareButton } from "./share-button";
 
 interface IProps {
   handleClose: () => void;
@@ -168,12 +158,7 @@ export default function SingleNews(props: IProps) {
 
         <div className="flex flex-1 items-center justify-end gap-1">
           <RenderIf condition={true}>
-            <button
-              type="button"
-              className="flex items-center gap-1 px-[10px] py-[6px] text-xs leading-[16px] text-white"
-            >
-              <Share />
-            </button>
+            <ShareButton newsId={data?.id} />
 
             <PlayButton
               handlePlay={() => {

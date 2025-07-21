@@ -25,25 +25,30 @@ import SideNav from "./sidebar";
 
 const navLinks = [
   {
-    label: "News",
-    icon: <NewsIcon />,
-    href: AppRoutes.news.path,
-  },
-  {
     label: "Widget Dashboard",
     icon: <WidgetDashboardIcon />,
     href: AppRoutes.dashboard.path,
+    active: false,
   },
+  {
+    label: "News",
+    icon: <NewsIcon />,
+    href: AppRoutes.news.path,
+    active: false,
+  },
+
   {
     label: "Smart Signals",
     icon: <SmartSignalsIcon />,
     href: AppRoutes.signals.path,
+    active: false,
     disabled: true,
   },
   {
     label: "Community",
     icon: <CommunityIcon />,
     href: AppRoutes.dashboard.path,
+    active: false,
     disabled: true,
   },
 ];
@@ -75,9 +80,11 @@ interface IProps {
 
 const NavigationTop = ({
   authUser,
+  isNewsLogo,
   setIsSideMenuOpen,
 }: {
   authUser: User | null;
+  isNewsLogo: boolean;
   setIsSideMenuOpen: (value: boolean) => void;
 }) => {
   return (
@@ -96,12 +103,14 @@ const NavigationTop = ({
 
       <div className="hidden items-center gap-2.5 md:flex">
         <Link href="/">
-          <Image src={dashboard.logo} alt="logo" />
+          <Image src={dashboard.logoV2} width={108} height={22} alt="logo" />
         </Link>
 
-        <div className="rounded-[4px] bg-[#1F8B4C] px-3 py-1">
-          <h2 className="font-inter text-xs font-normal text-white uppercase">News</h2>
-        </div>
+        {isNewsLogo && (
+          <div className="rounded-[4px] bg-[#1F8B4C] px-3 py-1">
+            <h2 className="font-inter text-xs font-normal text-white uppercase">News</h2>
+          </div>
+        )}
       </div>
 
       <div className="flex items-center gap-[10px]">
@@ -117,6 +126,7 @@ const NavigationTop = ({
 
 export const NavbarNews = (props: IProps) => {
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
+  const [isNewsLogo, setIsNewsLogo] = useState(false);
   const authUser = useAuthUserData();
   const pathname = usePathname();
 
@@ -125,10 +135,30 @@ export const NavbarNews = (props: IProps) => {
     setIsSideMenuOpen(false);
   }, [pathname]);
 
+  // Set the active link based on the pathname
+  useEffect(() => {
+    function findActive(linkLabel: string) {
+      navLinks.find((item) => {
+        if (item.label.includes(linkLabel)) {
+          item.active = true;
+        } else {
+          item.active = false;
+        }
+      });
+    }
+
+    if (pathname === "/dashboard") {
+      findActive("Dashboard");
+    } else if (pathname === "/news") {
+      findActive("News");
+      setIsNewsLogo(true);
+    }
+  }, [pathname]);
+
   return (
-    <nav className="flex flex-col items-center overflow-hidden border-b border-[#000000] bg-[#00000] px-2 py-3 sm:px-4 md:px-10 md:py-5">
+    <nav className="flex flex-col items-center overflow-hidden bg-[#00000] px-2 py-3 sm:px-4 md:px-8 md:py-4">
       {/* Top Nav */}
-      <NavigationTop authUser={authUser} setIsSideMenuOpen={setIsSideMenuOpen} />
+      <NavigationTop authUser={authUser} isNewsLogo={isNewsLogo} setIsSideMenuOpen={setIsSideMenuOpen} />
 
       {/* Blur Layer */}
       <motion.div
