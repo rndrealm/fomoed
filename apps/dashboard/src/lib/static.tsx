@@ -136,6 +136,14 @@ export const layoutOptionsMap = [
     tags: ["new", "charts"],
   },
   {
+    id: 6,
+    name: "Token News",
+    slug: "token-news",
+    image: dashboard.newsWidget,
+    category: "news",
+    tags: ["news", "new"],
+  },
+  {
     id: 112,
     name: "New Price History",
     slug: "new-price-history",
@@ -237,11 +245,12 @@ export const layoutOptionsMap = [
     category: "charts",
     tags: ["charts"],
   },
+
   {
-    id: 1,
-    name: "Crypto Fear and Greed Map",
-    slug: "detailed-cfgi",
-    image: dashboard.cfgi,
+    id: 5,
+    name: "Exchange Liquidation Map",
+    slug: "exchange-liquidation-map",
+    image: dashboard.cfgi2,
     category: "charts",
     tags: ["charts"],
   },
@@ -293,7 +302,7 @@ export const chartsMap = {
   dex: {
     name: "Dex",
     extra: [""],
-    component: (widget: LayoutType["widgets"][0]) => <DexWidget />,
+    component: (widget: LayoutType["widgets"][0]) => <DexWidget widget={widget} />,
   },
   "cignals-chart": {
     name: "Cignals Chart",

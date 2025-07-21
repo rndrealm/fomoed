@@ -41,6 +41,9 @@ importers:
       '@kyberswap/widgets':
         specifier: ^2.1.0
         version: 2.1.0(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react-is@19.1.0)(react@19.1.0)
+      '@number-flow/react':
+        specifier: ^0.5.10
+        version: 0.5.10(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@openrouter/ai-sdk-provider':
         specifier: ^0.4.5
         version: 0.4.6(zod@3.25.56)
@@ -1820,6 +1823,12 @@ packages:
   '@nolyfill/is-core-module@1.0.39':
     resolution: {integrity: sha512-nn5ozdjYQpUCZlWGuxcJY/KpxkWQs4DcbMCmKojjyrYDEAGy4Ce19NN4v5MduafTwJlbKc99UA8YhSVqq9yPZA==}
     engines: {node: '>=12.4.0'}
+
+  '@number-flow/react@0.5.10':
+    resolution: {integrity: sha512-a8Wh5eNITn7Km4xbddAH7QH8eNmnduR6k34ER1hkHSGO4H2yU1DDnuAWLQM99vciGInFODemSc0tdxrXkJEpbA==}
+    peerDependencies:
+      react: ^18 || ^19
+      react-dom: ^18 || ^19
 
   '@openrouter/ai-sdk-provider@0.4.6':
     resolution: {integrity: sha512-oUa8xtssyUhiKEU/aW662lsZ0HUvIUTRk8vVIF3Ha3KI/DnqX54zmVIuzYnaDpermqhy18CHqblAY4dDt1JW3g==}
@@ -6082,6 +6091,9 @@ packages:
   nth-check@2.1.1:
     resolution: {integrity: sha512-lqjrjmaOoAnWfMmBPL+XNnynZh2+swxiX3WUE0s4yEHI6m+AwrK2UZOimIRl3X/4QctVqS8AiZjFqyOGrMXb/w==}
 
+  number-flow@0.5.8:
+    resolution: {integrity: sha512-FPr1DumWyGi5Nucoug14bC6xEz70A1TnhgSHhKyfqjgji2SOTz+iLJxKtv37N5JyJbteGYCm6NQ9p1O4KZ7iiA==}
+
   nuqs@2.4.3:
     resolution: {integrity: sha512-BgtlYpvRwLYiJuWzxt34q2bXu/AIS66sLU1QePIMr2LWkb+XH0vKXdbLSgn9t6p7QKzwI7f38rX3Wl9llTXQ8Q==}
     peerDependencies:
@@ -9286,6 +9298,13 @@ snapshots:
       fastq: 1.19.1
 
   '@nolyfill/is-core-module@1.0.39': {}
+
+  '@number-flow/react@0.5.10(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+    dependencies:
+      esm-env: 1.2.2
+      number-flow: 0.5.8
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
 
   '@openrouter/ai-sdk-provider@0.4.6(zod@3.25.56)':
     dependencies:
@@ -14571,6 +14590,10 @@ snapshots:
   nth-check@2.1.1:
     dependencies:
       boolbase: 1.0.0
+
+  number-flow@0.5.8:
+    dependencies:
+      esm-env: 1.2.2
 
   nuqs@2.4.3(next@15.3.0(@babel/core@7.27.4)(@opentelemetry/api@1.9.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0):
     dependencies:

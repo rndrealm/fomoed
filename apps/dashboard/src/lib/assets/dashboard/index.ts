@@ -8,8 +8,9 @@ import orderBook from "../../../../public/media/images/dashboard/order-book.png"
 import bitcoinDominance from "../../../../public/media/images/dashboard/bitcoin-dominance.png";
 import coinStats from "../../../../public/media/images/dashboard/coin-stats.png";
 import summary from "../../../../public/media/images/dashboard/summary.png";
-import cfgi2 from "../../../../public/media/images/dashboard/cfgi2.png";
 import cfgi3 from "../../../../public/media/images/dashboard/cfgi3.png";
+import cfgi2 from "../../../../public/media/images/dashboard/cfgi2.png";
+
 import dex from "../../../../public/media/images/dashboard/dex.png";
 import screener from "../../../../public/media/images/dashboard/screener.png";
 import simpleCfgi from "../../../../public/media/images/dashboard/simple-cfgi.png";
@@ -26,6 +27,7 @@ import folder from "../../../../public/media/images/dashboard/folder.png";
 import heat from "../../../../public/media/images/dashboard/heat.png";
 import simple from "../../../../public/media/images/dashboard/simple.png";
 import successCheck from "../../../../public/media/images/dashboard/success-check.png";
+import successCheckV2 from "../../../../public/media/images/dashboard/success-check.svg";
 import settings from "../../../../public/media/images/dashboard/settings.svg";
 import settingsV2 from "../../../../public/media/images/dashboard/settings-v2.svg";
 import settingsV3 from "../../../../public/media/images/dashboard/settings-v3.svg";
@@ -85,12 +87,14 @@ const dashboard = {
   token,
   chevronDown,
   successCheck,
+  successCheckV2,
   explore,
   tokenHistory,
   orderBook,
   bitcoinDominance,
   coinStats,
   summary,
+  cfgi3,
   settingsV2,
   settingsV3,
   plus,
@@ -105,7 +109,6 @@ const dashboard = {
   bigNews,
   footprint,
   newsWidget,
-  cfgi3,
   screener,
   dex,
   fallback,

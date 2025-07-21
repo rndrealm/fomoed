@@ -66,14 +66,14 @@ export const Navbar = (props: IProps) => {
 
   return (
     <nav className="flex flex-col items-center overflow-hidden border-b border-[#161616] bg-[#0C0C0C] px-2 py-3 sm:px-4 md:px-10 md:py-4">
-      <div className="mx-auto flex w-full items-center justify-between">
+      <div className="flex items-center justify-between w-full mx-auto">
         <div className="h-[24px] w-[24px] md:hidden">
           <Link href="/">
             <Image src={dashboard.logoMobile} alt="logo" />
           </Link>
         </div>
 
-        <div className="hidden items-center gap-10 md:flex">
+        <div className="items-center hidden gap-10 md:flex">
           <Link href="/">
             <Image src={dashboard.logo} alt="logo" />
           </Link>
@@ -136,7 +136,7 @@ export const Navbar = (props: IProps) => {
           },
         }}
       >
-        <div className="mt-6 flex flex-col gap-1 pb-4">
+        <div className="flex flex-col gap-1 pb-4 mt-6">
           {links.map((item) => {
             const active = pathName === item.href;
             return (

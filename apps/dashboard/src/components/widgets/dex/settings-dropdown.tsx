@@ -8,6 +8,7 @@ import {
 import Image from "next/image";
 import dashboard from "@/lib/assets/dashboard";
 import { cn } from "@/lib/utils";
+import DexTooltip from "./shared/dex-tooltip";
 
 interface IProps {
   slippage: {
@@ -43,12 +44,8 @@ export function SettingsDropdown(props: IProps) {
               <p className="text-ideal font-medium text-[#C3C3C3]">
                 Max Slippage
               </p>
-              <button
-                title="Maximum slippage allowed for a swap."
-                // className="cursor-help"
-              >
-                <Image src={dashboard.info} alt="Info icon" />
-              </button>
+
+              <DexTooltip content="Maximum slippage allowed for a swap." />
             </div>
             <div className="relative font-medium text-white text-ideal">
               <input
