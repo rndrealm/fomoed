@@ -87,7 +87,13 @@ export function QuickWidgetItem(props: IProps) {
           }
         }}
       >
-        <RenderIf condition={widget.category === "charts" && tag !== "charts"}>
+       <RenderIf condition={widget.category === "charts" && tag !== "charts"}>
+          <div className="mb-2 flex items-center gap-2">
+            <Image src={dashboard.folder} width={22} height={22} alt="Folder Icon" />
+            <p className="text-xs font-medium text-white">{capitalizeFirst(widget.category)}</p>
+          </div>
+        </RenderIf>
+        <RenderIf condition={widget.category === "news" && tag !== "news"}>
           <div className="mb-2 flex items-center gap-2">
             <Image src={dashboard.folder} width={22} height={22} alt="Folder Icon" />
             <p className="text-xs font-medium text-white">{capitalizeFirst(widget.category)}</p>

@@ -4,7 +4,7 @@ import { Close } from "@/components/icons/icons";
 import { AnimatePresence, motion } from "motion/react";
 import { modalSlide } from "@/lib/utils";
 import { Progress } from "./progress";
-import { useFetchFearAndGreed, useReadCoinList } from "@/services/queries/charts";
+import { useFetchFearAndGreed, useReadCoinList, useReadFearAndGridFromDb } from "@/services/queries/charts";
 import CoinStatsTokenDropdown from "../../shared/coin-stats-token-dropdown";
 import { tokenArray } from "./tokenArray";
 import { LayoutType, updateWidgetPropsAtom } from "@/lib/atoms/layoutAtom";
@@ -29,6 +29,8 @@ export default function CFGI(props: IProps) {
   }, [widget.props?.token, coinData]);
 
   const { data = [] } = useFetchFearAndGreed(widget?.props?.token, activeCoinSlug);
+
+  // const { data: testt } = useReadFearAndGridFromDb(widget?.props?.token);
 
   const activeLayout = useAtomValue(activeTabAtom);
   const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
@@ -60,7 +62,7 @@ export default function CFGI(props: IProps) {
         />
       </div>
 
-      <div className="flex flex-col items-center justify-center flex-1 gap-0">
+      <div className="flex flex-1 flex-col items-center justify-center gap-0">
         <div className="flex flex-col gap-4">
           <Progress
             progress={data[data?.length - 1]?.cfgi}

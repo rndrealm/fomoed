@@ -483,3 +483,15 @@ export function getOverlayRoot(): HTMLElement | null {
   if (typeof window === "undefined") return null;
   return document.getElementById("overlay-root");
 }
+
+export function formatNewsWidgetTime(date?: string) {
+  if (!date) return "";
+  const _date = new Date(date);
+  const timeString = _date.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  return timeString;
+}

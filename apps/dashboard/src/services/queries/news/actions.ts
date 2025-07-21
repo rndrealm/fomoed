@@ -60,7 +60,9 @@ export async function fetchNewsFeed(token?: string, page: number = 1, limit: num
 
   let query = supabase
     .from("news")
-    .select("id, published_at, image_url, source, title, summary, symbols", { count: "exact" })
+    .select("id, published_at, image_url, source, title, symbols, original_url", {
+      count: "exact",
+    })
     // .gte("published_at", twoDaysAgo.toISOString())
     .order("published_at", { ascending: false })
     .eq("metadata->>region", "en")
