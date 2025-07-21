@@ -916,6 +916,18 @@ export function Bookmark({ fill }: { fill?: string } = { fill: "#fff" }) {
   );
 }
 
+export function BookmarkV2({ fill, stroke }: { fill?: string; stroke?: string } = { fill: "#fff", stroke: "#5F5F5F" }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="17" viewBox="0 0 14 17" fill={fill}>
+      <path
+        d="M2 14.105V2.58203C2 2.02975 2.44772 1.58203 3 1.58203H11C11.5523 1.58203 12 2.02975 12 2.58203V14.105C12 14.8125 11.2855 15.2962 10.6286 15.0335L7.37139 13.7306C7.13298 13.6352 6.86702 13.6352 6.62861 13.7306L3.37139 15.0335C2.71453 15.2962 2 14.8125 2 14.105Z"
+        stroke={stroke}
+        stroke-width="2.5"
+      />
+    </svg>
+  );
+}
+
 export function Stack() {
   return (
     <svg width="13" height="8" viewBox="0 0 13 8" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -1,5 +1,8 @@
 import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
 import { getPaginationMeta } from "../utils";
+import { redirect } from "next/navigation";
+import { AppRoutes } from "@/lib/routes";
+import { toast } from "sonner";
 
 export async function fetchPopularNews(token: string) {
   const dayAgo = new Date(new Date().valueOf() - 24 * 60 * 60 * 1000);
@@ -170,15 +173,15 @@ export async function fetchSimilarNewsFeed(tokens: string[], limit: number = 10)
 
 export async function addNewsBookmark(newsId: string) {
   const supabase = createSupabaseBrowserClient();
-
   const {
     data: { user },
     error: userError,
   } = await supabase.auth.getUser();
 
   if (userError || !user) {
-    console.log("Error getting user:", userError);
-    throw new Error("User not authenticated");
+    const err = new Error("You must be logged in to bookmark news.");
+    err.name = "UnauthorizedError";
+    throw err;
   }
 
   const { data, error } = await supabase
@@ -192,7 +195,10 @@ export async function addNewsBookmark(newsId: string) {
 
   if (error) {
     console.log("Error adding news bookmark:", error);
-    throw new Error(error.message);
+    // Handle other database errors
+    const err = new Error(error.message || "Failed to bookmark news.");
+    err.name = "GenericError";
+    throw err;
   }
 
   return data;
@@ -207,8 +213,8 @@ export async function deleteNewsBookmark(newsId: string) {
   } = await supabase.auth.getUser();
 
   if (userError || !user) {
-    console.log("Error getting user:", userError);
-    throw new Error("User not authenticated");
+    toast.error("You must be logged in to bookmark news.");
+    redirect(AppRoutes.auth.login.path);
   }
 
   const { error } = await supabase.from("news_bookmarks").delete().eq("news_id", newsId).eq("user_id", user.id);
@@ -230,8 +236,7 @@ export async function checkNewsBookmark(newsId: string) {
   } = await supabase.auth.getUser();
 
   if (userError || !user) {
-    console.log("Error getting user:", userError);
-    throw new Error("User not authenticated");
+    return false;
   }
 
   const { data, error } = await supabase
@@ -273,4 +278,52 @@ export async function searchNews(searchTerm: string, page: number = 1, limit: nu
   }
 
   return { data, count };
+}
+
+export async function fetchUserBookmarkedNews(page: number = 1, limit: number = 20) {
+  const supabase = createSupabaseBrowserClient();
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    const err = new Error("You must be logged in to view bookmarks.");
+    err.name = "UnauthorizedError";
+    throw err;
+  }
+
+  const { from, to } = getPaginationMeta(page, limit);
+
+  const { data, error, count } = await supabase
+    .from("news_bookmarks")
+    .select(
+      `
+      news!inner(
+        id, 
+        published_at, 
+        image_url, 
+        source, 
+        title, 
+        summary, 
+        symbols,
+        original_url
+      )
+    `,
+      { count: "exact" }
+    )
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .range(from, to);
+
+  if (error) {
+    console.log("Error fetching bookmarked news:", error);
+    throw new Error(error.message);
+  }
+
+  // Transform the data to extract news objects
+  const bookmarkedNews = data?.map((bookmark) => bookmark.news) || [];
+
+  return { data: bookmarkedNews, count };
 }

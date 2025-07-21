@@ -15,9 +15,7 @@ import { useScrollPercentage } from "@/hooks/useScrollPercentage";
 import { SheetContainer } from "../shared/sheet-container";
 import BookmarkComp from "./shared/BookmarkComp";
 import InlineTokenLink from "./inline-token-link";
-import SoundIcon from "../icons/SoundIcon";
-import PlayIcon from "../icons/PlayIcon";
-import { motion } from "motion/react";
+import Link from "next/link";
 
 const tableData = [
   {
@@ -153,8 +151,8 @@ export function ImmersiveNews(props: IProps) {
         <TableOfContent data={tableData} currentIndex={currentIndex} active="Headlines" />
 
         <div className="flex max-w-[400px] flex-col justify-center text-white sm:max-w-[500px] md:max-w-full">
-          {/* <div className="mb-4 flex max-w-[400px] items-center justify-between sm:max-w-[500px] md:max-w-[39.8125rem]">
-            <div className="flex flex-row gap-1.5 rounded-[40px] bg-[#2A2A2A] px-3 py-2">
+          <div className="mb-4 flex max-w-[400px] items-center justify-between sm:max-w-[500px] md:max-w-[39.8125rem]">
+            {/* <div className="flex flex-row gap-1.5 rounded-[40px] bg-[#2A2A2A] px-3 py-2">
               <button>
                 <PlayIcon />
               </button>
@@ -162,9 +160,10 @@ export function ImmersiveNews(props: IProps) {
               <button>
                 <SoundIcon />
               </button>
-            </div>
+            </div> */}
+            <div />
             {article ? <BookmarkComp newsId={article?.id} /> : null}
-          </div> */}
+          </div>
 
           <div id="headlines-section">
             <div className="relative flex h-[356px] w-[637px] max-w-[300px] items-center justify-center sm:max-w-[500px] md:max-w-[39.8125rem]">
@@ -220,7 +219,9 @@ export function ImmersiveNews(props: IProps) {
             </div>
             <div className="mt-6 mb-8"></div>
             <div className="flex items-center gap-2 pb-4">
-              <p className="text-xs font-semibold">{article?.source}</p>
+              <Link href={article?.original_url || "/"} target="_blank" rel="noopener noreferrer">
+                <p className="text-xs font-semibold">{article?.source}</p>
+              </Link>
               <p className="text-xs text-[#A4A4A4] underline">+{newsSources.length} sources</p>
             </div>
           </div>

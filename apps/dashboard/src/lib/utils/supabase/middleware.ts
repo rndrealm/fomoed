@@ -43,7 +43,9 @@ export async function updateSession(request: NextRequest) {
   ) {
     // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone();
-    url.pathname = AppRoutes.auth.login.path;
+    const currentUrl = request.nextUrl.pathname + request.nextUrl.search;
+    url.pathname = "/auth/login";
+    url.search = `next=${encodeURIComponent(currentUrl)}`;
     return NextResponse.redirect(url);
   }
 

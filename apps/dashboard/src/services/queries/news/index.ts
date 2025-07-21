@@ -13,8 +13,11 @@ import {
   deleteNewsBookmark,
   checkNewsBookmark,
   searchNews,
+  fetchUserBookmarkedNews,
 } from "./actions";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { AppRoutes } from "@/lib/routes";
 
 export const useFetchTokenNews = () => {
   const hash = ["news"];
@@ -268,6 +271,7 @@ export const useSearchNews = (searchTerm: string, page: number = 1, limit: numbe
 
 export const useAddNewsBookmark = () => {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   return useMutation({
     mutationFn: async (newsId: string) => {
@@ -283,14 +287,24 @@ export const useAddNewsBookmark = () => {
 
       return { previousBookmark };
     },
-    onError: (err, newsId, context) => {
+    onError: (err: any, newsId, context) => {
+      // Rollback optimistic update
       queryClient.setQueryData(["news-bookmark", newsId], context?.previousBookmark);
-      toast.error("Failed to add bookmark. Please try again.");
+
+      // Handle specific error types
+      if (err.name === "UnauthorizedError") {
+        toast.error("Please log in to bookmark news articles.");
+        const currentUrl = window.location.pathname + window.location.search;
+        router.push(AppRoutes.auth.login.withNext(currentUrl));
+      } else {
+        toast.error("Failed to add bookmark. Please try again.");
+      }
     },
     onSettled: (data, error, newsId) => {
       queryClient.invalidateQueries({ queryKey: ["news-bookmark", newsId] });
       queryClient.invalidateQueries({ queryKey: ["news-feed"] });
       queryClient.invalidateQueries({ queryKey: ["popular-news"] });
+      queryClient.invalidateQueries({ queryKey: ["user-bookmarked-news"] });
     },
   });
 };
@@ -320,6 +334,71 @@ export const useDeleteNewsBookmark = () => {
       queryClient.invalidateQueries({ queryKey: ["news-bookmark", newsId] });
       queryClient.invalidateQueries({ queryKey: ["news-feed"] });
       queryClient.invalidateQueries({ queryKey: ["popular-news"] });
+      queryClient.invalidateQueries({ queryKey: ["user-bookmarked-news"] });
     },
   });
+};
+
+export const useReadUserBookmarkedNews = (page: number = 1, limit: number = 20, enabled: boolean = true) => {
+  const hash = ["user-bookmarked-news", page, limit];
+  const { data, isPending, error, isSuccess, isFetching } = useQuery({
+    queryKey: hash,
+    queryFn: async () => {
+      const response = await fetchUserBookmarkedNews(page, limit);
+      return response;
+    },
+    enabled,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    refetchOnWindowFocus: false,
+    retry: (failureCount, error: any) => {
+      // Don't retry on unauthorized errors
+      if (error?.name === "UnauthorizedError") {
+        return false;
+      }
+      return failureCount < 2;
+    },
+  });
+
+  return {
+    data: data?.data || [],
+    count: data?.count || 0,
+    isPending,
+    isFetching,
+    isSuccess,
+    error,
+  };
+};
+
+// Unified hook that handles both regular news and bookmarks based on selectedTag
+export const useReadNewsFeedUnified = (selectedTag: string) => {
+  const isBookmarksTab = selectedTag === "Bookmarks";
+
+  // Regular news feed hook
+  const {
+    data: newsData,
+    isPending: isNewsPending,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    error: newsError,
+  } = useReadInfiniteNewsFeed(selectedTag === "All" ? undefined : selectedTag);
+
+  // Bookmarks hook
+  const {
+    data: bookmarkedData,
+    isPending: isBookmarksPending,
+    error: bookmarksError,
+  } = useReadUserBookmarkedNews(1, 50, isBookmarksTab);
+
+  // Return unified interface
+  return {
+    data: isBookmarksTab ? bookmarkedData : newsData,
+    isPending: isBookmarksTab ? isBookmarksPending : isNewsPending,
+    error: isBookmarksTab ? bookmarksError : newsError,
+    // Only provide infinite scroll functionality for non-bookmark tabs
+    fetchNextPage: isBookmarksTab ? undefined : fetchNextPage,
+    hasNextPage: isBookmarksTab ? false : hasNextPage,
+    isFetchingNextPage: isBookmarksTab ? false : isFetchingNextPage,
+    isBookmarksTab,
+  };
 };

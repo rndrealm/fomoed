@@ -5,6 +5,7 @@ import { RenderIf } from "../../shared";
 import { SheetTitle } from "../../ui/sheet";
 import { RelatedArticleCard } from "./related-articles-card";
 import { RelatedArticleCardV2 } from "./related-articles-card-v2";
+import { SkeletonLoader } from "../../shared/skeleton-loader";
 
 interface IProps {
   symbols?: string[];
@@ -12,11 +13,34 @@ interface IProps {
 
 const RelatedArticles = (props: IProps) => {
   const { symbols } = props;
-  const { data } = useReadSimilarNewsFeed(symbols, 20);
+  const { data, isPending } = useReadSimilarNewsFeed(symbols, 20);
   const [open, setOpen] = useState(false);
   const handleOpenChange = (open: boolean) => {
     setOpen(open);
   };
+
+  const LoadingState = () => (
+    <aside className="w-[26rem]">
+      <h1 className="text-2xl font-semibold">Related Articles</h1>
+      <div className="mt-8 space-y-4">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div key={index} className="flex gap-3">
+            <SkeletonLoader width={64} height={64} borderRadius={8} />
+            <div className="flex-1 space-y-2">
+              <SkeletonLoader widthFull height={16} borderRadius={4} />
+              <SkeletonLoader width={200} height={12} borderRadius={4} />
+              <SkeletonLoader width={120} height={12} borderRadius={4} />
+            </div>
+          </div>
+        ))}
+      </div>
+    </aside>
+  );
+
+  if (isPending) {
+    return <LoadingState />;
+  }
+
   return data && data.length > 0 ? (
     <>
       <aside>
