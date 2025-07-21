@@ -16,6 +16,7 @@ import { SheetContainer } from "../shared/sheet-container";
 import BookmarkComp from "./shared/BookmarkComp";
 import InlineTokenLink from "./inline-token-link";
 import Link from "next/link";
+import { ShareButton } from "../widgets/news/token-news/news/share-button";
 
 const tableData = [
   {
@@ -162,7 +163,12 @@ export function ImmersiveNews(props: IProps) {
               </button>
             </div> */}
             <div />
-            {article ? <BookmarkComp newsId={article?.id} /> : null}
+            {article ? (
+              <div className="flex items-center">
+                <ShareButton newsId={article.id} width={14} height={14} />
+                <BookmarkComp newsId={article.id} />
+              </div>
+            ) : null}
           </div>
 
           <div id="headlines-section">
