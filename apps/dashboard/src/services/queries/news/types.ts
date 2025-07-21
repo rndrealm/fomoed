@@ -113,6 +113,7 @@ export type NewsRowInsert = {
   summary: string;
   symbols: string[];
   metadata: Record<string, any>;
+  ai_summary: string[];
 };
 
 export type ApiNewsLabPost = {
@@ -133,4 +134,5 @@ export type NewsFeedItem = {
   title: string;
   summary: string;
   symbols: string[];
+  original_url: string;
 };

@@ -1,14 +1,22 @@
 "use client";
 import React, { useState } from "react";
-import { LayoutType } from "@/lib/atoms/layoutAtom";
-import CaretDown from "@/components/icons/CaretDown";
-import { Play, Sound } from "@/components/icons/icons";
+import { LayoutType, updateWidgetPropsAtom } from "@/lib/atoms/layoutAtom";
+import { CoinStats, Play, Question, Sound } from "@/components/icons/icons";
 import NewsItem from "./news-item";
-import dashboard from "@/lib/assets/dashboard";
 import Player from "./player";
 import { AnimatePresence, motion } from "motion/react";
-import { modalSlide } from "@/lib/utils";
 import SingleNews from "./single-news";
+import { useReadNewsFeed } from "@/services/queries/news";
+import { useReadCoinList } from "@/services/queries/charts";
+import { NewsTokenDropdown } from "./news-token-dropdown";
+import Star from "@/components/icons/Star";
+import { OptionsDropdown } from "@/components/widgets/shared/options-dropwdown";
+import { useAtomValue, useSetAtom } from "jotai";
+import { activeTabAtom } from "@/lib/atoms/tabsAtom";
+import { RenderIf } from "@/components/shared";
+import { settingAtom, updateSettingAtom } from "@/lib/atoms/settingsAtom";
+import { splitWidgetSlug } from "@/lib/utils";
+import StarFilled from "@/components/icons/StarFilled";
 
 const sheetVariants = {
   hidden: {
@@ -44,82 +52,141 @@ const horizontalSheetVariants = {
   },
 };
 
-const data = [
-  {
-    id: 1,
-    title: "Coinbase announces Tokenized stocks on the  EVM chain",
-    body: "Stocks look set to be the next big things in the cryptocurrency market and once again Ethereum seems to be at the forefront...",
-    img: dashboard.news1,
-    source: "cryptopanic.com",
-  },
-  {
-    id: 2,
-    title: "Coinbase announces Tokenized stocks on the  EVM chain",
-    body: "Stocks look set to be the next big things in the cryptocurrency market and once again Ethereum seems to be at the forefront...",
-    img: dashboard.news2,
-    source: "Yahoofinance.com",
-  },
-  {
-    id: 3,
-    title: "Coinbase announces Tokenized stocks on the  EVM chain",
-    body: "Stocks look set to be the next big things in the cryptocurrency market and once again Ethereum seems to be at the forefront...",
-    img: dashboard.news3,
-    source: "X.com",
-  },
-];
+// const data = [
+//   {
+//     id: 1,
+//     title: "Coinbase announces Tokenized stocks on the  EVM chain",
+//     body: "Stocks look set to be the next big things in the cryptocurrency market and once again Ethereum seems to be at the forefront...",
+//     img: dashboard.news1,
+//     source: "cryptopanic.com",
+//   },
+//   {
+//     id: 2,
+//     title: "Coinbase announces Tokenized stocks on the  EVM chain",
+//     body: "Stocks look set to be the next big things in the cryptocurrency market and once again Ethereum seems to be at the forefront...",
+//     img: dashboard.news2,
+//     source: "Yahoofinance.com",
+//   },
+//   {
+//     id: 3,
+//     title: "Coinbase announces Tokenized stocks on the  EVM chain",
+//     body: "Stocks look set to be the next big things in the cryptocurrency market and once again Ethereum seems to be at the forefront...",
+//     img: dashboard.news3,
+//     source: "X.com",
+//   },
+// ];
 
-export default function NewsWidget() {
+interface IProps {
+  widget: LayoutType["widgets"][0];
+}
+
+export default function NewsWidget(props: IProps) {
+  const { widget } = props;
   const [showPlayer, setShowPlayer] = useState(false);
-  const [showDetails, setShowDetails] = useState(false);
+  const [showDetails, setShowDetails] = useState("");
+
+  const { data: news = [] } = useReadNewsFeed(widget?.props?.token, 1, 40);
+  const { data: coinData = [] } = useReadCoinList();
+
+  const activeLayout = useAtomValue(activeTabAtom);
+  const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
+  const settings = useAtomValue(settingAtom);
+  const updateSettings = useSetAtom(updateSettingAtom);
+
+  const widgetSlug = splitWidgetSlug(widget.meta.i).slug;
+
+  const handleFavourite = () => {
+    const isFavorite = settings.favorite_widgets.includes(widgetSlug);
+
+    let newWidgetArray: string[] = [];
+
+    if (isFavorite) {
+      newWidgetArray = settings.favorite_widgets.filter((item) => item !== widgetSlug);
+    } else {
+      newWidgetArray = [...settings.favorite_widgets, widgetSlug];
+    }
+    updateSettings({
+      ...settings,
+      favorite_widgets: newWidgetArray,
+    });
+  };
 
   return (
-    <div className="relative flex h-full max-h-[698px] max-w-[447px] flex-col gap-4 overflow-hidden rounded-3xl bg-[#000000]">
-      <div className="flex items-center justify-between px-4 pt-4">
-        <div className="flex flex-col">
-          <div className="flex items-center gap-1">
-            <p className="text-[20px] leading-[1.35] font-bold text-white">Ethereum</p>
-            <div className="flex h-[20px] w-[20px] items-center justify-center">
-              <CaretDown />
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <p className="text-base leading-[24px] font-medium text-[#BABABA]">2,500.93</p>
-            <p className="text-sm leading-[1.35] font-bold text-[#84EBB4]">+$90.3</p>
-          </div>
-          <p className="text-[13px] leading-[18px] font-semibold text-[#888888]">Up 0.3%</p>
+    <div className="relative flex h-full flex-col gap-1 overflow-hidden rounded-3xl bg-[#000000]">
+      <div className="flex flex-col gap-1 px-4">
+        <div className="flex cursor-grab justify-center pt-4 pb-1">
+          <div className="h-[5px] w-[36px] rounded-[2px] bg-[#444]"></div>
         </div>
 
-        <button
-          type="button"
-          className="flex items-center gap-1 rounded-[40px] bg-[#0F0F0F] px-[10px] py-2"
-          onClick={() => {
-            setShowPlayer(true);
-          }}
-        >
-          <Play />
-          <Sound />
-        </button>
-      </div>
-      <div className="flex h-full flex-1 flex-col gap-4 overflow-y-auto px-4 py-4">
-        {Array(8)
-          .fill(0)
-          .map((_, index) => {
-            const item = data[index % data.length];
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <CoinStats />
+            <h4 className="text-base leading-[1.35] font-semibold text-[#878787]">News</h4>
+          </div>
 
+          <div className="flex items-center gap-2">
+            <button type="button" onClick={handleFavourite}>
+              <RenderIf condition={settings.favorite_widgets.includes(widgetSlug)}>
+                <StarFilled />
+              </RenderIf>
+
+              <RenderIf condition={!settings.favorite_widgets.includes(widgetSlug)}>
+                <Star />
+              </RenderIf>
+            </button>
+            {/* <button type="button" onClick={() => {}}>
+              <Question />
+            </button> */}
+            <OptionsDropdown widget={widget} />
+          </div>
+        </div>
+      </div>
+      <div className="flex flex-1 flex-col gap-2 overflow-hidden">
+        <div className="flex items-center justify-between px-4 pt-0">
+          <NewsTokenDropdown
+            options={coinData}
+            setValue={(coin) => {
+              updateWidgetPropsFromAtom({
+                tabId: activeLayout.id,
+                widgetId: widget.id,
+                widgetProps: {
+                  ...widget.props,
+                  token: coin,
+                },
+              });
+            }}
+            value={widget?.props?.token}
+            align="start"
+          />
+
+          <RenderIf condition={false}>
+            <button
+              type="button"
+              className="flex items-center gap-1 rounded-[40px] bg-[#0F0F0F] px-[10px] py-2"
+              onClick={() => {
+                setShowPlayer(true);
+              }}
+              disabled={false}
+            >
+              <Play />
+              <Sound />
+            </button>
+          </RenderIf>
+        </div>
+        <div className="scrollbar flex h-full flex-1 flex-col gap-5 overflow-y-auto px-4 py-4">
+          {news?.map((data, index) => {
             return (
               <NewsItem
-                key={index}
-                body={item.body}
-                img={item.img}
-                source={item.source}
-                title={item.title}
+                key={data.id}
+                data={data}
                 onClick={() => {
-                  setShowDetails(true);
+                  setShowDetails(data.id);
                 }}
                 sentiment={index % 2 === 0 ? "Bearish" : "Bullish"}
               />
             );
           })}
+        </div>
       </div>
 
       <AnimatePresence>
@@ -141,7 +208,7 @@ export default function NewsWidget() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {showDetails && (
+        {!!showDetails && (
           <motion.div
             className="absolute top-[0px] right-[0] bottom-[0] left-[0] flex"
             initial="hidden"
@@ -150,8 +217,9 @@ export default function NewsWidget() {
             variants={horizontalSheetVariants}
           >
             <SingleNews
+              id={showDetails}
               handleClose={() => {
-                setShowDetails(false);
+                setShowDetails("");
               }}
             />
           </motion.div>

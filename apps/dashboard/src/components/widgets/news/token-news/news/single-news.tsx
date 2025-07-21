@@ -20,9 +20,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { RenderIf } from "@/components/shared";
+import { useReadSingleNewsArticle } from "@/services/queries/news";
+import { formatNewsWidgetTime } from "@/lib/utils";
+import { useTextToSpeech } from "@/hooks/useTextToSpeech";
+import { PlayButton } from "./play-button";
 
 interface IProps {
-  handleClose?: () => void;
+  handleClose: () => void;
+  id: string;
 }
 
 function Options() {
@@ -103,15 +108,27 @@ function Tokens() {
 }
 
 export default function SingleNews(props: IProps) {
-  const { handleClose } = props;
+  const { handleClose, id } = props;
+
+  const { speak, pause, resume, cancel, isSpeaking, isPaused } = useTextToSpeech();
+
+  const { data } = useReadSingleNewsArticle(id);
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden rounded-3xl bg-[#000]">
       <div className="relative h-[250px]">
-        <Image src={dashboard.bigNews} alt="news" className="h-full w-full object-cover blur-[2px]" />
-        <div className="absolute top-[0] right-[0] bottom-[0] left-[0] flex flex-col justify-between bg-[rgba(0,0,0,0.3)] p-4">
+        {data?.image_url && (
+          <Image
+            src={data?.image_url}
+            alt="news"
+            width={450}
+            height={250}
+            className="h-full w-full object-cover blur-[2px]"
+          />
+        )}
+        <div className="absolute top-[0] right-[0] bottom-[0] left-[0] flex flex-col justify-between bg-[rgba(0,0,0,0.4)] p-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1 rounded-full bg-[#0F0F0F] px-2 py-[6px]">
+            <div className="invisible flex items-center gap-1 rounded-full bg-[#0F0F0F] px-2 py-[6px]">
               <Fire />
               <p className="text-xs leading-[16px] text-white">Hot</p>
             </div>
@@ -119,20 +136,26 @@ export default function SingleNews(props: IProps) {
             <button
               type="button"
               className="flex h-[24px] w-[24px] items-center justify-center rounded-sm bg-[rgba(14,14,14,0.2)]"
-              onClick={handleClose}
+              onClick={() => {
+                cancel();
+                handleClose();
+              }}
             >
               <Close />
               {/* <Expand /> */}
             </button>
           </div>
 
-          <div className="flex max-w-[266px] flex-col gap-1">
-            <p className="text-xs leading-[16px] text-[#A4A4A4]">Cryptopanic.com</p>
+          <div className="flex max-w-[full] flex-col gap-1">
+            <a href={data?.original_url} target="_blank">
+              <p className="line-clamp-1 text-xs leading-[16px] text-[#A4A4A4]">{data?.source}</p>
+            </a>
             <div className="flex flex-col gap-2">
               <p className="text-[18px] leading-[26px] font-medium text-white">
-                Coinbase announces Tokenized stocks on the EVM chain
+                {data?.title}
+                {/* Coinbase announces Tokenized stocks on the EVM chain */}
               </p>
-              <p className="text-xs leading-[16px] text-[#A4A4A4]">11:02AM</p>
+              <p className="text-xs leading-[16px] text-[#A4A4A4]">{formatNewsWidgetTime(data?.published_at)}</p>
             </div>
           </div>
         </div>
@@ -140,7 +163,7 @@ export default function SingleNews(props: IProps) {
       <div className="flex items-center justify-between px-4 py-2">
         <div className="flex flex-col gap-1">
           <p className="text-xs leading-[16px] text-white">Summary</p>
-          <p className="text-xs leading-[16px] text-[#A4A4A4]">Saves you 5 minutes</p>
+          {/* <p className="text-xs leading-[16px] text-[#A4A4A4]">Saves you 5 minutes</p> */}
         </div>
 
         <div className="flex flex-1 items-center justify-end gap-1">
@@ -150,8 +173,21 @@ export default function SingleNews(props: IProps) {
               className="flex items-center gap-1 px-[10px] py-[6px] text-xs leading-[16px] text-white"
             >
               <Share />
-              Share Article
             </button>
+
+            <PlayButton
+              handlePlay={() => {
+                speak(data?.ai_summary?.join(". ") || "");
+              }}
+              handlePause={() => {
+                pause();
+              }}
+              handleResume={() => {
+                resume();
+              }}
+              isSpeaking={isSpeaking}
+              isPaused={isPaused}
+            />
 
             {/* <Tokens /> */}
             <Options />
@@ -169,20 +205,15 @@ export default function SingleNews(props: IProps) {
         </div>
       </div>
 
-      <div className="scrollbar flex flex-1 flex-col gap-2 overflow-y-auto px-4 py-4">
-        {Array(20)
-          .fill(0)
-          .map((_, index) => {
-            return (
-              <div key={index} className="flex items-center gap-2">
-                <div className="h-[5px] w-[5px] rounded-full bg-[#6200DA]"></div>
-                <p className="flex-1 text-xs leading-[16px] text-white">
-                  Customers can trade over 200 US. equities as blockhain-wrapped tokens 24 hours a day, five days a week
-                  with zero commission and on-app dividend
-                </p>
-              </div>
-            );
-          })}
+      <div className="scrollbar flex flex-1 flex-col gap-2 overflow-y-auto px-4 py-4 pb-8">
+        {data?.ai_summary?.map((summary, index) => {
+          return (
+            <div key={index} className="flex items-center gap-2">
+              <div className="h-[5px] w-[5px] rounded-full bg-[#6200DA]"></div>
+              <p className="flex-1 text-xs leading-[16px] text-white">{summary}</p>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
