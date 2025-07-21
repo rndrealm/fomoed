@@ -28,7 +28,12 @@ const TableOfContent = (props: IProps) => {
   };
 
   return (
-    <div className="sticky top-[40px] hidden gap-3 self-start lg:flex">
+    <div
+      style={{
+        transform: "translateY(-50%)",
+      }}
+      className="sticky top-[40px] hidden gap-3 self-start lg:flex"
+    >
       {/* <div className="left:1/2 fixed top-[56px] left-[350px] hidden flex-row gap-3 2xl:top-[114px] 2xl:left-[120px] 2xl:flex"> */}
       <div className="relative top-14 flex w-4.5 flex-col gap-1">
         <motion.div
