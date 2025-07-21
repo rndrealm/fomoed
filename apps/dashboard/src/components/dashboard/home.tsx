@@ -103,7 +103,7 @@ export default function Home({ dashboardData }: IProps) {
         {/* <OnboardingModal isOpen={isOpen} onOpenChange={handleOpenChange} /> */}
         <div
           className={cn(
-            "h-screen overflow-hidden bg-[#0C0C0C] pt-[66px] pb-4 md:px-4"
+            "h-screen overflow-hidden bg-[#000] pt-0 pb-4 md:px-2"
             // !utils.isFullScreen
             //   ? "pt-[66px] md:pt-[72px] md:px-4 pb-4"
             //   : "p-1 md:pt-1"

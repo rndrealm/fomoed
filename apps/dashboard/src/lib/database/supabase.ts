@@ -884,6 +884,49 @@ export type Database = {
           },
         ]
       }
+      news_favorites: {
+        Row: {
+          created_at: string
+          id: number
+          news_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          news_id?: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          news_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "news_favorites_news_id_fkey"
+            columns: ["news_id"]
+            isOneToOne: false
+            referencedRelation: "news"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "news_favorites_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "signals_users"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "news_favorites_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       news_likes: {
         Row: {
           created_at: string

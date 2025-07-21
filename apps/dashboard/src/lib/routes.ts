@@ -5,6 +5,10 @@ export const AppRoutes = {
     login: {
       name: "Login",
       path: "/auth/login",
+      withNext: (nextUrl?: string) => {
+        if (!nextUrl) return "/auth/login";
+        return `/auth/login?next=${encodeURIComponent(nextUrl)}`;
+      },
     },
     forgotPassword: {
       name: "Forgot Password",
@@ -35,6 +39,15 @@ export const AppRoutes = {
   news: {
     name: "News",
     path: "/news",
+
+    newsPage: {
+      name: "Immersive News",
+      path: (id: string) => `/news/${id}`,
+    },
+  },
+  signals: {
+    name: "Signals",
+    path: "/signals",
   },
   pricing: {
     name: "Pricing",

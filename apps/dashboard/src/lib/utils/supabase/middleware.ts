@@ -36,16 +36,16 @@ export async function updateSession(request: NextRequest) {
     data: { user },
     error,
   } = await supabase.auth.getUser();
-  if (error) {
-    await supabase.auth.signOut();
-    const url = request.nextUrl.clone();
-    url.pathname = AppRoutes.auth.login.path;
-    return NextResponse.redirect(url);
-  }
-  if (!user && (request.nextUrl.pathname.startsWith("/dashboard") || request.nextUrl.pathname.startsWith("/signals"))) {
+
+  if (
+    (!user || error) &&
+    (request.nextUrl.pathname.startsWith("/dashboard") || request.nextUrl.pathname.startsWith("/signals"))
+  ) {
     // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone();
-    url.pathname = AppRoutes.auth.login.path;
+    const currentUrl = request.nextUrl.pathname + request.nextUrl.search;
+    url.pathname = "/auth/login";
+    url.search = `next=${encodeURIComponent(currentUrl)}`;
     return NextResponse.redirect(url);
   }
 
@@ -58,6 +58,7 @@ export async function updateSession(request: NextRequest) {
     !request.nextUrl.pathname.includes("/news") &&
     !request.nextUrl.pathname.includes("/scrape-cfgi") &&
     !request.nextUrl.pathname.includes("/newslab") &&
+    !request.nextUrl.pathname.includes("/coinstats") &&
     !isMonitorRequest
   ) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

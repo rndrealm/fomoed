@@ -39,6 +39,7 @@ import CFGI from "@/components/widgets/cfgi/fear-and-greed/cfgi";
 import Screener from "@/components/widgets/screener/screener";
 import widgetsPreview from "./assets/widgetsPreview";
 import { StaticImageData } from "next/image";
+import NewsWidget from "@/components/widgets/news/token-news/news";
 
 export const layoutClassMap = {
   SinglePane: "grid-rows-1 grid-cols-1",
@@ -130,9 +131,17 @@ export const layoutOptionsMap = [
     id: 7,
     name: "Dex",
     slug: "dex",
-    image: dashboard.tokenNews,
+    image: dashboard.dex,
+    category: "charts",
+    tags: ["new", "charts"],
+  },
+  {
+    id: 6,
+    name: "Token News",
+    slug: "token-news",
+    image: dashboard.newsWidget,
     category: "news",
-    tags: ["new"],
+    tags: ["news", "new"],
   },
   {
     id: 112,
@@ -191,7 +200,7 @@ export const layoutOptionsMap = [
     id: 18,
     name: "Screener",
     slug: "screener",
-    image: dashboard.orderBook,
+    image: dashboard.screener,
     category: "charts",
     tags: ["new"],
   },
@@ -200,7 +209,7 @@ export const layoutOptionsMap = [
     id: 6,
     name: "Token News",
     slug: "token-news",
-    image: dashboard.tokenNews,
+    image: dashboard.newsWidget,
     category: "news",
     tags: ["news", "new"],
   },
@@ -288,7 +297,7 @@ export const chartsMap = {
   "token-news": {
     name: "Token News",
     extra: ["token"],
-    component: (widget: LayoutType["widgets"][0]) => <TokenNewsWidget widget={widget} />,
+    component: (widget: LayoutType["widgets"][0]) => <NewsWidget widget={widget} />,
   },
   dex: {
     name: "Dex",

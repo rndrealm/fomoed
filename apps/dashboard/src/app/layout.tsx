@@ -62,7 +62,17 @@ export default function RootLayout({
               <NotificationProvider>{children}</NotificationProvider>
             </NuqsAdapter>
           </QueryProvider>
-          <Toaster />
+          <Toaster
+            toastOptions={{
+              style: {
+                maxWidth: "523px",
+                width: "100%",
+                height: "56px",
+                paddingTop: 0,
+                paddingBottom: 0,
+              },
+            }}
+          />
         </div>
       </body>
     </html>

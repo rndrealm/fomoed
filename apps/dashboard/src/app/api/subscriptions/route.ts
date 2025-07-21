@@ -2,6 +2,7 @@ import { AppRoutes } from "@/lib/routes";
 import stripe from "@/lib/utils/stripe";
 import { createSupabaseServerClient } from "@/lib/utils/supabase/server-client";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 
 import { NextResponse } from "next/server";
 
@@ -18,7 +19,12 @@ const fetchUserPlans = async () => {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect(AppRoutes.auth.login.path);
+    // Get the current URL from headers to use as the next parameter
+    const headersList = await headers();
+    const referer = headersList.get("referer") || "";
+    const currentUrl = referer ? new URL(referer).pathname + new URL(referer).search : "";
+
+    redirect(AppRoutes.auth.login.withNext(currentUrl));
   }
   // For some reason, on stripe there are multiple customers with the same email
   // Here we are searching for all customers with the email and retrieving all their subscriptions
@@ -37,9 +43,7 @@ const fetchUserPlans = async () => {
     user_subscriptions.push(...customer_subs.data);
   }
 
-  const active_subs = user_subscriptions.filter(
-    (sub) => sub.status === "active" || sub.status === "trialing"
-  );
+  const active_subs = user_subscriptions.filter((sub) => sub.status === "active" || sub.status === "trialing");
 
   let planType: "FREE" | "PRO" | "PLUS" = "FREE";
 
@@ -58,8 +62,7 @@ const fetchUserPlans = async () => {
   return {
     subscriptions: active_subs,
     hasPlan: active_subs.length > 0,
-    hasTrial:
-      active_subs.find((sub) => sub.status === "trialing") !== undefined,
+    hasTrial: active_subs.find((sub) => sub.status === "trialing") !== undefined,
     planType,
   };
 };
@@ -73,9 +76,6 @@ export async function GET() {
   } catch (error) {
     // Handle errors gracefully
     console.log("Error fetching subsriptions data:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch subsriptions data" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch subsriptions data" }, { status: 500 });
   }
 }

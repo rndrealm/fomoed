@@ -17,7 +17,7 @@ const AmountInput = (props: IProps) => {
         onChange={(e) => {
           updateInputValue(e.target.value);
         }}
-        className="p-1 text-xl font-bold text-white outline-none placeholder:text-white max-w-[10rem]"
+        className="max-w-[10rem] p-1 text-xl font-bold text-white outline-none placeholder:text-white"
       />
     </div>
   );

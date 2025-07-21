@@ -48,10 +48,12 @@ export function ProfileDropdown(props: IProps) {
   }, [isBeta]);
 
   if (!authUser) {
+    const currentUrl = typeof window !== "undefined" ? window.location.pathname + window.location.search : "";
+
     return (
       <div className="px-5 py-2">
         <Link
-          href={AppRoutes.auth.login.path}
+          href={AppRoutes.auth.login.withNext(currentUrl)}
           className="block w-full rounded-sm bg-white px-2 py-1 text-center text-[13px] leading-[1.35] font-medium text-[#333]"
         >
           Login

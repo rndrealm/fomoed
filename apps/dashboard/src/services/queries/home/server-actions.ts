@@ -2,6 +2,7 @@ import { createSupabaseServerComponentClient } from "@/lib/utils/supabase/server
 // import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { AppRoutes } from "@/lib/routes";
 // import { UserGeoLocation } from "../geolocation/types";
 
@@ -14,7 +15,12 @@ export const getDashboardData = async () => {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect(AppRoutes.auth.login.path);
+    // Get the current URL from headers to use as the next parameter
+    const headersList = await headers();
+    const referer = headersList.get("referer") || "";
+    const currentUrl = referer ? new URL(referer).pathname + new URL(referer).search : "";
+
+    redirect(AppRoutes.auth.login.withNext(currentUrl));
   }
 
   // Try to fetch existing layouts for the user

@@ -17,7 +17,6 @@ export default function useAuthUserData() {
   };
 
   useEffect(() => {
-    console.log("fetch userrrr");
     getUser();
   }, []);
 

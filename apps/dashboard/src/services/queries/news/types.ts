@@ -113,6 +113,7 @@ export type NewsRowInsert = {
   summary: string;
   symbols: string[];
   metadata: Record<string, any>;
+  ai_summary: string[];
 };
 
 export type ApiNewsLabPost = {
@@ -123,4 +124,25 @@ export type ApiNewsLabPost = {
   metadata: {
     ref_tokens: string[];
   };
+};
+
+export type NewsFeedItem = {
+  id: string;
+  published_at: string;
+  image_url: string;
+  source: string;
+  title: string;
+  summary: string;
+  symbols: string[];
+  original_url: string;
+};
+
+export type NullableNewsFeedItem = {
+  id: string;
+  published_at: string | null;
+  image_url: string | null;
+  source: string | null;
+  title: string | null;
+  summary: string | null;
+  symbols: string[] | null;
 };
