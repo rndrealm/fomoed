@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
+import LinkPopup from "./nav-link-popup";
 
 const sideMenuVariants = {
   open: {
@@ -39,6 +40,8 @@ interface INavLinkProps extends INavLink {
 export function NavLink(props: INavLinkProps) {
   const { href, label, icon, active, onClick, disabled, comingSoon, variant, isSideMenuOpen, isBottomLink } = props;
 
+  const [isHovered, setIsHovered] = useState(false);
+
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (disabled) {
       e.preventDefault();
@@ -51,12 +54,30 @@ export function NavLink(props: INavLinkProps) {
   if (variant === "passive") {
     return (
       <div
+        onMouseEnter={() => {
+          //in order to see the icons the sidebar element overflow needs to be visible
+          const sidebar = document.getElementById("sidebar");
+          if (sidebar) {
+            sidebar.style.overflow = "visible";
+          }
+          setIsHovered(true);
+        }}
+        onMouseLeave={() => {
+          const sidebar = document.getElementById("sidebar");
+          if (sidebar) {
+            sidebar.style.overflow = "hidden";
+          }
+          setIsHovered(false);
+        }}
+        id="popup-trigger-div"
         className={cn(
-          "flex max-h-[40px] items-center justify-center rounded-[10px] px-0 py-2"
-          // active ? "bg-[#1A1A1A]" : "bg-[#000]"
+          "pointer-events-auto relative flex max-h-[40px] items-center justify-center rounded-[10px] px-0 py-2",
+          isHovered ? "bg-[#1A1A1A]" : "bg-[#000]"
         )}
       >
+        {/* icon can be hovered */}
         <Link
+          id="popup-trigger-a"
           href={disabled ? "#" : href}
           onClick={handleClick}
           className={cn("", {
@@ -64,7 +85,7 @@ export function NavLink(props: INavLinkProps) {
           })}
           aria-disabled={disabled}
         >
-          <div className="flex items-center gap-3 pt-0 pb-0">
+          <div className="pointer-events-none flex items-center gap-3 pt-0 pb-0">
             {/* make the active icon white */}
             <div key={label}>
               {React.cloneElement(icon, {
@@ -73,6 +94,9 @@ export function NavLink(props: INavLinkProps) {
             </div>
           </div>
         </Link>
+
+        {/* hover popup */}
+        {isHovered && <LinkPopup label={label} className="left-[42px]" />}
       </div>
     );
   }

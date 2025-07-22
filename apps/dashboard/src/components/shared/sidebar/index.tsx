@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { motion } from "motion/react";
 import dashboard from "@/lib/assets/dashboard";
@@ -37,6 +37,7 @@ const SideNav = (props: ISideNavProps) => {
 
   return (
     <motion.div
+      id="sidebar"
       className={cn(
         "fixed inset-0 z-50 h-screen max-h-screen w-[280px] max-w-[280px] overflow-hidden rounded-none bg-[#000000] p-0 opacity-100",
         {
@@ -70,8 +71,20 @@ const PassiveNav = (props: IPassiveNavProps) => {
   const { navLinks, setIsSideMenuOpen, setIsHovered } = props;
   return (
     <div
-      className="font-inter pointer-events-auto relative z-50 hidden h-full w-full max-w-[52px] flex-col items-center justify-between border-l-[1px] border-[#2A2A2A] bg-[#000000] py-4 md:flex"
-      onClick={() => setIsSideMenuOpen(true)}
+      className={
+        "font-inter pointer-events-auto relative z-50 hidden h-full w-full max-w-[52px] flex-col items-center justify-between border-l-[1px] border-[#2A2A2A] bg-[#000000] py-4 md:flex"
+      }
+      onClick={(e) => {
+        // check for the click on icon - no open of the sidebar
+        const target = e.target as HTMLElement;
+        // console.log("Target ID:", target.id);
+
+        if (target.id === "popup-trigger-a" || target.id === "popup-trigger-div") {
+          setIsSideMenuOpen(false);
+        } else {
+          setIsSideMenuOpen(true);
+        }
+      }}
       onMouseEnter={() => {
         document.body.style.cursor = "pointer";
         setIsHovered(true);
@@ -88,7 +101,7 @@ const PassiveNav = (props: IPassiveNavProps) => {
       </div>
 
       <div className="flex h-full w-full flex-col items-center justify-between px-2 py-14">
-        <div className="flex w-full flex-col gap-2">
+        <div className="pointer-events-none flex w-full flex-col gap-2">
           {navLinks.map((item, index) => {
             // const active = item.label === "News";
 
@@ -136,7 +149,7 @@ const ActiveNav = (props: IActiveNavProps) => {
         </motion.button>
         <motion.button
           onClick={() => setIsSideMenuOpen(false)}
-          animate={{ x: isSideMenuOpen ? "-14px" : 0 }}
+          animate={{ opacity: isSideMenuOpen ? 1 : 0, x: isSideMenuOpen ? "-14px" : 0 }}
           transition={{ duration: 0.75, delay: 0, ease: [0.4, 0.0, 0.2, 1] }}
         >
           <MenuIconOpened />
