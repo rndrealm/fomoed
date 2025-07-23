@@ -238,6 +238,22 @@ export const layoutOptionsMap = [
     category: "charts",
     tags: ["charts"],
   },
+  {
+    id: 2,
+    name: "Simplified Crypto Fear and Greed Map",
+    slug: "simple-cfgi",
+    image: dashboard.simple,
+    category: "charts",
+    tags: ["charts"],
+  },
+  {
+    id: 1,
+    name: "Crypto Fear and Greed Map",
+    slug: "detailed-cfgi",
+    image: dashboard.cfgi,
+    category: "charts",
+    tags: ["charts"],
+  },
 
   // {
   //   id: 10,
