@@ -60,11 +60,6 @@ const SignalBuilder = ({}) => {
       return;
     }
 
-    if (signalPrompt.length === 0) {
-      toast.error("Please fill in all fields");
-      return;
-    }
-
     const actions: Array<{
       type: string;
       subject?: string;
@@ -87,7 +82,7 @@ const SignalBuilder = ({}) => {
 
     const logic = toJsonLogic(rootGroup);
     const data: CreateSignalDTO = {
-      name: signalPrompt,
+      name: signalPrompt || JSON.stringify(logic),
       description: signalDescription,
       condition: JSON.stringify(logic),
       user_id: user?.id,
