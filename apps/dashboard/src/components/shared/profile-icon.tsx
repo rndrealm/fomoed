@@ -12,9 +12,10 @@ export function ProfileIcon(props: IProps) {
   const hasUser = !!user;
 
   return (
-    <div className="flex h-full w-full items-center justify-center">
+    <div className="flex h-full w-full items-start justify-start">
       {hasUser && user?.user_metadata?.avatar_url ? (
         <Image
+          id="popup-trigger-a"
           src={user.user_metadata.avatar_url}
           alt="User avatar"
           className="w-full object-cover"

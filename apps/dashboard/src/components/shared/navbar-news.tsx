@@ -158,7 +158,7 @@ export const NavbarNews = (props: IProps) => {
   return (
     <nav className="flex flex-col items-center overflow-hidden bg-[#00000] px-2 py-3 sm:px-4 md:px-8 md:py-4">
       {/* Top Nav */}
-      <NavigationTop authUser={authUser} isNewsLogo={isNewsLogo} setIsSideMenuOpen={setIsSideMenuOpen} />
+      {/* <NavigationTop authUser={authUser} isNewsLogo={isNewsLogo} setIsSideMenuOpen={setIsSideMenuOpen} /> */}
 
       {/* Blur Layer */}
       <motion.div

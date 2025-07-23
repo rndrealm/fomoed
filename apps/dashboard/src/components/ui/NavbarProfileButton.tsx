@@ -22,7 +22,7 @@ const NavbarProfileButton = (props: IProps) => {
         <div>{children ? children : <NavbarProfileButtonTrigger user={authUser} />}</div>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="border-0 bg-transparent px-0">
+      <DropdownMenuContent align="end" className="border-0 bg-transparent pr-0 pb-3 pl-6">
         {/* <ProfileDropdown /> */}
         <ProfileDropdown authUser={authUser} />
       </DropdownMenuContent>

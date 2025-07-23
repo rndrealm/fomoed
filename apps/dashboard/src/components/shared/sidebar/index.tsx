@@ -6,6 +6,9 @@ import { MenuIconClosed, MenuIconOpened, StarSvg } from "../../icons/icons";
 import { cn } from "@/lib/utils";
 import { NavLink, INavLink } from "./nav-link";
 import { usePathname } from "next/navigation";
+import NavbarProfileButton from "@/components/ui/NavbarProfileButton";
+import { ProfileIcon } from "../profile-icon";
+import useAuthUserData from "@/lib/hooks/use-auth-user-data";
 
 const sideMenuVariants = {
   open: {
@@ -69,20 +72,24 @@ interface IPassiveNavProps {
 // This component renders the passive navigation when the side menu is closed.
 const PassiveNav = (props: IPassiveNavProps) => {
   const { navLinks, setIsSideMenuOpen, setIsHovered } = props;
+
   return (
     <div
+      id="passive-nav-active"
       className={
         "font-inter pointer-events-auto relative z-50 hidden h-full w-full max-w-[52px] flex-col items-center justify-between border-l-[1px] border-[#2A2A2A] bg-[#000000] py-4 md:flex"
       }
       onClick={(e) => {
         // check for the click on icon - no open of the sidebar
         const target = e.target as HTMLElement;
-        // console.log("Target ID:", target.id);
+        // console.log("Target ID:", target);
 
         if (target.id === "popup-trigger-a" || target.id === "popup-trigger-div") {
           setIsSideMenuOpen(false);
         } else {
-          setIsSideMenuOpen(true);
+          if (target.id === "passive-nav-active") {
+            setIsSideMenuOpen(true);
+          }
         }
       }}
       onMouseEnter={() => {
@@ -94,13 +101,16 @@ const PassiveNav = (props: IPassiveNavProps) => {
         setIsHovered(false);
       }}
     >
-      <div className="flex w-full flex-row items-center justify-between px-[10px]">
-        <button style={{ opacity: 0 }}>
+      <div
+        id="passive-nav-active"
+        className="pointer-events-auto flex w-full flex-row items-center justify-between px-[10px]"
+      >
+        <button style={{ opacity: 0 }} className="pointer-events-none">
           <Image height={32} width={32} src={dashboard.logoMobile} alt="logo" />
         </button>
       </div>
 
-      <div className="flex h-full w-full flex-col items-center justify-between px-2 py-14">
+      <div id="passive-nav-active" className="flex h-full w-full flex-col items-center justify-between px-2 py-14">
         <div className="pointer-events-none flex w-full flex-col gap-2">
           {navLinks.map((item, index) => {
             // const active = item.label === "News";
@@ -134,6 +144,8 @@ interface IActiveNavProps {
 // This component renders the active navigation when the side menu is open.
 const ActiveNav = (props: IActiveNavProps) => {
   const { navLinks, bottomLinks, isSideMenuOpen, setIsSideMenuOpen, isHovered } = props;
+
+  const authUser = useAuthUserData();
   return (
     <div
       style={{ pointerEvents: isSideMenuOpen ? "all" : "none" }}
@@ -199,19 +211,30 @@ const ActiveNav = (props: IActiveNavProps) => {
       </div>
 
       <motion.div
-        className="flex w-full flex-row gap-5 border-t-[1px] border-[#2E2E2E] px-6 pt-5"
-        initial="closed"
-        variants={sideMenuVariants}
-        animate={isSideMenuOpen ? "open" : "closed"}
+        animate={{
+          borderTopColor: isSideMenuOpen ? "#2E2E2E" : "#000",
+        }}
+        transition={{ duration: 0.75, delay: 0, ease: [0.4, 0.0, 0.2, 1] }}
+        className="flex w-full flex-row items-center gap-8 border-t-[1px] border-[#2E2E2E] px-[10px] pt-5"
       >
-        <div className="flex h-full items-center justify-center">
-          <StarSvg></StarSvg>
-        </div>
-        <div className="flex flex-col gap-2">
-          <h3 className="text-[14px] font-normal text-white">View Plans</h3>
+        <motion.div
+          animate={{ x: isSideMenuOpen ? "14px" : 0 }}
+          transition={{ duration: 0.75, delay: 0, ease: [0.4, 0.0, 0.2, 1] }}
+          className="flex h-[24px] w-[24px] cursor-pointer items-center justify-center overflow-hidden rounded-[5px] md:h-[32px] md:w-[32px]"
+        >
+          <NavbarProfileButton authUser={authUser}>
+            <ProfileIcon user={authUser} />
+          </NavbarProfileButton>
+        </motion.div>
 
-          <h4 className="text-xs font-normal text-[#A4A4A4]">Unlimited plans and widgets</h4>
-        </div>
+        <motion.div
+          variants={sideMenuVariants}
+          animate={isSideMenuOpen ? "open" : "closed"}
+          className="flex flex-col gap-1.5"
+        >
+          <h3 className="text-[14px] font-normal text-white">{authUser?.user_metadata?.name}</h3>
+          <h4 className="text-xs font-normal text-[#A4A4A4]">{authUser?.email}</h4>
+        </motion.div>
       </motion.div>
     </div>
   );
