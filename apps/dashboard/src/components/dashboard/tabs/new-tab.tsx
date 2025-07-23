@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useRef, useState } from "react";
-import { AddTab, CloseTab, TabLayout } from "../../icons/icons";
+import { AddTab, CloseTab, MenuIconClosed, TabLayout } from "../../icons/icons";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
   activeTabAtom,
@@ -15,6 +15,7 @@ import { ModalContainer, RenderIf } from "../../shared";
 import { useGetUserPlans } from "@/services/queries/subscriptions";
 import { deleteLayoutAtom, layoutAtom } from "@/lib/atoms/layoutAtom";
 import { MobileTab } from "./mobile-tab";
+import { isSidebarOpenAtom } from "@/lib/atoms/utilsAtom";
 
 interface ITabButton {
   handleClick?: () => void;
@@ -128,6 +129,8 @@ export function NewTabs() {
   const [deleteTab, setDeleteTab] = useState<typeof activeTab>();
   const [showTabsModal, setShowTabsModal] = useState(false);
 
+  const setIsSideMenuOpen = useSetAtom(isSidebarOpenAtom);
+
   const currentLayout = layouts.find((item) => item.id === deleteTab?.layout_id);
 
   const { data } = useGetUserPlans();
@@ -146,7 +149,12 @@ export function NewTabs() {
 
   return (
     <Fragment>
-      <div className="flex flex-1 md:hidden">
+      <div className="flex flex-1 gap-3 md:hidden">
+        <button className="" onClick={() => setIsSideMenuOpen(true)}>
+          <span className="">
+            <MenuIconClosed />
+          </span>
+        </button>
         <button
           type="button"
           className="flex h-[26px] w-[26px] items-center justify-center rounded-md border-2 border-[#505050]"

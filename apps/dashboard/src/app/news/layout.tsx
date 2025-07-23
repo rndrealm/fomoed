@@ -9,7 +9,7 @@ export default function RootLayout({
   return (
     <Fragment>
       <div className="absolute inset-x-0 top-0">
-        <NavbarNews />
+        <NavbarNews isNews />
       </div>
       <div className="bg-black pt-[64px] md:pt-[86px]">
         <div className="relative flex h-full w-full flex-col px-2 sm:px-6">

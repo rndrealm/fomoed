@@ -9,6 +9,7 @@ import { usePathname } from "next/navigation";
 import NavbarProfileButton from "@/components/ui/NavbarProfileButton";
 import { ProfileIcon } from "../profile-icon";
 import useAuthUserData from "@/lib/hooks/use-auth-user-data";
+import { User } from "@supabase/supabase-js";
 
 const sideMenuVariants = {
   open: {
@@ -32,10 +33,11 @@ interface ISideNavProps {
   bottomLinks: INavLink[];
   isSideMenuOpen: boolean;
   setIsSideMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  authUser: User | null;
 }
 
 const SideNav = (props: ISideNavProps) => {
-  const { navLinks, bottomLinks, isSideMenuOpen, setIsSideMenuOpen } = props;
+  const { navLinks, bottomLinks, isSideMenuOpen, setIsSideMenuOpen, authUser } = props;
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -51,13 +53,19 @@ const SideNav = (props: ISideNavProps) => {
       animate={{ width: isSideMenuOpen ? "280px" : "52px" }}
       transition={{ duration: 0.5, ease: [0.4, 0.0, 0.2, 1] }}
     >
-      <PassiveNav navLinks={navLinks} setIsSideMenuOpen={setIsSideMenuOpen} setIsHovered={setIsHovered} />
+      <PassiveNav
+        navLinks={navLinks}
+        setIsSideMenuOpen={setIsSideMenuOpen}
+        setIsHovered={setIsHovered}
+        authUser={authUser}
+      />
       <ActiveNav
         navLinks={navLinks}
         bottomLinks={bottomLinks}
         isSideMenuOpen={isSideMenuOpen}
         setIsSideMenuOpen={setIsSideMenuOpen}
         isHovered={isHovered}
+        authUser={authUser}
       />
     </motion.div>
   );
@@ -67,11 +75,12 @@ interface IPassiveNavProps {
   navLinks: INavLink[];
   setIsSideMenuOpen: (value: boolean) => void;
   setIsHovered: (value: boolean) => void;
+  authUser: User | null;
 }
 
 // This component renders the passive navigation when the side menu is closed.
 const PassiveNav = (props: IPassiveNavProps) => {
-  const { navLinks, setIsSideMenuOpen, setIsHovered } = props;
+  const { navLinks, setIsSideMenuOpen, setIsHovered, authUser } = props;
 
   return (
     <div
@@ -139,13 +148,13 @@ interface IActiveNavProps {
   isSideMenuOpen: boolean;
   setIsSideMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
   isHovered: boolean;
+  authUser: User | null;
 }
 
 // This component renders the active navigation when the side menu is open.
 const ActiveNav = (props: IActiveNavProps) => {
-  const { navLinks, bottomLinks, isSideMenuOpen, setIsSideMenuOpen, isHovered } = props;
+  const { navLinks, bottomLinks, isSideMenuOpen, setIsSideMenuOpen, isHovered, authUser } = props;
 
-  const authUser = useAuthUserData();
   return (
     <div
       style={{ pointerEvents: isSideMenuOpen ? "all" : "none" }}
@@ -216,6 +225,7 @@ const ActiveNav = (props: IActiveNavProps) => {
           borderTopColor: isSideMenuOpen ? "#2E2E2E" : "#000",
         }}
         transition={{ duration: 0.75, delay: 0, ease: [0.4, 0.0, 0.2, 1] }}
+        id="popup-trigger-div"
         className="flex w-full flex-row items-center gap-8 border-t-[1px] border-[#2E2E2E] px-[10px] pt-5"
       >
         <motion.div

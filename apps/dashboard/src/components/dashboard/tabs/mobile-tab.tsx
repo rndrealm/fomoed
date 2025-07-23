@@ -16,17 +16,15 @@ function MobileTabItem(props: IMobileTabItem) {
 
   return (
     <div
-      className="flex flex-col h-[200px] rounded-[8px] border border-[#333333] w-full overflow-hidden cursor-pointer"
+      className="flex h-[200px] w-full cursor-pointer flex-col overflow-hidden rounded-[8px] border border-[#333333]"
       onClick={handleClick}
     >
-      <div className="flex justify-between p-2 bg-[#131313]">
-        <p className="text-[#7A7A7A] text-xs font-medium leading-[18px] flex-1 line-clamp-1">
-          {name}
-        </p>
+      <div className="flex justify-between bg-[#131313] p-2">
+        <p className="line-clamp-1 flex-1 text-xs leading-[18px] font-medium text-[#7A7A7A]">{name}</p>
 
         <button
           type="button"
-          className="w-[20px] h-[20px] flex items-center justify-center"
+          className="flex h-[20px] w-[20px] items-center justify-center"
           onClick={(e) => {
             e.stopPropagation();
             handleClose();
@@ -35,12 +33,12 @@ function MobileTabItem(props: IMobileTabItem) {
           <Delete fill="#5B5B5B" />
         </button>
       </div>
-      <div className="p-[10px] flex flex-1">
-        <div className="flex flex-col gap-1 flex-1">
-          <div className="bg-[#131313] rounded-[5px] flex-1"></div>
+      <div className="flex flex-1 p-[10px]">
+        <div className="flex flex-1 flex-col gap-1">
+          <div className="flex-1 rounded-[5px] bg-[#131313]"></div>
           <div className="flex flex-1 gap-1">
-            <div className="bg-[#131313] rounded-[5px] flex-1"></div>
-            <div className="bg-[#131313] rounded-[5px] flex-1"></div>
+            <div className="flex-1 rounded-[5px] bg-[#131313]"></div>
+            <div className="flex-1 rounded-[5px] bg-[#131313]"></div>
           </div>
         </div>
       </div>
@@ -56,25 +54,20 @@ interface IProps {
 }
 
 export function MobileTab(props: IProps) {
-  const { handleAddNewTab, handleClick, handleCloseTab, handleCloseModal } =
-    props;
+  const { handleAddNewTab, handleClick, handleCloseTab, handleCloseModal } = props;
 
   const tabs = useAtomValue(tabsAtom);
   const layouts = useAtomValue(layoutAtom);
 
   return (
-    <div className="h-[100%] w-full bg-[#0A0A0A] flex flex-col gap-2 overflow-hidden">
-      <Navbar />
-      <div className="px-2 sm:px-4 flex flex-col gap-4 flex-1 overflow-hidden">
-        <p className="text-[#9A9E9E] font-medium text-base leading-[24px]">
-          Your Workspaces
-        </p>
-        <div className="flex-1 scrollbar overflow-auto h-[full] pb-2">
+    <div className="flex h-[100%] w-full flex-col gap-2 overflow-hidden bg-[#0A0A0A] pt-4">
+      {/* <Navbar /> */}
+      <div className="flex flex-1 flex-col gap-4 overflow-hidden px-2 sm:px-4">
+        <p className="text-base leading-[24px] font-medium text-[#9A9E9E]">Your Workspaces</p>
+        <div className="scrollbar h-[full] flex-1 overflow-auto pb-2">
           <div className="grid grid-cols-2 gap-4">
             {tabs.map((item) => {
-              const tabLayout = layouts.find(
-                (tab) => tab.id === item?.layout_id
-              );
+              const tabLayout = layouts.find((tab) => tab.id === item?.layout_id);
 
               return (
                 <MobileTabItem
@@ -95,10 +88,10 @@ export function MobileTab(props: IProps) {
         </div>
       </div>
 
-      <div className="flex justify-center py-4 border-[#1C1C1C] border-t">
+      <div className="flex justify-center border-t border-[#1C1C1C] py-4">
         <button
           type="button"
-          className="h-[40px] w-[40px] flex items-center justify-center rounded-md border border-[#121212]"
+          className="flex h-[40px] w-[40px] items-center justify-center rounded-md border border-[#121212]"
           onClick={() => {
             handleAddNewTab();
             handleCloseModal();

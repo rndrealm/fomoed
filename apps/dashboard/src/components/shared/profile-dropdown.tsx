@@ -98,13 +98,13 @@ export function ProfileDropdown(props: IProps) {
             </div>
           </div>
 
-          <div className="border-y border-[#212121] px-4 py-4">
+          {/* <div className="cursor-not-allowed border-y border-[#212121] px-4 py-4">
             <div className="flex flex-row items-center justify-start gap-2">
               <Settings />
 
               <p className="text-[13px] leading-[1.35] font-medium text-white">Settings</p>
             </div>
-          </div>
+          </div> */}
 
           {/* <div className="flex items-center justify-between border-b border-[#212121] px-5 py-4">
             <p className="text-[13px] leading-[1.35] font-medium text-white">BETA Version</p>
