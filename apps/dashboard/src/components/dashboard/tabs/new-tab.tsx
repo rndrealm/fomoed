@@ -55,7 +55,7 @@ export function TabButton(props: ITabButton) {
       >
         <div
           className={cn(
-            "flex h-[32px] w-[170px] items-center justify-between gap-2 gap-3 rounded-none px-2",
+            "flex h-[32px] w-[170px] items-center justify-between gap-2 gap-3 rounded-md px-2",
             isActive ? "bg-[#252525]" : "bg-[#111]"
           )}
         >
