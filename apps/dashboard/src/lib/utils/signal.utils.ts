@@ -121,10 +121,20 @@ export const conditionToJsonLogic = (cond: Condition) => {
   )
     return null;
 
+  // Check if topic already contains the dataSourceId prefix
+  // If it does, use it as is; otherwise, add the prefix
+  let topicString = cond.topic;
+  if (
+    cond.dataSourceId &&
+    !cond.topic.startsWith(cond.dataSourceId + dataSourceIdTopicSeparator)
+  ) {
+    topicString = cond.dataSourceId + dataSourceIdTopicSeparator + cond.topic;
+  }
+
   return {
     [cond.operator]: [
       {
-        topic: cond.dataSourceId + dataSourceIdTopicSeparator + cond.topic,
+        topic: topicString,
       },
       isNaN(Number(cond.value)) ? cond.value : Number(cond.value),
     ],
