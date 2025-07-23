@@ -1,36 +1,17 @@
-import React, { Fragment, useMemo, useState } from "react";
+import React, { Fragment, useEffect, useMemo, useState } from "react";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useHotkeys } from "react-hotkeys-hook";
 import { ModalContainer } from "@/components/shared";
 import { IShortcutIcon, ShortcutItem } from "./shortcut-item";
-import {
-  quickWidgetsVisibleAtom,
-  spotlightVisibleAtom,
-  toggleQuickWidgetsAtom,
-  toggleSpotlightAtom,
-} from "@/lib/atoms/shortcuts";
-import {
-  deleteAllWidgetsAtom,
-  deleteLayoutAtom,
-  editLayoutNameAtom,
-  layoutAtom,
-} from "@/lib/atoms/layoutAtom";
+import { spotlightVisibleAtom, toggleQuickWidgetsAtom, toggleSpotlightAtom } from "@/lib/atoms/shortcuts";
+import { deleteAllWidgetsAtom, deleteLayoutAtom, editLayoutNameAtom, layoutAtom } from "@/lib/atoms/layoutAtom";
 import { ConfirmationModal, NameLayout } from "@/components/modals";
-import {
-  activeTabAtom,
-  addNewTabAtom,
-  deleteAllTabsAtom,
-  deleteTabAtom,
-} from "@/lib/atoms/tabsAtom";
+import { activeTabAtom, addNewTabAtom, deleteAllTabsAtom, deleteTabAtom } from "@/lib/atoms/tabsAtom";
 import { SpotlightSearch } from "@/components/icons/icons";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { KeyboardSheet } from "./keyboard-sheet";
+import { useRouter } from "next/navigation";
+import { AppRoutes } from "@/lib/routes";
 
 type ShortcutAction = {
   id: number;
@@ -47,15 +28,13 @@ type ShortcutGroup = {
 };
 
 export function KeyboardShortcuts() {
+  const router = useRouter();
   //show delete widgets confirmation
-  const [showDeleteWidgetsConfirmation, setShowDeleteWidgetsConfirmation] =
-    useState(false);
+  const [showDeleteWidgetsConfirmation, setShowDeleteWidgetsConfirmation] = useState(false);
   //show delete tabs confirmation
-  const [showDeleteTabsConfirmation, setShowDeleteTabsConfirmation] =
-    useState(false);
+  const [showDeleteTabsConfirmation, setShowDeleteTabsConfirmation] = useState(false);
 
-  const [showDeleteSingleTabConfirmation, setShowDeleteSingleTabConfirmation] =
-    useState(false);
+  const [showDeleteSingleTabConfirmation, setShowDeleteSingleTabConfirmation] = useState(false);
 
   // show edit layout name modal
   const [showNameModal, setShowNameModal] = useState(false);
@@ -85,12 +64,11 @@ export function KeyboardShortcuts() {
   const deleteSingleTab = useSetAtom(deleteTabAtom);
   const deleteLayout = useSetAtom(deleteLayoutAtom);
 
-  const currentLayout = layouts.find(
-    (item) => item.id === activeTab?.layout_id
-  );
+  const currentLayout = layouts.find((item) => item.id === activeTab?.layout_id);
 
+  //Shortcut key combinations
   useHotkeys(
-    "metaKey+k",
+    "metaKey+k, ctrl+k",
     () => {
       toggleSpotlight();
     },
@@ -98,6 +76,36 @@ export function KeyboardShortcuts() {
       enableOnFormTags: true,
     }
   );
+
+  useHotkeys("c", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowWidgetsModal(true);
+  });
+
+  useHotkeys("t", () => {
+    addNewTab();
+  });
+
+  useHotkeys("g>n", () => {
+    router.push(AppRoutes.news.path);
+  });
+
+  useHotkeys("metaKey+c", () => {
+    setShowDeleteWidgetsConfirmation(true);
+  });
+
+  useHotkeys("metaKey+backspace, metaKey+delete", () => {
+    setShowDeleteSingleTabConfirmation(true);
+  });
+
+  useHotkeys("metaKey+ctrl+backspace, metaKey+ctrl+delete", () => {
+    setShowDeleteTabsConfirmation(true);
+  });
+
+  useHotkeys("alt+shift+Q", () => {
+    router.push(AppRoutes.logout.path);
+  });
 
   const handleCloseShortCut = () => {
     toggleSpotlight(false);
@@ -112,8 +120,8 @@ export function KeyboardShortcuts() {
           {
             id: 1,
             label: "Add Widget",
-            icon: "add",
-            shortcutKeys: ["A"],
+            icon: "addNewWidget",
+            shortcutKeys: ["C"],
             onClick: () => {
               setShowWidgetsModal(true);
               handleCloseShortCut();
@@ -123,7 +131,7 @@ export function KeyboardShortcuts() {
             id: 2,
             label: "Clear All Widgets",
             icon: "clear",
-            shortcutKeys: ["Cmd", "T"],
+            shortcutKeys: ["Cmd", "C"],
             onClick: () => {
               setShowDeleteWidgetsConfirmation(true);
               handleCloseShortCut();
@@ -140,7 +148,7 @@ export function KeyboardShortcuts() {
             id: 1,
             label: "Add new tab",
             icon: "add",
-            shortcutKeys: ["A"],
+            shortcutKeys: ["T"],
             onClick: () => {
               addNewTab();
               handleCloseShortCut();
@@ -150,8 +158,8 @@ export function KeyboardShortcuts() {
           {
             id: 2,
             label: "Remove current tab",
-            icon: "clear",
-            shortcutKeys: ["A"],
+            icon: "removeOne",
+            shortcutKeys: ["Cmd", "Del"],
             onClick: () => {
               setShowDeleteSingleTabConfirmation(true);
               handleCloseShortCut();
@@ -162,7 +170,7 @@ export function KeyboardShortcuts() {
             id: 3,
             label: "Remove all tabs",
             icon: "clear",
-            shortcutKeys: ["Cmd", "T"],
+            shortcutKeys: ["Cmd", "Ctrl", "Del"],
             onClick: () => {
               setShowDeleteTabsConfirmation(true);
               handleCloseShortCut();
@@ -205,6 +213,22 @@ export function KeyboardShortcuts() {
       //     },
       //   ],
       // },
+      {
+        id: 4,
+        title: "Navigation",
+        actions: [
+          {
+            id: 1,
+            label: "Go to News",
+            icon: "rename",
+            shortcutKeys: ["G", "then", "N"],
+            onClick: () => {
+              router?.push(AppRoutes.news.path);
+              handleCloseShortCut();
+            },
+          },
+        ],
+      },
 
       {
         id: 5,
@@ -212,16 +236,29 @@ export function KeyboardShortcuts() {
         actions: [
           {
             id: 1,
-            label: "Logout",
-            icon: "rename",
-            shortcutKeys: ["A"],
-            onClick: () => {},
+            label: "Sign Out",
+            icon: "signOut",
+            shortcutKeys: ["Alt|Option", "Shift", "Q"],
+            onClick: () => {
+              router?.push(AppRoutes.logout.path);
+              handleCloseShortCut();
+            },
           },
         ],
       },
     ];
     // eslint-disable-next-line
   }, [activeTab]);
+
+  // useEffect(() => {
+  //   window.addEventListener("keydown", (e) => {
+  //     console.log(e);
+  //   });
+
+  //   return () => {
+  //     window.removeEventListener("keydown", () => {});
+  //   };
+  // }, []);
 
   return (
     <Fragment>
@@ -234,7 +271,7 @@ export function KeyboardShortcuts() {
           toggleSpotlight(false);
         }}
         noHeader
-        className="!p-0 !max-w-[720px] w-full !max-h-[unset] overflow-hidden bg-[#1C1D1F] !rounded-[20px] !border-none outline-none !mt-[15vh] top-0 translate-y-[0]"
+        className="top-0 !mt-[15vh] !max-h-[unset] w-full !max-w-[720px] translate-y-[0] overflow-hidden !rounded-[20px] !border-none bg-[#1C1D1F] !p-0 outline-none"
         bgBlur={false}
       >
         {/* <div className="w-full !max-h-[406px] text-white border-2 border-[#2B2B2B] rounded-[20px] flex flex-col">
@@ -300,21 +337,19 @@ export function KeyboardShortcuts() {
           </div>
         </div> */}
 
-        <Command className="bg-[#1C1D1F] rounded-[20px] border-2 border-[#2B2B2B]">
+        <Command className="rounded-[20px] border-2 border-[#2B2B2B] bg-[#1C1D1F]">
           <CommandInput
             placeholder="Type a command or search..."
-            className="h-[56px] px-4 py-[1px] rounded-[4px] border border-white/10 text-base placeholder:text-white/40 bg-transparent text-white focus:outline-none focus:ring-0 focus:ring-offset-0 focus:shadow-none [&:focus-visible]:outline-none [&:focus]:outline-none transition-all w-full border-none focus-visible:ring-0"
+            className="h-[56px] w-full rounded-[4px] border border-none border-white/10 bg-transparent px-4 py-[1px] text-base text-white transition-all placeholder:text-white/40 focus:shadow-none focus:ring-0 focus:ring-offset-0 focus:outline-none focus-visible:ring-0 [&:focus]:outline-none [&:focus-visible]:outline-none"
           />
-          <CommandList className="max-h-[330px]">
-            <CommandEmpty className="py-3 px-2">
-              <div className="flex justify-between flex-1 px-4 py-3 items-center bg-[#141414] rounded-sm">
-                <div className="flex gap-1 items-center">
+          <CommandList className="scrollbar max-h-[330px]">
+            <CommandEmpty className="px-2 py-3">
+              <div className="flex flex-1 items-center justify-between rounded-sm bg-[#141414] px-4 py-3">
+                <div className="flex items-center gap-1">
                   <div className="">
                     <SpotlightSearch />
                   </div>
-                  <p className="text-[13px] font-semibold leading-[18px] text-white">
-                    No result found
-                  </p>
+                  <p className="text-[13px] leading-[18px] font-semibold text-white">No result found</p>
                 </div>
 
                 <div className="flex items-center gap-1"></div>
@@ -324,21 +359,17 @@ export function KeyboardShortcuts() {
               return (
                 <CommandGroup
                   key={item.id}
-                  className="px-2 [&_[cmdk-group-heading]]:text-[red] [&_[cmdk-group-heading]]:py-3 [&_[cmdk-group-heading]]:px-4 [&_[cmdk-group-heading]]:text-[#A4A4A4] [&_[cmdk-group-heading]]:leading-[16px] flex flex-col gap-1"
+                  className="flex flex-col gap-1 px-2 [&_[cmdk-group-heading]]:px-4 [&_[cmdk-group-heading]]:py-3 [&_[cmdk-group-heading]]:leading-[16px] [&_[cmdk-group-heading]]:text-[#A4A4A4]"
                   heading={item?.title}
                 >
                   {item?.actions?.map((action) => {
                     return (
                       <CommandItem
                         key={action.id}
-                        className="data-[selected=true]:bg-[#27292E] p-0"
+                        className="p-0 data-[selected=true]:bg-[#27292E]"
                         onSelect={action.onClick}
                       >
-                        <ShortcutItem
-                          icon={action.icon}
-                          label={action.label}
-                          shortcutKeys={action.shortcutKeys}
-                        />
+                        <ShortcutItem icon={action.icon} label={action.label} shortcutKeys={action.shortcutKeys} />
                       </CommandItem>
                     );
                   })}
@@ -426,6 +457,8 @@ export function KeyboardShortcuts() {
         title="Rename Layout"
         details="Rename your layout"
       />
+
+      <KeyboardSheet />
     </Fragment>
   );
 }
