@@ -5,7 +5,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "motion/react";
 import { usePathname } from "next/navigation";
-import NavbarProfileButton from "../ui/NavbarProfileButton";
 import dashboard from "@/lib/assets/dashboard";
 import {
   NewsIcon,
@@ -22,6 +21,9 @@ import { ProfileIcon } from "./profile-icon";
 import useAuthUserData from "@/lib/hooks/use-auth-user-data";
 import { User } from "@supabase/supabase-js";
 import SideNav from "./sidebar";
+import { RenderIf } from "./render-if";
+import { useAtom, useAtomValue } from "jotai";
+import { isSidebarOpenAtom } from "@/lib/atoms/utilsAtom";
 
 const navLinks = [
   {
@@ -74,10 +76,6 @@ const bottomLinks = [
   },
 ];
 
-interface IProps {
-  isNews?: boolean;
-}
-
 const NavigationTop = ({
   authUser,
   isNewsLogo,
@@ -114,18 +112,24 @@ const NavigationTop = ({
       </div>
 
       <div className="flex items-center gap-[10px]">
-        <div className="flex h-[24px] w-[24px] cursor-pointer items-center justify-center overflow-hidden rounded-[5px] md:h-[32px] md:w-[32px]">
+        {/* <div className="flex h-[24px] w-[24px] cursor-pointer items-center justify-center overflow-hidden rounded-[5px] md:h-[32px] md:w-[32px]">
           <NavbarProfileButton authUser={authUser}>
             <ProfileIcon user={authUser} />
           </NavbarProfileButton>
-        </div>
+        </div> */}
       </div>
     </div>
   );
 };
 
+interface IProps {
+  isNews?: boolean;
+}
+
 export const NavbarNews = (props: IProps) => {
-  const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
+  const { isNews } = props;
+  // const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
+  const [isSideMenuOpen, setIsSideMenuOpen] = useAtom(isSidebarOpenAtom);
   const [isNewsLogo, setIsNewsLogo] = useState(false);
   const authUser = useAuthUserData();
   const pathname = usePathname();
@@ -133,7 +137,7 @@ export const NavbarNews = (props: IProps) => {
   // Close sidebar when pathname changes (route navigation)
   useEffect(() => {
     setIsSideMenuOpen(false);
-  }, [pathname]);
+  }, [pathname, setIsSideMenuOpen]);
 
   // Set the active link based on the pathname
   useEffect(() => {
@@ -158,7 +162,9 @@ export const NavbarNews = (props: IProps) => {
   return (
     <nav className="flex flex-col items-center overflow-hidden bg-[#00000] px-2 py-3 sm:px-4 md:px-8 md:py-4">
       {/* Top Nav */}
-      <NavigationTop authUser={authUser} isNewsLogo={isNewsLogo} setIsSideMenuOpen={setIsSideMenuOpen} />
+      <RenderIf condition={!!isNews}>
+        <NavigationTop authUser={authUser} isNewsLogo={isNewsLogo} setIsSideMenuOpen={setIsSideMenuOpen} />
+      </RenderIf>
 
       {/* Blur Layer */}
       <motion.div
@@ -175,6 +181,7 @@ export const NavbarNews = (props: IProps) => {
         bottomLinks={bottomLinks}
         isSideMenuOpen={isSideMenuOpen}
         setIsSideMenuOpen={setIsSideMenuOpen}
+        authUser={authUser}
       />
     </nav>
   );
