@@ -19,10 +19,14 @@ import { Bell, Mail, MoreVertical, Pencil, Trash } from "lucide-react";
 import { useMemo, useState } from "react";
 import { RenderIf } from "../shared";
 
-import { useDeleteSmartSignal } from "@/services/queries/signals";
+import {
+  useDeleteSmartSignal,
+  useDuplicateSmartSignal,
+} from "@/services/queries/signals";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { redirect } from "next/navigation";
 import DeleteConfirmModal from "./delete-confirm-modal";
+import { RotateCcw } from "lucide-react";
 dayjs.extend(relativeTime);
 
 interface MySignalCardProps {
@@ -75,6 +79,8 @@ export default function MySmartSignalCard({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const { mutateAsync: deleteSmartSignal } = useDeleteSmartSignal();
+  const { mutateAsync: duplicateSmartSignal, isPending: isDuplicating } =
+    useDuplicateSmartSignal();
 
   const conditionCount = useMemo(() => {
     return calculateConditionCount(conditions);
@@ -94,8 +100,9 @@ export default function MySmartSignalCard({
     redirect(`/signals/edit?id=${id}`);
     setIsMenuOpen(false);
   };
-  const onDuplicate = () => {
-    console.log("Duplicate signal");
+
+  const onDuplicate = async () => {
+    await duplicateSmartSignal(id);
     setIsMenuOpen(false);
   };
 
@@ -134,6 +141,16 @@ export default function MySmartSignalCard({
                 <Pencil className="h-5 w-5 text-gray-400" />
                 <span>Edit Signal</span>
               </DropdownMenuItem> */}
+              <DropdownMenuItem
+                className="flex items-center gap-2 py-3 cursor-pointer focus:bg-zinc-800 focus:text-white"
+                onClick={onDuplicate}
+                disabled={isDuplicating}
+              >
+                <RotateCcw
+                  className={`h-5 w-5 text-gray-400 ${isDuplicating ? "animate-spin" : ""}`}
+                />
+                <span>Create again</span>
+              </DropdownMenuItem>
               <DropdownMenuItem
                 className="flex items-center gap-2 py-3 cursor-pointer focus:bg-zinc-800 focus:text-white"
                 onClick={onDelete}

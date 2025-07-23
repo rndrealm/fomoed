@@ -82,6 +82,132 @@ export const useDeleteSmartSignal = () => {
   });
 };
 
+/**
+ * Return either <Copy of {originalName}> based on the original name or
+ * copy of <Copy #2 of {originalName}> and so on.
+ * @param originalName
+ */
+function getCopyName(originalName: string) {
+  // Check if the name already starts with "Copy"
+  const copyRegex = /^Copy(?: #(\d+))? of (.+)$/;
+  const match = originalName.match(copyRegex);
+
+  if (match) {
+    // If it's already a copy, increment the number
+    const copyNumber = match[1] ? parseInt(match[1]) + 1 : 2;
+    const baseName = match[2];
+    return `Copy #${copyNumber} of ${baseName}`;
+  } else {
+    // If it's not a copy, make it the first copy
+    return `Copy of ${originalName}`;
+  }
+}
+
+/**
+ * Processes a JSON string to replace topic arrays with their first element.
+ * This function recursively traverses the JSON object and converts any "topic"
+ * field that is an array to use only the first element of that array.
+ * @param jsonString - The JSON string to process
+ * @returns The processed JSON string with topic arrays replaced by their first elements
+ */
+function processTopicArrays(jsonString: string): string {
+  try {
+    const data = JSON.parse(jsonString);
+
+    const processObject = (obj: any): any => {
+      if (Array.isArray(obj)) {
+        return obj.map(processObject);
+      } else if (obj && typeof obj === "object") {
+        const processed: any = {};
+        for (const [key, value] of Object.entries(obj)) {
+          if (key === "topic" && Array.isArray(value) && value.length > 0) {
+            processed[key] = value[0];
+          } else {
+            processed[key] = processObject(value);
+          }
+        }
+        return processed;
+      }
+      return obj;
+    };
+
+    const processedData = processObject(data);
+
+    // Handle condition field which might contain stringified JSON
+    if (
+      processedData.condition &&
+      typeof processedData.condition === "string"
+    ) {
+      try {
+        const conditionJson = JSON.parse(processedData.condition);
+        const processedConditionJson = processObject(conditionJson);
+        processedData.condition = JSON.stringify(processedConditionJson);
+      } catch {
+        // If condition is not valid JSON, leave it as is
+      }
+    }
+
+    return JSON.stringify(processedData);
+  } catch (error) {
+    console.error("Error processing topic arrays:", error);
+    return jsonString;
+  }
+}
+
+export const useDuplicateSmartSignal = () => {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: async (signalId: number) => {
+      const supabase = createSupabaseBrowserClient();
+
+      // First, fetch the original signal
+      const { data: originalSignal, error: fetchError } = await supabase
+        .from("smart_signals")
+        .select("*")
+        .eq("id", signalId)
+        .single();
+
+      if (fetchError) {
+        throw new Error("Failed to fetch original smart signal");
+      }
+
+      if (!originalSignal) {
+        throw new Error("Original smart signal not found");
+      }
+
+      const originalName = originalSignal.name;
+
+      if (!originalName) {
+        throw new Error("Original smart signal name is missing");
+      }
+
+      const newName = getCopyName(originalName);
+      const originalActions: any[] = originalSignal.actions || [];
+
+      const originalCondition = originalSignal.condition;
+      const hotfixedCondition = processTopicArrays(originalCondition);
+
+      const data: CreateSignalDTO = {
+        name: newName,
+        description: originalSignal.description || "",
+        condition: hotfixedCondition,
+        user_id: originalSignal.user_id,
+        actions: originalActions,
+      };
+
+      // Use the same backend endpoint as signal creation
+      await axios.post(
+        process.env.NEXT_PUBLIC_BACKEND_BASE + "/api/v1/smart-signal/new",
+        data,
+      );
+
+      client.invalidateQueries({
+        queryKey: ["get-smart-signals"],
+      });
+    },
+  });
+};
+
 export const useUpdateSmartSignal = () => {
   return useMutation({
     mutationFn: async (data: UpdateSignalDTO) => {
@@ -106,7 +232,7 @@ export const useCreateSignalMutation = () => {
       // this will be replaced with an axios instance. leave it for now
       await axios.post(
         process.env.NEXT_PUBLIC_BACKEND_BASE + "/api/v1/smart-signal/new",
-        data
+        data,
       );
 
       client.invalidateQueries({
@@ -148,7 +274,7 @@ export const useGenerateSignalDetails = () => {
 
 export const useValueSuggestions = (
   dataSourceId: string | null,
-  topic: string | null
+  topic: string | null,
 ) => {
   return useQuery({
     queryKey: ["value-suggestions", dataSourceId, topic],
