@@ -53,4 +53,8 @@ export const AppRoutes = {
     name: "Pricing",
     path: "/pricing",
   },
+  logout: {
+    name: "Logout",
+    path: "/logout",
+  },
 };
