@@ -211,6 +211,7 @@ const ActiveNav = (props: IActiveNavProps) => {
       </div>
 
       <motion.div
+        initial={{ borderTopColor: "#000" }}
         animate={{
           borderTopColor: isSideMenuOpen ? "#2E2E2E" : "#000",
         }}
@@ -218,16 +219,18 @@ const ActiveNav = (props: IActiveNavProps) => {
         className="flex w-full flex-row items-center gap-8 border-t-[1px] border-[#2E2E2E] px-[10px] pt-5"
       >
         <motion.div
+          initial={{ x: 0 }}
           animate={{ x: isSideMenuOpen ? "14px" : 0 }}
           transition={{ duration: 0.75, delay: 0, ease: [0.4, 0.0, 0.2, 1] }}
           className="flex h-[24px] w-[24px] cursor-pointer items-center justify-center overflow-hidden rounded-[5px] md:h-[32px] md:w-[32px]"
         >
-          <NavbarProfileButton authUser={authUser}>
+          <NavbarProfileButton authUser={authUser} className="pr-0 pb-3 pl-6">
             <ProfileIcon user={authUser} />
           </NavbarProfileButton>
         </motion.div>
 
         <motion.div
+          initial="closed"
           variants={sideMenuVariants}
           animate={isSideMenuOpen ? "open" : "closed"}
           className="flex flex-col gap-1.5"

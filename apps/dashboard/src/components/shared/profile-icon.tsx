@@ -15,7 +15,6 @@ export function ProfileIcon(props: IProps) {
     <div className="flex h-full w-full items-start justify-start">
       {hasUser && user?.user_metadata?.avatar_url ? (
         <Image
-          id="popup-trigger-a"
           src={user.user_metadata.avatar_url}
           alt="User avatar"
           className="w-full object-cover"
