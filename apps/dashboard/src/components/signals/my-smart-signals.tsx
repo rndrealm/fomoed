@@ -55,7 +55,7 @@ const MySignals = () => {
   return (
     <div>
       <div className="flex items-center justify-between my-6">
-        <h1 className="font-medium text-2xl font-inter text-white">
+        <h1 className="font-semibold text-2xl font-inter text-white">
           Your Saved Signals
         </h1>
 
