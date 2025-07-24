@@ -172,9 +172,9 @@ export function ImmersiveNews(props: IProps) {
           </div>
 
           <div id="headlines-section">
-            <div className="relative flex h-[356px] w-[637px] max-w-[300px] items-center justify-center sm:max-w-[500px] md:max-w-[39.8125rem]">
+            <div className="xs:max-w-[300px] relative flex h-[356px] w-full max-w-full items-center justify-center sm:max-w-[500px] md:w-[637px] md:max-w-[39.8125rem]">
               <RemoteImage
-                className="max-w-[300px] object-cover sm:max-w-[500px] md:max-w-[637px]"
+                className="w-full object-cover"
                 width={637}
                 height={356}
                 src={extractedArticle.image || ""}
@@ -211,11 +211,13 @@ export function ImmersiveNews(props: IProps) {
             </div>
 
             <div className="max-w-[500px] md:max-w-[39.8125rem]">
-              <p className="mt-12 text-[1.75rem] leading-[1.9rem] font-semibold">{extractedArticle.title}</p>
+              <p className="mt-12 text-[1.2rem] leading-[1.6rem] font-semibold md:text-[1.75rem] md:leading-[1.9rem]">
+                {extractedArticle.title}
+              </p>
               <RenderIf condition={!!article?.symbols && article?.symbols.length > 0}>
-                <div className="mt-5 flex items-center gap-3">
+                <div className="mt-5 flex flex-col items-start gap-3 md:flex-row md:items-center">
                   <p className="text-xs text-[#A4A4A4]">Tokens mentioned in article</p>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     {article?.symbols.map((symbol, i) => (
                       <TokenPill symbol={symbol} key={i} />
                     ))}
