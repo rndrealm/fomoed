@@ -1,5 +1,9 @@
 # Fomoed Monorepo
 
+## Changelog
+
+See [CHANGELOG.md](./CHANGELOG.md)
+
 ## What's inside?
 
 This Turborepo includes the following packages/apps:

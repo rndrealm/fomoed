@@ -1,25 +1,28 @@
 import React from "react";
-import { authUserAtom } from "@/lib/atoms/userAtom";
-import { useAtomValue } from "jotai";
-import { User } from "lucide-react";
+import { User as UserIcon } from "lucide-react";
 import Image from "next/image";
+import { User } from "@supabase/supabase-js";
 
-export function ProfileIcon() {
-  const user = useAtomValue(authUserAtom);
+interface IProps {
+  user: User | null;
+}
+
+export function ProfileIcon(props: IProps) {
+  const { user } = props;
   const hasUser = !!user;
 
   return (
-    <div className="w-full h-full flex items-center justify-center">
+    <div className="flex h-full w-full items-center justify-center">
       {hasUser && user?.user_metadata?.avatar_url ? (
         <Image
           src={user.user_metadata.avatar_url}
           alt="User avatar"
-          className="object-cover w-full"
+          className="w-full object-cover"
           width={32}
           height={32}
         />
       ) : (
-        <User className="text-white/70" />
+        <UserIcon className="text-white/70" />
       )}
     </div>
   );

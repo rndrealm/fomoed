@@ -35,6 +35,7 @@ export interface IDashboardData {
     auto_save: boolean | null;
     active_tab_id?: string | null;
     favorite_widgets: string[];
+    favorite_tokens: string[];
   };
   location?: UserGeoLocation;
 }

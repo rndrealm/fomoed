@@ -17,6 +17,7 @@ import liq from "../../../../public/media/images/dashboard/liq.png";
 import liq2 from "../../../../public/media/images/dashboard/liq2.png";
 import liqHeat from "../../../../public/media/images/dashboard/liq-heat.png";
 import exLiq from "../../../../public/media/images/dashboard/ex-liq.png";
+import footprint from "../../../../public/media/images/dashboard/footprint.png";
 import premiumLogo from "../../../../public/media/images/dashboard/premium-logo.png";
 import news from "../../../../public/media/images/dashboard/news.png";
 import cryptopanic from "../../../../public/media/images/dashboard/cryptopanic.svg";
@@ -45,6 +46,10 @@ import plus from "../../../../public/media/images/dashboard/plus.svg";
 import disconnect from "../../../../public/media/images/dashboard/disconnect.svg";
 import info from "../../../../public/media/images/dashboard/info.svg";
 import star from "../../../../public/media/images/dashboard/star.svg";
+import news1 from "../../../../public/media/images/dashboard/news1.png";
+import news2 from "../../../../public/media/images/dashboard/news2.png";
+import news3 from "../../../../public/media/images/dashboard/news3.png";
+import bigNews from "../../../../public/media/images/dashboard/big-news.png";
 
 const dashboard = {
   layoutPlaceholder,
@@ -91,6 +96,11 @@ const dashboard = {
   info,
   logoMobile,
   star,
+  news1,
+  news2,
+  news3,
+  bigNews,
+  footprint,
   cfgi3,
   screener,
   dex,

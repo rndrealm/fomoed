@@ -37,6 +37,8 @@ import CoinStats from "@/components/widgets/coin-stats/coin-stats";
 import SummaryWidget from "@/components/widgets/summary/summary-widget";
 import CFGI from "@/components/widgets/cfgi/fear-and-greed/cfgi";
 import Screener from "@/components/widgets/screener/screener";
+import widgetsPreview from "./assets/widgetsPreview";
+import { StaticImageData } from "next/image";
 
 export const layoutClassMap = {
   SinglePane: "grid-rows-1 grid-cols-1",
@@ -108,14 +110,14 @@ export const layoutOptionsMap = [
   //   category: "charts",
   //   tags: ["charts", "new"],
   // },
-  // {
-  //   id: 8,
-  //   name: "Cignals Chart",
-  //   slug: "cignals-chart",
-  //   image: dashboard.tokenNews,
-  //   category: "charts",
-  //   tags: ["charts", "new"],
-  // },
+  {
+    id: 8,
+    name: "Cignals Chart",
+    slug: "cignals-chart",
+    image: dashboard.footprint,
+    category: "charts",
+    tags: ["charts", "new"],
+  },
   // {
   //   id: 7,
   //   name: "Cryptocurrency Market",
@@ -655,3 +657,89 @@ export const tourSteps = [
     ],
   },
 ] satisfies Tour[];
+
+export type WidgetPreviewItem = {
+  id: number;
+  descripton: string;
+  img: StaticImageData;
+  name: string;
+  slug: string;
+  size: "sm" | "md" | "lg";
+};
+
+type IWidgetPreviewData = {
+  id: number;
+  group: string;
+  options: WidgetPreviewItem[];
+};
+
+export const widgetPreviewData: IWidgetPreviewData[] = [
+  {
+    id: 1,
+    group: "Charts",
+    options: [
+      {
+        id: 1,
+        descripton: "Get a quick overview of top movers & losers within the space",
+        img: widgetsPreview.summary,
+        name: "Summary",
+        slug: "summary",
+        size: "sm",
+      },
+
+      {
+        id: 2,
+        descripton: "Coins and Tokens alll at your fingertips everytime.",
+        img: widgetsPreview.screener,
+        name: "Screener",
+        slug: "screener",
+        size: "lg",
+      },
+
+      {
+        id: 3,
+        descripton: "Live token swaps, volume, and trading pairs.",
+        img: widgetsPreview.dex,
+        name: "Dex",
+        slug: "dex",
+        size: "md",
+      },
+
+      {
+        id: 4,
+        descripton: "View real-time token prices and trends to help guide your trading decisions.",
+        img: widgetsPreview.priceChart,
+        name: "Price Chart",
+        slug: "new-price-history",
+        size: "sm",
+      },
+
+      {
+        id: 5,
+        descripton: "Bitcoins influence and size in the current market",
+        img: widgetsPreview.btcDominance,
+        name: "BTC Dominance",
+        slug: "btc-dominance",
+        size: "lg",
+      },
+
+      {
+        id: 6,
+        descripton: "Live token swaps, volume, and trading pairs.",
+        img: widgetsPreview.liquidationHeatMap,
+        name: "Liquidation Heat Map",
+        slug: "liquidation-heat-map",
+        size: "md",
+      },
+
+      {
+        id: 7,
+        descripton: "Live token swaps, volume, and trading pairs.",
+        img: widgetsPreview.cfgi,
+        name: "CFGI",
+        slug: "cfgi",
+        size: "md",
+      },
+    ],
+  },
+];
