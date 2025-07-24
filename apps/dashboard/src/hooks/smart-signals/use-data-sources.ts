@@ -44,11 +44,36 @@ type DataSource = {
   message_field: string;
 };
 
+type TopicValue = {
+  topic: string;
+  value: string;
+};
+
 const fetchDataSources = async (): Promise<{ data_sources: DataSource[] }> => {
   const response = await axios.get(
     process.env.NEXT_PUBLIC_BACKEND_SMART_SIGNALS_BASE + "/data-sources",
   );
   return response.data;
+};
+
+const fetchTopicVal = async (fullTopic: string): Promise<TopicValue> => {
+  const response = await axios.get(
+    process.env.NEXT_PUBLIC_BACKEND_SMART_SIGNALS_BASE + "/topic-value",
+    {
+      params: {
+        fullTopic,
+      },
+    },
+  );
+  return response.data;
+};
+
+export const useTopicValue = (fullTopic: string | null) => {
+  return useQuery({
+    queryKey: ["topic-value", fullTopic],
+    queryFn: () => fetchTopicVal(fullTopic!),
+    enabled: !!fullTopic, // Only run query if fullTopic is provided
+  });
 };
 
 export const useDataSources = () => {

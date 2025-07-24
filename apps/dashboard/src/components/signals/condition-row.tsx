@@ -9,7 +9,10 @@ import { Condition, ConditionOperator } from "./condition-group";
 import DataSourceOperatorSelector from "./data-source-operator-selector";
 import SignalDataSourceSelector from "./data-source-selector";
 import ValueSuggestions from "./value-suggestions";
-import { useDataSources } from "@/hooks/smart-signals/use-data-sources";
+import {
+  useDataSources,
+  useTopicValue,
+} from "@/hooks/smart-signals/use-data-sources";
 import BoolValSelector from "./value-selectors/bool-val-selector";
 
 type ConditionRowProps = {
@@ -29,6 +32,7 @@ const ConditionRow = ({
 
   const [dataSourcePrefix, setDataSourcePrefix] = useState<string | null>(null);
   const [operator, setOperator] = useState<ConditionOperator | null>(null);
+  const currentValue = useTopicValue(condition.topic || null);
 
   const dataSourceObj = useMemo(() => {
     if (condition.dataSourceId) {
@@ -69,7 +73,7 @@ const ConditionRow = ({
   }, [operator, condition, onChange]);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 h-12">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       <SignalDataSourceSelector
         onDataSourcePrefixChange={(value) => {
           onChange({ ...condition, dataSourceId: value, topic: null });
@@ -179,6 +183,16 @@ const ConditionRow = ({
                 onSelect={(value) => onChange({ ...condition, value })}
               />
             )}
+
+            <div className="pt-2">
+              <div className="flex text-sm bg-white/10 rounded-sm px-2.5 py-2">
+                <div className="font-semibold text-white/50">Current:</div>
+
+                <div className="flex-grow text-right">
+                  {currentValue.data?.value || "N/A"}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
