@@ -253,7 +253,8 @@ export const useSearchNews = (searchTerm: string, page: number = 1, limit: numbe
       const response = await searchNews(searchTerm, page, limit);
       return response;
     },
-    enabled: enabled && searchTerm.trim().length > 3,
+    // enabled: enabled && searchTerm.trim().length > 3,
+    enabled: enabled,
     staleTime: 1000 * 60 * 5, // 5 minutes
     refetchOnWindowFocus: false,
     retry: 1,

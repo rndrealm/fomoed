@@ -66,8 +66,8 @@ export function ProfileDropdown(props: IProps) {
     <div className="w-[280px] rounded-[10px] border border-[#353535] bg-[#1A1A1A] py-0">
       <div className="flex flex-col gap-0">
         <div className="flex flex-row gap-2 px-4 py-4">
-          <div className="w-[20px] overflow-hidden rounded-sm p-0.5 py-1">
-            <ProfileIcon user={authUser} />
+          <div className="w-[20px] overflow-hidden p-0.5 py-1">
+            <ProfileIcon user={authUser} className="rounded-[4px]" />
           </div>
           <div className="flex flex-col justify-center gap-1">
             <h4 className="text-base leading-[1.35] font-medium text-white">{authUser?.user_metadata?.name}</h4>

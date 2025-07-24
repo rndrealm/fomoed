@@ -181,7 +181,8 @@ const ActiveNav = (props: IActiveNavProps) => {
         <div className="flex w-full flex-col gap-2">
           {navLinks.map((item, index) => {
             // const active = item.label === "Widget Dashboard";
-            const comingSoon = item.label === "Community";
+
+            const comingSoon = item.label === "Community" || item.label === "Smart Signals";
 
             return (
               <NavLink
@@ -232,9 +233,9 @@ const ActiveNav = (props: IActiveNavProps) => {
           initial={{ x: 0 }}
           animate={{ x: isSideMenuOpen ? "14px" : 0 }}
           transition={{ duration: 0.75, delay: 0, ease: [0.4, 0.0, 0.2, 1] }}
-          className="flex h-[24px] w-[24px] cursor-pointer items-center justify-center overflow-hidden rounded-[5px] md:h-[32px] md:w-[32px]"
+          className="pointer-events-auto flex h-[24px] w-[24px] cursor-pointer items-center justify-center overflow-hidden rounded-[4px] md:h-[32px] md:w-[32px]"
         >
-          <NavbarProfileButton authUser={authUser} className="pr-0 pb-3 pl-6">
+          <NavbarProfileButton authUser={authUser} className="pr-0 pb-2.5 pl-3">
             <ProfileIcon user={authUser} />
           </NavbarProfileButton>
         </motion.div>

@@ -8,6 +8,65 @@ const LoadingSpinner: React.FC = () => (
   <div className="border-opacity-80 h-10 w-10 animate-spin rounded-full border-2 border-white/10 border-t-transparent" />
 );
 
+const NoFetchedNewsSvg = () => (
+  <svg width="400" height="400" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g filter="url(#filter0_i_9205_165970)">
+      <rect width="186" height="264" transform="translate(124 68)" fill="url(#paint0_linear_9205_165970)" />
+    </g>
+    <path d="M0 69H400" stroke="#131313" stroke-width="2.5" />
+    <path d="M310 400L310 5.00679e-06" stroke="#131313" stroke-width="2.5" />
+    <path d="M124 400L124 5.00679e-06" stroke="#131313" stroke-width="2.5" />
+    <path d="M0 332H400" stroke="#131313" stroke-width="2.5" />
+    <defs>
+      <filter
+        id="filter0_i_9205_165970"
+        x="124"
+        y="68"
+        width="187"
+        height="265"
+        filterUnits="userSpaceOnUse"
+        color-interpolation-filters="sRGB"
+      >
+        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+        <feColorMatrix
+          in="SourceAlpha"
+          type="matrix"
+          values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+          result="hardAlpha"
+        />
+        <feOffset dx="1" dy="1" />
+        <feGaussianBlur stdDeviation="2" />
+        <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
+        <feColorMatrix type="matrix" values="0 0 0 0 0.566476 0 0 0 0 0.219103 0 0 0 0 0.798058 0 0 0 0.35 0" />
+        <feBlend mode="normal" in2="shape" result="effect1_innerShadow_9205_165970" />
+      </filter>
+      <linearGradient id="paint0_linear_9205_165970" x1="82" y1="-58" x2="82" y2="730" gradientUnits="userSpaceOnUse">
+        <stop offset="0.0558376" stop-color="#0F0F0F" />
+        <stop offset="0.230964" stop-color="#2E1A0D" />
+        <stop offset="0.444162" stop-color="#682F09" />
+        <stop offset="0.601523" stop-color="#933F07" />
+        <stop offset="0.708122" stop-color="#B04905" />
+        <stop offset="1" stop-color="#FF6600" />
+      </linearGradient>
+    </defs>
+  </svg>
+);
+
+const EmptySearchState = () => {
+  return (
+    <div className="flex flex-col items-center justify-center gap-6">
+      <NoFetchedNewsSvg />
+      <div className="flex flex-col items-center justify-center gap-1.5">
+        <div className="flex flex-col items-center justify-center gap-1.5">
+          <p className="text-[18px] font-medium text-white">Currently have no news Articles</p>
+          <p className="text-xs font-semibold text-[#A4A4A4]">We’re trying to fetch the most recent news for you</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const NewsContent = ({ isSearching, selectedTag }: { isSearching: boolean; selectedTag: string }) => {
   const {
     data: newsData,
@@ -65,8 +124,15 @@ const NewsContent = ({ isSearching, selectedTag }: { isSearching: boolean; selec
         </div>
       )}
 
+      {/* if there are no news fetched on bookmark */}
+      {newsData.length === 0 && (
+        <div className="pt-14">
+          <EmptySearchState />
+        </div>
+      )}
+
       {/* BottomContainer - only show for infinite scroll */}
-      {!isBookmarksTab && (
+      {!isBookmarksTab && newsData.length > 6 && (
         <div
           style={{ display: isPending ? "none" : "block" }}
           ref={bottomContainerRef}

@@ -35,6 +35,13 @@ const tableData = [
   },
   // {
   //   id: 3,
+  //   name: "Related Articles",
+  //   slug: "related-articles",
+  //   sectionId: "related-articles-section",
+  //   yOffset: 15,
+  // },
+  // {
+  //   id: 4,
   //   name: "Charts",
   //   slug: "charts",
   // },
@@ -172,7 +179,7 @@ export function ImmersiveNews(props: IProps) {
           </div>
 
           <div id="headlines-section">
-            <div className="xs:max-w-[300px] relative flex h-[356px] w-full max-w-full items-center justify-center sm:max-w-[500px] md:w-[637px] md:max-w-[39.8125rem]">
+            <div className="relative flex h-[356px] w-full max-w-full items-center justify-center sm:max-w-[500px] md:w-[637px] md:max-w-[39.8125rem]">
               <RemoteImage
                 className="w-full object-cover"
                 width={637}
@@ -239,7 +246,7 @@ export function ImmersiveNews(props: IProps) {
               <div className="app_news_content flex max-w-[400px] flex-col gap-4 sm:max-w-[500px] md:max-w-[39.8125rem]">
                 {parsedContent}
               </div>
-              <div className="flex max-w-[25.9375rem]">
+              <div id="related-articles-section" className="flex max-w-[25.9375rem]">
                 <RelatedArticles symbols={article?.symbols} />
               </div>
             </div>

@@ -4,6 +4,9 @@ import { timeAgo, truncateText } from "@/lib/utils";
 import RemoteImage from "../../widgets/shared/remote-image";
 import BookmarkComp from "../shared/BookmarkComp";
 import dashboard from "@/lib/assets/dashboard";
+import Link from "next/link";
+import { AppRoutes } from "@/lib/routes";
+
 
 interface ICardProps {
   article: NewsFeedItem;
@@ -21,6 +24,7 @@ export const RelatedArticleCard = (props: ICardProps) => {
         </div>
         <BookmarkComp newsId={article.id} />
       </div>
+      <Link href={AppRoutes.news.newsPage.path(article.id)}>
       <div className="flex items-center justify-between gap-6 pt-1 pb-4 md:gap-16">
         <div className="flex-1">
           <h3 className="text-xs text-[#A4A4A4]">{article.source}</h3>
@@ -40,6 +44,7 @@ export const RelatedArticleCard = (props: ICardProps) => {
           />
         </div>
       </div>
+      </Link>
     </div>
   );
 };
