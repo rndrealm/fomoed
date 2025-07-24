@@ -10,7 +10,6 @@ import coinStats from "../../../../public/media/images/dashboard/coin-stats.png"
 import summary from "../../../../public/media/images/dashboard/summary.png";
 import cfgi3 from "../../../../public/media/images/dashboard/cfgi3.png";
 import cfgi2 from "../../../../public/media/images/dashboard/cfgi2.png";
-
 import dex from "../../../../public/media/images/dashboard/dex.png";
 import screener from "../../../../public/media/images/dashboard/screener.png";
 import simpleCfgi from "../../../../public/media/images/dashboard/simple-cfgi.png";
