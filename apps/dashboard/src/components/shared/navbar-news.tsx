@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "motion/react";
@@ -86,6 +86,7 @@ const NavigationTop = ({
   setIsSideMenuOpen: (value: boolean) => void;
 }) => {
   return (
+     <nav className="flex flex-col items-center overflow-hidden bg-[#00000] px-2 py-3 sm:px-4 md:px-8 md:py-5">
     <div className="mx-auto flex w-full items-center justify-between">
       <button className="" onClick={() => setIsSideMenuOpen(true)}>
         <span className="md:hidden">
@@ -119,6 +120,7 @@ const NavigationTop = ({
         </div> */}
       </div>
     </div>
+    </nav>
   );
 };
 
@@ -160,7 +162,7 @@ export const NavbarNews = (props: IProps) => {
   }, [pathname]);
 
   return (
-    <nav className="flex flex-col items-center overflow-hidden bg-[#00000] px-2 py-3 sm:px-4 md:px-8 md:py-4">
+   <Fragment>
       {/* Top Nav */}
       <RenderIf condition={!!isNews}>
         <NavigationTop authUser={authUser} isNewsLogo={isNewsLogo} setIsSideMenuOpen={setIsSideMenuOpen} />
@@ -183,6 +185,6 @@ export const NavbarNews = (props: IProps) => {
         setIsSideMenuOpen={setIsSideMenuOpen}
         authUser={authUser}
       />
-    </nav>
+   </Fragment>
   );
 };

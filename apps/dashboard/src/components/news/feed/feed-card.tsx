@@ -1,6 +1,7 @@
 import { AppRoutes } from "@/lib/routes";
 import { timeAgo } from "@/lib/utils";
 import { NewsFeedItem } from "@/services/queries/news/types";
+import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
@@ -23,13 +24,20 @@ const FeedCard = (props: IProps) => {
       >
         {/* Background image */}
         <div
-          style={{
-            backgroundImage: `url(${article.image_url || "/fallback.png"})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
+          // style={{
+          //   backgroundImage: `url(${article.image_url || "/fallback.png"})`,
+          //   backgroundSize: "cover",
+          //   backgroundPosition: "center",
+          // }}
           className="absolute inset-0 z-0 rounded-[16px]"
-        ></div>
+        >
+          <Image
+            src={article.image_url || "/fallback.png"}
+            fill
+            alt="News Arcticle image"
+            className="rounded-[16px] object-cover"
+          />
+        </div>
 
         {/* Blur */}
         <div className="absolute inset-0 z-0 h-full w-[1020%]">
