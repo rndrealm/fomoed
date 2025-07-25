@@ -2,11 +2,7 @@
 import React, { useEffect, useState } from "react";
 import parse from "html-react-parser";
 import { Footer } from "./footer";
-import {
-  calculateReadingTime,
-  formatDate,
-  normalizeHtmlText,
-} from "@/lib/utils";
+import { calculateReadingTime, formatDate, normalizeHtmlText } from "@/lib/utils";
 import { RenderIf } from "../shared";
 import { useReadSingleNewslabPost } from "@/services/queries/news";
 import { useParams } from "next/navigation";
@@ -33,30 +29,25 @@ export function NewsContent(props: IProps) {
   const { data: article } = useReadSingleNewslabPost(id);
 
   return (
-    <div className="text-white flex flex-col gap-10 max-w-[640px] mx-auto">
+    <div className="mx-auto flex max-w-[640px] flex-col gap-10 text-white">
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-3">
           <div className="flex flex-col justify-between gap-2 sm:flex-row">
             <div className="flex items-center gap-2">
-              <p className="font-medium text-[#9b9b9b] text-[14px] leading-[1.35]">
+              <p className="text-[14px] leading-[1.35] font-medium text-[#9b9b9b]">
                 {formatDate(article?.published_at)} by
               </p>
-              <p className="font-medium text-white text-[14px] leading-[1.35]">
-                Joshua Jake /
-              </p>
-              <p className="font-medium text-[#9b9b9b] text-[14px] leading-[1.35]">
-                News{(article?.symbols || []).length > 0 ? "," : ""}{" "}
-                {article?.symbols.join(", ")}
+              <p className="text-[14px] leading-[1.35] font-medium text-white">Joshua Jake /</p>
+              <p className="text-[14px] leading-[1.35] font-medium text-[#9b9b9b]">
+                News{(article?.symbols || []).length > 0 ? "," : ""} {article?.symbols.join(", ")}
               </p>
             </div>
 
             <RenderIf condition={!!mins}>
-              <p className="font-medium text-[#9b9b9b] text-[14px] leading-[1.35] hidden sm:block">
-                {mins} MIN READ
-              </p>
+              <p className="hidden text-[14px] leading-[1.35] font-medium text-[#9b9b9b] sm:block">{mins} MIN READ</p>
             </RenderIf>
           </div>
-          <div className="flex flex-col gap-4 app_news_content">
+          <div className="app_news_content flex flex-col gap-4">
             {/* {parse(normalizeHtmlText(content))} */}
             {parse(normalizedContent)}
           </div>

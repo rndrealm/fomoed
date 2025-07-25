@@ -5,7 +5,6 @@ import {
   ChainType,
   DexQuoteParams,
   DexQuoteResult,
-  TokenBalance,
   TokenBalanceResponse,
   TokenListResponse,
 } from "./types";
@@ -21,7 +20,7 @@ export const useFetchTokenList = (
     queryKey: hash,
     queryFn: async () => {
       const response = await api.get({
-        url: `${BUNGEE_API_BASE_URL}/api/v1/tokens/list?chainIds=${chainId}&userAddress=${userAddress}`,
+        url: `/api/dex/fetch-token?chainId=${chainId}&userAddress=${userAddress}`,
       });
       return response.result as TokenListResponse;
     },
@@ -40,7 +39,7 @@ export const useSearchTokenList = (search: string = "") => {
     queryKey: hash,
     queryFn: async () => {
       const response = await api.get({
-        url: `${BUNGEE_API_BASE_URL}/api/v1/tokens/search?q=${search}`,
+        url: `/api/dex/search-token?q=${search}`,
       });
       return response.result.tokens as TokenListResponse;
     },
@@ -53,13 +52,14 @@ export const useSearchTokenList = (search: string = "") => {
     error,
   };
 };
+
 export const useFetchSupportedChains = () => {
   const hash = ["supported-chains"];
   const { data, isPending, error, isSuccess } = useQuery({
     queryKey: hash,
     queryFn: async () => {
       const response = await api.get({
-        url: `${BUNGEE_API_BASE_URL}/api/v1/supported-chains`,
+        url: `/api/dex/supported-chains`,
       });
       return response.result as ChainType[];
     },
@@ -69,6 +69,30 @@ export const useFetchSupportedChains = () => {
     isPending,
     isSuccess,
     error,
+  };
+};
+
+export const useTokenBalanceRead = (
+  chainId?: string,
+  userAddress?: string,
+  tokenAddress?: string
+) => {
+  const hash = ["get-token-balance", userAddress, tokenAddress, chainId];
+  const { data, isPending, error, isSuccess, refetch } =
+    useQuery<TokenBalanceResponse>({
+      queryKey: hash,
+      queryFn: async () =>
+        await api.get({
+          url: `https://api.socket.tech/v2/balances/token-balance?tokenAddress=${tokenAddress}&chainId=${chainId}&userAddress=${userAddress}`,
+        }),
+      enabled: !!userAddress && !!tokenAddress && !!chainId,
+    });
+  return {
+    data: data?.result,
+    isPending,
+    isSuccess,
+    error,
+    refetch,
   };
 };
 
@@ -84,9 +108,9 @@ export const useGetQuote = (params: DexQuoteParams) => {
     params.slippage,
   ];
 
-  const url = `${BUNGEE_API_BASE_URL}/api/v1/bungee/quote`;
+  const url = `/api/dex/get-quote`;
   const queryParams = new URLSearchParams(params as any);
-  const fullUrl = `${url}?${queryParams}&enableManual=true`;
+  const fullUrl = `${url}?${queryParams}`;
 
   const { data, isPending, error, isSuccess, isError, isLoading } = useQuery({
     queryKey: hash,
@@ -122,7 +146,7 @@ export const useBuildTransaction = (quoteId: string) => {
     queryKey: hash,
     queryFn: async () => {
       const response = await api.get({
-        url: `${BUNGEE_API_BASE_URL}/api/v1/bungee/build-tx?quoteId=${quoteId}`,
+        url: `api/dex/build-tx?quoteId=${quoteId}`,
       });
       return response.result as BuildTransactionResult;
     },
@@ -132,29 +156,5 @@ export const useBuildTransaction = (quoteId: string) => {
     isPending,
     isSuccess,
     error,
-  };
-};
-
-export const useTokenBalanceRead = (
-  chainId?: string,
-  userAddress?: string,
-  tokenAddress?: string
-) => {
-  const hash = ["get-token-balance", userAddress, tokenAddress, chainId];
-  const { data, isPending, error, isSuccess, refetch } =
-    useQuery<TokenBalanceResponse>({
-      queryKey: hash,
-      queryFn: async () =>
-        await api.get({
-          url: `https://api.socket.tech/v2/balances/token-balance?tokenAddress=${tokenAddress}&chainId=${chainId}&userAddress=${userAddress}`,
-        }),
-      enabled: !!userAddress && !!tokenAddress && !!chainId,
-    });
-  return {
-    data: data?.result,
-    isPending,
-    isSuccess,
-    error,
-    refetch,
   };
 };

@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.723.0
+
+- New News page
+- New Swap widget
+
 ## v1.714.1
 
 - disable news scraping cron job

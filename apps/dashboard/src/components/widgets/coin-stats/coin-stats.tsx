@@ -1,17 +1,7 @@
 "use client";
 import React, { useState } from "react";
-import {
-  Close,
-  Explorer,
-  Globe,
-  Info,
-  Link,
-  Twitter,
-} from "@/components/icons/icons";
-import {
-  useFetchCoinStatsSingleToken,
-  useFetchCoinStatsToken,
-} from "@/services/queries/charts";
+import { Close, Explorer, Globe, Info, Link, Twitter } from "@/components/icons/icons";
+import { useFetchCoinStatsSingleToken, useFetchCoinStatsToken } from "@/services/queries/charts";
 import { AnimatePresence, motion } from "motion/react";
 import { LayoutType, updateWidgetPropsAtom } from "@/lib/atoms/layoutAtom";
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
@@ -19,14 +9,10 @@ import { useAtomValue, useSetAtom } from "jotai";
 import CoinDropdown from "./coin-dropdown";
 import { formatMarketCapNumber, modalSlide } from "@/lib/utils";
 import { WidgetWrapper } from "../shared";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface ILinkItem {
-  icon: () => React.JSX.Element;
+  icon: React.JSX.Element;
   label: string;
   href?: string;
 }
@@ -35,8 +21,8 @@ function LinkItem(props: ILinkItem) {
   const { icon, label, href } = props;
   return (
     <a target="_blank" href={href}>
-      <div className="py-1 px-[6px] rounded-lg bg-[#141414] flex items-center gap-1">
-        {icon()}
+      <div className="flex items-center gap-1 rounded-lg bg-[#141414] px-[6px] py-1">
+        {icon}
         {/* <p className="text-sm font-normal text-white">{label}</p> */}
       </div>
     </a>
@@ -50,9 +36,7 @@ interface IProps {
 export default function CoinStats(props: IProps) {
   const { widget } = props;
   const { data = [] } = useFetchCoinStatsToken();
-  const { data: coinStats } = useFetchCoinStatsSingleToken(
-    widget?.props?.token
-  );
+  const { data: coinStats } = useFetchCoinStatsSingleToken(widget?.props?.token);
 
   const [showInfo, setShowInfo] = useState(false);
 
@@ -88,20 +72,14 @@ export default function CoinStats(props: IProps) {
       <div className="flex flex-col gap-6 pb-4">
         <div className="flex items-center justify-center gap-8">
           <div className="flex flex-col items-center">
-            <h3 className="text-sm text-[#878787] leading-[1.35] font-medium select-none">
-              Rank
-            </h3>
-            <h3 className="text-xl text-white leading-[1.35] font-bold">
-              {coinStats?.rank}
-            </h3>
+            <h3 className="text-sm leading-[1.35] font-medium text-[#878787] select-none">Rank</h3>
+            <h3 className="text-xl leading-[1.35] font-bold text-white">{coinStats?.rank}</h3>
           </div>
 
           <div className="flex flex-col items-center">
-            <h3 className="text-sm text-[#878787] leading-[1.35] font-medium select-none">
-              Market Cap
-            </h3>
+            <h3 className="text-sm leading-[1.35] font-medium text-[#878787] select-none">Market Cap</h3>
             <div className="flex items-center">
-              <h3 className="text-xl text-white leading-[1.35] font-bold select-none">
+              <h3 className="text-xl leading-[1.35] font-bold text-white select-none">
                 {formatMarketCapNumber(coinStats?.marketCap || "")}
 
                 {/* $2.61T */}
@@ -117,40 +95,34 @@ export default function CoinStats(props: IProps) {
         <div className="flex flex-col gap-5">
           <div className="flex flex-col gap-3">
             <div className="relative flex justify-center">
-              <div className="flex justify-center gap-1 bg-[#000] px-1 relative z-2 select-none">
+              <div className="relative z-2 flex justify-center gap-1 bg-[#000] px-1 select-none">
                 <Link />
-                <p className="text-sm text-[#878787] leading-[1.35] font-medium">
-                  Links
-                </p>
+                <p className="text-sm leading-[1.35] font-medium text-[#878787]">Links</p>
               </div>
-              <div className="w-full h-[1px] bg-[#161616] absolute top-[50%] z-1"></div>
+              <div className="absolute top-[50%] z-1 h-[1px] w-full bg-[#161616]"></div>
             </div>
 
-            <div className="flex justify-center gap-1 pb-4 border-b border-[#161616]">
+            <div className="flex justify-center gap-1 border-b border-[#161616] pb-4">
               {/* <LinkItem icon={Globe} label="Website" />
               <LinkItem icon={Twitter} label="X (Twitter)" />
               <LinkItem icon={Explorer} label="Explorer" /> */}
 
-              <LinkItem icon={Globe} label="" href={coinStats?.websiteUrl} />
-              <LinkItem icon={Twitter} label="" href={coinStats?.twitterUrl} />
-              <LinkItem
-                icon={Explorer}
-                label=""
-                href={coinStats?.explorers?.[0]}
-              />
+              <LinkItem icon={<Globe />} label="" href={coinStats?.websiteUrl} />
+              <LinkItem icon={<Twitter />} label="" href={coinStats?.twitterUrl} />
+              <LinkItem icon={<Explorer />} label="" href={coinStats?.explorers?.[0]} />
             </div>
           </div>
 
           <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <p className="font-medium text-sm text-[#878787] leading-[1.35] select-none">
+                <p className="text-sm leading-[1.35] font-medium text-[#878787] select-none">
                   {/* 24h Volume */}
                   Volume
                 </p>
               </div>
 
-              <p className="font-bold text-sm text-[#fff] leading-[1.35]">
+              <p className="text-sm leading-[1.35] font-bold text-[#fff]">
                 {/* $42.61b */}
                 {formatMarketCapNumber(coinStats?.volume || "")}
               </p>
@@ -158,52 +130,41 @@ export default function CoinStats(props: IProps) {
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <p className="font-medium text-sm text-[#878787] leading-[1.35] select-none">
-                  FDV
-                </p>
+                <p className="text-sm leading-[1.35] font-medium text-[#878787] select-none">FDV</p>
 
                 <Tooltip>
                   <TooltipTrigger>
                     <Info />
                   </TooltipTrigger>
-                  <TooltipContent
-                    className="bg-[#1C1C1C] px-[6px] py-[3px] rounded-lg mb-[2px]"
-                    showArrow={false}
-                  >
-                    <p className="text-[13px] leading-[1.35] text-[#878787] font-semibold">
-                      Fully Diluted Value
-                    </p>
+                  <TooltipContent className="mb-[2px] rounded-lg bg-[#1C1C1C] px-[6px] py-[3px]" showArrow={false}>
+                    <p className="text-[13px] leading-[1.35] font-semibold text-[#878787]">Fully Diluted Value</p>
                   </TooltipContent>
                 </Tooltip>
               </div>
 
-              <p className="font-bold text-sm text-[#fff] leading-[1.35]">
+              <p className="text-sm leading-[1.35] font-bold text-[#fff]">
                 {formatMarketCapNumber(coinStats?.fullyDilutedValuation || "")}
               </p>
             </div>
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <p className="font-medium text-sm text-[#878787] leading-[1.35] select-none">
-                  Circulating Supply
-                </p>
+                <p className="text-sm leading-[1.35] font-medium text-[#878787] select-none">Circulating Supply</p>
                 {/* <Info /> */}
               </div>
 
-              <p className="font-bold text-sm text-[#fff] leading-[1.35]">
+              <p className="text-sm leading-[1.35] font-bold text-[#fff]">
                 {formatMarketCapNumber(coinStats?.availableSupply || "", false)}
               </p>
             </div>
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <p className="font-medium text-sm text-[#878787] leading-[1.35] select-none">
-                  Total Supply
-                </p>
+                <p className="text-sm leading-[1.35] font-medium text-[#878787] select-none">Total Supply</p>
                 {/* <Info /> */}
               </div>
 
-              <p className="font-bold text-sm text-[#fff] leading-[1.35]">
+              <p className="text-sm leading-[1.35] font-bold text-[#fff]">
                 {formatMarketCapNumber(coinStats?.totalSupply || "", false)}
               </p>
             </div>
@@ -213,9 +174,9 @@ export default function CoinStats(props: IProps) {
 
       <AnimatePresence>
         {showInfo && (
-          <div className="absolute  bottom-[10px] left-[10px] right-[10px] top-[10px] z-9 flex items-end">
+          <div className="absolute top-[10px] right-[10px] bottom-[10px] left-[10px] z-9 flex items-end">
             <motion.div
-              className="bg-[#111] rounded-[22px] py-4 px-5 overflow-auto max-h-full scrollbar"
+              className="scrollbar max-h-full overflow-auto rounded-[22px] bg-[#111] px-5 py-4"
               variants={modalSlide}
               initial="hidden"
               animate="visible"
@@ -224,39 +185,29 @@ export default function CoinStats(props: IProps) {
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-col">
-                    <h3 className="font-semibold text-base leading-[1.35] text-white">
-                      MARKET CAP
-                    </h3>
-                    <p className="font-light text-[13px] leading-[1.25] text-[#878787]">
-                      Learn about the Marketcap
-                    </p>
+                    <h3 className="text-base leading-[1.35] font-semibold text-white">MARKET CAP</h3>
+                    <p className="text-[13px] leading-[1.25] font-light text-[#878787]">Learn about the Marketcap</p>
                   </div>
-                  <p className="font-medium text-[13px] leading-[1.35] text-white">
-                    Market capitalization (market cap) is the total value of a
-                    cryptocurrency. It’s calculated by multiplying the current
-                    price by the total circulating supply. It gives an idea of a
-                    coin&apos;s overall size and importance in the market.
+                  <p className="text-[13px] leading-[1.35] font-medium text-white">
+                    Market capitalization (market cap) is the total value of a cryptocurrency. It’s calculated by
+                    multiplying the current price by the total circulating supply. It gives an idea of a coin&apos;s
+                    overall size and importance in the market.
                   </p>
                 </div>
 
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-col">
-                    <h3 className="font-semibold text-base leading-[1.35] text-white">
-                      Volume
-                    </h3>
-                    <p className="font-light text-[13px] leading-[1.25] text-[#878787]">
-                      Learn about the Volume
-                    </p>
+                    <h3 className="text-base leading-[1.35] font-semibold text-white">Volume</h3>
+                    <p className="text-[13px] leading-[1.25] font-light text-[#878787]">Learn about the Volume</p>
                   </div>
-                  <p className="font-medium text-[13px] leading-[1.35] text-white">
-                    Volume measures how much of a cryptocurrency has been traded
-                    over a specific period, usually 24 hours. It shows how
-                    active and liquid a market is — higher volume often means
-                    more interest and easier buying or selling.
+                  <p className="text-[13px] leading-[1.35] font-medium text-white">
+                    Volume measures how much of a cryptocurrency has been traded over a specific period, usually 24
+                    hours. It shows how active and liquid a market is — higher volume often means more interest and
+                    easier buying or selling.
                   </p>
                 </div>
 
-                <p className="text-[#696969] text-xs font-semibold text-[1.25]">
+                <p className="text-xs font-semibold text-[#696969] text-[1.25]">
                   We use data from{" "}
                   <a href="https://coinstats.app/" target="_blank">
                     coinstats.app
@@ -266,12 +217,12 @@ export default function CoinStats(props: IProps) {
                 <div className="flex justify-center">
                   <button
                     type="button"
-                    className="rounded-[40px] bg-[#272727] flex items-center justify-center gap-1 h-[26px] app_widget_button"
+                    className="app_widget_button flex h-[26px] items-center justify-center gap-1 rounded-[40px] bg-[#272727]"
                     onClick={() => {
                       setShowInfo(false);
                     }}
                   >
-                    <p className="font-medium text-[13px] text-white whitespace-nowrap app_widget_button__text">
+                    <p className="app_widget_button__text text-[13px] font-medium whitespace-nowrap text-white">
                       Close
                     </p>
                     <div className="app_widget_button__icon">

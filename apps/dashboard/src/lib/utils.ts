@@ -246,6 +246,17 @@ export const shortenAddress = (address: string, startChars = 6, endChars = 4): s
 };
 
 /**
+ * Function to truncate text to a specified length and append ellipsis if it exceeds the limit
+ * @param text
+ * @param maxLength defaults to 100
+ * @returns
+ */
+export const truncateText = (text: string | null, maxLength: number = 100): string => {
+  if (!text || text.length <= maxLength) return text || "";
+  return text.substring(0, maxLength).trim() + "...";
+};
+
+/**
  * Swaps 'from' and 'to' slugs
  * @param slug
  * @returns
@@ -471,4 +482,26 @@ export function handleFearGreedLabel(value: number) {
 export function getOverlayRoot(): HTMLElement | null {
   if (typeof window === "undefined") return null;
   return document.getElementById("overlay-root");
+}
+
+export function formatNewsWidgetTime(date?: string) {
+  if (!date) return "";
+  const _date = new Date(date);
+  const timeString = _date.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  return timeString;
+}
+
+export function generateSocialLinks(newsUrl: string) {
+  const encodedUrl = encodeURIComponent(newsUrl);
+
+  return {
+    x: `https://twitter.com/intent/tweet?url=${encodedUrl}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
+    linkedin: `https://www.linkedin.com/shareArticle?mini=true&url=${encodedUrl}`,
+  };
 }

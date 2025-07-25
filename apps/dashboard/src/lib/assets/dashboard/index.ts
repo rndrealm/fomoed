@@ -8,8 +8,8 @@ import orderBook from "../../../../public/media/images/dashboard/order-book.png"
 import bitcoinDominance from "../../../../public/media/images/dashboard/bitcoin-dominance.png";
 import coinStats from "../../../../public/media/images/dashboard/coin-stats.png";
 import summary from "../../../../public/media/images/dashboard/summary.png";
-import cfgi2 from "../../../../public/media/images/dashboard/cfgi2.png";
 import cfgi3 from "../../../../public/media/images/dashboard/cfgi3.png";
+import cfgi2 from "../../../../public/media/images/dashboard/cfgi2.png";
 import dex from "../../../../public/media/images/dashboard/dex.png";
 import screener from "../../../../public/media/images/dashboard/screener.png";
 import simpleCfgi from "../../../../public/media/images/dashboard/simple-cfgi.png";
@@ -26,6 +26,7 @@ import folder from "../../../../public/media/images/dashboard/folder.png";
 import heat from "../../../../public/media/images/dashboard/heat.png";
 import simple from "../../../../public/media/images/dashboard/simple.png";
 import successCheck from "../../../../public/media/images/dashboard/success-check.png";
+import successCheckV2 from "../../../../public/media/images/dashboard/success-check.svg";
 import settings from "../../../../public/media/images/dashboard/settings.svg";
 import settingsV2 from "../../../../public/media/images/dashboard/settings-v2.svg";
 import settingsV3 from "../../../../public/media/images/dashboard/settings-v3.svg";
@@ -50,6 +51,9 @@ import news1 from "../../../../public/media/images/dashboard/news1.png";
 import news2 from "../../../../public/media/images/dashboard/news2.png";
 import news3 from "../../../../public/media/images/dashboard/news3.png";
 import bigNews from "../../../../public/media/images/dashboard/big-news.png";
+import newsWidget from "../../../../public/media/images/dashboard/news-widget.png";
+import fallback from "../../../../public/fallback.png";
+import logoV2 from "../../../../public/media/images/logoV2.png";
 
 const dashboard = {
   layoutPlaceholder,
@@ -82,12 +86,14 @@ const dashboard = {
   token,
   chevronDown,
   successCheck,
+  successCheckV2,
   explore,
   tokenHistory,
   orderBook,
   bitcoinDominance,
   coinStats,
   summary,
+  cfgi3,
   settingsV2,
   settingsV3,
   plus,
@@ -101,9 +107,11 @@ const dashboard = {
   news3,
   bigNews,
   footprint,
-  cfgi3,
+  newsWidget,
   screener,
   dex,
+  fallback,
+  logoV2,
 };
 
 export default dashboard;

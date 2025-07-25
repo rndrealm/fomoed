@@ -1,5 +1,6 @@
 "use client";
 import authAssets from "@/lib/assets/auth";
+import { AppRoutes } from "@/lib/routes";
 import Image from "next/image";
 import Link from "next/link";
 import { useQueryState } from "nuqs";
@@ -39,6 +40,13 @@ const AuthError = () => {
               Error {code}
             </Link>
           </p>
+        </div>
+        <div className="mt-6">
+          <Link href={AppRoutes.auth.login.path}>
+            <button className="w- w-[10rem] rounded-3xl bg-white py-2 text-black">
+              <p className="font-semibold">Go back</p>
+            </button>
+          </Link>
         </div>
       </div>
     </div>

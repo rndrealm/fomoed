@@ -17,6 +17,7 @@
         "@extractus/feed-extractor": "^7.1.6",
         "@hookform/resolvers": "^5.0.1",
         "@kyberswap/widgets": "^2.1.0",
+        "@number-flow/react": "^0.5.10",
         "@openrouter/ai-sdk-provider": "^0.4.5",
         "@radix-ui/react-dialog": "^1.1.14",
         "@radix-ui/react-dropdown-menu": "^2.1.12",

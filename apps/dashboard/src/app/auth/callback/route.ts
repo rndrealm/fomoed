@@ -1,5 +1,9 @@
 import { AppRoutes } from "@/lib/routes";
-import { createSupabaseServerClient, createSupabaseServerComponentClient } from "@/lib/utils/supabase/server-client";
+import {
+  createSupabaseServerClient,
+  createSupabaseServerComponentClient,
+  createSupabaseServerWithAnonKey,
+} from "@/lib/utils/supabase/server-client";
 import { SupabaseClient, User } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
@@ -39,7 +43,8 @@ async function getUserByEmail(email: string) {
   return user.data;
 }
 
-async function createOrLinkUserFromOAuth(supabase: SupabaseClient, user: User): Promise<void> {
+async function createOrLinkUserFromOAuth(user: User): Promise<void> {
+  const supabase = await createSupabaseServerWithAnonKey();
   if (!user.email) {
     throw new Error("User does not have an email address");
   }
@@ -80,6 +85,7 @@ export async function GET(request: Request) {
     const supabase = await createSupabaseServerClient();
 
     const { error, data } = await supabase.auth.exchangeCodeForSession(code);
+    console.log("Exchange code for session:", { error, data });
 
     if (!data.user) {
       return NextResponse.redirect(
@@ -87,10 +93,11 @@ export async function GET(request: Request) {
       );
     }
 
-    createOrLinkUserFromOAuth(supabase, data.user);
+    await createOrLinkUserFromOAuth(data.user);
 
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+      return NextResponse.redirect(`${origin}/news`);
+      // return NextResponse.redirect(`${origin}${next}`);
     }
   }
 

@@ -1,130 +1,99 @@
-
 "use client";
 
 // import ErrorComponent from "@/components/shared/error-component";
 import { useEffect, useRef } from "react";
-import {
-    PerspectiveCamera,
-    useGLTF,
-    useTexture,
-} from "@react-three/drei";
+import { PerspectiveCamera, useGLTF, useTexture } from "@react-three/drei";
 import * as THREE from "three";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { motion } from "motion/react";
 import Link from "next/link";
 
 const content = {
-    error: "404",
-    message: "You seem a little off-course",
-    message2: "We couldn’t find the page you’re looking for, but we’ll help you get back on track.",
-    label: "Go Back Home",
+  error: "404",
+  message: "You seem a little off-course",
+  message2: "We couldn’t find the page you’re looking for, but we’ll help you get back on track.",
+  label: "Go Back Home",
 };
 
-
 export default function NotFound() {
-    // return <ErrorComponent content={content} />;
-    return <Error3DComponent />
+  // return <ErrorComponent content={content} />;
+  return <Error3DComponent />;
 }
 
 function Error3DComponent() {
+  return (
+    <div className="fixed inset-0 h-[100svh] w-full overflow-hidden">
+      <div className="flex h-full w-full items-center justify-center overflow-hidden bg-[#000]">
+        <div className="flex h-full w-full scale-105 items-center justify-center">
+          <div className="pointer-events-none relative flex h-full w-full items-center justify-center gap-[180px] pb-[200px]">
+            <motion.div
+              style={{ opacity: 0 }}
+              className="relative flex h-full items-center justify-center"
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1, delay: 1, ease: "easeInOut" }}
+            >
+              <SvgLeft />
+            </motion.div>
 
-    return (
-
-        <div className="fixed inset-0 h-[100svh] w-full overflow-hidden">
-            <div className="w-full h-full flex items-center justify-center overflow-hidden bg-[#000]">
-                <div className="w-full h-full flex items-center justify-center scale-105">
-
-                    <div className="pointer-events-none relative w-full h-full pb-[200px] flex items-center justify-center gap-[180px]">
-
-                        <motion.div
-                            style={{ opacity: 0 }}
-                            className="relative h-full flex justify-center items-center"
-                            animate={{ opacity: 1 }}
-                            transition={{ duration: 1, delay: 1, ease: "easeInOut" }}
-                        >
-                            <SvgLeft />
-                        </motion.div>
-
-
-                        <div className="flex justify-center items-center overflow-hidden absolute top-[calc(50%-95px)] left-1/2 -translate-x-[52.5%] -translate-y-1/2 h-[260px] aspect-square">
-                            <Experience />
-                        </div>
-
-                        <motion.div
-                            style={{ opacity: 0 }}
-                            className="relative h-full flex justify-center items-center"
-                            animate={{ opacity: 1 }}
-                            transition={{ duration: 1, delay: 1.5, ease: "easeInOut" }}
-                        >
-                            <SvgRight />
-                        </motion.div>
-
-                    </div>
-
-                    <motion.div
-                        style={{ opacity: 0 }}
-                        className="absolute top-[60%] left-1/2 -translate-x-1/2 -translate-y-1/2
-                    w-full flex flex-col items-center justify-between gap-1"
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 1, delay: 1, ease: "easeInOut" }}
-                    >
-                        <h2 className="text-white text-[18px]">{content.message}</h2>
-                        <p className="leading-[1.275] text-[#9A9E9E] text-[14px] w-[280px] text-center">
-                            {content.message2}
-                        </p>
-
-                        <button
-                            className="bg-white rounded-[36px] mt-[18px] text-black text-[14px]
-                    border-[1px] border-[#464646] px-5 py-2 font-medium
-                    "
-                        >
-                            <Link
-                                href="/"
-                                className=""
-                            >
-                                {content.label}
-                            </Link>
-                        </button>
-                    </motion.div>
-                </div>
+            <div className="absolute top-[calc(50%-95px)] left-1/2 flex aspect-square h-[260px] -translate-x-[52.5%] -translate-y-1/2 items-center justify-center overflow-hidden">
+              <Experience />
             </div>
-        </div >
 
-    )
+            <motion.div
+              style={{ opacity: 0 }}
+              className="relative flex h-full items-center justify-center"
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1, delay: 1.5, ease: "easeInOut" }}
+            >
+              <SvgRight />
+            </motion.div>
+          </div>
+
+          <motion.div
+            style={{ opacity: 0 }}
+            className="absolute top-[60%] left-1/2 flex w-full -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-between gap-1"
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1, delay: 1, ease: "easeInOut" }}
+          >
+            <h2 className="text-[18px] text-white">{content.message}</h2>
+            <p className="w-[280px] text-center text-[14px] leading-[1.275] text-[#9A9E9E]">{content.message2}</p>
+
+            <button className="mt-[18px] rounded-[36px] border-[1px] border-[#464646] bg-white px-5 py-2 text-[14px] font-medium text-black">
+              <Link href="/" className="">
+                {content.label}
+              </Link>
+            </button>
+          </motion.div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
-
 function Experience() {
+  const background = false;
+  const environmentIntensity = 0.75;
+  const rotationX = -2.7;
+  const rotationY = 1.2;
+  const rotationZ = -1;
+  const preset = "studio";
 
-    const background = false
-    const environmentIntensity = 0.75
-    const rotationX = -2.7
-    const rotationY = 1.2
-    const rotationZ = -1
-    const preset = "studio"
+  return (
+    <Canvas
+      shadows
+      className="webgl"
+      flat
+      dpr={[1, 2]}
+      gl={{
+        antialias: true,
+      }}
+      // style={{ background: "transparent" }}
+    >
+      <Scene />
 
-    return (
-        <Canvas
-            shadows
-            className="webgl"
-            flat
-            dpr={[1, 2]}
-            gl={{
-                antialias: true,
-            }}
-        // style={{ background: "transparent" }}
-        >
+      <PerspectiveCamera makeDefault position={[0.0, 1.7, 5.5]} near={0.01} far={50} />
 
-            <Scene />
-
-            <PerspectiveCamera
-                makeDefault
-                position={[0.0, 1.7, 5.5]}
-                near={0.01}
-                far={50}
-            />
-
-            {/* <Environment
+      {/* <Environment
                 background={background}
                 environmentIntensity={environmentIntensity}
                 environmentRotation={[rotationX, rotationY, rotationZ]}
@@ -141,326 +110,241 @@ function Experience() {
                 />
             </Environment> */}
 
+      <spotLight position={[3, 7, 2]} intensity={500} angle={Math.PI / 6} penumbra={0.5} distance={20} />
 
-            <spotLight
-                position={[3, 7, 2]}
-                intensity={500}
-                angle={Math.PI / 6}
-                penumbra={0.5}
-                distance={20}
-            />
-
-            <spotLight
-                position={[3, 3, -3]}
-                intensity={100}
-                angle={Math.PI / 4}
-                penumbra={0.3}
-                distance={15}
-            />
-        </Canvas>
-
-    );
+      <spotLight position={[3, 3, -3]} intensity={100} angle={Math.PI / 4} penumbra={0.3} distance={15} />
+    </Canvas>
+  );
 }
 
 function Scene() {
-
-    return (
-
-        <group position={[0, 0.2, 0]}>
-            <CoinModel />
-        </group>
-
-    );
+  return (
+    <group position={[0, 0.2, 0]}>
+      <CoinModel />
+    </group>
+  );
 }
 
-
 const CoinModel = () => {
-    const gltf = useGLTF("/coinModel.glb");
+  const gltf = useGLTF("/coinModel.glb");
 
-    const { scene } = useThree();
-    const coinModelRef = useRef(null);
+  const { scene } = useThree();
+  const coinModelRef = useRef(null);
 
-    const coinBakedMap = useTexture("/bakedCoin.webp");
-    coinBakedMap.flipY = false;
-    coinBakedMap.colorSpace = THREE.SRGBColorSpace;
+  const coinBakedMap = useTexture("/bakedCoin.webp");
+  coinBakedMap.flipY = false;
+  coinBakedMap.colorSpace = THREE.SRGBColorSpace;
 
-    const ridgesBakedMap = useTexture("/bakedRidges.webp");
-    ridgesBakedMap.flipY = false;
-    ridgesBakedMap.colorSpace = THREE.SRGBColorSpace;
+  const ridgesBakedMap = useTexture("/bakedRidges.webp");
+  ridgesBakedMap.flipY = false;
+  ridgesBakedMap.colorSpace = THREE.SRGBColorSpace;
 
-    const mixer = useRef<THREE.AnimationMixer>(new THREE.AnimationMixer(gltf.scene));
+  const mixer = useRef<THREE.AnimationMixer>(new THREE.AnimationMixer(gltf.scene));
 
-    useEffect(() => {
-        if (!gltf) return;
+  useEffect(() => {
+    if (!gltf) return;
 
-        const gltfScene = gltf.scene;
-        const animations = gltf.animations;
+    const gltfScene = gltf.scene;
+    const animations = gltf.animations;
 
-        if (animations && animations.length > 0) {
-            mixer.current = new THREE.AnimationMixer(gltfScene);
-            animations.forEach((clip) => {
-                const action = mixer.current.clipAction(clip);
-                action.setEffectiveTimeScale(10);
+    if (animations && animations.length > 0) {
+      mixer.current = new THREE.AnimationMixer(gltfScene);
+      animations.forEach((clip) => {
+        const action = mixer.current.clipAction(clip);
+        action.setEffectiveTimeScale(10);
 
-                action.loop = THREE.LoopOnce;
-                action.clampWhenFinished = true;
+        action.loop = THREE.LoopOnce;
+        action.clampWhenFinished = true;
 
+        action.play();
+      });
+    }
+  }, [gltf]);
 
-                action.play();
+  useFrame((state, delta) => {
+    mixer.current?.update(delta);
+  });
 
-            });
+  useEffect(() => {
+    // console.log(gltf);
+
+    gltf.scene.traverse((child: any) => {
+      if (child.isMesh) {
+        if (child.name.includes("Ridges")) {
+          if (child.geometry.attributes.uv1) {
+            child.geometry.setAttribute("uv", child.geometry.attributes.uv1);
+            child.geometry.attributes.uv.needsUpdate = true;
+          }
+
+          child.material = new THREE.MeshStandardMaterial({
+            map: ridgesBakedMap,
+            envMap: scene.environment,
+            roughness: 0.5,
+            metalness: 1.0,
+            envMapIntensity: 0.01,
+          });
+        } else if (child.name.includes("Coin")) {
+          if (child.geometry.attributes.uv1) {
+            child.geometry.setAttribute("uv", child.geometry.attributes.uv1);
+            child.geometry.attributes.uv.needsUpdate = true;
+          }
+
+          child.material = new THREE.MeshStandardMaterial({
+            map: coinBakedMap,
+            envMap: scene.environment,
+            roughness: 0.4,
+            metalness: 1.0,
+            envMapIntensity: 0.1,
+            // normalMap: normalMap,
+          });
+        } else {
+          if (child.geometry.attributes.uv1) {
+            child.geometry.setAttribute("uv", child.geometry.attributes.uv1);
+            child.geometry.attributes.uv.needsUpdate = true;
+          }
+
+          child.material = new THREE.MeshStandardMaterial({
+            map: coinBakedMap,
+            envMap: scene.environment,
+            roughness: 0.4,
+            metalness: 1.0,
+            envMapIntensity: 0.25,
+          });
         }
-    }, [gltf]);
-
-    useFrame((state, delta) => {
-        mixer.current?.update(delta);
+      }
     });
+  }, [gltf, coinBakedMap, ridgesBakedMap, scene.environment]);
 
-    useEffect(() => {
-        // console.log(gltf);
-
-        gltf.scene.traverse((child: any) => {
-            if (child.isMesh) {
-                if (child.name.includes("Ridges")) {
-
-                    if (child.geometry.attributes.uv1) {
-                        child.geometry.setAttribute("uv", child.geometry.attributes.uv1);
-                        child.geometry.attributes.uv.needsUpdate = true;
-                    }
-
-                    child.material = new THREE.MeshStandardMaterial({
-                        map: ridgesBakedMap,
-                        envMap: scene.environment,
-                        roughness: 0.5,
-                        metalness: 1.0,
-                        envMapIntensity: 0.01,
-                    });
-                } else if (child.name.includes("Coin")) {
-
-                    if (child.geometry.attributes.uv1) {
-                        child.geometry.setAttribute("uv", child.geometry.attributes.uv1);
-                        child.geometry.attributes.uv.needsUpdate = true;
-                    }
-
-                    child.material = new THREE.MeshStandardMaterial({
-                        map: coinBakedMap,
-                        envMap: scene.environment,
-                        roughness: 0.4,
-                        metalness: 1.0,
-                        envMapIntensity: 0.1,
-                        // normalMap: normalMap,
-                    });
-
-
-                } else {
-
-                    if (child.geometry.attributes.uv1) {
-                        child.geometry.setAttribute("uv", child.geometry.attributes.uv1);
-                        child.geometry.attributes.uv.needsUpdate = true;
-                    }
-
-
-                    child.material = new THREE.MeshStandardMaterial({
-                        map: coinBakedMap,
-                        envMap: scene.environment,
-                        roughness: 0.4,
-                        metalness: 1.0,
-                        envMapIntensity: 0.25,
-
-                    });
-
-                }
-            }
-        });
-    }, [gltf, coinBakedMap, ridgesBakedMap, scene.environment]);
-
-    return (
-        <group ref={coinModelRef}>
-            <primitive object={gltf.scene} />
-        </group>
-    );
+  return (
+    <group ref={coinModelRef}>
+      <primitive object={gltf.scene} />
+    </group>
+  );
 };
 
 useGLTF.preload("/coinModel.glb");
 
 const SvgLeft = () => {
-    return (
-        <svg
-            width="114"
-            height="146"
-            viewBox="0 0 114 146"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
+  return (
+    <svg width="114" height="146" viewBox="0 0 114 146" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g filter="url(#filter0_ii_8352_196685)">
+        <path
+          d="M0.696734 119.011V98.0597L62.4155 0.54545H79.8871V30.375H69.2337L27.6854 96.2131V97.3494H113.836V119.011H0.696734ZM70.0859 146V112.619L70.37 103.244V0.54545H95.228V146H70.0859Z"
+          fill="url(#paint0_linear_8352_196685)"
+        />
+        <path
+          d="M0.696734 119.011V98.0597L62.4155 0.54545H79.8871V30.375H69.2337L27.6854 96.2131V97.3494H113.836V119.011H0.696734ZM70.0859 146V112.619L70.37 103.244V0.54545H95.228V146H70.0859Z"
+          fill="url(#paint1_linear_8352_196685)"
+          fill-opacity="0.49"
+        />
+      </g>
+      <defs>
+        <filter
+          id="filter0_ii_8352_196685"
+          x="0.695312"
+          y="0.545441"
+          width="113.141"
+          height="145.455"
+          filterUnits="userSpaceOnUse"
+          color-interpolation-filters="sRGB"
         >
-            <g filter="url(#filter0_ii_8352_196685)">
-                <path
-                    d="M0.696734 119.011V98.0597L62.4155 0.54545H79.8871V30.375H69.2337L27.6854 96.2131V97.3494H113.836V119.011H0.696734ZM70.0859 146V112.619L70.37 103.244V0.54545H95.228V146H70.0859Z"
-                    fill="url(#paint0_linear_8352_196685)"
-                />
-                <path
-                    d="M0.696734 119.011V98.0597L62.4155 0.54545H79.8871V30.375H69.2337L27.6854 96.2131V97.3494H113.836V119.011H0.696734ZM70.0859 146V112.619L70.37 103.244V0.54545H95.228V146H70.0859Z"
-                    fill="url(#paint1_linear_8352_196685)"
-                    fill-opacity="0.49"
-                />
-            </g>
-            <defs>
-                <filter
-                    id="filter0_ii_8352_196685"
-                    x="0.695312"
-                    y="0.545441"
-                    width="113.141"
-                    height="145.455"
-                    filterUnits="userSpaceOnUse"
-                    color-interpolation-filters="sRGB"
-                >
-                    <feFlood flood-opacity="2" result="BackgroundImageFix" />
-                    <feBlend
-                        mode="normal"
-                        in="SourceGraphic"
-                        in2="BackgroundImageFix"
-                        result="shape"
-                    />
-                    <feColorMatrix
-                        in="SourceAlpha"
-                        type="matrix"
-                        values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
-                        result="hardAlpha"
-                    />
-                    <feOffset dy="1" />
-                    <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
-                    <feColorMatrix
-                        type="matrix"
-                        values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.35 0"
-                    />
-                    <feBlend
-                        mode="normal"
-                        in2="shape"
-                        result="effect1_innerShadow_8352_196685"
-                    />
-                    <feColorMatrix
-                        in="SourceAlpha"
-                        type="matrix"
-                        values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
-                        result="hardAlpha"
-                    />
-                    <feOffset dy="-1" />
-                    <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
-                    <feColorMatrix
-                        type="matrix"
-                        values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.45 0"
-                    />
-                    <feBlend
-                        mode="normal"
-                        in2="effect1_innerShadow_8352_196685"
-                        result="effect2_innerShadow_8352_196685"
-                    />
-                </filter>
-                <linearGradient
-                    id="paint0_linear_8352_196685"
-                    x1="57"
-                    y1="-151"
-                    x2="57"
-                    y2="335"
-                    gradientUnits="userSpaceOnUse"
-                >
-                    <stop offset="0.1" stop-color="#555555" />
-                    <stop offset="0.503054" stop-color="#111111" stop-opacity="0.5" />
-                </linearGradient>
-                <linearGradient
-                    id="paint1_linear_8352_196685"
-                    x1="-10"
-                    y1="6"
-                    x2="124"
-                    y2="140"
-                    gradientUnits="userSpaceOnUse"
-                >
-                    <stop offset="0.662914" stop-opacity="0" />
-                    <stop offset="1" stop-color="#C0561E" />
-                </linearGradient>
-            </defs>
-        </svg>
-    );
+          <feFlood flood-opacity="2" result="BackgroundImageFix" />
+          <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+          <feColorMatrix
+            in="SourceAlpha"
+            type="matrix"
+            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+            result="hardAlpha"
+          />
+          <feOffset dy="1" />
+          <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
+          <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.35 0" />
+          <feBlend mode="normal" in2="shape" result="effect1_innerShadow_8352_196685" />
+          <feColorMatrix
+            in="SourceAlpha"
+            type="matrix"
+            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+            result="hardAlpha"
+          />
+          <feOffset dy="-1" />
+          <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
+          <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.45 0" />
+          <feBlend mode="normal" in2="effect1_innerShadow_8352_196685" result="effect2_innerShadow_8352_196685" />
+        </filter>
+        <linearGradient
+          id="paint0_linear_8352_196685"
+          x1="57"
+          y1="-151"
+          x2="57"
+          y2="335"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0.1" stop-color="#555555" />
+          <stop offset="0.503054" stop-color="#111111" stop-opacity="0.5" />
+        </linearGradient>
+        <linearGradient id="paint1_linear_8352_196685" x1="-10" y1="6" x2="124" y2="140" gradientUnits="userSpaceOnUse">
+          <stop offset="0.662914" stop-opacity="0" />
+          <stop offset="1" stop-color="#C0561E" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
 };
 
 const SvgRight = () => {
-    return (
-        <svg
-            width="114"
-            height="146"
-            viewBox="0 0 114 146"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
+  return (
+    <svg width="114" height="146" viewBox="0 0 114 146" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g filter="url(#filter0_ii_8352_196687)">
+        <path
+          d="M0.696734 119.011V98.0597L62.4155 0.54545H79.8871V30.375H69.2337L27.6854 96.2131V97.3494H113.836V119.011H0.696734ZM70.0859 146V112.619L70.37 103.244V0.54545H95.228V146H70.0859Z"
+          fill="url(#paint0_linear_8352_196687)"
+        />
+      </g>
+      <defs>
+        <filter
+          id="filter0_ii_8352_196687"
+          x="0.695312"
+          y="0.545441"
+          width="113.141"
+          height="145.455"
+          filterUnits="userSpaceOnUse"
+          color-interpolation-filters="sRGB"
         >
-            <g filter="url(#filter0_ii_8352_196687)">
-                <path
-                    d="M0.696734 119.011V98.0597L62.4155 0.54545H79.8871V30.375H69.2337L27.6854 96.2131V97.3494H113.836V119.011H0.696734ZM70.0859 146V112.619L70.37 103.244V0.54545H95.228V146H70.0859Z"
-                    fill="url(#paint0_linear_8352_196687)"
-                />
-            </g>
-            <defs>
-                <filter
-                    id="filter0_ii_8352_196687"
-                    x="0.695312"
-                    y="0.545441"
-                    width="113.141"
-                    height="145.455"
-                    filterUnits="userSpaceOnUse"
-                    color-interpolation-filters="sRGB"
-                >
-                    <feFlood flood-opacity="0" result="BackgroundImageFix" />
-                    <feBlend
-                        mode="normal"
-                        in="SourceGraphic"
-                        in2="BackgroundImageFix"
-                        result="shape"
-                    />
-                    <feColorMatrix
-                        in="SourceAlpha"
-                        type="matrix"
-                        values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
-                        result="hardAlpha"
-                    />
-                    <feOffset dy="1" />
-                    <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
-                    <feColorMatrix
-                        type="matrix"
-                        values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.35 0"
-                    />
-                    <feBlend
-                        mode="normal"
-                        in2="shape"
-                        result="effect1_innerShadow_8352_196687"
-                    />
-                    <feColorMatrix
-                        in="SourceAlpha"
-                        type="matrix"
-                        values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
-                        result="hardAlpha"
-                    />
-                    <feOffset dy="-1" />
-                    <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
-                    <feColorMatrix
-                        type="matrix"
-                        values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.45 0"
-                    />
-                    <feBlend
-                        mode="normal"
-                        in2="effect1_innerShadow_8352_196687"
-                        result="effect2_innerShadow_8352_196687"
-                    />
-                </filter>
-                <linearGradient
-                    id="paint0_linear_8352_196687"
-                    x1="57"
-                    y1="-151"
-                    x2="57"
-                    y2="335"
-                    gradientUnits="userSpaceOnUse"
-                >
-                    <stop offset="0.1" stop-color="#555555" />
-                    <stop offset="0.503054" stop-color="#111111" stop-opacity="0.5" />
-                </linearGradient>
-            </defs>
-        </svg>
-    );
+          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+          <feColorMatrix
+            in="SourceAlpha"
+            type="matrix"
+            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+            result="hardAlpha"
+          />
+          <feOffset dy="1" />
+          <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
+          <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.35 0" />
+          <feBlend mode="normal" in2="shape" result="effect1_innerShadow_8352_196687" />
+          <feColorMatrix
+            in="SourceAlpha"
+            type="matrix"
+            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+            result="hardAlpha"
+          />
+          <feOffset dy="-1" />
+          <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
+          <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.45 0" />
+          <feBlend mode="normal" in2="effect1_innerShadow_8352_196687" result="effect2_innerShadow_8352_196687" />
+        </filter>
+        <linearGradient
+          id="paint0_linear_8352_196687"
+          x1="57"
+          y1="-151"
+          x2="57"
+          y2="335"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0.1" stop-color="#555555" />
+          <stop offset="0.503054" stop-color="#111111" stop-opacity="0.5" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
 };

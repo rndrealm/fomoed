@@ -1,5 +1,8 @@
 import React, { forwardRef, ReactNode } from "react";
 import {
+  AddNewWidget,
+  Minus,
+  SignOut,
   SpotlightAdd,
   SpotlightClear,
   SpotlightRenameTab,
@@ -17,6 +20,15 @@ const iconsMap = {
   add: {
     icon: SpotlightAdd,
   },
+  addNewWidget: {
+    icon: AddNewWidget,
+  },
+  removeOne: {
+    icon: Minus,
+  },
+  signOut: {
+    icon: SignOut,
+  },
 };
 
 export type IShortcutIcon = keyof typeof iconsMap;
@@ -31,18 +43,16 @@ export const ShortcutItem = (props: IProps) => {
   const { icon = "rename", label, shortcutKeys = [] } = props;
 
   return (
-    <div className={cn("w-full flex rounded-sm")}>
-      <div className="flex justify-between flex-1 px-4 py-3 items-center">
-        <div className="flex gap-1 items-center">
-          <div className="">{iconsMap[icon].icon()}</div>
-          <p className="text-[13px] font-semibold leading-[18px] text-white">
-            {label}
-          </p>
+    <div className={cn("flex w-full rounded-sm")}>
+      <div className="flex flex-1 items-center justify-between px-4 py-3">
+        <div className="flex items-center gap-1">
+          <div className="flex h-[20px] w-[20px] items-center justify-center">{iconsMap[icon].icon()}</div>
+          <p className="text-[13px] leading-[18px] font-semibold text-white">{label}</p>
         </div>
 
         <div className="flex items-center gap-1">
           {shortcutKeys.map((item, index) => {
-            return <ShortcutKey key={index} letter={item} />;
+            return <ShortcutKey key={index} letter={item} isKey={item !== "then"} />;
           })}
         </div>
       </div>

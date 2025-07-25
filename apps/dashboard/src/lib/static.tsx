@@ -39,6 +39,7 @@ import CFGI from "@/components/widgets/cfgi/fear-and-greed/cfgi";
 import Screener from "@/components/widgets/screener/screener";
 import widgetsPreview from "./assets/widgetsPreview";
 import { StaticImageData } from "next/image";
+import NewsWidget from "@/components/widgets/news/token-news/news";
 
 export const layoutClassMap = {
   SinglePane: "grid-rows-1 grid-cols-1",
@@ -126,14 +127,15 @@ export const layoutOptionsMap = [
   //   category: "charts",
   //   tags: ["charts", "new"],
   // },
-  // {
-  //   id: 7,
-  //   name: "Dex",
-  //   slug: "dex",
-  //   image: dashboard.dex,
-  //   category: "news",
-  //   tags: ["new"],
-  // },
+  {
+    id: 7,
+    name: "Dex",
+    slug: "dex",
+    image: dashboard.dex,
+    category: "charts",
+    tags: ["new", "charts"],
+  },
+
   {
     id: 112,
     name: "New Price History",
@@ -178,14 +180,14 @@ export const layoutOptionsMap = [
     tags: ["charts", "new"],
   },
 
-  {
-    id: 117,
-    name: "CFGI",
-    slug: "cfgi",
-    image: dashboard.cfgi3,
-    category: "charts",
-    tags: ["charts", "new"],
-  },
+  // {
+  //   id: 117,
+  //   name: "CFGI",
+  //   slug: "cfgi",
+  //   image: dashboard.cfgi3,
+  //   category: "charts",
+  //   tags: ["charts", "new"],
+  // },
 
   {
     id: 18,
@@ -200,7 +202,7 @@ export const layoutOptionsMap = [
     id: 6,
     name: "Token News",
     slug: "token-news",
-    image: dashboard.tokenNews,
+    image: dashboard.newsWidget,
     category: "news",
     tags: ["news", "new"],
   },
@@ -228,22 +230,22 @@ export const layoutOptionsMap = [
     category: "charts",
     tags: ["charts"],
   },
-  {
-    id: 2,
-    name: "Simplified Crypto Fear and Greed Map",
-    slug: "simple-cfgi",
-    image: dashboard.simple,
-    category: "charts",
-    tags: ["charts"],
-  },
-  {
-    id: 1,
-    name: "Crypto Fear and Greed Map",
-    slug: "detailed-cfgi",
-    image: dashboard.cfgi,
-    category: "charts",
-    tags: ["charts"],
-  },
+  // {
+  //   id: 2,
+  //   name: "Simplified Crypto Fear and Greed Map",
+  //   slug: "simple-cfgi",
+  //   image: dashboard.simple,
+  //   category: "charts",
+  //   tags: ["charts"],
+  // },
+  // {
+  //   id: 1,
+  //   name: "Crypto Fear and Greed Map",
+  //   slug: "detailed-cfgi",
+  //   image: dashboard.cfgi,
+  //   category: "charts",
+  //   tags: ["charts"],
+  // },
 
   // {
   //   id: 10,
@@ -287,12 +289,12 @@ export const chartsMap = {
   "token-news": {
     name: "Token News",
     extra: ["token"],
-    component: (widget: LayoutType["widgets"][0]) => <TokenNewsWidget widget={widget} />,
+    component: (widget: LayoutType["widgets"][0]) => <NewsWidget widget={widget} />,
   },
   dex: {
     name: "Dex",
     extra: [""],
-    component: (widget: LayoutType["widgets"][0]) => <DexWidget />,
+    component: (widget: LayoutType["widgets"][0]) => <DexWidget widget={widget} />,
   },
   "cignals-chart": {
     name: "Cignals Chart",

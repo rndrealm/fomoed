@@ -8,12 +8,13 @@ interface RemoteImageProps extends Omit<ImageProps, "src"> {
   height: number;
   className?: string;
   alt: string;
+  fallback?: any;
 }
 
 const RemoteImage = (props: RemoteImageProps) => {
-  const { src, alt, width, height, className = "", ...rest } = props;
+  const { src, alt, width, height, fallback, className = "", ...rest } = props;
   const [imageError, setImageError] = useState(false);
-  const fallbackUrl = dashboard.token;
+  const fallbackUrl = fallback || dashboard.token;
   useEffect(() => {
     if (!src) return;
     setImageError(false);
