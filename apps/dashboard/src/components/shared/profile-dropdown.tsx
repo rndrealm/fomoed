@@ -90,12 +90,15 @@ export function ProfileDropdown(props: IProps) {
             </RenderIf>
           </div> */}
 
-          <div className="border-y border-[#212121] px-4 py-4">
-            <div className="flex flex-row items-center justify-start gap-2">
+          <div className="border-y border-[#212121] px-2 py-2">
+            <a
+              href={process.env.NEXT_PUBLIC_LEGACY_APP_URL + "/plans"}
+              className="flex cursor-pointer flex-row items-center justify-start gap-2 rounded-sm px-2 py-2 hover:bg-white/10"
+            >
               <YellowStarSvg />
 
-              <p className="text-[13px] leading-[1.35] font-medium text-white">{data?.planType}</p>
-            </div>
+              <p className="text-[13px] leading-[1.35] font-medium text-white">{data?.planType || "Loading..."}</p>
+            </a>
           </div>
 
           {/* <div className="cursor-not-allowed border-y border-[#212121] px-4 py-4">
