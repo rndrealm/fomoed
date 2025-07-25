@@ -15,3 +15,10 @@
 - Migrated footprint chart to new dashboard
 - Spotlight
 - Screener widget
+
+## v1.715.0
+
+- Dex widget
+- News feature
+- New dashboard
+- Shortcuts

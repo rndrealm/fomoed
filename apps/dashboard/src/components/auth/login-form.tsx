@@ -39,7 +39,7 @@ export function LoginForm() {
       const retUser = await loginUser(_values);
       if (retUser.success) {
         // Redirect to next URL if available, otherwise to dashboard
-        const redirectUrl = nextUrl && nextUrl !== "/auth/login" ? nextUrl : AppRoutes.dashboard.path;
+        const redirectUrl = nextUrl && nextUrl !== "/auth/login" ? nextUrl : AppRoutes.news.path;
         router.push(redirectUrl);
       } else {
         toast(retUser.message || "Something went wrong!");

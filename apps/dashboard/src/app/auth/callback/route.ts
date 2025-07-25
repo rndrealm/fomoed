@@ -96,7 +96,8 @@ export async function GET(request: Request) {
     await createOrLinkUserFromOAuth(data.user);
 
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+      return NextResponse.redirect(`${origin}/news`);
+      // return NextResponse.redirect(`${origin}${next}`);
     }
   }
 
