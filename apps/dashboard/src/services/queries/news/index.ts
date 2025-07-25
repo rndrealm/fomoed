@@ -211,7 +211,7 @@ export const useReadSimilarNewsFeed = (tokens?: string[], limit: number = 3) => 
       const response = await fetchSimilarNewsFeed(tokens || [], limit);
       return response as NewsFeedItem[];
     },
-    enabled: !!tokens && tokens.length > 0,
+    enabled: !!tokens,
     refetchInterval: 1000 * 60 * 5,
     staleTime: 1000 * 60 * 2,
   });
