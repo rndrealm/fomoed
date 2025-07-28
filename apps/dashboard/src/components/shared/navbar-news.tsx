@@ -103,9 +103,9 @@ const NavigationTop = ({
           </span>
         </button>
 
-        <div className="absolute top-1/2 left-1/2 h-[32px] w-[32px] -translate-x-1/2 -translate-y-1/2 md:hidden">
+        <div className="absolute top-1/2 left-1/2 h-[40px] w-[120px] -translate-x-1/2 -translate-y-1/2 md:hidden">
           <Link href="/">
-            <Image src={dashboard.logoMobile} alt="logo" />
+            <Image src={dashboard.logo} fill alt="logo" />
           </Link>
         </div>
 
