@@ -17,7 +17,7 @@ const AvailableDataSourcesDataSchema = z.object({
   data_sources: z.array(
     z.object({
       prefix: z.string(),
-      data_type: z.enum(["int", "decimal", "bool"]),
+      data_type: z.enum(["int", "decimal", "bool", "percentage"]),
       name: z.string(),
       description: z.string(),
       allowed_operators: z.array(z.string()),
@@ -25,7 +25,6 @@ const AvailableDataSourcesDataSchema = z.object({
       disabled: z.boolean(),
       suggestions_enabled: z.boolean(),
       group: z.string(),
-      message_field: z.string(),
     }),
   ),
 });
@@ -180,7 +179,7 @@ export async function POST(req: Request) {
 
   try {
     resp = await generateObject({
-      model: openai("o4-mini"),
+      model: openai("gpt-4"),
       system: systemPrompt,
       prompt: userPrompt,
       schema: SignalAISchema,
