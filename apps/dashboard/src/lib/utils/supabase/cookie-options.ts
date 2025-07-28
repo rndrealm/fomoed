@@ -1,6 +1,8 @@
 import { CookieOptionsWithName } from "@supabase/ssr";
 
-const dev = process.env.NODE_ENV === "development";
+const dev =
+  process.env.NODE_ENV === "development" ||
+  process.env.VERCEL_ENV !== "production";
 
 console.debug("Node environment:", process.env.NODE_ENV);
 
