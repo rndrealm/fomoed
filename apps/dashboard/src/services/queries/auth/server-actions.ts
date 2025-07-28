@@ -60,8 +60,11 @@ export async function signUpNewUser(body: RegisterUserPayload): Promise<LoginUse
       .ilike("email", email.toLowerCase());
 
     if (updateRes.error) {
-      console.error("Failed to link new supabase user to existing user!");
-      throw new Error("Failed to link account");
+      console.error("Failed to link new supabase user to existing user!", updateRes.error);
+      return {
+        success: false,
+        message: updateRes.error.message || "Failed to link user",
+      };
     }
 
     console.info("Linked new auth login to existing user. Email: ", email);
@@ -192,6 +195,40 @@ export async function setNewPassword(body: { password: string }): Promise<LoginU
     return {
       success: true,
       message: "Successfully sent password reset email",
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Something went wrong",
+    };
+  }
+}
+
+export async function deleteUser(user_id: string): Promise<LoginUserFunctionResponse> {
+  const supabase = await createSupabaseServerWithAnonKey();
+
+  try {
+    const response = await supabase.from("users").delete().eq("user_id", user_id);
+
+    if (response.error) {
+      return {
+        success: false,
+        message: response.error.message,
+      };
+    }
+
+    const { error } = await supabase.auth.admin.deleteUser(user_id);
+    if (error) {
+      return {
+        success: false,
+        message: error.message,
+      };
+    }
+
+    return {
+      success: true,
+      message: "Successfully deleted user account",
     };
   } catch (error) {
     console.log(error);
