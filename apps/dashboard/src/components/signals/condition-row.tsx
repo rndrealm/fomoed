@@ -1,4 +1,4 @@
-import { topicSelectorMap } from "@/constant/signals/data-source-config";
+import { topicSelectorComponentById } from "@/constant/signals/data-source-config";
 import { ChevronsUpDown, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "../ui/button";
@@ -44,11 +44,14 @@ const ConditionRow = ({
   const dataSourceType = dataSourceObj?.data_type || null;
 
   const TopicSelector = useMemo(() => {
-    if (condition.dataSourceId) {
-      return topicSelectorMap[condition.dataSourceId]?.component || null;
+    if (condition.dataSourceId && dataSourceObj) {
+      return (
+        topicSelectorComponentById[dataSourceObj.topic_selector]?.component ||
+        null
+      );
     }
     return null;
-  }, [condition.dataSourceId]);
+  }, [condition.dataSourceId, dataSourceObj]);
 
   // TODO load this dynamically from API
   const suggestionsEnabled = false;

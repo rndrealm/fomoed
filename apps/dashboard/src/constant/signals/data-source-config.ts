@@ -70,40 +70,16 @@ export type TopicSelectorProps = {
 
 type TopicSelectorT = React.FC<TopicSelectorProps>;
 
-export const topicSelectorMap: Record<
+export const topicSelectorComponentById: Record<
   string,
   {
     component: TopicSelectorT;
   }
 > = {
-  cfgi: {
+  symbol: {
     component: TopicSelectorSymbol,
   },
-  youtube_streaming_status: {
+  youtube_channel: {
     component: TopicSelectorYtChannel,
-  },
-  active_addresses_24h: {
-    component: TopicSelectorSymbol,
-  },
-  santiment_market_cap: {
-    component: TopicSelectorSymbol,
-  },
-  santiment_rsi_4h: {
-    component: TopicSelectorSymbol,
-  },
-  santiment_rsi_1d: {
-    component: TopicSelectorSymbol,
-  },
-  santiment_rsi_7d: {
-    component: TopicSelectorSymbol,
-  },
-  ticker: {
-    component: TopicSelectorSymbol,
-  },
-  weighted_sentiment: {
-    component: TopicSelectorSymbol,
-  },
-  social_dominance: {
-    component: TopicSelectorSymbol,
   },
 };

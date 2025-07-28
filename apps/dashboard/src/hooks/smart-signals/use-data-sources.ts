@@ -31,6 +31,8 @@ export type DataSourceType =
   | "bool"
   | "percentage";
 
+export type TopicSelector = "other" | "symbol";
+
 type DataSource = {
   prefix: string;
   data_type: DataSourceType;
@@ -42,6 +44,7 @@ type DataSource = {
   suggestions_enabled: boolean;
   group: string;
   message_field: string;
+  topic_selector: TopicSelector;
 };
 
 type TopicValue = {
