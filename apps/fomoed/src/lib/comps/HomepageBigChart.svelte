@@ -128,7 +128,12 @@
 				{
 					scaleId: 'priceY',
 					label: 'Price',
-					getText: () => (val) => '$' + commaFormatNumber(Math.round(val))
+					getText: () => (val) => {
+						if (val < 1000) {
+							return '$' + commaFormatNumber(val);
+						}
+						return '$' + commaFormatNumber(Math.round(val));
+					}
 				}
 			],
 			crosshairEnableDelay: 200
@@ -154,6 +159,8 @@
 						source: 'data',
 						stepSize: 5000,
 						callback: (value: number) => {
+							// return `$${Math.round(value / 1000)}k`;
+							if (value < 1000) return `$${value.toFixed(2)}`;
 							return `$${Math.round(value / 1000)}k`;
 						}
 					},

@@ -26,14 +26,7 @@ interface IProps {
 }
 
 export function SelectComp(props: IProps) {
-  const {
-    options,
-    placeholder = "Select",
-    label,
-    value,
-    setValue,
-    triggerClassName,
-  } = props;
+  const { options, placeholder = "Select", label, value, setValue, triggerClassName } = props;
   return (
     <Select value={value} onValueChange={setValue}>
       <RenderIf condition={!!label}>
@@ -42,10 +35,10 @@ export function SelectComp(props: IProps) {
       <SelectTrigger className={cn("w-full bg-white", triggerClassName)}>
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
-      <SelectContent>
-        <SelectGroup>
+      <SelectContent className="bg-[#090909]">
+        <SelectGroup className="h-[160px]">
           {options.map((option, i) => (
-            <SelectItem key={i} value={option.value}>
+            <SelectItem key={i} value={option.value} className="focus:bg-widget-background text-white focus:text-white">
               {option.label}
             </SelectItem>
           ))}

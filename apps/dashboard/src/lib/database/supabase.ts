@@ -7,6 +7,11 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instanciate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "12.2.3 (519615d)"
+  }
   graphql_public: {
     Tables: {
       [_ in never]: never
@@ -69,6 +74,169 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      campaign_kols: {
+        Row: {
+          assigned_at: string
+          campaign_id: number
+          kol_id: number
+          role: string | null
+        }
+        Insert: {
+          assigned_at?: string
+          campaign_id: number
+          kol_id: number
+          role?: string | null
+        }
+        Update: {
+          assigned_at?: string
+          campaign_id?: number
+          kol_id?: number
+          role?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_kols_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_with_meta"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_kols_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_kols_kol_id_fkey"
+            columns: ["kol_id"]
+            isOneToOne: false
+            referencedRelation: "kols"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_platforms: {
+        Row: {
+          campaign_id: number
+          platform: string
+        }
+        Insert: {
+          campaign_id: number
+          platform: string
+        }
+        Update: {
+          campaign_id?: number
+          platform?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_platforms_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_with_meta"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_platforms_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_tags: {
+        Row: {
+          campaign_id: number
+          tag_id: number
+        }
+        Insert: {
+          campaign_id: number
+          tag_id: number
+        }
+        Update: {
+          campaign_id?: number
+          tag_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_tags_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_with_meta"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_tags_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaigns: {
+        Row: {
+          banner_url: string | null
+          budget: number | null
+          created_at: string
+          description: string | null
+          end_date: string | null
+          id: number
+          project_id: number
+          start_date: string | null
+          status: string
+          target_audience: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          banner_url?: string | null
+          budget?: number | null
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: number
+          project_id: number
+          start_date?: string | null
+          status?: string
+          target_audience?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          banner_url?: string | null
+          budget?: number | null
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: number
+          project_id?: number
+          start_date?: string | null
+          status?: string
+          target_audience?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaigns_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       cfgi_data: {
         Row: {
@@ -170,6 +338,13 @@ export type Database = {
             foreignKeyName: "comments_user_id_fkey1"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "signals_users"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "comments_user_id_fkey1"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["user_id"]
           },
@@ -218,6 +393,13 @@ export type Database = {
             foreignKeyName: "custom_news_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "signals_users"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "custom_news_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["user_id"]
           },
@@ -228,6 +410,8 @@ export type Database = {
           active_tab_id: string | null
           auto_save: boolean | null
           created_at: string
+          favorite_tokens: string[]
+          favorite_widgets: string[]
           id: string
           user_id: string | null
         }
@@ -235,6 +419,8 @@ export type Database = {
           active_tab_id?: string | null
           auto_save?: boolean | null
           created_at?: string
+          favorite_tokens?: string[]
+          favorite_widgets?: string[]
           id?: string
           user_id?: string | null
         }
@@ -242,10 +428,19 @@ export type Database = {
           active_tab_id?: string | null
           auto_save?: boolean | null
           created_at?: string
+          favorite_tokens?: string[]
+          favorite_widgets?: string[]
           id?: string
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "dashboard_settings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "signals_users"
+            referencedColumns: ["user_id"]
+          },
           {
             foreignKeyName: "dashboard_settings_user_id_fkey"
             columns: ["user_id"]
@@ -276,100 +471,282 @@ export type Database = {
         }
         Relationships: []
       }
-      intake_answers: {
-        Row: {
-          created_at: string
-          id: number
-          intake_form_id: number
-          intake_user_id: number
-          question_id: number
-          response: string
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-          intake_form_id: number
-          intake_user_id: number
-          question_id: number
-          response: string
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string
-          id?: number
-          intake_form_id?: number
-          intake_user_id?: number
-          question_id?: number
-          response?: string
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "intake_answers_intake_form_id_intake_user_id_fkey"
-            columns: ["intake_form_id", "intake_user_id"]
-            isOneToOne: false
-            referencedRelation: "intake_forms"
-            referencedColumns: ["id", "user_id"]
-          },
-          {
-            foreignKeyName: "intake_answers_question_id_fkey"
-            columns: ["question_id"]
-            isOneToOne: false
-            referencedRelation: "intake_questions"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       intake_forms: {
         Row: {
+          biggest_campaign_success: string | null
+          campaign_objectives: string | null
+          chains_deployed: string | null
+          community_members: number | null
+          connected_wallets: number | null
           contact_email: string
+          contacted_by_managment: boolean | null
+          conversion_rate: number | null
           created_at: string
+          email_address: string | null
+          focus_kpis: string | null
+          full_name: string | null
           id: number
+          kols_activated: number | null
+          listed_on_exchanges: string | null
+          marketing_budget_spent: string | null
+          project_description: string | null
+          project_name: string | null
+          project_type: string | null
+          success_criteria: string | null
+          token_address: string | null
+          token_live: boolean | null
+          token_url: string | null
+          twitter_followers: number | null
+          twitter_handle: string | null
           updated_at: string | null
-          user_id: number
+          user_id: string
+          website_url: string | null
+          who_are_you: string | null
         }
         Insert: {
+          biggest_campaign_success?: string | null
+          campaign_objectives?: string | null
+          chains_deployed?: string | null
+          community_members?: number | null
+          connected_wallets?: number | null
           contact_email: string
+          contacted_by_managment?: boolean | null
+          conversion_rate?: number | null
           created_at?: string
+          email_address?: string | null
+          focus_kpis?: string | null
+          full_name?: string | null
           id?: number
+          kols_activated?: number | null
+          listed_on_exchanges?: string | null
+          marketing_budget_spent?: string | null
+          project_description?: string | null
+          project_name?: string | null
+          project_type?: string | null
+          success_criteria?: string | null
+          token_address?: string | null
+          token_live?: boolean | null
+          token_url?: string | null
+          twitter_followers?: number | null
+          twitter_handle?: string | null
           updated_at?: string | null
-          user_id: number
+          user_id: string
+          website_url?: string | null
+          who_are_you?: string | null
         }
         Update: {
+          biggest_campaign_success?: string | null
+          campaign_objectives?: string | null
+          chains_deployed?: string | null
+          community_members?: number | null
+          connected_wallets?: number | null
           contact_email?: string
+          contacted_by_managment?: boolean | null
+          conversion_rate?: number | null
           created_at?: string
+          email_address?: string | null
+          focus_kpis?: string | null
+          full_name?: string | null
           id?: number
+          kols_activated?: number | null
+          listed_on_exchanges?: string | null
+          marketing_budget_spent?: string | null
+          project_description?: string | null
+          project_name?: string | null
+          project_type?: string | null
+          success_criteria?: string | null
+          token_address?: string | null
+          token_live?: boolean | null
+          token_url?: string | null
+          twitter_followers?: number | null
+          twitter_handle?: string | null
           updated_at?: string | null
-          user_id?: number
+          user_id?: string
+          website_url?: string | null
+          who_are_you?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "intake_forms_user_id_fkey"
             columns: ["user_id"]
-            isOneToOne: false
+            isOneToOne: true
+            referencedRelation: "signals_users"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "intake_forms_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
             referencedRelation: "users"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      kol_platforms: {
+        Row: {
+          access_token: string
+          created_at: string
+          expires_at: string | null
+          id: number
+          kol_id: number
+          platform: string
+          refresh_token: string
+          scope: string | null
+        }
+        Insert: {
+          access_token: string
+          created_at?: string
+          expires_at?: string | null
+          id?: number
+          kol_id: number
+          platform: string
+          refresh_token: string
+          scope?: string | null
+        }
+        Update: {
+          access_token?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: number
+          kol_id?: number
+          platform?: string
+          refresh_token?: string
+          scope?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_kol_id"
+            columns: ["kol_id"]
+            isOneToOne: false
+            referencedRelation: "kols"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kol_platforms_kol_id_fkey"
+            columns: ["kol_id"]
+            isOneToOne: false
+            referencedRelation: "kols"
             referencedColumns: ["id"]
           },
         ]
       }
-      intake_questions: {
+      kol_requests: {
         Row: {
-          created_at: string | null
+          campaign_id: number
+          created_at: string
           id: number
-          question_text: string
+          kol_id: number
+          message: string | null
+          payment_amount: number
         }
         Insert: {
-          created_at?: string | null
+          campaign_id: number
+          created_at?: string
           id?: number
-          question_text: string
+          kol_id: number
+          message?: string | null
+          payment_amount: number
         }
         Update: {
-          created_at?: string | null
+          campaign_id?: number
+          created_at?: string
           id?: number
-          question_text?: string
+          kol_id?: number
+          message?: string | null
+          payment_amount?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "kol_requests_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_with_meta"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kol_requests_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kol_requests_kol_id_fkey"
+            columns: ["kol_id"]
+            isOneToOne: false
+            referencedRelation: "kols"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kols: {
+        Row: {
+          avatar_url: string | null
+          banner_url: string | null
+          bio: string | null
+          content_types: string | null
+          created_at: string
+          email: string
+          expertise: string | null
+          full_name: string
+          id: number
+          location: string | null
+          onboarding: boolean
+          profile_url: string | null
+          updated_at: string
+          user_id: string | null
+          wallet_address: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          banner_url?: string | null
+          bio?: string | null
+          content_types?: string | null
+          created_at?: string
+          email: string
+          expertise?: string | null
+          full_name: string
+          id?: number
+          location?: string | null
+          onboarding?: boolean
+          profile_url?: string | null
+          updated_at?: string
+          user_id?: string | null
+          wallet_address?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          banner_url?: string | null
+          bio?: string | null
+          content_types?: string | null
+          created_at?: string
+          email?: string
+          expertise?: string | null
+          full_name?: string
+          id?: number
+          location?: string | null
+          onboarding?: boolean
+          profile_url?: string | null
+          updated_at?: string
+          user_id?: string | null
+          wallet_address?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kols_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "signals_users"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "kols_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       layouts: {
         Row: {
@@ -398,6 +775,13 @@ export type Database = {
             foreignKeyName: "layouts_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "signals_users"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "layouts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["user_id"]
           },
@@ -405,6 +789,7 @@ export type Database = {
       }
       news: {
         Row: {
+          ai_summary: string[] | null
           comments_count: number
           created_at: string
           id: string
@@ -413,6 +798,7 @@ export type Database = {
           metadata: Json | null
           original_url: string | null
           published_at: string | null
+          related_widgets: Json[] | null
           sentiment: string | null
           source: string | null
           summary: string | null
@@ -420,6 +806,7 @@ export type Database = {
           title: string | null
         }
         Insert: {
+          ai_summary?: string[] | null
           comments_count?: number
           created_at?: string
           id: string
@@ -428,6 +815,7 @@ export type Database = {
           metadata?: Json | null
           original_url?: string | null
           published_at?: string | null
+          related_widgets?: Json[] | null
           sentiment?: string | null
           source?: string | null
           summary?: string | null
@@ -435,6 +823,7 @@ export type Database = {
           title?: string | null
         }
         Update: {
+          ai_summary?: string[] | null
           comments_count?: number
           created_at?: string
           id?: string
@@ -443,6 +832,7 @@ export type Database = {
           metadata?: Json | null
           original_url?: string | null
           published_at?: string | null
+          related_widgets?: Json[] | null
           sentiment?: string | null
           source?: string | null
           summary?: string | null
@@ -482,6 +872,56 @@ export type Database = {
             foreignKeyName: "news_bookmarks_user_id_fkey1"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "signals_users"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "news_bookmarks_user_id_fkey1"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      news_favorites: {
+        Row: {
+          created_at: string
+          id: number
+          news_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          news_id?: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          news_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "news_favorites_news_id_fkey"
+            columns: ["news_id"]
+            isOneToOne: false
+            referencedRelation: "news"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "news_favorites_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "signals_users"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "news_favorites_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["user_id"]
           },
@@ -513,6 +953,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "news"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "news_likes_user_id_fkey1"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "signals_users"
+            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "news_likes_user_id_fkey1"
@@ -560,10 +1007,96 @@ export type Database = {
             foreignKeyName: "notifications_smart_signal_id_fkey"
             columns: ["smart_signal_id"]
             isOneToOne: false
+            referencedRelation: "signals_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_smart_signal_id_fkey"
+            columns: ["smart_signal_id"]
+            isOneToOne: false
             referencedRelation: "smart_signals"
             referencedColumns: ["id"]
           },
         ]
+      }
+      project_members: {
+        Row: {
+          project_id: number
+          role: string
+          user_id: string
+        }
+        Insert: {
+          project_id: number
+          role: string
+          user_id: string
+        }
+        Update: {
+          project_id?: number
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_members_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "signals_users"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "project_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          banner_url: string | null
+          budget: number | null
+          created_at: string
+          description: string | null
+          end_date: string | null
+          id: number
+          name: string
+          start_date: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          banner_url?: string | null
+          budget?: number | null
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: number
+          name: string
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          banner_url?: string | null
+          budget?: number | null
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: number
+          name?: string
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       public_user_data: {
         Row: {
@@ -727,6 +1260,58 @@ export type Database = {
             foreignKeyName: "tabs_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "signals_users"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "tabs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      tags: {
+        Row: {
+          id: number
+          name: string
+        }
+        Insert: {
+          id?: number
+          name: string
+        }
+        Update: {
+          id?: number
+          name?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          role: string
+          user_id: string
+        }
+        Insert: {
+          role: string
+          user_id: string
+        }
+        Update: {
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "signals_users"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "user_roles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
             referencedRelation: "users"
             referencedColumns: ["user_id"]
           },
@@ -738,7 +1323,8 @@ export type Database = {
           email: string | null
           has_had_free_trial: boolean
           id: number
-          intake_program: boolean
+          is_kol: boolean
+          is_project_manager: boolean
           updated_at: string | null
           user_id: string
           username: string | null
@@ -748,7 +1334,8 @@ export type Database = {
           email?: string | null
           has_had_free_trial?: boolean
           id?: number
-          intake_program?: boolean
+          is_kol?: boolean
+          is_project_manager?: boolean
           updated_at?: string | null
           user_id: string
           username?: string | null
@@ -758,7 +1345,8 @@ export type Database = {
           email?: string | null
           has_had_free_trial?: boolean
           id?: number
-          intake_program?: boolean
+          is_kol?: boolean
+          is_project_manager?: boolean
           updated_at?: string | null
           user_id?: string
           username?: string | null
@@ -805,6 +1393,13 @@ export type Database = {
             foreignKeyName: "widgets_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "signals_users"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "widgets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["user_id"]
           },
@@ -812,6 +1407,35 @@ export type Database = {
       }
     }
     Views: {
+      campaign_with_meta: {
+        Row: {
+          banner_url: string | null
+          budget: number | null
+          created_at: string | null
+          description: string | null
+          end_date: string | null
+          id: number | null
+          max_payout: number | null
+          platforms: string[] | null
+          project_id: number | null
+          request_count: number | null
+          start_date: string | null
+          status: string | null
+          tags: string[] | null
+          target_audience: string | null
+          title: string | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaigns_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       firable_smart_signals: {
         Row: {
           actions: Json[] | null
@@ -859,6 +1483,23 @@ export type Database = {
           },
         ]
       }
+      signals_users: {
+        Row: {
+          condition: string | null
+          fired_at: string | null
+          id: number | null
+          topics: string[] | null
+          user_id: string | null
+          username: string | null
+        }
+        Relationships: []
+      }
+      youtube_streaming_topics: {
+        Row: {
+          topic: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       fire_and_get_smart_signal: {
@@ -876,9 +1517,41 @@ export type Database = {
           user_id: number
         }
       }
+      gtrgm_compress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gtrgm_decompress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gtrgm_in: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gtrgm_options: {
+        Args: { "": unknown }
+        Returns: undefined
+      }
+      gtrgm_out: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
       mark_notification_as_read: {
         Args: { notification_id: string }
         Returns: undefined
+      }
+      set_limit: {
+        Args: { "": number }
+        Returns: number
+      }
+      show_limit: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      show_trgm: {
+        Args: { "": string }
+        Returns: string[]
       }
     }
     Enums: {
@@ -890,21 +1563,25 @@ export type Database = {
   }
 }
 
-type DefaultSchema = Database[Extract<keyof Database, "public">]
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
@@ -922,14 +1599,16 @@ export type Tables<
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
@@ -945,14 +1624,16 @@ export type TablesInsert<
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
@@ -968,14 +1649,16 @@ export type TablesUpdate<
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
-> = DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
@@ -983,14 +1666,16 @@ export type Enums<
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never

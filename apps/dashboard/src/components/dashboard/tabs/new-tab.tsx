@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useRef, useState } from "react";
-import { AddTab, CloseTab, TabLayout } from "../../icons/icons";
+import { AddTab, CloseTab, MenuIconClosed, TabLayout } from "../../icons/icons";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
   activeTabAtom,
@@ -14,6 +14,8 @@ import { ConfirmationModal, Upgrade } from "../../modals";
 import { ModalContainer, RenderIf } from "../../shared";
 import { useGetUserPlans } from "@/services/queries/subscriptions";
 import { deleteLayoutAtom, layoutAtom } from "@/lib/atoms/layoutAtom";
+import { MobileTab } from "./mobile-tab";
+import { isSidebarOpenAtom } from "@/lib/atoms/utilsAtom";
 
 interface ITabButton {
   handleClick?: () => void;
@@ -25,14 +27,7 @@ interface ITabButton {
 }
 
 export function TabButton(props: ITabButton) {
-  const {
-    handleClick,
-    handleClose,
-    isActive,
-    name,
-    showCloseBtn,
-    handleNameChange,
-  } = props;
+  const { handleClick, handleClose, isActive, name, showCloseBtn, handleNameChange } = props;
   const [hover, setHover] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -61,11 +56,11 @@ export function TabButton(props: ITabButton) {
       >
         <div
           className={cn(
-            "flex items-center gap-2 w-[170px] h-[32px] px-2 rounded-md gap-3 justify-between",
+            "flex h-[32px] w-[170px] items-center justify-between gap-2 gap-3 rounded-md px-2",
             isActive ? "bg-[#252525]" : "bg-[#111]"
           )}
         >
-          <div className="flex items-center flex-1 w-full gap-2">
+          <div className="flex w-full flex-1 items-center gap-2">
             <TabLayout active={isActive} />
             <div className="flex flex-1">
               <form
@@ -78,7 +73,7 @@ export function TabButton(props: ITabButton) {
                   type="text"
                   name="name"
                   className={cn(
-                    "text-xs font-medium truncate w-full h-full flex-1 pointer-events-none focus-visible:ring-0 focus:outline-none focus:ring-0 focus:ring-offset-0 focus:shadow-none [&:focus-visible]:outline-none [&:focus]:outline-none",
+                    "pointer-events-none h-full w-full flex-1 truncate text-xs font-medium focus:shadow-none focus:ring-0 focus:ring-offset-0 focus:outline-none focus-visible:ring-0 [&:focus]:outline-none [&:focus-visible]:outline-none",
                     isActive ? "text-white" : "text-[#7a7a7a]"
                   )}
                   defaultValue={name}
@@ -106,16 +101,12 @@ export function TabButton(props: ITabButton) {
             >
               {name}
             </p> */}
-            <div className="w-[16px] h-[16px]"></div>
+            <div className="h-[16px] w-[16px]"></div>
           </div>
         </div>
       </button>
       <RenderIf condition={showCloseBtn && (isActive || hover)}>
-        <button
-          type="button"
-          className="absolute right-[8px] top-[50%] translate-y-[-50%]"
-          onClick={handleClose}
-        >
+        <button type="button" className="absolute top-[50%] right-[8px] translate-y-[-50%]" onClick={handleClose}>
           <CloseTab />
         </button>
       </RenderIf>
@@ -136,10 +127,11 @@ export function NewTabs() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [deleteTab, setDeleteTab] = useState<typeof activeTab>();
+  const [showTabsModal, setShowTabsModal] = useState(false);
 
-  const currentLayout = layouts.find(
-    (item) => item.id === deleteTab?.layout_id
-  );
+  const setIsSideMenuOpen = useSetAtom(isSidebarOpenAtom);
+
+  const currentLayout = layouts.find((item) => item.id === deleteTab?.layout_id);
 
   const { data } = useGetUserPlans();
 
@@ -157,10 +149,26 @@ export function NewTabs() {
 
   return (
     <Fragment>
-      <div className="hidden md:flex items-center flex-1 w-full gap-2 overflow-hidden">
+      <div className="flex flex-1 gap-3 md:hidden">
+        <button className="" onClick={() => setIsSideMenuOpen(true)}>
+          <span className="">
+            <MenuIconClosed />
+          </span>
+        </button>
         <button
           type="button"
-          className="h-[32px] w-[32px] flex items-center justify-center rounded-md border border-[#121212]"
+          className="flex h-[26px] w-[26px] items-center justify-center rounded-md border-2 border-[#505050]"
+          onClick={() => {
+            setShowTabsModal(true);
+          }}
+        >
+          <p className="text-xs leading-[18px] font-medium text-[#7A7A7A]">{tabs?.length}</p>
+        </button>
+      </div>
+      <div className="hidden w-full flex-1 items-center gap-2 overflow-hidden md:flex">
+        <button
+          type="button"
+          className="flex h-[32px] w-[32px] items-center justify-center rounded-md border border-[#121212]"
           onClick={handleAddNewTab}
         >
           <AddTab />
@@ -168,7 +176,7 @@ export function NewTabs() {
 
         <div className="h-[18px] w-[1px] bg-[#141414]"></div>
 
-        <div className="flex items-center flex-1 gap-2 pr-2 overflow-x-auto no-scrollbar">
+        <div className="no-scrollbar flex flex-1 items-center gap-2 overflow-x-auto pr-2">
           {tabs?.map((item) => {
             const isActive = activeTab.id === item.id;
             const showCloseBtn = tabs.length > 1;
@@ -201,7 +209,8 @@ export function NewTabs() {
           setShowDeleteModal(false);
         }}
         open={showDeleteModal}
-        title={`Close "${deleteTab?.name}" Tab`}
+        // title={`Close "${deleteTab?.name}" Tab`}
+        title={`Close Tab`}
         details={
           currentLayout?.draft
             ? "Unsaved Draft and Tab will be lost forever and cannot be recovered"
@@ -225,12 +234,35 @@ export function NewTabs() {
           setShowUpgradeModal(false);
         }}
         noHeader
-        className="!max-w-[410px] !p-0 rounded-[24px]"
+        className="!md:max-w-[410px] bg-[transparent] !p-0"
       >
         <Upgrade
           plan={data?.planType}
           handleClose={() => {
             setShowUpgradeModal(false);
+          }}
+        />
+      </ModalContainer>
+
+      <ModalContainer
+        open={showTabsModal}
+        handleClose={() => {
+          setShowTabsModal(false);
+        }}
+        noHeader
+        className="!sm:w-[100%] h-[100%] max-h-[100%] !w-[100%] !max-w-[100%] rounded-[0] bg-[transparent] !p-0"
+      >
+        <MobileTab
+          handleAddNewTab={handleAddNewTab}
+          handleClick={(item) => {
+            updateActiveTab(item);
+          }}
+          handleCloseTab={(item) => {
+            setDeleteTab(item);
+            setShowDeleteModal(true);
+          }}
+          handleCloseModal={() => {
+            setShowTabsModal(false);
           }}
         />
       </ModalContainer>

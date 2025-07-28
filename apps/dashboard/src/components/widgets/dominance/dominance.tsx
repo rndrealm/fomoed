@@ -1,18 +1,12 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import {
-  ArrowUp,
-  Close,
-  Dominance as DominanceIcon,
-  Favourite,
-  Question,
-} from "@/components/icons/icons";
-import { OptionsDropdown } from "../shared/options-dropwdown";
+import { Close } from "@/components/icons/icons";
 import { cn, formatPriceSignificant, modalSlide } from "@/lib/utils";
 import { RenderIf } from "@/components/shared";
 import { useFetchMarkeData } from "@/services/queries/charts";
 import { LayoutType } from "@/lib/atoms/layoutAtom";
+import { WidgetWrapper } from "../shared";
 
 const colorMap = {
   BTC: "#ffdb43",
@@ -61,10 +55,10 @@ function DominanceItem(props: IDominanceItem) {
       animate={{ width: `${value}%` }}
       transition={transition(duration, 0)}
     >
-      <div className="overflow-hidden" style={{ height: "content-fit" }}>
+      <motion.div className="" style={{ height: "content-fit" }}>
         <motion.div
           className={cn(
-            "flex flex-col overflow-hidden",
+            "flex flex-col overflow-visible",
             alternate ? "visible" : "invisible"
           )}
           initial={{ y: 55 }}
@@ -79,7 +73,7 @@ function DominanceItem(props: IDominanceItem) {
           >
             {variant}
           </p>
-          <p className="text-white text-xs font-bold leading-[1.35]">
+          <p className="text-white text-xs font-bold leading-[1.35] overflow-visible">
             {value}%
           </p>
           {/* <div className="flex items-center gap-1">
@@ -94,7 +88,7 @@ function DominanceItem(props: IDominanceItem) {
             </p>
           </div> */}
         </motion.div>
-      </div>
+      </motion.div>
       <motion.div
         className="h-[8px] w-full rounded-sm"
         initial={{ background: color, width: "0" }}
@@ -160,33 +154,15 @@ export default function Dominance(props: IProps) {
   );
 
   return (
-    <div className="flex flex-col gap-4 p-4 pt-0 rounded-2xl bg-[#000] relative overflow-hidden h-full">
-      <div className="flex flex-col gap-[2px]">
-        <div className="flex justify-center pt-4 pb-1 cursor-grab">
-          <div className="w-[36px] h-[5px] bg-[#444] rounded-[2px]"></div>
-        </div>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <DominanceIcon />
-            <h4 className="text-base text-[#878787] leading-[1.35] font-semibold select-none">
-              DOMINANCE
-            </h4>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                setShowInfo(true);
-              }}
-            >
-              <Question />
-            </button>
-            <OptionsDropdown widget={widget} />
-          </div>
-        </div>
-      </div>
-
+    <WidgetWrapper
+      title="DOMINANCE"
+      widget={widget}
+      handleLearnMore={() => {
+        setShowInfo(true);
+      }}
+      className="justify-between gap-3"
+      titleIcon="summary"
+    >
       <div className="flex flex-col">
         <div className="flex flex-col">
           <h4 className="font-medium text-sm text-[#878787] leading-[1.35] select-none">
@@ -280,6 +256,6 @@ export default function Dominance(props: IProps) {
           </div>
         )}
       </AnimatePresence>
-    </div>
+    </WidgetWrapper>
   );
 }

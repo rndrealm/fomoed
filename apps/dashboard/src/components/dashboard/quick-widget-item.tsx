@@ -1,24 +1,19 @@
 "use client";
 import { getGridPosition } from "@/charts/helpers";
 import dashboard from "@/lib/assets/dashboard";
-import {
-  addWidgetToExistingLayoutAtom,
-  addWidgetToNewLayoutAtom,
-  layoutAtom,
-} from "@/lib/atoms/layoutAtom";
+import { addWidgetToExistingLayoutAtom, addWidgetToNewLayoutAtom, layoutAtom } from "@/lib/atoms/layoutAtom";
 import { settingAtom } from "@/lib/atoms/settingsAtom";
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 import { LayoutOptionType, widgetPropsDefaults } from "@/lib/static";
 import { capitalizeFirst, joinWidgetSlug, maxTabsByPlan } from "@/lib/utils";
 import { useGetUserPlans } from "@/services/queries/subscriptions";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import Image from "next/image";
 import React, { Fragment, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { RenderIf } from "../shared";
 import { ModalContainer } from "../shared";
 import { Upgrade } from "../modals";
-import { useNextStep } from "nextstepjs";
 
 interface IProps {
   widget: LayoutOptionType[0];
@@ -38,15 +33,12 @@ export function QuickWidgetItem(props: IProps) {
 
   const { data } = useGetUserPlans();
 
-  const tour = useNextStep();
-
   const isClicked = useRef(false);
 
   return (
     <Fragment>
       <button
-        className="flex flex-col gap-x-[6px] gap-y-[6px] cursor-pointer"
-        disabled={isClicked.current}
+        className="flex cursor-pointer flex-col gap-x-[6px] gap-y-[6px]"
         onClick={() => {
           isClicked.current = true;
           const currLayoutId = activeTab.layout_id;
@@ -54,10 +46,7 @@ export function QuickWidgetItem(props: IProps) {
 
           const { x, y } = getGridPosition(currLayout?.widgets.length || 0);
           const newId = uuidv4();
-          const widgetDefaults =
-            widgetPropsDefaults[
-              widget.slug as keyof typeof widgetPropsDefaults
-            ];
+          const widgetDefaults = widgetPropsDefaults[widget.slug as keyof typeof widgetPropsDefaults];
           const defaultWAndH = widgetDefaults.meta || { w: 3, h: 2 };
           const newWidget = {
             id: newId,
@@ -90,32 +79,29 @@ export function QuickWidgetItem(props: IProps) {
           }
           handleGoBack();
           isClicked.current = false;
-          if (tour.currentStep === 1) {
-            tour.setCurrentStep(tour.currentStep + 1);
-          }
+          // if (tour.currentStep === 1) {
+          //   tour.setCurrentStep(tour.currentStep + 1);
+          // }
         }}
       >
         <RenderIf condition={widget.category === "charts" && tag !== "charts"}>
-          <div className="flex items-center gap-2 mb-2">
-            <Image
-              src={dashboard.folder}
-              width={22}
-              height={22}
-              alt="Folder Icon"
-            />
-            <p className="text-xs font-medium text-white">
-              {capitalizeFirst(widget.category)}
-            </p>
+          <div className="mb-2 flex items-center gap-2">
+            <Image src={dashboard.folder} width={22} height={22} alt="Folder Icon" />
+            <p className="text-xs font-medium text-white">{capitalizeFirst(widget.category)}</p>
           </div>
         </RenderIf>
-        <div className=" bg-[#000] rounded-lg border border-[#121212]">
-          <Image src={widget.image} alt={widget.name} />
+        <RenderIf condition={widget.category === "news" && tag !== "news"}>
+          <div className="mb-2 flex items-center gap-2">
+            <Image src={dashboard.folder} width={22} height={22} alt="Folder Icon" />
+            <p className="text-xs font-medium text-white">{capitalizeFirst(widget.category)}</p>
+          </div>
+        </RenderIf>
+        <div className="h-[160px] overflow-hidden rounded-lg border border-[#121212] bg-[#000]">
+          <Image src={widget.image} alt={widget.name} className="h-full w-full object-cover" />
         </div>
         <div className="flex">
-          <div className="px-2 py-1 bg-[#141414] rounded-sm">
-            <p className="text-xs leading-[1.35] font-medium text-white">
-              {widget.name}
-            </p>
+          <div className="rounded-sm bg-[#141414] px-2 py-1">
+            <p className="text-xs leading-[1.35] font-medium text-white">{widget.name}</p>
           </div>
         </div>
       </button>
@@ -126,7 +112,7 @@ export function QuickWidgetItem(props: IProps) {
           setShowUpgradeModal(false);
         }}
         noHeader
-        className="!max-w-[410px] !p-0 rounded-[24px]"
+        className="!max-w-[410px] rounded-[24px] !p-0"
       >
         <Upgrade
           plan={data?.planType}

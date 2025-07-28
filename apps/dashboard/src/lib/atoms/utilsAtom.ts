@@ -5,3 +5,5 @@ const initialUtils = {
 };
 
 export const utilsAtom = atom(initialUtils);
+
+export const isSidebarOpenAtom = atom(false);

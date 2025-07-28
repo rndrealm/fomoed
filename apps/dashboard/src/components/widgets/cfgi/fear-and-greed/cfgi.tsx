@@ -1,28 +1,18 @@
 "use client";
 import React, { useMemo, useState } from "react";
-import { Close, CoinStats, Question } from "@/components/icons/icons";
-import { OptionsDropdown } from "../../shared/options-dropwdown";
+import { Close } from "@/components/icons/icons";
 import { AnimatePresence, motion } from "motion/react";
 import { modalSlide } from "@/lib/utils";
 import { Progress } from "./progress";
-import {
-  useFetchFearAndGreed,
-  useReadCoinList,
-} from "@/services/queries/charts";
+import { useFetchFearAndGreed, useReadCoinList, useReadFearAndGridFromDb } from "@/services/queries/charts";
 import CoinStatsTokenDropdown from "../../shared/coin-stats-token-dropdown";
 import { tokenArray } from "./tokenArray";
 import { LayoutType, updateWidgetPropsAtom } from "@/lib/atoms/layoutAtom";
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 import { useAtomValue, useSetAtom } from "jotai";
+import { WidgetWrapper } from "../../shared";
 
-const colors = [
-  "#FF004D",
-  "#FF540B",
-  "#FFD600",
-  "#90FF00",
-  "#03EBF3",
-  "#03EBF3",
-];
+const colors = ["#FF004D", "#FF540B", "#FFD600", "#90FF00", "#03EBF3", "#03EBF3"];
 
 interface IProps {
   widget: LayoutType["widgets"][0];
@@ -38,42 +28,22 @@ export default function CFGI(props: IProps) {
     return coinData?.find((coin) => coin.symbol === widget.props?.token)?.slug;
   }, [widget.props?.token, coinData]);
 
-  const { data = [] } = useFetchFearAndGreed(
-    widget?.props?.token,
-    activeCoinSlug
-  );
+  const { data = [] } = useFetchFearAndGreed(widget?.props?.token, activeCoinSlug);
+
+  // const { data: testt } = useReadFearAndGridFromDb(widget?.props?.token);
 
   const activeLayout = useAtomValue(activeTabAtom);
   const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
 
   return (
-    <div className="flex flex-col gap-3 p-4 pt-0 rounded-2xl bg-[#000] relative overflow-hidden h-[440px] justify-between">
-      <div className="flex flex-col gap-1">
-        <div className="cursor-grab flex justify-center pt-4 pb-1">
-          <div className="w-[36px] h-[5px] bg-[#444] rounded-[2px]"></div>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <CoinStats />
-            <h4 className="text-base text-[#878787] leading-[1.35] font-semibold">
-              CFGI
-            </h4>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                setShowInfo(true);
-              }}
-            >
-              <Question />
-            </button>
-            <OptionsDropdown widget={widget} />
-          </div>
-        </div>
-      </div>
+    <WidgetWrapper
+      title="CFGI"
+      widget={widget}
+      handleLearnMore={() => {
+        setShowInfo(true);
+      }}
+      className="gap-3"
+    >
       <div className="flex justify-center">
         <CoinStatsTokenDropdown
           options={tokenArray}
@@ -92,7 +62,7 @@ export default function CFGI(props: IProps) {
         />
       </div>
 
-      <div className="flex flex-col items-center justify-center flex-1 gap-0">
+      <div className="flex flex-1 flex-col items-center justify-center gap-0">
         <div className="flex flex-col gap-4">
           <Progress
             progress={data[data?.length - 1]?.cfgi}
@@ -104,16 +74,15 @@ export default function CFGI(props: IProps) {
           />
         </div>
         <p className="text-base leading-[1.35] text-[#878787]">
-          <span className="text-[white]">{data[0]?.cfgi || 0}</span> Avg.
-          yesterday
+          <span className="text-[white]">{data[0]?.cfgi || 0}</span> Avg. yesterday
         </p>
       </div>
 
       <AnimatePresence>
         {showInfo && (
-          <div className="absolute  bottom-[10px] left-[10px] right-[10px] top-[10px] z-9 flex items-end">
+          <div className="absolute top-[10px] right-[10px] bottom-[10px] left-[10px] z-9 flex items-end">
             <motion.div
-              className="bg-[#111] rounded-[22px] py-4 px-5 overflow-auto max-h-full scrollbar"
+              className="scrollbar max-h-full overflow-auto rounded-[22px] bg-[#111] px-5 py-4"
               variants={modalSlide}
               initial="hidden"
               animate="visible"
@@ -122,82 +91,49 @@ export default function CFGI(props: IProps) {
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-3">
                   <div className="flex flex-col">
-                    <h3 className="font-semibold text-base leading-[1.35] text-white">
-                      CFGI
-                    </h3>
-                    <p className="font-light text-[13px] leading-[1.25] text-[#878787]">
-                      Learn about the CFGI
-                    </p>
+                    <h3 className="text-base leading-[1.35] font-semibold text-white">CFGI</h3>
+                    <p className="text-[13px] leading-[1.25] font-light text-[#878787]">Learn about the CFGI</p>
                   </div>
-                  <p className="font-medium text-[13px] leading-[1.35] text-white">
-                    The Crypto Fear and Greed Index measures the emotions and
-                    sentiments driving the cryptocurrency market. Ranging from 0
-                    (Extreme Fear) to 100 (Extreme Greed), the index helps
-                    investors gauge whether the market is undervalued or
-                    overheated, offering a quick snapshot of current market
+                  <p className="text-[13px] leading-[1.35] font-medium text-white">
+                    The Crypto Fear and Greed Index measures the emotions and sentiments driving the cryptocurrency
+                    market. Ranging from 0 (Extreme Fear) to 100 (Extreme Greed), the index helps investors gauge
+                    whether the market is undervalued or overheated, offering a quick snapshot of current market
                     psychology.
                   </p>
                   <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-4">
-                      <p
-                        className={
-                          "w-[50px] font-medium leading-[1.35] text-[13px]"
-                        }
-                        style={{ color: colors[0] }}
-                      >
+                      <p className={"w-[50px] text-[13px] leading-[1.35] font-medium"} style={{ color: colors[0] }}>
                         0-19
                       </p>
-                      <p className="font-medium leading-[1.35] text-[#696969] text-[13px]">
-                        Extreme Fear
-                      </p>
+                      <p className="text-[13px] leading-[1.35] font-medium text-[#696969]">Extreme Fear</p>
                     </div>
                     <div className="flex items-center gap-4">
-                      <p
-                        className="w-[50px] font-medium leading-[1.35] text-[13px]"
-                        style={{ color: colors[1] }}
-                      >
+                      <p className="w-[50px] text-[13px] leading-[1.35] font-medium" style={{ color: colors[1] }}>
                         20-39
                       </p>
-                      <p className="font-medium leading-[1.35] text-[#696969] text-[13px]">
-                        Fear
-                      </p>
+                      <p className="text-[13px] leading-[1.35] font-medium text-[#696969]">Fear</p>
                     </div>
                     <div className="flex items-center gap-4">
-                      <p
-                        className="w-[50px] font-medium leading-[1.35] text-[13px]"
-                        style={{ color: colors[2] }}
-                      >
+                      <p className="w-[50px] text-[13px] leading-[1.35] font-medium" style={{ color: colors[2] }}>
                         40-59
                       </p>
-                      <p className="font-medium leading-[1.35] text-[#696969] text-[13px]">
-                        Neutral
-                      </p>
+                      <p className="text-[13px] leading-[1.35] font-medium text-[#696969]">Neutral</p>
                     </div>
                     <div className="flex items-center gap-4">
-                      <p
-                        className="w-[50px] font-medium leading-[1.35] text-[13px]"
-                        style={{ color: colors[3] }}
-                      >
+                      <p className="w-[50px] text-[13px] leading-[1.35] font-medium" style={{ color: colors[3] }}>
                         60-79
                       </p>
-                      <p className="font-medium leading-[1.35] text-[#696969] text-[13px]">
-                        Greed
-                      </p>
+                      <p className="text-[13px] leading-[1.35] font-medium text-[#696969]">Greed</p>
                     </div>
                     <div className="flex items-center gap-4">
-                      <p
-                        className="w-[50px] font-medium leading-[1.35] text-[13px]"
-                        style={{ color: colors[4] }}
-                      >
+                      <p className="w-[50px] text-[13px] leading-[1.35] font-medium" style={{ color: colors[4] }}>
                         80-100
                       </p>
-                      <p className="font-medium leading-[1.35] text-[#696969] text-[13px]">
-                        Extreme Greed
-                      </p>
+                      <p className="text-[13px] leading-[1.35] font-medium text-[#696969]">Extreme Greed</p>
                     </div>
                   </div>
                   <div className="flex flex-col">
-                    <p className="text-[#696969] text-xs font-semibold text-[1.25]">
+                    <p className="text-xs font-semibold text-[#696969] text-[1.25]">
                       We use data from{" "}
                       <a href="https://cfgi.io/" target="_blank">
                         CFGI.io
@@ -209,12 +145,12 @@ export default function CFGI(props: IProps) {
                 <div className="flex justify-center">
                   <button
                     type="button"
-                    className="rounded-[40px] bg-[#272727] flex items-center justify-center gap-1 h-[26px] app_widget_button"
+                    className="app_widget_button flex h-[26px] items-center justify-center gap-1 rounded-[40px] bg-[#272727]"
                     onClick={() => {
                       setShowInfo(false);
                     }}
                   >
-                    <p className="font-medium text-[13px] text-white whitespace-nowrap app_widget_button__text">
+                    <p className="app_widget_button__text text-[13px] font-medium whitespace-nowrap text-white">
                       Close
                     </p>
                     <div className="app_widget_button__icon">
@@ -227,6 +163,6 @@ export default function CFGI(props: IProps) {
           </div>
         )}
       </AnimatePresence>
-    </div>
+    </WidgetWrapper>
   );
 }

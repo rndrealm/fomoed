@@ -5,11 +5,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Delete, Edit, TabLayout, ToolbarLayout } from "../icons/icons";
-import {
-  DropdownMenuGroup,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-} from "@radix-ui/react-dropdown-menu";
+import { DropdownMenuGroup, DropdownMenuLabel, DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
 import { useAtomValue, useSetAtom } from "jotai";
 import {
   deleteLayoutAtom,
@@ -20,15 +16,10 @@ import {
 } from "@/lib/atoms/layoutAtom";
 import { RenderIf } from "../shared";
 import { Fragment, RefObject, useRef } from "react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "../ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 import { useState } from "react";
 import { ConfirmationModal, NameLayout } from "../modals";
-import { useNextStep } from "nextstepjs";
+
 import { OnboardingEndModal } from "./shared/onboarding-end-modal";
 
 export function LayoutDropdown() {
@@ -52,7 +43,7 @@ export function LayoutDropdown() {
     setIsEndOpen(open);
   };
 
-  const tour = useNextStep();
+  // const tour = useNextStep();
 
   return (
     <Fragment>
@@ -60,43 +51,33 @@ export function LayoutDropdown() {
         <DropdownMenu
           onOpenChange={(e) => {
             setIsOpen(e);
-            if (tour.currentStep === 4) {
-              tour.closeNextStep();
 
-              setTimeout(() => {
-                handleOpenChange(true);
-              }, 1000);
-            }
+            setTimeout(() => {
+              handleOpenChange(true);
+            }, 1000);
           }}
         >
           <Tooltip>
             <TooltipTrigger id="fifth-step">
               <DropdownMenuTrigger asChild>
-                <div className="flex items-center justify-center rounded-sm group">
+                <div className="group flex items-center justify-center rounded-sm">
                   <ToolbarLayout active={isOpen} />
                 </div>
               </DropdownMenuTrigger>
             </TooltipTrigger>
             <TooltipContent side="bottom" className="bg-[#101010]">
-              <p className="text-[#afafaf] text-xs font-semibold leading-[1.25]">
-                Layouts
-              </p>
+              <p className="text-xs leading-[1.25] font-semibold text-[#afafaf]">Layouts</p>
             </TooltipContent>
           </Tooltip>
-          <DropdownMenuContent
-            className="w-[16rem] mt-2 bg-[#090909] border border-[#333] p-0"
-            align="end"
-          >
-            <DropdownMenuLabel className="text-[#646464] font-medium text-[10px] p-2 border-b border-[#333]">
+          <DropdownMenuContent className="mt-2 w-[16rem] border border-[#333] bg-[#090909] p-0" align="end">
+            <DropdownMenuLabel className="border-b border-[#333] p-2 text-[10px] font-medium text-[#646464]">
               LAYOUTS
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <RenderIf condition={!!layouts && layouts?.length === 0}>
-                <div className="max-w-[149px] mx-auto py-[50px]">
-                  <p className="text-[#848484] text-center text-xs font-medium">
-                    You currently have no layout
-                  </p>
+                <div className="mx-auto max-w-[149px] py-[50px]">
+                  <p className="text-center text-xs font-medium text-[#848484]">You currently have no layout</p>
                 </div>
               </RenderIf>
 
@@ -104,15 +85,13 @@ export function LayoutDropdown() {
                 {savedLayouts?.map((layout, i) => (
                   <DropdownMenuItem
                     key={i}
-                    className="text-[#C3C3C3] my-2 text-[13px] font-inter font-medium flex items-center focus:bg-[#171717] focus:text-[#C3C3C3] cursor-pointer w-full justify-between"
+                    className="font-inter my-2 flex w-full cursor-pointer items-center justify-between text-[13px] font-medium text-[#C3C3C3] focus:bg-[#171717] focus:text-[#C3C3C3]"
                     onClick={() => {
                       syncLayouts(layout);
                     }}
                   >
                     <TabLayout />
-                    <p className="flex-1 truncate">
-                      {layout.draft ? "Untitled Layout" : layout?.name}
-                    </p>
+                    <p className="flex-1 truncate">{layout.draft ? "Untitled Layout" : layout?.name}</p>
 
                     <div className="flex items-center gap-1">
                       <RenderIf condition={!layout.draft}>
@@ -144,24 +123,20 @@ export function LayoutDropdown() {
 
                 <RenderIf condition={unSavedLayouts?.length > 0}>
                   <div className="bg-[#0F0F0F] px-2 py-2">
-                    <p className="font-medium text-[#474747] leading-[1.25] text-[10px]">
-                      UNSAVED LAYOUTS
-                    </p>
+                    <p className="text-[10px] leading-[1.25] font-medium text-[#474747]">UNSAVED LAYOUTS</p>
                   </div>
                 </RenderIf>
 
                 {unSavedLayouts?.map((layout, i) => (
                   <DropdownMenuItem
                     key={i}
-                    className="text-[#C3C3C3] my-2 text-[13px] font-inter font-medium flex items-center focus:bg-[#171717] focus:text-[#C3C3C3] cursor-pointer w-full justify-between"
+                    className="font-inter my-2 flex w-full cursor-pointer items-center justify-between text-[13px] font-medium text-[#C3C3C3] focus:bg-[#171717] focus:text-[#C3C3C3]"
                     onClick={() => {
                       syncLayouts(layout);
                     }}
                   >
                     <TabLayout />
-                    <p className="flex-1 truncate">
-                      {layout.draft ? "Untitled Layout" : layout?.name}
-                    </p>
+                    <p className="flex-1 truncate">{layout.draft ? "Untitled Layout" : layout?.name}</p>
 
                     <div className="flex items-center gap-1">
                       <button
@@ -216,7 +191,7 @@ export function LayoutDropdown() {
         details="Rename your layout"
       />
 
-      <OnboardingEndModal isOpen={isEndOpen} onOpenChange={handleOpenChange} />
+      {/* <OnboardingEndModal isOpen={isEndOpen} onOpenChange={handleOpenChange} /> */}
     </Fragment>
   );
 }

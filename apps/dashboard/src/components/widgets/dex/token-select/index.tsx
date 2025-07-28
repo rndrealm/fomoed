@@ -1,13 +1,9 @@
-import { ChevronDown } from "lucide-react";
-import React, { Fragment, useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
+import React, { Fragment, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
 import dashboard from "@/lib/assets/dashboard";
-import {
-  useFetchSupportedChains,
-  useFetchTokenList,
-  useSearchTokenList,
-} from "@/services/queries/dex";
+import { useFetchTokenList, useSearchTokenList } from "@/services/queries/dex";
 import { useDebounce } from "@/hooks/useDebounce";
 import { ChainType, SingleTokenType } from "@/services/queries/dex/types";
 import TokenList from "./token-list";
@@ -25,11 +21,7 @@ interface IProps {
     token: SingleTokenType | null;
     network: ChainType | null;
   };
-  updateSwapData: (
-    type: "from" | "to",
-    slug: "token" | "network",
-    value: SingleTokenType | ChainType | null
-  ) => void;
+  updateSwapData: (type: "from" | "to", slug: "token" | "network", value: SingleTokenType | ChainType | null) => void;
   slug: "from" | "to";
 
   currentNetwork: ChainType | null;
@@ -37,19 +29,10 @@ interface IProps {
 }
 
 const TokenSelect = (props: IProps) => {
-  const {
-    tokenData,
-    otherTokenData,
-    updateSwapData,
-    slug,
-    currentNetwork,
-    updateCurrentNetwork,
-  } = props;
+  const { tokenData, otherTokenData, updateSwapData, slug, currentNetwork, updateCurrentNetwork } = props;
 
   const [isOpen, setIsOpen] = useState(false);
-  const [networkValue, setNetworkValue] = useState<ChainType | null>(
-    currentNetwork
-  );
+  const [networkValue, setNetworkValue] = useState<ChainType | null>(currentNetwork);
 
   const updateNetworkValue = (network: ChainType) => {
     setNetworkValue(network);
@@ -59,10 +42,7 @@ const TokenSelect = (props: IProps) => {
     updateCurrentNetwork(networkValue);
 
     // Todo: improve the ux when the user selects the same token and network
-    if (
-      networkValue?.chainId === otherTokenData?.network?.chainId &&
-      token.symbol === otherTokenData?.token?.symbol
-    ) {
+    if (token.symbol === otherTokenData?.token?.symbol) {
       setIsOpen(false);
       return;
     }
@@ -79,11 +59,16 @@ const TokenSelect = (props: IProps) => {
   const [searchValue, setSearchValue] = useState("");
   const debouncedSearchValue = useDebounce(searchValue, 500);
   const { address } = useAccount();
-  const { data: tokenList } = useFetchTokenList(
-    networkValueWithFallback,
-    address
+  const { data: tokenList, isPending: isTokenListLoading } = useFetchTokenList(networkValueWithFallback, address);
+  const { data: searchTokenList, isPending: isSearchLoading } = useSearchTokenList(debouncedSearchValue);
+
+  const LoadingComponent = () => (
+    <div className="flex flex-col items-center justify-center py-8">
+      <Loader2 className="h-6 w-6 animate-spin text-[#A5A5A5]" />
+      <p className="mt-2 text-xs text-[#A5A5A5]">Loading tokens...</p>
+    </div>
   );
-  const { data: searchTokenList } = useSearchTokenList(debouncedSearchValue);
+
   return (
     <Fragment>
       {/* Dropdown trigger */}
@@ -92,93 +77,81 @@ const TokenSelect = (props: IProps) => {
         {isOpen ? (
           // Dropdown content
           <motion.div
-            className="absolute top-0 left-0 w-full h-full bg-[#111111]  py-8 px-3 rounded-[15px] flex flex-col z-[10]"
+            className="absolute top-0 left-0 z-[10] flex h-full w-full items-center justify-center"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
           >
-            <div className="px-2">
-              <div className="flex items-center justify-between ">
-                <h1 className="text-base font-semibold">
-                  {slug === "from" ? "Send" : "Receive"}
-                </h1>
-                <button
-                  className="bg-[#1D1D1D] rounded-full w-6 h-6 flex items-center justify-center"
-                  onClick={() => {
-                    setNetworkValue(currentNetwork);
-                    setIsOpen(false);
-                  }}
-                >
-                  <Image src={dashboard.x} alt="Cancel icon" />
-                </button>
-              </div>
-
-              <div className="relative my-3  bg-[#161616] rounded-[10px]">
-                <div className="absolute left-3 top-[30%]">
-                  <Image src={dashboard.search} alt="Search icon" />
+            <div className="flex h-[98%] w-[98%] flex-col rounded-[15px] border border-[#1E1E1E] bg-[#111111] px-3 py-8">
+              <div className="px-2">
+                <div className="flex items-center justify-between">
+                  <h1 className="text-base font-semibold">{slug === "from" ? "Send" : "Receive"}</h1>
+                  <button
+                    className="flex h-6 w-6 items-center justify-center rounded-full bg-[#1D1D1D]"
+                    onClick={() => {
+                      setNetworkValue(currentNetwork);
+                      setIsOpen(false);
+                    }}
+                  >
+                    <Image src={dashboard.x} alt="Cancel icon" />
+                  </button>
                 </div>
-                <input
-                  type="text"
-                  placeholder="Search Token"
-                  value={searchValue}
-                  onChange={(e) => setSearchValue(e.target.value)}
-                  className="w-full h-11 pl-9 text-xs font-medium text-[#D4D4D4]"
-                />
-                <div className="absolute right-3 top-[20%]">
-                  <NetworkSelect
-                    networkValue={networkValue}
-                    updateNetworkValue={updateNetworkValue}
+
+                <div className="relative my-3 rounded-[10px] bg-[#161616]">
+                  <div className="absolute top-[30%] left-3">
+                    <Image src={dashboard.search} alt="Search icon" />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Search Token"
+                    value={searchValue}
+                    onChange={(e) => setSearchValue(e.target.value)}
+                    className="h-11 w-full pl-9 text-xs font-medium text-[#D4D4D4]"
                   />
+                  <div className="absolute top-[20%] right-3">
+                    <NetworkSelect networkValue={networkValue} updateNetworkValue={updateNetworkValue} />
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {!!searchValue && searchTokenList ? (
-              <div className="pt-0 overflow-y-auto scrollbar">
-                {searchTokenList?.[networkValueWithFallback]?.length > 0 ? (
-                  <>
-                    <p className="text-left text-xs text-[#A5A5A5]">
-                      {searchTokenList?.[networkValueWithFallback]?.length}{" "}
-                      results found
-                    </p>
+              {!!searchValue && searchTokenList ? (
+                <div className="scrollbar overflow-y-auto pt-0">
+                  {isSearchLoading ? (
+                    <LoadingComponent />
+                  ) : searchTokenList?.[networkValueWithFallback]?.length > 0 ? (
+                    <>
+                      <p className="text-left text-xs text-[#A5A5A5]">
+                        {searchTokenList?.[networkValueWithFallback]?.length} results found
+                      </p>
+                      <TokenList
+                        value={tokenData.token}
+                        list={searchTokenList?.[networkValueWithFallback] || []}
+                        updateTokenValue={updateTokenValue}
+                        className=""
+                      />
+                    </>
+                  ) : (
+                    <p className="text-left text-xs text-[#A5A5A5]">No tokens found</p>
+                  )}
+                </div>
+              ) : !!searchValue && isSearchLoading ? (
+                <div className="scrollbar overflow-y-auto pt-0">
+                  <LoadingComponent />
+                </div>
+              ) : (
+                <div className="scrollbar overflow-y-auto px-1">
+                  {isTokenListLoading ? (
+                    <LoadingComponent />
+                  ) : (
                     <TokenList
                       value={tokenData.token}
-                      list={searchTokenList?.[networkValueWithFallback] || []}
+                      list={tokenList?.[networkValueWithFallback] || []}
                       updateTokenValue={updateTokenValue}
-                      className=""
-                      // disabedTokens={
-                      //   networkValue?.chainId ===
-                      //   otherTokenData?.network?.chainId
-                      //     ? [
-                      //         tokenData.token?.symbol,
-                      //         otherTokenData.token?.symbol,
-                      //       ]
-                      //     : []
-                      // }
                     />
-                  </>
-                ) : (
-                  <p className="text-left text-xs text-[#A5A5A5]">
-                    No tokens found
-                  </p>
-                )}
-              </div>
-            ) : (
-              <div className="px-1 overflow-y-auto scrollbar">
-                {/* <TokenListSummary
-                  value={tokenData.token}
-                  list={
-                    tokenList?.[networkValueWithFallback]?.slice(0, 4) || []
-                  }
-                  updateTokenValue={updateTokenValue}
-                /> */}
-                <TokenList
-                  value={tokenData.token}
-                  list={tokenList?.[networkValueWithFallback] || []}
-                  updateTokenValue={updateTokenValue}
-                />
-              </div>
-            )}
+                  )}
+                </div>
+              )}
+            </div>
           </motion.div>
         ) : null}
       </AnimatePresence>

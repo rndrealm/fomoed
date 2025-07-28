@@ -2,22 +2,6 @@ import { Json } from "@/lib/database/supabase";
 import { UserGeoLocation } from "../geolocation/types";
 
 export interface IDashboardData {
-  // tabs: {
-  //   id: any;
-  //   name: any;
-  //   layout_id: any;
-  //   layouts: {
-  //     id: any;
-  //     name: any;
-  //     draft: any;
-  //     widgets: {
-  //       id: any;
-  //       meta: any;
-  //       props: any;
-  //       layout_id: any;
-  //     }[];
-  //   }[];
-  // }[];
   tabs: {
     id: string;
     name: string;
@@ -50,6 +34,8 @@ export interface IDashboardData {
     id: string;
     auto_save: boolean | null;
     active_tab_id?: string | null;
+    favorite_widgets: string[];
+    favorite_tokens: string[];
   };
   location?: UserGeoLocation;
 }

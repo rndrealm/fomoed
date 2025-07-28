@@ -174,7 +174,9 @@ export function SettingsDropdown() {
               disabled={currLayout?.draft}
             >
               <AutoSaveToggle
-                autosave={currLayout?.draft ? true : settings.auto_save}
+                autosave={
+                  currLayout?.draft ? true : settings.auto_save || false
+                }
               />
             </DropdownMenuItem>
           </DropdownMenuGroup>

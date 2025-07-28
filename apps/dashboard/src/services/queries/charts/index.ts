@@ -24,13 +24,9 @@ import { formatLiquidationData, formatMergetLiquidMapData } from "./helpers";
 import axios from "axios";
 import { fetchFearAndGreed } from "./actions";
 
-export const useReadCfgiData = (
-  token?: string,
-  period?: string,
-  token_slug?: string
-) => {
+export const useReadCfgiData = (token?: string, period?: string, token_slug?: string) => {
   const hash = ["cfgi", token, period, token_slug];
-  const { data, isPending, error, isSuccess } = useQuery<CfgiDataResponse[]>({
+  const { data, isPending, error, isSuccess, refetch, isLoading, isFetching } = useQuery<CfgiDataResponse[]>({
     queryKey: hash,
     queryFn: async () => {
       const response = await api.get({
@@ -45,11 +41,53 @@ export const useReadCfgiData = (
     isPending,
     isSuccess,
     error,
+    refetch,
+    isLoading,
+    isFetching,
   };
 };
 
 export const useReadCoinList = (summary = false) => {
   const hash = ["coin-list"];
+  const { data, isPending, error, isSuccess } = useQuery<CoinStatsTokenInfo[]>({
+    queryKey: hash,
+    queryFn: async () => {
+      const response = await axios.get("/api/coinstats-coins");
+      return response.data;
+    },
+    refetchOnMount: summary ? "always" : false,
+    refetchOnReconnect: summary ? "always" : false,
+    refetchOnWindowFocus: summary ? "always" : false,
+  });
+
+  let returnData = data?.map((coin) => {
+    return {
+      price: coin.price,
+      priceChange: coin.priceChange1d,
+      marketCap: coin.marketCap,
+      volume: coin.volume,
+      icon: coin.icon,
+      symbol: coin.symbol,
+      name: coin.name,
+      color: undefined, // CoinStatsTokenInfo does not include a color field
+      slug: coin.id,
+      is_free: coin.id === "bitcoin" || coin.id === "ethereum",
+      explorer: coin.explorers,
+    };
+  });
+
+  if (summary) {
+    returnData = returnData?.sort((a, b) => b.priceChange - a.priceChange);
+  }
+  return {
+    data: returnData,
+    isPending,
+    isSuccess,
+    error,
+  };
+};
+export const useReadCoinListDep = (summary = false) => {
+  const hash = ["coin-list-dep"];
   const { data, isPending, error, isSuccess } = useQuery({
     queryKey: hash,
     queryFn: async () => {
@@ -121,31 +159,17 @@ export const useFetchLiquidMapData = (
   baseAsset?: string,
   quoteAsset?: string
 ) => {
-  const hash = [
-    "get-liquid-map",
-    timeframe,
-    exchange,
-    instrumentId,
-    baseAsset,
-    quoteAsset,
-  ];
-  const { data, isPending, error, isSuccess } = useQuery<LiquidMapDataResponse>(
-    {
-      queryKey: hash,
-      queryFn: async () => {
-        const response = await api.get({
-          url: `/api/liq-map?timeframe=${timeframe}&exchange=${exchange}&instrumentId=${instrumentId}&baseAsset=${baseAsset}&quoteAsset=${quoteAsset}`,
-        });
-        return response.data;
-      },
-      enabled:
-        !!timeframe &&
-        !!exchange &&
-        !!instrumentId &&
-        !!baseAsset &&
-        !!quoteAsset,
-    }
-  );
+  const hash = ["get-liquid-map", timeframe, exchange, instrumentId, baseAsset, quoteAsset];
+  const { data, isPending, error, isSuccess, refetch, isFetching } = useQuery<LiquidMapDataResponse>({
+    queryKey: hash,
+    queryFn: async () => {
+      const response = await api.get({
+        url: `/api/liq-map?timeframe=${timeframe}&exchange=${exchange}&instrumentId=${instrumentId}&baseAsset=${baseAsset}&quoteAsset=${quoteAsset}`,
+      });
+      return response.data;
+    },
+    enabled: !!timeframe && !!exchange && !!instrumentId && !!baseAsset && !!quoteAsset,
+  });
   let returnData: FormatLiquidationDataResult | undefined = undefined;
   if (data) {
     returnData = formatLiquidationData(data);
@@ -155,53 +179,46 @@ export const useFetchLiquidMapData = (
     isPending,
     isSuccess,
     error,
+    refetch,
+    isFetching,
   };
 };
 
-export const useFetchLiquidHeatMapData = (
-  timeframe?: string,
-  exchange?: string,
-  symbol?: string
-) => {
+export const useFetchLiquidHeatMapData = (timeframe?: string, exchange?: string, symbol?: string) => {
   const hash = ["get-liquid-heat-map", timeframe, exchange, symbol];
-  const { data, isPending, error, isSuccess } = useQuery<LiquidHeatmapResponse>(
-    {
-      queryKey: hash,
-      queryFn: async () => {
-        const response = await api.get({
-          url: `/api/liq-heatmap?timeframe=${timeframe}&exchange=${exchange}&symbol=${symbol}`,
-        });
-        console.log("response", response);
-        return response.data;
-      },
-      enabled: !!timeframe && !!exchange && !!symbol,
-    }
-  );
+  const { data, isPending, error, isSuccess, isFetching, refetch } = useQuery<LiquidHeatmapResponse>({
+    queryKey: hash,
+    queryFn: async () => {
+      const response = await api.get({
+        url: `/api/liq-heatmap?timeframe=${timeframe}&exchange=${exchange}&symbol=${symbol}`,
+      });
+      console.log("response", response);
+      return response.data;
+    },
+    enabled: !!timeframe && !!exchange && !!symbol,
+  });
 
   return {
     data,
     isPending,
     isSuccess,
     error,
+    isFetching,
+    refetch,
   };
 };
-export const useFetchLiquidDataMerged = (
-  timeframe?: string,
-  asset?: string
-) => {
+export const useFetchLiquidDataMerged = (timeframe?: string, asset?: string) => {
   const hash = ["get-liquid-exchange-map", timeframe, asset];
-  const { data, isPending, error, isSuccess } =
-    useQuery<LiquidExchangeResponse>({
-      queryKey: hash,
-      queryFn: async () => {
-        const response = await api.get({
-          url: `/api/ex-liq-map?timeframe=${timeframe}&asset=${asset}`,
-        });
-        console.log("response", response);
-        return response.data;
-      },
-      enabled: !!timeframe && !!asset,
-    });
+  const { data, isPending, error, isSuccess, isFetching, refetch } = useQuery<LiquidExchangeResponse>({
+    queryKey: hash,
+    queryFn: async () => {
+      const response = await api.get({
+        url: `/api/ex-liq-map?timeframe=${timeframe}&asset=${asset}`,
+      });
+      return response.data;
+    },
+    enabled: !!timeframe && !!asset,
+  });
   let resData: FormatLiquidationDataResult | null = null;
   if (data) {
     resData = formatMergetLiquidMapData(data);
@@ -212,6 +229,8 @@ export const useFetchLiquidDataMerged = (
     isPending,
     isSuccess,
     error,
+    isFetching,
+    refetch,
   };
 };
 
@@ -238,16 +257,16 @@ export const useFetchBinancePriceData = (
     enabled: !!symbol && !!interval,
   });
 
-  const transformedData: BinanceKlineFormatted[] | undefined = (
-    res.data as BinanceKlineRaw[]
-  )?.map(([time, open, high, low, close]) => ({
-    time: Math.floor(time / 1000),
-    open: parseFloat(open),
-    high: parseFloat(high),
-    low: parseFloat(low),
-    close: parseFloat(close),
-    value: parseFloat(close),
-  }));
+  const transformedData: BinanceKlineFormatted[] | undefined = (res.data as BinanceKlineRaw[])?.map(
+    ([time, open, high, low, close]) => ({
+      time: Math.floor(time / 1000),
+      open: parseFloat(open),
+      high: parseFloat(high),
+      low: parseFloat(low),
+      close: parseFloat(close),
+      value: parseFloat(close),
+    })
+  );
 
   return {
     ...res,
@@ -278,10 +297,7 @@ export const useFetchTopGainerLoser = () => {
       ?.filter((item) => item.symbol.endsWith("USDT"))
       .filter((item) => parseFloat(item.quoteVolume) > 1000000) || [];
 
-  const sorted = (usdtPairs || []).sort(
-    (a, b) =>
-      parseFloat(b.priceChangePercent) - parseFloat(a.priceChangePercent)
-  );
+  const sorted = (usdtPairs || []).sort((a, b) => parseFloat(b.priceChangePercent) - parseFloat(a.priceChangePercent));
 
   const newData = {
     mover: sorted[0],
@@ -442,4 +458,18 @@ export const useReadFearAndGridFromDb = (token: string) => {
     isSuccess,
     error,
   };
+};
+
+export const useFetchCoinStatsScreener = () => {
+  const queryKey = ["coin-stats-screener"];
+
+  const res = useQuery<CoinStatsTokenInfo[]>({
+    queryKey,
+    queryFn: async () => {
+      const response = await axios.get("/api/coinstats-coins");
+      return response.data;
+    },
+  });
+
+  return res;
 };

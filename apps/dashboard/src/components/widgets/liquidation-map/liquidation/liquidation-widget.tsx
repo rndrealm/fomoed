@@ -1,12 +1,8 @@
 "use client";
 
-import {
-  useFetchLiquidMapData,
-  useGetSupportedxchangePairs,
-  useReadCoinList,
-} from "@/services/queries/charts";
+import { useFetchLiquidMapData, useGetSupportedxchangePairs, useReadCoinList } from "@/services/queries/charts";
 import CoinDropdown from "../../shared/coin-dropdown";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import PeriodDropdown from "../../shared/period-dropdown";
 import { LiquidTabOptions, liquidTimeframeOptions } from "@/constant/cfgi-data";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,6 +17,11 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { exchangePairDefault } from "@/lib/static";
 import WidgetHeader from "../../shared/widget-header";
 import PremiumOverlay from "../../shared/premium-overlay";
+import Image from "next/image";
+import dashboard from "@/lib/assets/dashboard";
+import CameraAndRefresh from "../../shared/camera-and-refresh";
+import WidgetModalWrapper from "@/components/modals/widget-modal";
+import { FullScreen } from "@/components/icons/icons";
 
 const colorToCfgi = [
   {
@@ -41,6 +42,7 @@ interface IProps {
   widget: LayoutType["widgets"][0];
   isEmbed?: boolean;
   symbol?: string | null;
+  fullScreenButton?: boolean;
 }
 
 export default function LiquidationWidget(props: IProps) {
@@ -64,114 +66,136 @@ export default function LiquidationWidget(props: IProps) {
       widgetId: widget.id,
       widgetProps: { ...widget.props, exchange_token: pairsData[0].label },
     });
-  }, [
-    pairsData,
-    selectedPair,
-    activeLayout.id,
-    updateWidgetPropsFromAtom,
-    widget.id,
-    widget.props,
-  ]);
+  }, [pairsData, selectedPair, activeLayout.id, updateWidgetPropsFromAtom, widget.id, widget.props]);
 
   const filteredData = useMemo(() => {
     if (!pairsData) return [];
-    return pairsData.filter((i) => i.value.baseAsset === widget.props?.token);
+    return pairsData.filter((i) => i.value.base_asset === widget.props?.token);
   }, [pairsData, widget.props?.token]);
 
-  const { data: liquidationData } = useFetchLiquidMapData(
+  const {
+    data: liquidationData,
+    isFetching,
+    refetch,
+  } = useFetchLiquidMapData(
     widget.props?.period,
     selectedPair?.value.exchange,
-    selectedPair?.value.instrumentId,
-    selectedPair?.value.baseAsset,
-    selectedPair?.value.quoteAsset
+    selectedPair?.value.instrument_id,
+    selectedPair?.value.base_asset,
+    selectedPair?.value.quote_asset
   );
 
   const [chartViewOptions] = useState(LiquidTabOptions[1].value);
 
+  const chartRef = useRef<HTMLDivElement>(null);
+
+  const { fullScreenButton } = props;
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
   return (
-    <div className="bg-[#080808] border border-[#1b1b1b] rounded-2xl px-6 py-3 flex flex-col gap-4 h-full">
-      <div className="flex flex-col items-center justify-center w-full h-full">
-        <div className="grid items-center w-full grid-cols-3">
-          <WidgetHeader widget={widget} />
-        </div>
-        <div
-          className={cn(
-            "flex flex-col justify-center w-full h-full rounded-sm relative"
-          )}
-        >
-          <div className="py-4">
-            {coinData && filteredData?.length > 0 ? (
-              <div className="flex items-center justify-between">
-                <CoinDropdown
-                  options={coinData || []}
-                  value={widget.props?.token}
-                  setValue={(coin: string) => {
-                    const newPairs = pairsData.filter(
-                      (i) => i.value.baseAsset === coin
-                    );
-                    // setSelectedPair(newPairs[0]);
-                    updateWidgetPropsFromAtom({
-                      tabId: activeLayout.id,
-                      widgetId: widget.id,
-                      widgetProps: {
-                        ...widget.props,
-                        token: coin,
-                        exchange_token: newPairs[0].label,
-                      },
-                    });
-                  }}
-                  title="Liquidation Map"
-                />
-                <div className="flex items-center gap-2">
-                  <PairDropdown
-                    options={filteredData}
-                    value={selectedPair || exchangePairDefault}
-                    setValue={(value) => {
+    <WidgetModalWrapper widget={widget} isFullscreen={isFullscreen} setIsFullscreen={setIsFullscreen}>
+      <div
+        className="flex h-full flex-col gap-4 rounded-2xl border border-[#1b1b1b] bg-[#080808] px-6 py-3"
+        ref={chartRef}
+      >
+        <div className="flex h-full w-full flex-col items-center justify-center">
+          <div className="grid w-full grid-cols-3 items-center">
+            <WidgetHeader widget={widget} />
+          </div>
+          <div className={cn("relative flex h-full w-full flex-col justify-center rounded-sm")}>
+            <div className="py-4">
+              {coinData && filteredData?.length > 0 ? (
+                <div className="flex items-center justify-between">
+                  <CoinDropdown
+                    options={coinData || []}
+                    value={widget.props?.token}
+                    setValue={(coin: string) => {
+                      const newPairs = pairsData.filter((i) => i.value.base_asset === coin);
+                      // setSelectedPair(newPairs[0]);
                       updateWidgetPropsFromAtom({
                         tabId: activeLayout.id,
                         widgetId: widget.id,
                         widgetProps: {
                           ...widget.props,
-                          exchange_token: value.label,
+                          token: coin,
+                          exchange_token: newPairs[0].label,
                         },
                       });
                     }}
+                    title="Liquidation Map"
                   />
-                  <PeriodDropdown
-                    options={liquidTimeframeOptions}
-                    value={
-                      widget.props?.period || liquidTimeframeOptions[0].value
-                    }
-                    setValue={(value: string) => {
-                      updateWidgetPropsFromAtom({
-                        tabId: activeLayout.id,
-                        widgetId: widget.id,
-                        widgetProps: { ...widget.props, period: value },
-                      });
-                    }}
-                  />
+                  <div className="flex items-center gap-2">
+                    <PairDropdown
+                      options={filteredData}
+                      value={selectedPair || exchangePairDefault}
+                      setValue={(value) => {
+                        updateWidgetPropsFromAtom({
+                          tabId: activeLayout.id,
+                          widgetId: widget.id,
+                          widgetProps: {
+                            ...widget.props,
+                            exchange_token: value.label,
+                          },
+                        });
+                      }}
+                    />
+                    <PeriodDropdown
+                      options={liquidTimeframeOptions}
+                      value={widget.props?.period || liquidTimeframeOptions[0].value}
+                      setValue={(value: string) => {
+                        updateWidgetPropsFromAtom({
+                          tabId: activeLayout.id,
+                          widgetId: widget.id,
+                          widgetProps: { ...widget.props, period: value },
+                        });
+                      }}
+                    />
+                    <CameraAndRefresh
+                      isFetching={isFetching}
+                      chartRef={chartRef}
+                      file="Liquidation Chart.png"
+                      refetch={refetch}
+                    />
+                  </div>
                 </div>
+              ) : null}
+            </div>
+            <PremiumOverlay>
+              <div className="mx-3 flex-grow">
+                {liquidationData ? (
+                  <LiquidationChart liquidationData={liquidationData} viewOption={chartViewOptions} />
+                ) : (
+                  <Skeleton className="bg-widget-background-200 h-full w-full" />
+                )}
               </div>
-            ) : null}
-          </div>
-          <PremiumOverlay>
-            <div className="flex-grow mx-3 ">
-              {liquidationData ? (
-                <LiquidationChart
-                  liquidationData={liquidationData}
-                  viewOption={chartViewOptions}
-                />
-              ) : (
-                <Skeleton className="w-full h-full bg-widget-background-200" />
-              )}
-            </div>
 
-            <div className="flex items-center justify-center gap-5 py-3">
-              <ChartLegend colorOptions={colorToCfgi} />
-            </div>
-          </PremiumOverlay>
+              <div className="flex items-center justify-center gap-5 py-3">
+                <ChartLegend colorOptions={colorToCfgi} />
+              </div>
+            </PremiumOverlay>
+          </div>
         </div>
+
+        {fullScreenButton && (
+          <div
+            className="absolute right-[9px] bottom-[16px] z-[9] h-[28px] w-[28px] rounded-md border border-[#1c1c1c]"
+            style={{
+              background: "linear-gradient(180deg, #1b1b1b 0%, rgba(0, 0, 0, 0.38) 72.15%)",
+              backdropFilter: "blur(7px)",
+              opacity: isFullscreen ? 0 : 1,
+            }}
+          >
+            <button
+              className="flex h-full w-full items-center justify-center"
+              onClick={() => {
+                setIsFullscreen(true);
+              }}
+            >
+              <FullScreen />
+            </button>
+          </div>
+        )}
       </div>
-    </div>
+    </WidgetModalWrapper>
   );
 }

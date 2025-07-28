@@ -26,25 +26,18 @@ export function supportedExchangePairsToOptions(
 
   const options: ExchangePairOption[] = [];
 
-  for (const [exchangeName, instruments] of Object.entries(
-    supportedExchangePairs
-  )) {
-    for (const instrument of instruments as any) {
-      if (excludeOptions && isInstrumentIdAnOption(instrument.instrumentId)) {
+  for (const [exchangeName, instruments] of Object.entries(supportedExchangePairs)) {
+    for (const instrument of instruments) {
+      if (excludeOptions && isInstrumentIdAnOption(instrument.instrument_id)) {
         continue;
       }
 
       options.push({
-        label:
-          exchangeName +
-          " " +
-          instrument.baseAsset +
-          "/" +
-          instrument.quoteAsset,
+        label: exchangeName + " " + instrument.base_asset + "/" + instrument.quote_asset,
         value: {
           ...instrument,
           exchange: exchangeName,
-          symbol: instrument.baseAsset + instrument.quoteAsset,
+          symbol: instrument.base_asset + instrument.quote_asset,
         },
       });
     }
@@ -172,8 +165,7 @@ export function calculateReadingTime(htmlContent: string) {
   const text = normalizedContent.replace(/<[^>]+>/g, " "); // Strip HTML tags
   wordCount = text.split(/\s+/).filter((word) => word.length > 0).length;
   imageCount = (normalizedContent.match(/<img[^>]+>/gi) || []).length;
-  imageCount += (normalizedContent.match(/<img-placeholder[^>]+>/gi) || [])
-    .length;
+  imageCount += (normalizedContent.match(/<img-placeholder[^>]+>/gi) || []).length;
 
   // Calculate reading time: words / WPM + image adjustments
   let readingTime = wordCount / wordsPerMinute;
@@ -195,20 +187,7 @@ export function formatDate(isoDateString?: string): string {
   const date = new Date(isoDateString);
 
   // Get month name and convert to uppercase
-  const months = [
-    "JAN",
-    "FEB",
-    "MAR",
-    "APR",
-    "MAY",
-    "JUN",
-    "JUL",
-    "AUG",
-    "SEP",
-    "OCT",
-    "NOV",
-    "DEC",
-  ];
+  const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
   const month = months[date.getMonth()];
 
   // Get day and year
@@ -236,8 +215,7 @@ export function extractNewsContent(htmlString: string): {
   const title = h1Match ? h1Match[1] : null;
 
   // Try to find a proper img tag first
-  const imgRegex =
-    /<img[\s\S]*?src=["'](.*?)["'][\s\S]*?(?:alt=["'](.*?)["'])?[\s\S]*?>/;
+  const imgRegex = /<img[\s\S]*?src=["'](.*?)["'][\s\S]*?(?:alt=["'](.*?)["'])?[\s\S]*?>/;
   const imgMatch = htmlString.match(imgRegex);
 
   // If no img tag found, look for [IMAGE: ...] pattern
@@ -248,12 +226,7 @@ export function extractNewsContent(htmlString: string): {
     title,
     image: {
       src: imgMatch ? imgMatch[1] : null,
-      alt:
-        imgMatch && imgMatch[2]
-          ? imgMatch[2]
-          : imageBracketMatch
-            ? imageBracketMatch[1]
-            : null,
+      alt: imgMatch && imgMatch[2] ? imgMatch[2] : imageBracketMatch ? imageBracketMatch[1] : null,
     },
   };
 }
@@ -265,15 +238,22 @@ export function extractNewsContent(htmlString: string): {
  * @param endChars Number of characters to keep at the end
  * @returns The shortened address string
  */
-export const shortenAddress = (
-  address: string,
-  startChars = 6,
-  endChars = 4
-): string => {
+export const shortenAddress = (address: string, startChars = 6, endChars = 4): string => {
   if (!address) return "";
   if (address.length <= startChars + endChars) return address;
 
   return `${address.slice(0, startChars)}...${address.slice(-endChars)}`;
+};
+
+/**
+ * Function to truncate text to a specified length and append ellipsis if it exceeds the limit
+ * @param text
+ * @param maxLength defaults to 100
+ * @returns
+ */
+export const truncateText = (text: string | null, maxLength: number = 100): string => {
+  if (!text || text.length <= maxLength) return text || "";
+  return text.substring(0, maxLength).trim() + "...";
 };
 
 /**
@@ -284,7 +264,7 @@ export const shortenAddress = (
 export const swapFromTo = (slug: "from" | "to") => {
   return slug === "from" ? "to" : "from";
 };
-export function formatPriceSignificant(value: string | number) {
+export function formatPriceSignificant(value: string | number, fixedNum = 8) {
   const num = Number(value);
   if (num === 0) return "0";
 
@@ -296,7 +276,7 @@ export function formatPriceSignificant(value: string | number) {
     });
   } else {
     // For small numbers < 1, show up to 8 decimals, trimming trailing zeros
-    let fixed = num.toFixed(8);
+    let fixed = num.toFixed(fixedNum);
     fixed = fixed.replace(/\.?0+$/, ""); // remove trailing zeros and dot if integer
     return fixed;
   }
@@ -312,8 +292,7 @@ export function formatSummaryDate(date = new Date()) {
     weekday: "long",
   });
 
-  const [{ value: month }, , { value: day }] =
-    monthDayFormatter.formatToParts(date);
+  const [{ value: month }, , { value: day }] = monthDayFormatter.formatToParts(date);
   const weekday = weekdayFormatter.format(date);
 
   return {
@@ -333,9 +312,7 @@ export const formatNumber = (value: string) => {
   const [integerPart, decimalPart] = cleanValue.split(".");
 
   const formattedInteger = integerPart || "";
-  return decimalPart !== undefined
-    ? `${formattedInteger}.${decimalPart}`
-    : formattedInteger;
+  return decimalPart !== undefined ? `${formattedInteger}.${decimalPart}` : formattedInteger;
 };
 
 /**
@@ -352,10 +329,7 @@ export const appendDecimal = (amount?: string, decimal?: number): string => {
   return fixed.toLocaleString("fullwide", { useGrouping: false });
 };
 
-export function formatNewsDate(
-  date: Date = new Date(),
-  timeZone?: string
-): string {
+export function formatNewsDate(date: Date = new Date(), timeZone?: string): string {
   const formatter = new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
@@ -372,9 +346,7 @@ export function formatNewsDate(
   return `${month} ${day}, ${year}`;
 }
 
-export function formatChartTooltipDate(
-  dateInput: Date | string | number
-): string {
+export function formatChartTooltipDate(dateInput: Date | string | number): string {
   const date = new Date(dateInput);
 
   const optionsDate: Intl.DateTimeFormatOptions = {
@@ -398,10 +370,7 @@ export function formatChartTooltipDate(
  * @param amount amount to be operated on
  * @returns
  */
-export const removeDecimal = (
-  amount: string | number,
-  decimal: number
-): string => {
+export const removeDecimal = (amount: string | number, decimal: number): string => {
   if (!amount || amount === "0") return "0.0";
   if (isNaN(Number(amount))) return "0.0";
   const strAmount = amount.toString();
@@ -417,8 +386,7 @@ export const removeDecimal = (
   if (position <= 0) {
     retValue = "0." + "0".repeat(Math.abs(position)) + absStrAmount;
   } else {
-    retValue =
-      absStrAmount.slice(0, position) + "." + absStrAmount.slice(position);
+    retValue = absStrAmount.slice(0, position) + "." + absStrAmount.slice(position);
   }
   return isNegative ? "-" + retValue : retValue;
 };
@@ -463,10 +431,7 @@ function _formatMarketCapNumber(num: number) {
   }
 }
 
-export function formatMarketCapNumber(
-  value: number | string,
-  withCurrency = true
-) {
+export function formatMarketCapNumber(value: number | string, withCurrency = true) {
   const num = typeof value === "string" ? parseFloat(value) : value;
 
   if (isNaN(num)) return "";
@@ -512,4 +477,41 @@ export function handleFearGreedLabel(value: number) {
   if (value <= 59) return "NEUTRAL";
   if (value <= 79) return "GREED";
   return "EXTREME GREED";
+}
+
+export function getOverlayRoot(): HTMLElement | null {
+  if (typeof window === "undefined") return null;
+  return document.getElementById("overlay-root");
+}
+
+export function formatNewsWidgetTime(date?: string) {
+  if (!date) return "";
+  const _date = new Date(date);
+  const timeString = _date.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  return timeString;
+}
+
+export function generateSocialLinks(newsUrl: string) {
+  const encodedUrl = encodeURIComponent(newsUrl);
+
+  return {
+    x: `https://twitter.com/intent/tweet?url=${encodedUrl}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
+    linkedin: `https://www.linkedin.com/shareArticle?mini=true&url=${encodedUrl}`,
+  };
+}
+
+export function generateAudioLink(newsId: string) {
+  return `https://storage.googleapis.com/fomoed_news_summary_audio/${newsId}.mp3`;
+}
+
+export function formatAudioTime(seconds: number): string {
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
 }

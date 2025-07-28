@@ -50,8 +50,6 @@ export class CfgiDataService {
 		const MAX_RETRIES = 5;
 		const BASE_DELAY_MS = 1000;
 
-		console.log(`Fetching CFGI data for ${symbol}`);
-
 		const url = new URL('/api/cfgi-new', window.location.origin);
 		url.searchParams.set('symbol', symbol);
 

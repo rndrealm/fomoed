@@ -160,3 +160,19 @@ export const syncActiveTabWithDbAtom = atom(
     }
   }
 );
+
+export const deleteAllTabsAtom = atom(null, (get, set) => {
+  // 🔹 Create a new tab referencing the new layout
+  const newTab = {
+    id: uuidv4(),
+    name: "New Tab",
+    layout_id: null,
+  };
+
+  set(tabsAtom, [newTab]);
+
+  set(activeTabAtom, newTab);
+  set(updateActiveTabAtom, newTab);
+
+  set(syncTabsWithDbAtom);
+});

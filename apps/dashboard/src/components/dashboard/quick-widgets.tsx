@@ -7,12 +7,15 @@ import { RenderIf } from "../shared";
 import Image from "next/image";
 import dashboard from "@/lib/assets/dashboard";
 import { cn } from "@/lib/utils";
+import { useAtomValue } from "jotai";
+import { settingAtom } from "@/lib/atoms/settingsAtom";
 
 const categoriesOptions = [
   { id: 1, label: "All", value: "all" },
   { id: 4, label: "New", value: "new" },
   { id: 2, label: "Charts", value: "charts" },
   { id: 3, label: "News", value: "news" },
+  { id: 5, label: "Favorite", value: "favorite" },
   // { id: 4, label: "Custom Widgets", value: "custom-widgets" },
 ];
 
@@ -23,11 +26,26 @@ interface IProps {
 export function QuickWidgets(props: IProps) {
   const { handleBack = () => {} } = props;
 
+  const settings = useAtomValue(settingAtom);
+
   const [selectedTag, setSelectedTag] = useState(categoriesOptions[0].value);
   const [searchValue, setSearchValue] = useState("");
 
   const filteredWidget = useMemo(() => {
     if (!searchValue && selectedTag === "all") return layoutOptionsMap;
+
+    const fillFavoriteWidgetOptions = settings.favorite_widgets.map((slug) => {
+      const findWidget = layoutOptionsMap.find((ln) => ln.slug === slug)!;
+      return findWidget;
+    });
+
+    if (selectedTag === "favorite") {
+      return fillFavoriteWidgetOptions.filter((widget) => {
+        const name = widget.name.toLowerCase();
+        return name.includes(searchValue.toLowerCase());
+      });
+    }
+
     return layoutOptionsMap.filter((widget) => {
       const name = widget.name.toLowerCase();
       const tags = widget.tags;
@@ -39,7 +57,7 @@ export function QuickWidgets(props: IProps) {
         (tags.includes(selectedTag) || selectedTag === "all")
       );
     });
-  }, [searchValue, selectedTag]);
+  }, [searchValue, selectedTag, settings.favorite_widgets]);
 
   return (
     <div

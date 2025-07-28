@@ -19,7 +19,7 @@ export function WidgetDropdownMenu(props: IProps) {
       <DropdownMenuTrigger asChild>
         <button
           className={cn(
-            "rounded-sm border-[0.5px] border-[#222222] w-6 h-6  flex items-center justify-center",
+            " w-6 h-6  flex items-center justify-center",
             triggerClassName
           )}
         >

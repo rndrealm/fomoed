@@ -1,13 +1,6 @@
-"use client";
-
+import NewsWidget from "@/components/widgets/news/token-news/news";
 import React from "react";
-import News from "@/components/widgets/news/token-news/news";
 
 export default function Page() {
-  return (
-    <div className="p-10 h-full">
-      <News />
-      {/* <FloatingNav /> */}
-    </div>
-  );
+  return <div className="flex h-full items-center justify-center bg-[#222]">{/* <NewsWidget /> */}</div>;
 }

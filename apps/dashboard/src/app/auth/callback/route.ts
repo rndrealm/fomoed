@@ -1,6 +1,8 @@
+import { AppRoutes } from "@/lib/routes";
 import {
   createSupabaseServerClient,
   createSupabaseServerComponentClient,
+  createSupabaseServerWithAnonKey,
 } from "@/lib/utils/supabase/server-client";
 import { SupabaseClient, User } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
@@ -36,20 +38,13 @@ async function linkAuthIdToEmail(email: string, authId: string) {
 async function getUserByEmail(email: string) {
   const supabase = await createSupabaseServerComponentClient();
 
-  const user = await supabase
-    .from("users")
-    .select()
-    .ilike("email", email)
-    .limit(1)
-    .single();
+  const user = await supabase.from("users").select().ilike("email", email).limit(1).single();
 
   return user.data;
 }
 
-async function createOrLinkUserFromOAuth(
-  supabase: SupabaseClient,
-  user: User
-): Promise<void> {
+async function createOrLinkUserFromOAuth(user: User): Promise<void> {
+  const supabase = await createSupabaseServerWithAnonKey();
   if (!user.email) {
     throw new Error("User does not have an email address");
   }
@@ -59,9 +54,7 @@ async function createOrLinkUserFromOAuth(
   // If the user exists, link the ID from oauth to the existing user
   if (existingUser) {
     linkAuthIdToEmail(user.email, user.id);
-    console.info(
-      `Linked email ${user.email} to auth id ${user.id} when loggin in with OAuth.`
-    );
+    console.info(`Linked email ${user.email} to auth id ${user.id} when loggin in with OAuth.`);
     return;
   }
 
@@ -85,8 +78,6 @@ export async function GET(request: Request) {
 
   const code = searchParams.get("code");
 
-  console.log("code", code);
-
   // if "next" is in param, use it in the redirect URL
   const next = searchParams.get("next") ?? "/";
 
@@ -94,21 +85,25 @@ export async function GET(request: Request) {
     const supabase = await createSupabaseServerClient();
 
     const { error, data } = await supabase.auth.exchangeCodeForSession(code);
-
-    console.log("error", error);
+    console.log("Exchange code for session:", { error, data });
 
     if (!data.user) {
-      return NextResponse.redirect(`${origin}/auth/auth-error`);
+      return NextResponse.redirect(
+        `${origin}${AppRoutes.auth.authError.path}?code=${error?.code}&message=${error?.message}`
+      );
     }
 
-    createOrLinkUserFromOAuth(supabase, data.user);
+    await createOrLinkUserFromOAuth(data.user);
 
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+      return NextResponse.redirect(`${origin}/news`);
+      // return NextResponse.redirect(`${origin}${next}`);
     }
   }
 
   // TODO: Create this page
   // return the user to an error page with instructions
-  return NextResponse.redirect(`${origin}/auth/auth-error`);
+  return NextResponse.redirect(
+    `${origin}${AppRoutes.auth.authError.path}?code=400&message=Login%20attempt%20failed.%20Please%20try%20again.`
+  );
 }

@@ -4,7 +4,7 @@ import { now } from "lodash-es";
 
 const maxCacheAgeSeconds = 120;
 async function fetchPairMarkets(symbol: string) {
-  const url = `https://open-api-v3.coinglass.com/api/futures/pairs-markets?symbol=${symbol}`;
+  const url = `https://open-api-v4.coinglass.com/api/futures/pairs-markets?symbol=${symbol}`;
   const options = {
     method: "GET",
     headers: {
@@ -17,10 +17,7 @@ async function fetchPairMarkets(symbol: string) {
   const data = await res.json();
 
   if (!res.ok) {
-    return NextResponse.json(
-      { error: "Failed to fetch Liquidation data" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch Liquidation data1" }, { status: 500 });
   }
 
   return data;
@@ -30,16 +27,12 @@ async function fetchPairMarkets(symbol: string) {
 async function fetchAssetPriceUsd(symbol: string): Promise<number> {
   const pairMarketsData = await fetchPairMarkets(symbol);
 
-  const pairMarketData = pairMarketsData.data.data.find(
-    (i: any) => i.symbol === symbol + "/" + "USDT"
-  );
-
-  return pairMarketData.price;
+  const pairMarketData = pairMarketsData.data.find((i: any) => i.symbol === symbol + "/" + "USDT");
+  return pairMarketData.current_price;
 }
 
 async function fetchCoinglassSupportedPairs() {
-  const url =
-    "https://open-api-v3.coinglass.com/api/futures/supported-exchange-pairs";
+  const url = "https://open-api-v4.coinglass.com/api/futures/supported-exchange-pairs";
   const options = {
     method: "GET",
     headers: {
@@ -51,22 +44,14 @@ async function fetchCoinglassSupportedPairs() {
   const res = await fetch(url, options);
   const data = await res.json();
 
-  if (!res.ok || !data.success) {
-    return NextResponse.json(
-      { error: "Failed to fetch Liquidation data" },
-      { status: 500 }
-    );
+  if (!res.ok || !data.data) {
+    return NextResponse.json({ error: "Failed to fetch Liquidation data2" }, { status: 500 });
   }
-
   return data;
 }
 
-async function fetchCoinglassLiqMap(
-  range: string,
-  exchange: string,
-  symbol: string
-) {
-  const url = `https://open-api-v3.coinglass.com/api/futures/liquidation/map?exchange=${exchange}&symbol=${symbol}&range=${range}`;
+async function fetchCoinglassLiqMap(range: string, exchange: string, symbol: string) {
+  const url = `https://open-api-v4.coinglass.com/api/futures/liquidation/map?exchange=${exchange}&symbol=${symbol}&range=${range}`;
   const options = {
     method: "GET",
     headers: {
@@ -94,10 +79,7 @@ export async function GET(request: NextRequest) {
     const asset = searchParams.get("asset");
 
     if (!timeframe || !asset) {
-      return NextResponse.json(
-        { error: "Missing required query parameters" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Missing required query parameters" }, { status: 400 });
     }
     const currentPriceUsd = await fetchAssetPriceUsd(asset);
 
@@ -105,10 +87,7 @@ export async function GET(request: NextRequest) {
 
     const cacheAssetId = asset + "-" + timeframe;
 
-    const cached = await supabaseServer
-      .from("exchangeLiqMapCache")
-      .select()
-      .eq("asset", cacheAssetId);
+    const cached = await supabaseServer.from("exchangeLiqMapCache").select().eq("asset", cacheAssetId);
 
     if (cached.data?.length) {
       const row = cached.data[0];
@@ -122,16 +101,12 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const supportedFuturePairs: Record<
-      string,
-      { baseAsset: string; instrumentId: string }[]
-    > = (await fetchCoinglassSupportedPairs()).data;
+    const supportedFuturePairs: Record<string, { base_asset: string; instrument_id: string }[]> = (
+      await fetchCoinglassSupportedPairs()
+    ).data;
 
     if (!supportedFuturePairs) {
-      return NextResponse.json(
-        { error: "Failed to fetch Liquidation data" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to fetch Liquidation data3" }, { status: 500 });
     }
 
     const aggregatedExchanges = ["Binance", "OKX", "Bybit"];
@@ -151,59 +126,54 @@ export async function GET(request: NextRequest) {
     }
 
     // Keep only instruments with requested asset
-    for (const [exchange, instruments] of Object.entries(
-      supportedFuturePairs
-    )) {
-      supportedFuturePairs[exchange] = instruments.filter(
-        (i) => i.baseAsset === asset
-      );
+    for (const [exchange, instruments] of Object.entries(supportedFuturePairs)) {
+      supportedFuturePairs[exchange] = instruments.filter((i) => i.base_asset === asset);
     }
 
-    type CgLiquidationMapData = Record<
-      number,
-      [number, number, number, null][]
-    >;
+    // Replace the nested for loops with parallel requests
+    const fetchPromises = [];
 
-    for (const [exchange, instruments] of Object.entries(
-      supportedFuturePairs
-    )) {
+    for (const [exchange, instruments] of Object.entries(supportedFuturePairs)) {
       for (const instrument of instruments) {
-        console.info(
-          "[Exchange Liquidation Map API Fetching instrument:",
-          exchange,
-          instrument.instrumentId
+        fetchPromises.push(
+          fetchCoinglassLiqMap(timeframe, exchange, instrument.instrument_id)
+            .then((response) => ({
+              exchange,
+              instrumentId: instrument.instrument_id,
+              data: response?.data?.data,
+            }))
+            .catch((err) => {
+              console.error(`Error fetching data for ${exchange}/${instrument.instrument_id}:`, err);
+              return null;
+            })
         );
+      }
+    }
 
-        const liquidationData: CgLiquidationMapData = (
-          await fetchCoinglassLiqMap(
-            timeframe,
-            exchange,
-            instrument.instrumentId
-          )
-        )?.data?.data;
+    // Process all results at once
+    const results = await Promise.all(fetchPromises);
 
-        // Sometimes data is not returned
-        if (!liquidationData) {
-          continue;
-        }
+    // Process the results
+    for (const result of results) {
+      if (!result || !result.data) continue;
 
-        for (const [price, liquidations] of Object.entries(liquidationData)) {
-          const roundedPrice = parseInt(price);
+      const { exchange, data } = result;
 
-          for (const liquidation of liquidations) {
+      for (const [price, liquidations] of Object.entries(data)) {
+        const roundedPrice = parseInt(price);
+
+        // Assert type of liquidations before iterating
+        if (Array.isArray(liquidations)) {
+          for (const liquidation of liquidations as [number, number, number, null][]) {
             const liqLevel = liquidation[1];
-
-            totalExLiq[exchange][roundedPrice] =
-              (totalExLiq[exchange][roundedPrice] || 0) + liqLevel;
+            totalExLiq[exchange][roundedPrice] = (totalExLiq[exchange][roundedPrice] || 0) + liqLevel;
           }
         }
       }
     }
 
     // Cache retrieved data
-    await supabaseServer
-      .from("exchangeLiqMapCache")
-      .upsert({ asset: cacheAssetId, data: totalExLiq });
+    await supabaseServer.from("exchangeLiqMapCache").upsert({ asset: cacheAssetId, data: totalExLiq });
 
     return NextResponse.json({
       data: { currentPriceUsd, exLiqData: totalExLiq },
@@ -211,9 +181,6 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     // Handle errors gracefully
     console.log("Error fetching liquidation data:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch Liquidation data" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch Liquidation data4" }, { status: 500 });
   }
 }

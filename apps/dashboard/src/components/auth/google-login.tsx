@@ -11,18 +11,24 @@ import { Loader2 } from "lucide-react";
 interface GoogleLoginButtonProps {
   redirectTo?: string;
   className?: string;
+  nextUrl?: string;
 }
 
-export function GoogleLogin({ className }: GoogleLoginButtonProps) {
+export function GoogleLogin({ className, nextUrl }: GoogleLoginButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSignIn = async () => {
     const supabase = createSupabaseBrowserClient();
 
+    // Build callback URL with next parameter if provided
+    const callbackUrl = nextUrl
+      ? `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextUrl)}`
+      : `${window.location.origin}/auth/callback`;
+
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: callbackUrl,
         queryParams: {
           access_type: "offline",
           prompt: "consent",
@@ -43,7 +49,7 @@ export function GoogleLogin({ className }: GoogleLoginButtonProps) {
       variant="ghost"
       onClick={handleLogin}
       disabled={isLoading}
-      className={cn("bg-transparent hover:bg-transparent p-0", className)}
+      className={cn("bg-transparent p-0 hover:bg-transparent", className)}
     >
       <RenderIf condition={isLoading}>
         <Loader2 className="animate-spin text-[#b1b1b1]" />
@@ -52,9 +58,7 @@ export function GoogleLogin({ className }: GoogleLoginButtonProps) {
       <RenderIf condition={!isLoading}>
         <div className="flex items-center gap-5">
           <GoogleIcon />
-          <p className="font-medium text-[15px] leading-[1.35] text-[#b1b1b1]">
-            Sign In with Google
-          </p>
+          <p className="text-[15px] leading-[1.35] font-medium text-[#b1b1b1]">Sign In with Google</p>
         </div>
       </RenderIf>
     </Button>

@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { ComboboxComp } from "@/components/shared/combobox";
 import {
@@ -12,24 +12,36 @@ import { SelectComp } from "@/components/shared/select";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import useOutsideClick from "@/hooks/useOutsideClick";
+import { CignalsChartDataProviderAPI } from "@/charts/cignals-chart/cignalsChartDataProvider";
 
 interface IProps {
-  availableInstruments: ParsedCignalsInstrumentArray;
   onClose: () => void;
   onSave: (newOptions: CignalsChartOptions) => void;
   originalOptions: CignalsChartOptions;
 }
 
 const CignalsDropdown = (props: IProps) => {
-  const { availableInstruments, onClose, onSave, originalOptions } = props;
+  const { onClose, onSave, originalOptions } = props;
   const [ref] = useOutsideClick(() => {});
   // const [ref] = useOutsideClick(onClose);
 
+  const [availableInstruments, setAvailableInstruments] = useState<ParsedCignalsInstrumentArray>([]);
   const [cignalForm, setCignalForm] = useState({
     instrument: originalOptions.instrument?.label?.toLowerCase() || "",
     timeframe: originalOptions.timeInterval,
     priceStep: originalOptions.priceStep,
   });
+
+  async function refreshAvailableInstruments() {
+    const dataProvider = new CignalsChartDataProviderAPI();
+    const currInstruments = await dataProvider.fetchInstruments();
+    setAvailableInstruments(currInstruments);
+  }
+
+  useEffect(() => {
+    refreshAvailableInstruments();
+  }, []);
+
   const handleChange = (name: string, value: string | number) => {
     setCignalForm((prev) => ({
       ...prev,
@@ -37,25 +49,29 @@ const CignalsDropdown = (props: IProps) => {
     }));
   };
   const instrumentOptions = useMemo(() => {
-    return availableInstruments
-      .filter(
-        (i) =>
-          i.perpetual &&
-          i.exchange === "binance_futures" &&
-          !i.label.includes("testnet")
-      )
+    const originalInstrumentOption = originalOptions.instrument
+      ? [
+          {
+            label: originalOptions.instrument.label.replace("Binance futures", "").replace("PERP", ""),
+            value: originalOptions.instrument.label.toLowerCase(),
+          },
+        ]
+      : [];
+
+    const fetchedInstrumentOptions = availableInstruments
+      .filter((i) => i.perpetual && i.exchange === "binance_futures" && !i.label.includes("testnet"))
       .toSorted((a, b) => (a.id > b.id ? 1 : -1))
       .map((instrument) => {
-        const shortLabel = instrument.label
-          .replace("Binance futures", "")
-          .replace("PERP", "");
+        const shortLabel = instrument.label.replace("Binance futures", "").replace("PERP", "");
 
         return {
           label: shortLabel,
           value: instrument.label.toLowerCase(),
         };
       });
-  }, [availableInstruments]);
+
+    return [...originalInstrumentOption, ...fetchedInstrumentOptions];
+  }, [availableInstruments, originalOptions.instrument]);
 
   const periodOptions = useMemo(() => {
     return availableCignalTimesteps.map((timestep) => ({
@@ -65,9 +81,7 @@ const CignalsDropdown = (props: IProps) => {
   }, []);
 
   const handleSave = () => {
-    const selectedInstrument = availableInstruments.find(
-      (i) => i.label.toLowerCase() === cignalForm.instrument
-    );
+    const selectedInstrument = availableInstruments.find((i) => i.label.toLowerCase() === cignalForm.instrument);
 
     if (!selectedInstrument) {
       toast("Please select a valid instrument");
@@ -83,21 +97,16 @@ const CignalsDropdown = (props: IProps) => {
   };
   return (
     <div
-      className="absolute top-10 right-0 flex items-center justify-center w-[290px] h-fit pt-3 bg-black z-[10] border border-[#232323] rounded-[10px]"
+      className="absolute top-10 right-0 z-[10] flex h-fit w-[290px] items-center justify-center rounded-[10px] border border-[#232323] bg-[#090909] pt-3"
       ref={ref}
     >
       <div className="w-full">
         <div className="border-b border-b-[#232323]">
-          <h1 className="mb-3 font-medium  text-xs  text-[white] px-2 ">
-            Footprint chart settings
-          </h1>
+          <h1 className="mb-3 px-2 text-xs font-medium text-[white]">Footprint chart settings</h1>
         </div>
         <div className="flex flex-col gap-4 px-2 py-3">
-          <div className="flex items-center justify-between ">
-            <label
-              htmlFor="instrument"
-              className="text-[#878787] text-xs font-medium"
-            >
+          <div className="flex items-center justify-between">
+            <label htmlFor="instrument" className="text-xs font-medium text-[#878787]">
               Pairs
             </label>
             <ComboboxComp
@@ -105,48 +114,41 @@ const CignalsDropdown = (props: IProps) => {
               value={cignalForm.instrument}
               setValue={(value) => handleChange("instrument", value)}
               emptySearch="Select Instruments"
-              inputPlaceholder="Select Instruments"
-              emptySelect="No frameworks found"
-              triggerClassName="justify-between bg-transparent w-[160px] text-white text-[0.625rem] rounded-[3px] h-[26px] hover:bg-transparent hover:text-white border border-[#3E3E3E]"
+              inputPlaceholder="Search Instruments"
+              emptySelect="No instruments found"
+              triggerClassName="justify-between bg-transparent w-[160px] text-white text-[0.625rem] rounded-[8px] h-[26px] hover:bg-transparent hover:text-white border border-[#3E3E3E]"
             />
           </div>
-          <div className="flex items-center justify-between ">
-            <label
-              htmlFor="timeframe"
-              className="text-[#878787] text-xs font-medium"
-            >
+          <div className="flex items-center justify-between">
+            <label htmlFor="timeframe" className="text-xs font-medium text-[#878787]">
               Time Interval
             </label>
             <SelectComp
               options={periodOptions}
               value={cignalForm.timeframe}
               setValue={(value) => handleChange("timeframe", value)}
-              triggerClassName="justify-between bg-transparent w-[160px] text-white text-[0.625rem] rounded-[3px] !h-[26px] hover:bg-transparent hover:text-white border border-[#3E3E3E]"
+              triggerClassName="justify-between bg-transparent w-[160px] text-white text-[0.625rem] rounded-[8px] !h-[26px] hover:bg-transparent hover:text-white border border-[#3E3E3E]"
             />
           </div>
-          <div className="flex items-center justify-between ">
-            <label className="text-[#878787] text-xs font-medium">
-              Price Interval
-            </label>
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-medium text-[#878787]">Price Interval</label>
             <Input
               value={cignalForm.priceStep || undefined}
               type="number"
-              className="justify-between bg-transparent w-[160px] text-white !text-[0.625rem] rounded-[3px] !h-[26px] hover:bg-transparent hover:text-white border border-[#3E3E3E]"
-              onChange={(e) =>
-                handleChange("priceStep", e.target.valueAsNumber)
-              }
+              className="!h-[26px] w-[160px] justify-between rounded-[8px] border border-[#3E3E3E] bg-transparent !text-[0.625rem] text-white hover:bg-transparent hover:text-white"
+              onChange={(e) => handleChange("priceStep", e.target.valueAsNumber)}
             />
           </div>
-          <div className="flex items-center justify-end gap-2 mt-2">
+          <div className="mt-2 flex items-center justify-end gap-2">
             <Button
               onClick={onClose}
-              className="text-white bg-red-800 text-[0.625rem] font-medium h-7 hover:bg-red-800 hover:text-white"
+              className="h-7 bg-red-500 text-[0.625rem] font-medium text-white hover:bg-red-800 hover:text-white"
             >
               Cancel
             </Button>
             <Button
               onClick={handleSave}
-              className="text-black bg-white text-[0.625rem] font-medium h-7 hover:bg-white hover:text-black"
+              className="h-7 bg-white text-[0.625rem] font-medium text-black hover:bg-white hover:text-black"
             >
               Save Changes
             </Button>
