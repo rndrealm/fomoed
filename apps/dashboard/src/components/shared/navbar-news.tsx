@@ -76,6 +76,14 @@ const bottomLinks = [
   },
 ];
 
+const Ham = () => {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" height="32px" viewBox="0 -960 960 960" width="32px" fill="#fff">
+      <path d="M170-254.62q-12.75 0-21.37-8.63-8.63-8.62-8.63-21.38 0-12.75 8.63-21.37 8.62-8.61 21.37-8.61h620q12.75 0 21.37 8.62 8.63 8.63 8.63 21.39 0 12.75-8.63 21.37-8.62 8.61-21.37 8.61H170ZM170-450q-12.75 0-21.37-8.63-8.63-8.63-8.63-21.38 0-12.76 8.63-21.37Q157.25-510 170-510h620q12.75 0 21.37 8.63 8.63 8.63 8.63 21.38 0 12.76-8.63 21.37Q802.75-450 790-450H170Zm0-195.39q-12.75 0-21.37-8.62-8.63-8.63-8.63-21.39 0-12.75 8.63-21.37 8.62-8.61 21.37-8.61h620q12.75 0 21.37 8.63 8.63 8.62 8.63 21.38 0 12.75-8.63 21.37-8.62 8.61-21.37 8.61H170Z" />
+    </svg>
+  );
+};
+
 const NavigationTop = ({
   authUser,
   isNewsLogo,
@@ -86,40 +94,43 @@ const NavigationTop = ({
   setIsSideMenuOpen: (value: boolean) => void;
 }) => {
   return (
-     <nav className="flex flex-col items-center overflow-hidden bg-[#00000] px-2 py-3 sm:px-4 md:px-8 md:py-5">
-    <div className="mx-auto flex w-full items-center justify-between">
-      <button className="" onClick={() => setIsSideMenuOpen(true)}>
-        <span className="md:hidden">
-          <MenuIconClosed />
-        </span>
-      </button>
+    <nav className="flex flex-col items-center overflow-hidden bg-[#00000] px-4 py-4">
+      <div className="mx-auto flex w-full items-center justify-between">
+        <button className="" onClick={() => setIsSideMenuOpen(true)}>
+          <span className="md:hidden">
+            {/* <MenuIconClosed /> */}
+            <Ham />
+          </span>
+        </button>
 
-      <div className="h-[24px] w-[24px] md:hidden">
-        <Link href="/">
-          <Image src={dashboard.logoMobile} alt="logo" />
-        </Link>
-      </div>
+        <div className="absolute top-1/2 left-1/2 h-[40px] w-[120px] -translate-x-1/2 -translate-y-1/2 md:hidden">
+          <Link href="/">
+            <Image src={dashboard.logo} fill alt="logo" />
+          </Link>
+        </div>
 
-      <div className="hidden items-center gap-2.5 md:flex">
-        <Link href="/">
-          <Image src={dashboard.logoV2} width={108} height={22} alt="logo" />
-        </Link>
+        <div className="hidden items-center gap-2.5 md:flex">
+          <Link href="/">
+            <Image src={dashboard.logoV2} width={108} height={22} alt="logo" />
+          </Link>
 
-        {isNewsLogo && (
-          <div className="rounded-[4px] bg-[#1F8B4C] px-3 py-1">
-            <h2 className="font-inter text-xs font-normal text-white uppercase">News</h2>
-          </div>
-        )}
-      </div>
+          {isNewsLogo && (
+            <div className="py-1">
+              <div className="rounded-[4px] bg-[#1F8B4C] px-3 py-1">
+                <h2 className="font-inter text-xs font-normal text-white uppercase">News</h2>
+              </div>
+            </div>
+          )}
+        </div>
 
-      <div className="flex items-center gap-[10px]">
-        {/* <div className="flex h-[24px] w-[24px] cursor-pointer items-center justify-center overflow-hidden rounded-[5px] md:h-[32px] md:w-[32px]">
+        <div className="hidden items-center gap-[10px] md:flex">
+          {/* <div className="flex h-[24px] w-[24px] cursor-pointer items-center justify-center overflow-hidden rounded-[5px] md:h-[32px] md:w-[32px]">
           <NavbarProfileButton authUser={authUser}>
             <ProfileIcon user={authUser} />
           </NavbarProfileButton>
         </div> */}
+        </div>
       </div>
-    </div>
     </nav>
   );
 };
@@ -162,7 +173,7 @@ export const NavbarNews = (props: IProps) => {
   }, [pathname]);
 
   return (
-   <Fragment>
+    <Fragment>
       {/* Top Nav */}
       <RenderIf condition={!!isNews}>
         <NavigationTop authUser={authUser} isNewsLogo={isNewsLogo} setIsSideMenuOpen={setIsSideMenuOpen} />
@@ -185,6 +196,6 @@ export const NavbarNews = (props: IProps) => {
         setIsSideMenuOpen={setIsSideMenuOpen}
         authUser={authUser}
       />
-   </Fragment>
+    </Fragment>
   );
 };
