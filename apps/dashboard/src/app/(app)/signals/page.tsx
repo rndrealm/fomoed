@@ -12,7 +12,7 @@ export default function Home() {
   const [astiveSignalTab, setActiveSignalTab] = useAtom(activeSignalTabAtom);
 
   return (
-    <div className="bg-black min-h-screen p-2 h-full w-full">
+    <div className="bg-black min-h-screen p-2 h-full w-full pt-4">
       <Tabs
         defaultValue="my-signals"
         value={astiveSignalTab}

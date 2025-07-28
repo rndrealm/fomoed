@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import classNames from "clsx";
 import {
   Command,
   CommandEmpty,
@@ -13,83 +14,79 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { TopicSelectorProps } from "@/constant/signals/data-source-config";
+import { useDataSources } from "@/hooks/smart-signals/use-data-sources";
 import { cn } from "@/lib/utils";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useEffect, useState } from "react";
 
-interface PriceTickerConfigProps {
-  value: string | null;
-  onChange: (value: string) => void;
-}
-
-export function VolumeTickerConfig({
-  value,
+export function TopicSelectorSymbol({
+  selectedTopic,
   onChange,
-}: PriceTickerConfigProps) {
-  const [products, setProducts] = useState<
-    { display_name: string; value: string }[]
-  >([]);
+  dataSourcePrefix,
+}: TopicSelectorProps) {
   const [open, setOpen] = useState(false);
 
+  const handleItemSelect = (newVal: string) => {
+    setOpen(false);
+    onChange(newVal);
+  };
+
+  const { getDataSourceTopics } = useDataSources();
+
+  const [topics, setTopics] = useState<string[]>([]);
+
   useEffect(() => {
-    fetch("https://api.exchange.coinbase.com/products")
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setProducts(
-            data.map((p) => ({
-              display_name: p.display_name,
-              value: `ticker_${p.display_name?.replaceAll("-", "")}`,
-            }))
-          );
-        }
-      });
-  }, []);
+    setTopics(getDataSourceTopics(dataSourcePrefix));
+  }, [dataSourcePrefix, getDataSourceTopics]);
 
   return (
-    <div className="w-full full">
+    <div className="w-full">
       <Label className="mb-2 text-muted-foreground">Symbol</Label>
+
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-full justify-between bg-[#2A2A2A] border-[#3A3A3A] text-white px-4 py-2"
-            id="symbol"
+            className={classNames(
+              "w-full justify-between bg-[#2A2A2A] border-[#3A3A3A] text-white px-4 py-2 h-12",
+              {
+                "text-white/50": !selectedTopic,
+              },
+            )}
+            id="cfgi-symbol"
           >
-            {value
-              ? products.find((p) => p.value === value)?.display_name || value
-              : "Select symbol"}
+            {selectedTopic ? selectedTopic : "Select symbol"}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-full p-0">
+
+        <PopoverContent className="w-full p-0 bg-[#222222] border-[#333333] text-white">
           <Command>
             <CommandInput
               placeholder="Search symbol..."
               className="px-4 py-2"
             />
-            <CommandList className=" ">
+            <CommandList>
               <CommandEmpty>No symbol found.</CommandEmpty>
+
               <CommandGroup>
-                {products.map((product) => (
+                {topics.map((topic) => (
                   <CommandItem
-                    key={product.display_name}
-                    value={product.value}
-                    onSelect={(currentValue) => {
-                      onChange(currentValue === value ? "" : currentValue);
-                      setOpen(false);
-                    }}
+                    key={topic}
+                    value={topic}
+                    onSelect={handleItemSelect}
                     className="cursor-pointer px-4 py-2"
                   >
                     <Check
                       className={cn(
                         "mr-2 h-4 w-4",
-                        value === product.value ? "opacity-100" : "opacity-0"
+                        topic === selectedTopic ? "opacity-100" : "opacity-0",
                       )}
                     />
-                    {product.display_name}
+                    {topic}
                   </CommandItem>
                 ))}
               </CommandGroup>

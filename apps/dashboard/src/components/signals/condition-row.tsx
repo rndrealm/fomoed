@@ -1,17 +1,19 @@
-import {
-  signalDataSources,
-  topicSelectorMap,
-} from "@/constant/signals/data-source-config";
+import { topicSelectorComponentById } from "@/constant/signals/data-source-config";
 import { ChevronsUpDown, Trash2 } from "lucide-react";
-import { useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Separator } from "../ui/separator";
-import { Condition } from "./condition-group";
-import Operator from "./condition-operator";
+import { Condition, ConditionOperator } from "./condition-group";
+import DataSourceOperatorSelector from "./data-source-operator-selector";
 import SignalDataSourceSelector from "./data-source-selector";
 import ValueSuggestions from "./value-suggestions";
+import {
+  useDataSources,
+  useTopicValue,
+} from "@/hooks/smart-signals/use-data-sources";
+import BoolValSelector from "./value-selectors/bool-val-selector";
 
 type ConditionRowProps = {
   condition: Condition;
@@ -26,58 +28,82 @@ const ConditionRow = ({
   onRemove,
   isRemovable,
 }: ConditionRowProps) => {
+  const { getDataSourceByPrefix } = useDataSources();
+
+  const [dataSourcePrefix, setDataSourcePrefix] = useState<string | null>(null);
+  const [operator, setOperator] = useState<ConditionOperator | null>(null);
+  const currentValue = useTopicValue(condition.topic || null);
+
+  const dataSourceObj = useMemo(() => {
+    if (condition.dataSourceId) {
+      return getDataSourceByPrefix(condition.dataSourceId);
+    }
+    return null;
+  }, [condition.dataSourceId, getDataSourceByPrefix]);
+
+  const dataSourceType = dataSourceObj?.data_type || null;
+
   const TopicSelector = useMemo(() => {
-    if (condition.dataSource) {
-      return topicSelectorMap[condition.dataSource]?.component || null;
+    if (condition.dataSourceId && dataSourceObj) {
+      return (
+        topicSelectorComponentById[dataSourceObj.topic_selector]?.component ||
+        null
+      );
     }
     return null;
-  }, [condition.dataSource]);
+  }, [condition.dataSourceId, dataSourceObj]);
 
-  const allowedOperators = useMemo(() => {
-    if (condition.dataSource) {
-      return topicSelectorMap[condition.dataSource]?.allowedOperators || [];
-    }
-    return [];
-  }, [condition.dataSource]);
+  // TODO load this dynamically from API
+  const suggestionsEnabled = false;
 
-  const valueType = useMemo(() => {
-    if (condition.dataSource) {
-      return topicSelectorMap[condition.dataSource]?.valueType || null;
-    }
-    return null;
-  }, [condition.dataSource]);
+  const setTopicOnCond = useCallback(
+    (topic: string | null) => {
+      // We are adding the data source prefix, because when a smart
+      // signal is processed, the topics in the system are prefixed
+      // with the data source prefix
 
-  const suggestionsEnabled = useMemo(() => {
-    if (condition.dataSource) {
-      const dataSource = signalDataSources
-        .flatMap((group) => group.dataSources)
-        .find((ds) => ds.id === condition.dataSource);
-      return dataSource?.suggestionsEnabled || false;
+      const topicWithPrefix = dataSourcePrefix + "-" + topic;
+      onChange({ ...condition, topic: topicWithPrefix });
+    },
+    [condition, onChange, dataSourcePrefix],
+  );
+
+  // Propagate initial operator value into the condition object
+  useEffect(() => {
+    if (operator && condition.operator !== operator) {
+      onChange({ ...condition, operator });
     }
-    return false;
-  }, [condition.dataSource]);
+  }, [operator, condition, onChange]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       <SignalDataSourceSelector
-        onChange={(value) =>
-          onChange({ ...condition, dataSource: value, topic: null })
-        }
-        value={condition.dataSource}
+        onDataSourcePrefixChange={(value) => {
+          onChange({ ...condition, dataSourceId: value, topic: null });
+          setDataSourcePrefix(value);
+        }}
+        value={condition.dataSourceId}
       />
 
-      {TopicSelector ? (
-        <TopicSelector
-          value={condition.topic}
-          onChange={(v) => onChange({ ...condition, topic: v })}
-        />
+      {condition.dataSourceId ? (
+        (TopicSelector && (
+          <TopicSelector
+            selectedTopic={condition.topic?.replace(/.*-/, "") || null}
+            onChange={setTopicOnCond}
+            dataSourcePrefix={condition.dataSourceId}
+          />
+        )) || (
+          <div className="bg-red-500 h-12 rounded-lg self-end grid place-items-center font-mono font-semibold">
+            MISSCONFIGURED
+          </div>
+        )
       ) : (
         <div className="w-full">
           <Label className="mb-2 text-muted-foreground">Topic</Label>
           <Button
             variant="outline"
             disabled
-            className="w-full justify-between "
+            className="w-full justify-between h-12"
           >
             Select topic
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -85,20 +111,22 @@ const ConditionRow = ({
         </div>
       )}
 
-      <Operator
-        allowedOperators={allowedOperators}
-        value={condition.operator}
-        onChange={(v) => onChange({ ...condition, operator: v })}
+      <DataSourceOperatorSelector
+        operator={operator}
+        setOperator={setOperator}
+        dataSourcePrefix={condition.dataSourceId}
       />
 
       <div className="flex items-center gap-4">
         <div className="flex flex-col w-full">
           <Label className="mb-2 text-muted-foreground">Value</Label>
-          {(valueType === "number" || valueType === "string") && (
+          {(dataSourceType === "int" ||
+            dataSourceType === "string" ||
+            dataSourceType === "decimal") && (
             <Input
-              type={valueType}
+              type={dataSourceType}
               placeholder="Value"
-              className="w-full"
+              className="w-full !h-12"
               value={
                 typeof condition.value === "string" ||
                 typeof condition.value === "number"
@@ -111,13 +139,13 @@ const ConditionRow = ({
             />
           )}
 
-          {valueType === "percentage" && (
+          {dataSourceType === "percentage" && (
             <Input
               type="number"
               max={100}
               min={0}
               placeholder="Percentage %"
-              className="w-full"
+              className="w-full !h-12"
               value={
                 typeof condition.value === "string" ||
                 typeof condition.value === "number"
@@ -130,25 +158,21 @@ const ConditionRow = ({
             />
           )}
 
-          {valueType === "boolean" && (
-            <Button
-              variant="outline"
-              onClick={() =>
-                onChange({ ...condition, value: !condition.value })
-              }
-              className="w-fit flex-1 justify-between "
-            >
-              {condition.value ? "True" : "False"}
-            </Button>
+          {dataSourceType === "bool" && (
+            <BoolValSelector
+              value={(condition.value as boolean) ?? true}
+              onChange={(value) => onChange({ ...condition, value })}
+            />
           )}
-          {!valueType && (
+
+          {!dataSourceType && (
             <Button
               disabled
               variant="outline"
               onClick={() =>
                 onChange({ ...condition, value: !condition.value })
               }
-              className="w-full grow justify-between "
+              className="w-full grow justify-between !h-12"
             >
               Select value
             </Button>
@@ -157,14 +181,26 @@ const ConditionRow = ({
           <div>
             {suggestionsEnabled && (
               <ValueSuggestions
-                dataSourceId={condition.dataSource}
+                dataSourceId={condition.dataSourceId}
                 topic={condition.topic}
                 onSelect={(value) => onChange({ ...condition, value })}
               />
             )}
+
+            <div className="pt-2">
+              <div className="flex text-sm bg-white/10 rounded-sm px-2.5 py-2">
+                <div className="font-semibold text-white/50">Current:</div>
+
+                <div className="flex-grow text-right">
+                  {currentValue.data?.value || "N/A"}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+
         <Separator orientation="vertical" />
+
         {isRemovable && (
           <Button
             variant="ghost"

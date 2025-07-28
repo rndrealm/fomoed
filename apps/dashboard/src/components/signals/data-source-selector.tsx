@@ -1,4 +1,4 @@
-import { signalDataSources } from "@/constant/signals/data-source-config";
+// import { signalDataSources } from "@/constant/signals/data-source-config";
 import { Label } from "../ui/label";
 import {
   Select,
@@ -9,34 +9,40 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { useDataSources } from "@/hooks/smart-signals/use-data-sources";
 
 type DataSourceDropDownProps = {
-  onChange: (value: string) => void;
+  onDataSourcePrefixChange: (prefix: string) => void;
   value?: string | null;
 };
 
 const SignalDataSourceSelector = (props: DataSourceDropDownProps) => {
+  const { dataSourcesByGroups } = useDataSources();
+
   return (
     <div className="w-full">
       <Label className="mb-2 text-muted-foreground">Data source</Label>
+
       <Select
         disabled={false}
         value={props.value || undefined}
-        onValueChange={props.onChange}
+        onValueChange={props.onDataSourcePrefixChange}
       >
-        <SelectTrigger className="w-full bg-background">
+        <SelectTrigger className="w-full bg-background !h-12">
           <SelectValue placeholder="Select data source" />
         </SelectTrigger>
-        <SelectContent className="max-h-[300px] overflow-y-auto bg-[#080808] ">
-          {signalDataSources.map((source) => (
-            <SelectGroup key={source.group}>
+
+        <SelectContent className="overflow-y-auto bg-[#080808]">
+          {Object.entries(dataSourcesByGroups).map(([group, sources]) => (
+            <SelectGroup key={group}>
               <SelectLabel className="font-semibold text-sm text-fomoed-red">
-                {source.group}
+                {group}
               </SelectLabel>
-              {source.dataSources.map((dataSource) => (
+
+              {sources.map((dataSource) => (
                 <SelectItem
-                  key={dataSource.id}
-                  value={dataSource.id}
+                  key={dataSource.prefix}
+                  value={dataSource.prefix}
                   className="pl-6 text-sm text-white"
                   disabled={dataSource.disabled}
                 >

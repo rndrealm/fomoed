@@ -25,7 +25,7 @@ interface AISignalBuilderProps {
   onAiPromptResponse: (
     name: string,
     description: string,
-    condition: object
+    condition: object,
   ) => void;
 }
 
@@ -55,10 +55,10 @@ const AISignalPromptInput: React.FC<AISignalBuilderProps> = ({
       onAiPromptResponse(
         res.signal.name,
         res.signal.description,
-        res.signal.condition
+        res.signal.condition,
       );
       form.reset();
-      toast.success("Signal generated successfully!");
+      // toast.success("Signal generated successfully!");
     } else {
       toast.error("Something went wrong. Please try again.");
     }
@@ -107,10 +107,10 @@ const AISignalPromptInput: React.FC<AISignalBuilderProps> = ({
               </form>
             </Form>
           </div>
-          <div className="text-xs text-muted-foreground italic">
+          {/* <div className="text-xs text-muted-foreground italic">
             Try phrases like &apos;Alert me when BTC price exceeds $100,000 and
             social media sentiment is positive&apos;
-          </div>
+          </div> */}
         </div>
       </CardContent>
     </Card>

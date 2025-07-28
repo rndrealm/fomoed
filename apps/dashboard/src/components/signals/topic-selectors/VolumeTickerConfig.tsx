@@ -15,57 +15,70 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { Check, ChevronsUpDown } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-const youtubeChannels = ["DiscoverCrypto"];
-
-interface YouTubeChannelConfigProps {
+interface PriceTickerConfigProps {
   value: string | null;
   onChange: (value: string) => void;
 }
 
-export function YouTubeChannelConfig({
+export function VolumeTickerConfig({
   value,
   onChange,
-}: YouTubeChannelConfigProps) {
+}: PriceTickerConfigProps) {
+  const [products, setProducts] = useState<
+    { display_name: string; value: string }[]
+  >([]);
   const [open, setOpen] = useState(false);
 
-  const handleItemSelect = (currentValue: string) => {
-    const formattedValue = `youtube_streaming_${currentValue}`;
-    onChange(value === formattedValue ? "" : formattedValue);
-  };
+  useEffect(() => {
+    fetch("https://api.exchange.coinbase.com/products")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setProducts(
+            data.map((p) => ({
+              display_name: p.display_name,
+              value: `ticker_${p.display_name?.replaceAll("-", "")}`,
+            })),
+          );
+        }
+      });
+  }, []);
 
   return (
-    <div className="w-full">
-      <Label className="mb-2 text-muted-foreground">YouTube Channel</Label>
+    <div className="w-full full">
+      <Label className="mb-2 text-muted-foreground">Symbol</Label>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-full justify-between bg-[#2A2A2A] border-[#3A3A3A] text-white px-4 py-2"
-            id="youtube-channel"
+            className="w-full justify-between bg-[#2A2A2A] border-[#3A3A3A] text-white px-4 py-2 h-12"
+            id="symbol"
           >
-            {value ? value.replace("youtube_streaming_", "") : "Select channel"}
+            {value
+              ? products.find((p) => p.value === value)?.display_name || value
+              : "Select symbol"}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-full p-0 bg-[#222222] border-[#333333] text-white">
+        <PopoverContent className="w-full p-0">
           <Command>
             <CommandInput
-              placeholder="Search channel..."
+              placeholder="Search symbol..."
               className="px-4 py-2"
             />
-            <CommandList>
-              <CommandEmpty>No channel found.</CommandEmpty>
+            <CommandList className=" ">
+              <CommandEmpty>No symbol found.</CommandEmpty>
               <CommandGroup>
-                {youtubeChannels.map((channel) => (
+                {products.map((product) => (
                   <CommandItem
-                    key={channel}
-                    value={channel}
+                    key={product.display_name}
+                    value={product.value}
                     onSelect={(currentValue) => {
-                      handleItemSelect(currentValue);
+                      onChange(currentValue === value ? "" : currentValue);
                       setOpen(false);
                     }}
                     className="cursor-pointer px-4 py-2"
@@ -73,12 +86,10 @@ export function YouTubeChannelConfig({
                     <Check
                       className={cn(
                         "mr-2 h-4 w-4",
-                        value?.replace("youtube_streaming_", "") === channel
-                          ? "opacity-100"
-                          : "opacity-0"
+                        value === product.value ? "opacity-100" : "opacity-0",
                       )}
                     />
-                    {channel}
+                    {product.display_name}
                   </CommandItem>
                 ))}
               </CommandGroup>
