@@ -12,7 +12,7 @@ export default function RootLayout({
         <NavbarNews isNews />
       </div>
       <div className="bg-black pt-[64px] md:pt-[86px]">
-        <div className="relative flex h-full w-full flex-col px-2 sm:px-6">
+        <div className="relative flex h-full w-full flex-col px-4 sm:px-6">
           <div className="ml-0 md:ml-12">{children}</div>
         </div>
       </div>
