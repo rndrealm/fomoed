@@ -181,3 +181,10 @@ export function isConditionGroupValid(group: Group): boolean {
 
   return true;
 }
+
+/**
+ * @deprecated
+ */
+export function extractTopicsFromJsonLogic(logic: any): string[] {
+  throw new Error("Function not implemented.");
+}

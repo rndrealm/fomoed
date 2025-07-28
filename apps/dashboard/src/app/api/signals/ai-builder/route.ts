@@ -30,7 +30,7 @@ const AvailableDataSourcesDataSchema = z.object({
   ),
 });
 
-export async function getAvailableDataSources() {
+async function getAvailableDataSources() {
   const url =
     process.env.NEXT_PUBLIC_BACKEND_SMART_SIGNALS_BASE + "/data-sources";
   console.info("Fetching available data sources from:", url);

@@ -6,7 +6,7 @@ import { useCallback } from "react";
 
 export const MAX_DEPTH = 3;
 
-const conditionOperators = [">", "<", "!="] as const;
+const conditionOperators = [">", "<", "!=", "=="] as const;
 export type ConditionOperator = (typeof conditionOperators)[number];
 
 export type Condition = {

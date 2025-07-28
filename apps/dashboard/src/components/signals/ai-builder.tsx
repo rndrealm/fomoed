@@ -103,12 +103,12 @@ const AISignalBuilder: React.FC<AISignalBuilderProps> = ({
           </div> */}
         </div>
 
-        {condition && (
+        {/* {condition && (
           <ManualSignalBuilder
             initialLogic={condition}
             setLogic={setCondition}
           />
-        )}
+        )} */}
       </CardContent>
     </Card>
   );

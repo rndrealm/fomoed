@@ -13,7 +13,7 @@ import SignalDetails from "./signal-details";
 
 const CreateSignalFromChartModal = () => {
   const [signalModalConfig, setSignalModalConfig] = useAtom(
-    signalModalConfigAtom
+    signalModalConfigAtom,
   );
   const [modelData] = useAtom(signalModalDataAtom);
   const [signalActions, setSignalActions] = useState({
@@ -45,10 +45,10 @@ const CreateSignalFromChartModal = () => {
             Create smart signal from data point
           </DialogTitle>
 
-          <ManualSignalBuilder
+          {/* <ManualSignalBuilder
             initialLogic={logic}
             setLogic={(l) => console.log(l)}
-          />
+          /> */}
 
           <NotificationSettings
             notifications={signalActions}
