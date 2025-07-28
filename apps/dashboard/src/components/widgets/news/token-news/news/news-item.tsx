@@ -62,7 +62,15 @@ export default function NewsItem(props: IProps) {
         </div>
 
         <div className="h-[70px] w-full max-w-[70px] overflow-hidden rounded-[10px]">
-          <Image src={data?.image_url || ""} width={90} height={90} alt="news" className="h-full w-full object-cover" />
+          <RenderIf condition={!!data?.image_url}>
+            <Image
+              src={data?.image_url || ""}
+              width={90}
+              height={90}
+              alt="news"
+              className="h-full w-full object-cover"
+            />
+          </RenderIf>
         </div>
       </div>
     </button>
