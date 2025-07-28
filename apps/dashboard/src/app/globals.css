@@ -427,6 +427,11 @@ button:hover {
   cursor: pointer;
 }
 
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
 .loader {
   border-radius: 50%;
   position: relative;

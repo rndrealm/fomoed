@@ -8,34 +8,23 @@ interface IProps {
   handleResume?: () => void;
   isPaused?: boolean;
   isSpeaking?: boolean;
+  handleShowPlayer?: () => void;
 }
 
 export function PlayButton(props: IProps) {
-  const { handlePause, handlePlay, handleResume, isPaused = false, isSpeaking = false } = props;
-
-  const handleClick = () => {
-    if (!isSpeaking) {
-      handlePlay?.(); // not speaking, start speaking
-    } else if (isPaused) {
-      handleResume?.(); // paused, resume
-    } else {
-      handlePause?.(); // speaking and not paused, pause
-    }
-  };
+  const { handleShowPlayer } = props;
 
   return (
     <button
       type="button"
       className="flex h-[32px] w-[56px] items-center justify-center gap-1 rounded-[40px] bg-[#0F0F0F]"
-      onClick={handleClick}
+      onClick={handleShowPlayer}
     >
-      <RenderIf condition={isSpeaking && !isPaused}>
+      <RenderIf condition={false}>
         <Pause />
       </RenderIf>
 
-      <RenderIf condition={!isSpeaking || isPaused}>
-        <Play />
-      </RenderIf>
+      <Play />
 
       <Sound />
     </button>

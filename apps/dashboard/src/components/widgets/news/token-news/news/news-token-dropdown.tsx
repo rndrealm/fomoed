@@ -118,7 +118,7 @@ export function NewsTokenDropdown(props: IProps) {
 
         <RenderIf condition={!!activeCoin?.priceChange && activeCoin?.priceChange < 0}>
           <p className="text-sm leading-[1.35] font-bold text-[#ff8970]">
-            -${formatPriceSignificant(price * (priceChange / 100), 2)}
+            -${formatPriceSignificant(Math.abs(price * (priceChange / 100)), 2)}
           </p>
         </RenderIf>
       </div>
