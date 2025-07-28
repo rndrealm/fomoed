@@ -1,6 +1,7 @@
 import QueryProvider from "@/components/providers/QueryProvider";
 import { Toaster } from "@/components/ui/sonner";
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import "./globals.css";
@@ -55,7 +56,7 @@ export default function RootLayout({
       {/* <ReactScan /> */}
       <body className={`${geistSans.variable} ${geistMono.variable} h-full bg-[#0C0C0C] antialiased`}>
         <OverlayRoot />
-
+        <Analytics />
         <div id="root" className="h-full">
           <QueryProvider>
             <NuqsAdapter>
