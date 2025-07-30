@@ -9,9 +9,20 @@ const LoadingSpinner: React.FC = () => (
 );
 
 const NoFetchedNewsSvg = () => (
-  <svg width="400" height="400" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg
+    width="400"
+    height="400"
+    viewBox="0 0 400 400"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
     <g filter="url(#filter0_i_9205_165970)">
-      <rect width="186" height="264" transform="translate(124 68)" fill="url(#paint0_linear_9205_165970)" />
+      <rect
+        width="186"
+        height="264"
+        transform="translate(124 68)"
+        fill="url(#paint0_linear_9205_165970)"
+      />
     </g>
     <path d="M0 69H400" stroke="#131313" stroke-width="2.5" />
     <path d="M310 400L310 5.00679e-06" stroke="#131313" stroke-width="2.5" />
@@ -28,7 +39,12 @@ const NoFetchedNewsSvg = () => (
         color-interpolation-filters="sRGB"
       >
         <feFlood flood-opacity="0" result="BackgroundImageFix" />
-        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+        <feBlend
+          mode="normal"
+          in="SourceGraphic"
+          in2="BackgroundImageFix"
+          result="shape"
+        />
         <feColorMatrix
           in="SourceAlpha"
           type="matrix"
@@ -38,10 +54,24 @@ const NoFetchedNewsSvg = () => (
         <feOffset dx="1" dy="1" />
         <feGaussianBlur stdDeviation="2" />
         <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
-        <feColorMatrix type="matrix" values="0 0 0 0 0.566476 0 0 0 0 0.219103 0 0 0 0 0.798058 0 0 0 0.35 0" />
-        <feBlend mode="normal" in2="shape" result="effect1_innerShadow_9205_165970" />
+        <feColorMatrix
+          type="matrix"
+          values="0 0 0 0 0.566476 0 0 0 0 0.219103 0 0 0 0 0.798058 0 0 0 0.35 0"
+        />
+        <feBlend
+          mode="normal"
+          in2="shape"
+          result="effect1_innerShadow_9205_165970"
+        />
       </filter>
-      <linearGradient id="paint0_linear_9205_165970" x1="82" y1="-58" x2="82" y2="730" gradientUnits="userSpaceOnUse">
+      <linearGradient
+        id="paint0_linear_9205_165970"
+        x1="82"
+        y1="-58"
+        x2="82"
+        y2="730"
+        gradientUnits="userSpaceOnUse"
+      >
         <stop offset="0.0558376" stop-color="#0F0F0F" />
         <stop offset="0.230964" stop-color="#2E1A0D" />
         <stop offset="0.444162" stop-color="#682F09" />
@@ -59,15 +89,25 @@ const EmptySearchState = () => {
       <NoFetchedNewsSvg />
       <div className="flex flex-col items-center justify-center gap-1.5">
         <div className="flex flex-col items-center justify-center gap-1.5">
-          <p className="text-[18px] font-medium text-white">Currently have no news Articles</p>
-          <p className="text-xs font-semibold text-[#A4A4A4]">We’re trying to fetch the most recent news for you</p>
+          <p className="text-[18px] font-medium text-white">
+            Currently have no news Articles
+          </p>
+          <p className="text-xs font-semibold text-[#A4A4A4]">
+            We’re trying to fetch the most recent news for you
+          </p>
         </div>
       </div>
     </div>
   );
 };
 
-const NewsContent = ({ isSearching, selectedTag }: { isSearching: boolean; selectedTag: string }) => {
+const NewsContent = ({
+  isSearching,
+  selectedTag,
+}: {
+  isSearching: boolean;
+  selectedTag: string;
+}) => {
   const {
     data: newsData,
     isPending,
@@ -83,7 +123,15 @@ const NewsContent = ({ isSearching, selectedTag }: { isSearching: boolean; selec
     const bottomEl = bottomContainerRef.current;
 
     // Only set up intersection observer for infinite scroll (not bookmarks)
-    if (!bottomEl || !hasNextPage || isFetchingNextPage || isPending || isSearching || isBookmarksTab || !fetchNextPage)
+    if (
+      !bottomEl ||
+      !hasNextPage ||
+      isFetchingNextPage ||
+      isPending ||
+      isSearching ||
+      isBookmarksTab ||
+      !fetchNextPage
+    )
       return;
 
     const observer = new IntersectionObserver(
@@ -96,7 +144,7 @@ const NewsContent = ({ isSearching, selectedTag }: { isSearching: boolean; selec
         root: null,
         rootMargin: "0px",
         threshold: 1.0,
-      }
+      },
     );
 
     observer.observe(bottomEl);
@@ -104,13 +152,21 @@ const NewsContent = ({ isSearching, selectedTag }: { isSearching: boolean; selec
     return () => {
       if (bottomEl) observer.unobserve(bottomEl);
     };
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage, newsData, isPending, isSearching, isBookmarksTab]);
+  }, [
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+    newsData,
+    isPending,
+    isSearching,
+    isBookmarksTab,
+  ]);
 
   return (
     <div className="relative w-full">
       {/* Loaders */}
       {(isPending || isFetchingNextPage) && (
-        <div className="absolute inset-0 z-50 flex h-[calc(100svh-256px)] w-full items-center justify-center bg-black">
+        <div className="absolute inset-0 z-40 flex h-[calc(100svh-256px)] w-full items-center justify-center bg-black">
           <LoadingSpinner />
         </div>
       )}
