@@ -1,0 +1,32 @@
+name: Build Monorepo
+
+on:
+  push:
+    branches: [feat/cicd]
+  pull_request:
+    branches: [feat/cicd]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Setup pnpm with cache
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8 # or whatever version you use
+          run_install: false
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build all packages
+        run: pnpm run -r build
