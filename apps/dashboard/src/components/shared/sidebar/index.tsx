@@ -209,8 +209,8 @@ const ActiveNav = (props: IActiveNavProps) => {
           {navLinks.map((item, index) => {
             // const active = item.label === "Widget Dashboard";
 
-            const comingSoon =
-              item.label === "Community" || item.label === "Smart Signals";
+            const comingSoon = item.label === "Community";
+            const beta = item.label === "Smart Signals";
 
             return (
               <NavLink
@@ -221,6 +221,7 @@ const ActiveNav = (props: IActiveNavProps) => {
                 active={item.active}
                 disabled={item.disabled}
                 comingSoon={comingSoon}
+                beta={beta}
                 variant="active"
                 isSideMenuOpen={isSideMenuOpen}
               />
