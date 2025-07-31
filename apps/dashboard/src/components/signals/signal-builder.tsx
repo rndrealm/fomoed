@@ -172,64 +172,60 @@ const SignalBuilder = ({}) => {
   );
 
   return (
-    <>
-      <div className="my-6"></div>
+    <div className="flex flex-col gap-3 min-h-max h-full justify-center pb-24">
+      <div className="px-4">
+        <SignalTitle
+          title={signalPrompt}
+          onTitleChange={setSignalPrompt}
+          loading={genDetailsMutation.isPending}
+        >
+          <AutoGenerateButton
+            onClick={autoGenerate}
+            isPending={isPendingAutoGenerate}
+          />
+        </SignalTitle>
+      </div>
 
-      <div className="flex flex-col gap-3">
-        <div className="px-4">
-          <SignalTitle
-            title={signalPrompt}
-            onTitleChange={setSignalPrompt}
-            loading={genDetailsMutation.isPending}
-          >
-            <AutoGenerateButton
-              onClick={autoGenerate}
-              isPending={isPendingAutoGenerate}
-            />
-          </SignalTitle>
-        </div>
+      <ManualSignalBuilder
+        key={updateCount}
+        rootGroup={rootGroup}
+        onRootGroupChange={onRootGroupChange}
+      />
 
-        <ManualSignalBuilder
-          key={updateCount}
-          rootGroup={rootGroup}
-          onRootGroupChange={onRootGroupChange}
-        />
+      <NotificationSettings
+        notifications={signalActions}
+        onUpdate={setSignalActions}
+      />
 
-        <NotificationSettings
-          notifications={signalActions}
-          onUpdate={setSignalActions}
-        />
+      <div className="flex justify-end gap-3">
+        <Button
+          className="bg-fomoed-red text-white hover:bg-fomoed-red/80 font-semibold flex w-24"
+          disabled={isPending || !isRootGroupValid}
+          onClick={handleSave}
+        >
+          Save
+          {(isPending && <LoaderCircle className="animate-spin" />) || (
+            <Check className="w-4" />
+          )}
+        </Button>
+      </div>
 
-        <div className="flex justify-end gap-3">
-          <Button
-            className="bg-fomoed-red text-white hover:bg-fomoed-red/80 font-semibold flex w-24"
-            disabled={isPending || !isRootGroupValid}
-            onClick={handleSave}
-          >
-            Save
-            {(isPending && <LoaderCircle className="animate-spin" />) || (
-              <Check className="w-4" />
-            )}
-          </Button>
-        </div>
-
-        <ModalContainer
-          open={showUpgradeModal}
+      <ModalContainer
+        open={showUpgradeModal}
+        handleClose={() => {
+          setShowUpgradeModal(false);
+        }}
+        noHeader
+        className="!max-w-[410px] !p-0 rounded-[24px]"
+      >
+        <Upgrade
+          plan={userPlanData?.planType}
           handleClose={() => {
             setShowUpgradeModal(false);
           }}
-          noHeader
-          className="!max-w-[410px] !p-0 rounded-[24px]"
-        >
-          <Upgrade
-            plan={userPlanData?.planType}
-            handleClose={() => {
-              setShowUpgradeModal(false);
-            }}
-          />
-        </ModalContainer>
-      </div>
-    </>
+        />
+      </ModalContainer>
+    </div>
   );
 };
 

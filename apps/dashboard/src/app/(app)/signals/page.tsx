@@ -10,24 +10,27 @@ export default function Home() {
   const [astiveSignalTab, setActiveSignalTab] = useAtom(activeSignalTabAtom);
 
   return (
-    <div className="bg-black min-h-screen p-2 h-full w-full pt-4">
+    <div className="bg-black p-2 w-full pt-4 flex h-full">
       <Tabs
         defaultValue="my-signals"
         value={astiveSignalTab}
         onValueChange={setActiveSignalTab}
+        className="w-full justify-start flex-grow"
       >
         <TabsList className="grid w-full max-w-60 grid-cols-2 bg-[#0B0B0B]">
           <TabsTrigger value={"my-signals"}>My Signals</TabsTrigger>
           <TabsTrigger value={"signal-builder"}>Signal Builder</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="my-signals">
-          <MySignals />
-        </TabsContent>
+        <div className="h-full flex-grow">
+          <TabsContent value="my-signals">
+            <MySignals />
+          </TabsContent>
 
-        <TabsContent value="signal-builder">
-          <SignalBuilder />
-        </TabsContent>
+          <TabsContent value="signal-builder" className="h-full">
+            <SignalBuilder />
+          </TabsContent>
+        </div>
       </Tabs>
     </div>
   );
