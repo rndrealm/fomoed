@@ -2,13 +2,14 @@
 import { Button } from "@/components/ui/button";
 
 import { Check, LoaderCircle, SaveIcon } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 // import AISignalBuilder from "./AISignalBuilder";
 import useUserData from "@/lib/hooks/use-user-data";
 import { SignalActions } from "@/lib/types/signal.types";
 import {
   useCreateSignalMutation,
+  useGenerateSignalDetails,
   useGetAISignal,
   useSmartSignals,
 } from "@/services/queries/signals";
@@ -41,6 +42,9 @@ const SignalBuilder = ({}) => {
     notification: true,
   });
   const { data: smartSignals = [] } = useSmartSignals();
+
+  // Convert group to JSON logic
+  const logic = useMemo(() => toJsonLogic(rootGroup), [rootGroup]);
 
   const [updateCount, setUpdateCount] = useState(0);
   const [_, setActiveSignalTab] = useAtom(activeSignalTabAtom);
@@ -80,7 +84,6 @@ const SignalBuilder = ({}) => {
         description: `Your smart signal "${signalPrompt}" from fomoed.io has been triggered`,
       });
 
-    const logic = toJsonLogic(rootGroup);
     const data: CreateSignalDTO = {
       name: signalPrompt || JSON.stringify(logic),
       description: signalDescription,
@@ -124,10 +127,49 @@ const SignalBuilder = ({}) => {
 
   const [isRootGroupValid, setIsRootGroupValid] = useState(false);
 
-  const onRootGroupChange = useCallback((rootGroup: Group) => {
-    setRootGroup(rootGroup);
-    setIsRootGroupValid(isConditionGroupValid(rootGroup));
-  }, []);
+  // Auto generate signal title if condition is valid and the logic stays
+  // the same for some amount of time
+  const genDetailsMutation = useGenerateSignalDetails();
+
+  const generateDelay = 500;
+
+  const generateSignalDetails = useCallback(
+    async (currentLogic: any) => {
+      if (!isRootGroupValid) return;
+
+      const res = await genDetailsMutation.mutateAsync(currentLogic);
+      setSignalPrompt(res.signal.name);
+    },
+    [isRootGroupValid, genDetailsMutation],
+  );
+
+  const debouncedGenerateDetails = useMemo(() => {
+    let timeoutId: NodeJS.Timeout;
+
+    return (currentLogic: any) => {
+      clearTimeout(timeoutId);
+      if (isRootGroupValid) {
+        timeoutId = setTimeout(
+          () => generateSignalDetails(currentLogic),
+          generateDelay,
+        );
+      }
+    };
+  }, [generateSignalDetails, generateDelay, isRootGroupValid]);
+
+  const onRootGroupChange = useCallback(
+    (rootGroup: Group) => {
+      setRootGroup(rootGroup);
+      const isValid = isConditionGroupValid(rootGroup);
+      setIsRootGroupValid(isValid);
+
+      if (isValid) {
+        const newLogic = toJsonLogic(rootGroup);
+        debouncedGenerateDetails(newLogic);
+      }
+    },
+    [debouncedGenerateDetails],
+  );
 
   return (
     <>
@@ -135,7 +177,11 @@ const SignalBuilder = ({}) => {
 
       <div className="flex flex-col gap-3">
         <div className="px-4">
-          <SignalTitle title={signalPrompt} onTitleChange={setSignalPrompt}>
+          <SignalTitle
+            title={signalPrompt}
+            onTitleChange={setSignalPrompt}
+            loading={genDetailsMutation.isPending}
+          >
             <AutoGenerateButton
               onClick={autoGenerate}
               isPending={isPendingAutoGenerate}

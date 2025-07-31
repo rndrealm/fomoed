@@ -2,6 +2,7 @@ import { openai } from "@ai-sdk/openai";
 import { generateObject } from "ai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { getSystemPromptGenSignal } from "./prompts";
 
 const SignalAISchema = z.object({
   success: z.boolean(),
@@ -53,79 +54,25 @@ async function getAvailableDataSources() {
   return AvailableDataSourcesDataSchema.parse(json);
 }
 
-async function getSystemPrompt(): Promise<string | null> {
-  const dataSources = await getAvailableDataSources();
-
-  if (!dataSources) {
-    return null;
-  }
-
-  // System prompt for the LLM
-  // todo: add more examples and imprve the prompt
-  const aiPrompt = `
-You are an expert at creating crypto trading signals using JSON-logic. 
-Given a user's request, generate a JSON object with the following structure:
-
-{
-  "success": true,
-  "signal": {
-    "name": "<short descriptive name>",
-    "description": "<detailed description>",
-    "condition": "<valid JSON-logic object as escaped string>"
-  }
-}
-
-If the user requests a signal for an unsupported or invalid currency pair, respond with:
-
-{
-  "success": false,
-  "message": "Invalid currency"
-}
-
-You should know the following:
-1. The JSON-logic defines wich data sources and topics are gonna be evaluated.
-2. A data source is like a type of data, for example price, fear and greed index, volume, streaming status, etc.
-3. A topic is a specific instance of a data source, for example ticker-BTCUSD, cfgi-BTC, etc.
-4. Use only data sources, which are available. You are given the available data sources below. You must never use data sources that are not available.
-5. Data source have specific operators that can be used to compare values, such as ">", "<", "==", etc. You can never use operators that are not available for the data source.
-6. In the data structure below, a data source name is defined by the "prefix" field.
-7. The conditions inside the generated JSON can only include a topic made of the prefix and the topic name, for example "ticker-BTCUSD", "cfgi-BTC", etc. It can never include just the prefix or just the topic name.
-8. You are not supposed to set any reminders or notifications, just output a JSON.
-9. The condition field must be a JSON string (escaped), not a JSON object.
-10. The condition cannot be just an object with an operator. If it would be like that, you must wrap it in an "and" group.
-
-Available data sources:
-${JSON.stringify(dataSources, null, 2)}
-
-===================
-
-Example user prompt #1: "alert me when bitcoin goes above 80000 and btc cfgi goes above 68"
-
-Example response #1:
-{
-  "success": true,
-  "signal": {
-    "name": "Bitcoin above 80k and cfgi above 68",
-    "description": "Alert when BTC price is above $80,000 and BTC CFGI is above 68.",
-    "condition": "{\\"and\\":[{\\">\\": [80000, {\\"topic\\": \\"ticker-BTCUSDT\\"}]},{\\">\\": [66, {\\"topic\\": \\"cfgi-BTC\\"}]}]}"
-  }
-}
-
-If the user prompt is invalid:
-{
-  "success": false,
-  "message": "Invalid currency"
-}
-`;
-
-  return aiPrompt;
-}
-
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
   // Get the AI prompt
-  const systemPrompt = await getSystemPrompt();
+  const dataSources = await getAvailableDataSources();
+
+  if (!dataSources) {
+    return NextResponse.json(
+      {
+        data: {
+          success: false,
+          message: "Failed to fetch available data sources",
+        },
+      },
+      { status: 500 },
+    );
+  }
+
+  const systemPrompt = getSystemPromptGenSignal(JSON.stringify(dataSources));
 
   if (!systemPrompt) {
     return NextResponse.json({

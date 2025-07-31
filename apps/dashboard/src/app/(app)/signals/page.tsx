@@ -1,7 +1,5 @@
 "use client";
 
-import { Upgrade } from "@/components/modals";
-import { ModalContainer } from "@/components/shared";
 import MySignals from "@/components/signals/my-smart-signals";
 import SignalBuilder from "@/components/signals/signal-builder";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
