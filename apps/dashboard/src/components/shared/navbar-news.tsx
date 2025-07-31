@@ -20,37 +20,33 @@ import { AppRoutes } from "@/lib/routes";
 import { ProfileIcon } from "./profile-icon";
 import useAuthUserData from "@/lib/hooks/use-auth-user-data";
 import { User } from "@supabase/supabase-js";
-import SideNav from "./sidebar";
+import SideNav, { INavLink } from "./sidebar";
 import { RenderIf } from "./render-if";
 import { useAtom, useAtomValue } from "jotai";
 import { isSidebarOpenAtom } from "@/lib/atoms/utilsAtom";
 
-const navLinks = [
+const navLinks: INavLink[] = [
   {
     label: "Widget Dashboard",
     icon: <WidgetDashboardIcon />,
     href: AppRoutes.dashboard.path,
-    active: false,
   },
   {
     label: "News",
     icon: <NewsIcon />,
     href: AppRoutes.news.path,
-    active: false,
   },
 
   {
     label: "Smart Signals",
     icon: <SmartSignalsIcon />,
     href: AppRoutes.signals.path,
-    active: false,
     disabled: false,
   },
   {
     label: "Community",
     icon: <CommunityIcon />,
-    href: AppRoutes.dashboard.path,
-    active: false,
+    href: "/",
     disabled: true,
   },
 ];
@@ -65,13 +61,13 @@ const bottomLinks = [
   {
     label: "How to use Fomoed",
     icon: <HowToUseIcon />,
-    href: AppRoutes.dashboard.path,
+    href: "/",
     disabled: true,
   },
   {
     label: "Settings",
     icon: <SettingsIcon />,
-    href: AppRoutes.dashboard.path,
+    href: "/",
     disabled: true,
   },
 ];
@@ -92,11 +88,11 @@ const Ham = () => {
 
 const NavigationTop = ({
   authUser,
-  isNewsLogo,
+  isNews,
   setIsSideMenuOpen,
 }: {
   authUser: User | null;
-  isNewsLogo: boolean;
+  isNews: boolean | undefined;
   setIsSideMenuOpen: (value: boolean) => void;
 }) => {
   return (
@@ -120,7 +116,7 @@ const NavigationTop = ({
             <Image src={dashboard.logoV2} width={108} height={22} alt="logo" />
           </Link>
 
-          {isNewsLogo && (
+          {isNews && (
             <div className="py-1">
               <div className="rounded-[4px] bg-[#1F8B4C] px-3 py-1">
                 <h2 className="font-inter text-xs font-normal text-white uppercase">
@@ -151,7 +147,6 @@ export const NavbarNews = (props: IProps) => {
   const { isNews } = props;
   // const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
   const [isSideMenuOpen, setIsSideMenuOpen] = useAtom(isSidebarOpenAtom);
-  const [isNewsLogo, setIsNewsLogo] = useState(false);
   const authUser = useAuthUserData();
   const pathname = usePathname();
 
@@ -162,9 +157,9 @@ export const NavbarNews = (props: IProps) => {
 
   // Set the active link based on the pathname
   useEffect(() => {
-    function findActive(linkLabel: string) {
+    function findActive(linkHref: string) {
       navLinks.find((item) => {
-        if (item.label.includes(linkLabel)) {
+        if (item.href === linkHref) {
           item.active = true;
         } else {
           item.active = false;
@@ -172,11 +167,12 @@ export const NavbarNews = (props: IProps) => {
       });
     }
 
-    if (pathname === "/dashboard") {
-      findActive("Dashboard");
-    } else if (pathname === "/news") {
-      findActive("News");
-      setIsNewsLogo(true);
+    if (pathname === AppRoutes.dashboard.path) {
+      findActive(AppRoutes.dashboard.path);
+    } else if (pathname === AppRoutes.news.path) {
+      findActive(AppRoutes.news.path);
+    } else if (pathname === AppRoutes.signals.path) {
+      findActive(AppRoutes.signals.path);
     }
   }, [pathname]);
 
@@ -186,7 +182,7 @@ export const NavbarNews = (props: IProps) => {
       <RenderIf condition={!!isNews}>
         <NavigationTop
           authUser={authUser}
-          isNewsLogo={isNewsLogo}
+          isNews={isNews}
           setIsSideMenuOpen={setIsSideMenuOpen}
         />
       </RenderIf>
