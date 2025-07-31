@@ -44,7 +44,7 @@ const navLinks = [
     icon: <SmartSignalsIcon />,
     href: AppRoutes.signals.path,
     active: false,
-    disabled: true,
+    disabled: false,
   },
   {
     label: "Community",
@@ -78,7 +78,13 @@ const bottomLinks = [
 
 const Ham = () => {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" height="32px" viewBox="0 -960 960 960" width="32px" fill="#fff">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      height="32px"
+      viewBox="0 -960 960 960"
+      width="32px"
+      fill="#fff"
+    >
       <path d="M170-254.62q-12.75 0-21.37-8.63-8.63-8.62-8.63-21.38 0-12.75 8.63-21.37 8.62-8.61 21.37-8.61h620q12.75 0 21.37 8.62 8.63 8.63 8.63 21.39 0 12.75-8.63 21.37-8.62 8.61-21.37 8.61H170ZM170-450q-12.75 0-21.37-8.63-8.63-8.63-8.63-21.38 0-12.76 8.63-21.37Q157.25-510 170-510h620q12.75 0 21.37 8.63 8.63 8.63 8.63 21.38 0 12.76-8.63 21.37Q802.75-450 790-450H170Zm0-195.39q-12.75 0-21.37-8.62-8.63-8.63-8.63-21.39 0-12.75 8.63-21.37 8.62-8.61 21.37-8.61h620q12.75 0 21.37 8.63 8.63 8.62 8.63 21.38 0 12.75-8.63 21.37-8.62 8.61-21.37 8.61H170Z" />
     </svg>
   );
@@ -117,7 +123,9 @@ const NavigationTop = ({
           {isNewsLogo && (
             <div className="py-1">
               <div className="rounded-[4px] bg-[#1F8B4C] px-3 py-1">
-                <h2 className="font-inter text-xs font-normal text-white uppercase">News</h2>
+                <h2 className="font-inter text-xs font-normal text-white uppercase">
+                  News
+                </h2>
               </div>
             </div>
           )}
@@ -176,7 +184,11 @@ export const NavbarNews = (props: IProps) => {
     <Fragment>
       {/* Top Nav */}
       <RenderIf condition={!!isNews}>
-        <NavigationTop authUser={authUser} isNewsLogo={isNewsLogo} setIsSideMenuOpen={setIsSideMenuOpen} />
+        <NavigationTop
+          authUser={authUser}
+          isNewsLogo={isNewsLogo}
+          setIsSideMenuOpen={setIsSideMenuOpen}
+        />
       </RenderIf>
 
       {/* Blur Layer */}
@@ -184,7 +196,10 @@ export const NavbarNews = (props: IProps) => {
         onClick={() => setIsSideMenuOpen(false)}
         className="fixed inset-0 z-40 bg-[rgba(165,165,165,0.02)] backdrop-blur-[4px]"
         initial={{ opacity: 0 }}
-        animate={{ pointerEvents: isSideMenuOpen ? "all" : "none", opacity: isSideMenuOpen ? 1 : 0 }}
+        animate={{
+          pointerEvents: isSideMenuOpen ? "all" : "none",
+          opacity: isSideMenuOpen ? 1 : 0,
+        }}
         transition={{ duration: 0.25, ease: "linear" }}
       ></motion.div>
 
