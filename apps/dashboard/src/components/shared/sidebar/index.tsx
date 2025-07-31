@@ -37,7 +37,8 @@ interface ISideNavProps {
 }
 
 const SideNav = (props: ISideNavProps) => {
-  const { navLinks, bottomLinks, isSideMenuOpen, setIsSideMenuOpen, authUser } = props;
+  const { navLinks, bottomLinks, isSideMenuOpen, setIsSideMenuOpen, authUser } =
+    props;
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -46,8 +47,9 @@ const SideNav = (props: ISideNavProps) => {
       className={cn(
         "fixed inset-0 z-50 h-screen max-h-screen w-[280px] max-w-[280px] overflow-hidden rounded-none bg-[#000000] p-0 opacity-100",
         {
-          "pointer-events-none opacity-0 md:pointer-events-auto md:opacity-100": !isSideMenuOpen,
-        }
+          "pointer-events-none opacity-0 md:pointer-events-auto md:opacity-100":
+            !isSideMenuOpen,
+        },
       )}
       initial={{ width: "52px" }}
       animate={{ width: isSideMenuOpen ? "280px" : "52px" }}
@@ -93,7 +95,10 @@ const PassiveNav = (props: IPassiveNavProps) => {
         const target = e.target as HTMLElement;
         // console.log("Target ID:", target);
 
-        if (target.id === "popup-trigger-a" || target.id === "popup-trigger-div") {
+        if (
+          target.id === "popup-trigger-a" ||
+          target.id === "popup-trigger-div"
+        ) {
           setIsSideMenuOpen(false);
         } else {
           if (target.id === "passive-nav-active") {
@@ -119,7 +124,10 @@ const PassiveNav = (props: IPassiveNavProps) => {
         </button>
       </div>
 
-      <div id="passive-nav-active" className="flex h-full w-full flex-col items-center justify-between px-2 py-14">
+      <div
+        id="passive-nav-active"
+        className="flex h-full w-full flex-col items-center justify-between px-2 py-14"
+      >
         <div className="pointer-events-none flex w-full flex-col gap-2">
           {navLinks.map((item, index) => {
             // const active = item.label === "News";
@@ -153,7 +161,14 @@ interface IActiveNavProps {
 
 // This component renders the active navigation when the side menu is open.
 const ActiveNav = (props: IActiveNavProps) => {
-  const { navLinks, bottomLinks, isSideMenuOpen, setIsSideMenuOpen, isHovered, authUser } = props;
+  const {
+    navLinks,
+    bottomLinks,
+    isSideMenuOpen,
+    setIsSideMenuOpen,
+    isHovered,
+    authUser,
+  } = props;
 
   return (
     <div
@@ -163,14 +178,26 @@ const ActiveNav = (props: IActiveNavProps) => {
       <div className="flex w-full flex-row items-center justify-between px-[10px]">
         <motion.button
           className="flex h-[32px] w-[32px] items-center justify-center"
-          animate={{ x: isSideMenuOpen ? "14px" : 0 }}
+          animate={{ x: isSideMenuOpen ? "8px" : 0 }}
           transition={{ duration: 0.75, delay: 0, ease: [0.4, 0.0, 0.2, 1] }}
         >
-          {isHovered ? <MenuIconClosed /> : <Image height={32} width={32} src={dashboard.logoMobile} alt="logo" />}
+          {isHovered ? (
+            <MenuIconClosed />
+          ) : (
+            <Image
+              height={32}
+              width={32}
+              src={dashboard.logoMobile}
+              alt="logo"
+            />
+          )}
         </motion.button>
         <motion.button
           onClick={() => setIsSideMenuOpen(false)}
-          animate={{ opacity: isSideMenuOpen ? 1 : 0, x: isSideMenuOpen ? "-14px" : 0 }}
+          animate={{
+            opacity: isSideMenuOpen ? 1 : 0,
+            x: isSideMenuOpen ? "-8px" : 0,
+          }}
           transition={{ duration: 0.75, delay: 0, ease: [0.4, 0.0, 0.2, 1] }}
         >
           <MenuIconOpened />
@@ -182,7 +209,8 @@ const ActiveNav = (props: IActiveNavProps) => {
           {navLinks.map((item, index) => {
             // const active = item.label === "Widget Dashboard";
 
-            const comingSoon = item.label === "Community" || item.label === "Smart Signals";
+            const comingSoon = item.label === "Community";
+            const beta = item.label === "Smart Signals";
 
             return (
               <NavLink
@@ -193,6 +221,7 @@ const ActiveNav = (props: IActiveNavProps) => {
                 active={item.active}
                 disabled={item.disabled}
                 comingSoon={comingSoon}
+                beta={beta}
                 variant="active"
                 isSideMenuOpen={isSideMenuOpen}
               />
@@ -227,11 +256,11 @@ const ActiveNav = (props: IActiveNavProps) => {
         }}
         transition={{ duration: 0.75, delay: 0, ease: [0.4, 0.0, 0.2, 1] }}
         id="popup-trigger-div"
-        className="flex w-full flex-row items-center gap-8 border-t-[1px] border-[#2E2E2E] px-[10px] pt-5"
+        className="flex w-full flex-row items-center gap-6.5 border-t-[1px] border-[#2E2E2E] px-[10px] pt-5"
       >
         <motion.div
           initial={{ x: 0 }}
-          animate={{ x: isSideMenuOpen ? "14px" : 0 }}
+          animate={{ x: isSideMenuOpen ? "8px" : 0 }}
           transition={{ duration: 0.75, delay: 0, ease: [0.4, 0.0, 0.2, 1] }}
           className="pointer-events-auto flex h-[24px] w-[24px] cursor-pointer items-center justify-center overflow-hidden rounded-[4px] md:h-[32px] md:w-[32px]"
         >
@@ -246,8 +275,12 @@ const ActiveNav = (props: IActiveNavProps) => {
           animate={isSideMenuOpen ? "open" : "closed"}
           className="flex flex-col gap-1.5"
         >
-          <h3 className="text-[14px] font-normal text-white">{authUser?.user_metadata?.name}</h3>
-          <h4 className="text-xs font-normal text-[#A4A4A4]">{authUser?.email}</h4>
+          <h3 className="text-[14px] font-normal text-white">
+            {authUser?.user_metadata?.name}
+          </h3>
+          <h4 className="text-xs font-normal text-[#A4A4A4]">
+            {authUser?.email}
+          </h4>
         </motion.div>
       </motion.div>
     </div>

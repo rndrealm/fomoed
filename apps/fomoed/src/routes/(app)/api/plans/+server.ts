@@ -33,6 +33,15 @@ export async function GET({ request }: RequestEvent) {
 
 	for (const price of prices.data) {
 		const planId = price.metadata.plan_id;
+
+		if (!planId) {
+			console.log(
+				'No plan_id found for price, check stripe if plan_id is correctly set on price metadata in stripe.',
+				price.id
+			);
+			continue;
+		}
+
 		const planInfo = planInfos.find((i) => planId.startsWith(i.planIdPrefix));
 
 		if (!planInfo) {

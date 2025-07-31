@@ -65,10 +65,11 @@ function NavLink(props: INavLink) {
 
 interface IProps {
   isNews?: boolean;
+  isPricing?: boolean;
 }
 
 export const Navbar = (props: IProps) => {
-  const { isNews = false } = props;
+  const { isNews = false, isPricing = false } = props;
   const pathName = usePathname();
   const utils = useAtomValue(utilsAtom);
 
@@ -76,7 +77,12 @@ export const Navbar = (props: IProps) => {
   const authUser = useAuthUserData();
 
   return (
-    <nav className="flex flex-col items-center overflow-hidden border-b border-[#161616] bg-[#0C0C0C] px-2 py-3 sm:px-4 md:px-10 md:py-4">
+    <nav
+      className={cn(
+        "flex flex-col items-center overflow-hidden border-b border-[#161616] bg-[#0C0C0C] px-2 py-3 sm:px-4 md:px-10 md:py-4",
+        isPricing && "bg-[#000000]",
+      )}
+    >
       <div className="flex items-center justify-between w-full mx-auto">
         <div className="h-[24px] w-[24px] md:hidden">
           <Link href="/">
