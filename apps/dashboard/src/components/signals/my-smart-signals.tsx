@@ -46,9 +46,10 @@ const MySignals = () => {
 
   if (isLoading) {
     return (
-      <div className="w-full h-80 flex items-center justify-center">
-        <LoaderCircle className="animate-spin" />
-      </div>
+      <></>
+      // <div className="w-full h-80 flex items-center justify-center">
+      //   <LoaderCircle className="animate-spin" />
+      // </div>
     );
   }
 

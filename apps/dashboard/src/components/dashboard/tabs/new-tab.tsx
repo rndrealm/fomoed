@@ -27,7 +27,14 @@ interface ITabButton {
 }
 
 export function TabButton(props: ITabButton) {
-  const { handleClick, handleClose, isActive, name, showCloseBtn, handleNameChange } = props;
+  const {
+    handleClick,
+    handleClose,
+    isActive,
+    name,
+    showCloseBtn,
+    handleNameChange,
+  } = props;
   const [hover, setHover] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -57,7 +64,7 @@ export function TabButton(props: ITabButton) {
         <div
           className={cn(
             "flex h-[32px] w-[170px] items-center justify-between gap-2 gap-3 rounded-md px-2",
-            isActive ? "bg-[#252525]" : "bg-[#111]"
+            isActive ? "bg-[#252525]" : "bg-[#111]",
           )}
         >
           <div className="flex w-full flex-1 items-center gap-2">
@@ -74,7 +81,7 @@ export function TabButton(props: ITabButton) {
                   name="name"
                   className={cn(
                     "pointer-events-none h-full w-full flex-1 truncate text-xs font-medium focus:shadow-none focus:ring-0 focus:ring-offset-0 focus:outline-none focus-visible:ring-0 [&:focus]:outline-none [&:focus-visible]:outline-none",
-                    isActive ? "text-white" : "text-[#7a7a7a]"
+                    isActive ? "text-white" : "text-[#7a7a7a]",
                   )}
                   defaultValue={name}
                   onKeyDown={(e) => {
@@ -106,7 +113,11 @@ export function TabButton(props: ITabButton) {
         </div>
       </button>
       <RenderIf condition={showCloseBtn && (isActive || hover)}>
-        <button type="button" className="absolute top-[50%] right-[8px] translate-y-[-50%]" onClick={handleClose}>
+        <button
+          type="button"
+          className="absolute top-[50%] right-[8px] translate-y-[-50%]"
+          onClick={handleClose}
+        >
           <CloseTab />
         </button>
       </RenderIf>
@@ -131,7 +142,9 @@ export function NewTabs() {
 
   const setIsSideMenuOpen = useSetAtom(isSidebarOpenAtom);
 
-  const currentLayout = layouts.find((item) => item.id === deleteTab?.layout_id);
+  const currentLayout = layouts.find(
+    (item) => item.id === deleteTab?.layout_id,
+  );
 
   const { data } = useGetUserPlans();
 
@@ -162,7 +175,9 @@ export function NewTabs() {
             setShowTabsModal(true);
           }}
         >
-          <p className="text-xs leading-[18px] font-medium text-[#7A7A7A]">{tabs?.length}</p>
+          <p className="text-xs leading-[18px] font-medium text-[#7A7A7A]">
+            {tabs?.length}
+          </p>
         </button>
       </div>
       <div className="hidden w-full flex-1 items-center gap-2 overflow-hidden md:flex">
