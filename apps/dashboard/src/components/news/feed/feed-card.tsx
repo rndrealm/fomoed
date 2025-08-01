@@ -20,7 +20,7 @@ const FeedCard = (props: IProps) => {
           gridRow: `span ${1}`,
           boxShadow: "0px 4px 4px 0px #00000040",
         }}
-        className="relative h-[500px] gap-1.5 overflow-hidden rounded-[16px] bg-[#121212] px-4.5 pt-3 pb-3.5 sm:h-[354px]"
+        className="relative h-[500px] gap-1.5 overflow-hidden rounded-[0px] bg-[#000] px-4.5 pt-3 pb-3.5 sm:h-[354px]"
       >
         {/* Background image */}
         <div
@@ -29,7 +29,7 @@ const FeedCard = (props: IProps) => {
           //   backgroundSize: "cover",
           //   backgroundPosition: "center",
           // }}
-          className="absolute inset-0 z-0 rounded-[16px]"
+          className="absolute inset-0 z-0 rounded-[50px]"
         >
           <Image
             src={article.image_url || "/fallback.png"}
@@ -40,10 +40,10 @@ const FeedCard = (props: IProps) => {
         </div>
 
         {/* Blur */}
-        <div className="absolute inset-0 z-0 h-full w-[1020%]">
+        <div className="absolute inset-0 z-0 h-full w-full">
           <div className="gradient-blur">
             <div></div>
-            <div></div>
+            {/* <div></div> */}
           </div>
         </div>
 

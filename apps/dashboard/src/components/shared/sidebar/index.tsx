@@ -182,16 +182,29 @@ const ActiveNav = (props: IActiveNavProps) => {
           animate={{ x: isSideMenuOpen ? "8px" : 0 }}
           transition={{ duration: 0.75, delay: 0, ease: [0.4, 0.0, 0.2, 1] }}
         >
-          {isHovered ? (
+          <div
+            style={{
+              // opacity: isSideMenuOpen ? 0 : 1,
+              display: isHovered ? "none" : isSideMenuOpen ? "none" : "flex",
+            }}
+            className="flex justify-center items-center h-full w-full"
+          >
             <MenuIconClosed />
-          ) : (
+          </div>
+          <div
+            style={{
+              // opacity: isHovered ? 1 : 0,
+              display: isHovered ? "flex" : isSideMenuOpen ? "flex" : "none",
+            }}
+            className="flex justify-center items-center h-full w-full"
+          >
             <Image
               height={32}
               width={32}
               src={dashboard.logoMobile}
               alt="logo"
             />
-          )}
+          </div>
         </motion.button>
         <motion.button
           onClick={() => setIsSideMenuOpen(false)}
