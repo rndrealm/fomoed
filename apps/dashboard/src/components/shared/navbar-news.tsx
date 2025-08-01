@@ -55,26 +55,28 @@ const navLinks = [
   },
 ];
 
-const bottomLinks = [
-  {
-    label: "Help & Support",
-    icon: <HelpSupportIcon />,
-    href: "/",
-    disabled: true,
-  },
-  {
-    label: "How to use Fomoed",
-    icon: <HowToUseIcon />,
-    href: AppRoutes.dashboard.path,
-    disabled: true,
-  },
-  {
-    label: "Settings",
-    icon: <SettingsIcon />,
-    href: AppRoutes.dashboard.path,
-    disabled: true,
-  },
-];
+// const bottomLinks = [
+//   {
+//     label: "Help & Support",
+//     icon: <HelpSupportIcon />,
+//     href: "/",
+//     disabled: true,
+//   },
+//   {
+//     label: "How to use Fomoed",
+//     icon: <HowToUseIcon />,
+//     href: "/",
+//     disabled: true,
+//   },
+//   {
+//     label: "Settings",
+//     icon: <SettingsIcon />,
+//     href: "/",
+//     disabled: true,
+//   },
+// ];
+
+const bottomLinks = [] as any[];
 
 const NavigationTop = ({
   authUser,
