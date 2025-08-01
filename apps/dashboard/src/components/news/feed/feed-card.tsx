@@ -13,7 +13,7 @@ const FeedCard = (props: IProps) => {
   const { article } = props;
   const formattedDate = timeAgo(article.published_at);
   return (
-    <Link href={AppRoutes.news.newsPage.path(article.id)}>
+    <Link href={AppRoutes.news.newsPage.path(article.slug || article.id)}>
       <div
         style={{
           gridColumn: `span ${1}`,
@@ -50,7 +50,7 @@ const FeedCard = (props: IProps) => {
         {/* Dark */}
 
         <div
-          className="absolute inset-0 z-0 h-full w-full"
+          className="absolute inset-0 z-0 w-full h-full"
           style={{
             background: `linear-gradient(
                                         to bottom,
@@ -65,9 +65,15 @@ const FeedCard = (props: IProps) => {
 
         <div className="relative z-[7] flex h-full w-[85%] flex-col items-start justify-end gap-1.5">
           <p className="text-xs font-normal text-[#A4A4A4]">{article.source}</p>
-          <p className="text-[18px] leading-[1.2] font-medium text-white">{article.title}</p>
-          <p className="text-[13px] leading-[1.3] font-semibold text-[#A4A4A4]">{article.summary}</p>
-          <p className="mt-1 text-xs font-normal text-[#A4A4A4]">{formattedDate}</p>
+          <p className="text-[18px] leading-[1.2] font-medium text-white">
+            {article.title}
+          </p>
+          <p className="text-[13px] leading-[1.3] font-semibold text-[#A4A4A4]">
+            {article.summary}
+          </p>
+          <p className="mt-1 text-xs font-normal text-[#A4A4A4]">
+            {formattedDate}
+          </p>
         </div>
       </div>
     </Link>

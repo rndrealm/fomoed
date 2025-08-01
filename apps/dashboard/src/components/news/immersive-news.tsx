@@ -55,7 +55,8 @@ export function ImmersiveNews(props: IProps) {
   const { articleData } = props;
   const { extractedArticle } = articleData;
 
-  const normalizedContent = extractedArticle?.content?.replace(/(&nbsp;)+/g, " ") || "";
+  const normalizedContent =
+    extractedArticle?.content?.replace(/(&nbsp;)+/g, " ") || "";
 
   const params = useParams();
   const id = params.id as string;
@@ -103,9 +104,12 @@ export function ImmersiveNews(props: IProps) {
                     }
                     if (matches[i]) {
                       newElements.push(
-                        <InlineTokenLink symbol={symbol} key={`${symbol}-${partIndex++}`}>
+                        <InlineTokenLink
+                          symbol={symbol}
+                          key={`${symbol}-${partIndex++}`}
+                        >
                           {matches[i]}
-                        </InlineTokenLink>
+                        </InlineTokenLink>,
                       );
                     }
                   }
@@ -156,7 +160,11 @@ export function ImmersiveNews(props: IProps) {
   return (
     <>
       <div className="mac:gap-[6.4375rem] relative flex justify-center gap-[2.4375rem]">
-        <TableOfContent data={tableData} currentIndex={currentIndex} active="Headlines" />
+        <TableOfContent
+          data={tableData}
+          currentIndex={currentIndex}
+          active="Headlines"
+        />
 
         <div className="flex max-w-[400px] flex-col justify-center text-white sm:max-w-[500px] md:max-w-full">
           <div className="mb-4 flex max-w-[400px] items-center justify-between sm:max-w-[500px] md:max-w-[39.8125rem]">
@@ -172,7 +180,12 @@ export function ImmersiveNews(props: IProps) {
             <div />
             {article ? (
               <div className="flex items-center">
-                <ShareButton newsId={article.id} width={14} height={14} />
+                <ShareButton
+                  newsId={article.id}
+                  newsSlug={article.slug}
+                  width={14}
+                  height={14}
+                />
                 <BookmarkComp newsId={article.id} />
               </div>
             ) : null}
@@ -181,7 +194,7 @@ export function ImmersiveNews(props: IProps) {
           <div id="headlines-section">
             <div className="relative flex h-[356px] w-full max-w-full items-center justify-center sm:max-w-[500px] md:w-[637px] md:max-w-[39.8125rem]">
               <RemoteImage
-                className="w-full object-cover"
+                className="object-cover w-full"
                 width={637}
                 height={356}
                 src={extractedArticle.image || ""}
@@ -203,7 +216,7 @@ export function ImmersiveNews(props: IProps) {
               {/* Dark */}
 
               <div
-                className="absolute inset-0 z-0 h-full w-full"
+                className="absolute inset-0 z-0 w-full h-full"
                 style={{
                   background: `linear-gradient(
                                 to bottom,
@@ -221,9 +234,13 @@ export function ImmersiveNews(props: IProps) {
               <p className="mt-12 text-[1.2rem] leading-[1.6rem] font-semibold md:text-[1.75rem] md:leading-[1.9rem]">
                 {extractedArticle.title}
               </p>
-              <RenderIf condition={!!article?.symbols && article?.symbols.length > 0}>
-                <div className="mt-5 flex flex-col items-start gap-3 md:flex-row md:items-center">
-                  <p className="text-xs text-[#A4A4A4]">Tokens mentioned in article</p>
+              <RenderIf
+                condition={!!article?.symbols && article?.symbols.length > 0}
+              >
+                <div className="flex flex-col items-start gap-3 mt-5 md:flex-row md:items-center">
+                  <p className="text-xs text-[#A4A4A4]">
+                    Tokens mentioned in article
+                  </p>
                   <div className="flex flex-wrap items-center gap-2">
                     {article?.symbols.map((symbol, i) => (
                       <TokenPill symbol={symbol} key={i} />
@@ -234,10 +251,16 @@ export function ImmersiveNews(props: IProps) {
             </div>
             <div className="mt-6 mb-8"></div>
             <div className="flex items-center gap-2 pb-4">
-              <Link href={article?.original_url || "/"} target="_blank" rel="noopener noreferrer">
+              <Link
+                href={article?.original_url || "/"}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <p className="text-xs font-semibold">{article?.source}</p>
               </Link>
-              <p className="text-xs text-[#A4A4A4] underline">+{newsSources.length} sources</p>
+              <p className="text-xs text-[#A4A4A4] underline">
+                +{newsSources.length} sources
+              </p>
             </div>
           </div>
 
@@ -246,7 +269,10 @@ export function ImmersiveNews(props: IProps) {
               <div className="app_news_content flex max-w-[400px] flex-col gap-4 sm:max-w-[500px] md:max-w-[39.8125rem]">
                 {parsedContent}
               </div>
-              <div id="related-articles-section" className="flex max-w-[25.9375rem]">
+              <div
+                id="related-articles-section"
+                className="flex max-w-[25.9375rem]"
+              >
                 <RelatedArticles symbols={article?.symbols} />
               </div>
             </div>

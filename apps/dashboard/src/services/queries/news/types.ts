@@ -114,6 +114,7 @@ export type NewsRowInsert = {
   symbols: string[];
   metadata: Record<string, any>;
   ai_summary: string[];
+  slug: string | null;
 };
 
 export type ApiNewsLabPost = {
@@ -135,6 +136,7 @@ export type NewsFeedItem = {
   summary: string;
   symbols: string[];
   original_url: string;
+  slug: string | null;
 };
 
 export type NullableNewsFeedItem = {
@@ -145,4 +147,5 @@ export type NullableNewsFeedItem = {
   title: string | null;
   summary: string | null;
   symbols: string[] | null;
+  slug: string | null;
 };
