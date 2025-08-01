@@ -143,7 +143,7 @@ export function NavLink(props: INavLinkProps) {
               !active &&
                 !isBottomLink &&
                 "!opacity-100 md:!opacity-0 md:group-hover:!opacity-100",
-              isBottomLink ? "" : "mt-[-2px]",
+              isBottomLink ? "" : "mt-[0px]",
             )}
           >
             <div key={label}>
@@ -172,7 +172,7 @@ export function NavLink(props: INavLinkProps) {
 
       {comingSoon && !isBottomLink && (
         <motion.div
-          className="absolute top-1/2 right-0 hidden translate-y-[-50%] rounded-[8px] border-[1px] border-[#3A2C4F] bg-[#2C233A] px-2 py-1 md:flex"
+          className="mr-1.5 absolute top-1/2 right-0 hidden translate-y-[-50%] rounded-[8px] border-[1px] border-[#3A2C4F] bg-[#2C233A] px-2 py-1 md:flex"
           initial="closed"
           variants={sideMenuVariants}
           animate={isSideMenuOpen ? "open" : "closed"}
@@ -185,7 +185,7 @@ export function NavLink(props: INavLinkProps) {
 
       {beta && !isBottomLink && (
         <motion.div
-          className="absolute top-1/2 right-0 hidden translate-y-[-50%] rounded-[8px] border-[1px] border-[#2C4F3A] bg-[#233A2C] px-2 py-1 md:flex"
+          className="mr-1.5 absolute top-1/2 right-0 hidden translate-y-[-50%] rounded-[8px] border-[1px] border-[#2C4F3A] bg-[#233A2C] px-2 py-1 md:flex"
           initial="closed"
           variants={sideMenuVariants}
           animate={isSideMenuOpen ? "open" : "closed"}
