@@ -45,7 +45,11 @@ export async function fetchNewslabPosts(page: number = 1, limit: number = 20) {
 export async function fetchSingleNewslabPosts(id: string) {
   const supabase = createSupabaseBrowserClient();
 
-  const { data: newsItem, error } = await supabase.from("news").select("*").eq("id", id).single();
+  const { data: newsItem, error } = await supabase
+    .from("news")
+    .select("*")
+    .eq("id", id)
+    .single();
 
   if (error) {
     console.log("Error fetching newslab posts:", error);
@@ -55,7 +59,11 @@ export async function fetchSingleNewslabPosts(id: string) {
   return newsItem;
 }
 
-export async function fetchNewsFeed(token?: string, page: number = 1, limit: number = 20) {
+export async function fetchNewsFeed(
+  token?: string,
+  page: number = 1,
+  limit: number = 20,
+) {
   const supabase = createSupabaseBrowserClient();
   // const twoDaysAgo = new Date(new Date().valueOf() - 2 * 24 * 60 * 60 * 1000);
 
@@ -63,9 +71,12 @@ export async function fetchNewsFeed(token?: string, page: number = 1, limit: num
 
   let query = supabase
     .from("news")
-    .select("id, published_at, image_url, source, title, symbols, original_url", {
-      count: "exact",
-    })
+    .select(
+      "id, published_at, image_url, source, title, symbols, original_url",
+      {
+        count: "exact",
+      },
+    )
     // .gte("published_at", twoDaysAgo.toISOString())
     .order("published_at", { ascending: false })
     .eq("metadata->>region", "en")
@@ -88,7 +99,11 @@ export async function fetchNewsFeed(token?: string, page: number = 1, limit: num
   return newsItem;
 }
 
-export async function fetchInfiniteNewsFeed(page: number = 1, limit: number = 20, token?: string) {
+export async function fetchInfiniteNewsFeed(
+  page: number = 1,
+  limit: number = 20,
+  token?: string,
+) {
   const supabase = createSupabaseBrowserClient();
   const twoDaysAgo = new Date(new Date().valueOf() - 2 * 24 * 60 * 60 * 1000);
 
@@ -96,7 +111,12 @@ export async function fetchInfiniteNewsFeed(page: number = 1, limit: number = 20
 
   let query = supabase
     .from("news")
-    .select("id, published_at, image_url, source, title, summary, symbols", { count: "exact" })
+    .select(
+      "id, published_at, image_url, source, title, summary, symbols, slug",
+      {
+        count: "exact",
+      },
+    )
     .gte("published_at", twoDaysAgo.toISOString())
     .order("published_at", { ascending: false })
     .eq("metadata->>region", "en")
@@ -121,7 +141,11 @@ export async function fetchInfiniteNewsFeed(page: number = 1, limit: number = 20
 export async function fetchSingleNewsArticle(id: string) {
   const supabase = createSupabaseBrowserClient();
 
-  const { data: article, error } = await supabase.from("news").select("*").eq("id", id).single();
+  const { data: article, error } = await supabase
+    .from("news")
+    .select("*")
+    .or(`id.eq.${id},slug.eq.${id}`)
+    .single();
 
   if (error) {
     console.log("Error fetching single news article:", error);
@@ -131,7 +155,10 @@ export async function fetchSingleNewsArticle(id: string) {
   return article;
 }
 
-export async function fetchSimilarNewsFeed(tokens: string[], limit: number = 10) {
+export async function fetchSimilarNewsFeed(
+  tokens: string[],
+  limit: number = 10,
+) {
   if (!tokens || tokens.length === 0) {
     return [];
   }
@@ -217,7 +244,11 @@ export async function deleteNewsBookmark(newsId: string) {
     redirect(AppRoutes.auth.login.path);
   }
 
-  const { error } = await supabase.from("news_bookmarks").delete().eq("news_id", newsId).eq("user_id", user.id);
+  const { error } = await supabase
+    .from("news_bookmarks")
+    .delete()
+    .eq("news_id", newsId)
+    .eq("user_id", user.id);
 
   if (error) {
     console.log("Error deleting news bookmark:", error);
@@ -257,14 +288,23 @@ export async function checkNewsBookmark(newsId: string) {
   return !!data && data.length > 0;
 }
 
-export async function searchNews(searchTerm: string, page: number = 1, limit: number = 20) {
+export async function searchNews(
+  searchTerm: string,
+  page: number = 1,
+  limit: number = 20,
+) {
   const supabase = createSupabaseBrowserClient();
 
   const { from, to } = getPaginationMeta(page, limit);
 
   const { data, error, count } = await supabase
     .from("news")
-    .select("id, published_at, image_url, source, title, summary, symbols", { count: "exact" })
+    .select(
+      "id, published_at, image_url, source, title, summary, symbols, slug",
+      {
+        count: "exact",
+      },
+    )
     .or(`title.ilike.%${searchTerm}%, summary.ilike.%${searchTerm}%`)
     .eq("metadata->>region", "en")
     .order("published_at", { ascending: false })
@@ -280,7 +320,10 @@ export async function searchNews(searchTerm: string, page: number = 1, limit: nu
   return { data, count };
 }
 
-export async function fetchUserBookmarkedNews(page: number = 1, limit: number = 20) {
+export async function fetchUserBookmarkedNews(
+  page: number = 1,
+  limit: number = 20,
+) {
   const supabase = createSupabaseBrowserClient();
 
   const {
@@ -308,10 +351,11 @@ export async function fetchUserBookmarkedNews(page: number = 1, limit: number = 
         title, 
         summary, 
         symbols,
-        original_url
+        original_url,
+        slug
       )
     `,
-      { count: "exact" }
+      { count: "exact" },
     )
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })

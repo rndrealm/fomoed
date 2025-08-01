@@ -1,6 +1,15 @@
 import React, { Fragment, useState } from "react";
 import Image from "next/image";
-import { BigPlay, Bookmark, Close, Ellipsis, Fire, FullArticle, Play, Sound } from "@/components/icons/icons";
+import {
+  BigPlay,
+  Bookmark,
+  Close,
+  Ellipsis,
+  Fire,
+  FullArticle,
+  Play,
+  Sound,
+} from "@/components/icons/icons";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -155,14 +164,18 @@ export default function SingleNews(props: IProps) {
 
             <div className="flex max-w-[full] flex-col gap-1">
               <a href={data?.original_url} target="_blank">
-                <p className="line-clamp-1 text-xs leading-[16px] text-[#A4A4A4]">{data?.source}</p>
+                <p className="line-clamp-1 text-xs leading-[16px] text-[#A4A4A4]">
+                  {data?.source}
+                </p>
               </a>
               <div className="flex flex-col gap-2">
                 <p className="text-[18px] leading-[26px] font-medium text-white">
                   {data?.title}
                   {/* Coinbase announces Tokenized stocks on the EVM chain */}
                 </p>
-                <p className="text-xs leading-[16px] text-[#A4A4A4]">{formatNewsWidgetTime(data?.published_at)}</p>
+                <p className="text-xs leading-[16px] text-[#A4A4A4]">
+                  {formatNewsWidgetTime(data?.published_at)}
+                </p>
               </div>
             </div>
           </div>
@@ -173,10 +186,9 @@ export default function SingleNews(props: IProps) {
             {/* <p className="text-xs leading-[16px] text-[#A4A4A4]">Saves you 5 minutes</p> */}
           </div>
 
-          <div className="flex flex-1 items-center justify-end gap-1">
+          <div className="flex items-center justify-end flex-1 gap-1">
             <RenderIf condition={true}>
-              <ShareButton newsId={data?.id} />
-
+              <ShareButton newsId={data?.id} newsSlug={data?.slug} />
               <PlayButton
                 handleShowPlayer={() => {
                   setShowPlayer(true);
@@ -201,12 +213,14 @@ export default function SingleNews(props: IProps) {
           </div>
         </div>
 
-        <div className="scrollbar flex flex-1 flex-col gap-2 overflow-y-auto px-4 py-4 pb-8">
+        <div className="flex flex-col flex-1 gap-2 px-4 py-4 pb-8 overflow-y-auto scrollbar">
           {data?.ai_summary?.map((summary, index) => {
             return (
               <div key={index} className="flex items-center gap-2">
                 <div className="h-[5px] w-[5px] rounded-full bg-[#6200DA]"></div>
-                <p className="flex-1 text-xs leading-[16px] text-white">{summary}</p>
+                <p className="flex-1 text-xs leading-[16px] text-white">
+                  {summary}
+                </p>
               </div>
             );
           })}
