@@ -1,13 +1,7 @@
 import { CookieOptionsWithName } from "@supabase/ssr";
 
-const dev =
-  process.env.NODE_ENV === "development" ||
-  process.env.VERCEL_ENV !== "production";
-
-console.debug("Node environment:", process.env.NODE_ENV);
-
 export const supabaseCookieOpts: CookieOptionsWithName = {
-  domain: dev ? undefined : ".fomoed.io",
+  domain: process.env.NEXT_PUBLIC_SUPABASE_COOKIE_DOMAIN,
   path: "/",
   sameSite: "lax",
   secure: true,
