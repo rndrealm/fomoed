@@ -54,6 +54,7 @@ import bigNews from "../../../../public/media/images/dashboard/big-news.png";
 import newsWidget from "../../../../public/media/images/dashboard/news-widget.png";
 import fallback from "../../../../public/fallback.png";
 import logoV2 from "../../../../public/media/images/logoV2.png";
+import weightedSentiment from "../../../../public/media/images/dashboard/weighted-sentiment.png";
 
 const dashboard = {
   layoutPlaceholder,
@@ -112,6 +113,7 @@ const dashboard = {
   dex,
   fallback,
   logoV2,
+  weightedSentiment,
 };
 
 export default dashboard;
