@@ -1,5 +1,5 @@
 import Image from "next/image";
-import React, { useEffect } from "react";
+import React from "react";
 import {
   Article,
   BigPlay,
@@ -12,14 +12,12 @@ import {
   Settings,
   Stack,
 } from "@/components/icons/icons";
-import dashboard from "@/lib/assets/dashboard";
 import { useAtomValue, useSetAtom } from "jotai";
 import { motion } from "motion/react";
 import {
   audioDurationAtom,
   audioPlaylistAtom,
   audioProgressAtom,
-  audioRefAtom,
   currentAudioAtom,
   currentAudioIndexAtom,
   isAudioPlayingAtom,
@@ -31,7 +29,7 @@ import {
   setPlaylistAtom,
 } from "@/lib/atoms/audio";
 import { NewsFeedItem } from "@/services/queries/news/types";
-import { RenderIf } from "@/components/shared";
+import { ImageWithFallback, RenderIf } from "@/components/shared";
 import { formatAudioTime } from "@/lib/utils";
 
 interface IProps {
@@ -48,15 +46,25 @@ function PlayerItem(props: IPlayerItem) {
   const { data, onClick } = props;
 
   return (
-    <button type="button" className="flex items-center gap-2 text-left" onClick={onClick}>
+    <button
+      type="button"
+      className="flex items-center gap-2 text-left"
+      onClick={onClick}
+    >
       <div className="h-[54px] w-[54px] overflow-hidden rounded-sm">
-        <RenderIf condition={!!data?.image_url}>
-          <Image src={data?.image_url} className="h-full w-full object-cover" width={54} height={53} alt="news" />
-        </RenderIf>
+        <ImageWithFallback
+          src={data?.image_url || ""}
+          alt="news"
+          width={54}
+          height={53}
+          className="h-full w-full object-cover"
+        />
       </div>
 
       <div className="flex flex-1 flex-col gap-1">
-        <p className="line-clamp-2 text-sm leading-[1] text-white">{data?.title}</p>
+        <p className="line-clamp-2 text-sm leading-[1] text-white">
+          {data?.title}
+        </p>
         {/* <p className="text-xs leading-[16px] text-[#A4A4A4]">1:10</p> */}
       </div>
     </button>
@@ -72,7 +80,9 @@ function ProgressBar() {
   return (
     <div className="flex w-full flex-col gap-1">
       <div className="flex items-center gap-2">
-        <p className="text-xs leading-[16px] text-[#A4A4A4]">{formatAudioTime(audioProgress)} </p>
+        <p className="text-xs leading-[16px] text-[#A4A4A4]">
+          {formatAudioTime(audioProgress)}{" "}
+        </p>
         <div className="relative h-[4px] w-full rounded-full bg-[rgba(110,110,110,0.4)]">
           <motion.div
             animate={{
@@ -86,18 +96,29 @@ function ProgressBar() {
             className="absolute top-0 bottom-0 left-0 w-[0] rounded-full bg-white"
           ></motion.div>
         </div>
-        <p className="text-xs leading-[16px] text-[#A4A4A4]">{formatAudioTime(audioDuration)} </p>
+        <p className="text-xs leading-[16px] text-[#A4A4A4]">
+          {formatAudioTime(audioDuration)}{" "}
+        </p>
       </div>
       <div className="flex items-center justify-center gap-4 px-3 py-2">
-        <button type="button" className="flex h-[16px] w-[16px] items-center justify-center">
+        <button
+          type="button"
+          className="flex h-[16px] w-[16px] items-center justify-center"
+        >
           <Article />
         </button>
 
-        <button type="button" className="flex h-[16px] w-[16px] items-center justify-center">
+        <button
+          type="button"
+          className="flex h-[16px] w-[16px] items-center justify-center"
+        >
           <Stack />
         </button>
 
-        <button type="button" className="flex h-[16px] w-[16px] items-center justify-center">
+        <button
+          type="button"
+          className="flex h-[16px] w-[16px] items-center justify-center"
+        >
           <Settings />
         </button>
       </div>
@@ -120,7 +141,8 @@ export default function Player(props: IProps) {
   const seekTrack = useSetAtom(seekAudioAtom);
 
   const isFirstTrack = currentIndex === 0;
-  const isLastTrack = playlist?.length > 0 ? currentIndex === playlist.length - 1 : true;
+  const isLastTrack =
+    playlist?.length > 0 ? currentIndex === playlist.length - 1 : true;
 
   // console.log(currentTrack);
 
@@ -139,8 +161,12 @@ export default function Player(props: IProps) {
         <div className="flex items-center gap-4">
           <div className="flex w-full flex-1 flex-col gap-4">
             <div className="flex flex-col gap-1">
-              <h5 className="text-xs leading-[16px] text-[#A4A4A4]">Play From</h5>
-              <p className="line-clamp-2 text-sm leading-[1] text-white">{currentTrack?.title}</p>
+              <h5 className="text-xs leading-[16px] text-[#A4A4A4]">
+                Play From
+              </h5>
+              <p className="line-clamp-2 text-sm leading-[1] text-white">
+                {currentTrack?.title}
+              </p>
             </div>
             {/* <div className="flex w-full flex-col gap-2">
               <div className="h-[2px] w-full rounded-[1px] bg-[#6E6E6E]"></div>
@@ -152,7 +178,7 @@ export default function Player(props: IProps) {
           </div>
 
           <div className="h-[80px] w-[80px] overflow-hidden rounded-md">
-            <RenderIf condition={!!currentTrack?.image_url}>
+            {/* <RenderIf condition={!!currentTrack?.image_url}>
               <Image
                 src={currentTrack?.image_url}
                 width={90}
@@ -160,7 +186,15 @@ export default function Player(props: IProps) {
                 className="h-full w-full object-cover"
                 alt="news"
               />
-            </RenderIf>
+            </RenderIf> */}
+
+            <ImageWithFallback
+              src={currentTrack?.image_url}
+              width={90}
+              height={90}
+              className="h-full w-full object-cover"
+              alt="news"
+            />
           </div>
         </div>
       </div>
@@ -177,7 +211,8 @@ export default function Player(props: IProps) {
                   key={item?.id}
                   data={item}
                   onClick={() => {
-                    const isSameTrack = playlist?.[currentIndex]?.id === item.id;
+                    const isSameTrack =
+                      playlist?.[currentIndex]?.id === item.id;
 
                     if (isSameTrack) {
                       // Restart current track

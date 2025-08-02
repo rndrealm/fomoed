@@ -1,9 +1,11 @@
+import { ImageWithFallback } from "@/components/shared";
 import { AppRoutes } from "@/lib/routes";
 import { timeAgo } from "@/lib/utils";
 import { NewsFeedItem } from "@/services/queries/news/types";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
+import { a } from "vitest/dist/chunks/suite.B2jumIFP.js";
 
 interface IProps {
   article: NewsFeedItem;
@@ -31,12 +33,22 @@ const FeedCard = (props: IProps) => {
           // }}
           className="absolute inset-0 z-0 rounded-[50px]"
         >
-          <Image
+          <ImageWithFallback
+            src={article.image_url || "/fallback.png"}
+            alt="News Arcticle image"
+            className="rounded-[16px] object-cover w-full h-full"
+            fill
+            text={article.source}
+          />
+          {/* <Image
             src={article.image_url || "/fallback.png"}
             fill
             alt="News Arcticle image"
             className="rounded-[16px] object-cover"
-          />
+            onError={(err) => {
+              console.log(article, err);
+            }}
+          /> */}
         </div>
 
         {/* Blur */}

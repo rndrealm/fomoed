@@ -16,7 +16,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { RenderIf } from "@/components/shared";
+import { ImageWithFallback, RenderIf } from "@/components/shared";
 import { useReadSingleNewsArticle } from "@/services/queries/news";
 import { formatNewsWidgetTime } from "@/lib/utils";
 import { PlayButton } from "./play-button";
@@ -134,15 +134,14 @@ export default function SingleNews(props: IProps) {
     <Fragment>
       <div className="flex flex-1 flex-col overflow-hidden rounded-3xl bg-[#000]">
         <div className="relative h-[250px]">
-          {data?.image_url && (
-            <Image
-              src={data?.image_url}
-              alt="news"
-              width={450}
-              height={250}
-              className="h-full w-full object-cover blur-[2px]"
-            />
-          )}
+          <ImageWithFallback
+            src={data?.image_url || ""}
+            alt="news"
+            width={450}
+            height={250}
+            className="h-full w-full object-cover blur-[2px]"
+          />
+
           <div className="absolute top-[0] right-[0] bottom-[0] left-[0] flex flex-col justify-between bg-[rgba(0,0,0,0.4)] p-4">
             <div className="flex items-center justify-between">
               <div className="invisible flex items-center gap-1 rounded-full bg-[#0F0F0F] px-2 py-[6px]">

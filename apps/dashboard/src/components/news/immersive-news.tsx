@@ -10,7 +10,7 @@ import { newsSources } from "@/app/api/news/data";
 import TableOfContent from "./table-of-content";
 import TokenPill from "./token-pill";
 import RelatedArticles from "./related-articles";
-import { RenderIf } from "../shared";
+import { ImageWithFallback, RenderIf } from "../shared";
 import { useScrollPercentage } from "@/hooks/useScrollPercentage";
 import { SheetContainer } from "../shared/sheet-container";
 import BookmarkComp from "./shared/BookmarkComp";
@@ -193,13 +193,21 @@ export function ImmersiveNews(props: IProps) {
 
           <div id="headlines-section">
             <div className="relative flex h-[356px] w-full max-w-full items-center justify-center sm:max-w-[500px] md:w-[637px] md:max-w-[39.8125rem]">
-              <RemoteImage
+              <ImageWithFallback
+                className="object-cover w-full h-full"
+                width={637}
+                height={356}
+                src={extractedArticle.image || ""}
+                alt={`${article?.title} image`}
+                text={article?.source}
+              />
+              {/* <RemoteImage
                 className="object-cover w-full"
                 width={637}
                 height={356}
                 src={extractedArticle.image || ""}
                 alt={`${article?.title} image`}
-              />
+              /> */}
 
               {/* Blur */}
               <div className="absolute inset-0 z-0 h-full w-[100%]">
