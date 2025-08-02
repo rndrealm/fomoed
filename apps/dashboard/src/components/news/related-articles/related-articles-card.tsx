@@ -6,6 +6,7 @@ import BookmarkComp from "../shared/BookmarkComp";
 import dashboard from "@/lib/assets/dashboard";
 import Link from "next/link";
 import { AppRoutes } from "@/lib/routes";
+import { ImageWithFallback } from "@/components/shared";
 
 interface ICardProps {
   article: NewsFeedItem;
@@ -38,14 +39,21 @@ export const RelatedArticleCard = (props: ICardProps) => {
             </h3>
           </div>
           <div className="relative h-[5.6875rem] w-[5.6875rem]">
-            <RemoteImage
+            <ImageWithFallback
+              src={article.image_url}
+              width={91}
+              height={91}
+              alt="News mock"
+              className="rounded-[10px] object-cover h-full w-full"
+            />
+            {/* <RemoteImage
               src={article.image_url}
               fallback={dashboard.fallback}
               width={91}
               height={91}
               alt="News mock"
               className="rounded-[10px] object-cover"
-            />
+            /> */}
           </div>
         </div>
       </Link>
