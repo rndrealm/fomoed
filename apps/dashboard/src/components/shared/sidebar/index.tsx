@@ -42,17 +42,18 @@ const SideNav = (props: ISideNavProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
+    // sliding background
     <motion.div
       id="sidebar"
       className={cn(
-        "fixed inset-0 z-50 h-screen max-h-screen w-[280px] max-w-[280px] overflow-hidden rounded-none bg-[#000000] p-0 opacity-100",
+        "fixed inset-0 z-50 h-screen max-h-screen w-[280px] max-w-[280px] overflow-hidden rounded-none bg-[#000000] border-r-[1px] border-[#2A2A2A] p-0 opacity-100",
         {
           "pointer-events-none opacity-0 md:pointer-events-auto md:opacity-100":
             !isSideMenuOpen,
         },
       )}
-      initial={{ width: "52px" }}
-      animate={{ width: isSideMenuOpen ? "280px" : "52px" }}
+      initial={{ width: "54px" }}
+      animate={{ width: isSideMenuOpen ? "282px" : "54px" }}
       transition={{ duration: 0.5, ease: [0.4, 0.0, 0.2, 1] }}
     >
       <PassiveNav
@@ -88,7 +89,7 @@ const PassiveNav = (props: IPassiveNavProps) => {
     <div
       id="passive-nav-active"
       className={
-        "font-inter pointer-events-auto relative z-50 hidden h-full w-full max-w-[52px] flex-col items-center justify-between border-l-[1px] border-[#2A2A2A] bg-[#000000] py-4 md:flex"
+        "font-inter pointer-events-auto relative z-50 hidden h-full w-full max-w-[52px] flex-col items-center justify-between border-l-[0px] border-[#2A2A2A] bg-[#000000] py-4 md:flex"
       }
       onClick={(e) => {
         // check for the click on icon - no open of the sidebar
@@ -173,7 +174,7 @@ const ActiveNav = (props: IActiveNavProps) => {
   return (
     <div
       style={{ pointerEvents: isSideMenuOpen ? "all" : "none" }}
-      className="font-inter absolute inset-0 z-50 flex h-full w-full min-w-[280px] flex-col items-center justify-between border-l-[1px] border-[#2A2A2A] bg-transparent py-4"
+      className="font-inter absolute inset-0 z-50 flex h-full w-full min-w-[280px] flex-col items-center justify-between border-l-[0px] border-[#2A2A2A] bg-transparent py-4"
     >
       <div className="flex w-full flex-row items-center justify-between px-[10px]">
         <motion.button
@@ -181,16 +182,29 @@ const ActiveNav = (props: IActiveNavProps) => {
           animate={{ x: isSideMenuOpen ? "8px" : 0 }}
           transition={{ duration: 0.75, delay: 0, ease: [0.4, 0.0, 0.2, 1] }}
         >
-          {isHovered ? (
+          <div
+            style={{
+              // opacity: isSideMenuOpen ? 0 : 1,
+              display: isHovered ? "none" : isSideMenuOpen ? "none" : "flex",
+            }}
+            className="flex justify-center items-center h-full w-full"
+          >
             <MenuIconClosed />
-          ) : (
+          </div>
+          <div
+            style={{
+              // opacity: isHovered ? 1 : 0,
+              display: isHovered ? "flex" : isSideMenuOpen ? "flex" : "none",
+            }}
+            className="flex justify-center items-center h-full w-full"
+          >
             <Image
               height={32}
               width={32}
               src={dashboard.logoMobile}
               alt="logo"
             />
-          )}
+          </div>
         </motion.button>
         <motion.button
           onClick={() => setIsSideMenuOpen(false)}

@@ -102,7 +102,11 @@ export function NavLink(props: INavLinkProps) {
             {/* make the active icon white */}
             <div key={label}>
               {React.cloneElement(icon, {
-                ...(active && { color: "#fff" }),
+                ...(active
+                  ? { color: "#fff" }
+                  : disabled
+                    ? { color: "#838383" }
+                    : {}),
               })}
             </div>
           </div>
@@ -118,12 +122,14 @@ export function NavLink(props: INavLinkProps) {
   return (
     <motion.div
       className={cn(
-        "group relative flex max-h-[40px] items-center rounded-[10px] px-2 py-2",
+        "group relative flex max-h-[40px] items-center rounded-[10px] px-2 py-0",
         isBottomLink
           ? "justify-start gap-2 bg-[#000]"
           : active
             ? "justify-between bg-[#1A1A1A]"
-            : "justify-between bg-transparent hover:bg-[#1A1A1A]",
+            : disabled
+              ? "justify-between bg-transparent"
+              : "hover:bg-[#1A1A1A] justify-between bg-transparent",
       )}
       initial="closed"
       variants={sideMenuVariants}
@@ -132,7 +138,7 @@ export function NavLink(props: INavLinkProps) {
       <Link
         href={disabled ? "#" : href}
         onClick={handleClick}
-        className={cn("w-full", {
+        className={cn("w-full py-2", {
           "pointer-events-none cursor-not-allowed opacity-50": disabled,
         })}
         aria-disabled={disabled}
@@ -143,10 +149,16 @@ export function NavLink(props: INavLinkProps) {
               !active &&
                 !isBottomLink &&
                 "!opacity-100 md:!opacity-0 md:group-hover:!opacity-100",
-              isBottomLink ? "" : "mt-[-2px]",
+              isBottomLink ? "" : "mt-[0px]",
             )}
           >
-            <div key={label}>
+            <div
+              key={label}
+              className={cn(
+                disabled && "opacity-100 md:opacity-0",
+                // "opacity-100",
+              )}
+            >
               {React.cloneElement(icon, {
                 ...(active && { color: "#fff" }),
               })}
@@ -159,7 +171,9 @@ export function NavLink(props: INavLinkProps) {
                 ? "text-[#838383]"
                 : active
                   ? "text-white"
-                  : "text-[#838383] group-hover:text-white",
+                  : disabled
+                    ? "text-[#838383]"
+                    : "text-[#838383] group-hover:text-white",
             )}
             initial="closed"
             variants={sideMenuVariants}
@@ -172,7 +186,7 @@ export function NavLink(props: INavLinkProps) {
 
       {comingSoon && !isBottomLink && (
         <motion.div
-          className="absolute top-1/2 right-0 hidden translate-y-[-50%] rounded-[8px] border-[1px] border-[#3A2C4F] bg-[#2C233A] px-2 py-1 md:flex"
+          className="mr-1.5 absolute top-1/2 right-0 hidden translate-y-[-50%] rounded-[8px] border-[1px] border-[#3A2C4F] bg-[#2C233A] px-2 py-1 md:flex"
           initial="closed"
           variants={sideMenuVariants}
           animate={isSideMenuOpen ? "open" : "closed"}
@@ -185,7 +199,7 @@ export function NavLink(props: INavLinkProps) {
 
       {beta && !isBottomLink && (
         <motion.div
-          className="absolute top-1/2 right-0 hidden translate-y-[-50%] rounded-[8px] border-[1px] border-[#2C4F3A] bg-[#233A2C] px-2 py-1 md:flex"
+          className="mr-1.5 absolute top-1/2 right-0 hidden translate-y-[-50%] rounded-[8px] border-[1px] border-[#2C4F3A] bg-[#233A2C] px-2 py-1 md:flex"
           initial="closed"
           variants={sideMenuVariants}
           animate={isSideMenuOpen ? "open" : "closed"}

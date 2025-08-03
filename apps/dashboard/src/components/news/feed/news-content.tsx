@@ -24,10 +24,10 @@ const NoFetchedNewsSvg = () => (
         fill="url(#paint0_linear_9205_165970)"
       />
     </g>
-    <path d="M0 69H400" stroke="#131313" stroke-width="2.5" />
-    <path d="M310 400L310 5.00679e-06" stroke="#131313" stroke-width="2.5" />
-    <path d="M124 400L124 5.00679e-06" stroke="#131313" stroke-width="2.5" />
-    <path d="M0 332H400" stroke="#131313" stroke-width="2.5" />
+    <path d="M0 69H400" stroke="#131313" strokeWidth="2.5" />
+    <path d="M310 400L310 5.00679e-06" stroke="#131313" strokeWidth="2.5" />
+    <path d="M124 400L124 5.00679e-06" stroke="#131313" strokeWidth="2.5" />
+    <path d="M0 332H400" stroke="#131313" strokeWidth="2.5" />
     <defs>
       <filter
         id="filter0_i_9205_165970"
@@ -36,9 +36,9 @@ const NoFetchedNewsSvg = () => (
         width="187"
         height="265"
         filterUnits="userSpaceOnUse"
-        color-interpolation-filters="sRGB"
+        colorInterpolationFilters="sRGB"
       >
-        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+        <feFlood floodOpacity="0" result="BackgroundImageFix" />
         <feBlend
           mode="normal"
           in="SourceGraphic"
@@ -72,12 +72,12 @@ const NoFetchedNewsSvg = () => (
         y2="730"
         gradientUnits="userSpaceOnUse"
       >
-        <stop offset="0.0558376" stop-color="#0F0F0F" />
-        <stop offset="0.230964" stop-color="#2E1A0D" />
-        <stop offset="0.444162" stop-color="#682F09" />
-        <stop offset="0.601523" stop-color="#933F07" />
-        <stop offset="0.708122" stop-color="#B04905" />
-        <stop offset="1" stop-color="#FF6600" />
+        <stop offset="0.0558376" stopColor="#0F0F0F" />
+        <stop offset="0.230964" stopColor="#2E1A0D" />
+        <stop offset="0.444162" stopColor="#682F09" />
+        <stop offset="0.601523" stopColor="#933F07" />
+        <stop offset="0.708122" stopColor="#B04905" />
+        <stop offset="1" stopColor="#FF6600" />
       </linearGradient>
     </defs>
   </svg>

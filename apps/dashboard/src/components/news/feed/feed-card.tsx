@@ -1,9 +1,11 @@
+import { ImageWithFallback } from "@/components/shared";
 import { AppRoutes } from "@/lib/routes";
 import { timeAgo } from "@/lib/utils";
 import { NewsFeedItem } from "@/services/queries/news/types";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
+import { a } from "vitest/dist/chunks/suite.B2jumIFP.js";
 
 interface IProps {
   article: NewsFeedItem;
@@ -20,7 +22,7 @@ const FeedCard = (props: IProps) => {
           gridRow: `span ${1}`,
           boxShadow: "0px 4px 4px 0px #00000040",
         }}
-        className="relative h-[500px] gap-1.5 overflow-hidden rounded-[16px] bg-[#121212] px-4.5 pt-3 pb-3.5 sm:h-[354px]"
+        className="relative h-[500px] gap-1.5 overflow-hidden rounded-[0px] bg-[#000] px-4.5 pt-3 pb-3.5 sm:h-[354px]"
       >
         {/* Background image */}
         <div
@@ -29,18 +31,28 @@ const FeedCard = (props: IProps) => {
           //   backgroundSize: "cover",
           //   backgroundPosition: "center",
           // }}
-          className="absolute inset-0 z-0 rounded-[16px]"
+          className="absolute inset-0 z-0 rounded-[50px]"
         >
-          <Image
+          <ImageWithFallback
+            src={article.image_url || "/fallback.png"}
+            alt="News Arcticle image"
+            className="rounded-[16px] object-cover w-full h-full"
+            fill
+            text={article.source}
+          />
+          {/* <Image
             src={article.image_url || "/fallback.png"}
             fill
             alt="News Arcticle image"
             className="rounded-[16px] object-cover"
-          />
+            onError={(err) => {
+              console.log(article, err);
+            }}
+          /> */}
         </div>
 
         {/* Blur */}
-        <div className="absolute inset-0 z-0 h-full w-[1020%]">
+        <div className="absolute inset-0 z-0 h-full w-full">
           <div className="gradient-blur">
             <div></div>
             {/* <div></div> */}
