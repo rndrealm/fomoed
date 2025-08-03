@@ -67,6 +67,7 @@
     "lodash-es": "^4.17.21",
     "lodash.merge": "^4.6.2",
     "lucide-react": "^0.488.0",
+    "mixpanel-browser": "^2.67.0",
     "motion": "^12.16.0",
     "nanoid": "^5.1.5",
     "next": "15.3.0",

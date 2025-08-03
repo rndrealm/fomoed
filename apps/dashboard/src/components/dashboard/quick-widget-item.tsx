@@ -1,13 +1,18 @@
 "use client";
 import { getGridPosition } from "@/charts/helpers";
 import dashboard from "@/lib/assets/dashboard";
-import { addWidgetToExistingLayoutAtom, addWidgetToNewLayoutAtom, layoutAtom } from "@/lib/atoms/layoutAtom";
+import {
+  addWidgetToExistingLayoutAtom,
+  addWidgetToNewLayoutAtom,
+  layoutAtom,
+} from "@/lib/atoms/layoutAtom";
 import { settingAtom } from "@/lib/atoms/settingsAtom";
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 import { LayoutOptionType, widgetPropsDefaults } from "@/lib/static";
 import { capitalizeFirst, joinWidgetSlug, maxTabsByPlan } from "@/lib/utils";
 import { useGetUserPlans } from "@/services/queries/subscriptions";
 import { useAtomValue, useSetAtom } from "jotai";
+import mixpanel from "mixpanel-browser";
 import Image from "next/image";
 import React, { Fragment, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
@@ -46,7 +51,10 @@ export function QuickWidgetItem(props: IProps) {
 
           const { x, y } = getGridPosition(currLayout?.widgets.length || 0);
           const newId = uuidv4();
-          const widgetDefaults = widgetPropsDefaults[widget.slug as keyof typeof widgetPropsDefaults];
+          const widgetDefaults =
+            widgetPropsDefaults[
+              widget.slug as keyof typeof widgetPropsDefaults
+            ];
           const defaultWAndH = widgetDefaults.meta || { w: 3, h: 2 };
           const newWidget = {
             id: newId,
@@ -77,6 +85,10 @@ export function QuickWidgetItem(props: IProps) {
             }
             addWidgetToNewLayout({ newWidget });
           }
+          mixpanel.track("Widget Added", {
+            widget_slug: widget.slug,
+            plan: data?.planType || "FREE",
+          });
           handleGoBack();
           isClicked.current = false;
           // if (tour.currentStep === 1) {
@@ -85,23 +97,43 @@ export function QuickWidgetItem(props: IProps) {
         }}
       >
         <RenderIf condition={widget.category === "charts" && tag !== "charts"}>
-          <div className="mb-2 flex items-center gap-2">
-            <Image src={dashboard.folder} width={22} height={22} alt="Folder Icon" />
-            <p className="text-xs font-medium text-white">{capitalizeFirst(widget.category)}</p>
+          <div className="flex items-center gap-2 mb-2">
+            <Image
+              src={dashboard.folder}
+              width={22}
+              height={22}
+              alt="Folder Icon"
+            />
+            <p className="text-xs font-medium text-white">
+              {capitalizeFirst(widget.category)}
+            </p>
           </div>
         </RenderIf>
         <RenderIf condition={widget.category === "news" && tag !== "news"}>
-          <div className="mb-2 flex items-center gap-2">
-            <Image src={dashboard.folder} width={22} height={22} alt="Folder Icon" />
-            <p className="text-xs font-medium text-white">{capitalizeFirst(widget.category)}</p>
+          <div className="flex items-center gap-2 mb-2">
+            <Image
+              src={dashboard.folder}
+              width={22}
+              height={22}
+              alt="Folder Icon"
+            />
+            <p className="text-xs font-medium text-white">
+              {capitalizeFirst(widget.category)}
+            </p>
           </div>
         </RenderIf>
         <div className="h-[160px] overflow-hidden rounded-lg border border-[#121212] bg-[#000]">
-          <Image src={widget.image} alt={widget.name} className="h-full w-full object-cover" />
+          <Image
+            src={widget.image}
+            alt={widget.name}
+            className="object-cover w-full h-full"
+          />
         </div>
         <div className="flex">
           <div className="rounded-sm bg-[#141414] px-2 py-1">
-            <p className="text-xs leading-[1.35] font-medium text-white">{widget.name}</p>
+            <p className="text-xs leading-[1.35] font-medium text-white">
+              {widget.name}
+            </p>
           </div>
         </div>
       </button>

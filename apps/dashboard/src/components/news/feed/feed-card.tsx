@@ -43,7 +43,7 @@ const FeedCard = (props: IProps) => {
         <div className="absolute inset-0 z-0 h-full w-[1020%]">
           <div className="gradient-blur">
             <div></div>
-            <div></div>
+            {/* <div></div> */}
           </div>
         </div>
 
