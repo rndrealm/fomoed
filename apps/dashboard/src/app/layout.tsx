@@ -9,6 +9,8 @@ import { NotificationProvider } from "@/components/providers/NotificationProvide
 import "../../node_modules/react-grid-layout/css/styles.css";
 import { headers } from "next/headers";
 import OverlayRoot from "@/components/ui/overlay-root";
+import AnalyticsProvider from "@/components/providers/AnalyticsProvider";
+import { ReactScan } from "@/components/shared/ReactScan";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,7 +24,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Fomoed",
-  description: "Navigate crypto emotions, access Altcoins, and get precise market sentiment analysis effortlessly.",
+  description:
+    "Navigate crypto emotions, access Altcoins, and get precise market sentiment analysis effortlessly.",
   keywords: [
     "web3",
     "ethereum",
@@ -51,30 +54,34 @@ export default function RootLayout({
 }>) {
   return (
     // Keep h-full for filling vertical space in iframes.
-    <html lang="en" className="h-full">
-      {/* <ReactScan /> */}
-      <body className={`${geistSans.variable} ${geistMono.variable} h-full bg-[#0C0C0C] antialiased`}>
-        <OverlayRoot />
+    <AnalyticsProvider>
+      <html lang="en" className="h-full">
+        <ReactScan />
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} h-full bg-[#0C0C0C] antialiased`}
+        >
+          <OverlayRoot />
 
-        <div id="root" className="h-full">
-          <QueryProvider>
-            <NuqsAdapter>
-              <NotificationProvider>{children}</NotificationProvider>
-            </NuqsAdapter>
-          </QueryProvider>
-          <Toaster
-            toastOptions={{
-              style: {
-                maxWidth: "523px",
-                width: "100%",
-                height: "56px",
-                paddingTop: 0,
-                paddingBottom: 0,
-              },
-            }}
-          />
-        </div>
-      </body>
-    </html>
+          <div id="root" className="h-full">
+            <QueryProvider>
+              <NuqsAdapter>
+                <NotificationProvider>{children}</NotificationProvider>
+              </NuqsAdapter>
+            </QueryProvider>
+            <Toaster
+              toastOptions={{
+                style: {
+                  maxWidth: "523px",
+                  width: "100%",
+                  height: "56px",
+                  paddingTop: 0,
+                  paddingBottom: 0,
+                },
+              }}
+            />
+          </div>
+        </body>
+      </html>
+    </AnalyticsProvider>
   );
 }
