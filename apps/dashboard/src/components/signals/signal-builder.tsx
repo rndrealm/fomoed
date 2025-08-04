@@ -2,13 +2,14 @@
 import { Button } from "@/components/ui/button";
 
 import { Check, LoaderCircle, SaveIcon } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 // import AISignalBuilder from "./AISignalBuilder";
 import useUserData from "@/lib/hooks/use-user-data";
 import { SignalActions } from "@/lib/types/signal.types";
 import {
   useCreateSignalMutation,
+  useGenerateSignalDetails,
   useGetAISignal,
   useSmartSignals,
 } from "@/services/queries/signals";
@@ -41,6 +42,9 @@ const SignalBuilder = ({}) => {
     notification: true,
   });
   const { data: smartSignals = [] } = useSmartSignals();
+
+  // Convert group to JSON logic
+  const logic = useMemo(() => toJsonLogic(rootGroup), [rootGroup]);
 
   const [updateCount, setUpdateCount] = useState(0);
   const [_, setActiveSignalTab] = useAtom(activeSignalTabAtom);
@@ -80,7 +84,6 @@ const SignalBuilder = ({}) => {
         description: `Your smart signal "${signalPrompt}" from fomoed.io has been triggered`,
       });
 
-    const logic = toJsonLogic(rootGroup);
     const data: CreateSignalDTO = {
       name: signalPrompt || JSON.stringify(logic),
       description: signalDescription,
@@ -124,66 +127,105 @@ const SignalBuilder = ({}) => {
 
   const [isRootGroupValid, setIsRootGroupValid] = useState(false);
 
-  const onRootGroupChange = useCallback((rootGroup: Group) => {
-    setRootGroup(rootGroup);
-    setIsRootGroupValid(isConditionGroupValid(rootGroup));
-  }, []);
+  // Auto generate signal title if condition is valid and the logic stays
+  // the same for some amount of time
+  const genDetailsMutation = useGenerateSignalDetails();
+
+  const generateDelay = 500;
+
+  const generateSignalDetails = useCallback(
+    async (currentLogic: any) => {
+      if (!isRootGroupValid) return;
+
+      const res = await genDetailsMutation.mutateAsync(currentLogic);
+      setSignalPrompt(res.signal.name);
+    },
+    [isRootGroupValid, genDetailsMutation],
+  );
+
+  const debouncedGenerateDetails = useMemo(() => {
+    let timeoutId: NodeJS.Timeout;
+
+    return (currentLogic: any) => {
+      clearTimeout(timeoutId);
+      if (isRootGroupValid) {
+        timeoutId = setTimeout(
+          () => generateSignalDetails(currentLogic),
+          generateDelay,
+        );
+      }
+    };
+  }, [generateSignalDetails, generateDelay, isRootGroupValid]);
+
+  const onRootGroupChange = useCallback(
+    (rootGroup: Group) => {
+      setRootGroup(rootGroup);
+      const isValid = isConditionGroupValid(rootGroup);
+      setIsRootGroupValid(isValid);
+
+      if (isValid) {
+        const newLogic = toJsonLogic(rootGroup);
+        debouncedGenerateDetails(newLogic);
+      }
+    },
+    [debouncedGenerateDetails],
+  );
 
   return (
-    <>
-      <div className="my-6"></div>
+    <div className="flex flex-col gap-3 min-h-max h-full justify-center pb-24">
+      <div className="px-4">
+        <SignalTitle
+          title={signalPrompt}
+          onTitleChange={setSignalPrompt}
+          loading={genDetailsMutation.isPending}
+        >
+          <AutoGenerateButton
+            onClick={autoGenerate}
+            isPending={isPendingAutoGenerate}
+          />
+        </SignalTitle>
+      </div>
 
-      <div className="flex flex-col gap-3">
-        <div className="px-4">
-          <SignalTitle title={signalPrompt} onTitleChange={setSignalPrompt}>
-            <AutoGenerateButton
-              onClick={autoGenerate}
-              isPending={isPendingAutoGenerate}
-            />
-          </SignalTitle>
-        </div>
+      <ManualSignalBuilder
+        key={updateCount}
+        rootGroup={rootGroup}
+        onRootGroupChange={onRootGroupChange}
+      />
 
-        <ManualSignalBuilder
-          key={updateCount}
-          rootGroup={rootGroup}
-          onRootGroupChange={onRootGroupChange}
-        />
+      <NotificationSettings
+        notifications={signalActions}
+        onUpdate={setSignalActions}
+      />
 
-        <NotificationSettings
-          notifications={signalActions}
-          onUpdate={setSignalActions}
-        />
+      <div className="flex justify-end gap-3">
+        <Button
+          className="bg-fomoed-red text-white hover:bg-fomoed-red/80 font-semibold flex w-24"
+          disabled={isPending || !isRootGroupValid}
+          onClick={handleSave}
+        >
+          Save
+          {(isPending && <LoaderCircle className="animate-spin" />) || (
+            <Check className="w-4" />
+          )}
+        </Button>
+      </div>
 
-        <div className="flex justify-end gap-3">
-          <Button
-            className="bg-fomoed-red text-white hover:bg-fomoed-red/80 font-semibold flex w-24"
-            disabled={isPending || !isRootGroupValid}
-            onClick={handleSave}
-          >
-            Save
-            {(isPending && <LoaderCircle className="animate-spin" />) || (
-              <Check className="w-4" />
-            )}
-          </Button>
-        </div>
-
-        <ModalContainer
-          open={showUpgradeModal}
+      <ModalContainer
+        open={showUpgradeModal}
+        handleClose={() => {
+          setShowUpgradeModal(false);
+        }}
+        noHeader
+        className="!max-w-[410px] !p-0 rounded-[24px]"
+      >
+        <Upgrade
+          plan={userPlanData?.planType}
           handleClose={() => {
             setShowUpgradeModal(false);
           }}
-          noHeader
-          className="!max-w-[410px] !p-0 rounded-[24px]"
-        >
-          <Upgrade
-            plan={userPlanData?.planType}
-            handleClose={() => {
-              setShowUpgradeModal(false);
-            }}
-          />
-        </ModalContainer>
-      </div>
-    </>
+        />
+      </ModalContainer>
+    </div>
   );
 };
 

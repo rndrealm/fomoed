@@ -46,14 +46,15 @@ const MySignals = () => {
 
   if (isLoading) {
     return (
-      <div className="w-full h-80 flex items-center justify-center">
-        <LoaderCircle className="animate-spin" />
-      </div>
+      <></>
+      // <div className="w-full h-80 flex items-center justify-center">
+      //   <LoaderCircle className="animate-spin" />
+      // </div>
     );
   }
 
   return (
-    <div>
+    <div className="w-full">
       <div className="flex items-center justify-between my-6">
         <h1 className="font-semibold text-2xl font-inter text-white">
           Your Saved Signals

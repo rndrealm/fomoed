@@ -113,7 +113,14 @@ export function NavLink(props: INavLinkProps) {
         </Link>
 
         {/* hover popup */}
-        {isHovered && <LinkPopup label={label} className="left-[42px]" />}
+        {isHovered && (
+          <LinkPopup
+            label={label}
+            className="left-[42px]"
+            beta={beta}
+            comingSoon={comingSoon}
+          />
+        )}
       </div>
     );
   }
