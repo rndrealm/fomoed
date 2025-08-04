@@ -47,7 +47,6 @@ const PeriodDropdown = (props: ICoinDropdownProps) => {
           <DropdownMenuCheckboxItem
             className="justify-between text-white focus:bg-widget-background focus:text-white"
             key={i}
-            disabled={!userPlans?.hasPlan && period.value !== (CFGI_SUPPORTED_PERIODS_ENUM.DAY1 as string)}
             // checked={value === period.value}
             onCheckedChange={() => {
               setValue(period.value);

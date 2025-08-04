@@ -9,6 +9,7 @@ import FormBottomDivider from "@/components/icons/FormBottomDivider";
 import { AppRoutes } from "@/lib/routes";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { track } from "@vercel/analytics";
 import { signUpNewUser } from "@/services/queries/auth/server-actions";
 
 const validationSchema = Yup.object().shape({
@@ -39,6 +40,10 @@ export default function Page() {
       setIsLoading(true);
       const retUser = await signUpNewUser(_values);
       if (retUser.success) {
+        track("signup", {
+          username: _values.username,
+          email: _values.email,
+        });
         router.push(AppRoutes.auth.mailAuthenticate.path);
       } else {
         toast(retUser.message || "Something went wrong!");

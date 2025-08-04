@@ -1,6 +1,7 @@
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import { AddTab, CloseTab, MenuIconClosed, TabLayout } from "../../icons/icons";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import mixpanel from "mixpanel-browser";
 import {
   activeTabAtom,
   addNewTabAtom,
@@ -67,7 +68,7 @@ export function TabButton(props: ITabButton) {
             isActive ? "bg-[#252525]" : "bg-[#111]",
           )}
         >
-          <div className="flex w-full flex-1 items-center gap-2">
+          <div className="flex items-center flex-1 w-full gap-2">
             <TabLayout active={isActive} />
             <div className="flex flex-1">
               <form
@@ -157,6 +158,11 @@ export function NewTabs() {
       return;
     }
 
+    mixpanel.track("Tab Added", {
+      from: "toolbar",
+      plan: planType,
+    });
+
     addNewTab();
   };
 
@@ -180,7 +186,7 @@ export function NewTabs() {
           </p>
         </button>
       </div>
-      <div className="hidden w-full flex-1 items-center gap-2 overflow-hidden md:flex">
+      <div className="items-center flex-1 hidden w-full gap-2 overflow-hidden md:flex">
         <button
           type="button"
           className="flex h-[32px] w-[32px] items-center justify-center rounded-md border border-[#121212]"
@@ -191,7 +197,7 @@ export function NewTabs() {
 
         <div className="h-[18px] w-[1px] bg-[#141414]"></div>
 
-        <div className="no-scrollbar flex flex-1 items-center gap-2 overflow-x-auto pr-2">
+        <div className="flex items-center flex-1 gap-2 pr-2 overflow-x-auto no-scrollbar">
           {tabs?.map((item) => {
             const isActive = activeTab.id === item.id;
             const showCloseBtn = tabs.length > 1;

@@ -4,7 +4,10 @@ import { createSupabaseServerWithAnonKey } from "@/lib/utils/supabase/server-cli
 import { notFound } from "next/navigation";
 
 export const fetchPostContent = cache(async (id: string) => {
-  const url = new URL(`/api/newslab-posts/${id}`, process.env.PUBLIC_NEWSLAB_URL);
+  const url = new URL(
+    `/api/newslab-posts/${id}`,
+    process.env.PUBLIC_NEWSLAB_URL,
+  );
 
   const res = await fetch(url);
 
@@ -14,7 +17,12 @@ export const fetchPostContent = cache(async (id: string) => {
 
 export const fetchArticleContent = cache(async (id: string) => {
   const supabase = await createSupabaseServerWithAnonKey();
-  const { data, error } = await supabase.from("news").select("*").eq("id", id).single();
+  // const { data, error } = await supabase.from("news").select("*").eq("id", id).single();
+  const { data, error } = await supabase
+    .from("news")
+    .select("*")
+    .or(`id.eq.${id},slug.eq.${id}`)
+    .single();
 
   if (error) {
     notFound();
@@ -35,4 +43,6 @@ export const fetchArticleContent = cache(async (id: string) => {
   return { ...data, extractedArticle: article };
 });
 
-export type FetchArticleContentType = Awaited<ReturnType<typeof fetchArticleContent>>;
+export type FetchArticleContentType = Awaited<
+  ReturnType<typeof fetchArticleContent>
+>;
