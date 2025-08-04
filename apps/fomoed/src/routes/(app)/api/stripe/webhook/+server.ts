@@ -2,7 +2,6 @@ import { error, json, type RequestEvent } from '@sveltejs/kit';
 import stripe from '../stripe';
 import { Stripe } from 'stripe';
 import { PRIVATE_STRIPE_WEBHOOK_SECRET } from '$env/static/private';
-import prices from '$lib/prices';
 import type { PostgrestSingleResponse, SupabaseClient } from '@supabase/supabase-js';
 import type { SubPlanName } from '$lib/types';
 import { getUserByEmail } from '$ts/utils/server/user';
