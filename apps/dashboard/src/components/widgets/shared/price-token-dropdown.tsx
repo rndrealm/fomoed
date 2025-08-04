@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { use, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { RenderIf } from "@/components/shared";
 import {
@@ -10,6 +10,7 @@ import {
 import { CoinDataInterface } from "@/services/queries/charts/types";
 import { ChevronDown } from "lucide-react";
 import SearchIcon from "@/components/icons/SearchIcon";
+import { useGetUserPlans } from "@/services/queries/subscriptions";
 
 interface IProps {
   options: CoinDataInterface[];
@@ -19,6 +20,7 @@ interface IProps {
 
 export default function PriceTokenDropdown(props: IProps) {
   const { options = [], setValue, value } = props;
+  const { data: userPlans } = useGetUserPlans();
 
   const [searchValue, setSearchValue] = useState("");
   const [open, setOpen] = useState(false);
@@ -105,6 +107,11 @@ export default function PriceTokenDropdown(props: IProps) {
                 setValue(item.symbol);
                 setOpen(false);
               }}
+              disabled={
+                !userPlans?.hasPlan &&
+                item.symbol !== "BTC" &&
+                item.symbol !== "ETH"
+              }
             >
               <div className="w-[20px] h-[20px]">
                 <Image
