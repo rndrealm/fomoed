@@ -10,7 +10,7 @@ import "../../node_modules/react-grid-layout/css/styles.css";
 import { headers } from "next/headers";
 import OverlayRoot from "@/components/ui/overlay-root";
 import AnalyticsProvider from "@/components/providers/AnalyticsProvider";
-import { ReactScan } from "@/components/shared/ReactScan";
+// import { ReactScan } from "@/components/shared/ReactScan";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -56,7 +56,8 @@ export default function RootLayout({
     // Keep h-full for filling vertical space in iframes.
     <AnalyticsProvider>
       <html lang="en" className="h-full">
-        <ReactScan />
+        {/* <ReactScan /> */}
+
         <body
           className={`${geistSans.variable} ${geistMono.variable} h-full bg-[#0C0C0C] antialiased`}
         >
