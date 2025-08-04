@@ -2,6 +2,7 @@ import { json } from '@sveltejs/kit';
 import stripe from '../stripe/stripe';
 import type { RequestEvent } from './$types';
 import type { PlanInfo } from '$lib/types';
+import { PUBLIC_AVAILABLE_PRICE_IDS } from '$env/static/public';
 
 const planInfos: PlanInfo[] = [
 	{
@@ -30,8 +31,14 @@ const planInfos: PlanInfo[] = [
 
 export async function GET({ request }: RequestEvent) {
 	const prices = await stripe.prices.list();
+	const availablePriceIds = PUBLIC_AVAILABLE_PRICE_IDS.split(',');
 
 	for (const price of prices.data) {
+		// Skip prices that are not in the available price IDs list
+		if (!availablePriceIds.includes(price.id)) {
+			continue;
+		}
+
 		const planId = price.metadata.plan_id;
 
 		if (!planId) {
