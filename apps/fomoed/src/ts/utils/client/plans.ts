@@ -88,6 +88,8 @@ export class ClientSubscriptionManager {
 	}
 
 	async subscribe(price_id: string): Promise<boolean> {
+		console.log('Subscribing to plan with price_id:', price_id);
+
 		const $auth_user = get(auth_user);
 		const $stripe = get(stripeStore);
 

@@ -373,8 +373,8 @@ importers:
         specifier: ^123.0.1
         version: 123.0.1
       '@stripe/stripe-js':
-        specifier: ^3.5.0
-        version: 3.5.0
+        specifier: ^7.8.0
+        version: 7.8.0
       '@supabase/ssr':
         specifier: ^0.3.0
         version: 0.3.0(@supabase/supabase-js@2.50.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))
@@ -460,8 +460,8 @@ importers:
         specifier: ^6.3.0
         version: 6.3.1
       stripe:
-        specifier: ^15.12.0
-        version: 15.12.0
+        specifier: ^18.4.0
+        version: 18.4.0(@types/node@22.15.30)
       svelte-5-french-toast:
         specifier: ^2.0.4
         version: 2.0.4(svelte@5.33.18)
@@ -2587,8 +2587,8 @@ packages:
   '@standard-schema/utils@0.3.0':
     resolution: {integrity: sha512-e7Mew686owMaPJVNNLs55PUvgz371nKgwsc4vxE49zsODpJEnxgxRo2y/OKrqueavXgZNMDVj3DdHFlaSAeU8g==}
 
-  '@stripe/stripe-js@3.5.0':
-    resolution: {integrity: sha512-pKS3wZnJoL1iTyGBXAvCwduNNeghJHY6QSRSNNvpYnrrQrLZ6Owsazjyynu0e0ObRgks0i7Rv+pe2M7/MBTZpQ==}
+  '@stripe/stripe-js@7.8.0':
+    resolution: {integrity: sha512-DNXRfYUgkZlrniQORbA/wH8CdFRhiBSE0R56gYU0V5vvpJ9WZwvGrz9tBAZmfq2aTgw6SK7mNpmTizGzLWVezw==}
     engines: {node: '>=12.16'}
 
   '@supabase/auth-helpers-nextjs@0.10.0':
@@ -7231,6 +7231,15 @@ packages:
     resolution: {integrity: sha512-slTbYS1WhRJXVB8YXU8fgHizkUrM9KJyrw4Dd8pLEwzKHYyQTIE46EePC2MVbSDZdE24o1GdNtzmJV4PrPpmJA==}
     engines: {node: '>=12.*'}
 
+  stripe@18.4.0:
+    resolution: {integrity: sha512-LKFeDnDYo4U/YzNgx2Lc9PT9XgKN0JNF1iQwZxgkS4lOw5NunWCnzyH5RhTlD3clIZnf54h7nyMWkS8VXPmtTQ==}
+    engines: {node: '>=12.*'}
+    peerDependencies:
+      '@types/node': '>=12.x.x'
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+
   strnum@2.1.1:
     resolution: {integrity: sha512-7ZvoFTiCnGxBtDqJ//Cu6fWtZtc7Y3x+QOirG15wztbdngGSkht27o2pyGWrVy0b4WAy3jbKmnoK6g5VlVNUUw==}
 
@@ -10330,7 +10339,7 @@ snapshots:
 
   '@standard-schema/utils@0.3.0': {}
 
-  '@stripe/stripe-js@3.5.0': {}
+  '@stripe/stripe-js@7.8.0': {}
 
   '@supabase/auth-helpers-nextjs@0.10.0(@supabase/supabase-js@2.50.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))':
     dependencies:
@@ -15872,6 +15881,12 @@ snapshots:
     dependencies:
       '@types/node': 20.19.0
       qs: 6.14.0
+
+  stripe@18.4.0(@types/node@22.15.30):
+    dependencies:
+      qs: 6.14.0
+    optionalDependencies:
+      '@types/node': 22.15.30
 
   strnum@2.1.1: {}
 
