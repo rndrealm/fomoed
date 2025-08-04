@@ -19,6 +19,7 @@ import { v4 as uuidv4 } from "uuid";
 import { RenderIf } from "../shared";
 import { ModalContainer } from "../shared";
 import { Upgrade } from "../modals";
+import { track } from "@vercel/analytics";
 
 interface IProps {
   widget: LayoutOptionType[0];
@@ -85,9 +86,9 @@ export function QuickWidgetItem(props: IProps) {
             }
             addWidgetToNewLayout({ newWidget });
           }
-          mixpanel.track("Widget Added", {
-            widget_slug: widget.slug,
-            plan: data?.planType || "FREE",
+          track("widget_added", {
+            widget: widget.slug,
+            planType: data?.planType || "FREE",
           });
           handleGoBack();
           isClicked.current = false;

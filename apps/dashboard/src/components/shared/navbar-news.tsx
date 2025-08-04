@@ -46,7 +46,8 @@ const navLinks: INavLink[] = [
   {
     label: "Community",
     icon: <CommunityIcon />,
-    href: "/",
+    href: AppRoutes.dashboard.path,
+    active: false,
     disabled: true,
   },
 ];

@@ -1,6 +1,7 @@
 import QueryProvider from "@/components/providers/QueryProvider";
 import { Toaster } from "@/components/ui/sonner";
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import "./globals.css";
@@ -54,35 +55,32 @@ export default function RootLayout({
 }>) {
   return (
     // Keep h-full for filling vertical space in iframes.
-    <AnalyticsProvider>
-      <html lang="en" className="h-full">
-        {/* <ReactScan /> */}
-
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} h-full bg-[#0C0C0C] antialiased`}
-        >
-          <OverlayRoot />
-
-          <div id="root" className="h-full">
-            <QueryProvider>
-              <NuqsAdapter>
-                <NotificationProvider>{children}</NotificationProvider>
-              </NuqsAdapter>
-            </QueryProvider>
-            <Toaster
-              toastOptions={{
-                style: {
-                  maxWidth: "523px",
-                  width: "100%",
-                  height: "56px",
-                  paddingTop: 0,
-                  paddingBottom: 0,
-                },
-              }}
-            />
-          </div>
-        </body>
-      </html>
-    </AnalyticsProvider>
+    <html lang="en" className="h-full">
+      {/* <ReactScan /> */}
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} h-full bg-[#0C0C0C] antialiased`}
+      >
+        <OverlayRoot />
+        <Analytics />
+        <div id="root" className="h-full">
+          <QueryProvider>
+            <NuqsAdapter>
+              <NotificationProvider>{children}</NotificationProvider>
+            </NuqsAdapter>
+          </QueryProvider>
+          <Toaster
+            toastOptions={{
+              style: {
+                maxWidth: "523px",
+                width: "100%",
+                height: "56px",
+                paddingTop: 0,
+                paddingBottom: 0,
+              },
+            }}
+          />
+        </div>
+      </body>
+    </html>
   );
 }

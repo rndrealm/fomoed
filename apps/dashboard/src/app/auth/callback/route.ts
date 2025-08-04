@@ -6,6 +6,7 @@ import {
 } from "@/lib/utils/supabase/server-client";
 import { SupabaseClient, User } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { track } from "@vercel/analytics/server";
 
 interface IUserInsert {
   email: string;
@@ -71,6 +72,10 @@ async function createOrLinkUserFromOAuth(user: User): Promise<void> {
     console.error(insertRes.error);
     throw new Error(insertRes.error.message);
   }
+  await track("signup", {
+    username: newUserData.username,
+    email: newUserData.email,
+  });
 }
 
 export async function GET(request: Request) {
