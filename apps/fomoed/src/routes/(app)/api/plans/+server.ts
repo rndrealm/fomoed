@@ -10,9 +10,10 @@ const planInfos: PlanInfo[] = [
 		name: 'PRO',
 		recommended: true,
 		features: [
-			'Access to all time frame 15M, 1H, and 4H Data for CFGI',
-			'Access to more than 45 of the most popular crypto assets and liquidation charts',
-			"<p>Chance to win a personal charts training with <a href='https://example.com' class='text-primary underline'>Joshua&nbsp;Jake</a></p>"
+			'Access to all widgets',
+			'Access to more than 45 of the most popular crypto assets',
+			'Access to Smart Signals',
+			'Up to 10 saved dashboard layouts'
 		]
 	},
 	{
@@ -20,8 +21,9 @@ const planInfos: PlanInfo[] = [
 		name: 'Plus',
 		recommended: false,
 		features: [
-			'Access to all time frame 15M, 1H, and 4H Data for CFGI',
-			'Access to more than 45 of the most popular crypto assets'
+			'Access to all widgets',
+			'Access to more than 45 of the most popular crypto assets',
+			'Up to 2 saved dashboard layouts'
 		]
 	}
 ];
