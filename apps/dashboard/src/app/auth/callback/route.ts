@@ -85,6 +85,7 @@ export async function GET(request: Request) {
 
   // if "next" is in param, use it in the redirect URL
   const next = searchParams.get("next") ?? "/";
+  const from = searchParams.get("from") ?? "/";
 
   if (code) {
     const supabase = await createSupabaseServerClient();
@@ -101,8 +102,13 @@ export async function GET(request: Request) {
     await createOrLinkUserFromOAuth(data.user);
 
     if (!error) {
-      return NextResponse.redirect(`${origin}/news`);
-      // return NextResponse.redirect(`${origin}${next}`);
+      if (from === "marketing") {
+        const marketingUrl = process.env.NEXT_PUBLIC_MARKETING_APP_URL;
+        return NextResponse.redirect(marketingUrl || "https://marketing.fomoed.io");
+      } else {
+        return NextResponse.redirect(`${origin}/news`);
+        // return NextResponse.redirect(`${origin}${next}`);
+      }
     }
   }
 
