@@ -29,7 +29,7 @@ export function UpgradeTo(props: IProps) {
   const { upgradeToPlan, handleClose } = props;
 
   function handleGoToPlans() {
-    window.location.href = "https://app.fomoed.io/plans";
+    window.location.href = `${process.env.NEXT_PUBLIC_LEGACY_APP_URL}/plans`;
   }
 
   return (
