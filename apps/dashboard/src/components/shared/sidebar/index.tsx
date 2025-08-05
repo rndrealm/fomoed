@@ -133,8 +133,10 @@ const PassiveNav = (props: IPassiveNavProps) => {
           {navLinks.map((item, index) => {
             // const active = item.label === "News";
 
-            const comingSoon = item.label === "Community";
-            const beta = item.label === "Smart Signals";
+            const comingSoon =
+              item.label === "Community" || item.label === "Smart Signals";
+            // const beta = item.label === "Smart Signals";
+            const beta = false;
 
             return (
               <NavLink
@@ -228,8 +230,10 @@ const ActiveNav = (props: IActiveNavProps) => {
           {navLinks.map((item, index) => {
             // const active = item.label === "Widget Dashboard";
 
-            const comingSoon = item.label === "Community";
-            const beta = item.label === "Smart Signals";
+            const comingSoon =
+              item.label === "Community" || item.label === "Smart Signals";
+            // const beta = item.label === "Smart Signals";
+            const beta = false;
 
             return (
               <NavLink
