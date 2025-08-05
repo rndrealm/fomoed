@@ -1,4 +1,5 @@
 import React from "react";
+import mixpanel from "mixpanel-browser";
 import { Navbar } from "@/components/shared";
 import { AddTab, Delete } from "@/components/icons/icons";
 import { useAtomValue } from "jotai";
@@ -20,7 +21,9 @@ function MobileTabItem(props: IMobileTabItem) {
       onClick={handleClick}
     >
       <div className="flex justify-between bg-[#131313] p-2">
-        <p className="line-clamp-1 flex-1 text-xs leading-[18px] font-medium text-[#7A7A7A]">{name}</p>
+        <p className="line-clamp-1 flex-1 text-xs leading-[18px] font-medium text-[#7A7A7A]">
+          {name}
+        </p>
 
         <button
           type="button"
@@ -34,7 +37,7 @@ function MobileTabItem(props: IMobileTabItem) {
         </button>
       </div>
       <div className="flex flex-1 p-[10px]">
-        <div className="flex flex-1 flex-col gap-1">
+        <div className="flex flex-col flex-1 gap-1">
           <div className="flex-1 rounded-[5px] bg-[#131313]"></div>
           <div className="flex flex-1 gap-1">
             <div className="flex-1 rounded-[5px] bg-[#131313]"></div>
@@ -54,7 +57,8 @@ interface IProps {
 }
 
 export function MobileTab(props: IProps) {
-  const { handleAddNewTab, handleClick, handleCloseTab, handleCloseModal } = props;
+  const { handleAddNewTab, handleClick, handleCloseTab, handleCloseModal } =
+    props;
 
   const tabs = useAtomValue(tabsAtom);
   const layouts = useAtomValue(layoutAtom);
@@ -62,12 +66,16 @@ export function MobileTab(props: IProps) {
   return (
     <div className="flex h-[100%] w-full flex-col gap-2 overflow-hidden bg-[#0A0A0A] pt-4">
       {/* <Navbar /> */}
-      <div className="flex flex-1 flex-col gap-4 overflow-hidden px-2 sm:px-4">
-        <p className="text-base leading-[24px] font-medium text-[#9A9E9E]">Your Workspaces</p>
+      <div className="flex flex-col flex-1 gap-4 px-2 overflow-hidden sm:px-4">
+        <p className="text-base leading-[24px] font-medium text-[#9A9E9E]">
+          Your Workspaces
+        </p>
         <div className="scrollbar h-[full] flex-1 overflow-auto pb-2">
           <div className="grid grid-cols-2 gap-4">
             {tabs.map((item) => {
-              const tabLayout = layouts.find((tab) => tab.id === item?.layout_id);
+              const tabLayout = layouts.find(
+                (tab) => tab.id === item?.layout_id,
+              );
 
               return (
                 <MobileTabItem
@@ -94,6 +102,10 @@ export function MobileTab(props: IProps) {
           className="flex h-[40px] w-[40px] items-center justify-center rounded-md border border-[#121212]"
           onClick={() => {
             handleAddNewTab();
+            mixpanel.track("Tab Added", {
+              from: "toolbar",
+              // plan: planType, Todo: Uncomment when planType is available
+            });
             handleCloseModal();
           }}
         >

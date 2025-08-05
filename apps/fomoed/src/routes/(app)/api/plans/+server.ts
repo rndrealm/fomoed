@@ -2,6 +2,7 @@ import { json } from '@sveltejs/kit';
 import stripe from '../stripe/stripe';
 import type { RequestEvent } from './$types';
 import type { PlanInfo } from '$lib/types';
+import { PUBLIC_AVAILABLE_PRICE_IDS } from '$env/static/public';
 
 const planInfos: PlanInfo[] = [
 	{
@@ -9,9 +10,10 @@ const planInfos: PlanInfo[] = [
 		name: 'PRO',
 		recommended: true,
 		features: [
-			'Access to all time frame 15M, 1H, and 4H Data for CFGI',
-			'Access to more than 45 of the most popular crypto assets and liquidation charts',
-			"<p>Chance to win a personal charts training with <a href='https://example.com' class='text-primary underline'>Joshua&nbsp;Jake</a></p>"
+			'Access to all widgets',
+			'Access to more than 45 of the most popular crypto assets',
+			'Access to Smart Signals',
+			'Up to 10 saved dashboard layouts'
 		]
 	},
 	{
@@ -19,8 +21,9 @@ const planInfos: PlanInfo[] = [
 		name: 'Plus',
 		recommended: false,
 		features: [
-			'Access to all time frame 15M, 1H, and 4H Data for CFGI',
-			'Access to more than 45 of the most popular crypto assets'
+			'Access to all widgets',
+			'Access to more than 45 of the most popular crypto assets',
+			'Up to 2 saved dashboard layouts'
 		]
 	}
 ];
@@ -30,8 +33,14 @@ const planInfos: PlanInfo[] = [
 
 export async function GET({ request }: RequestEvent) {
 	const prices = await stripe.prices.list();
+	const availablePriceIds = PUBLIC_AVAILABLE_PRICE_IDS.split(',');
 
 	for (const price of prices.data) {
+		// Skip prices that are not in the available price IDs list
+		if (!availablePriceIds.includes(price.id)) {
+			continue;
+		}
+
 		const planId = price.metadata.plan_id;
 
 		if (!planId) {

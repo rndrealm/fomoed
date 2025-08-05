@@ -5,7 +5,15 @@ import Image from "next/image";
 import { motion } from "motion/react";
 import NavbarProfileButton from "../ui/NavbarProfileButton";
 import dashboard from "@/lib/assets/dashboard";
-import { Close, Dashboard, Hamburger, Misc, News, Notification } from "../icons/icons";
+import {
+  Close,
+  Dashboard,
+  Hamburger,
+  Misc,
+  News,
+  Notification,
+  Signals,
+} from "../icons/icons";
 import { AppRoutes } from "@/lib/routes";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -13,6 +21,7 @@ import { ProfileIcon } from "./profile-icon";
 import { utilsAtom } from "@/lib/atoms/utilsAtom";
 import { useAtomValue } from "jotai";
 import { RenderIf } from "./render-if";
+import SignalNotificationsPopover from "../signals/signal-notifications";
 import useAuthUserData from "@/lib/hooks/use-auth-user-data";
 
 const links = [
@@ -23,6 +32,8 @@ const links = [
     href: AppRoutes.dashboard.path,
   },
   { id: 2, label: "News", icon: News, href: AppRoutes.news.path },
+  // Uncommenting this causes the app to crash
+  // { id: 3, label: "Signals", icon: Signals, href: AppRoutes.signals.path },
 ];
 
 interface INavLink {
@@ -42,7 +53,7 @@ function NavLink(props: INavLink) {
         <p
           className={cn(
             "text-sm leading-[1.35] md:text-base",
-            active ? "text-white" : "text-[#5F5F5F] md:text-[#9b9b9b]"
+            active ? "text-white" : "text-[#5F5F5F] md:text-[#9b9b9b]",
           )}
         >
           {label}
@@ -54,10 +65,11 @@ function NavLink(props: INavLink) {
 
 interface IProps {
   isNews?: boolean;
+  isPricing?: boolean;
 }
 
 export const Navbar = (props: IProps) => {
-  const { isNews = false } = props;
+  const { isNews = false, isPricing = false } = props;
   const pathName = usePathname();
   const utils = useAtomValue(utilsAtom);
 
@@ -65,7 +77,12 @@ export const Navbar = (props: IProps) => {
   const authUser = useAuthUserData();
 
   return (
-    <nav className="flex flex-col items-center overflow-hidden border-b border-[#161616] bg-[#0C0C0C] px-2 py-3 sm:px-4 md:px-10 md:py-4">
+    <nav
+      className={cn(
+        "flex flex-col items-center overflow-hidden border-b border-[#161616] bg-[#0C0C0C] px-2 py-3 sm:px-4 md:px-10 md:py-4",
+        isPricing && "bg-[#000000]",
+      )}
+    >
       <div className="flex items-center justify-between w-full mx-auto">
         <div className="h-[24px] w-[24px] md:hidden">
           <Link href="/">

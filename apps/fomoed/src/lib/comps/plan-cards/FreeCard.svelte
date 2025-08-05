@@ -12,7 +12,7 @@
 	<div class="h-px bg-[#FFFFFF33] mx-[10px]"></div>
 
 	<ul class="px-[24px] pt-[20px] grid gap-y-[10px] text-sm">
-		<li class="checkmark-list-item">Access to daily data</li>
-		<li class="checkmark-list-item">Access to BTC and ETH</li>
+		<li class="checkmark-list-item">Access to essential widgets</li>
+		<li class="checkmark-list-item">Access to BTC and ETH data</li>
 	</ul>
 </div>

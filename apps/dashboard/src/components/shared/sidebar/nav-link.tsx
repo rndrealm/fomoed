@@ -29,6 +29,7 @@ export interface INavLink {
   onClick?: () => void;
   disabled?: boolean;
   comingSoon?: boolean;
+  beta?: boolean;
 }
 
 interface INavLinkProps extends INavLink {
@@ -38,7 +39,19 @@ interface INavLinkProps extends INavLink {
 }
 
 export function NavLink(props: INavLinkProps) {
-  const { href, label, icon, active, onClick, disabled, comingSoon, variant, isSideMenuOpen, isBottomLink } = props;
+  const {
+    href,
+    label,
+    icon,
+    active,
+    onClick,
+    disabled,
+    comingSoon,
+    beta,
+    variant,
+    isSideMenuOpen,
+    isBottomLink,
+  } = props;
 
   const [isHovered, setIsHovered] = useState(false);
 
@@ -72,7 +85,7 @@ export function NavLink(props: INavLinkProps) {
         id="popup-trigger-div"
         className={cn(
           "pointer-events-auto relative flex max-h-[40px] items-center justify-center rounded-[10px] px-0 py-2",
-          isHovered ? "bg-[#1A1A1A]" : "bg-[#000]"
+          isHovered ? "bg-[#1A1A1A]" : "bg-[#000]",
         )}
       >
         {/* icon can be hovered */}
@@ -89,14 +102,25 @@ export function NavLink(props: INavLinkProps) {
             {/* make the active icon white */}
             <div key={label}>
               {React.cloneElement(icon, {
-                ...(active && { color: "#fff" }),
+                ...(active
+                  ? { color: "#fff" }
+                  : disabled
+                    ? { color: "#838383" }
+                    : {}),
               })}
             </div>
           </div>
         </Link>
 
         {/* hover popup */}
-        {isHovered && <LinkPopup label={label} className="left-[42px]" />}
+        {isHovered && (
+          <LinkPopup
+            label={label}
+            className="left-[42px]"
+            beta={beta}
+            comingSoon={comingSoon}
+          />
+        )}
       </div>
     );
   }
@@ -105,12 +129,14 @@ export function NavLink(props: INavLinkProps) {
   return (
     <motion.div
       className={cn(
-        "relative flex max-h-[40px] items-center rounded-[10px] px-2 py-2",
+        "group relative flex max-h-[40px] items-center rounded-[10px] px-2 py-0",
         isBottomLink
           ? "justify-start gap-2 bg-[#000]"
           : active
             ? "justify-between bg-[#1A1A1A]"
-            : "justify-between bg-transparent"
+            : disabled
+              ? "justify-between bg-transparent"
+              : "hover:bg-[#1A1A1A] justify-between bg-transparent",
       )}
       initial="closed"
       variants={sideMenuVariants}
@@ -119,17 +145,27 @@ export function NavLink(props: INavLinkProps) {
       <Link
         href={disabled ? "#" : href}
         onClick={handleClick}
-        className={cn("w-full", {
+        className={cn("w-full py-2", {
           "pointer-events-none cursor-not-allowed opacity-50": disabled,
         })}
         aria-disabled={disabled}
       >
         <div className="flex items-center gap-3 pt-0 pb-0">
           <div
-            className={cn(!active && !isBottomLink && "!opacity-100 md:!opacity-0", isBottomLink ? "" : "mt-[-2px]")}
-            style={{ opacity: !isBottomLink && active ? 1 : isBottomLink ? 1 : 0 }}
+            className={cn(
+              !active &&
+                !isBottomLink &&
+                "!opacity-100 md:!opacity-0 md:group-hover:!opacity-100",
+              isBottomLink ? "" : "mt-[0px]",
+            )}
           >
-            <div key={label}>
+            <div
+              key={label}
+              className={cn(
+                disabled && "opacity-100 md:opacity-0",
+                // "opacity-100",
+              )}
+            >
               {React.cloneElement(icon, {
                 ...(active && { color: "#fff" }),
               })}
@@ -138,7 +174,13 @@ export function NavLink(props: INavLinkProps) {
           <motion.p
             className={cn(
               "text-sm font-normal md:text-[14px]",
-              isBottomLink ? "text-[#838383]" : active ? "text-white" : "text-[#838383]"
+              isBottomLink
+                ? "text-[#838383]"
+                : active
+                  ? "text-white"
+                  : disabled
+                    ? "text-[#838383]"
+                    : "text-[#838383] group-hover:text-white",
             )}
             initial="closed"
             variants={sideMenuVariants}
@@ -151,12 +193,27 @@ export function NavLink(props: INavLinkProps) {
 
       {comingSoon && !isBottomLink && (
         <motion.div
-          className="absolute top-1/2 right-0 translate-y-[-50%] rounded-[8px] border-[1px] border-[#3A2C4F] bg-[#2C233A] px-2 py-1"
+          className="mr-1.5 absolute top-1/2 right-0 hidden translate-y-[-50%] rounded-[8px] border-[1px] border-[#3A2C4F] bg-[#2C233A] px-2 py-1 md:flex"
           initial="closed"
           variants={sideMenuVariants}
           animate={isSideMenuOpen ? "open" : "closed"}
         >
-          <h3 className="text-xs font-normal text-nowrap text-[#C1A8FF]">Coming Soon</h3>
+          <h3 className="text-xs font-normal text-nowrap text-[#C1A8FF]">
+            Coming Soon
+          </h3>
+        </motion.div>
+      )}
+
+      {beta && !isBottomLink && (
+        <motion.div
+          className="mr-1.5 absolute top-1/2 right-0 hidden translate-y-[-50%] rounded-[8px] border-[1px] border-[#2C4F3A] bg-[#233A2C] px-2 py-1 md:flex"
+          initial="closed"
+          variants={sideMenuVariants}
+          animate={isSideMenuOpen ? "open" : "closed"}
+        >
+          <h3 className="text-xs font-normal text-nowrap text-[#A8FFC1]">
+            BETA
+          </h3>
         </motion.div>
       )}
     </motion.div>

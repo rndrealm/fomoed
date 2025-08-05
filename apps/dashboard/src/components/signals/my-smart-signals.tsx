@@ -8,6 +8,7 @@ import MySmartSignalCard from "./my-smart-signal-card";
 import { useGetUserPlans } from "@/services/queries/subscriptions";
 import { useState } from "react";
 import { Upgrade } from "../modals";
+import { Button } from "../ui/button";
 
 const EmptyState = () => {
   const [_, setActiveSignalTab] = useAtom(activeSignalTabAtom);
@@ -15,13 +16,14 @@ const EmptyState = () => {
     <Card className="w-full h-80">
       <CardContent className="flex items-center justify-center flex-col w-full h-full ">
         Create your very own Smart Signals
-        <button
+        <Button
           onClick={() => setActiveSignalTab("signal-builder")}
-          className="bg-fomoed-red text-white px-2 py-1 rounded mt-2 flex items-center text-sm"
+          className="bg-fomoed-red hover:bg-fomoed-red/90 text-white mt-2 text-sm h-8 px-2 py-1"
+          size="sm"
         >
-          <Plus size={12} />
+          <Plus className="mr-1 h-3 w-3" />
           New Signal
-        </button>
+        </Button>
       </CardContent>
     </Card>
   );
@@ -44,24 +46,28 @@ const MySignals = () => {
 
   if (isLoading) {
     return (
-      <div className="w-full h-80 flex items-center justify-center">
-        <LoaderCircle className="animate-spin" />
-      </div>
+      <></>
+      // <div className="w-full h-80 flex items-center justify-center">
+      //   <LoaderCircle className="animate-spin" />
+      // </div>
     );
   }
 
   return (
-    <div>
+    <div className="w-full">
       <div className="flex items-center justify-between my-6">
-        <h1 className="font-medium text-xl">My Smart Signals</h1>
+        <h1 className="font-semibold text-2xl font-inter text-white">
+          Your Saved Signals
+        </h1>
 
-        <button
+        <Button
           onClick={handleNewSignal}
-          className="bg-fomoed-red text-white px-2 py-1 rounded flex items-center text-sm"
+          className="bg-fomoed-red hover:bg-fomoed-red/90 text-white h-8 px-2 py-1 text-sm"
+          size="sm"
         >
-          <Plus size={12} />
+          <Plus className="mr-1 h-3 w-3" />
           New Signal
-        </button>
+        </Button>
       </div>
 
       <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-5 mt-4">

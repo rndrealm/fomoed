@@ -113,8 +113,8 @@ export function getChangeTextColor(change: number): string {
 }
 
 export const maxTabsByPlan = {
-  FREE: 3,
-  PLUS: 6,
+  FREE: 1,
+  PLUS: 3,
   PRO: 11,
 };
 
@@ -504,4 +504,14 @@ export function generateSocialLinks(newsUrl: string) {
     facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
     linkedin: `https://www.linkedin.com/shareArticle?mini=true&url=${encodedUrl}`,
   };
+}
+
+export function generateAudioLink(newsId: string) {
+  return `https://storage.googleapis.com/fomoed_news_summary_audio/${newsId}.mp3`;
+}
+
+export function formatAudioTime(seconds: number): string {
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
 }

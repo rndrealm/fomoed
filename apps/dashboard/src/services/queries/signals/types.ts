@@ -2,7 +2,6 @@ export interface CreateSignalDTO {
   name: string;
   description: string;
   condition: string;
-  topics: string[];
   actions: Array<{
     type: string;
     subject?: string;

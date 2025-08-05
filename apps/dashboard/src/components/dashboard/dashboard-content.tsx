@@ -19,6 +19,7 @@ function Empty() {
           handleAddWidget={() => {
             setShowWidgets(true);
           }}
+          from="dashboard-empty"
         />
       </RenderIf>
 
@@ -52,7 +53,7 @@ export function DashboardContent() {
       {tabs.map((item) => {
         const isActive = item.id === activeLayout.id;
         const currLayout = layouts.find(
-          (layout) => layout.id === item.layout_id
+          (layout) => layout.id === item.layout_id,
         );
 
         return (
@@ -60,7 +61,7 @@ export function DashboardContent() {
             key={item.id}
             className={cn(
               "h-full w-full",
-              isActive ? "" : "invisible h-0 overflow-hidden"
+              isActive ? "" : "invisible h-0 overflow-hidden",
             )}
           >
             {currLayout?.widgets?.length === 0 || !currLayout ? (

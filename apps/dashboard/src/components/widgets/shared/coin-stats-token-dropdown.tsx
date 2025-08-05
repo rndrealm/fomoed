@@ -10,6 +10,7 @@ import {
 import { CoinDataInterface } from "@/services/queries/charts/types";
 import { ChevronDown } from "lucide-react";
 import SearchIcon from "@/components/icons/SearchIcon";
+import { useGetUserPlans } from "@/services/queries/subscriptions";
 
 interface IProps {
   options: CoinDataInterface[];
@@ -23,6 +24,8 @@ export default function CoinStatsTokenDropdown(props: IProps) {
 
   const [searchValue, setSearchValue] = useState("");
   const [open, setOpen] = useState(false);
+
+  const { data: userPlans } = useGetUserPlans();
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -108,6 +111,11 @@ export default function CoinStatsTokenDropdown(props: IProps) {
                 setValue(item.symbol);
                 setOpen(false);
               }}
+              disabled={
+                !userPlans?.hasPlan &&
+                item.symbol !== "BTC" &&
+                item.symbol !== "ETH"
+              }
             >
               <div className="w-[20px] h-[20px]">
                 <Image

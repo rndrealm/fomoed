@@ -1,8 +1,5 @@
 import React from "react";
-import dashboard from "@/lib/assets/dashboard";
-import Image, { StaticImageData } from "next/image";
-import Link from "next/link";
-import { RenderIf } from "@/components/shared";
+import { ImageWithFallback, RenderIf } from "@/components/shared";
 import { NewsFeedItem } from "@/services/queries/news/types";
 import { formatNewsWidgetTime } from "@/lib/utils";
 
@@ -44,7 +41,9 @@ export default function NewsItem(props: IProps) {
         <div className="flex flex-col gap-1">
           {/* <Tag sentiment={sentiment} /> */}
           <a target="_blank" href={data?.original_url}>
-            <p className="line-clamp-1 text-xs leading-[16px] tracking-[-0.4%] text-[#A4A4A4]">{data?.source}</p>
+            <p className="line-clamp-1 text-xs leading-[16px] tracking-[-0.4%] text-[#A4A4A4]">
+              {data?.source}
+            </p>
           </a>
 
           <div className="flex w-full flex-col gap-1">
@@ -62,7 +61,13 @@ export default function NewsItem(props: IProps) {
         </div>
 
         <div className="h-[70px] w-full max-w-[70px] overflow-hidden rounded-[10px]">
-          <Image src={data?.image_url || ""} width={90} height={90} alt="news" className="h-full w-full object-cover" />
+          <ImageWithFallback
+            src={data?.image_url || ""}
+            width={90}
+            height={90}
+            alt="news"
+            className="h-full w-full object-cover"
+          />
         </div>
       </div>
     </button>

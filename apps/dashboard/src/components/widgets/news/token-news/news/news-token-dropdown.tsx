@@ -1,12 +1,17 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { RenderIf } from "@/components/shared";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { CoinDataInterface } from "@/services/queries/charts/types";
 import { ChevronDown } from "lucide-react";
 import SearchIcon from "@/components/icons/SearchIcon";
 import CaretDown from "@/components/icons/CaretDown";
 import { formatPriceSignificant } from "@/lib/utils";
+import { useGetUserPlans } from "@/services/queries/subscriptions";
 
 interface IProps {
   options: CoinDataInterface[];
@@ -17,6 +22,8 @@ interface IProps {
 
 export function NewsTokenDropdown(props: IProps) {
   const { options = [], setValue, value, align = "center" } = props;
+
+  const { data: userPlans } = useGetUserPlans();
 
   const [searchValue, setSearchValue] = useState("");
   const [open, setOpen] = useState(false);
@@ -56,7 +63,9 @@ export function NewsTokenDropdown(props: IProps) {
         <DropdownMenu open={open} onOpenChange={setOpen}>
           <DropdownMenuTrigger>
             <div className="flex items-center justify-start gap-1">
-              <p className="text-[20px] leading-[1.35] font-bold text-white">{activeCoin?.name}</p>
+              <p className="text-[20px] leading-[1.35] font-bold text-white">
+                {activeCoin?.name}
+              </p>
               <div className="flex h-[20px] w-[20px] items-center justify-center">
                 <CaretDown />
               </div>
@@ -92,9 +101,20 @@ export function NewsTokenDropdown(props: IProps) {
                     setValue(item.symbol);
                     setOpen(false);
                   }}
+                  disabled={
+                    !userPlans?.hasPlan &&
+                    item.symbol !== "BTC" &&
+                    item.symbol !== "ETH"
+                  }
                 >
                   <div className="h-[20px] w-[20px]">
-                    <Image width={20} height={20} src={item?.icon || ""} alt="Coin Icon" className="h-full w-full" />
+                    <Image
+                      width={20}
+                      height={20}
+                      src={item?.icon || ""}
+                      alt="Coin Icon"
+                      className="h-full w-full"
+                    />
                   </div>
                   <p className="line-clamp-1 flex-1 text-left text-[13px] leading-[1.25] font-medium text-[#c3c3c3]">
                     {item.symbol}
@@ -110,15 +130,19 @@ export function NewsTokenDropdown(props: IProps) {
         <p className="text-base leading-[24px] font-medium text-[#BABABA]">
           {formatPriceSignificant(activeCoin?.price || 0)}
         </p>
-        <RenderIf condition={!!activeCoin?.priceChange && activeCoin?.priceChange > 0}>
+        <RenderIf
+          condition={!!activeCoin?.priceChange && activeCoin?.priceChange > 0}
+        >
           <p className="text-sm leading-[1.35] font-bold text-[#84EBB4]">
             +${formatPriceSignificant(price * (priceChange / 100), 2)}
           </p>
         </RenderIf>
 
-        <RenderIf condition={!!activeCoin?.priceChange && activeCoin?.priceChange < 0}>
+        <RenderIf
+          condition={!!activeCoin?.priceChange && activeCoin?.priceChange < 0}
+        >
           <p className="text-sm leading-[1.35] font-bold text-[#ff8970]">
-            -${formatPriceSignificant(price * (priceChange / 100), 2)}
+            -${formatPriceSignificant(Math.abs(price * (priceChange / 100)), 2)}
           </p>
         </RenderIf>
       </div>

@@ -1,6 +1,7 @@
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import { AddTab, CloseTab, MenuIconClosed, TabLayout } from "../../icons/icons";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import mixpanel from "mixpanel-browser";
 import {
   activeTabAtom,
   addNewTabAtom,
@@ -27,7 +28,14 @@ interface ITabButton {
 }
 
 export function TabButton(props: ITabButton) {
-  const { handleClick, handleClose, isActive, name, showCloseBtn, handleNameChange } = props;
+  const {
+    handleClick,
+    handleClose,
+    isActive,
+    name,
+    showCloseBtn,
+    handleNameChange,
+  } = props;
   const [hover, setHover] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -57,10 +65,10 @@ export function TabButton(props: ITabButton) {
         <div
           className={cn(
             "flex h-[32px] w-[170px] items-center justify-between gap-2 gap-3 rounded-md px-2",
-            isActive ? "bg-[#252525]" : "bg-[#111]"
+            isActive ? "bg-[#252525]" : "bg-[#111]",
           )}
         >
-          <div className="flex w-full flex-1 items-center gap-2">
+          <div className="flex items-center flex-1 w-full gap-2">
             <TabLayout active={isActive} />
             <div className="flex flex-1">
               <form
@@ -74,7 +82,7 @@ export function TabButton(props: ITabButton) {
                   name="name"
                   className={cn(
                     "pointer-events-none h-full w-full flex-1 truncate text-xs font-medium focus:shadow-none focus:ring-0 focus:ring-offset-0 focus:outline-none focus-visible:ring-0 [&:focus]:outline-none [&:focus-visible]:outline-none",
-                    isActive ? "text-white" : "text-[#7a7a7a]"
+                    isActive ? "text-white" : "text-[#7a7a7a]",
                   )}
                   defaultValue={name}
                   onKeyDown={(e) => {
@@ -106,7 +114,11 @@ export function TabButton(props: ITabButton) {
         </div>
       </button>
       <RenderIf condition={showCloseBtn && (isActive || hover)}>
-        <button type="button" className="absolute top-[50%] right-[8px] translate-y-[-50%]" onClick={handleClose}>
+        <button
+          type="button"
+          className="absolute top-[50%] right-[8px] translate-y-[-50%]"
+          onClick={handleClose}
+        >
           <CloseTab />
         </button>
       </RenderIf>
@@ -131,7 +143,9 @@ export function NewTabs() {
 
   const setIsSideMenuOpen = useSetAtom(isSidebarOpenAtom);
 
-  const currentLayout = layouts.find((item) => item.id === deleteTab?.layout_id);
+  const currentLayout = layouts.find(
+    (item) => item.id === deleteTab?.layout_id,
+  );
 
   const { data } = useGetUserPlans();
 
@@ -143,6 +157,11 @@ export function NewTabs() {
       setShowUpgradeModal(true);
       return;
     }
+
+    mixpanel.track("Tab Added", {
+      from: "toolbar",
+      plan: planType,
+    });
 
     addNewTab();
   };
@@ -162,10 +181,12 @@ export function NewTabs() {
             setShowTabsModal(true);
           }}
         >
-          <p className="text-xs leading-[18px] font-medium text-[#7A7A7A]">{tabs?.length}</p>
+          <p className="text-xs leading-[18px] font-medium text-[#7A7A7A]">
+            {tabs?.length}
+          </p>
         </button>
       </div>
-      <div className="hidden w-full flex-1 items-center gap-2 overflow-hidden md:flex">
+      <div className="items-center flex-1 hidden w-full gap-2 overflow-hidden md:flex">
         <button
           type="button"
           className="flex h-[32px] w-[32px] items-center justify-center rounded-md border border-[#121212]"
@@ -176,7 +197,7 @@ export function NewTabs() {
 
         <div className="h-[18px] w-[1px] bg-[#141414]"></div>
 
-        <div className="no-scrollbar flex flex-1 items-center gap-2 overflow-x-auto pr-2">
+        <div className="flex items-center flex-1 gap-2 pr-2 overflow-x-auto no-scrollbar">
           {tabs?.map((item) => {
             const isActive = activeTab.id === item.id;
             const showCloseBtn = tabs.length > 1;

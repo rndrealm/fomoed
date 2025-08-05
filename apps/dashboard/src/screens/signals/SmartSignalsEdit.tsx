@@ -39,7 +39,7 @@ const SmartSignalsEdit = () => {
       setSignalActions({
         email: !!data.actions.find((action) => action.type === "email"),
         notification: !!data.actions.find(
-          (action) => action.type === "notification"
+          (action) => action.type === "notification",
         ),
       });
       console.log("🚀 ~ useEffect ~ condition:", JSON.parse(data.condition));
@@ -113,12 +113,12 @@ const SmartSignalsEdit = () => {
 
         <div className="space-y-6">
           {JSON.stringify(condition)}
-          {condition && (
+          {/* {condition && (
             <ManualSignalBuilder
               initialLogic={condition}
               setLogic={setCondition}
             />
-          )}
+          )} */}
 
           <NotificationSettings
             notifications={signalActions}

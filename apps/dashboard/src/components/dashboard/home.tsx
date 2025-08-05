@@ -19,6 +19,7 @@ import { setGeoLocationAtom } from "@/lib/atoms/geoLocation";
 import { useFetchUserLocation } from "@/services/queries/geolocation";
 import { KeyboardShortcuts } from "./shared/keyboard-shortcuts";
 import { useGetSupportedxchangePairs, useReadCoinList } from "@/services/queries/charts";
+import { Player } from "./shared/player";
 
 interface IProps {
   dashboardData: IDashboardData;
@@ -119,6 +120,7 @@ export default function Home({ dashboardData }: IProps) {
         </div>
       </div>
       <KeyboardShortcuts />
+      <Player />
     </Fragment>
   );
 }

@@ -5,31 +5,7 @@ import {
 } from "@/constant/signals/data-source-config";
 import { nanoid } from "nanoid";
 
-export function extractTopicsFromJsonLogic(logic: any): string[] {
-  const topics: string[] = [];
-
-  function traverse(node: any) {
-    if (!node || typeof node !== "object") return;
-    // Check for topic object
-    if (
-      node.topic &&
-      Array.isArray(node.topic) &&
-      typeof node.topic[0] === "string"
-    ) {
-      topics.push(node.topic[0]);
-    }
-    // Traverse arrays
-    if (Array.isArray(node)) {
-      node.forEach(traverse);
-    } else {
-      // Traverse object values
-      Object.values(node).forEach(traverse);
-    }
-  }
-
-  traverse(logic);
-  return topics;
-}
+const dataSourceIdTopicSeparator = "-";
 
 // Converts a JSON Logic object to a Group/Condition tree using 'children' and 'operand'
 export const jsonLogicToGroup = (logic: any, isRoot = true): any => {
@@ -43,7 +19,7 @@ export const jsonLogicToGroup = (logic: any, isRoot = true): any => {
         {
           id: nanoid(),
           type: "condition",
-          dataSource: null,
+          dataSourceId: null,
           topic: null,
           operator: null,
           value: null,
@@ -55,7 +31,7 @@ export const jsonLogicToGroup = (logic: any, isRoot = true): any => {
     const operand = logic.and ? "and" : "or";
     const arr = logic[operand];
     const children: (Group | Condition)[] = arr.map((item: any) =>
-      jsonLogicToGroup(item, false)
+      jsonLogicToGroup(item, false),
     );
     return {
       id: nanoid(),
@@ -66,14 +42,30 @@ export const jsonLogicToGroup = (logic: any, isRoot = true): any => {
   }
   for (const op of [">", "<", "==", "!="]) {
     if (logic[op]) {
-      const [value, topicObj] = logic[op];
+      const [it1, it2] = logic[op];
+
+      let value: string | number | boolean | null = null;
+      let topicObj: { topic: string } | null = null;
+
+      if (typeof it1 === "object") {
+        topicObj = it1;
+        value = it2;
+      } else if (typeof it2 === "object") {
+        topicObj = it2;
+        value = it1;
+      }
+
+      const [dataSourceId, topic] = topicObj?.topic?.split(
+        dataSourceIdTopicSeparator,
+      ) || [null, null];
+
       const condition = {
         id: nanoid(),
         type: "condition",
         operator: op,
         value: value,
-        dataSource: topicObj?.topic?.[1] || null,
-        topic: topicObj?.topic?.[0] || null,
+        dataSourceId,
+        topic,
       };
       // Only wrap in a group if this is the root
       if (isRoot) {
@@ -113,7 +105,7 @@ export const toJsonLogic = (group: Group): any => {
     .map((c) =>
       c.type === "condition"
         ? conditionToJsonLogic(c as Condition)
-        : toJsonLogic(c as Group)
+        : toJsonLogic(c as Group),
     )
     .filter(Boolean);
   return { [group.operand]: arr };
@@ -128,10 +120,21 @@ export const conditionToJsonLogic = (cond: Condition) => {
     cond.value === undefined
   )
     return null;
+
+  // Check if topic already contains the dataSourceId prefix
+  // If it does, use it as is; otherwise, add the prefix
+  let topicString = cond.topic;
+  if (
+    cond.dataSourceId &&
+    !cond.topic.startsWith(cond.dataSourceId + dataSourceIdTopicSeparator)
+  ) {
+    topicString = cond.dataSourceId + dataSourceIdTopicSeparator + cond.topic;
+  }
+
   return {
     [cond.operator]: [
       {
-        topic: [cond.topic, cond.dataSource],
+        topic: topicString,
       },
       isNaN(Number(cond.value)) ? cond.value : Number(cond.value),
     ],
@@ -152,3 +155,36 @@ export const getDataSourceById = (id: string): DataSource | undefined => {
   }
   return undefined;
 };
+
+function isConditionValid(condition: Condition): boolean {
+  return (
+    !!condition.dataSourceId &&
+    !!condition.topic &&
+    !!condition.operator &&
+    !!condition.value
+  );
+}
+
+export function isConditionGroupValid(group: Group): boolean {
+  if (group.children.length === 0) return false;
+
+  // Check if all children are valid conditions or groups
+  for (const child of group.children) {
+    if (child.type === "condition") {
+      if (!isConditionValid(child as Condition)) return false;
+    } else if (child.type === "group") {
+      if (!isConditionGroupValid(child as Group)) return false;
+    } else {
+      return false; // Invalid type
+    }
+  }
+
+  return true;
+}
+
+/**
+ * @deprecated
+ */
+export function extractTopicsFromJsonLogic(logic: any): string[] {
+  throw new Error("Function not implemented.");
+}

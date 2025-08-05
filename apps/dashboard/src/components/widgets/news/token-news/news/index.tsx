@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { LayoutType, updateWidgetPropsAtom } from "@/lib/atoms/layoutAtom";
-import { CoinStats, Play, Question, Sound } from "@/components/icons/icons";
+import { CoinStats, Play, Sound } from "@/components/icons/icons";
 import NewsItem from "./news-item";
 import Player from "./player";
 import { AnimatePresence, motion } from "motion/react";
@@ -17,6 +17,7 @@ import { RenderIf } from "@/components/shared";
 import { settingAtom, updateSettingAtom } from "@/lib/atoms/settingsAtom";
 import { splitWidgetSlug } from "@/lib/utils";
 import StarFilled from "@/components/icons/StarFilled";
+import { audioRefAtom, setPlaylistAtom } from "@/lib/atoms/audio";
 
 const sheetVariants = {
   hidden: {
@@ -85,13 +86,15 @@ export default function NewsWidget(props: IProps) {
   const [showPlayer, setShowPlayer] = useState(false);
   const [showDetails, setShowDetails] = useState("");
 
-  const { data: news = [] } = useReadNewsFeed(widget?.props?.token, 1, 40);
+  const { data: news = [] } = useReadNewsFeed(widget?.props?.token, 1, 20);
   const { data: coinData = [] } = useReadCoinList();
 
   const activeLayout = useAtomValue(activeTabAtom);
   const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
   const settings = useAtomValue(settingAtom);
   const updateSettings = useSetAtom(updateSettingAtom);
+
+  const setPlaylist = useSetAtom(setPlaylistAtom);
 
   const widgetSlug = splitWidgetSlug(widget.meta.i).slug;
 
@@ -159,19 +162,17 @@ export default function NewsWidget(props: IProps) {
             align="start"
           />
 
-          <RenderIf condition={false}>
-            <button
-              type="button"
-              className="flex items-center gap-1 rounded-[40px] bg-[#0F0F0F] px-[10px] py-2"
-              onClick={() => {
-                setShowPlayer(true);
-              }}
-              disabled={false}
-            >
-              <Play />
-              <Sound />
-            </button>
-          </RenderIf>
+          <button
+            type="button"
+            className="flex items-center gap-1 rounded-[40px] bg-[#0F0F0F] px-[10px] py-2"
+            onClick={() => {
+              setShowPlayer(true);
+            }}
+            disabled={false}
+          >
+            <Play />
+            <Sound />
+          </button>
         </div>
         <div className="scrollbar flex h-full flex-1 flex-col gap-5 overflow-y-auto px-4 py-4">
           {news?.map((data, index) => {
@@ -192,7 +193,7 @@ export default function NewsWidget(props: IProps) {
       <AnimatePresence>
         {showPlayer && (
           <motion.div
-            className="absolute top-[0px] right-[0] bottom-[0] left-[0] flex"
+            className="absolute top-[0px] right-[0] bottom-[0] left-[0] z-[3] flex"
             initial="hidden"
             animate={"visible"}
             exit={"hidden"}
@@ -202,6 +203,7 @@ export default function NewsWidget(props: IProps) {
               handleClose={() => {
                 setShowPlayer(false);
               }}
+              news={news}
             />
           </motion.div>
         )}
@@ -210,7 +212,7 @@ export default function NewsWidget(props: IProps) {
       <AnimatePresence>
         {!!showDetails && (
           <motion.div
-            className="absolute top-[0px] right-[0] bottom-[0] left-[0] flex"
+            className="absolute top-[0px] right-[0] bottom-[0] left-[0] z-[2] flex"
             initial="hidden"
             animate={"visible"}
             exit={"hidden"}

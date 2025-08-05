@@ -44,7 +44,7 @@ export const signalModalDataAtom = atom<SignalModalData>((get) => {
     conditions.push({
       id: nanoid(),
       type: "condition",
-      dataSource: dataSource.id,
+      dataSourceId: dataSource.id,
       topic: `${data.topic}`,
       operator: "==",
       value: data.value,
