@@ -133,6 +133,9 @@ const PassiveNav = (props: IPassiveNavProps) => {
           {navLinks.map((item, index) => {
             // const active = item.label === "News";
 
+            const comingSoon = item.label === "Community";
+            const beta = item.label === "Smart Signals";
+
             return (
               <NavLink
                 key={index}
@@ -141,6 +144,8 @@ const PassiveNav = (props: IPassiveNavProps) => {
                 icon={item.icon}
                 active={item.active}
                 disabled={item.disabled}
+                comingSoon={comingSoon}
+                beta={beta}
                 variant="passive"
               />
             );
