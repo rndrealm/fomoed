@@ -85,7 +85,7 @@ export function NavLink(props: INavLinkProps) {
         id="popup-trigger-div"
         className={cn(
           "pointer-events-auto relative flex max-h-[40px] items-center justify-center rounded-[10px] px-0 py-2",
-          isHovered ? "bg-[#1A1A1A]" : "bg-[#000]",
+          isHovered && !disabled ? "bg-[#1A1A1A]" : "bg-[#000]",
         )}
       >
         {/* icon can be hovered */}
