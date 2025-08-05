@@ -1,13 +1,10 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { ProfileIcon } from "./profile-icon";
-import { cn } from "@/lib/utils";
-import { Logout, Settings } from "../icons/icons";
-import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
+import { Logout } from "../icons/icons";
 import { useRouter } from "next/navigation";
 import { useGetUserPlans } from "@/services/queries/subscriptions";
 import Link from "next/link";
-import { RenderIf } from "./render-if";
 import { User } from "@supabase/supabase-js";
 import { AppRoutes } from "@/lib/routes";
 
@@ -24,17 +21,7 @@ export function ProfileDropdown(props: IProps) {
   const { data } = useGetUserPlans();
 
   const handleLogout = async () => {
-    // First, perform the signOut operation
-    const supabaseClient = createSupabaseBrowserClient();
-    const { error } = await supabaseClient.auth.signOut();
-
-    if (error) {
-      console.log("Error signing out:", error);
-      return;
-    }
-
-    // Navigate after successful logout
-    router.push(AppRoutes.auth.login.path);
+    router.push(AppRoutes.logout.path);
   };
 
   function handleGoToPlans() {
@@ -48,7 +35,10 @@ export function ProfileDropdown(props: IProps) {
   }, [isBeta]);
 
   if (!authUser) {
-    const currentUrl = typeof window !== "undefined" ? window.location.pathname + window.location.search : "";
+    const currentUrl =
+      typeof window !== "undefined"
+        ? window.location.pathname + window.location.search
+        : "";
 
     return (
       <div className="px-5 py-2">
@@ -70,8 +60,12 @@ export function ProfileDropdown(props: IProps) {
             <ProfileIcon user={authUser} className="rounded-[4px]" />
           </div>
           <div className="flex flex-col justify-center gap-1">
-            <h4 className="text-base leading-[1.35] font-medium text-white">{authUser?.user_metadata?.name}</h4>
-            <p className="font-regular text-xs leading-[1.35] text-[#A4A4A4]">{authUser?.email}</p>
+            <h4 className="text-base leading-[1.35] font-medium text-white">
+              {authUser?.user_metadata?.name}
+            </h4>
+            <p className="font-regular text-xs leading-[1.35] text-[#A4A4A4]">
+              {authUser?.email}
+            </p>
           </div>
         </div>
 
@@ -97,7 +91,9 @@ export function ProfileDropdown(props: IProps) {
             >
               <YellowStarSvg />
 
-              <p className="text-[13px] leading-[1.35] font-medium text-white">{data?.planType || "Loading..."}</p>
+              <p className="text-[13px] leading-[1.35] font-medium text-white">
+                {data?.planType || "Loading..."}
+              </p>
             </a>
           </div>
 
@@ -137,7 +133,9 @@ export function ProfileDropdown(props: IProps) {
               <div className="flex flex-row items-center justify-start gap-2">
                 <Logout />
 
-                <p className="text-[13px] leading-[1.35] font-medium text-white">Logout</p>
+                <p className="text-[13px] leading-[1.35] font-medium text-white">
+                  Logout
+                </p>
               </div>
             </button>
           </div>
@@ -149,7 +147,13 @@ export function ProfileDropdown(props: IProps) {
 
 const YellowStarSvg = () => {
   return (
-    <svg width="20" height="19" viewBox="0 0 20 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width="20"
+      height="19"
+      viewBox="0 0 20 19"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <path
         d="M8.69397 2.1472C8.9669 1.40962 10.0101 1.40963 10.283 2.1472L11.9161 6.56041C12.0019 6.7923 12.1847 6.97513 12.4166 7.06094L16.8298 8.69397C17.5674 8.9669 17.5674 10.0101 16.8298 10.283L12.4166 11.9161C12.1847 12.0019 12.0019 12.1847 11.9161 12.4166L10.283 16.8298C10.0101 17.5674 8.9669 17.5674 8.69397 16.8298L7.06094 12.4166C6.97513 12.1847 6.7923 12.0019 6.56041 11.9161L2.1472 10.283C1.40962 10.0101 1.40963 8.9669 2.1472 8.69397L6.56041 7.06094C6.7923 6.97513 6.97513 6.7923 7.06094 6.56041L8.69397 2.1472Z"
         fill="#9D9D9D"
