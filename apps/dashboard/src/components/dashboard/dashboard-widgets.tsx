@@ -1,7 +1,11 @@
 import React from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
 import { useAtomValue, useSetAtom } from "jotai";
-import { layoutAtom, LayoutType, syncOnLayoutChange } from "@/lib/atoms/layoutAtom";
+import {
+  layoutAtom,
+  LayoutType,
+  syncOnLayoutChange,
+} from "@/lib/atoms/layoutAtom";
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 import { chartsMap, widgetPropsDefaults } from "@/lib/static";
 import { splitWidgetSlug } from "@/lib/utils";
@@ -29,8 +33,16 @@ export function DashboardWidgets(props: IProps) {
       <ResponsiveGridLayout
         className="layout"
         // layouts={layout}
-        breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
-        cols={{ lg: 16, md: 12, sm: 12, xs: 4, xxs: 4 }}
+        breakpoints={{
+          xxl: 2000,
+          xl: 1700,
+          lg: 1200,
+          md: 996,
+          sm: 768,
+          xs: 480,
+          xxs: 0,
+        }}
+        cols={{ xxl: 32, xl: 24, lg: 16, md: 12, sm: 12, xs: 4, xxs: 4 }}
         draggableHandle=".cursor-grab"
         // resizeHandles={availableHandles}
         rowHeight={110}
@@ -58,11 +70,19 @@ export function DashboardWidgets(props: IProps) {
         {data?.widgets.map((layout, index) => {
           const { x, y } = layout.meta;
           const dimensionDefault =
-            widgetPropsDefaults[splitWidgetSlug(layout.meta.i).slug as keyof typeof widgetPropsDefaults]?.meta;
+            widgetPropsDefaults[
+              splitWidgetSlug(layout.meta.i)
+                .slug as keyof typeof widgetPropsDefaults
+            ]?.meta;
           const { w, h, minH, minW, maxH, maxW } = dimensionDefault;
           return (
-            <div key={layout.meta.i} data-grid={{ x, y, w, h, minW, minH, maxH, maxW }}>
-              {chartsMap[splitWidgetSlug(layout.meta.i).slug as keyof typeof chartsMap]?.component(layout)}
+            <div
+              key={layout.meta.i}
+              data-grid={{ x, y, w, h, minW, minH, maxH, maxW }}
+            >
+              {chartsMap[
+                splitWidgetSlug(layout.meta.i).slug as keyof typeof chartsMap
+              ]?.component(layout)}
             </div>
           );
         })}
