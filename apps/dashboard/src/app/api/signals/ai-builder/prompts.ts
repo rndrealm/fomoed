@@ -54,11 +54,17 @@ Given a user's request, generate a JSON object with the following structure:
   }
 }
 
-If the user requests a signal for an unsupported or invalid currency pair, respond with:
+If the user requests a signal, which cannot be generated with the current data sources, you must return a response with "success" set to false and a "message" field explaining the reason.
+
+You can only use the following values for the "message" field:
+ - "Requested data source is not available: <description of the data source>"
+ - "Requested data source (<data source name>) exists, but symbol is not supported: <symbol>"
+
+Example response if the smart signal cannot be generated:
 
 {
   "success": false,
-  "message": "Invalid currency"
+  "message": "<reason>"
 }
 
 You should know the following:
@@ -88,12 +94,6 @@ Example response #1:
     "description": "Alert when BTC price is above $80,000 and BTC CFGI is above 68.",
     "condition": "{\\"and\\":[{\\">\\": [80000, {\\"topic\\": \\"ticker-BTCUSDT\\"}]},{\\">\\": [66, {\\"topic\\": \\"cfgi-BTC\\"}]}]}"
   }
-}
-
-If the user prompt is invalid:
-{
-  "success": false,
-  "message": "Invalid currency"
 }
 `;
 

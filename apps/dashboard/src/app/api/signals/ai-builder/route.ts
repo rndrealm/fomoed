@@ -3,15 +3,20 @@ import { generateObject } from "ai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getSystemPromptGenSignal } from "./prompts";
+import { createSupabaseServerClient } from "@/lib/utils/supabase/server-client";
+import { getFeedbackContent } from "@/lib/utils/feedback";
+import { GetAiSignalResponseBody } from "@/services/queries/signals/types";
 
 const SignalAISchema = z.object({
   success: z.boolean(),
-  signal: z.object({
-    name: z.string().min(1),
-    description: z.string().min(1),
-    condition: z.string(),
-  }),
-  message: z.string(),
+  signal: z
+    .object({
+      name: z.string().min(1),
+      description: z.string().min(1),
+      condition: z.string(),
+    })
+    .optional(),
+  message: z.string().optional(),
 });
 
 const AvailableDataSourcesDataSchema = z.object({
@@ -56,17 +61,17 @@ async function getAvailableDataSources() {
 
 export const maxDuration = 30;
 
-export async function POST(req: Request) {
+export async function POST(
+  req: Request,
+): Promise<NextResponse<GetAiSignalResponseBody>> {
   // Get the AI prompt
   const dataSources = await getAvailableDataSources();
 
   if (!dataSources) {
     return NextResponse.json(
       {
-        data: {
-          success: false,
-          message: "Failed to fetch available data sources",
-        },
+        success: false,
+        message: "Failed to fetch available data sources",
       },
       { status: 500 },
     );
@@ -76,10 +81,8 @@ export async function POST(req: Request) {
 
   if (!systemPrompt) {
     return NextResponse.json({
-      data: {
-        success: false,
-        message: "Failed to fetch AI prompt",
-      },
+      success: false,
+      message: "Failed to fetch AI prompt",
     });
   }
 
@@ -98,10 +101,8 @@ export async function POST(req: Request) {
 
     return NextResponse.json(
       {
-        data: {
-          success: false,
-          message: "Failed to parse user request",
-        },
+        success: false,
+        message: "Failed to parse user request",
       },
       { status: 400 },
     );
@@ -112,10 +113,8 @@ export async function POST(req: Request) {
   if (!userPrompt) {
     return NextResponse.json(
       {
-        data: {
-          success: false,
-          message: "User prompt is required",
-        },
+        success: false,
+        message: "User prompt is required",
       },
       { status: 400 },
     );
@@ -143,11 +142,9 @@ export async function POST(req: Request) {
     );
   }
 
-  // The JSON string inside the "condition" field must be parsed before
-  // sending back a response
+  const obj = resp.object as typeof SignalAISchema._type;
 
-  const obj = resp.object;
-
+  // Handle no object returned
   if (!obj) {
     console.error("No object returned from AI signal generation");
 
@@ -160,22 +157,50 @@ export async function POST(req: Request) {
     );
   }
 
-  const signalCondStr = (obj as any).signal?.condition;
+  // Handle LLM failed to generate signal because of support
+  if (!obj.success) {
+    // Need to store a record of unsuccessfull LLm generation
+    const supabase = await createSupabaseServerClient();
 
-  if (process.env.NODE_ENV === "development") {
-    console.info("Generated condition", signalCondStr);
-  }
+    // Get the authenticated user
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-  if (typeof signalCondStr !== "string") {
-    console.error("Signal condition is not a string:", signalCondStr);
+    const content = getFeedbackContent({
+      notes: "",
+      prompt: userPrompt,
+      errorReason: obj.message,
+    });
+
+    const { data, error } = await supabase
+      .from("feedback")
+      .insert({ content, user_id: user?.id })
+      .select()
+      .single();
+
+    if (error) {
+      console.error(
+        "Failed to store feedback for unsuccessful signal generation:",
+        error,
+      );
+    }
 
     return NextResponse.json(
       {
         success: false,
-        message: "Failed to generate signal definition",
+        message: obj.message,
+        feedbackId: data?.id,
+        error: "cannot-generate",
       },
-      { status: 500 },
+      { status: 400 },
     );
+  }
+
+  const signalCondStr = (obj as any).signal?.condition;
+
+  if (process.env.NODE_ENV === "development") {
+    console.info("Generated condition", signalCondStr);
   }
 
   // Set condition
@@ -197,7 +222,5 @@ export async function POST(req: Request) {
 
   (obj as any).signal.condition = parsedCondition;
 
-  if (resp) {
-    return NextResponse.json({ data: resp.object });
-  }
+  return NextResponse.json(resp.object as any);
 }

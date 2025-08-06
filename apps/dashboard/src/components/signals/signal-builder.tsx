@@ -1,28 +1,27 @@
 "use client";
 import { Button } from "@/components/ui/button";
 
-import { Check, LoaderCircle, SaveIcon } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Check, LoaderCircle } from "lucide-react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-// import AISignalBuilder from "./AISignalBuilder";
 import useUserData from "@/lib/hooks/use-user-data";
 import { SignalActions } from "@/lib/types/signal.types";
 import {
+  fetchGenerateSignal,
   useCreateSignalMutation,
   useGenerateSignalDetails,
-  useGetAISignal,
   useSmartSignals,
 } from "@/services/queries/signals";
-import { CreateSignalDTO } from "@/services/queries/signals/types";
-import { redirect, useRouter } from "next/navigation";
-import AISignalPromptInput from "./ai-builder-prompt-input";
+import {
+  CreateSignalDTO,
+  GetAiSignalResponseBody,
+} from "@/services/queries/signals/types";
 import ManualSignalBuilder from "./manual-signal-builder";
 import NotificationSettings from "./notification-settings";
-import SignalDetails from "./signal-details";
 import { useAtom } from "jotai";
 import { activeSignalTabAtom } from "@/lib/atoms/signalTabsAtom";
 import { useGetUserPlans } from "@/services/queries/subscriptions";
-import { ModalContainer } from "../shared";
+import { ModalContainer, RenderIf } from "../shared";
 import { Upgrade } from "../modals";
 import SignalTitle from "./signal-title";
 import AutoGenerateButton from "./auto-generate-btn";
@@ -32,6 +31,8 @@ import {
   jsonLogicToGroup,
   toJsonLogic,
 } from "@/lib/utils/signal.utils";
+import { SignalGenErrorBox } from "./signal-gen-error-box";
+import { useMutation } from "@tanstack/react-query";
 
 const SignalBuilder = ({}) => {
   const [signalPrompt, setSignalPrompt] = useState("");
@@ -101,29 +102,48 @@ const SignalBuilder = ({}) => {
     setActiveSignalTab("my-signals");
   };
 
-  // Auto generate
-  const { mutateAsync: getAiSignal, isPending: isPendingAutoGenerate } =
-    useGetAISignal();
+  const latestSubmittedPrompt = useRef<string>("");
+  const feedbackId = useRef<number | null>(null);
 
-  const autoGenerate = useCallback(async () => {
-    const res = await getAiSignal(signalPrompt);
-    console.log(res);
-
-    if (!res.success || !res.signal) {
+  const onGenerateSuccess = useCallback((data: GetAiSignalResponseBody) => {
+    if (!data.success || !data.signal) {
       toast.error("Failed to generate signal. Please try again.");
       return;
     }
 
-    const newRootGroup = res.signal.condition
-      ? jsonLogicToGroup(res.signal.condition)
+    const newRootGroup = data.signal.condition
+      ? jsonLogicToGroup(data.signal.condition)
       : defaultGroup(0);
 
-    setSignalPrompt(res.signal.name);
-    setSignalDescription(res.signal.description);
+    setSignalPrompt(data.signal.name);
+    setSignalDescription(data.signal.description);
     setRootGroup(newRootGroup);
     setIsRootGroupValid(isConditionGroupValid(newRootGroup));
     setUpdateCount((prev) => prev + 1);
-  }, [signalPrompt, getAiSignal]);
+  }, []);
+
+  const generateSignalMutationFn = async () => {
+    latestSubmittedPrompt.current = signalPrompt;
+    return await fetchGenerateSignal(signalPrompt);
+  };
+
+  // Auto generate mutation
+  const {
+    mutate: mutateGenerateSignal,
+    isPending: isPendingAutoGenerate,
+    isError: isAutoGenerateError,
+    error: autoGenerateError,
+  } = useMutation({
+    mutationFn: generateSignalMutationFn,
+    onSuccess: onGenerateSuccess,
+    onError: (err: any) => {
+      const error = err as GetAiSignalResponseBody;
+
+      if (error.error === "cannot-generate") {
+        feedbackId.current = error.feedbackId || null;
+      }
+    },
+  });
 
   const [isRootGroupValid, setIsRootGroupValid] = useState(false);
 
@@ -172,7 +192,7 @@ const SignalBuilder = ({}) => {
   );
 
   return (
-    <div className="flex flex-col gap-3 min-h-max h-full justify-center pb-24">
+    <div className="flex flex-col gap-3 min-h-max justify-center pb-24">
       <div className="px-4">
         <SignalTitle
           title={signalPrompt}
@@ -180,11 +200,19 @@ const SignalBuilder = ({}) => {
           loading={genDetailsMutation.isPending}
         >
           <AutoGenerateButton
-            onClick={autoGenerate}
+            onClick={mutateGenerateSignal}
             isPending={isPendingAutoGenerate}
           />
         </SignalTitle>
       </div>
+
+      <RenderIf condition={isAutoGenerateError}>
+        <SignalGenErrorBox
+          latestPrompt={signalPrompt}
+          reason={autoGenerateError?.message || "Unexpected error"}
+          feedbackId={feedbackId.current}
+        />
+      </RenderIf>
 
       <ManualSignalBuilder
         key={updateCount}

@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "test": "vitest",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "gen-supabase-types": "supabase gen types typescript --project-id=ijgmstxxracfrqwzxdhq --schema=public > ./src/lib/database/supabase.ts"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.10",

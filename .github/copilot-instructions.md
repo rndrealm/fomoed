@@ -13,3 +13,7 @@
 - You are working inside a monorepo.
 - apps/fomoed contains an old version of the app, that we are migrating to react.
 - The new react application is located inside apps/dashbaord.
+
+## Your output
+
+- You don't have to tell me about the benefits of the changes that I have requested you to make. I already know them.
