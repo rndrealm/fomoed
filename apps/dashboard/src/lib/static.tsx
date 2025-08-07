@@ -41,6 +41,7 @@ import widgetsPreview from "./assets/widgetsPreview";
 import { StaticImageData } from "next/image";
 import NewsWidget from "@/components/widgets/news/token-news/news";
 import WeightedSentiment from "@/components/widgets/weighted-sentiment/weighted-sentiment";
+import WeightedPriceSentiment from "@/components/widgets/weighted-price-sentiment/weighted-price-sentiment";
 
 export const layoutClassMap = {
   SinglePane: "grid-rows-1 grid-cols-1",
@@ -258,6 +259,15 @@ export const layoutOptionsMap = [
     tags: ["charts", "new"],
   },
 
+  {
+    id: 211,
+    name: "Weighted Price Sentiment",
+    slug: "weighted-price-sentiment",
+    image: dashboard.weightedPriceSentiment,
+    category: "charts",
+    tags: ["charts", "new"],
+  },
+
   // {
   //   id: 10,
   //   name: "Heatmap",
@@ -407,6 +417,14 @@ export const chartsMap = {
     extra: ["period", "token"],
     component: (widget: LayoutType["widgets"][0]) => (
       <WeightedSentiment widget={widget} />
+    ),
+  },
+
+  "weighted-price-sentiment": {
+    name: "Weighted Price Sentiment",
+    extra: ["period", "token"],
+    component: (widget: LayoutType["widgets"][0]) => (
+      <WeightedPriceSentiment widget={widget} />
     ),
   },
 };
@@ -650,7 +668,21 @@ export const widgetPropsDefaults = {
   },
 
   "weighted-sentiment": {
-    token: "BTC",
+    token: "bitcoin",
+    period: "1h",
+    meta: {
+      w: 8,
+      h: 4,
+      minW: 8,
+      minH: 4,
+      maxW: Infinity,
+      maxH: Infinity,
+    },
+  },
+
+  "weighted-price-sentiment": {
+    token: "bitcoin",
+    period: "1h",
     meta: {
       w: 8,
       h: 4,

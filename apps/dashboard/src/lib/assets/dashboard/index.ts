@@ -55,6 +55,7 @@ import newsWidget from "../../../../public/media/images/dashboard/news-widget.pn
 import fallback from "../../../../public/fallback.png";
 import logoV2 from "../../../../public/media/images/logoV2.png";
 import weightedSentiment from "../../../../public/media/images/dashboard/weighted-sentiment.png";
+import weightedPriceSentiment from "../../../../public/media/images/dashboard/weighted-price-sentiment.png";
 
 const dashboard = {
   layoutPlaceholder,
@@ -114,6 +115,7 @@ const dashboard = {
   fallback,
   logoV2,
   weightedSentiment,
+  weightedPriceSentiment,
 };
 
 export default dashboard;

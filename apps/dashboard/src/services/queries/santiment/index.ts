@@ -1,6 +1,6 @@
 import api from "@/services/api";
 import { useQuery } from "@tanstack/react-query";
-import { WeightedSentiment } from "./types";
+import { WeightedSentiment, WeightedSentimentToken } from "./types";
 
 const BASE_URL =
   "https://fomoed-data-ingestion-509111531565.us-central1.run.app/api/v1";
@@ -91,6 +91,6 @@ export const useReadSantimentTokenList = (
 
   return {
     ...res,
-    // data: res?.data?.data as WeightedSentiment[],
+    data: res?.data?.data as WeightedSentimentToken[],
   };
 };

@@ -1,10 +1,15 @@
 "use client";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useReadWeightedSentiment } from "@/services/queries/santiment";
+import {
+  useReadSantimentTokenPrice,
+  useReadWeightedSentiment,
+} from "@/services/queries/santiment";
 import { ColorType, Time } from "lightweight-charts";
 import {
   AreaSeries,
   Chart,
+  HistogramSeries,
+  LineSeries,
   TimeScale,
   TimeScaleFitContentTrigger,
 } from "lightweight-charts-react-components";
@@ -26,6 +31,12 @@ export default function WeightedChart(props: IProps) {
     interval: period,
   });
 
+  const { data: priceData = [] } = useReadSantimentTokenPrice({
+    auth_token: user?.access_token,
+    token,
+    interval: period,
+  });
+
   const [dimension, setDimension] = useState({ width: 0, height: 0 });
 
   const chartContainerRef = useRef<HTMLDivElement>(null);
@@ -41,6 +52,18 @@ export default function WeightedChart(props: IProps) {
 
     return newData;
   }, [data]);
+
+  const formattedPriceData = useMemo(() => {
+    const newData = priceData?.map((item) => {
+      return {
+        // time: formatDateToYYYYMMDD(new Date(item?.datetime)),
+        time: (new Date(item?.datetime).valueOf() / 1000) as Time,
+        value: item?.value,
+      };
+    });
+
+    return newData;
+  }, [priceData]);
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
@@ -80,10 +103,9 @@ export default function WeightedChart(props: IProps) {
             },
           },
           rightPriceScale: {
-            visible: false,
+            visible: true,
           },
           leftPriceScale: {
-            borderVisible: false,
             visible: true,
           },
           autoSize: false,
@@ -99,17 +121,15 @@ export default function WeightedChart(props: IProps) {
           },
         }}
       >
-        <AreaSeries
-          data={formattedData}
-          options={{
-            // baseLineColor: "red",
-            topColor: "#47A663",
-            lineColor: "#47A663",
-            // bottomColor: "transparent",
-            bottomColor: "rgba(71,166,99,0.01)",
-            lineWidth: 1,
-          }}
+        <LineSeries
+          data={formattedPriceData}
+          options={{ priceScaleId: "right" }}
         />
+        <HistogramSeries
+          data={formattedData}
+          options={{ priceScaleId: "left" }}
+        />
+
         <TimeScale
           options={{
             borderVisible: false,

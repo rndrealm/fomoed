@@ -27,7 +27,7 @@ interface IProps {
   widget: LayoutType["widgets"][0];
 }
 
-export default function WeightedSentiment(props: IProps) {
+export default function WeightedPriceSentiment(props: IProps) {
   const { widget } = props;
 
   const user = useSession();
