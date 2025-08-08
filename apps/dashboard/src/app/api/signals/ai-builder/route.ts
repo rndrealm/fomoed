@@ -2,15 +2,21 @@ import { openai } from "@ai-sdk/openai";
 import { generateObject } from "ai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { getSystemPromptGenSignal } from "./prompts";
+import { createSupabaseServerClient } from "@/lib/utils/supabase/server-client";
+import { getFeedbackContent } from "@/lib/utils/feedback";
+import { GetAiSignalResponseBody } from "@/services/queries/signals/types";
 
 const SignalAISchema = z.object({
   success: z.boolean(),
-  signal: z.object({
-    name: z.string().min(1),
-    description: z.string().min(1),
-    condition: z.string(),
-  }),
-  message: z.string(),
+  signal: z
+    .object({
+      name: z.string().min(1),
+      description: z.string().min(1),
+      condition: z.string(),
+    })
+    .optional(),
+  message: z.string().optional(),
 });
 
 const AvailableDataSourcesDataSchema = z.object({
@@ -53,86 +59,30 @@ async function getAvailableDataSources() {
   return AvailableDataSourcesDataSchema.parse(json);
 }
 
-async function getSystemPrompt(): Promise<string | null> {
+export const maxDuration = 30;
+
+export async function POST(
+  req: Request,
+): Promise<NextResponse<GetAiSignalResponseBody>> {
+  // Get the AI prompt
   const dataSources = await getAvailableDataSources();
 
   if (!dataSources) {
-    return null;
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Failed to fetch available data sources",
+      },
+      { status: 500 },
+    );
   }
 
-  // System prompt for the LLM
-  // todo: add more examples and imprve the prompt
-  const aiPrompt = `
-You are an expert at creating crypto trading signals using JSON-logic. 
-Given a user's request, generate a JSON object with the following structure:
-
-{
-  "success": true,
-  "signal": {
-    "name": "<short descriptive name>",
-    "description": "<detailed description>",
-    "condition": "<valid JSON-logic object as escaped string>"
-  }
-}
-
-If the user requests a signal for an unsupported or invalid currency pair, respond with:
-
-{
-  "success": false,
-  "message": "Invalid currency"
-}
-
-You should know the following:
-1. The JSON-logic defines wich data sources and topics are gonna be evaluated.
-2. A data source is like a type of data, for example price, fear and greed index, volume, streaming status, etc.
-3. A topic is a specific instance of a data source, for example ticker-BTCUSD, cfgi-BTC, etc.
-4. Use only data sources, which are available. You are given the available data sources below. You must never use data sources that are not available.
-5. Data source have specific operators that can be used to compare values, such as ">", "<", "==", etc. You can never use operators that are not available for the data source.
-6. In the data structure below, a data source name is defined by the "prefix" field.
-7. The conditions inside the generated JSON can only include a topic made of the prefix and the topic name, for example "ticker-BTCUSD", "cfgi-BTC", etc. It can never include just the prefix or just the topic name.
-8. You are not supposed to set any reminders or notifications, just output a JSON.
-9. The condition field must be a JSON string (escaped), not a JSON object.
-10. The condition cannot be just an object with an operator. If it would be like that, you must wrap it in an "and" group.
-
-Available data sources:
-${JSON.stringify(dataSources, null, 2)}
-
-===================
-
-Example user prompt #1: "alert me when bitcoin goes above 80000 and btc cfgi goes above 68"
-
-Example response #1:
-{
-  "success": true,
-  "signal": {
-    "name": "Bitcoin above 80k and cfgi above 68",
-    "description": "Alert when BTC price is above $80,000 and BTC CFGI is above 68.",
-    "condition": "{\\"and\\":[{\\">\\": [80000, {\\"topic\\": \\"ticker-BTCUSDT\\"}]},{\\">\\": [66, {\\"topic\\": \\"cfgi-BTC\\"}]}]}"
-  }
-}
-
-If the user prompt is invalid:
-{
-  "success": false,
-  "message": "Invalid currency"
-}
-`;
-
-  return aiPrompt;
-}
-
-export const maxDuration = 30;
-
-export async function POST(req: Request) {
-  // Get the AI prompt
-  const systemPrompt = await getSystemPrompt();
+  const systemPrompt = getSystemPromptGenSignal(JSON.stringify(dataSources));
 
   if (!systemPrompt) {
     return NextResponse.json({
-      data: {
-        success: false,
-        message: "Failed to fetch AI prompt",
-      },
+      success: false,
+      message: "Failed to fetch AI prompt",
     });
   }
 
@@ -151,10 +101,8 @@ export async function POST(req: Request) {
 
     return NextResponse.json(
       {
-        data: {
-          success: false,
-          message: "Failed to parse user request",
-        },
+        success: false,
+        message: "Failed to parse user request",
       },
       { status: 400 },
     );
@@ -165,10 +113,8 @@ export async function POST(req: Request) {
   if (!userPrompt) {
     return NextResponse.json(
       {
-        data: {
-          success: false,
-          message: "User prompt is required",
-        },
+        success: false,
+        message: "User prompt is required",
       },
       { status: 400 },
     );
@@ -196,11 +142,9 @@ export async function POST(req: Request) {
     );
   }
 
-  // The JSON string inside the "condition" field must be parsed before
-  // sending back a response
+  const obj = resp.object as typeof SignalAISchema._type;
 
-  const obj = resp.object;
-
+  // Handle no object returned
   if (!obj) {
     console.error("No object returned from AI signal generation");
 
@@ -213,22 +157,50 @@ export async function POST(req: Request) {
     );
   }
 
-  const signalCondStr = (obj as any).signal?.condition;
+  // Handle LLM failed to generate signal because of support
+  if (!obj.success) {
+    // Need to store a record of unsuccessfull LLm generation
+    const supabase = await createSupabaseServerClient();
 
-  if (process.env.NODE_ENV === "development") {
-    console.info("Generated condition", signalCondStr);
-  }
+    // Get the authenticated user
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-  if (typeof signalCondStr !== "string") {
-    console.error("Signal condition is not a string:", signalCondStr);
+    const content = getFeedbackContent({
+      notes: "",
+      prompt: userPrompt,
+      errorReason: obj.message,
+    });
+
+    const { data, error } = await supabase
+      .from("feedback")
+      .insert({ content, user_id: user?.id })
+      .select()
+      .single();
+
+    if (error) {
+      console.error(
+        "Failed to store feedback for unsuccessful signal generation:",
+        error,
+      );
+    }
 
     return NextResponse.json(
       {
         success: false,
-        message: "Failed to generate signal definition",
+        message: obj.message,
+        feedbackId: data?.id,
+        error: "cannot-generate",
       },
-      { status: 500 },
+      { status: 400 },
     );
+  }
+
+  const signalCondStr = (obj as any).signal?.condition;
+
+  if (process.env.NODE_ENV === "development") {
+    console.info("Generated condition", signalCondStr);
   }
 
   // Set condition
@@ -250,7 +222,5 @@ export async function POST(req: Request) {
 
   (obj as any).signal.condition = parsedCondition;
 
-  if (resp) {
-    return NextResponse.json({ data: resp.object });
-  }
+  return NextResponse.json(resp.object as any);
 }

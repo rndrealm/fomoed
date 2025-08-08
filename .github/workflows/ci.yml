@@ -1,0 +1,71 @@
+name: Build Monorepo
+
+on:
+  pull_request:
+    branches: [develop]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      # Supabase Configuration
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      PUBLIC_SUPABASE_ANON: ${{ secrets.PUBLIC_SUPABASE_ANON }}
+      PRIVATE_SUPABASE_SECRET: ${{ secrets.PRIVATE_SUPABASE_SECRET }}
+
+      # Stripe Configuration
+      PRIVATE_STRIPE_WEBHOOK_SECRET: ${{ secrets.PRIVATE_STRIPE_WEBHOOK_SECRET }}
+      PRIVATE_STRIPE_SECRET_KEY: ${{ secrets.PRIVATE_STRIPE_SECRET_KEY }}
+      PUBLIC_STRIPE_PUBLIC_KEY: ${{ secrets.PUBLIC_STRIPE_PUBLIC_KEY }}
+      PUBLIC_STRIPE_PRICES: ${{ secrets.PUBLIC_STRIPE_PRICES }}
+      PUBLIC_AVAILABLE_PRICE_IDS: ${{ secrets.PUBLIC_AVAILABLE_PRICE_IDS }}
+
+      # External API Keys
+      PRIVATE_CRYPTOPANIC_KEY: ${{ secrets.PRIVATE_CRYPTOPANIC_KEY }}
+      PRIVATE_CIGNALS_KEY: ${{ secrets.PRIVATE_CIGNALS_KEY }}
+      PRIVATE_COINGLASS_KEY: ${{ secrets.PRIVATE_COINGLASS_KEY }}
+      CFGI_API_KEY: ${{ secrets.CFGI_API_KEY }}
+      BUNGEE_API_KEY: ${{ secrets.BUNGEE_API_KEY }}
+      SANTIMENT_API_KEY: ${{ secrets.SANTIMENT_API_KEY }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      PRIVATE_CFGI_KEY: ${{ secrets.PRIVATE_CFGI_KEY }}
+
+      # Application URLs
+      PUBLIC_NEWSLAB_URL: ${{ secrets.PUBLIC_NEWSLAB_URL }}
+      NEXT_PUBLIC_NEWSLAB_URL: ${{ secrets.NEXT_PUBLIC_NEWSLAB_URL }}
+      PUBLIC_DASHBOARD_URL: ${{ secrets.PUBLIC_DASHBOARD_URL }}
+      NEXT_PUBLIC_LEGACY_APP_URL: ${{ secrets.NEXT_PUBLIC_LEGACY_APP_URL }}
+      NEXT_PUBLIC_CIGNALS_WS_URL: ${{ secrets.NEXT_PUBLIC_CIGNALS_WS_URL }}
+      PUBLIC_CIGNALS_WS_URL: ${{ secrets.PUBLIC_CIGNALS_WS_URL }}
+
+      # Feature Flags & Configuration
+      PUBLIC_UI_ENABLE_XMAS: ${{ secrets.PUBLIC_UI_ENABLE_XMAS }}
+      NEXT_PUBLIC_USE_NEW_LOGIN: ${{ secrets.NEXT_PUBLIC_USE_NEW_LOGIN }}
+      NEXT_PUBLIC_REOWN_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_REOWN_PROJECT_ID }}
+      NEXT_PUBLIC_MIXPANEL_TOKEN: ${{ secrets.NEXT_PUBLIC_MIXPANEL_TOKEN }}
+
+      # Internal Services
+      MONITOR_SECRET: ${{ secrets.MONITOR_SECRET }}
+
+      # Redis Configuration
+      PRIVATE_REDIS_PASSWORD: ${{ secrets.PRIVATE_REDIS_PASSWORD }}
+      PRIVATE_REDIS_URL: ${{ secrets.PRIVATE_REDIS_URL }}
+    strategy:
+      matrix:
+        node-version: [20]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "pnpm"
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build all packages
+        run: pnpm run -r build

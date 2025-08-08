@@ -12,18 +12,21 @@ interface GoogleLoginButtonProps {
   redirectTo?: string;
   className?: string;
   nextUrl?: string;
+  fromUrl?: string;
 }
 
-export function GoogleLogin({ className, nextUrl }: GoogleLoginButtonProps) {
+export function GoogleLogin({ className, nextUrl, fromUrl }: GoogleLoginButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSignIn = async () => {
     const supabase = createSupabaseBrowserClient();
 
     // Build callback URL with next parameter if provided
-    const callbackUrl = nextUrl
-      ? `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextUrl)}`
-      : `${window.location.origin}/auth/callback`;
+    const callbackUrl = fromUrl
+      ? `${window.location.origin}/auth/callback?from=${encodeURIComponent(fromUrl)}`
+      : nextUrl
+        ? `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextUrl)}`
+        : `${window.location.origin}/auth/callback`;
 
     await supabase.auth.signInWithOAuth({
       provider: "google",

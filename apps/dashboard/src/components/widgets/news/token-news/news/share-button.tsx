@@ -12,12 +12,13 @@ import React, { useEffect, useState } from "react";
 
 interface IProps {
   newsId?: string;
+  newsSlug?: string | null;
   width?: number;
   height?: number;
 }
 
 export function ShareButton(props: IProps) {
-  const { newsId, width = 12, height = 12 } = props;
+  const { newsId, newsSlug, width = 12, height = 12 } = props;
   const [url, setUrl] = useState("");
   const { facebook, linkedin, x } = generateSocialLinks(url);
 
@@ -35,17 +36,23 @@ export function ShareButton(props: IProps) {
 
   useEffect(() => {
     const baseUrl = window.location.origin;
-    setUrl(`${baseUrl}/news/${newsId}`);
-  }, [newsId]);
+    setUrl(`${baseUrl}/news/${newsSlug || newsId}`);
+  }, [newsId, newsSlug]);
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button type="button" className="flex items-center gap-1 px-[10px] py-[6px] text-xs leading-[16px] text-white">
+        <button
+          type="button"
+          className="flex items-center gap-1 px-[10px] py-[6px] text-xs leading-[16px] text-white"
+        >
           <Share width={width} height={height} />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-64 rounded-[10px] border border-[#353535] bg-[#1A1A1A] p-0" align="center">
+      <DropdownMenuContent
+        className="w-64 rounded-[10px] border border-[#353535] bg-[#1A1A1A] p-0"
+        align="center"
+      >
         <DropdownMenuLabel className="flex items-center gap-2 p-4 text-[13px] leading-[18px] font-semibold tracking-[-0.4%] text-white">
           Share Article
         </DropdownMenuLabel>

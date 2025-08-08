@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
 import { useRouter } from "next/navigation";
 import { AppRoutes } from "@/lib/routes";
+import { Spinner } from "@/components/ui/shadcn-io/spinner";
 
 export default function Page() {
   const router = useRouter();
@@ -28,8 +29,8 @@ export default function Page() {
   }, []);
 
   return (
-    <div>
-      <p className="">Hello from logout page</p>
+    <div className="flex items-center justify-center pt-10">
+      <Spinner className="text-[rgb(255,59,16)]" size={36} />
     </div>
   );
 }

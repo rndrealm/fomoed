@@ -3,6 +3,9 @@ export interface SignalActions {
   notification: boolean;
 }
 
+/**
+ * @deprecated Use supabase types
+ */
 export interface ISignal {
   id: string;
   user_id: number;

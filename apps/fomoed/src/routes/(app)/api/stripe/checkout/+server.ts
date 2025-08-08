@@ -2,6 +2,8 @@ import { error, json, type RequestEvent } from '@sveltejs/kit';
 import stripe from '../stripe';
 import type { PostgrestSingleResponse } from '@supabase/supabase-js';
 
+const TRIAL_PERIOD_DAYS = 7;
+
 /** @type {import('./$types').RequestHandler} */
 export async function POST({ request, url, locals: { user, supabase } }: RequestEvent) {
 	const req = request;
@@ -33,8 +35,10 @@ export async function POST({ request, url, locals: { user, supabase } }: Request
 		});
 	}
 
+	let session: Awaited<ReturnType<typeof stripe.checkout.sessions.create>>;
+
 	try {
-		const session = await stripe.checkout.sessions.create({
+		session = await stripe.checkout.sessions.create({
 			mode: 'subscription',
 			payment_method_types: ['card'],
 			line_items: [
@@ -44,7 +48,7 @@ export async function POST({ request, url, locals: { user, supabase } }: Request
 				}
 			],
 			success_url: `${url.protocol}//${url.host}?sessionId={CHECKOUT_SESSION_ID}`,
-			cancel_url: `${url.protocol}//${url.host}/`,
+			cancel_url: `${url.protocol}//${url.host}/subscription/fail`,
 			customer_email: formData.email,
 			metadata: {
 				user_id: formData.user_id
@@ -58,21 +62,27 @@ export async function POST({ request, url, locals: { user, supabase } }: Request
 									missing_payment_method: 'cancel'
 								}
 							},
-							trial_period_days: 30
+							trial_period_days: TRIAL_PERIOD_DAYS
 						}),
 				metadata: {
 					user_id: formData.user_id
 				}
 			}
 		});
-
-		return json({
-			sessionId: session.id,
-			url: session.url
-		});
 	} catch (err: any) {
 		return error(500, {
 			message: err?.message || err.toString()
 		});
 	}
+
+	if (!session) {
+		return error(500, {
+			message: 'Failed to create Stripe session'
+		});
+	}
+
+	return json({
+		sessionId: session.id,
+		url: session.url
+	});
 }

@@ -848,3 +848,8 @@ export const widgetPreviewData: IWidgetPreviewData[] = [
     ],
   },
 ];
+
+export const analyticsTrackEvents = {
+  widgetAdded: "widget_added",
+  signup: "signup",
+};

@@ -4,7 +4,11 @@ import { SmartSignalRow } from "@/screens/hooks/use-smart-signals";
 import api from "@/services/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { CreateSignalDTO, GetAiSignalResponse, UpdateSignalDTO } from "./types";
+import {
+  CreateSignalDTO,
+  GetAiSignalResponseBody,
+  UpdateSignalDTO,
+} from "./types";
 
 export const useSmartSignalById = (signalId: string | null) => {
   const userData = useUserData();
@@ -242,21 +246,17 @@ export const useCreateSignalMutation = () => {
   });
 };
 
-export const useGetAISignal = () => {
-  return useMutation({
-    mutationFn: async (prompt: string) => {
-      console.log("🚀 ~ mutationFn: ~ prompt:", prompt);
-      const res = await api.post({
-        url: "/api/signals/ai-builder",
-        body: { prompt },
-        auth: true,
-      });
-      console.log("🚀 ~ mutationFn: ~ res:", res);
-
-      return res.data as GetAiSignalResponse;
-    },
+export async function fetchGenerateSignal(
+  prompt: string,
+): Promise<GetAiSignalResponseBody> {
+  const res = await api.post({
+    url: "/api/signals/ai-builder",
+    body: { prompt },
+    auth: true,
   });
-};
+
+  return res as unknown as GetAiSignalResponseBody;
+}
 
 export const useGenerateSignalDetails = () => {
   return useMutation({

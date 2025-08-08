@@ -1,7 +1,12 @@
 import React from "react";
 import Image from "next/image";
-import { CloseTab, MiniPause, MiniPlay, MiniPrevious } from "@/components/icons/icons";
-import { RenderIf } from "@/components/shared";
+import {
+  CloseTab,
+  MiniPause,
+  MiniPlay,
+  MiniPrevious,
+} from "@/components/icons/icons";
+import { ImageWithFallback, RenderIf } from "@/components/shared";
 import {
   audioPlaylistAtom,
   closeMiniPlayerAtom,
@@ -29,7 +34,8 @@ export function MiniPlayer() {
   const closeMiniPlayer = useSetAtom(closeMiniPlayerAtom);
 
   const isFirstTrack = currentIndex === 0;
-  const isLastTrack = playlist?.length > 0 ? currentIndex === playlist.length - 1 : true;
+  const isLastTrack =
+    playlist?.length > 0 ? currentIndex === playlist.length - 1 : true;
 
   return (
     <AnimatePresence>
@@ -52,7 +58,7 @@ export function MiniPlayer() {
               </button>
 
               <div className="flex h-[24px] w-[24px]">
-                <RenderIf condition={!!currentTrack?.image_url}>
+                {/* <RenderIf condition={!!currentTrack?.image_url}>
                   <Image
                     src={currentTrack?.image_url}
                     alt="news"
@@ -60,7 +66,15 @@ export function MiniPlayer() {
                     width={24}
                     className="h-full w-full rounded-sm object-cover"
                   />
-                </RenderIf>
+                </RenderIf> */}
+
+                <ImageWithFallback
+                  src={currentTrack?.image_url}
+                  alt="news"
+                  height={24}
+                  width={24}
+                  className="h-full w-full rounded-sm object-cover"
+                />
               </div>
 
               <p className="line-clamp-1 flex-1 text-[13px] leading-[18px] font-semibold tracking-[-0.4%] text-[#BBBBBB]">

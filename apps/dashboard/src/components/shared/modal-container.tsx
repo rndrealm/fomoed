@@ -34,7 +34,7 @@ export function ModalContainer(props: IProps) {
   const contentClasses = cn(
     "bg-[#212426] [&>button.absolute.top-4.right-4]:hidden rounded-lg border-none p-3 max-h-[680px] overflow-y-auto sm:w-full w-[90%] flex flex-col gap-4",
     size && sizeClassMap[size],
-    className
+    className,
   );
 
   return (

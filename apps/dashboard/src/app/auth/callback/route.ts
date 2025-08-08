@@ -6,6 +6,7 @@ import {
 } from "@/lib/utils/supabase/server-client";
 import { SupabaseClient, User } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { track } from "@vercel/analytics/server";
 
 interface IUserInsert {
   email: string;
@@ -71,6 +72,10 @@ async function createOrLinkUserFromOAuth(user: User): Promise<void> {
     console.error(insertRes.error);
     throw new Error(insertRes.error.message);
   }
+  await track("signup", {
+    username: newUserData.username,
+    email: newUserData.email,
+  });
 }
 
 export async function GET(request: Request) {
@@ -80,6 +85,7 @@ export async function GET(request: Request) {
 
   // if "next" is in param, use it in the redirect URL
   const next = searchParams.get("next") ?? "/";
+  const from = searchParams.get("from") ?? "/";
 
   if (code) {
     const supabase = await createSupabaseServerClient();
@@ -96,8 +102,13 @@ export async function GET(request: Request) {
     await createOrLinkUserFromOAuth(data.user);
 
     if (!error) {
-      return NextResponse.redirect(`${origin}/news`);
-      // return NextResponse.redirect(`${origin}${next}`);
+      if (from === "marketing") {
+        const marketingUrl = process.env.NEXT_PUBLIC_MARKETING_APP_URL;
+        return NextResponse.redirect(marketingUrl || "https://marketing.fomoed.io");
+      } else {
+        return NextResponse.redirect(`${origin}/news`);
+        // return NextResponse.redirect(`${origin}${next}`);
+      }
     }
   }
 

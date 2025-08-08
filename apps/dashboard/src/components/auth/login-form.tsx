@@ -32,6 +32,7 @@ export function LoginForm() {
 
   // Get the next parameter for redirect after login
   const nextUrl = searchParams.get("next");
+  const fromUrl = searchParams.get("from");
 
   const onSubmit = async (_values: InitialValues) => {
     try {
@@ -39,8 +40,13 @@ export function LoginForm() {
       const retUser = await loginUser(_values);
       if (retUser.success) {
         // Redirect to next URL if available, otherwise to dashboard
-        const redirectUrl = nextUrl && nextUrl !== "/auth/login" ? nextUrl : AppRoutes.news.path;
-        router.push(redirectUrl);
+        if (fromUrl === "marketing") {
+          const marketingUrl = process.env.NEXT_PUBLIC_MARKETING_APP_URL;
+          window.location.href = marketingUrl || "https://marketing.fomoed.io";
+        } else {
+          const redirectUrl = nextUrl && nextUrl !== "/auth/login" ? nextUrl : AppRoutes.news.path;
+          router.push(redirectUrl);
+        }
       } else {
         toast(retUser.message || "Something went wrong!");
       }
@@ -116,7 +122,7 @@ export function LoginForm() {
 
           <div className="relative flex flex-col gap-6">
             <div className="mt-3 flex justify-center">
-              <GoogleLogin nextUrl={nextUrl || undefined} />
+              <GoogleLogin nextUrl={nextUrl || undefined} fromUrl={fromUrl || undefined} />
             </div>
 
             <div className="flex items-center justify-center gap-[3px]">

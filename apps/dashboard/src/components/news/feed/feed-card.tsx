@@ -1,9 +1,11 @@
+import { ImageWithFallback } from "@/components/shared";
 import { AppRoutes } from "@/lib/routes";
 import { timeAgo } from "@/lib/utils";
 import { NewsFeedItem } from "@/services/queries/news/types";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
+import { a } from "vitest/dist/chunks/suite.B2jumIFP.js";
 
 interface IProps {
   article: NewsFeedItem;
@@ -13,14 +15,14 @@ const FeedCard = (props: IProps) => {
   const { article } = props;
   const formattedDate = timeAgo(article.published_at);
   return (
-    <Link href={AppRoutes.news.newsPage.path(article.id)}>
+    <Link href={AppRoutes.news.newsPage.path(article.slug || article.id)}>
       <div
         style={{
           gridColumn: `span ${1}`,
           gridRow: `span ${1}`,
           boxShadow: "0px 4px 4px 0px #00000040",
         }}
-        className="relative h-[500px] gap-1.5 overflow-hidden rounded-[16px] bg-[#121212] px-4.5 pt-3 pb-3.5 sm:h-[354px]"
+        className="relative h-[500px] gap-1.5 overflow-hidden rounded-[0px] bg-[#000] px-4.5 pt-3 pb-3.5 sm:h-[354px]"
       >
         {/* Background image */}
         <div
@@ -29,28 +31,38 @@ const FeedCard = (props: IProps) => {
           //   backgroundSize: "cover",
           //   backgroundPosition: "center",
           // }}
-          className="absolute inset-0 z-0 rounded-[16px]"
+          className="absolute inset-0 z-0 rounded-[50px]"
         >
-          <Image
+          <ImageWithFallback
+            src={article.image_url || "/fallback.png"}
+            alt="News Arcticle image"
+            className="rounded-[16px] object-cover w-full h-full"
+            fill
+            text={article.source}
+          />
+          {/* <Image
             src={article.image_url || "/fallback.png"}
             fill
             alt="News Arcticle image"
             className="rounded-[16px] object-cover"
-          />
+            onError={(err) => {
+              console.log(article, err);
+            }}
+          /> */}
         </div>
 
         {/* Blur */}
-        <div className="absolute inset-0 z-0 h-full w-[1020%]">
+        <div className="absolute inset-0 z-0 h-full w-full">
           <div className="gradient-blur">
             <div></div>
-            <div></div>
+            {/* <div></div> */}
           </div>
         </div>
 
         {/* Dark */}
 
         <div
-          className="absolute inset-0 z-0 h-full w-full"
+          className="absolute inset-0 z-0 w-full h-full"
           style={{
             background: `linear-gradient(
                                         to bottom,
@@ -65,9 +77,15 @@ const FeedCard = (props: IProps) => {
 
         <div className="relative z-[7] flex h-full w-[85%] flex-col items-start justify-end gap-1.5">
           <p className="text-xs font-normal text-[#A4A4A4]">{article.source}</p>
-          <p className="text-[18px] leading-[1.2] font-medium text-white">{article.title}</p>
-          <p className="text-[13px] leading-[1.3] font-semibold text-[#A4A4A4]">{article.summary}</p>
-          <p className="mt-1 text-xs font-normal text-[#A4A4A4]">{formattedDate}</p>
+          <p className="text-[18px] leading-[1.2] font-medium text-white">
+            {article.title}
+          </p>
+          <p className="text-[13px] leading-[1.3] font-semibold text-[#A4A4A4]">
+            {article.summary}
+          </p>
+          <p className="mt-1 text-xs font-normal text-[#A4A4A4]">
+            {formattedDate}
+          </p>
         </div>
       </div>
     </Link>

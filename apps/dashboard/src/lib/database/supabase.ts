@@ -12,31 +12,6 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          operationName?: string
-          query?: string
-          variables?: Json
-          extensions?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       api_health: {
@@ -189,44 +164,113 @@ export type Database = {
         Row: {
           banner_url: string | null
           budget: number | null
+          campaign_brief: string | null
+          campaign_type: string | null
+          category: string | null
+          content_types: string[] | null
           created_at: string
           description: string | null
           end_date: string | null
+          external_links: Json | null
+          faqs: Json | null
           id: number
+          impressions: number | null
+          instagram_handle: string | null
+          location: string | null
+          media_kit: string | null
+          milestones: Json | null
+          platforms: string[] | null
           project_id: number
+          reference_content: string | null
+          requirements: Json | null
+          resources: Json | null
+          reward_type: string | null
           start_date: string | null
           status: string
+          tags: string[] | null
           target_audience: string | null
+          terms_and_conditions: string | null
+          tiktok_handle: string | null
           title: string
+          total_spend: number | null
+          total_spots: number | null
+          twitter_handle: string | null
           updated_at: string
+          youtube_handle: string | null
         }
         Insert: {
           banner_url?: string | null
           budget?: number | null
+          campaign_brief?: string | null
+          campaign_type?: string | null
+          category?: string | null
+          content_types?: string[] | null
           created_at?: string
           description?: string | null
           end_date?: string | null
+          external_links?: Json | null
+          faqs?: Json | null
           id?: number
+          impressions?: number | null
+          instagram_handle?: string | null
+          location?: string | null
+          media_kit?: string | null
+          milestones?: Json | null
+          platforms?: string[] | null
           project_id: number
+          reference_content?: string | null
+          requirements?: Json | null
+          resources?: Json | null
+          reward_type?: string | null
           start_date?: string | null
           status?: string
+          tags?: string[] | null
           target_audience?: string | null
+          terms_and_conditions?: string | null
+          tiktok_handle?: string | null
           title: string
+          total_spend?: number | null
+          total_spots?: number | null
+          twitter_handle?: string | null
           updated_at?: string
+          youtube_handle?: string | null
         }
         Update: {
           banner_url?: string | null
           budget?: number | null
+          campaign_brief?: string | null
+          campaign_type?: string | null
+          category?: string | null
+          content_types?: string[] | null
           created_at?: string
           description?: string | null
           end_date?: string | null
+          external_links?: Json | null
+          faqs?: Json | null
           id?: number
+          impressions?: number | null
+          instagram_handle?: string | null
+          location?: string | null
+          media_kit?: string | null
+          milestones?: Json | null
+          platforms?: string[] | null
           project_id?: number
+          reference_content?: string | null
+          requirements?: Json | null
+          resources?: Json | null
+          reward_type?: string | null
           start_date?: string | null
           status?: string
+          tags?: string[] | null
           target_audience?: string | null
+          terms_and_conditions?: string | null
+          tiktok_handle?: string | null
           title?: string
+          total_spend?: number | null
+          total_spots?: number | null
+          twitter_handle?: string | null
           updated_at?: string
+          youtube_handle?: string | null
         }
         Relationships: [
           {
@@ -471,6 +515,27 @@ export type Database = {
         }
         Relationships: []
       }
+      feedback: {
+        Row: {
+          content: string | null
+          created_at: string
+          id: number
+          user_id: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          id?: number
+          user_id?: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          id?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       intake_forms: {
         Row: {
           biggest_campaign_success: string | null
@@ -582,6 +647,62 @@ export type Database = {
           },
         ]
       }
+      kol_milestones: {
+        Row: {
+          campaign_id: number
+          completed_on: string | null
+          hits: number
+          id: number
+          kol_id: number
+          milestone_id: number
+        }
+        Insert: {
+          campaign_id: number
+          completed_on?: string | null
+          hits?: number
+          id?: number
+          kol_id: number
+          milestone_id: number
+        }
+        Update: {
+          campaign_id?: number
+          completed_on?: string | null
+          hits?: number
+          id?: number
+          kol_id?: number
+          milestone_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kol_milestones_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_with_meta"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kol_milestones_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kol_milestones_kol_id_fkey"
+            columns: ["kol_id"]
+            isOneToOne: false
+            referencedRelation: "kols"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kol_milestones_milestone_id_fkey"
+            columns: ["milestone_id"]
+            isOneToOne: false
+            referencedRelation: "milestones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       kol_platforms: {
         Row: {
           access_token: string
@@ -615,13 +736,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "fk_kol_id"
-            columns: ["kol_id"]
-            isOneToOne: false
-            referencedRelation: "kols"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "kol_platforms_kol_id_fkey"
             columns: ["kol_id"]
             isOneToOne: false
@@ -633,27 +747,39 @@ export type Database = {
       kol_requests: {
         Row: {
           campaign_id: number
+          content_link: string | null
           created_at: string
           id: number
+          interest: string | null
           kol_id: number
+          location: string | null
           message: string | null
           payment_amount: number
+          platforms_array: string[] | null
         }
         Insert: {
           campaign_id: number
+          content_link?: string | null
           created_at?: string
           id?: number
+          interest?: string | null
           kol_id: number
+          location?: string | null
           message?: string | null
           payment_amount: number
+          platforms_array?: string[] | null
         }
         Update: {
           campaign_id?: number
+          content_link?: string | null
           created_at?: string
           id?: number
+          interest?: string | null
           kol_id?: number
+          location?: string | null
           message?: string | null
           payment_amount?: number
+          platforms_array?: string[] | null
         }
         Relationships: [
           {
@@ -691,7 +817,7 @@ export type Database = {
           full_name: string
           id: number
           location: string | null
-          onboarding: boolean
+          onboarding: boolean | null
           profile_url: string | null
           updated_at: string
           user_id: string | null
@@ -708,7 +834,7 @@ export type Database = {
           full_name: string
           id?: number
           location?: string | null
-          onboarding?: boolean
+          onboarding?: boolean | null
           profile_url?: string | null
           updated_at?: string
           user_id?: string | null
@@ -725,7 +851,7 @@ export type Database = {
           full_name?: string
           id?: number
           location?: string | null
-          onboarding?: boolean
+          onboarding?: boolean | null
           profile_url?: string | null
           updated_at?: string
           user_id?: string | null
@@ -787,6 +913,76 @@ export type Database = {
           },
         ]
       }
+      milestones: {
+        Row: {
+          campaign_id: number
+          created_at: string
+          deadline: string | null
+          description: string | null
+          hits: number
+          id: number
+          payout_amount: number
+          payout_id: number | null
+          quota: number
+          status: string
+          title: string
+          type: string | null
+          updated_at: string
+        }
+        Insert: {
+          campaign_id: number
+          created_at?: string
+          deadline?: string | null
+          description?: string | null
+          hits?: number
+          id?: number
+          payout_amount: number
+          payout_id?: number | null
+          quota?: number
+          status?: string
+          title: string
+          type?: string | null
+          updated_at?: string
+        }
+        Update: {
+          campaign_id?: number
+          created_at?: string
+          deadline?: string | null
+          description?: string | null
+          hits?: number
+          id?: number
+          payout_amount?: number
+          payout_id?: number | null
+          quota?: number
+          status?: string
+          title?: string
+          type?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "milestones_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_with_meta"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "milestones_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "milestones_payout_id_fkey"
+            columns: ["payout_id"]
+            isOneToOne: false
+            referencedRelation: "payouts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       news: {
         Row: {
           ai_summary: string[] | null
@@ -800,6 +996,7 @@ export type Database = {
           published_at: string | null
           related_widgets: Json[] | null
           sentiment: string | null
+          slug: string | null
           source: string | null
           summary: string | null
           symbols: string[] | null
@@ -817,6 +1014,7 @@ export type Database = {
           published_at?: string | null
           related_widgets?: Json[] | null
           sentiment?: string | null
+          slug?: string | null
           source?: string | null
           summary?: string | null
           symbols?: string[] | null
@@ -834,6 +1032,7 @@ export type Database = {
           published_at?: string | null
           related_widgets?: Json[] | null
           sentiment?: string | null
+          slug?: string | null
           source?: string | null
           summary?: string | null
           symbols?: string[] | null
@@ -1019,6 +1218,161 @@ export type Database = {
           },
         ]
       }
+      payout_audit_log: {
+        Row: {
+          action: string
+          created_at: string
+          id: number
+          new_status: string | null
+          notes: string | null
+          old_status: string | null
+          payout_id: number
+          performed_by: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: number
+          new_status?: string | null
+          notes?: string | null
+          old_status?: string | null
+          payout_id: number
+          performed_by: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: number
+          new_status?: string | null
+          notes?: string | null
+          old_status?: string | null
+          payout_id?: number
+          performed_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payout_audit_log_payout_id_fkey"
+            columns: ["payout_id"]
+            isOneToOne: false
+            referencedRelation: "payouts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payout_audit_log_performed_by_fkey"
+            columns: ["performed_by"]
+            isOneToOne: false
+            referencedRelation: "signals_users"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "payout_audit_log_performed_by_fkey"
+            columns: ["performed_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      payouts: {
+        Row: {
+          amount: number
+          approved_at: string | null
+          approved_by: string | null
+          campaign_id: number
+          chain: string
+          created_at: string
+          id: number
+          kol_id: number
+          milestone_id: number | null
+          notes: string | null
+          paid_at: string | null
+          rejection_reason: string | null
+          status: string
+          tx_id: string | null
+          updated_at: string
+          wallet_address: string
+        }
+        Insert: {
+          amount: number
+          approved_at?: string | null
+          approved_by?: string | null
+          campaign_id: number
+          chain?: string
+          created_at?: string
+          id?: number
+          kol_id: number
+          milestone_id?: number | null
+          notes?: string | null
+          paid_at?: string | null
+          rejection_reason?: string | null
+          status?: string
+          tx_id?: string | null
+          updated_at?: string
+          wallet_address: string
+        }
+        Update: {
+          amount?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          campaign_id?: number
+          chain?: string
+          created_at?: string
+          id?: number
+          kol_id?: number
+          milestone_id?: number | null
+          notes?: string | null
+          paid_at?: string | null
+          rejection_reason?: string | null
+          status?: string
+          tx_id?: string | null
+          updated_at?: string
+          wallet_address?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_payouts_milestone"
+            columns: ["milestone_id"]
+            isOneToOne: false
+            referencedRelation: "milestones"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payouts_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "signals_users"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "payouts_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "payouts_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_with_meta"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payouts_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payouts_kol_id_fkey"
+            columns: ["kol_id"]
+            isOneToOne: false
+            referencedRelation: "kols"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_members: {
         Row: {
           project_id: number
@@ -1063,11 +1417,13 @@ export type Database = {
         Row: {
           banner_url: string | null
           budget: number | null
+          category: string | null
           created_at: string
           description: string | null
           end_date: string | null
           id: number
           name: string
+          objectives: string[]
           start_date: string | null
           status: string
           updated_at: string
@@ -1075,11 +1431,13 @@ export type Database = {
         Insert: {
           banner_url?: string | null
           budget?: number | null
+          category?: string | null
           created_at?: string
           description?: string | null
           end_date?: string | null
           id?: number
           name: string
+          objectives?: string[]
           start_date?: string | null
           status?: string
           updated_at?: string
@@ -1087,11 +1445,13 @@ export type Database = {
         Update: {
           banner_url?: string | null
           budget?: number | null
+          category?: string | null
           created_at?: string
           description?: string | null
           end_date?: string | null
           id?: number
           name?: string
+          objectives?: string[]
           start_date?: string | null
           status?: string
           updated_at?: string
@@ -1319,6 +1679,7 @@ export type Database = {
       }
       users: {
         Row: {
+          avatar_url: string | null
           created_at: string
           email: string | null
           has_had_free_trial: boolean
@@ -1330,6 +1691,7 @@ export type Database = {
           username: string | null
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string
           email?: string | null
           has_had_free_trial?: boolean
@@ -1341,6 +1703,7 @@ export type Database = {
           username?: string | null
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string
           email?: string | null
           has_had_free_trial?: boolean
@@ -1409,22 +1772,54 @@ export type Database = {
     Views: {
       campaign_with_meta: {
         Row: {
+          active_count: number | null
+          active_milestones: number | null
           banner_url: string | null
           budget: number | null
+          campaign_brief: string | null
+          campaign_type: string | null
+          category: string | null
+          completed_milestones: number | null
+          content_types: string[] | null
           created_at: string | null
           description: string | null
           end_date: string | null
+          external_links: Json | null
+          faqs: Json | null
           id: number | null
+          impressions: number | null
+          instagram_handle: string | null
+          location: string | null
           max_payout: number | null
+          media_kit: string | null
+          milestone_count: number | null
+          milestones: Json | null
+          paid_payouts: number | null
+          pending_payout_amount: number | null
+          pending_payouts: number | null
+          platform_list: string[] | null
           platforms: string[] | null
           project_id: number | null
+          reference_content: string | null
           request_count: number | null
+          requirements: Json | null
+          resources: Json | null
+          reward_type: string | null
           start_date: string | null
           status: string | null
+          tag_list: string[] | null
           tags: string[] | null
           target_audience: string | null
+          terms_and_conditions: string | null
+          tiktok_handle: string | null
           title: string | null
+          total_paid_amount: number | null
+          total_payouts: number | null
+          total_spend: number | null
+          total_spots: number | null
+          twitter_handle: string | null
           updated_at: string | null
+          youtube_handle: string | null
         }
         Relationships: [
           {
@@ -1681,9 +2076,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {},
   },

@@ -15,11 +15,16 @@ export interface UpdateSignalDTO extends CreateSignalDTO {
   id: number;
 }
 
-export interface GetAiSignalResponse {
+type GenSignalError = "cannot-generate";
+
+export interface GetAiSignalResponseBody {
   success: boolean;
   signal?: {
     name: string;
     description: string;
     condition: object;
   };
+  message?: string;
+  feedbackId?: number;
+  error?: GenSignalError;
 }
