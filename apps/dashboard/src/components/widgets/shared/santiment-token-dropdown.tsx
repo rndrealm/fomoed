@@ -56,21 +56,21 @@ export default function SanitmentTokenDropdown(props: IProps) {
       <DropdownMenuTrigger>
         <div className="flex items-center gap-1 cursor-pointer whitespace-nowrap">
           <div className="flex-shrink-0">
-            <div className="w-[40px] h-[40px]">
+            <div className="w-[32px] h-[32px]">
               <RenderIf condition={!!activeCoin?.logoUrl}>
                 <Image
-                  width={40}
-                  height={40}
+                  width={32}
+                  height={32}
                   src={activeCoin?.logoUrl?.trim() || ""}
                   alt="Coin Icon"
-                  className="w-[40px] h-[40px]"
+                  className="w-[32px] h-[32px]"
                 />
               </RenderIf>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <p className="text-2xl font-bold text-left text-white">
+            <p className="text-base font-medium leading-[1.35] text-left text-white">
               {activeCoin?.ticker}
             </p>
             <ChevronDown color="white" className="w-4 h-4" />
