@@ -8,8 +8,9 @@ import { settingAtom, updateSettingAtom } from "@/lib/atoms/settingsAtom";
 import { cn, splitWidgetSlug, getOverlayRoot } from "@/lib/utils";
 import StarFilled from "@/components/icons/StarFilled";
 import Star from "@/components/icons/Star";
-import { FullScreen, Question, Weight } from "@/components/icons/icons";
+import { Question, FullScreen, Weight } from "@/components/icons/icons";
 import { OptionsDropdown } from "../shared/options-dropwdown";
+import { createPortal } from "react-dom";
 import PeriodDropdown from "../shared/period-dropdown";
 import { useReadSantimentTokenList } from "@/services/queries/santiment";
 import useSession from "@/lib/hooks/use-session";
@@ -28,9 +29,7 @@ interface IProps {
   widget: LayoutType["widgets"][0];
 }
 
-// This component is replaced by the new FullscreenableChart component
-
-export default function WeightedSentiment(props: IProps) {
+export default function WeightedPriceSentiment(props: IProps) {
   const { widget } = props;
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isControlsVisible, setIsControlsVisible] = useState(true);
@@ -58,25 +57,6 @@ export default function WeightedSentiment(props: IProps) {
     }
   };
 
-  const handleSetToken = (coin: string) => {
-    updateWidgetPropsFromAtom({
-      tabId: activeLayout.id,
-      widgetId: widget.id,
-      widgetProps: {
-        ...widget.props,
-        token: coin,
-      },
-    });
-  };
-
-  const handleSetPeriod = (value: string) => {
-    updateWidgetPropsFromAtom({
-      tabId: activeLayout.id,
-      widgetId: widget.id,
-      widgetProps: { ...widget.props, period: value },
-    });
-  };
-
   const onAnimationComplete = useCallback(() => {
     if (!isFullscreen) {
       setIsControlsVisible(true);
@@ -85,7 +65,7 @@ export default function WeightedSentiment(props: IProps) {
 
   return (
     <div className="relative flex h-full flex-col gap-0 rounded-2xl bg-[#000] pt-0 pb-2">
-      <div className="flex flex-col gap-0 ">
+      <div className="flex flex-col gap-1">
         <div className="flex cursor-grab justify-center pt-4 pb-1">
           <div className="h-[5px] w-[36px] rounded-[2px] bg-[#444]"></div>
         </div>
@@ -97,7 +77,7 @@ export default function WeightedSentiment(props: IProps) {
                 <Weight />
               </div>
               <p className="font-semibold text-base leading-[1.35] text-[#878787]">
-                Weighted Sentiment
+                Price-Weighted Sentiment
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -151,14 +131,21 @@ export default function WeightedSentiment(props: IProps) {
             <SanitmentTokenDropdown
               options={tokenList}
               setValue={(coin: string) => {
-                handleSetToken(coin);
+                updateWidgetPropsFromAtom({
+                  tabId: activeLayout.id,
+                  widgetId: widget.id,
+                  widgetProps: {
+                    ...widget.props,
+                    token: coin,
+                  },
+                });
               }}
               value={widget?.props?.token}
             />
           </div>
         </div>
       </div>
-      <div className="relative flex flex-1 ">
+      <div className="relative flex flex-1">
         <div className="absolute top-[4px] right-0 left-0 z-[999]">
           <div className="flex items-center justify-between px-4 pt-3">
             <div className=""></div>
@@ -169,7 +156,11 @@ export default function WeightedSentiment(props: IProps) {
                 options={pricePeriodOptions}
                 value={widget?.props?.period}
                 setValue={(value: string) => {
-                  handleSetPeriod(value);
+                  updateWidgetPropsFromAtom({
+                    tabId: activeLayout.id,
+                    widgetId: widget.id,
+                    widgetProps: { ...widget.props, period: value },
+                  });
                 }}
                 triggerClassName="h-6 w-15"
               />
@@ -214,14 +205,25 @@ export default function WeightedSentiment(props: IProps) {
         isFullscreen={isFullscreen}
         toggleFullscreen={toggleFullscreen}
         options={tokenList}
-        setTokenValue={(coin: string) => {
-          handleSetToken(coin);
-        }}
         tokenValue={widget?.props?.token}
+        setTokenValue={(coin: string) => {
+          updateWidgetPropsFromAtom({
+            tabId: activeLayout.id,
+            widgetId: widget.id,
+            widgetProps: {
+              ...widget.props,
+              token: coin,
+            },
+          });
+        }}
         periodOptions={pricePeriodOptions}
         periodValue={widget?.props?.period}
-        setPeriodValue={(period) => {
-          handleSetPeriod(period);
+        setPeriodValue={(value: string) => {
+          updateWidgetPropsFromAtom({
+            tabId: activeLayout.id,
+            widgetId: widget.id,
+            widgetProps: { ...widget.props, period: value },
+          });
         }}
       />
     </div>

@@ -1,10 +1,11 @@
-import axios from "axios";
+import axios, { AxiosHeaders, AxiosRequestHeaders } from "axios";
 import axiosInstance from "./axiosConfig";
 
 interface Request {
   url: string;
   body?: Record<string, unknown>;
   auth?: boolean;
+  headers?: any;
 }
 
 const baseURL = "/";
@@ -15,8 +16,10 @@ const del = async ({ url, body: data }: Request) => {
   });
 };
 
-const get = async ({ url, auth = true }: Request) => {
-  const ald = await (auth ? axiosInstance.get(url) : axios.get(url));
+const get = async ({ url, auth = true, headers }: Request) => {
+  const ald = await (auth
+    ? axiosInstance.get(url)
+    : axios.get(url, { headers }));
   return ald as any;
 };
 
