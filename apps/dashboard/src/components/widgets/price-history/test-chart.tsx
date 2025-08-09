@@ -9,7 +9,15 @@ import {
   TimeScaleApiRef,
   TimeScaleFitContentTrigger,
 } from "lightweight-charts-react-components";
-import { CandlestickData, ColorType, Coordinate, LineData, LineType, MouseEventParams, Time } from "lightweight-charts";
+import {
+  CandlestickData,
+  ColorType,
+  Coordinate,
+  LineData,
+  LineType,
+  MouseEventParams,
+  Time,
+} from "lightweight-charts";
 import { RenderIf } from "@/components/shared";
 import { useFetchBinancePriceData } from "@/services/queries/charts";
 import { formatChartTooltipDate, formatPriceSignificant } from "@/lib/utils";
@@ -40,7 +48,12 @@ function TestChart(props: IProps) {
 
   const location = useAtomValue(geoLocationAtom);
 
-  const { data = [] } = useFetchBinancePriceData(`${token}USDT`, period, 100, location?.country);
+  const { data = [] } = useFetchBinancePriceData(
+    `${token}USDT`,
+    period,
+    1000,
+    location?.country,
+  );
 
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
@@ -99,7 +112,9 @@ function TestChart(props: IProps) {
         const res = param.seriesData.get(seriesApi) as CandlestickData;
         data.time = res.time as number;
         data.value = res.close;
-        coordinate = candleSeriesRef.current.api()?.priceToCoordinate(data.value);
+        coordinate = candleSeriesRef.current
+          .api()
+          ?.priceToCoordinate(data.value);
       }
     }
 
@@ -113,7 +128,10 @@ function TestChart(props: IProps) {
     if (!coordinate) return;
 
     let shiftedCoordinate = param.point.x - toolTipWidth / 2;
-    shiftedCoordinate = Math.max(0, Math.min(container.clientWidth - toolTipWidth, shiftedCoordinate));
+    shiftedCoordinate = Math.max(
+      0,
+      Math.min(container.clientWidth - toolTipWidth, shiftedCoordinate),
+    );
 
     const coordinateY =
       coordinate - toolTipHeight - toolTipMargin > 0
@@ -134,9 +152,13 @@ function TestChart(props: IProps) {
     let ws: WebSocket;
 
     if (location?.country === "US") {
-      ws = new WebSocket(`wss://stream.binance.us:9443/ws/${token.toLowerCase()}usdt@kline_${period}`);
+      ws = new WebSocket(
+        `wss://stream.binance.us:9443/ws/${token.toLowerCase()}usdt@kline_${period}`,
+      );
     } else {
-      ws = new WebSocket(`wss://stream.binance.com:9443/ws/${token.toLowerCase()}usdt@kline_${period}`);
+      ws = new WebSocket(
+        `wss://stream.binance.com:9443/ws/${token.toLowerCase()}usdt@kline_${period}`,
+      );
     }
 
     ws.onmessage = (event) => {
@@ -252,7 +274,11 @@ function TestChart(props: IProps) {
         </RenderIf>
 
         <RenderIf condition={isCandleStick}>
-          <CandlestickSeries ref={candleSeriesRef} data={data as any} reactive />
+          <CandlestickSeries
+            ref={candleSeriesRef}
+            data={data as any}
+            reactive
+          />
         </RenderIf>
         <TimeScale
           ref={timeScaleRef}

@@ -6,7 +6,7 @@ interface IProps extends React.SVGProps<SVGSVGElement> {
 }
 
 export default function CaretDown(props: IProps) {
-  const { open = false } = props;
+  const { open = false, stroke = "#717A7A", ...rest } = props;
   return (
     <svg
       className={cn("transform transition-transform duration-300", {
@@ -17,10 +17,11 @@ export default function CaretDown(props: IProps) {
       viewBox="0 0 10 6"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      {...rest}
     >
       <path
         d="M1 1L5 5L9 1"
-        stroke="#717A7A"
+        stroke={stroke}
         strokeWidth="1.33333"
         strokeLinecap="round"
         strokeLinejoin="round"
