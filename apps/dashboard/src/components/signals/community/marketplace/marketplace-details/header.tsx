@@ -1,7 +1,14 @@
 import React from "react";
 import { Crown, RatingStar } from "@/components/icons/icons";
+import { marketplaceData } from "@/lib/static";
 
-export default function Header() {
+interface IProps {
+  index: number;
+}
+
+export default function Header(props: IProps) {
+  const { index } = props;
+
   return (
     <div className="flex justify-between items-center px-6 ">
       <div className="flex flex-col gap-2">
@@ -10,7 +17,8 @@ export default function Header() {
             <Crown fill="#E4BD18" />
           </div>
           <p className="text-[#989898] text-lg leading-[1.35] tracking-[-0.4%] font-medium">
-            Noah Shiffman’s Liquidity threshold Indicator
+            {marketplaceData[index % marketplaceData.length]?.title ||
+              "Marketplace Details"}
           </p>
         </div>
 

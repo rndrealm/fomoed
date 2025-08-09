@@ -5,8 +5,13 @@ import { Profile } from "./profile";
 import { marketplaceData } from "@/lib/static";
 import { MarketplaceIcon } from "@/components/icons/icons";
 import { RenderIf } from "@/components/shared";
+import dashboard from "@/lib/assets/dashboard";
 
-const images = [marketplace.marketplaceCard, marketplace.marketplaceCard2];
+export const images = [
+  marketplace.marketplaceCard,
+  marketplace.marketplaceCard2,
+  dashboard.weightedSentiment,
+];
 
 interface IProps {
   index?: number;
