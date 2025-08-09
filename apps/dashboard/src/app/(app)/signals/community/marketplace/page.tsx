@@ -12,7 +12,7 @@ import { marketplaceData } from "@/lib/static";
 import { ModalContainer } from "@/components/shared";
 
 export default function Page() {
-  const [showDetails, setShowDetails] = useState(false);
+  const [showDetails, setShowDetails] = useState(-1);
 
   return (
     <Fragment>
@@ -53,7 +53,7 @@ export default function Page() {
                     data={item}
                     index={index}
                     onClick={() => {
-                      setShowDetails(true);
+                      setShowDetails(index);
                     }}
                   />
                 ))}
@@ -71,12 +71,13 @@ export default function Page() {
               </div>
 
               <div className="grid grid-cols-3 gap-4 ">
-                {marketplaceData?.map((item) => (
+                {marketplaceData?.map((item, index) => (
                   <MarketplaceCard
                     key={item.id}
                     data={item}
+                    index={index}
                     onClick={() => {
-                      console.log(item);
+                      setShowDetails(index);
                     }}
                   />
                 ))}
@@ -87,15 +88,18 @@ export default function Page() {
       </div>
 
       <ModalContainer
-        open={showDetails}
+        open={showDetails > -1}
         handleClose={() => {
-          setShowDetails(false);
+          setShowDetails(-1);
         }}
         className="h-full p-0 rounded-[30px] !max-w-[1000px] !max-h-[700px] overflow-hidden"
         title="Marketplace Details"
         noHeader
       >
-        <MarketplaceDetails handleClose={() => setShowDetails(false)} />
+        <MarketplaceDetails
+          handleClose={() => setShowDetails(-1)}
+          index={showDetails}
+        />
       </ModalContainer>
     </Fragment>
   );

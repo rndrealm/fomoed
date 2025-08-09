@@ -6,18 +6,22 @@ import marketplace from "@/lib/assets/signals/community/marketplace";
 import { Rating } from "./rating";
 import { SignalDetails } from "./signal-details";
 import { CreatorDetails } from "./creator-details";
+import { images } from "../marketplace-card";
+import { marketplaceData } from "@/lib/static";
 
 interface IProps {
   handleClose: () => void;
+  index?: number;
 }
 
 export function MarketplaceDetails(props: IProps) {
-  const { handleClose } = props;
+  const { handleClose, index = 0 } = props;
   return (
     <div className="h-full w-full bg-[#000000] border border-[#282828] rounded-[30px] flex flex-col">
       <div className="flex justify-between items-center px-6 py-2 border-b border-[#141414]">
         <p className="text-[#D4D4D4] text-sm tracking-[-0.4%] leading-[1.35]">
-          Noah Shiffman’s Liquidity Threshold Indicator
+          {marketplaceData[index % marketplaceData.length]?.title ||
+            "Marketplace Details"}
         </p>
 
         <div className="flex items-center gap-2">
@@ -39,11 +43,11 @@ export function MarketplaceDetails(props: IProps) {
       </div>
 
       <div className="flex-1 flex flex-col gap-4 overflow-y-auto scrollbar pt-4 pb-14">
-        <Header />
+        <Header index={index} />
         <div className="flex flex-col">
           <div className="px-6">
             <Image
-              src={marketplace.marketplaceDetails}
+              src={index !== undefined ? images[index % images.length] : ""}
               alt="marketplace card"
               className="w-full h-auto rounded-lg"
             />
@@ -52,7 +56,7 @@ export function MarketplaceDetails(props: IProps) {
             <Rating />
           </div>
           <div className="flex gap-10 px-18 py-6">
-            <SignalDetails />
+            <SignalDetails index={index} />
             <CreatorDetails />
           </div>
         </div>
