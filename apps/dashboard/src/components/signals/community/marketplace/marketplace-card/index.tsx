@@ -11,6 +11,9 @@ export const images = [
   marketplace.marketplaceCard,
   marketplace.marketplaceCard2,
   dashboard.weightedSentiment,
+  dashboard.weightedPriceSentiment,
+  dashboard.liq,
+  dashboard.cfgi,
 ];
 
 interface IProps {
@@ -21,6 +24,7 @@ interface IProps {
 
 export function MarketplaceCard(props: IProps) {
   const { data, index, onClick } = props;
+  const { title, description, author, followers, rating } = data || {};
 
   return (
     <button
@@ -43,13 +47,18 @@ export function MarketplaceCard(props: IProps) {
 
       <div className="flex flex-col gap-2">
         <h4 className="text-[#fff] text-lg tracking-[-0.4%] leading-[1.35] font-medium line-clamp-1">
-          {data?.title}
+          {title}
         </h4>
         <p className="text-[#D4D4D4] text-sm line-clamp-3 tracking-[-0.4%] leading-[1.35]">
-          {data?.description}
+          {description}
         </p>
 
-        <Profile data={data} index={index} />
+        <Profile
+          author={author || ""}
+          followers={followers || 0}
+          rating={rating || 0}
+          index={index}
+        />
       </div>
     </button>
   );

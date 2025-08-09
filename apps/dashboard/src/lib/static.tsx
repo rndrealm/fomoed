@@ -857,9 +857,9 @@ export const analyticsTrackEvents = {
 export const marketplaceData = [
   {
     id: 1,
-    title: "Noah Shiffman’s Liquidity threshold Indicator",
+    title: "Noah Shiffman's Liquidity threshold Indicator",
     description:
-      "Track the precise liquidity zones that matter most. This smart signal scans market depth in real-time, highlighting thresholds where large buy or sell walls are likely to trigger significant price reactions. By identifying these liquidity “pressure points,” traders can anticipate moves before they happen — filtering out market noise and focusing only on high-impact levels.",
+      "Track the precise liquidity zones that matter most. This smart signal scans market depth in real-time, highlighting thresholds where large buy or sell walls are likely to trigger significant price reactions. By identifying these liquidity 'pressure points,' traders can anticipate moves before they happen — filtering out market noise and focusing only on high-impact levels.",
     author: "Noah Shiffman",
     followers: 690,
     rating: 5,
@@ -878,9 +878,39 @@ export const marketplaceData = [
     id: 3,
     title: "Price Chart Triggers",
     description:
-      "Measure the strength behind every price move. This smart signal tracks traded volume in real-time, revealing when momentum is building or fading. Spot surges that confirm breakouts, detect low-volume pullbacks, and gauge overall market participation to fine-tune your entries and exits.",
+      "Identify key support and resistance levels with pinpoint accuracy. This advanced signal automatically detects and visualizes critical price zones where market reactions are most likely to occur. By analyzing historical price action and current market structure, it highlights potential reversal points, breakout levels, and accumulation zones — giving traders a strategic edge in positioning entries and exits at optimal price points.",
     author: "Ansem",
     followers: 420,
+    rating: 4,
+  },
+
+  {
+    id: 4,
+    title: "Social Sentiment Analyzer",
+    description:
+      "Get ahead of market moves by monitoring social sentiment across multiple platforms. This signal aggregates and analyzes real-time data from Twitter, Reddit, Discord, and other crypto communities, identifying emerging narratives before they impact price action. The proprietary algorithm filters out noise and weighs influencer impact to deliver actionable sentiment insights with minimal false signals.",
+    author: "Emma Chen",
+    followers: 843,
+    rating: 5,
+  },
+
+  {
+    id: 5,
+    title: "Whale Alert Pro",
+    description:
+      "Track institutional money movements with precision. This advanced signal detects large wallet transactions across multiple blockchains, identifying accumulation and distribution patterns from known whales and institutional players. Get instant notifications when significant funds move to exchanges (potential selling pressure) or to cold storage (possible long-term accumulation), giving you critical time to position accordingly.",
+    author: "Blockchain Sentinel",
+    followers: 1257,
+    rating: 4,
+  },
+
+  {
+    id: 6,
+    title: "Volatility Breakout Detector",
+    description:
+      "Capitalize on volatility compression and expansion cycles with mathematical precision. This signal identifies periods of unusually low volatility (often preceding major moves) and alerts you the moment a confirmed breakout occurs. Using advanced Bollinger Band analysis combined with volume verification, it helps you enter early in new trend formations while avoiding false breakouts that trap most traders.",
+    author: "Marcus Trading Labs",
+    followers: 578,
     rating: 4,
   },
 ];

@@ -8,11 +8,13 @@ const avatars = [marketplace.avatar, marketplace.avatar2, marketplace.avatar3];
 
 interface IProps {
   index?: number;
-  data: (typeof marketplaceData)[0];
+  author: string;
+  followers: number;
+  rating: number;
 }
 
 export function Profile(props: IProps) {
-  const { data, index = 0 } = props;
+  const { author, followers, rating, index = 0 } = props;
 
   return (
     <div className="flex items-center justify-between gap-2">
@@ -27,7 +29,7 @@ export function Profile(props: IProps) {
 
         <div className="flex items-center gap-1">
           <p className="text-[#737373] font-xs leading-[20px] ">
-            By {data?.author ? data.author : "Unknown"}
+            By {author || "Unknown"}
           </p>
 
           <div className="w-[3px] h-[3px] bg-[#737373] rounded-full"></div>
@@ -36,18 +38,16 @@ export function Profile(props: IProps) {
             <MarketplaceProfile />
           </div>
 
-          <p className="text-[#737373] font-xs leading-[20px] ">
-            {data?.followers}
-          </p>
+          <p className="text-[#737373] font-xs leading-[20px] ">{followers}</p>
         </div>
       </div>
 
       <div className="flex items-center">
-        {Array(data?.rating || 0)
+        {Array(rating || 0)
           .fill(0)
-          .map((_, index) => (
+          .map((_, i) => (
             <div
-              key={index}
+              key={i}
               className="w-[18px] h-[18px] flex items-center justify-center"
             >
               <RatingStar />
