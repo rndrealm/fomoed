@@ -38,12 +38,18 @@ function RateProduct() {
   );
 }
 
-export function CreatorDetails() {
+interface ICreatorDetailsProps {
+  author?: string;
+}
+
+export function CreatorDetails({
+  author = "Noah Shiffman",
+}: ICreatorDetailsProps) {
   return (
     <div className="flex flex-col gap-6 max-w-[261px] w-full">
       <div className="flex flex-col gap-2">
         <h3 className="text-white text-lg leading-[1.35] tracking-[-0.4%] font-medium">
-          Creator Details---
+          Creator Details
         </h3>
 
         <div className="flex items-center">
@@ -55,7 +61,7 @@ export function CreatorDetails() {
             />
           </div>
           <p className="px-[10px] text-white text-sm leading-[1.35] tracking-[-0.4%] ">
-            Noah Shiffman
+            {author}
           </p>
         </div>
 

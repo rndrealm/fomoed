@@ -1,13 +1,19 @@
 import { Accuracy, RatingStar } from "@/components/icons/icons";
 import React from "react";
 
-export function Pricing() {
+interface IPricingProps {
+  title?: string;
+}
+
+export function Pricing({
+  title = "Noah Shiffman's Liquidity threshold Indicator",
+}: IPricingProps) {
   return (
     <div className="flex gap-4 w-full">
       <div className="flex flex-col flex-1 gap-4 py-4 px-2 bg-[#1A1B18EB] max-w-[263px] w-full">
         <div className="flex flex-col gap-2">
           <p className="text-white text-sm leading-[1.35] tracking-[-0.4%]">
-            Noah Shiffman’s Liquidity threshold Indicator
+            {title}
           </p>
 
           <div className="flex gap-1">
