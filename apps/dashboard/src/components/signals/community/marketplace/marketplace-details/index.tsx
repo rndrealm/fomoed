@@ -7,7 +7,12 @@ import { Rating } from "./rating";
 import { SignalDetails } from "./signal-details";
 import { CreatorDetails } from "./creator-details";
 
-export function MarketplaceDetails() {
+interface IProps {
+  handleClose: () => void;
+}
+
+export function MarketplaceDetails(props: IProps) {
+  const { handleClose } = props;
   return (
     <div className="h-full w-full bg-[#000000] border border-[#282828] rounded-[30px] flex flex-col">
       <div className="flex justify-between items-center px-6 py-2 border-b border-[#141414]">
@@ -26,6 +31,7 @@ export function MarketplaceDetails() {
           <button
             type="button"
             className="w-[32px] h-[32px] flex items-center justify-center"
+            onClick={handleClose}
           >
             <Close />
           </button>

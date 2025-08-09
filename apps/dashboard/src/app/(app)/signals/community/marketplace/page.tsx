@@ -12,7 +12,7 @@ import { marketplaceData } from "@/lib/static";
 import { ModalContainer } from "@/components/shared";
 
 export default function Page() {
-  const [showDetails, setShowDetails] = useState(true);
+  const [showDetails, setShowDetails] = useState(false);
 
   return (
     <Fragment>
@@ -95,7 +95,7 @@ export default function Page() {
         title="Marketplace Details"
         noHeader
       >
-        <MarketplaceDetails />
+        <MarketplaceDetails handleClose={() => setShowDetails(false)} />
       </ModalContainer>
     </Fragment>
   );
