@@ -48,6 +48,12 @@ export const AppRoutes = {
   signals: {
     name: "Signals",
     path: "/signals",
+    community: {
+      marketplace: {
+        name: "Marketplace",
+        path: "/signals/community/marketplace",
+      },
+    },
   },
   pricing: {
     name: "Pricing",

@@ -853,3 +853,34 @@ export const analyticsTrackEvents = {
   widgetAdded: "widget_added",
   signup: "signup",
 };
+
+export const marketplaceData = [
+  {
+    id: 1,
+    title: "Noah Shiffman’s Liquidity threshold Indicator",
+    description:
+      "Track the precise liquidity zones that matter most. This smart signal scans market depth in real-time, highlighting thresholds where large buy or sell walls are likely to trigger significant price reactions. By identifying these liquidity “pressure points,” traders can anticipate moves before they happen — filtering out market noise and focusing only on high-impact levels.",
+    author: "Noah Shiffman",
+    followers: 690,
+    rating: 5,
+  },
+  {
+    id: 2,
+    title: "Volume Indicator",
+    description:
+      "Measure the strength behind every price move. This smart signal tracks traded volume in real-time, revealing when momentum is building or fading. Spot surges that confirm breakouts, detect low-volume pullbacks, and gauge overall market participation to fine-tune your entries and exits.",
+    author: "Jakub Blaha",
+    followers: 69,
+    rating: 3,
+  },
+
+  {
+    id: 3,
+    title: "Price Chart Triggers",
+    description:
+      "Measure the strength behind every price move. This smart signal tracks traded volume in real-time, revealing when momentum is building or fading. Spot surges that confirm breakouts, detect low-volume pullbacks, and gauge overall market participation to fine-tune your entries and exits.",
+    author: "Ansem",
+    followers: 420,
+    rating: 4,
+  },
+];
