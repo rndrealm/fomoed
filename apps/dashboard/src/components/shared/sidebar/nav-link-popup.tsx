@@ -17,7 +17,7 @@ const LinkPopup: React.FC<ILinkPopup> = ({
   return (
     <div
       className={cn(
-        "pointer-events-none absolute top-1/2 left-[42px] z-50 translate-y-[-50%] items-center justify-center rounded-[10px] border-[1px] border-[#262626] bg-[#0A0A0A] px-3 py-1.5 shadow-[0px_1px_2px_0px_#0000000D]",
+        "pointer-events-none absolute top-1/2 left-[42px] z-50 translate-y-[-50%] items-center justify-center rounded-[12px] border-[1px] border-[#262626] bg-[#0A0A0A] px-2 py-1.5 shadow-[0px_1px_2px_0px_#0000000D]",
         className,
       )}
     >
