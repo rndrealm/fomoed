@@ -19,7 +19,7 @@ export default function DashboardLayout({
       <div className="absolute inset-x-0 top-0 z-[9]">
         <NavbarNews />
       </div>
-      <div className="ml-0 h-screen overflow-hidden bg-black md:ml-12">
+      <div className="ml-0 h-screen overflow-hidden bg-black md:ml-[54px]">
         {children}
       </div>
 
