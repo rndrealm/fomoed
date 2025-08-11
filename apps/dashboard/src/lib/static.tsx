@@ -273,7 +273,7 @@ export const layoutOptionsMap = [
     id: 212,
     name: "Duck Game",
     slug: "duck-game",
-    image: dashboard.weightedPriceSentiment,
+    image: dashboard.duckGame,
     category: "",
     tags: ["new"],
   },
@@ -713,7 +713,7 @@ export const widgetPropsDefaults = {
 
   "duck-game": {
     meta: {
-      w: 4,
+      w: 8,
       h: 4,
       minW: 6,
       minH: 2,
