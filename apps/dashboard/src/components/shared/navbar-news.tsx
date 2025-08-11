@@ -43,7 +43,7 @@ const navLinks: INavLink[] = [
     label: "Smart Signals",
     icon: <SmartSignalsIcon />,
     href: AppRoutes.signals.path,
-    disabled: true,
+    disabled: false,
     beta: false,
     comingSoon: true,
   },
