@@ -7,8 +7,8 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 
 const plansIdMap = {
-  pro: "prod_QuL2KcFQNsFWb1",
-  plus: "prod_Q4NT6y9VdwZlKo",
+  pro: process.env.STRIPE_PRO_PLAN_ID,
+  plus: process.env.STRIPE_PLUS_PLAN_ID,
 };
 
 const fetchUserPlans = async () => {
