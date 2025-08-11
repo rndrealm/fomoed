@@ -7,8 +7,14 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 
 const plansIdMap = {
-  pro: process.env.STRIPE_PRO_PLAN_ID,
-  plus: process.env.STRIPE_PLUS_PLAN_ID,
+  pro:
+    process.env.STRIPE_PRODUCT_IDS_PRO_PLAN?.split(",").map((id) =>
+      id.trim(),
+    ) || [],
+  plus:
+    process.env.STRIPE_PRODUCT_IDS_PLUS_PLAN?.split(",").map((id) =>
+      id.trim(),
+    ) || [],
 };
 
 const fetchUserPlans = async () => {
@@ -49,11 +55,11 @@ const fetchUserPlans = async () => {
 
   for (const sub of active_subs) {
     const subProductId = sub.items.data?.[0]?.plan?.product;
-    if (subProductId === plansIdMap.pro) {
+    if (subProductId && plansIdMap.pro.includes(subProductId as string)) {
       planType = "PRO";
       break;
     }
-    if (subProductId === plansIdMap.plus) {
+    if (subProductId && plansIdMap.plus.includes(subProductId as string)) {
       planType = "PLUS";
       break;
     }
