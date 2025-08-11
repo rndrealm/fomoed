@@ -44,6 +44,7 @@ export function DashboardWidgets(props: IProps) {
         }}
         cols={{ xxl: 32, xl: 24, lg: 16, md: 12, sm: 12, xs: 4, xxs: 4 }}
         draggableHandle=".cursor-grab"
+        resizeHandles={[]}
         // resizeHandles={availableHandles}
         rowHeight={110}
         // isResizable={false}
