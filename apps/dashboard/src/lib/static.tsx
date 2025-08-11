@@ -42,6 +42,7 @@ import { StaticImageData } from "next/image";
 import NewsWidget from "@/components/widgets/news/token-news/news";
 import WeightedSentiment from "@/components/widgets/weighted-sentiment/weighted-sentiment";
 import WeightedPriceSentiment from "@/components/widgets/weighted-price-sentiment/weighted-price-sentiment";
+import DuckGame from "@/components/widgets/duck-game";
 
 export const layoutClassMap = {
   SinglePane: "grid-rows-1 grid-cols-1",
@@ -268,6 +269,15 @@ export const layoutOptionsMap = [
     tags: ["charts", "new"],
   },
 
+  {
+    id: 212,
+    name: "Duck Game",
+    slug: "duck-game",
+    image: dashboard.duckGame,
+    category: "",
+    tags: ["new"],
+  },
+
   // {
   //   id: 10,
   //   name: "Heatmap",
@@ -425,6 +435,14 @@ export const chartsMap = {
     extra: ["period", "token"],
     component: (widget: LayoutType["widgets"][0]) => (
       <WeightedPriceSentiment widget={widget} />
+    ),
+  },
+
+  "duck-game": {
+    name: "Duck Game",
+    extra: [""],
+    component: (widget: LayoutType["widgets"][0]) => (
+      <DuckGame widget={widget} />
     ),
   },
 };
@@ -688,6 +706,17 @@ export const widgetPropsDefaults = {
       h: 4,
       minW: 8,
       minH: 4,
+      maxW: Infinity,
+      maxH: Infinity,
+    },
+  },
+
+  "duck-game": {
+    meta: {
+      w: 8,
+      h: 4,
+      minW: 6,
+      minH: 2,
       maxW: Infinity,
       maxH: Infinity,
     },

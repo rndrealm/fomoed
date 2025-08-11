@@ -812,3 +812,10 @@ input[type="number"] {
   border-radius: inherit;
   background: linear-gradient(180deg, #080808 8.84%, #5c5c5c 140.86%);
 }
+
+.app_duck_game {
+  background-image: url(../../public/media/images/dashboard/duck-game.png);
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}

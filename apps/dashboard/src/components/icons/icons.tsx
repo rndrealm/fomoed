@@ -1959,3 +1959,43 @@ export function Accuracy() {
     </svg>
   );
 }
+
+export function DuckPlay() {
+  return (
+    <svg
+      width="16"
+      height="17"
+      viewBox="0 0 16 17"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M3.3335 8.31525C3.3335 5.76974 3.3335 4.49698 3.86545 3.78643C4.32903 3.16722 5.03863 2.77981 5.81018 2.7247C6.69554 2.66146 7.76616 3.34972 9.90739 4.72623L10.195 4.91112C12.0531 6.10559 12.9821 6.70282 13.303 7.46223C13.5833 8.12577 13.5833 8.87452 13.303 9.53807C12.9821 10.2975 12.0531 10.8947 10.195 12.0892L9.90739 12.2741C7.76616 13.6506 6.69554 14.3388 5.81018 14.2756C5.03863 14.2205 4.32903 13.8331 3.86545 13.2139C3.3335 12.5033 3.3335 11.2306 3.3335 8.68504V8.31525Z"
+        stroke="white"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export function DuckInProgress() {
+  return (
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 12 12"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M6 1V3M6 9V11M3 6H1M11 6H9M9.53921 9.53921L8.125 8.125M9.53921 2.49997L8.125 3.91418M2.46079 9.53921L3.875 8.125M2.46079 2.49997L3.875 3.91418"
+        stroke="#092D06"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
