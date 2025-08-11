@@ -100,6 +100,7 @@ export const NavbarNews = (props: IProps) => {
   useEffect(() => {
     function findActive(linkHref: string) {
       navLinks.find((item) => {
+        // console.log(item.href, linkHref);
         if (item.href === linkHref) {
           item.active = true;
         } else {

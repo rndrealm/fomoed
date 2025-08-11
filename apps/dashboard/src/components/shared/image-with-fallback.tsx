@@ -25,8 +25,10 @@ export function ImageWithFallback(props: IProps) {
         {...restProps}
       />
       <RenderIf condition={error && !!text}>
-        <div className="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center">
-          <p className="text-white uppercase font-semibold text-xl">{text}</p>
+        <div className="absolute top-26 left-1/2 -translate-x-1/2 flex items-center justify-center">
+          <p className="-translate-y-1/2 text-white text-center uppercase font-semibold text-xl">
+            {text}
+          </p>
         </div>
       </RenderIf>
     </div>
