@@ -1,4 +1,9 @@
-import { CoinStats, ExchangeIcon, Question, Summary } from "@/components/icons/icons";
+import {
+  CoinStats,
+  ExchangeIcon,
+  Question,
+  Summary,
+} from "@/components/icons/icons";
 import { cn, splitWidgetSlug } from "@/lib/utils";
 import React, { ReactNode } from "react";
 import { OptionsDropdown } from "./options-dropwdown";
@@ -9,6 +14,8 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { settingAtom, updateSettingAtom } from "@/lib/atoms/settingsAtom";
 import Star from "@/components/icons/Star";
 import { motion } from "motion/react";
+import Image from "next/image";
+import dashboard from "@/lib/assets/dashboard";
 
 interface IProps {
   children: ReactNode;
@@ -18,6 +25,7 @@ interface IProps {
   handleLearnMore?: () => void;
   title: string;
   titleIcon?: "coinstats" | "summary" | "exchange" | "none";
+  isDuckGame?: boolean;
 }
 
 export function WidgetWrapper(props: IProps) {
@@ -29,6 +37,7 @@ export function WidgetWrapper(props: IProps) {
     handleLearnMore,
     title,
     titleIcon = "coinstats",
+    isDuckGame = false,
   } = props;
 
   const settings = useAtomValue(settingAtom);
@@ -40,7 +49,7 @@ export function WidgetWrapper(props: IProps) {
     <div
       className={cn(
         "relative flex h-full flex-col gap-2 overflow-hidden rounded-2xl bg-[#000] px-2 pt-0 pb-2 sm:px-4 sm:pb-4",
-        className
+        className,
       )}
     >
       <div className={cn("flex flex-col gap-1", headerClassName)}>
@@ -50,6 +59,13 @@ export function WidgetWrapper(props: IProps) {
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
+            <RenderIf condition={isDuckGame}>
+              <Image
+                src={dashboard.duckGameIcon}
+                alt="duck game"
+                className="w-[32px] h-[32px] rounded-full"
+              />
+            </RenderIf>
             <RenderIf condition={titleIcon === "coinstats"}>
               <CoinStats />
             </RenderIf>
@@ -60,18 +76,23 @@ export function WidgetWrapper(props: IProps) {
             <RenderIf condition={titleIcon === "exchange"}>
               <ExchangeIcon />
             </RenderIf>
-            <h4 className="text-base leading-[1.35] font-semibold text-[#878787] select-none">{title}</h4>
+            <h4 className="text-base leading-[1.35] font-semibold text-[#878787] select-none">
+              {title}
+            </h4>
           </div>
 
           <div className="flex items-center gap-2">
             <button
               onClick={() => {
-                const isFavorite = settings.favorite_widgets.includes(widgetSlug);
+                const isFavorite =
+                  settings.favorite_widgets.includes(widgetSlug);
 
                 let newWidgetArray: string[] = [];
 
                 if (isFavorite) {
-                  newWidgetArray = settings.favorite_widgets.filter((item) => item !== widgetSlug);
+                  newWidgetArray = settings.favorite_widgets.filter(
+                    (item) => item !== widgetSlug,
+                  );
                 } else {
                   newWidgetArray = [...settings.favorite_widgets, widgetSlug];
                 }
