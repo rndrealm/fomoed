@@ -46,7 +46,7 @@ export default function DuckGame(props: IProps) {
                 </h4>
               </div>
 
-              <div className="flex">
+              <div className="flex items-center gap-1">
                 <p className="text-[#083240] text-sm font-medium leading-[1.35] tracking-[-2%] ">
                   Rewards Pool
                 </p>
