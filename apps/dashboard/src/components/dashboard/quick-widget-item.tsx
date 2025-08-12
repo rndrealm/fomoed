@@ -97,7 +97,12 @@ export function QuickWidgetItem(props: IProps) {
           // }
         }}
       >
-        <RenderIf condition={widget.category === "charts" && tag !== "charts"}>
+        <RenderIf
+          condition={
+            (widget.category === "charts" || widget.category === "games") &&
+            tag !== "charts"
+          }
+        >
           <div className="flex items-center gap-2 mb-2">
             <Image
               src={dashboard.folder}

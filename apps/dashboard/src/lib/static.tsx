@@ -274,8 +274,8 @@ export const layoutOptionsMap = [
     name: "Duck Game",
     slug: "duck-game",
     image: dashboard.duckGame,
-    category: "",
-    tags: ["new"],
+    category: "games",
+    tags: ["new", "games"],
   },
 
   // {

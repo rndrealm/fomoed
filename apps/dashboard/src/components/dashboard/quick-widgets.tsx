@@ -15,6 +15,7 @@ const categoriesOptions = [
   { id: 4, label: "New", value: "new" },
   { id: 2, label: "Charts", value: "charts" },
   { id: 3, label: "News", value: "news" },
+  { id: 6, label: "Games", value: "games" },
   { id: 5, label: "Favorite", value: "favorite" },
   // { id: 4, label: "Custom Widgets", value: "custom-widgets" },
 ];
@@ -97,7 +98,7 @@ export function QuickWidgets(props: IProps) {
                   "text-xs font-medium leading-[18px] py-[5px] px-[9px]",
                   active
                     ? "text-white bg-[#1D1D1D] rounded-md"
-                    : "text-[#7a7a7a]"
+                    : "text-[#7a7a7a]",
                 )}
                 onClick={() => {
                   setSelectedTag(item.value);
