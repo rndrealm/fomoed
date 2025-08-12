@@ -89,7 +89,7 @@ export default function DuckGame(props: IProps) {
       >
         <div className="w-full h-full">
           <iframe
-            src="https://duckracegp.com"
+            src="https://duckracegp.com?referral=fomoed"
             className="w-full h-full"
           ></iframe>
         </div>
