@@ -132,7 +132,7 @@ export const NavbarNews = (props: IProps) => {
       {/* Blur Layer */}
       <motion.div
         onClick={() => setIsSideMenuOpen(false)}
-        className="fixed inset-0 z-[100] bg-[rgba(165,165,165,0.02)] backdrop-blur-[4px]"
+        className="fixed inset-0 z-[48] bg-[rgba(165,165,165,0.02)] backdrop-blur-[4px]"
         initial={{ opacity: 0 }}
         animate={{
           pointerEvents: isSideMenuOpen ? "all" : "none",

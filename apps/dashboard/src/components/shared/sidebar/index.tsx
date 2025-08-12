@@ -25,7 +25,7 @@ const SideNav = (props: ISideNavProps) => {
     <motion.div
       id="sidebar"
       className={cn(
-        "fixed inset-0 z-[101] h-screen max-h-screen w-[280px] max-w-[280px] overflow-hidden rounded-none bg-[#000000] border-r-[1px] border-[#2A2A2A] p-0 opacity-100 font-inter",
+        "fixed inset-0 z-[49] h-screen max-h-screen w-[280px] max-w-[280px] overflow-hidden rounded-none bg-[#000000] border-r-[1px] border-[#2A2A2A] p-0 opacity-100 font-inter",
         {
           "pointer-events-none opacity-0 md:pointer-events-auto md:opacity-100":
             !isSideMenuOpen,
