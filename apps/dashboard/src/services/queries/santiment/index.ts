@@ -5,6 +5,19 @@ import { WeightedSentiment, WeightedSentimentToken } from "./types";
 const BASE_URL =
   "https://fomoed-data-ingestion-509111531565.us-central1.run.app/api/v1";
 
+// Environment determination for Supabase auth
+const IS_PRODUCTION = process.env.NODE_ENV === "production";
+
+/**
+ * Helper function to get headers with authentication and environment information
+ * @param auth_token The authentication token
+ * @returns Headers object with Authorization and x-auth-env headers
+ */
+const getAuthHeaders = (auth_token?: string) => ({
+  ...(auth_token ? { Authorization: `Bearer ${auth_token}` } : {}),
+  "x-auth-env": IS_PRODUCTION ? "production" : "development",
+});
+
 // INTERVAL OPTIONS
 // ["5m", "1h", "8h", "1d"]
 
@@ -23,9 +36,7 @@ export const useReadWeightedSentiment = (props: ReadWeightedSentimentProps) => {
       const response = await api.get({
         url: `${BASE_URL}/santiment/weighted-sentiment?slug=${token}&interval=${interval}`,
         auth: false,
-        headers: {
-          Authorization: `Bearer ${auth_token}`,
-        },
+        headers: getAuthHeaders(auth_token),
       });
       return response?.data as any;
     },
@@ -49,9 +60,7 @@ export const useReadSantimentTokenPrice = (
       const response = await api.get({
         url: `${BASE_URL}/santiment/price-usd?slug=${token}&interval=${interval}`,
         auth: false,
-        headers: {
-          Authorization: `Bearer ${auth_token}`,
-        },
+        headers: getAuthHeaders(auth_token),
       });
       return response?.data as any;
     },
@@ -79,10 +88,7 @@ export const useReadSantimentTokenList = (
       const response = await api.get({
         url: `${BASE_URL}/santiment/token-list`,
         auth: false,
-        // headers: auth_token ? { "x-api-key": auth_token } : undefined,
-        headers: {
-          Authorization: `Bearer ${auth_token}`,
-        },
+        headers: getAuthHeaders(auth_token),
       });
       return response?.data as any;
     },
