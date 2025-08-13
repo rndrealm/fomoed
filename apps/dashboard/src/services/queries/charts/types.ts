@@ -259,3 +259,28 @@ export interface BinanceTicker {
   lastId: number;
   count: number;
 }
+
+export interface PriceDataItem {
+  t: number,
+  p: string
+}
+
+export interface OrderBookDataItem {
+  time: number,
+  bids_usd: number,
+  asks_usd: number
+}
+
+export interface OrderBookDeltaResponse {
+  priceData: PriceDataItem[],
+  orderBookData: OrderBookDataItem[]
+}
+
+export interface ExchangePairOption {
+  label: string;
+  value: {
+    exchange: string;
+    symbol: string;
+    base_asset: string;
+  };
+}

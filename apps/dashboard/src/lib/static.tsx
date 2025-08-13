@@ -43,6 +43,7 @@ import NewsWidget from "@/components/widgets/news/token-news/news";
 import WeightedSentiment from "@/components/widgets/weighted-sentiment/weighted-sentiment";
 import WeightedPriceSentiment from "@/components/widgets/weighted-price-sentiment/weighted-price-sentiment";
 import DuckGame from "@/components/widgets/duck-game";
+import OrderbookDeltaWidget from "@/components/widgets/delta/delta-widget";
 
 export const layoutClassMap = {
   SinglePane: "grid-rows-1 grid-cols-1",
@@ -277,6 +278,14 @@ export const layoutOptionsMap = [
     category: "",
     tags: ["new"],
   },
+  {
+    id: 212, 
+    name: "Delta Spread",
+    slug: "orderbook-delta",
+    image: dashboard.deltaSpread, 
+    category: "charts",
+    tags: ["charts", "new"],
+  },
 
   // {
   //   id: 10,
@@ -443,6 +452,13 @@ export const chartsMap = {
     extra: [""],
     component: (widget: LayoutType["widgets"][0]) => (
       <DuckGame widget={widget} />
+    ),
+  },
+  "orderbook-delta": {
+    name: "Delta Spread",
+    extra: ["interval", "range", "token", "exchange_token"],
+    component: (widget: LayoutType["widgets"][0]) => (
+      <OrderbookDeltaWidget widget={widget} />
     ),
   },
 };
@@ -717,6 +733,20 @@ export const widgetPropsDefaults = {
       h: 4,
       minW: 6,
       minH: 2,
+      maxW: Infinity,
+      maxH: Infinity,
+    },
+  },
+  "orderbook-delta": {
+    token: "BTC",
+    interval: "1h",
+    range: "1",
+    exchange_token: exchangePairDefault.label,
+    meta: {
+      w: 8,
+      h: 4,
+      minW: 8,
+      minH: 4,
       maxW: Infinity,
       maxH: Infinity,
     },
