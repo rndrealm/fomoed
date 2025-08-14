@@ -58,6 +58,8 @@ import weightedSentiment from "../../../../public/media/images/dashboard/weighte
 import weightedPriceSentiment from "../../../../public/media/images/dashboard/weighted-price-sentiment.png";
 import duckGameIcon from "../../../../public/media/images/dashboard/duck-game-icon.png";
 import duckGame from "../../../../public/media/images/dashboard/duck-game.png";
+import duckTrophy from "../../../../public/media/images/dashboard/duck-trophy.png";
+import medal from "../../../../public/media/images/dashboard/medal.png";
 
 const dashboard = {
   layoutPlaceholder,
@@ -120,6 +122,8 @@ const dashboard = {
   weightedPriceSentiment,
   duckGameIcon,
   duckGame,
+  duckTrophy,
+  medal,
 };
 
 export default dashboard;
