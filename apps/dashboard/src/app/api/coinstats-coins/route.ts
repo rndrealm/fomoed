@@ -7,8 +7,8 @@ const redis = new Redis(process.env.REDIS_URL != "" ? (process.env.REDIS_URL as 
   password: process.env.REDIS_PASSWORD || undefined,
 });
 
-const COIN_KEY_PREFIX = "coin-v2:";
-const COIN_LIST_KEY = "coinstats_coin_list-v2";
+const COIN_KEY_PREFIX = "coin-v4-new-prefix:";
+const COIN_LIST_KEY = "coinstats_coinlist-v4";
 const CACHE_TTL = 18000; // 5 hours in seconds (5 * 60 * 60)
 
 const API_KEY = "WvGNSh8jIvpDJ0hjsgNZu1MFMYeohhiYMqDuzcZplTk=";
@@ -99,7 +99,7 @@ async function fetchCoinList(): Promise<CoinStatsTokenInfo[]> {
 
     coins.forEach((coin) => {
       const key = `${COIN_KEY_PREFIX}${coin.id}`;
-      pipeline.setex(key, CACHE_TTL, JSON.stringify(coin));
+      pipeline.set(key, JSON.stringify(coin), "EX", CACHE_TTL, "NX");
       coinSlugs.push(coin.id);
     });
 
