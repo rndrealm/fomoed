@@ -187,14 +187,15 @@ export default function Player(props: IProps) {
                 alt="news"
               />
             </RenderIf> */}
-
-            <ImageWithFallback
-              src={currentTrack?.image_url}
-              width={90}
-              height={90}
-              className="h-full w-full object-cover"
-              alt="news"
-            />
+            <RenderIf condition={!!currentTrack?.image_url}>
+              <ImageWithFallback
+                src={currentTrack?.image_url}
+                width={90}
+                height={90}
+                className="h-full w-full object-cover"
+                alt="news"
+              />
+            </RenderIf>
           </div>
         </div>
       </div>
