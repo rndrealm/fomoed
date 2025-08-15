@@ -284,3 +284,14 @@ export interface ExchangePairOption {
     base_asset: string;
   };
 }
+
+export interface WhaleTransaction {
+  token: string;
+  time: number;
+  direction: 'Long' | 'Short';
+  value: number;
+}
+
+export interface WhaleTransactionResponse {
+  data: WhaleTransaction[];
+}
