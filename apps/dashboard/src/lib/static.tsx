@@ -279,10 +279,10 @@ export const layoutOptionsMap = [
     tags: ["new", "games"],
   },
   {
-    id: 212, 
+    id: 212,
     name: "Delta Spread",
     slug: "orderbook-delta",
-    image: dashboard.deltaSpread, 
+    image: dashboard.deltaSpread,
     category: "charts",
     tags: ["charts", "new"],
   },
