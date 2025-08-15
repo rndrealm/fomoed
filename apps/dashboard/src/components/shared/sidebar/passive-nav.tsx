@@ -71,6 +71,7 @@ const PassiveNav = (props: IPassiveNavProps) => {
                 disabled={item.disabled}
                 comingSoon={item.comingSoon}
                 beta={item.beta}
+                alpha={item.alpha}
                 variant="passive"
               />
             );
