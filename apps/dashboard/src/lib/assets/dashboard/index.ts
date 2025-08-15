@@ -58,6 +58,7 @@ import weightedSentiment from "../../../../public/media/images/dashboard/weighte
 import weightedPriceSentiment from "../../../../public/media/images/dashboard/weighted-price-sentiment.png";
 import duckGameIcon from "../../../../public/media/images/dashboard/duck-game-icon.png";
 import duckGame from "../../../../public/media/images/dashboard/duck-game.png";
+import deltaSpread from "../../../../public/media/images/dashboard/delta-spread.png";
 
 const dashboard = {
   layoutPlaceholder,
@@ -120,6 +121,7 @@ const dashboard = {
   weightedPriceSentiment,
   duckGameIcon,
   duckGame,
+  deltaSpread
 };
 
 export default dashboard;
