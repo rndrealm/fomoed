@@ -5,13 +5,39 @@ interface ILinkPopup {
   label: string;
   className?: string;
   beta?: boolean;
+  alpha?: boolean;
   comingSoon?: boolean;
 }
+
+interface IBadge {
+  text: string;
+  borderColor: string;
+  backgroundColor: string;
+  textColor: string;
+}
+
+const Badge: React.FC<IBadge> = ({
+  text,
+  borderColor,
+  backgroundColor,
+  textColor,
+}) => (
+  <div
+    className={cn(
+      "rounded-[8px] border-[1px] px-2 py-1",
+      borderColor,
+      backgroundColor,
+    )}
+  >
+    <h3 className={cn("text-xs font-normal text-nowrap", textColor)}>{text}</h3>
+  </div>
+);
 
 const LinkPopup: React.FC<ILinkPopup> = ({
   label,
   className,
   beta,
+  alpha,
   comingSoon,
 }) => {
   return (
@@ -27,19 +53,30 @@ const LinkPopup: React.FC<ILinkPopup> = ({
         </h2>
 
         {comingSoon && (
-          <div className="rounded-[8px] border-[1px] border-[#3A2C4F] bg-[#2C233A] px-2 py-1">
-            <h3 className="text-xs font-normal text-nowrap text-[#C1A8FF]">
-              Coming Soon
-            </h3>
-          </div>
+          <Badge
+            text="Coming Soon"
+            borderColor="border-[#3A2C4F]"
+            backgroundColor="bg-[#2C233A]"
+            textColor="text-[#C1A8FF]"
+          />
         )}
 
         {beta && (
-          <div className="rounded-[8px] border-[1px] border-[#2C4F3A] bg-[#233A2C] px-2 py-1">
-            <h3 className="text-xs font-normal text-nowrap text-[#A8FFC1]">
-              BETA
-            </h3>
-          </div>
+          <Badge
+            text="BETA"
+            borderColor="border-[#2C4F3A]"
+            backgroundColor="bg-[#233A2C]"
+            textColor="text-[#A8FFC1]"
+          />
+        )}
+
+        {alpha && (
+          <Badge
+            text="ALPHA"
+            borderColor="border-[#4F3A2C]"
+            backgroundColor="bg-[#3A2C23]"
+            textColor="text-[#FFC1A8]"
+          />
         )}
       </div>
     </div>
