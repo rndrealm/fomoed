@@ -210,7 +210,7 @@ const SimpleCfgiChart = (props: ICfgiCard) => {
         0,
         0,
         0,
-        Math.round(containerRef.current.clientHeight)
+        Math.round(containerRef.current.clientHeight),
       );
 
       gradient.addColorStop(0, "rgba(71, 166, 99, 0.4)");
@@ -222,7 +222,7 @@ const SimpleCfgiChart = (props: ICfgiCard) => {
       chartRef.current.resize();
     },
 
-    [data, setSignalModalConfig]
+    [data, setSignalModalConfig],
   );
 
   useEffect(() => {
@@ -233,7 +233,12 @@ const SimpleCfgiChart = (props: ICfgiCard) => {
   }, [data, viewOption, chart_init]);
   return (
     <div ref={containerRef} className="w-full h-full pb-1">
-      <canvas width="400" height={0} ref={canvasRef}></canvas>
+      <canvas
+        width="400"
+        height={0}
+        ref={canvasRef}
+        className="absolute top-0 left-0 right-0 bottom-0 !w-full !h-full"
+      ></canvas>
     </div>
   );
 };
