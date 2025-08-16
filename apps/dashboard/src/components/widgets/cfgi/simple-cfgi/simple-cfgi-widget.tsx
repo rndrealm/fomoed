@@ -4,7 +4,11 @@ import { useReadCfgiData, useReadCoinList } from "@/services/queries/charts";
 import CoinDropdown from "../../shared/coin-dropdown";
 import { useMemo, useRef, useState } from "react";
 import PeriodDropdown from "../../shared/period-dropdown";
-import { CFGI_SUPPORTED_PERIODS_ENUM, CfgiPeriods, TabOptions } from "@/constant/cfgi-data";
+import {
+  CFGI_SUPPORTED_PERIODS_ENUM,
+  CfgiPeriods,
+  TabOptions,
+} from "@/constant/cfgi-data";
 import { Skeleton } from "@/components/ui/skeleton";
 import ChartLegend from "../../shared/chart-legend";
 import SimpleCfgiChart from "./simple-cfgi-chart";
@@ -25,7 +29,7 @@ const colorToCfgi = [
 
 interface IProps {
   widget: LayoutType["widgets"][0];
-  fullScreenButton?: boolean
+  fullScreenButton?: boolean;
 }
 
 export default function SimpleCfgiWidget(props: IProps) {
@@ -35,7 +39,11 @@ export default function SimpleCfgiWidget(props: IProps) {
   const activeCoinSlug = useMemo(() => {
     return coinData?.find((coin) => coin.symbol === widget.props?.token)?.slug;
   }, [widget.props?.token, coinData]);
-  const { data, isFetching, refetch } = useReadCfgiData(widget.props?.token, widget.props?.period, activeCoinSlug);
+  const { data, isFetching, refetch } = useReadCfgiData(
+    widget.props?.token,
+    widget.props?.period,
+    activeCoinSlug,
+  );
 
   const chartRef = useRef<HTMLDivElement>(null);
 
@@ -48,8 +56,11 @@ export default function SimpleCfgiWidget(props: IProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   return (
-    <WidgetModalWrapper widget={widget} isFullscreen={isFullscreen} setIsFullscreen={setIsFullscreen}>
-
+    <WidgetModalWrapper
+      widget={widget}
+      isFullscreen={isFullscreen}
+      setIsFullscreen={setIsFullscreen}
+    >
       <div
         className="flex h-full flex-col gap-4 rounded-2xl border border-[#1b1b1b] bg-[#080808] px-6 py-3"
         ref={chartRef}
@@ -77,7 +88,10 @@ export default function SimpleCfgiWidget(props: IProps) {
                   <div className="flex items-center gap-2">
                     <PeriodDropdown
                       options={CfgiPeriods}
-                      value={widget.props?.period || (CFGI_SUPPORTED_PERIODS_ENUM.DAY1 as string)}
+                      value={
+                        widget.props?.period ||
+                        (CFGI_SUPPORTED_PERIODS_ENUM.DAY1 as string)
+                      }
                       setValue={(value: string) => {
                         updateWidgetPropsFromAtom({
                           tabId: activeLayout.id,
@@ -97,9 +111,12 @@ export default function SimpleCfgiWidget(props: IProps) {
               ) : null}
             </div>
             {/* <PremiumOverlay> */}
-            <div className="flex-grow mx-3">
+            <div className="flex-grow mx-3 relative">
               {data ? (
-                <SimpleCfgiChart cfgiData={data} viewOption={chartViewOptions} />
+                <SimpleCfgiChart
+                  cfgiData={data}
+                  viewOption={chartViewOptions}
+                />
               ) : (
                 <Skeleton className="w-full h-full bg-widget-background-200" />
               )}
@@ -114,7 +131,6 @@ export default function SimpleCfgiWidget(props: IProps) {
 
         {fullScreenButton && (
           <div
-
             className="absolute bottom-[16px] right-[9px] w-[28px] h-[28px] rounded-md z-[9] border border-[#1c1c1c]"
             style={{
               background:
@@ -133,7 +149,6 @@ export default function SimpleCfgiWidget(props: IProps) {
             </button>
           </div>
         )}
-
       </div>
     </WidgetModalWrapper>
   );
