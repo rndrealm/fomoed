@@ -41,7 +41,7 @@ interface IProps {
   isEmbed?: boolean;
   symbol?: string | null;
   widget: LayoutType["widgets"][0];
-  fullScreenButton?: boolean
+  fullScreenButton?: boolean;
 }
 
 export default function DetailedCfgiWidget(props: IProps) {
@@ -53,7 +53,11 @@ export default function DetailedCfgiWidget(props: IProps) {
     return coinData?.find((coin) => coin.symbol === widget.props?.token)?.slug;
   }, [widget.props?.token, coinData]);
 
-  const { data, refetch, isFetching } = useReadCfgiData(widget.props?.token, widget.props?.period, activeCoinSlug);
+  const { data, refetch, isFetching } = useReadCfgiData(
+    widget.props?.token,
+    widget.props?.period,
+    activeCoinSlug,
+  );
 
   const activeLayout = useAtomValue(activeTabAtom);
   const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
@@ -64,8 +68,11 @@ export default function DetailedCfgiWidget(props: IProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   return (
-    <WidgetModalWrapper widget={widget} isFullscreen={isFullscreen} setIsFullscreen={setIsFullscreen}>
-
+    <WidgetModalWrapper
+      widget={widget}
+      isFullscreen={isFullscreen}
+      setIsFullscreen={setIsFullscreen}
+    >
       <div
         className="flex h-full flex-col gap-4 rounded-2xl border border-[#1b1b1b] bg-[#080808] px-6 py-3"
         ref={chartRef}
@@ -74,7 +81,11 @@ export default function DetailedCfgiWidget(props: IProps) {
           <div className="grid items-center w-full grid-cols-3">
             <WidgetHeader widget={widget} />
           </div>
-          <div className={cn("flex h-full w-full flex-col justify-center rounded-sm")}>
+          <div
+            className={cn(
+              "flex h-full w-full flex-col justify-center rounded-sm",
+            )}
+          >
             <div className="py-4">
               {coinData ? (
                 <div className="flex items-center justify-between">
@@ -103,7 +114,10 @@ export default function DetailedCfgiWidget(props: IProps) {
                     />
                     <PeriodDropdown
                       options={CfgiPeriods}
-                      value={widget.props?.period || (CFGI_SUPPORTED_PERIODS_ENUM.DAY1 as string)}
+                      value={
+                        widget.props?.period ||
+                        (CFGI_SUPPORTED_PERIODS_ENUM.DAY1 as string)
+                      }
                       setValue={(value: string) => {
                         updateWidgetPropsFromAtom({
                           tabId: activeLayout.id,
@@ -122,9 +136,12 @@ export default function DetailedCfgiWidget(props: IProps) {
                 </div>
               ) : null}
             </div>
-            <div className="h-full mx-3">
+            <div className="h-full mx-3 relative">
               {data ? (
-                <DetailedCfgiChart cfgiData={data} viewOption={widget.props?.sentiment_tab || "both"} />
+                <DetailedCfgiChart
+                  cfgiData={data}
+                  viewOption={widget.props?.sentiment_tab || "both"}
+                />
               ) : (
                 <Skeleton className="w-full h-full bg-widget-background-200" />
               )}
@@ -138,7 +155,6 @@ export default function DetailedCfgiWidget(props: IProps) {
 
         {fullScreenButton && (
           <div
-
             className="absolute bottom-[16px] right-[9px] w-[28px] h-[28px] rounded-md z-[9] border border-[#1c1c1c]"
             style={{
               background:
@@ -157,7 +173,6 @@ export default function DetailedCfgiWidget(props: IProps) {
             </button>
           </div>
         )}
-
       </div>
     </WidgetModalWrapper>
   );
