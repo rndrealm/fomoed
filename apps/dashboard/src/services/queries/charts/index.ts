@@ -15,6 +15,7 @@ import {
   LiquidExchangeResponse,
   LiquidHeatmapResponse,
   LiquidMapDataResponse,
+  OrderBookDeltaResponse,
   SupportedPairsData,
   Ticker,
 } from "./types";
@@ -503,3 +504,34 @@ export const useFetchCoinStatsScreener = () => {
 
   return res;
 };
+
+export const useFetchOrderbookDelta = (exchange: string, symbol: string, interval: string, range: string) => {
+  const queryKey = ["get-orderbook-delta", exchange, symbol, interval, range];
+  const { data, isPending, error, isSuccess, isFetching, refetch } =
+    useQuery<OrderBookDeltaResponse>({
+      queryKey: queryKey,
+      queryFn: async () => {
+        const url = `/api/delta?exchange=${exchange}&symbol=${symbol}&interval=${interval}&range=${range}`;
+        
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Failed to fetch orderbook delta data");
+        }
+        
+        const responseData = await response.json();
+        return responseData; 
+      },
+      enabled: !!exchange && !!symbol && !!interval && !!range,
+    });
+
+  return {
+    data,
+    isPending,
+    isSuccess,
+    error,
+    isFetching,
+    refetch,
+  };
+}

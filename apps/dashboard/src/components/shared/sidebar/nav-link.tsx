@@ -21,6 +21,39 @@ const sideMenuVariants = {
   },
 };
 
+interface BadgeProps {
+  text: string;
+  borderColor: string;
+  backgroundColor: string;
+  textColor: string;
+  isSideMenuOpen: boolean;
+}
+
+function StatusBadge({
+  text,
+  borderColor,
+  backgroundColor,
+  textColor,
+  isSideMenuOpen,
+}: BadgeProps) {
+  return (
+    <motion.div
+      className={`mr-1.5 absolute top-1/2 right-0 hidden translate-y-[-50%] rounded-[8px] border-[1px] px-2 py-1 md:flex`}
+      style={{ borderColor, backgroundColor }}
+      initial="closed"
+      variants={sideMenuVariants}
+      animate={isSideMenuOpen ? "open" : "closed"}
+    >
+      <h3
+        className="text-xs font-normal text-nowrap"
+        style={{ color: textColor }}
+      >
+        {text}
+      </h3>
+    </motion.div>
+  );
+}
+
 export interface INavLink {
   label: string;
   href: string;
@@ -30,6 +63,7 @@ export interface INavLink {
   disabled?: boolean;
   comingSoon?: boolean;
   beta?: boolean;
+  alpha?: boolean;
 }
 
 interface INavLinkProps extends INavLink {
@@ -48,6 +82,7 @@ export function NavLink(props: INavLinkProps) {
     disabled,
     comingSoon,
     beta,
+    alpha,
     variant,
     isSideMenuOpen,
     isBottomLink,
@@ -118,6 +153,7 @@ export function NavLink(props: INavLinkProps) {
             label={label}
             className="left-[42px]"
             beta={beta}
+            alpha={alpha}
             comingSoon={comingSoon}
           />
         )}
@@ -192,29 +228,33 @@ export function NavLink(props: INavLinkProps) {
       </Link>
 
       {comingSoon && !isBottomLink && (
-        <motion.div
-          className="mr-1.5 absolute top-1/2 right-0 hidden translate-y-[-50%] rounded-[8px] border-[1px] border-[#3A2C4F] bg-[#2C233A] px-2 py-1 md:flex"
-          initial="closed"
-          variants={sideMenuVariants}
-          animate={isSideMenuOpen ? "open" : "closed"}
-        >
-          <h3 className="text-xs font-normal text-nowrap text-[#C1A8FF]">
-            Coming Soon
-          </h3>
-        </motion.div>
+        <StatusBadge
+          text="Coming Soon"
+          borderColor="#3A2C4F"
+          backgroundColor="#2C233A"
+          textColor="#C1A8FF"
+          isSideMenuOpen={isSideMenuOpen || false}
+        />
       )}
 
       {beta && !isBottomLink && (
-        <motion.div
-          className="mr-1.5 absolute top-1/2 right-0 hidden translate-y-[-50%] rounded-[8px] border-[1px] border-[#2C4F3A] bg-[#233A2C] px-2 py-1 md:flex"
-          initial="closed"
-          variants={sideMenuVariants}
-          animate={isSideMenuOpen ? "open" : "closed"}
-        >
-          <h3 className="text-xs font-normal text-nowrap text-[#A8FFC1]">
-            BETA
-          </h3>
-        </motion.div>
+        <StatusBadge
+          text="BETA"
+          borderColor="#2C4F3A"
+          backgroundColor="#233A2C"
+          textColor="#A8FFC1"
+          isSideMenuOpen={isSideMenuOpen || false}
+        />
+      )}
+
+      {alpha && !isBottomLink && (
+        <StatusBadge
+          text="ALPHA"
+          borderColor="#4F3A2C"
+          backgroundColor="#3A2C23"
+          textColor="#FFC1A8"
+          isSideMenuOpen={isSideMenuOpen || false}
+        />
       )}
     </motion.div>
   );
