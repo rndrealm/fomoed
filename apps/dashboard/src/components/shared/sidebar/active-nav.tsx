@@ -94,6 +94,7 @@ const ActiveNav = (props: IActiveNavProps) => {
                 disabled={item.disabled}
                 comingSoon={item.comingSoon}
                 beta={item.beta}
+                alpha={item.alpha}
                 variant="active"
                 isSideMenuOpen={isSideMenuOpen}
               />

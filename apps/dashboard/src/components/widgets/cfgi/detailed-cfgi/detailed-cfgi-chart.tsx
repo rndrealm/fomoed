@@ -238,14 +238,14 @@ const DetailedCfgiChart = (props: ICfgiCard) => {
 
           // Get the y-axis values at the click position for both datasets
           const indexYValue = chart.scales.indexY.getValueForPixel(
-            canvasPosition.y
+            canvasPosition.y,
           );
           let priceYValue = null;
 
           // Only get price value if the price dataset is shown
           if (viewOption !== TabOptions[0].value) {
             priceYValue = chart.scales.priceY.getValueForPixel(
-              canvasPosition.y
+              canvasPosition.y,
             );
           }
 
@@ -294,7 +294,7 @@ const DetailedCfgiChart = (props: ICfgiCard) => {
 
       chartRef.current?.resize();
     },
-    [cfgiData, viewOption, setSignalModalConfig]
+    [cfgiData, viewOption, setSignalModalConfig],
   );
 
   useEffect(() => {
@@ -304,7 +304,14 @@ const DetailedCfgiChart = (props: ICfgiCard) => {
     chart_init(ctx);
   }, [cfgiData, viewOption, chart_init]);
 
-  return <canvas width="400" height={0} ref={canvasRef}></canvas>;
+  return (
+    <canvas
+      width="400"
+      height={0}
+      ref={canvasRef}
+      className="absolute top-0 left-0 right-0 bottom-0 !w-full !h-full"
+    ></canvas>
+  );
 };
 
 export default DetailedCfgiChart;

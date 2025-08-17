@@ -28,6 +28,7 @@ const navLinks: INavLink[] = [
     href: AppRoutes.dashboard.path,
     disabled: false,
     beta: false,
+    alpha: false,
     comingSoon: false,
   },
   {
@@ -36,6 +37,7 @@ const navLinks: INavLink[] = [
     href: AppRoutes.news.path,
     disabled: false,
     beta: false,
+    alpha: false,
     comingSoon: false,
   },
 
@@ -45,7 +47,8 @@ const navLinks: INavLink[] = [
     href: AppRoutes.signals.path,
     disabled: false,
     beta: false,
-    comingSoon: true,
+    alpha: true,
+    comingSoon: false,
   },
   {
     label: "Community",
@@ -53,6 +56,7 @@ const navLinks: INavLink[] = [
     href: "Community",
     disabled: true,
     beta: false,
+    alpha: false,
     comingSoon: true,
   },
 ];
