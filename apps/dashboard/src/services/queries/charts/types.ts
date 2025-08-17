@@ -286,9 +286,11 @@ export interface ExchangePairOption {
 }
 
 export interface WhaleTransaction {
+  user: string;
   token: string;
   time: number;
   direction: 'Long' | 'Short';
+  entryPrice: number;
   value: number;
 }
 

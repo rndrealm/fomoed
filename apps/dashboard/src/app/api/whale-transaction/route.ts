@@ -91,9 +91,11 @@ export async function GET() {
       })
       .map((transaction: any) => {
         return {
+          user: transaction.user,
           token: transaction.symbol,
           time: transaction.create_time,
           direction: transaction.position_size > 0 ? "Long" : "Short",
+          entryPrice: transaction.entry_price,
           value: transaction.position_value_usd,
         };
       });

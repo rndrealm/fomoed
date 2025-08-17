@@ -289,7 +289,7 @@ export const layoutOptionsMap = [
   },
 
   {
-    id: 213, // Or any other unique ID
+    id: 213, 
     name: "Whale Transaction Tracker",
     slug: "whale-transaction-tracker",
     image: dashboard.duckGame,
