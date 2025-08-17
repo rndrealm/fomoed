@@ -173,67 +173,65 @@ export default function OrderbookDeltaWidget(props: IProps) {
               <OptionsDropdown widget={widget} />
             </div>
           </div>
-          <div className="flex items-center justify-between px-4">
-            <CoinDropdown
-              options={coinData || []}
-              value={widget.props?.token}
-              setValue={(coin: string) => {
-                const newPairs = pairsData.filter(
-                  (i) => i.value.base_asset === coin,
-                );
-                updateWidgetPropsFromAtom({
-                  tabId: activeLayout.id,
-                  widgetId: widget.id,
-                  widgetProps: {
-                    ...widget.props,
-                    token: coin,
-                    exchange_token: newPairs[0].label,
-                  },
-                });
-              }}
-              title=""
-            />
-            <div className="flex items-center gap-2">
-              <CameraAndRefresh
-                isFetching={isFetching}
-                chartRef={chartRef}
-                file="Orderbook Delta Chart.png"
-                refetch={refetch}
-              />
-            </div>
-          </div>
         </div>
       </div>
-      <div className="relative flex flex-1 " ref={chartRef}>
-        <div className="absolute top-[4px] right-0 left-0 z-[9]">
-          <div className="flex items-center justify-end px-4 pt-3">
+      <div className="relative flex flex-1 flex-col px-4" ref={chartRef}>
+        <div className="flex items-center justify-between" >
             <div className="flex items-center gap-2">
-              {/* <PairDropdown
+                <CoinDropdown
+                options={coinData || []}
+                value={widget.props?.token}
+                setValue={(coin: string) => {
+                    const newPairs = pairsData.filter(
+                    (i) => i.value.base_asset === coin,
+                    );
+                    updateWidgetPropsFromAtom({
+                    tabId: activeLayout.id,
+                    widgetId: widget.id,
+                    widgetProps: {
+                        ...widget.props,
+                        token: coin,
+                        exchange_token: newPairs[0].label,
+                    },
+                    });
+                }}
+                title=""
+                />
+                {/* <PairDropdown
                 options={filteredData}
                 value={selectedPair || exchangePairDefault}
                 setValue={(value) => handleSetProp("exchange_token", value.label)}
-              /> */}
-              <PeriodDropdown
-                options={deltaIntervalOptions}
-                value={widget.props?.interval}
-                setValue={(value: string) => handleSetProp("interval", value)}
-              />
-              <PeriodDropdown
-                options={deltaRangeOptions}
-                value={widget.props?.range}
-                setValue={(value: string) => handleSetProp("range", value)}
-              />
+                /> */}
             </div>
-          </div>
+            <div className="flex items-center gap-2">
+                <PeriodDropdown
+                    options={deltaIntervalOptions}
+                    value={widget.props?.interval}
+                    setValue={(value: string) => handleSetProp("interval", value)}
+                />
+                <PeriodDropdown
+                    options={deltaRangeOptions}
+                    value={widget.props?.range}
+                    setValue={(value: string) => handleSetProp("range", value)}
+                />
+                <div className="flex items-center gap-2" data-html2canvas-ignore>
+                    <CameraAndRefresh
+                        isFetching={isFetching}
+                        chartRef={chartRef}
+                        file="Orderbook Delta Chart.png"
+                        refetch={refetch}
+                    />
+                </div>
+            </div>
         </div>
-        <div className="absolute top-0 right-0 bottom-0 left-0 p-4">
-          <FullscreenableDeltaChart
-            isFullscreen={isFullscreen}
-            chartData={chartData}
-            isPending={isPending || isFetching}
-            error={error}
-            onAnimationComplete={onAnimationComplete}
-          />
+        <div className="relative flex flex-1 pt-2" ref={chartRef}>
+            <FullscreenableDeltaChart
+                isFullscreen={isFullscreen}
+                chartData={chartData}
+                isPending={isPending || isFetching}
+                error={error}
+                onAnimationComplete={onAnimationComplete}
+            />
         </div>
       </div>
 
@@ -257,7 +255,7 @@ export default function OrderbookDeltaWidget(props: IProps) {
         {showInfo && (
           <div className="absolute top-[10px] right-[10px] bottom-[10px] left-[10px] z-[19] flex items-end">
             <motion.div
-              className="scrollbar max-h-full overflow-auto rounded-[22px] bg-[#111] px-5 py-4 flex-1"
+              className="scrollbar h-full overflow-auto rounded-[22px] bg-[#111] px-5 py-4 flex-1"
               variants={modalSlide}
               initial="hidden"
               animate="visible"
@@ -269,25 +267,13 @@ export default function OrderbookDeltaWidget(props: IProps) {
                     <h3 className="text-base leading-[1.35] font-semibold text-white">{`${widget.props?.token || ""} Delta Spread`}</h3>
                   </div>
                   <p className="text-[13px] leading-[1.35] font-medium text-white">
-                    Orderbook Delta measures the difference between buying and
-                    selling pressure within a specific range of the order book.
-                    A positive delta (green bars) indicates more buying
-                    interest, while a negative delta (red bars) suggests
-                    stronger selling pressure. Traders use this to gauge
-                    immediate market sentiment and potential short-term price
-                    movements.
+                    Orderbook Delta measures the difference between buying and selling pressure within a specific range of the order book. A positive delta (green bars) indicates more buying interest, while a negative delta (red bars) suggests stronger selling pressure. Traders use this to gauge immediate market sentiment and potential short-term price movements.
                   </p>
                 </div>
                 <div className="flex flex-col gap-4">
                   <p className="text-xs font-semibold text-[#696969] text-[1.25]">
                     We use data from{" "}
-                    <a
-                      href="https://www.coinglass.com/"
-                      target="_blank"
-                      className="underline"
-                    >
-                      Coinglass.com
-                    </a>
+                    <a href="https://www.coinglass.com/" target="_blank" className="underline">Coinglass.com</a>
                   </p>
                   <div className="flex justify-center">
                     <button
@@ -295,12 +281,8 @@ export default function OrderbookDeltaWidget(props: IProps) {
                       className="app_widget_button flex h-[26px] items-center justify-center gap-1 rounded-[40px] bg-[#272727]"
                       onClick={() => setShowInfo(false)}
                     >
-                      <p className="app_widget_button__text text-[13px] font-medium whitespace-nowrap text-white">
-                        Close
-                      </p>
-                      <div className="app_widget_button__icon">
-                        <Close fill="#878787" />
-                      </div>
+                      <p className="app_widget_button__text text-[13px] font-medium whitespace-nowrap text-white">Close</p>
+                      <div className="app_widget_button__icon"><Close fill="#878787" /></div>
                     </button>
                   </div>
                 </div>
