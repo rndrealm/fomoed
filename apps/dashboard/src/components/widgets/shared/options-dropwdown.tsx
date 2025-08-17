@@ -13,19 +13,23 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 import { ConfirmationModal } from "@/components/modals";
 import { chartsMap } from "@/lib/static";
-import { splitWidgetSlug } from "@/lib/utils";
+import { cn, splitWidgetSlug } from "@/lib/utils";
 
 interface IOptionsDropdown {
   widget: LayoutType["widgets"][0];
+  variant?: "white" | "black";
 }
 
 export function OptionsDropdown(props: IOptionsDropdown) {
-  const { widget } = props;
+  const { widget, variant = "black" } = props;
+
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteWidget, setDeleteWidget] = useState<LayoutType["widgets"][0]>();
 
   const deleteWidgetFromAtom = useSetAtom(deleteWidgetAtom);
   const activeLayout = useAtomValue(activeTabAtom);
+
+  const isWhiteVariant = variant === "white";
 
   return (
     <Fragment>
@@ -40,12 +44,19 @@ export function OptionsDropdown(props: IOptionsDropdown) {
         </DropdownMenuTrigger>
 
         <DropdownMenuContent
-          className="w-[210px] rounded-lg bg-[#090909] border border-[#333]"
+          className={cn(
+            "w-[210px] rounded-lg bg-[#090909] border border-[#333]",
+            isWhiteVariant && "bg-white border-[#EDEDED]",
+          )}
           align="end"
         >
           <DropdownMenuGroup>
             <DropdownMenuItem
-              className="text-[#D4D4D4] text-[13px] leading-[1.25] p-[10px] font-normal focus:bg-[#171717] focus:text-[#C3C3C3] cursor-pointer w-full flex items-center justify-between"
+              className={cn(
+                "text-[#D4D4D4] text-[13px] leading-[1.25] p-[10px] font-normal focus:bg-[#171717] focus:text-[#C3C3C3] cursor-pointer w-full flex items-center justify-between",
+                isWhiteVariant &&
+                  "text-[#0A0A0A] focus:bg-[#f4f4f4] focus:text-[#0A0A0A]",
+              )}
               onSelect={() => {
                 setDeleteWidget(widget);
                 setShowDeleteModal(true);

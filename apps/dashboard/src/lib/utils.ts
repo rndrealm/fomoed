@@ -18,7 +18,7 @@ function isInstrumentIdAnOption(instrumendId: string) {
 
 export function supportedExchangePairsToOptions(
   supportedExchangePairs: SupportedPairsData,
-  excludeOptions: boolean = true
+  excludeOptions: boolean = true,
 ) {
   if (!supportedExchangePairs) {
     return [];
@@ -26,14 +26,21 @@ export function supportedExchangePairsToOptions(
 
   const options: ExchangePairOption[] = [];
 
-  for (const [exchangeName, instruments] of Object.entries(supportedExchangePairs)) {
+  for (const [exchangeName, instruments] of Object.entries(
+    supportedExchangePairs,
+  )) {
     for (const instrument of instruments) {
       if (excludeOptions && isInstrumentIdAnOption(instrument.instrument_id)) {
         continue;
       }
 
       options.push({
-        label: exchangeName + " " + instrument.base_asset + "/" + instrument.quote_asset,
+        label:
+          exchangeName +
+          " " +
+          instrument.base_asset +
+          "/" +
+          instrument.quote_asset,
         value: {
           ...instrument,
           exchange: exchangeName,
@@ -165,7 +172,8 @@ export function calculateReadingTime(htmlContent: string) {
   const text = normalizedContent.replace(/<[^>]+>/g, " "); // Strip HTML tags
   wordCount = text.split(/\s+/).filter((word) => word.length > 0).length;
   imageCount = (normalizedContent.match(/<img[^>]+>/gi) || []).length;
-  imageCount += (normalizedContent.match(/<img-placeholder[^>]+>/gi) || []).length;
+  imageCount += (normalizedContent.match(/<img-placeholder[^>]+>/gi) || [])
+    .length;
 
   // Calculate reading time: words / WPM + image adjustments
   let readingTime = wordCount / wordsPerMinute;
@@ -187,7 +195,20 @@ export function formatDate(isoDateString?: string): string {
   const date = new Date(isoDateString);
 
   // Get month name and convert to uppercase
-  const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+  const months = [
+    "JAN",
+    "FEB",
+    "MAR",
+    "APR",
+    "MAY",
+    "JUN",
+    "JUL",
+    "AUG",
+    "SEP",
+    "OCT",
+    "NOV",
+    "DEC",
+  ];
   const month = months[date.getMonth()];
 
   // Get day and year
@@ -215,7 +236,8 @@ export function extractNewsContent(htmlString: string): {
   const title = h1Match ? h1Match[1] : null;
 
   // Try to find a proper img tag first
-  const imgRegex = /<img[\s\S]*?src=["'](.*?)["'][\s\S]*?(?:alt=["'](.*?)["'])?[\s\S]*?>/;
+  const imgRegex =
+    /<img[\s\S]*?src=["'](.*?)["'][\s\S]*?(?:alt=["'](.*?)["'])?[\s\S]*?>/;
   const imgMatch = htmlString.match(imgRegex);
 
   // If no img tag found, look for [IMAGE: ...] pattern
@@ -226,7 +248,12 @@ export function extractNewsContent(htmlString: string): {
     title,
     image: {
       src: imgMatch ? imgMatch[1] : null,
-      alt: imgMatch && imgMatch[2] ? imgMatch[2] : imageBracketMatch ? imageBracketMatch[1] : null,
+      alt:
+        imgMatch && imgMatch[2]
+          ? imgMatch[2]
+          : imageBracketMatch
+            ? imageBracketMatch[1]
+            : null,
     },
   };
 }
@@ -238,7 +265,11 @@ export function extractNewsContent(htmlString: string): {
  * @param endChars Number of characters to keep at the end
  * @returns The shortened address string
  */
-export const shortenAddress = (address: string, startChars = 6, endChars = 4): string => {
+export const shortenAddress = (
+  address: string,
+  startChars = 6,
+  endChars = 4,
+): string => {
   if (!address) return "";
   if (address.length <= startChars + endChars) return address;
 
@@ -251,7 +282,10 @@ export const shortenAddress = (address: string, startChars = 6, endChars = 4): s
  * @param maxLength defaults to 100
  * @returns
  */
-export const truncateText = (text: string | null, maxLength: number = 100): string => {
+export const truncateText = (
+  text: string | null,
+  maxLength: number = 100,
+): string => {
   if (!text || text.length <= maxLength) return text || "";
   return text.substring(0, maxLength).trim() + "...";
 };
@@ -292,7 +326,8 @@ export function formatSummaryDate(date = new Date()) {
     weekday: "long",
   });
 
-  const [{ value: month }, , { value: day }] = monthDayFormatter.formatToParts(date);
+  const [{ value: month }, , { value: day }] =
+    monthDayFormatter.formatToParts(date);
   const weekday = weekdayFormatter.format(date);
 
   return {
@@ -312,7 +347,9 @@ export const formatNumber = (value: string) => {
   const [integerPart, decimalPart] = cleanValue.split(".");
 
   const formattedInteger = integerPart || "";
-  return decimalPart !== undefined ? `${formattedInteger}.${decimalPart}` : formattedInteger;
+  return decimalPart !== undefined
+    ? `${formattedInteger}.${decimalPart}`
+    : formattedInteger;
 };
 
 /**
@@ -329,7 +366,10 @@ export const appendDecimal = (amount?: string, decimal?: number): string => {
   return fixed.toLocaleString("fullwide", { useGrouping: false });
 };
 
-export function formatNewsDate(date: Date = new Date(), timeZone?: string): string {
+export function formatNewsDate(
+  date: Date = new Date(),
+  timeZone?: string,
+): string {
   const formatter = new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
@@ -346,7 +386,9 @@ export function formatNewsDate(date: Date = new Date(), timeZone?: string): stri
   return `${month} ${day}, ${year}`;
 }
 
-export function formatChartTooltipDate(dateInput: Date | string | number): string {
+export function formatChartTooltipDate(
+  dateInput: Date | string | number,
+): string {
   const date = new Date(dateInput);
 
   const optionsDate: Intl.DateTimeFormatOptions = {
@@ -370,7 +412,10 @@ export function formatChartTooltipDate(dateInput: Date | string | number): strin
  * @param amount amount to be operated on
  * @returns
  */
-export const removeDecimal = (amount: string | number, decimal: number): string => {
+export const removeDecimal = (
+  amount: string | number,
+  decimal: number,
+): string => {
   if (!amount || amount === "0") return "0.0";
   if (isNaN(Number(amount))) return "0.0";
   const strAmount = amount.toString();
@@ -386,7 +431,8 @@ export const removeDecimal = (amount: string | number, decimal: number): string 
   if (position <= 0) {
     retValue = "0." + "0".repeat(Math.abs(position)) + absStrAmount;
   } else {
-    retValue = absStrAmount.slice(0, position) + "." + absStrAmount.slice(position);
+    retValue =
+      absStrAmount.slice(0, position) + "." + absStrAmount.slice(position);
   }
   return isNegative ? "-" + retValue : retValue;
 };
@@ -431,7 +477,10 @@ function _formatMarketCapNumber(num: number) {
   }
 }
 
-export function formatMarketCapNumber(value: number | string, withCurrency = true) {
+export function formatMarketCapNumber(
+  value: number | string,
+  withCurrency = true,
+) {
   const num = typeof value === "string" ? parseFloat(value) : value;
 
   if (isNaN(num)) return "";
@@ -514,4 +563,26 @@ export function formatAudioTime(seconds: number): string {
   const mins = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
   return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+}
+
+export function formatCountdown(timeSlot: Date | string | number) {
+  if (!timeSlot) return "00:00";
+  const targetDate = new Date(timeSlot);
+  const now = new Date();
+  const diff = targetDate.getTime() - now.getTime();
+
+  if (diff <= 0) return "00:00";
+
+  const totalSeconds = Math.floor(diff / 1000);
+
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  const pad = (n: number) => n.toString().padStart(2, "0");
+
+  return `${pad(minutes)}:${pad(seconds)}`;
+}
+
+export function getAvatarUrl(name: string) {
+  return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`;
 }

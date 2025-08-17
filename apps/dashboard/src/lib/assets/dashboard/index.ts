@@ -58,6 +58,9 @@ import weightedSentiment from "../../../../public/media/images/dashboard/weighte
 import weightedPriceSentiment from "../../../../public/media/images/dashboard/weighted-price-sentiment.png";
 import duckGameIcon from "../../../../public/media/images/dashboard/duck-game-icon.png";
 import duckGame from "../../../../public/media/images/dashboard/duck-game.png";
+import duckTrophy from "../../../../public/media/images/dashboard/duck-trophy.png";
+import medal from "../../../../public/media/images/dashboard/medal.png";
+import duckPlay from "../../../../public/media/images/dashboard/duck-play.png";
 import deltaSpread from "../../../../public/media/images/dashboard/delta-spread.png";
 
 const dashboard = {
@@ -121,6 +124,9 @@ const dashboard = {
   weightedPriceSentiment,
   duckGameIcon,
   duckGame,
+  duckTrophy,
+  medal,
+  duckPlay,
   deltaSpread
 };
 

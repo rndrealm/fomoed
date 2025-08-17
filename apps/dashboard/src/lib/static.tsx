@@ -271,7 +271,7 @@ export const layoutOptionsMap = [
   },
 
   {
-    id: 212,
+    id: 213,
     name: "Duck Game",
     slug: "duck-game",
     image: dashboard.duckGame,
