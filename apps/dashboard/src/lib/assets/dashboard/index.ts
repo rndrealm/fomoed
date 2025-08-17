@@ -60,6 +60,7 @@ import duckGameIcon from "../../../../public/media/images/dashboard/duck-game-ic
 import duckGame from "../../../../public/media/images/dashboard/duck-game.png";
 import duckTrophy from "../../../../public/media/images/dashboard/duck-trophy.png";
 import medal from "../../../../public/media/images/dashboard/medal.png";
+import duckPlay from "../../../../public/media/images/dashboard/duck-play.png";
 
 const dashboard = {
   layoutPlaceholder,
@@ -124,6 +125,7 @@ const dashboard = {
   duckGame,
   duckTrophy,
   medal,
+  duckPlay,
 };
 
 export default dashboard;
