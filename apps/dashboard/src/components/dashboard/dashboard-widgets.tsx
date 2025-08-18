@@ -1,6 +1,6 @@
 import React from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
   layoutAtom,
   LayoutType,
@@ -10,6 +10,7 @@ import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 import { chartsMap, widgetPropsDefaults } from "@/lib/static";
 import { splitWidgetSlug } from "@/lib/utils";
 import { settingAtom } from "@/lib/atoms/settingsAtom";
+import { gridColAtom } from "@/lib/atoms/utilsAtom";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 const availableHandles = ["s", "w", "e", "n", "sw", "nw", "se", "ne"];
@@ -22,6 +23,8 @@ export function DashboardWidgets(props: IProps) {
 
   const syncLayoutChangeFromAtom = useSetAtom(syncOnLayoutChange);
   const dashboardSetting = useAtomValue(settingAtom);
+
+  const [, setGridCol] = useAtom(gridColAtom);
 
   const layouts = useAtomValue(layoutAtom);
   const activeTab = useAtomValue(activeTabAtom);
@@ -67,6 +70,9 @@ export function DashboardWidgets(props: IProps) {
           });
         }}
         verticalCompact={!false}
+        onBreakpointChange={(newBreakpoint) => {
+          setGridCol(newBreakpoint);
+        }}
       >
         {data?.widgets.map((layout, index) => {
           const { x, y } = layout.meta;

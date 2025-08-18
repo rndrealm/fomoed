@@ -1,5 +1,5 @@
 "use client";
-import { getGridPosition } from "@/charts/helpers";
+import { getOptimalGridPosition, getGridColumns } from "@/charts/helpers";
 import dashboard from "@/lib/assets/dashboard";
 import {
   addWidgetToExistingLayoutAtom,
@@ -12,7 +12,7 @@ import { LayoutOptionType, widgetPropsDefaults } from "@/lib/static";
 import { capitalizeFirst, joinWidgetSlug, maxTabsByPlan } from "@/lib/utils";
 import { useGetUserPlans } from "@/services/queries/subscriptions";
 import { useAtomValue, useSetAtom } from "jotai";
-import mixpanel from "mixpanel-browser";
+// import mixpanel from "mixpanel-browser";
 import Image from "next/image";
 import React, { Fragment, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
@@ -20,6 +20,7 @@ import { RenderIf } from "../shared";
 import { ModalContainer } from "../shared";
 import { Upgrade } from "../modals";
 import { track } from "@vercel/analytics";
+import { gridColAtom } from "@/lib/atoms/utilsAtom";
 
 interface IProps {
   widget: LayoutOptionType[0];
@@ -34,6 +35,8 @@ export function QuickWidgetItem(props: IProps) {
   const addWidgetToNewLayout = useSetAtom(addWidgetToNewLayoutAtom);
   const dashboardSetting = useAtomValue(settingAtom);
   const addWidgetToExistingLayout = useSetAtom(addWidgetToExistingLayoutAtom);
+
+  const gridCol = useAtomValue(gridColAtom);
 
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
@@ -50,13 +53,22 @@ export function QuickWidgetItem(props: IProps) {
           const currLayoutId = activeTab.layout_id;
           const currLayout = layouts.find((item) => item.id === currLayoutId);
 
-          const { x, y } = getGridPosition(currLayout?.widgets.length || 0);
           const newId = uuidv4();
           const widgetDefaults =
             widgetPropsDefaults[
               widget.slug as keyof typeof widgetPropsDefaults
             ];
           const defaultWAndH = widgetDefaults.meta || { w: 3, h: 2 };
+
+          // Use the new optimal positioning system
+          const gridCols = getGridColumns(gridCol); // Use xl breakpoint as default
+          const { x, y } = getOptimalGridPosition(
+            currLayout?.widgets || [],
+            defaultWAndH,
+            gridCols,
+            "row-based", // Use optimal strategy for best placement
+          );
+
           const newWidget = {
             id: newId,
             props: widgetDefaults,
