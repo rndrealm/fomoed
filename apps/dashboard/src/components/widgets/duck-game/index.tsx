@@ -78,16 +78,6 @@ export default function Index(props: IProps) {
   // Use the widget ID to create a unique socket connection for this widget instance
   const widgetId = widget.meta.i;
 
-  // Log component lifecycle
-  useEffect(() => {
-    console.log(`Duck Game widget ${widgetId} mounted`);
-    return () => {
-      console.log(
-        `Duck Game widget ${widgetId} unmounted - cleaning up resources`,
-      );
-    };
-  }, [widgetId]);
-
   useSocketEvent(widgetId, "races", (data: PreviousRace) => {
     // Sort ducks by position (higher position first) if available in previous races data
     if (

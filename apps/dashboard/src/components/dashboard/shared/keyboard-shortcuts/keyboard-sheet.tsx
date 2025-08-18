@@ -1,8 +1,16 @@
-import React, { Fragment, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import SearchIcon from "@/components/icons/SearchIcon";
 import { Input } from "@/components/ui/input";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { keyboardShortcutsSheetVisible, toggleKeyboardShortcutsSheetAtom } from "@/lib/atoms/shortcuts";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import {
+  keyboardShortcutsSheetVisible,
+  toggleKeyboardShortcutsSheetAtom,
+} from "@/lib/atoms/shortcuts";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useHotkeys } from "react-hotkeys-hook";
 import { ShortcutKey } from "./shortcut-key";
@@ -24,7 +32,7 @@ const data = [
     category: "Widgets",
     shortcuts: [
       { id: 1, action: "Add Widget", keys: ["C"] },
-      { id: 2, action: "Clear All Widgets", keys: ["Cmd", "C"] },
+      { id: 2, action: "Clear All Widgets", keys: ["Shift", "C"] },
     ],
   },
 
@@ -51,7 +59,9 @@ const data = [
 
 export function KeyboardSheet() {
   // show keyboard shortcut sheet
-  const toggleKeyboardShortcutSheet = useSetAtom(toggleKeyboardShortcutsSheetAtom);
+  const toggleKeyboardShortcutSheet = useSetAtom(
+    toggleKeyboardShortcutsSheetAtom,
+  );
   const showKeyboardShortcutSheet = useAtomValue(keyboardShortcutsSheetVisible);
 
   const [searchValue, setSearchValue] = useState("");
@@ -76,11 +86,16 @@ export function KeyboardSheet() {
 
         const filteredShortcuts = section.shortcuts.filter((shortcut) => {
           const actionMatch = shortcut.action.toLowerCase().includes(search);
-          const keysMatch = shortcut.keys.join(" ").toLowerCase().includes(search);
+          const keysMatch = shortcut.keys
+            .join(" ")
+            .toLowerCase()
+            .includes(search);
           return actionMatch || keysMatch;
         });
 
-        return filteredShortcuts.length > 0 ? { ...section, shortcuts: filteredShortcuts } : null;
+        return filteredShortcuts.length > 0
+          ? { ...section, shortcuts: filteredShortcuts }
+          : null;
       })
       .filter(Boolean);
   }, [searchValue]);
@@ -120,17 +135,27 @@ export function KeyboardSheet() {
           {filteredData?.map((item) => {
             return (
               <div key={item?.id} className="flex flex-col gap-5">
-                <h3 className="text-base leading-[24px] font-medium tracking-[-1.5%] text-white">{item?.category}</h3>
+                <h3 className="text-base leading-[24px] font-medium tracking-[-1.5%] text-white">
+                  {item?.category}
+                </h3>
                 {item?.shortcuts?.map((shortcut) => {
                   return (
-                    <div key={shortcut?.id} className="flex items-center justify-between">
+                    <div
+                      key={shortcut?.id}
+                      className="flex items-center justify-between"
+                    >
                       <p className="text-sm leading-[1] font-medium tracking-[-1.5%] text-[#A4A4A4]">
                         {shortcut.action}
                       </p>
 
                       <div className="flex items-center gap-1">
                         {shortcut?.keys?.map((letter, index) => (
-                          <ShortcutKey key={index} className="bg-[#2E2E2E]" letter={letter} isKey={letter !== "then"} />
+                          <ShortcutKey
+                            key={index}
+                            className="bg-[#2E2E2E]"
+                            letter={letter}
+                            isKey={letter !== "then"}
+                          />
                         ))}
                       </div>
                     </div>

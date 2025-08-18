@@ -3,12 +3,33 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { useHotkeys } from "react-hotkeys-hook";
 import { ModalContainer } from "@/components/shared";
 import { IShortcutIcon, ShortcutItem } from "./shortcut-item";
-import { spotlightVisibleAtom, toggleQuickWidgetsAtom, toggleSpotlightAtom } from "@/lib/atoms/shortcuts";
-import { deleteAllWidgetsAtom, deleteLayoutAtom, editLayoutNameAtom, layoutAtom } from "@/lib/atoms/layoutAtom";
+import {
+  spotlightVisibleAtom,
+  toggleQuickWidgetsAtom,
+  toggleSpotlightAtom,
+} from "@/lib/atoms/shortcuts";
+import {
+  deleteAllWidgetsAtom,
+  deleteLayoutAtom,
+  editLayoutNameAtom,
+  layoutAtom,
+} from "@/lib/atoms/layoutAtom";
 import { ConfirmationModal, NameLayout } from "@/components/modals";
-import { activeTabAtom, addNewTabAtom, deleteAllTabsAtom, deleteTabAtom } from "@/lib/atoms/tabsAtom";
+import {
+  activeTabAtom,
+  addNewTabAtom,
+  deleteAllTabsAtom,
+  deleteTabAtom,
+} from "@/lib/atoms/tabsAtom";
 import { SpotlightSearch } from "@/components/icons/icons";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { KeyboardSheet } from "./keyboard-sheet";
 import { useRouter } from "next/navigation";
 import { AppRoutes } from "@/lib/routes";
@@ -30,11 +51,14 @@ type ShortcutGroup = {
 export function KeyboardShortcuts() {
   const router = useRouter();
   //show delete widgets confirmation
-  const [showDeleteWidgetsConfirmation, setShowDeleteWidgetsConfirmation] = useState(false);
+  const [showDeleteWidgetsConfirmation, setShowDeleteWidgetsConfirmation] =
+    useState(false);
   //show delete tabs confirmation
-  const [showDeleteTabsConfirmation, setShowDeleteTabsConfirmation] = useState(false);
+  const [showDeleteTabsConfirmation, setShowDeleteTabsConfirmation] =
+    useState(false);
 
-  const [showDeleteSingleTabConfirmation, setShowDeleteSingleTabConfirmation] = useState(false);
+  const [showDeleteSingleTabConfirmation, setShowDeleteSingleTabConfirmation] =
+    useState(false);
 
   // show edit layout name modal
   const [showNameModal, setShowNameModal] = useState(false);
@@ -64,7 +88,9 @@ export function KeyboardShortcuts() {
   const deleteSingleTab = useSetAtom(deleteTabAtom);
   const deleteLayout = useSetAtom(deleteLayoutAtom);
 
-  const currentLayout = layouts.find((item) => item.id === activeTab?.layout_id);
+  const currentLayout = layouts.find(
+    (item) => item.id === activeTab?.layout_id,
+  );
 
   //Shortcut key combinations
   useHotkeys(
@@ -74,7 +100,7 @@ export function KeyboardShortcuts() {
     },
     {
       enableOnFormTags: true,
-    }
+    },
   );
 
   useHotkeys("c", (e) => {
@@ -91,7 +117,7 @@ export function KeyboardShortcuts() {
     router.push(AppRoutes.news.path);
   });
 
-  useHotkeys("metaKey+c", () => {
+  useHotkeys("shift+c", () => {
     setShowDeleteWidgetsConfirmation(true);
   });
 
@@ -131,7 +157,7 @@ export function KeyboardShortcuts() {
             id: 2,
             label: "Clear All Widgets",
             icon: "clear",
-            shortcutKeys: ["Cmd", "C"],
+            shortcutKeys: ["Shift", "C"],
             onClick: () => {
               setShowDeleteWidgetsConfirmation(true);
               handleCloseShortCut();
@@ -349,7 +375,9 @@ export function KeyboardShortcuts() {
                   <div className="">
                     <SpotlightSearch />
                   </div>
-                  <p className="text-[13px] leading-[18px] font-semibold text-white">No result found</p>
+                  <p className="text-[13px] leading-[18px] font-semibold text-white">
+                    No result found
+                  </p>
                 </div>
 
                 <div className="flex items-center gap-1"></div>
@@ -369,7 +397,11 @@ export function KeyboardShortcuts() {
                         className="p-0 data-[selected=true]:bg-[#27292E]"
                         onSelect={action.onClick}
                       >
-                        <ShortcutItem icon={action.icon} label={action.label} shortcutKeys={action.shortcutKeys} />
+                        <ShortcutItem
+                          icon={action.icon}
+                          label={action.label}
+                          shortcutKeys={action.shortcutKeys}
+                        />
                       </CommandItem>
                     );
                   })}
