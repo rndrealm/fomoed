@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import { AddTab, CloseTab, MenuIconClosed, TabLayout } from "../../icons/icons";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import mixpanel from "mixpanel-browser";
+// import mixpanel from "mixpanel-browser";
 import {
   activeTabAtom,
   addNewTabAtom,
@@ -158,10 +158,10 @@ export function NewTabs() {
       return;
     }
 
-    mixpanel.track("Tab Added", {
-      from: "toolbar",
-      plan: planType,
-    });
+    // mixpanel.track("Tab Added", {
+    //   from: "toolbar",
+    //   plan: planType,
+    // });
 
     addNewTab();
   };

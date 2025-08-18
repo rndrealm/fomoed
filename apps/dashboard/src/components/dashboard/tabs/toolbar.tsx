@@ -14,7 +14,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../../ui/tooltip";
-import mixpanel from "mixpanel-browser";
+// import mixpanel from "mixpanel-browser";
 import { NewTabs } from "./new-tab";
 import { ModalContainer, RenderIf } from "../../shared";
 import { QuickWidgets } from "../quick-widgets";
@@ -170,9 +170,9 @@ export function Toolbar() {
             className="flex h-[32px] w-[102px] items-center justify-center gap-[6px] rounded-md bg-[#FF3B10] text-xs font-medium text-white"
             onClick={() => {
               setShowWidgetsModal(true);
-              mixpanel.track("Preview Open", {
-                from: "toolbar",
-              });
+              // mixpanel.track("Preview Open", {
+              //   from: "toolbar",
+              // });
             }}
           >
             <AddWidget />

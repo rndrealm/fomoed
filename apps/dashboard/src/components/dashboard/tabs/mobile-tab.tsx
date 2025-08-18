@@ -1,5 +1,5 @@
 import React from "react";
-import mixpanel from "mixpanel-browser";
+// import mixpanel from "mixpanel-browser";
 import { Navbar } from "@/components/shared";
 import { AddTab, Delete } from "@/components/icons/icons";
 import { useAtomValue } from "jotai";
@@ -102,10 +102,10 @@ export function MobileTab(props: IProps) {
           className="flex h-[40px] w-[40px] items-center justify-center rounded-md border border-[#121212]"
           onClick={() => {
             handleAddNewTab();
-            mixpanel.track("Tab Added", {
-              from: "toolbar",
-              // plan: planType, Todo: Uncomment when planType is available
-            });
+            // mixpanel.track("Tab Added", {
+            //   from: "toolbar",
+            //   // plan: planType, Todo: Uncomment when planType is available
+            // });
             handleCloseModal();
           }}
         >

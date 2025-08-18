@@ -13,7 +13,9 @@ export async function registerChartPluginZoomInBrowser() {
 }
 export async function registerCandleStickPluginBrowser() {
   // if (!window) return;
-  const { CandlestickController, CandlestickElement } = await import("chartjs-chart-financial");
+  const { CandlestickController, CandlestickElement } = await import(
+    "chartjs-chart-financial"
+  );
   Chart.register(CandlestickElement, CandlestickController);
 }
 
@@ -359,9 +361,234 @@ export function formatRgb(r: number, g: number, b: number) {
 }
 
 /**
- * Function to get the grid position of a widget based on its count.
- * @param count
- * @returns
+ * Interface for widget metadata used in positioning
+ */
+interface WidgetMeta {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+/**
+ * Interface for existing widgets with meta information
+ */
+interface ExistingWidget {
+  meta: WidgetMeta;
+}
+
+/**
+ * Gets the responsive grid column count based on breakpoint
+ */
+export function getGridColumns(breakpoint: string = "xl"): number {
+  const columnMap: Record<string, number> = {
+    xxl: 32,
+    xl: 24,
+    lg: 16,
+    md: 12,
+    sm: 12,
+    xs: 4,
+    xxs: 4,
+  };
+
+  return columnMap[breakpoint] || 24;
+}
+
+/**
+ * Advanced grid positioning function that finds the optimal position for a new widget.
+ * This replaces the simple getGridPosition with intelligent space-finding logic.
+ *
+ * @param existingWidgets - Array of existing widgets in the layout
+ * @param newWidgetDimensions - Dimensions of the widget to place { w, h }
+ * @param gridCols - Number of columns in the grid (default: 24 for xl breakpoint)
+ * @param strategy - Placement strategy: 'optimal' | 'compact' | 'row-based'
+ * @returns Position object with x and y coordinates
+ */
+export function getOptimalGridPosition(
+  existingWidgets: ExistingWidget[] = [],
+  newWidgetDimensions: { w: number; h: number },
+  gridCols: number = 24,
+  strategy: "optimal" | "compact" | "row-based" = "optimal",
+): { x: number; y: number } {
+  const { w: newW, h: newH } = newWidgetDimensions;
+
+  // If no existing widgets, place at top-left
+  if (!existingWidgets || existingWidgets.length === 0) {
+    return { x: 0, y: 0 };
+  }
+
+  // Calculate the grid bounds we need to consider
+  const maxY =
+    Math.max(...existingWidgets.map((w) => w.meta.y + w.meta.h)) + newH + 2;
+
+  // Create a 2D grid to track occupied spaces
+  const grid: boolean[][] = Array(maxY)
+    .fill(null)
+    .map(() => Array(gridCols).fill(false));
+
+  // Mark occupied spaces in the grid
+  existingWidgets.forEach((widget) => {
+    const { x, y, w, h } = widget.meta;
+    for (let row = y; row < y + h; row++) {
+      for (let col = x; col < x + w; col++) {
+        if (row < maxY && col < gridCols) {
+          grid[row][col] = true;
+        }
+      }
+    }
+  });
+
+  // Apply the selected strategy
+  switch (strategy) {
+    case "compact":
+      return findCompactPosition(grid, newW, newH, gridCols, maxY);
+    case "row-based":
+      return findRowBasedPosition(existingWidgets, newW, newH, gridCols);
+    default:
+      return findOptimalPosition(
+        grid,
+        existingWidgets,
+        newW,
+        newH,
+        gridCols,
+        maxY,
+      );
+  }
+}
+
+/**
+ * Finds the most optimal position considering space efficiency and visual alignment
+ */
+function findOptimalPosition(
+  grid: boolean[][],
+  existingWidgets: ExistingWidget[],
+  newW: number,
+  newH: number,
+  gridCols: number,
+  maxY: number,
+): { x: number; y: number } {
+  // First, try to place in the same row as existing widgets for better alignment
+  const occupiedRows = new Set(existingWidgets.map((w) => w.meta.y));
+
+  for (const row of Array.from(occupiedRows).sort((a, b) => a - b)) {
+    if (row + newH <= maxY) {
+      for (let x = 0; x <= gridCols - newW; x++) {
+        if (canFitAt(grid, x, row, newW, newH)) {
+          return { x, y: row };
+        }
+      }
+    }
+  }
+
+  // Then try to fit in any available gap
+  for (let y = 0; y <= maxY - newH; y++) {
+    for (let x = 0; x <= gridCols - newW; x++) {
+      if (canFitAt(grid, x, y, newW, newH)) {
+        return { x, y };
+      }
+    }
+  }
+
+  // Fallback: place at the bottom
+  const bottomY =
+    existingWidgets.length > 0
+      ? Math.max(...existingWidgets.map((w) => w.meta.y + w.meta.h))
+      : 0;
+
+  return { x: 0, y: bottomY };
+}
+
+/**
+ * Finds the most compact position by filling gaps aggressively
+ */
+function findCompactPosition(
+  grid: boolean[][],
+  newW: number,
+  newH: number,
+  gridCols: number,
+  maxY: number,
+): { x: number; y: number } {
+  // Scan from top-left to find the first available spot
+  for (let y = 0; y <= maxY - newH; y++) {
+    for (let x = 0; x <= gridCols - newW; x++) {
+      if (canFitAt(grid, x, y, newW, newH)) {
+        return { x, y };
+      }
+    }
+  }
+
+  // Fallback to bottom
+  return { x: 0, y: maxY };
+}
+
+/**
+ * Places widgets in complete rows for clean organization
+ */
+function findRowBasedPosition(
+  existingWidgets: ExistingWidget[],
+  newW: number,
+  newH: number,
+  gridCols: number,
+): { x: number; y: number } {
+  // Calculate row usage
+  const rowUsage: Map<number, number> = new Map();
+
+  existingWidgets.forEach((widget) => {
+    const { x, y, w, h } = widget.meta;
+    for (let row = y; row < y + h; row++) {
+      const currentUsage = rowUsage.get(row) || 0;
+      rowUsage.set(row, Math.max(currentUsage, x + w));
+    }
+  });
+
+  // Try to fit in existing rows first
+  for (const [row, usedWidth] of Array.from(rowUsage.entries()).sort(
+    (a, b) => a[0] - b[0],
+  )) {
+    if (usedWidth + newW <= gridCols) {
+      return { x: usedWidth, y: row };
+    }
+  }
+
+  // Create a new row
+  const newRowY =
+    existingWidgets.length > 0
+      ? Math.max(...existingWidgets.map((w) => w.meta.y + w.meta.h))
+      : 0;
+
+  return { x: 0, y: newRowY };
+}
+
+/**
+ * Helper function to check if a widget can fit at a specific position
+ */
+function canFitAt(
+  grid: boolean[][],
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+): boolean {
+  if (x + w > grid[0].length || y + h > grid.length) {
+    return false;
+  }
+
+  for (let row = y; row < y + h; row++) {
+    for (let col = x; col < x + w; col++) {
+      if (grid[row] && grid[row][col]) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Legacy function for backward compatibility.
+ * @deprecated Use getOptimalGridPosition instead for better widget placement
+ * @param count - Widget count (used for simple alternating pattern)
+ * @returns Position object with x and y coordinates
  */
 export function getGridPosition(count: number) {
   const x = count % 2 === 0 ? 0 : 4;
@@ -436,7 +663,11 @@ export function getPointerEventDistance(p1: PointerEvent, p2: PointerEvent) {
  * @param color2 - The ending RGB color.
  * @returns The resulting RGB color.
  */
-export function mapValueToRgbColor(value: number, color1: RGB, color2: RGB): RGB {
+export function mapValueToRgbColor(
+  value: number,
+  color1: RGB,
+  color2: RGB,
+): RGB {
   // Ensure the value is clamped within the range
   // value = Math.max(min, Math.min(max, value));
 
