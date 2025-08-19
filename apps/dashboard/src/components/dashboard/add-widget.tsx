@@ -1,7 +1,7 @@
 import dashboard from "@/lib/assets/dashboard";
 import Image from "next/image";
 import React from "react";
-import mixpanel from "mixpanel-browser";
+// import mixpanel from "mixpanel-browser";
 import { Button } from "../ui/button";
 import { AddTab } from "../icons/icons";
 
@@ -35,9 +35,9 @@ export function AddWidget(props: IProps) {
               onClick={() => {
                 if (handleAddWidget) {
                   handleAddWidget();
-                  mixpanel.track("Preview Open", {
-                    from: from || "add-widget",
-                  });
+                  // mixpanel.track("Preview Open", {
+                  //   from: from || "add-widget",
+                  // });
                 }
               }}
               className="bg-[#ff3b10] hover:bg-[#ff3b10] hover:opacity-[0.8] text-xs leading-[1.5] font-medium p-2"

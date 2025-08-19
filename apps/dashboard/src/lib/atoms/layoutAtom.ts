@@ -1,5 +1,9 @@
 import { atom } from "jotai";
-import { getGridPosition } from "@/charts/helpers";
+import {
+  getGridPosition,
+  getOptimalGridPosition,
+  getGridColumns,
+} from "@/charts/helpers";
 import { v4 as uuidv4 } from "uuid";
 import { splitWidgetSlug } from "../utils";
 import { activeTabAtom, tabsAtom } from "./tabsAtom";
@@ -73,7 +77,7 @@ export const addWidgetToNewLayoutAtom = atom(
 
       // Update tab in the tabs array
       const updatedTabs = tabs.map((tab) =>
-        tab.id === activeTab.id ? updatedActiveTab : tab
+        tab.id === activeTab.id ? updatedActiveTab : tab,
       );
 
       set(tabsAtom, updatedTabs);
@@ -84,7 +88,7 @@ export const addWidgetToNewLayoutAtom = atom(
         tabId: activeTab.id,
       });
     }
-  }
+  },
 );
 
 // This function saves the new layout to the database
@@ -98,14 +102,14 @@ export const saveNewLayoutToDb = atom(
       layoutData,
       widgetData,
       tabId,
-    }: { layoutData: any; widgetData: any; tabId: string }
+    }: { layoutData: any; widgetData: any; tabId: string },
   ) => {
     try {
       await createLayoutAndAttachToTabAction({ layoutData, widgetData, tabId });
     } catch (error) {
       console.log("Failed to sync tabs with DB:", error);
     }
-  }
+  },
 );
 
 // This function loads the layouts from the API and updates the local state
@@ -114,7 +118,7 @@ export const loadLayoutsFromApiAtom = atom(
   (get, set, layoutsFromApi: LayoutType[]) => {
     // Update tabs state directly
     set(layoutAtom, layoutsFromApi);
-  }
+  },
 );
 
 // This function adds a widget to an existing layout
@@ -127,7 +131,7 @@ export const addWidgetToExistingLayoutAtom = atom(
       widget,
       layoutId,
       sync,
-    }: { widget: LayoutType["widgets"][0]; layoutId: string; sync?: boolean }
+    }: { widget: LayoutType["widgets"][0]; layoutId: string; sync?: boolean },
   ) => {
     // Get the current layouts
     const layouts = get(layoutAtom);
@@ -166,7 +170,7 @@ export const addWidgetToExistingLayoutAtom = atom(
         widgetData: updatedWidgets,
       });
     }
-  }
+  },
 );
 
 // This function syncs the layout changes to the database
@@ -179,7 +183,7 @@ export const syncOnLayoutChange = atom(
     {
       newLayouts,
       sync,
-    }: { newLayouts: ReactGridLayout.Layout[]; sync?: boolean }
+    }: { newLayouts: ReactGridLayout.Layout[]; sync?: boolean },
   ) => {
     // Get the active tab
     const activeTab = get(activeTabAtom);
@@ -210,7 +214,7 @@ export const syncOnLayoutChange = atom(
     const updatedWidgets = currentLayout.widgets.map((widget) => {
       // Find the corresponding layout from newLayouts
       const newLayoutData = newLayouts.find(
-        (layout) => splitWidgetSlug(layout.i).widgetId === widget.id
+        (layout) => splitWidgetSlug(layout.i).widgetId === widget.id,
       );
       console.log("newLayoutData check:", newLayoutData);
       // If we found matching layout data, update the widget's meta
@@ -247,7 +251,7 @@ export const syncOnLayoutChange = atom(
         widgetData: updatedWidgets,
       });
     }
-  }
+  },
 );
 
 // This function deletes a widget from the layout
@@ -283,27 +287,27 @@ export const deleteWidgetAtom = atom(
 
     // Filter out the widget to remove
     const updatedWidgets = currentLayout.widgets.filter(
-      (widget) => widget.id !== widgetId
+      (widget) => widget.id !== widgetId,
     );
 
     // Rearrange the remaining widgets using getGridPosition
-    const rearrangedWidgets = updatedWidgets.map((widget, index) => {
-      const { x, y } = getGridPosition(index);
-      return {
-        ...widget,
-        meta: {
-          ...widget.meta,
-          x,
-          y,
-        },
-      };
-    });
+    // const rearrangedWidgets = updatedWidgets.map((widget, index) => {
+    //   const { x, y } = getGridPosition(index);
+    //   return {
+    //     ...widget,
+    //     meta: {
+    //       ...widget.meta,
+    //       x,
+    //       y,
+    //     },
+    //   };
+    // });
 
     // Create updated layouts array
     const updatedLayouts = [...layouts];
     updatedLayouts[layoutIndex] = {
       ...currentLayout,
-      widgets: rearrangedWidgets,
+      widgets: updatedWidgets,
     };
 
     // Update layouts with the updated widget list
@@ -322,7 +326,7 @@ export const deleteWidgetAtom = atom(
         widgetData: updatedWidgets,
       });
     }
-  }
+  },
 );
 
 // This function updates the props of a widget in the layout including the token, period etc
@@ -339,7 +343,7 @@ export const updateWidgetPropsAtom = atom(
       tabId: string;
       widgetId: string;
       widgetProps: LayoutType["widgets"][0]["props"];
-    }
+    },
   ) => {
     // Get current tabs and layouts
     const tabs = get(tabsAtom);
@@ -369,7 +373,7 @@ export const updateWidgetPropsAtom = atom(
 
     // Find the widget to update
     const widgetIndex = currentLayout.widgets.findIndex(
-      (widget) => widget.id === widgetId
+      (widget) => widget.id === widgetId,
     );
 
     // Check if the widget exists
@@ -409,7 +413,7 @@ export const updateWidgetPropsAtom = atom(
         widgetData: updatedWidgets,
       });
     }
-  }
+  },
 );
 
 // This function sets the draft property of a layout to false
@@ -444,7 +448,7 @@ export const setLayoutDraftFalseAtom = atom(
 
     // Update the layouts atom with the new state
     set(layoutAtom, updatedLayouts);
-  }
+  },
 );
 
 // This function saves the new layout to the database
@@ -466,7 +470,7 @@ export const syncWidgetsToDb = atom(
     } catch (error) {
       console.log("Failed to sync widgets with DV:", error);
     }
-  }
+  },
 );
 
 //This function adds a layout to a tab
@@ -507,7 +511,7 @@ export const syncLayoutOnSelectAtom = atom(
 
     // Update tab in tabs array
     const updatedTabs = tabs.map((tab) =>
-      tab.id === activeTab.id ? updatedActiveTab : tab
+      tab.id === activeTab.id ? updatedActiveTab : tab,
     );
 
     set(tabsAtom, updatedTabs);
@@ -522,7 +526,7 @@ export const syncLayoutOnSelectAtom = atom(
         layoutId: formattedLayout.id,
       });
     }
-  }
+  },
 );
 
 //This functions adds a layout to a tab on the db
@@ -532,7 +536,7 @@ export const syncLayoutToTabToDb = atom(
   async (
     get,
     set,
-    { tabId, layoutId }: { tabId: string; layoutId: string }
+    { tabId, layoutId }: { tabId: string; layoutId: string },
   ) => {
     // Abort the previous request if still pending
     if (currentAbortController2) {
@@ -547,7 +551,7 @@ export const syncLayoutToTabToDb = atom(
     } catch (error) {
       console.log("Failed to sync layout with DB:", error);
     }
-  }
+  },
 );
 
 export const deleteLayoutAtom = atom(
@@ -562,7 +566,7 @@ export const deleteLayoutAtom = atom(
     // Clean up tabs that were linked to this layout
     const tabs = get(tabsAtom);
     const updatedTabs = tabs.map((tab) =>
-      tab.layout_id === layoutId ? { ...tab, layout_id: null } : tab
+      tab.layout_id === layoutId ? { ...tab, layout_id: null } : tab,
     );
     set(tabsAtom, updatedTabs);
 
@@ -573,7 +577,7 @@ export const deleteLayoutAtom = atom(
     }
 
     deleteLayoutAction(layoutId);
-  }
+  },
 );
 
 export const editLayoutNameAtom = atom(
@@ -581,12 +585,12 @@ export const editLayoutNameAtom = atom(
   async (
     get,
     set,
-    { layoutId, newName }: { layoutId: string; newName: string }
+    { layoutId, newName }: { layoutId: string; newName: string },
   ) => {
     const layouts = get(layoutAtom);
 
     const updatedLayouts = layouts.map((layout) =>
-      layout.id === layoutId ? { ...layout, name: newName } : layout
+      layout.id === layoutId ? { ...layout, name: newName } : layout,
     );
 
     set(layoutAtom, updatedLayouts);
@@ -596,7 +600,7 @@ export const editLayoutNameAtom = atom(
     } catch (error) {
       console.log("Failed to sync layout with DB:", error);
     }
-  }
+  },
 );
 
 // This function deletes all widget from the layout
