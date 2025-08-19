@@ -3,10 +3,16 @@ import Chart from "chart.js/auto";
 
 import "chartjs-adapter-dayjs-4/dist/chartjs-adapter-dayjs-4.esm";
 import type { ZoomPluginOptions } from "chartjs-plugin-zoom/types/options";
-import { commaFormatNumber, registerChartPluginZoomInBrowser } from "@/charts/helpers";
+import {
+  commaFormatNumber,
+  registerChartPluginZoomInBrowser,
+} from "@/charts/helpers";
 import { FormatLiquidationDataResult } from "@/services/queries/charts/types";
 
-import { CrosshairPluginConfig, CrosshairPlugin } from "@/charts/plugins/CrosshairPlugin";
+import {
+  CrosshairPluginConfig,
+  CrosshairPlugin,
+} from "@/charts/plugins/CrosshairPlugin";
 import { humanizeNumber } from "@/lib/utils";
 
 Chart.register(CrosshairPlugin);
@@ -15,6 +21,25 @@ interface ICfgiCard {
   liquidationData: FormatLiquidationDataResult;
   viewOption?: string;
 }
+
+const getScaleFormatter = (maxValue: number) => {
+  if (maxValue >= 1000000) {
+    return {
+      divisor: 1000000,
+      suffix: "M",
+    };
+  } else if (maxValue >= 1000) {
+    return {
+      divisor: 1000,
+      suffix: "K",
+    };
+  } else {
+    return {
+      divisor: 1,
+      suffix: "",
+    };
+  }
+};
 
 const LiquidationChart = (props: ICfgiCard) => {
   useEffect(() => {
@@ -136,12 +161,25 @@ const LiquidationChart = (props: ICfgiCard) => {
             animation: false,
             responsive: false,
             maintainAspectRatio: false,
+            
             scales: {
               x: {
                 type: "linear",
                 ticks: {
                   callback: (val: any) => {
-                    return Math.round(val / 1000) + "K";
+                    const formatter = getScaleFormatter(
+                      liquidationData.maxPrice,
+                    );
+
+                    if (formatter.suffix === "K" || formatter.suffix === "M") {
+                      return (
+                      Math.round(val / formatter.divisor) + formatter.suffix
+                    );
+                    } else {
+                      return (
+                        (val / formatter.divisor).toFixed(2) + formatter.suffix
+                      );
+                    }
                   },
                 },
                 grid: {
@@ -161,7 +199,14 @@ const LiquidationChart = (props: ICfgiCard) => {
                 },
                 min: 0,
                 ticks: {
-                  callback: (val: any) => `${Math.round(val / 1000000)}M`,
+                  callback: (val: any) => {
+                    // Find the maximum value in liqBars for dynamic formatting
+                    const maxBarValue = Math.max(
+                      ...liquidationData.liqBars.map((bar) => bar.y),
+                    );
+                    const formatter = getScaleFormatter(maxBarValue);
+                    return `${Math.round(val / formatter.divisor)}${formatter.suffix}`;
+                  },
                 },
               },
               cumulative: {
@@ -176,7 +221,12 @@ const LiquidationChart = (props: ICfgiCard) => {
                   dash: [8, 4],
                 },
                 ticks: {
-                  callback: (val: any) => `${Math.round(val / 1000000)}M`,
+                  callback: (val: any) => {
+                    const formatter = getScaleFormatter(
+                      liquidationData.maxCumulativeValue,
+                    );
+                    return `${Math.round(val / formatter.divisor)}${formatter.suffix}`;
+                  },
                 },
               },
             },
@@ -223,7 +273,7 @@ const LiquidationChart = (props: ICfgiCard) => {
 
       chartRef.current?.resize();
     },
-    [liquidationData]
+    [liquidationData],
   );
 
   useEffect(() => {
