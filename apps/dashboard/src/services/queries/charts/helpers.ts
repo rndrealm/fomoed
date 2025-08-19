@@ -28,7 +28,6 @@ export const formatLiquidationData = (liquidResponse: LiquidMapDataResponse) => 
   let currentPrice = null;
   
   for (const [price, arrays] of Object.entries(liquidationData)) {
-    // FIX: Use parseFloat instead of parseInt to preserve decimals
     const price_ = parseFloat(price);
 
     if (combinedLiqData[price_]) {
@@ -38,12 +37,10 @@ export const formatLiquidationData = (liquidResponse: LiquidMapDataResponse) => 
     }
   }
 
-  // Use current price of base asset from the first exchange
   if (currentPrice === null) {
     currentPrice = pairMarketData.current_price;
   }
 
-  // FIX: Use parseFloat here too
   const prices = Object.keys(combinedLiqData).map((i) => parseFloat(i));
   const minPrice = Math.min(...prices);
   const maxPrice = Math.max(...prices);
@@ -52,7 +49,6 @@ export const formatLiquidationData = (liquidResponse: LiquidMapDataResponse) => 
 
   // Extract liquidation bars
   for (const [price, arrays] of Object.entries(combinedLiqData)) {
-    // FIX: Use parseFloat instead of parseInt
     const price_ = parseFloat(price);
 
     for (const point of arrays as any) {
@@ -71,32 +67,13 @@ export const formatLiquidationData = (liquidResponse: LiquidMapDataResponse) => 
   // Sort the liqBars, important
   sparseLiqBars.sort((a, b) => a.x - b.x);
 
-  // FIX: For decimal prices, we can't use integer range
-  // Instead, just use the sparse bars directly or create a different approach
   const liqBars: LiquidationBar[] = [...sparseLiqBars];
-
-  // Alternative: If you need to fill gaps, use a decimal-aware approach
-  // const step = 0.001; // 0.1 cent steps
-  // for (let price = minPrice; price <= maxPrice; price += step) {
-  //   // Add logic to fill gaps if needed
-  // }
 
   const cumulativeLongLiqLeverage: { x: number; y: number }[] = [];
   const cumulativeShortLiqLeverage: { x: number; y: number }[] = [];
   const lastCurrPriceIdx = liqBars.findLastIndex((i) => i.x < currentPrice) + 1;
 
-  // Debug: Check the slicing
-  console.log('=== LIQUIDATION DEBUG ===');
-  console.log('Total liqBars:', liqBars.length);
-  console.log('Current price:', currentPrice);
-  console.log('Current price index:', lastCurrPriceIdx);
-  console.log('Long bars (above current):', liqBars.length - lastCurrPriceIdx);
-  console.log('Short bars (below current):', lastCurrPriceIdx);
-  console.log('Price range:', { minPrice, maxPrice });
-  console.log('Sample prices:', liqBars.slice(0, 5).map(b => b.x));
-  console.log('Sample prices near current:', liqBars.slice(lastCurrPriceIdx - 2, lastCurrPriceIdx + 2).map(b => b.x));
-
-  // Long cumulative (prices above current price)
+  // Long cumulative 
   let cumulativeLongLiqLeverageAcc = 0;
   const longBars = liqBars.slice(lastCurrPriceIdx);
 
@@ -108,7 +85,7 @@ export const formatLiquidationData = (liquidResponse: LiquidMapDataResponse) => 
     });
   }
 
-  // Short cumulative (prices below current price)
+  // Short cumulative
   let cumulativeShortLiqLeverageAcc = 0;
   const shortBars = liqBars.slice(0, lastCurrPriceIdx).toReversed();
 
@@ -122,16 +99,6 @@ export const formatLiquidationData = (liquidResponse: LiquidMapDataResponse) => 
 
   // Sort short cumulative by x-value for proper line rendering
   cumulativeShortLiqLeverage.sort((a, b) => a.x - b.x);
-
-  // Debug: Check final results
-  console.log('Long cumulative points:', cumulativeLongLiqLeverage.length);
-  console.log('Short cumulative points:', cumulativeShortLiqLeverage.length);
-  console.log('Final long cumulative:', cumulativeLongLiqLeverageAcc);
-  console.log('Final short cumulative:', cumulativeShortLiqLeverageAcc);
-  
-  // Sample data points
-  console.log('Sample long data:', cumulativeLongLiqLeverage.slice(0, 3));
-  console.log('Sample short data:', cumulativeShortLiqLeverage.slice(0, 3));
 
   return {
     liqBars: liqBars,
