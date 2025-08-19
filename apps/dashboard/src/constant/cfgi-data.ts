@@ -144,6 +144,7 @@ export const liquidHeatMapTimeframeOptions = [
 export const liquidTimeframeOptions = [
   { label: "1 day", value: "1d" },
   { label: "7 days", value: "7d" },
+  { label: "30 days", value: "30d" },
 ];
 
 export const TabOptions = [
