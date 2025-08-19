@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.815.0
+## v1.818.0
 
 - feat: delta spread widget
 
