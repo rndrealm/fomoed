@@ -101,38 +101,38 @@ export function NavLink(props: INavLinkProps) {
   // Passive nav - only icon
   if (variant === "passive") {
     return (
-      <div
-        onMouseEnter={() => {
-          //in order to see the icons the sidebar element overflow needs to be visible
-          const sidebar = document.getElementById("sidebar");
-          if (sidebar) {
-            sidebar.style.overflow = "visible";
-          }
-          setIsHovered(true);
-        }}
-        onMouseLeave={() => {
-          const sidebar = document.getElementById("sidebar");
-          if (sidebar) {
-            sidebar.style.overflow = "hidden";
-          }
-          setIsHovered(false);
-        }}
-        id="popup-trigger-div"
-        className={cn(
-          "pointer-events-auto relative flex max-h-[40px] items-center justify-center rounded-[10px] px-0 py-2",
-          isHovered && !disabled ? "bg-[#1A1A1A]" : "bg-[#000]",
-        )}
+      <Link
+        id="popup-trigger-a"
+        href={disabled ? "#" : href}
+        onClick={handleClick}
+        className={cn("", {
+          "pointer-events-none cursor-not-allowed opacity-50": disabled,
+        })}
+        aria-disabled={disabled}
       >
-        {/* icon can be hovered */}
-        <Link
-          id="popup-trigger-a"
-          href={disabled ? "#" : href}
-          onClick={handleClick}
-          className={cn("", {
-            "pointer-events-none cursor-not-allowed opacity-50": disabled,
-          })}
-          aria-disabled={disabled}
+        <div
+          onMouseEnter={() => {
+            //in order to see the icons the sidebar element overflow needs to be visible
+            const sidebar = document.getElementById("sidebar");
+            if (sidebar) {
+              sidebar.style.overflow = "visible";
+            }
+            setIsHovered(true);
+          }}
+          onMouseLeave={() => {
+            const sidebar = document.getElementById("sidebar");
+            if (sidebar) {
+              sidebar.style.overflow = "hidden";
+            }
+            setIsHovered(false);
+          }}
+          id="popup-trigger-div"
+          className={cn(
+            "pointer-events-auto relative flex max-h-[40px] items-center justify-center rounded-[10px] px-0 py-2",
+            isHovered && !disabled ? "bg-[#1A1A1A]" : "bg-[#000]",
+          )}
         >
+          {/* icon can be hovered */}
           <div className="pointer-events-none flex items-center gap-3 pt-0 pb-0">
             {/* make the active icon white */}
             <div key={label}>
@@ -145,19 +145,19 @@ export function NavLink(props: INavLinkProps) {
               })}
             </div>
           </div>
-        </Link>
 
-        {/* hover popup */}
-        {isHovered && (
-          <LinkPopup
-            label={label}
-            className="left-[42px]"
-            beta={beta}
-            alpha={alpha}
-            comingSoon={comingSoon}
-          />
-        )}
-      </div>
+          {/* hover popup */}
+          {isHovered && (
+            <LinkPopup
+              label={label}
+              className="left-[42px]"
+              beta={beta}
+              alpha={alpha}
+              comingSoon={comingSoon}
+            />
+          )}
+        </div>
+      </Link>
     );
   }
 
