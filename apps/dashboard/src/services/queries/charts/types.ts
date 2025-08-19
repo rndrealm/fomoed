@@ -289,7 +289,7 @@ export interface WhaleTransaction {
   user: string;
   token: string;
   time: number;
-  direction: 'Long' | 'Short';
+  activity: string; 
   entryPrice: number;
   value: number;
 }

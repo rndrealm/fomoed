@@ -5,8 +5,8 @@ const redis = new Redis(process.env.REDIS_URL || "redis://localhost:6379", {
   password: process.env.REDIS_PASSWORD || undefined,
 });
 
-const TOP_COINS_KEY = "coinglass_top_10_coins_by_marketcaps";
-const CACHE_TTL = 3600; // Cache for 1 hour
+const TOP_COINS_KEY = "coinglass_top_10_coins_by_marketcap";
+const CACHE_TTL = 3600; // Cache for 1 hour (in seconds)
 
 async function fetchTopCoins(): Promise<Set<string>> {
   try {
@@ -36,23 +36,13 @@ async function fetchTopCoins(): Promise<Set<string>> {
       .sort((a: any, b: any) => b.market_cap_usd - a.market_cap_usd)
       .slice(0, 10)
       .map((coin: any) => coin.symbol.toUpperCase());
+
     await redis.setex(TOP_COINS_KEY, CACHE_TTL, JSON.stringify(top10));
 
     return new Set(top10);
   } catch (error) {
     console.error("Error in fetchTopCoins:", error);
-    return new Set([
-      "BTC",
-      "ETH",
-      "SOL",
-      "XRP",
-      "DOGE",
-      "ADA",
-      "SHIB",
-      "AVAX",
-      "LINK",
-      "TRX",
-    ]);
+    return new Set(['BTC', 'ETH', 'SOL', 'XRP', 'DOGE', 'ADA', 'SHIB', 'AVAX', 'LINK', 'TRX']);
   }
 }
 
@@ -75,37 +65,33 @@ export async function GET() {
 
     if (!res.ok || !rawData.data) {
       console.error("Failed to fetch whale transaction data:", rawData);
-      return NextResponse.json(
-        { error: rawData.msg || "Failed to fetch whale transaction data" },
-        { status: 500 },
-      );
+      return NextResponse.json({ error: rawData.msg || "Failed to fetch whale transaction data" }, { status: 500 });
     }
 
     const filteredAndFormattedData = rawData.data
       .filter((transaction: any) => {
         const isHighValue = transaction.position_value_usd > 500000;
         const isTopAsset = TOP_10_ASSETS.has(transaction.symbol.toUpperCase());
-        const isOpenPosition = transaction.position_action === 1;
-
-        return isHighValue && isTopAsset && isOpenPosition;
+        return isHighValue && isTopAsset;
       })
       .map((transaction: any) => {
+        const action = transaction.position_action === 1 ? "Open" : "Close";
+        const position = transaction.position_size > 0 ? "Long" : "Short";
+        
         return {
           user: transaction.user,
           token: transaction.symbol,
           time: transaction.create_time,
-          direction: transaction.position_size > 0 ? "Long" : "Short",
+          activity: `${action} ${position}`,
           entryPrice: transaction.entry_price,
           value: transaction.position_value_usd,
         };
       });
 
     return NextResponse.json({ data: filteredAndFormattedData });
+
   } catch (error: any) {
     console.error("Error fetching whale transaction data:", error);
-    return NextResponse.json(
-      { error: error.message || "Failed to fetch whale transaction data" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: error.message || "Failed to fetch whale transaction data" }, { status: 500 });
   }
 }
