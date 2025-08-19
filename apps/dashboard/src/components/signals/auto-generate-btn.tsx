@@ -6,17 +6,20 @@ import clsx from "clsx";
 interface AutoGenerateButtonProps {
   onClick: () => void;
   isPending?: boolean;
+  tall: boolean;
 }
 
 const AutoGenerateButton: FunctionComponent<AutoGenerateButtonProps> = ({
   onClick,
   isPending = false,
+  tall = false,
 }) => {
   return (
     <Button
       variant="secondary"
       className={clsx(
         "px-4 py-2 font-bold text-white h-12 border-white/10 border",
+        { "h-15": tall },
       )}
       onClick={onClick}
       disabled={isPending}

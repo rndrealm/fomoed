@@ -1,55 +1,77 @@
-import React, { FunctionComponent } from "react";
+import React, { FunctionComponent, useRef, useEffect, useMemo } from "react";
+import classNames from "clsx";
 import { motion, AnimatePresence } from "motion/react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface SignalTitleProps {
-  children?: React.ReactNode;
   title: string;
   loading?: boolean;
   onTitleChange: (title: string) => void;
+  onRowCountChange?: (rowCount: number) => void;
 }
 
 const SignalTitle: FunctionComponent<SignalTitleProps> = ({
   title,
   onTitleChange,
-  children,
+  onRowCountChange,
   loading = false,
 }: SignalTitleProps) => {
-  return (
-    <div className="flex items-center gap-x-6">
-      <div className="border-b border-white/30 border-dashed w-full">
-        <AnimatePresence mode="wait">
-          {loading ? (
-            <motion.div
-              key="skeleton"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="h-10"
-            >
-              <Skeleton className="flex-1 h-7 bg-white/20 mb-1" />
-            </motion.div>
-          ) : (
-            <motion.input
-              key="input"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              type="text"
-              placeholder="Enter what you wanna get notified about..."
-              className="flex-1 bg-transparent outline-none text-white placeholder-white/40 text-2xl font-semibold pb-2 w-full h-10"
-              value={title}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                onTitleChange(e.target.value)
-              }
-            />
-          )}
-        </AnimatePresence>
-      </div>
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-      {children}
+  useEffect(() => {
+    const textarea = textareaRef.current;
+
+    if (textarea) {
+      // Reset height to auto to get the correct scrollHeight
+      textarea.style.height = "auto";
+      // Set height to scrollHeight to expand based on content
+      textarea.style.height = `${textarea.scrollHeight}px`;
+
+      // Calculate number of rows based on line height
+      const lineHeight = parseInt(getComputedStyle(textarea).lineHeight);
+      const rows = Math.round(textarea.scrollHeight / lineHeight);
+
+      // Call the callback if provided
+      if (onRowCountChange) {
+        onRowCountChange(rows);
+      }
+    }
+  }, [title, onRowCountChange]);
+
+  const placeholder = useMemo(() => {
+    if (loading) return "";
+
+    return "Enter what you wanna get notified about...";
+  }, [loading]);
+
+  return (
+    <div
+      className={classNames(
+        "border border-white/30 w-full rounded-md px-4 py-3 duration-500",
+        { "animate-pulse bg-white/20": loading },
+      )}
+    >
+      <AnimatePresence mode="wait">
+        <motion.textarea
+          key="textarea"
+          ref={textareaRef}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          placeholder={placeholder}
+          className={classNames(
+            "bg-transparent outline-none text-white placeholder-white/40 text-2xl font-medium w-full resize-none overflow-hidden transition-colors duration-500",
+            { "!text-transparent": loading },
+          )}
+          value={title}
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+            onTitleChange(e.target.value)
+          }
+          rows={1}
+          spellCheck="false"
+        />
+      </AnimatePresence>
     </div>
   );
 };
