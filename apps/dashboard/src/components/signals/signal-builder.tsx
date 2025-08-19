@@ -33,6 +33,8 @@ import {
 } from "@/lib/utils/signal.utils";
 import { SignalGenErrorBox } from "./signal-gen-error-box";
 import { useMutation } from "@tanstack/react-query";
+import { useCall } from "wagmi";
+import clsx from "clsx";
 
 const SignalBuilder = ({}) => {
   const [signalPrompt, setSignalPrompt] = useState("");
@@ -191,19 +193,38 @@ const SignalBuilder = ({}) => {
     [debouncedGenerateDetails],
   );
 
+  const [isLongPrompt, setIsLongPrompt] = useState(false);
+
+  const handlePromptRowCountChange = useCallback(
+    (rowCount: number) => {
+      if (isLongPrompt) return;
+
+      setIsLongPrompt(rowCount > 1);
+    },
+    [setIsLongPrompt, isLongPrompt],
+  );
+
   return (
     <div className="flex flex-col gap-3 min-h-max justify-center pb-24">
-      <div className="px-4">
-        <SignalTitle
-          title={signalPrompt}
-          onTitleChange={setSignalPrompt}
-          loading={genDetailsMutation.isPending}
-        >
-          <AutoGenerateButton
-            onClick={mutateGenerateSignal}
-            isPending={isPendingAutoGenerate}
-          />
-        </SignalTitle>
+      <div
+        className={clsx("flex items-center gap-x-2 gap-y-2", {
+          "flex-col items-end": isLongPrompt,
+        })}
+      >
+        <div className="w-full">
+          <SignalTitle
+            title={signalPrompt}
+            onTitleChange={setSignalPrompt}
+            loading={genDetailsMutation.isPending}
+            onRowCountChange={handlePromptRowCountChange}
+          ></SignalTitle>
+        </div>
+
+        <AutoGenerateButton
+          onClick={mutateGenerateSignal}
+          isPending={isPendingAutoGenerate}
+          tall={!isLongPrompt}
+        />
       </div>
 
       <RenderIf condition={isAutoGenerateError}>
