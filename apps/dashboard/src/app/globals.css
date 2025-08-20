@@ -123,6 +123,11 @@ html {
     #00d743 -17.86%,
     #080808 114.16%
   );
+  --background-image-gradient-widget-preview-button: linear-gradient(
+    180deg,
+    #1d1d1d 0%,
+    #292929 100%
+  );
 
   --color-fomoed-red: #ff3b10;
   --text-mid: 0.9375rem; /* 15px */
