@@ -36,15 +36,15 @@ const ProPlanCard = ({
   return (
     <motion.div
       style={{ willChange: "transform" }}
-      className="relative h-fit w-[360px] flex flex-col justify-between gap-1.5"
-      animate={{ y: isHovered ? "-16px" : "0" }}
+      className="relative h-fit w-[360px] flex flex-col justify-between items-center gap-1.5"
+      animate={{ y: isHovered ? "-24px" : "0" }}
       transition={{ ease: [0.4, 0, 0.2, 1], duration: 0.5 }}
     >
-      <div className="absolute left-0 top-[-38px] rounded-tr-[12px]">
-        <div className="relative p-[0.5px] overflow-hidden rounded-tr-[12px]">
+      <div className="h-14 w-30 select-none absolute left-0 top-[-36px] rounded-tr-[12px]">
+        <div className="w-full h-full relative p-[1px] overflow-hidden rounded-tr-[12px] flex items-center justify-center">
           <div className="gradient_border_proplan_button" />
-          <div className="relative pl-2.5 pr-3 pt-1.5 pb-8 bg-gradient-pricing-recommended rounded-tr-[12px]">
-            <h3 className="text-[14px] text-white">Recommended</h3>
+          <div className="relative bg-gradient-pricing-recommended w-full h-full flex items-center justify-center rounded-tr-[12px]">
+            <h3 className="mb-5 text-[14px] text-white">Recommended</h3>
           </div>
         </div>
       </div>
@@ -56,14 +56,14 @@ const ProPlanCard = ({
       >
         <motion.div
           style={{ transformOrigin: "top center", willChange: "transform" }}
-          className="inset-0 z-0 absolute w-full h-full rounded-[18px] bg-gradient-proplan-hover pt-[15px] pl-4.5"
+          className="inset-0 z-0 absolute w-full h-full rounded-[18px] bg-gradient-proplan-hover pt-[12px] pl-4.5"
           animate={{
             scaleX: isHovered ? 1.025 : 1,
             scaleY: isHovered ? 1.10175 : 1,
           }}
           transition={{ ease: [0.4, 0, 0.2, 1], duration: 0.5 }}
         >
-          <h3 className="text-[#601100] text-xs ">
+          <h3 className="text-[#59281d] font-bold text-xs">
             We highly recommend this plan
           </h3>
         </motion.div>
@@ -71,7 +71,7 @@ const ProPlanCard = ({
         <motion.div
           style={{ willChange: "transform" }}
           className="relative overflow-hidden p-[1px] h-full rounded-2xl "
-          animate={{ y: isHovered ? "45px" : "0" }}
+          animate={{ y: isHovered ? "44px" : "0" }}
           transition={{ ease: [0.4, 0, 0.2, 1], duration: 0.5 }}
         >
           <div className="gradient_border_proplan" />
@@ -160,10 +160,15 @@ const ProPlanCard = ({
                 );
               })}
             </div>
-            <button className="w-full flex flex-row justify-between items-center mt-2 bg-white py-2.5 px-4 rounded-[40px] text-[#373737] font-semibold">
+            <motion.button
+              style={{ willChange: "transform" }}
+              className="w-full flex flex-row justify-between items-center mt-2 bg-white py-2.5 px-4 rounded-[40px] text-[#373737] font-semibold"
+              animate={{ y: isHovered ? "-20px" : "0" }}
+              transition={{ ease: [0.4, 0, 0.2, 1], duration: 0.5 }}
+            >
               {buttonConent}
               <ArrowRightPricing />
-            </button>
+            </motion.button>
 
             <div className="w-full text-center">
               <p className="font-normal text-xs text-[#A5A5A5]">
