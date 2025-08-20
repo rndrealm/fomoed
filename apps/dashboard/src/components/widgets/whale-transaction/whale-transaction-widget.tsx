@@ -3,7 +3,7 @@ import React, { useCallback, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { LayoutType } from "@/lib/atoms/layoutAtom";
 import { WidgetWrapper } from "../shared";
-import { useFetchWhaleTransactions } from "@/services/queries/charts"; 
+import { useFetchWhaleTransactions, useReadCoinList } from "@/services/queries/charts"; 
 import { cn, modalSlide } from "@/lib/utils";
 import { Close, FullScreen } from "@/components/icons/icons";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,6 +21,7 @@ export default function WhaleTransactionWidget(props: IProps) {
   const [isControlsVisible, setIsControlsVisible] = useState(true);
 
   const { data: transactions = [], isPending, error } = useFetchWhaleTransactions();
+  const { data: coinData } = useReadCoinList();
 
   const toggleFullscreen = () => {
     setIsFullscreen((prev) => !prev);
@@ -54,6 +55,7 @@ export default function WhaleTransactionWidget(props: IProps) {
             isFullscreen={isFullscreen}
             onAnimationComplete={onAnimationComplete}
             transactions={transactions}
+            coinData={coinData || []} // Pass the coin data to the table
           />
         )}
       </div>
