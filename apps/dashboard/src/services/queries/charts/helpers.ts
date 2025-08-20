@@ -26,8 +26,9 @@ export const formatLiquidationData = (liquidResponse: LiquidMapDataResponse) => 
   const liquidationData = liquidResponse.liquidationData.data.data;
   const pairMarketData = liquidResponse.pairMarketData;
   let currentPrice = null;
+  
   for (const [price, arrays] of Object.entries(liquidationData)) {
-    const price_ = parseInt(price);
+    const price_ = parseFloat(price);
 
     if (combinedLiqData[price_]) {
       combinedLiqData[price_].push(...(arrays as any));
@@ -36,13 +37,11 @@ export const formatLiquidationData = (liquidResponse: LiquidMapDataResponse) => 
     }
   }
 
-  // Use current price of base asset from the first exchange
   if (currentPrice === null) {
-    // Current price is indeed 'price' and not 'indexPrice'
     currentPrice = pairMarketData.current_price;
   }
 
-  const prices = Object.keys(combinedLiqData).map((i) => parseInt(i));
+  const prices = Object.keys(combinedLiqData).map((i) => parseFloat(i));
   const minPrice = Math.min(...prices);
   const maxPrice = Math.max(...prices);
 
@@ -50,7 +49,7 @@ export const formatLiquidationData = (liquidResponse: LiquidMapDataResponse) => 
 
   // Extract liquidation bars
   for (const [price, arrays] of Object.entries(combinedLiqData)) {
-    const price_ = parseInt(price);
+    const price_ = parseFloat(price);
 
     for (const point of arrays as any) {
       const [_, liqLevel, levRatio, null_] = point;
@@ -68,36 +67,17 @@ export const formatLiquidationData = (liquidResponse: LiquidMapDataResponse) => 
   // Sort the liqBars, important
   sparseLiqBars.sort((a, b) => a.x - b.x);
 
-  // Add data for missing prices
-  const liqBars: LiquidationBar[] = [];
-
-  let liqBarsIdx = 0;
-
-  for (const price of range(minPrice, maxPrice)) {
-    let pushed = false;
-
-    while (sparseLiqBars[liqBarsIdx].x === price) {
-      liqBars.push(sparseLiqBars[liqBarsIdx]);
-      liqBarsIdx++;
-      pushed = true;
-    }
-
-    // if (!pushed) {
-    // 	liqBars.push({ x: price, y: 0, color: '#0000' });
-    // }
-  }
-
-  // Extract long cumulative liquidation leverage
-  // [price, leverageValue]
+  const liqBars: LiquidationBar[] = [...sparseLiqBars];
 
   const cumulativeLongLiqLeverage: { x: number; y: number }[] = [];
   const cumulativeShortLiqLeverage: { x: number; y: number }[] = [];
   const lastCurrPriceIdx = liqBars.findLastIndex((i) => i.x < currentPrice) + 1;
 
-  // Long
+  // Long cumulative 
   let cumulativeLongLiqLeverageAcc = 0;
+  const longBars = liqBars.slice(lastCurrPriceIdx);
 
-  for (const liqBar of liqBars.slice(lastCurrPriceIdx, -1)) {
+  for (const liqBar of longBars) {
     cumulativeLongLiqLeverageAcc += liqBar.y;
     cumulativeLongLiqLeverage.push({
       x: liqBar.x,
@@ -105,10 +85,11 @@ export const formatLiquidationData = (liquidResponse: LiquidMapDataResponse) => 
     });
   }
 
-  // Short
+  // Short cumulative
   let cumulativeShortLiqLeverageAcc = 0;
+  const shortBars = liqBars.slice(0, lastCurrPriceIdx).toReversed();
 
-  for (const liqBar of liqBars.slice(0, lastCurrPriceIdx).toReversed()) {
+  for (const liqBar of shortBars) {
     cumulativeShortLiqLeverageAcc += liqBar.y;
     cumulativeShortLiqLeverage.push({
       x: liqBar.x,
@@ -116,12 +97,19 @@ export const formatLiquidationData = (liquidResponse: LiquidMapDataResponse) => 
     });
   }
 
+  // Sort short cumulative by x-value for proper line rendering
+  cumulativeShortLiqLeverage.sort((a, b) => a.x - b.x);
+
   return {
     liqBars: liqBars,
     currentPrice,
     cumulativeLongLiqLeverage,
     cumulativeShortLiqLeverage,
-    maxCumulativeValue: Math.max(cumulativeLongLiqLeverageAcc, cumulativeShortLiqLeverageAcc),
+    maxCumulativeValue: Math.max(
+      cumulativeLongLiqLeverageAcc, 
+      cumulativeShortLiqLeverageAcc,
+      1
+    ),
     minPrice,
     maxPrice,
   };

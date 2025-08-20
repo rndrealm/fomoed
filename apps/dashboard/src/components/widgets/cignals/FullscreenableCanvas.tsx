@@ -28,7 +28,12 @@ const FullscreenableCanvas: React.FC<FullscreenableCanvasProps> = ({
 
     if (isFullscreen) {
       // Store original position and dimensions
-      originalPosition.current = { top: rect.top, left: rect.left, width: rect.width, height: rect.height };
+      originalPosition.current = {
+        top: rect.top,
+        left: rect.left,
+        width: rect.width,
+        height: rect.height,
+      };
 
       // Create a wrapper for the canvas with fixed position
       const wrapper = document.createElement("div");
@@ -111,7 +116,10 @@ const FullscreenableCanvas: React.FC<FullscreenableCanvasProps> = ({
 
   return (
     <div ref={containerRef} className="relative h-full w-full">
-      <canvas ref={canvasRef} className="pointer-events-auto h-full w-full touch-none rounded-[10px]" />
+      <canvas
+        ref={canvasRef}
+        className="pointer-events-auto h-full w-full touch-none rounded-[10px] absolute top-0 left-0 right-0 bottom-0"
+      />
     </div>
   );
 };

@@ -143,7 +143,7 @@ const LiquidationHeatmapChart = (props: ICfgiCard) => {
           layout: { padding: 0 },
           options: {
             animation: false,
-            responsive: false,
+            responsive: true,
             maintainAspectRatio: false,
             scales: {
               x: {
@@ -208,7 +208,7 @@ const LiquidationHeatmapChart = (props: ICfgiCard) => {
 
       chartRef.current?.resize();
     },
-    [liquidationData, setMaxValue]
+    [liquidationData, setMaxValue],
   );
 
   useEffect(() => {
@@ -226,7 +226,7 @@ const LiquidationHeatmapChart = (props: ICfgiCard) => {
           "font-paralucent absolute -top-3 bottom-2 left-0 flex flex-col gap-y-[5px] pl-2 text-xs font-medium text-[#FFFFFF66] opacity-100 duration-500",
           {
             "opacity-0": !humanizedMaxLiqValue,
-          }
+          },
         )}
       >
         <div className="whitespace-nowrap">{humanizedMaxLiqValue}</div>
@@ -234,7 +234,8 @@ const LiquidationHeatmapChart = (props: ICfgiCard) => {
         <div
           className="w-2 flex-grow rounded"
           style={{
-            background: "linear-gradient(180deg, #E7E60B 0%, #63C752 22.5%, #27A77D 47%, #2F5C86 75%, #44095F 100%)",
+            background:
+              "linear-gradient(180deg, #E7E60B 0%, #63C752 22.5%, #27A77D 47%, #2F5C86 75%, #44095F 100%)",
           }}
         ></div>
 
@@ -247,6 +248,7 @@ const LiquidationHeatmapChart = (props: ICfgiCard) => {
         height={0}
         // style={{ backgroundPosition: "50px -30px" }}
         ref={canvasRef}
+        // className="absolute top-0 left-0 right-0 bottom-0"
       ></canvas>
     </div>
   );
