@@ -159,9 +159,9 @@ const LiquidationChart = (props: ICfgiCard) => {
           options: {
             spanGaps: true,
             animation: false,
-            responsive: false,
+            responsive: true,
             maintainAspectRatio: false,
-            
+
             scales: {
               x: {
                 type: "linear",
@@ -173,8 +173,8 @@ const LiquidationChart = (props: ICfgiCard) => {
 
                     if (formatter.suffix === "K" || formatter.suffix === "M") {
                       return (
-                      Math.round(val / formatter.divisor) + formatter.suffix
-                    );
+                        Math.round(val / formatter.divisor) + formatter.suffix
+                      );
                     } else {
                       return (
                         (val / formatter.divisor).toFixed(2) + formatter.suffix
@@ -285,7 +285,12 @@ const LiquidationChart = (props: ICfgiCard) => {
 
   return (
     <div className="relative h-full w-full pb-1">
-      <canvas width="400" height={0} ref={canvasRef}></canvas>
+      <canvas
+        width="400"
+        height={0}
+        ref={canvasRef}
+        // className="absolute top-0 left-0 right-0 bottom-0 !w-full !h-full"
+      ></canvas>
     </div>
   );
 };
