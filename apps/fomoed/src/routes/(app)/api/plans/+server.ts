@@ -32,15 +32,9 @@ const planInfos: PlanInfo[] = [
 // const plan_ids = ['pro_monthly', 'pro_yearly', 'plus_monthly', 'plus_yearly'];
 
 export async function GET({ request }: RequestEvent) {
-	const prices = await stripe.prices.list();
-	const availablePriceIds = PUBLIC_AVAILABLE_PRICE_IDS.split(',');
+	const prices = await stripe.prices.list({ active: true });
 
 	for (const price of prices.data) {
-		// Skip prices that are not in the available price IDs list
-		if (!availablePriceIds.includes(price.id)) {
-			continue;
-		}
-
 		const planId = price.metadata.plan_id;
 
 		if (!planId) {
