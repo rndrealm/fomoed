@@ -31,7 +31,12 @@ const PlusPlanCard = ({
   };
 
   return (
-    <div className="h-fit w-[360px] flex flex-col justify-between gap-1.5">
+    <motion.div
+      style={{ willChange: "transform" }}
+      className="relative h-fit w-[360px] flex flex-col justify-between items-center gap-1.5"
+      animate={{ y: isHovered ? "-24px" : "0" }}
+      transition={{ ease: [0.4, 0, 0.2, 1], duration: 0.5 }}
+    >
       <div
         className="relative h-full rounded-2xl backdrop-blur-2xl"
         onMouseEnter={() => setIsHovered(true)}
@@ -47,7 +52,7 @@ const PlusPlanCard = ({
           transition={{ ease: [0.4, 0, 0.2, 1], duration: 0.5 }}
         >
           <div className="flex flex-row items-center justify-start gap-2.5">
-            <h3 className="text-[#022A0F] text-xs cursor-pointer underline mt-0.5">
+            <h3 className="text-[#022A0F] text-xs cursor-pointer underline mt-0.5 font-semibold">
               Upgrade to this plan
             </h3>
             <div className="flex items-center justify-between bg-[#022A0F] rounded-[6px] py-1 pl-2.5 pr-3 gap-1.5">
@@ -62,7 +67,7 @@ const PlusPlanCard = ({
         <motion.div
           style={{ willChange: "transform" }}
           className="relative overflow-hidden p-[1px] h-full rounded-2xl "
-          animate={{ y: isHovered ? "45px" : "0" }}
+          animate={{ y: isHovered ? "44px" : "0" }}
           transition={{ ease: [0.4, 0, 0.2, 1], duration: 0.5 }}
         >
           <div className="gradient_border_plusplan" />
@@ -123,10 +128,15 @@ const PlusPlanCard = ({
               ))}
             </div>
 
-            <button className="w-[50%] flex flex-row justify-between items-center mt-0 bg-[#131313] py-2.5 px-4 rounded-[40px] text-[#878787] font-semibold">
+            <motion.button
+              style={{ willChange: "transform" }}
+              className="w-[50%] flex flex-row justify-between items-center mt-0 bg-[#131313] py-2.5 px-4 rounded-[40px] text-[#878787] font-semibold"
+              animate={{ y: isHovered ? "-20px" : "0" }}
+              transition={{ ease: [0.4, 0, 0.2, 1], duration: 0.5 }}
+            >
               {buttonConent}
               <ArrowRightPricing color="#878787" />
-            </button>
+            </motion.button>
 
             <div className="w-full text-center">
               <p className="font-normal text-xs text-[#A5A5A5]">
@@ -136,7 +146,7 @@ const PlusPlanCard = ({
           </div>
         </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
