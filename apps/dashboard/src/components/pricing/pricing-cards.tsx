@@ -49,7 +49,7 @@ const PricingCards = ({ prcingCardsConent }: PricingCardsContent) => {
         />
       </div>
 
-      <section className="relative mt-[1rem] sm:mt-[2rem] flex justify-center items-center">
+      <section className="relative mt-[1rem] sm:mt-[3rem] flex justify-center items-center">
         <div
           style={{ transformOrigin: "top center" }}
           className="scale-100 lg:scale-85 xl:scale-100  flex flex-col lg:flex-row gap-20 lg:gap-5"
