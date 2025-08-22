@@ -18,6 +18,7 @@ import {
   OrderBookDeltaResponse,
   SupportedPairsData,
   Ticker,
+  WhaleTransactionResponse
 } from "./types";
 import { supportedExchangePairsToOptions } from "@/lib/utils";
 import { ExchangePairOption } from "@/charts/types";
@@ -535,3 +536,33 @@ export const useFetchOrderbookDelta = (exchange: string, symbol: string, interva
     refetch,
   };
 }
+
+export const useFetchWhaleTransactions = () => {
+  const queryKey = ["get-whale-transactions"];
+
+  const { data, isPending, error, isSuccess, isFetching, refetch } =
+    useQuery<WhaleTransactionResponse>({
+      queryKey: queryKey,
+      queryFn: async () => {
+        const url = `/api/whale-transaction`;
+        
+        const response = await api.get({ url });
+
+        if (!response.data) {
+          throw new Error(response.error || "Failed to fetch whale transaction data");
+        }
+        
+        return response;
+      },
+      refetchInterval: 5000,
+    });
+
+  return {
+    data: data?.data,
+    isPending,
+    isSuccess,
+    error,
+    isFetching,
+    refetch,
+  };
+};

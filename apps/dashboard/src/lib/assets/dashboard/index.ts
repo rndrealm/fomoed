@@ -62,6 +62,7 @@ import duckTrophy from "../../../../public/media/images/dashboard/duck-trophy.pn
 import medal from "../../../../public/media/images/dashboard/medal.png";
 import duckPlay from "../../../../public/media/images/dashboard/duck-play.png";
 import deltaSpread from "../../../../public/media/images/dashboard/delta-spread.png";
+import whaleTracker from "../../../../public/media/images/dashboard/whale-tracker.png";
 
 const dashboard = {
   layoutPlaceholder,
@@ -127,7 +128,8 @@ const dashboard = {
   duckTrophy,
   medal,
   duckPlay,
-  deltaSpread
+  deltaSpread,
+  whaleTracker
 };
 
 export default dashboard;
