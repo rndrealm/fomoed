@@ -292,7 +292,7 @@ export const layoutOptionsMap = [
     id: 213, 
     name: "Whale Transaction Tracker",
     slug: "whale-transaction-tracker",
-    image: dashboard.duckGame,
+    image: dashboard.whaleTracker,
     category: "charts",
     tags: ["charts", "new"],
   },
