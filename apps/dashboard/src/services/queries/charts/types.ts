@@ -284,3 +284,16 @@ export interface ExchangePairOption {
     base_asset: string;
   };
 }
+
+export interface WhaleTransaction {
+  user: string;
+  token: string;
+  time: number;
+  activity: string; 
+  entryPrice: number;
+  value: number;
+}
+
+export interface WhaleTransactionResponse {
+  data: WhaleTransaction[];
+}

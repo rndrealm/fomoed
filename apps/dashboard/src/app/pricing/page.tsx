@@ -57,7 +57,7 @@ const prcingCardsConent = [
 
 const Pricing = () => {
   return (
-    <main className="min-h-screen w-full relative bg-[#000] text-white font-inter flex items-start justify-center pb-8">
+    <main className="min-h-screen w-full relative bg-[#000] text-white flex items-start justify-center pb-8">
       <div className="overflow-hidden px-6 h-full mt-28 sm:mt-[100px] flex flex-col items-center justify-center gap-[40px]">
         <IntroSection />
 

@@ -738,42 +738,143 @@ export function rgbToString(rgb: RGB, alpha = 1) {
 
 import { RefObject, useCallback } from "react";
 import html2canvas from "html2canvas-pro";
-
 interface ScreenshotOptions {
-  watermarkText?: string;
-  font?: string;
-  color?: string;
+  watermarkImageSrc?: string; 
+  watermarkWidth?: number;
+  watermarkHeight?: number;
+  watermarkOpacity?: number;
+  watermarkPosition?: 'center' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
   file?: string;
   elementRef: RefObject<HTMLElement | null>;
 }
 
+function loadImage(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous'; 
+    
+    const timeout = setTimeout(() => {
+      reject(new Error('Image loading timeout'));
+    }, 10000); 
+    
+    img.onload = () => {
+      clearTimeout(timeout);
+      resolve(img);
+    };
+    
+    img.onerror = (error) => {
+      clearTimeout(timeout);
+      reject(error);
+    };
+    
+    img.src = src;
+  });
+}
+
+function getWatermarkPosition(
+  canvasWidth: number,
+  canvasHeight: number,
+  imgWidth: number,
+  imgHeight: number,
+  position: string = 'center'
+): { x: number; y: number } {
+  const padding = 20; 
+  
+  switch (position) {
+    case 'top-left':
+      return { x: padding, y: padding };
+    case 'top-right':
+      return { x: canvasWidth - imgWidth - padding, y: padding };
+    case 'bottom-left':
+      return { x: padding, y: canvasHeight - imgHeight - padding };
+    case 'bottom-right':
+      return { x: canvasWidth - imgWidth - padding, y: canvasHeight - imgHeight - padding };
+    case 'center':
+    default:
+      return { 
+        x: (canvasWidth - imgWidth) / 2, 
+        y: (canvasHeight - imgHeight) / 2 
+      };
+  }
+}
+
 export async function takeScreenshot({
-  watermarkText = "app.fomoed.io",
-  font = "46px sans-serif",
-  color = "rgba(255, 255, 255, 0.5)",
+  watermarkImageSrc = "/branding/fomoed2.svg", 
+  watermarkWidth = 200,
+  watermarkHeight = 60,
+  watermarkOpacity = 0.5,
+  watermarkPosition = "center",
   file = "chart.png",
   elementRef,
 }: ScreenshotOptions) {
-  if (!elementRef?.current) return;
+  if (!elementRef?.current) {
+    console.error("Element reference is not available");
+    return;
+  }
 
-  const canvas = await html2canvas(elementRef.current, {
-    backgroundColor: null,
-    scale: 1,
-    removeContainer: true,
-  });
+  try {
+    let watermarkImage: HTMLImageElement | null = null;
+    
+    if (watermarkImageSrc) {
+      try {
+        watermarkImage = await loadImage(watermarkImageSrc);
+        console.log("Watermark image loaded successfully");
+        
+        if (watermarkImageSrc.toLowerCase().includes('.svg')) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+      } catch (error) {
+        console.warn("Failed to load watermark image:", error);
+      }
+    }
 
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return;
+    const canvas = await html2canvas(elementRef.current, {
+      backgroundColor: null,
+      scale: 1,
+      removeContainer: true,
+      useCORS: true, 
+    });
 
-  // Add watermark
-  ctx.font = font;
-  ctx.fillStyle = color;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText(watermarkText, canvas.width / 2, canvas.height / 2);
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      console.error("Failed to get canvas context");
+      return;
+    }
 
-  const link = document.createElement("a");
-  link.download = file;
-  link.href = canvas.toDataURL("image/png");
-  link.click();
+    if (watermarkImage) {
+      const originalAlpha = ctx.globalAlpha;
+      
+      ctx.globalAlpha = watermarkOpacity;
+      
+      const position = getWatermarkPosition(
+        canvas.width,
+        canvas.height,
+        watermarkWidth,
+        watermarkHeight,
+        watermarkPosition
+      );
+      
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      
+      ctx.drawImage(
+        watermarkImage,
+        position.x,
+        position.y,
+        watermarkWidth,
+        watermarkHeight
+      );
+      
+      ctx.globalAlpha = originalAlpha;
+    }
+
+    const link = document.createElement("a");
+    link.download = file;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+    
+    console.log("Screenshot taken successfully");
+  } catch (error) {
+    console.error("Failed to take screenshot:", error);
+  }
 }

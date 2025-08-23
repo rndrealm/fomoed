@@ -44,6 +44,7 @@ import WeightedSentiment from "@/components/widgets/weighted-sentiment/weighted-
 import WeightedPriceSentiment from "@/components/widgets/weighted-price-sentiment/weighted-price-sentiment";
 import DuckGame from "@/components/widgets/duck-game";
 import OrderbookDeltaWidget from "@/components/widgets/delta/delta-widget";
+import WhaleTransactionWidget from "@/components/widgets/whale-transaction/whale-transaction-widget";
 
 export const layoutClassMap = {
   SinglePane: "grid-rows-1 grid-cols-1",
@@ -298,6 +299,15 @@ export const layoutOptionsMap = [
     tags: ["charts", "new"],
   },
 
+  {
+    id: 213, 
+    name: "Whale Transaction Tracker",
+    slug: "whale-transaction-tracker",
+    image: dashboard.whaleTracker,
+    category: "charts",
+    tags: ["charts", "new"],
+  },
+
   // {
   //   id: 10,
   //   name: "Heatmap",
@@ -470,6 +480,13 @@ export const chartsMap = {
     extra: ["interval", "range", "token", "exchange_token"],
     component: (widget: LayoutType["widgets"][0]) => (
       <OrderbookDeltaWidget widget={widget} />
+    ),
+  },
+  "whale-transaction-tracker": {
+    name: "Whale Transaction Tracker",
+    extra: [], // This widget doesn't have extra props to save
+    component: (widget: LayoutType["widgets"][0]) => (
+      <WhaleTransactionWidget widget={widget} />
     ),
   },
 };
@@ -757,6 +774,16 @@ export const widgetPropsDefaults = {
       w: 8,
       h: 4,
       minW: 8,
+      minH: 4,
+      maxW: Infinity,
+      maxH: Infinity,
+    },
+  },
+  "whale-transaction-tracker": {
+    meta: {
+      w: 8,
+      h: 4,
+      minW: 6,
       minH: 4,
       maxW: Infinity,
       maxH: Infinity,
