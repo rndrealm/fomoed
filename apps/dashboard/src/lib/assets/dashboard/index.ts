@@ -63,6 +63,17 @@ import medal from "../../../../public/media/images/dashboard/medal.png";
 import duckPlay from "../../../../public/media/images/dashboard/duck-play.png";
 import deltaSpread from "../../../../public/media/images/dashboard/delta-spread.png";
 
+import coinStatsV2 from "../../../../public/media/images/dashboard/coin-stats-v2.png";
+import cfgiV2 from "../../../../public/media/images/dashboard/cfgi-v2.png";
+import dexV2 from "../../../../public/media/images/dashboard/dex-v2.png";
+import btcDominanceV2 from "../../../../public/media/images/dashboard/btc-dominance-v2.png";
+import tokenHistoryV2 from "../../../../public/media/images/dashboard/token-history-v2.png";
+import heatMapV2 from "../../../../public/media/images/dashboard/heat-map-v2.png";
+import newsV2 from "../../../../public/media/images/dashboard/news-v2.png";
+import screenerV2 from "../../../../public/media/images/dashboard/screener-v2.png";
+import summaryV2 from "../../../../public/media/images/dashboard/summary-v2.png";
+import orderBookV2 from "../../../../public/media/images/dashboard/order-book-v2.png";
+
 const dashboard = {
   layoutPlaceholder,
   logo,
@@ -127,7 +138,17 @@ const dashboard = {
   duckTrophy,
   medal,
   duckPlay,
-  deltaSpread
+  deltaSpread,
+  coinStatsV2,
+  cfgiV2,
+  dexV2,
+  btcDominanceV2,
+  tokenHistoryV2,
+  heatMapV2,
+  newsV2,
+  screenerV2,
+  summaryV2,
+  orderBookV2,
 };
 
 export default dashboard;

@@ -12,7 +12,7 @@ import Image from "next/image";
 import dashboard from "@/lib/assets/dashboard";
 import { cn, joinWidgetSlug, maxTabsByPlan } from "@/lib/utils";
 import { useAtomValue, useSetAtom } from "jotai";
-import { settingAtom } from "@/lib/atoms/settingsAtom";
+import { settingAtom, updateSettingAtom } from "@/lib/atoms/settingsAtom";
 import { v4 as uuidv4 } from "uuid";
 
 import {
@@ -36,6 +36,8 @@ import { getGridPosition } from "@/charts/helpers";
 import { track } from "@vercel/analytics";
 import PlusIcon from "../icons/PlusIcon";
 import Star from "../icons/Star";
+import StarFilled from "../icons/StarFilled";
+import { motion, useAnimate } from "motion/react";
 
 const categoriesOptions = [
   { id: 1, label: "All", value: "all" },
@@ -47,7 +49,7 @@ const categoriesOptions = [
   // { id: 4, label: "Custom Widgets", value: "custom-widgets" },
 ];
 
-const textCategoryContent = ["Charts", "BTC", "News"];
+const textCategoryContent = ["Charts", "BTC", "News", "Others"];
 
 interface IProps {
   handleBack?: () => void;
@@ -63,7 +65,15 @@ export function QuickWidgets(props: IProps) {
   const [isWidgetClicked, setIsWidgetClicked] = useState(false);
 
   const filteredWidget = useMemo(() => {
-    if (!searchValue && selectedTag === "all") return layoutOptionsMap;
+    const filteredDefaultWidgetLayout = [...layoutOptionsMap].sort((a, b) => {
+      const showIdA = a.showId ?? 99;
+      const showIdB = b.showId ?? 8999;
+      return showIdA - showIdB;
+    });
+
+    // return the default widget layout for the modal
+    if (!searchValue && selectedTag === "all")
+      return filteredDefaultWidgetLayout;
 
     const fillFavoriteWidgetOptions = settings.favorite_widgets.map((slug) => {
       const findWidget = layoutOptionsMap.find((ln) => ln.slug === slug)!;
@@ -97,6 +107,8 @@ export function QuickWidgets(props: IProps) {
   const addWidgetToNewLayout = useSetAtom(addWidgetToNewLayoutAtom);
   const dashboardSetting = useAtomValue(settingAtom);
   const addWidgetToExistingLayout = useSetAtom(addWidgetToExistingLayoutAtom);
+
+  const updateSettings = useSetAtom(updateSettingAtom);
 
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
@@ -154,95 +166,41 @@ export function QuickWidgets(props: IProps) {
     // }
   };
 
+  const variants = {
+    default: {
+      scale: 1,
+      transition: { ease: [0.4, 0, 0.2, 1], duration: 0.125 },
+    },
+    small: {
+      scale: 0.825,
+      transition: { ease: [0.4, 0, 0.2, 1], duration: 0.175 },
+    },
+  };
+
   return (
-    // <div
-    //   className="flex items-center justify-center w-full h-full overflow-hidden"
-    //   id="second-step"
-    // >
-    //   <div className="max-w-[732px] h-full w-full bg-[#090909] rounded-2xl overflow-hidden border border-[#333] flex flex-col gap-6">
-    //     <div className="flex items-center bg-[#0b0b0b] border-b border-[#121212]">
-    //       <div className="relative flex-1">
-    //         <span className="absolute left-[16px] top-[50%] -translate-y-1/2">
-    //           <SearchIcon />
-    //         </span>
-    //         <Input
-    //           placeholder="Search Widgets"
-    //           className="h-[56px] pl-9 pr-[9px] py-[1px] rounded-[4px] border border-white/10 text-sm placeholder:text-white/40 bg-transparent text-white focus:outline-none focus:ring-0 focus:ring-offset-0 focus:shadow-none [&:focus-visible]:outline-none [&:focus]:outline-none transition-all w-full border-none focus-visible:ring-0"
-    //           value={searchValue}
-    //           onChange={(e) => setSearchValue(e.target.value)}
-    //         />
-    //       </div>
-
-    //       <button
-    //         type="button"
-    //         className="bg-[#111] text-[#7a7a7a] text-xs leading-[1.5] border border-[#161616] rounded-sm py-[2px] px-2 mx-4"
-    //         onClick={handleBack}
-    //       >
-    //         Back
-    //       </button>
-    //     </div>
-    //     <div className="flex items-center gap-1 px-4">
-    //       {categoriesOptions.map((item) => {
-    //         const active = selectedTag === item.value;
-    //         return (
-    //           <button
-    //             key={item.id}
-    //             type="button"
-    //             className={cn(
-    //               "text-xs font-medium leading-[18px] py-[5px] px-[9px]",
-    //               active
-    //                 ? "text-white bg-[#1D1D1D] rounded-md"
-    //                 : "text-[#7a7a7a]",
-    //             )}
-    //             onClick={() => {
-    //               setSelectedTag(item.value);
-    //             }}
-    //           >
-    //             {item.label}
-    //           </button>
-    //         );
-    //       })}
-    //     </div>
-    //     <div className="px-4 pb-4 flex-1 flex flex-col gap-[10px] h-full w-full min-h-0">
-    //       <p className="text-[#7d7d7d] leading-[1.33] font-semibold text-xs">
-    //         Quick Widgets
-    //       </p>
-
-    //       <RenderIf condition={filteredWidget.length === 0}>
-    //         <div className="max-w-[16.25rem] mx-auto h-full flex items-center">
-    //           <div>
-    //             <div className="mb-7">
-    //               <Image src={dashboard.layout} alt="layout" />
-    //             </div>
-    //             <p className="text-[#9A9E9E] text-sm font-medium text-center font-sans">
-    //               We can’t find your widget.
-    //             </p>
-    //           </div>
-    //         </div>
-    //       </RenderIf>
-    //       <RenderIf condition={filteredWidget.length > 0}>
-    //         <div className="grid min-h-0 grid-cols-1 overflow-auto sm:grid-cols-2 gap-x-2 gap-y-4 scrollbar">
-    //           {filteredWidget.map((widget, index) => (
-    //             <QuickWidgetItem
-    //               tag={selectedTag}
-    //               key={index}
-    //               widget={widget}
-    //               handleGoBack={handleBack}
-    //             />
-    //           ))}
-    //         </div>
-    //       </RenderIf>
-    //     </div>
-    //   </div>
-    // </div>
     <Command
-      style={{ backdropFilter: "blur(18px)" }}
-      className="bg-[#101113B2] rounded-[40px] py-8"
+      style={{ backdropFilter: "blur(24px)" }}
+      className="bg-[#1011139a] rounded-[40px] py-8"
     >
       <div className="relative h-full w-full flex flex-col justify-start items-center gap-8">
-        {/* opacity thing */}
-
+        {/* bottom opacity thing */}
         <div className="absolute z-10 bottom-16 left-0 w-full h-24 bg-gradient-to-b from-transparent to-black/100 pointer-events-none"></div>
+
+        {/* <div className="absolute z-[1] top-10 left-0 w-full h-24 pointer-events-none">
+          <svg height="10000" width="10000" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <filter id="f1" x="0" y="0" xmlns="http://www.w3.org/2000/svg">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="15" />
+              </filter>
+            </defs>
+            <rect
+              width="9000"
+              height="9000"
+              fill="#1011139a"
+              filter="url(#f1)"
+            />
+          </svg>
+        </div> */}
 
         <div className="w-full flex flex-col gap-10">
           {/* Search top thing */}
@@ -275,7 +233,7 @@ export function QuickWidgets(props: IProps) {
             </div>
           </div>
 
-          {/* Categories */}
+          {/* Category buttons */}
           <div className="flex items-center gap-2.5 px-8 xl:px-16">
             {categoriesOptions.map((item) => {
               const active = selectedTag === item.value;
@@ -303,22 +261,32 @@ export function QuickWidgets(props: IProps) {
         {/* widget grid */}
         <CommandList className="h-[70%] scrollbar max-h-full min-w-full px-8 xl:px-16 focus:outline-hidden pb-4">
           <div className="flex flex-col gap-8">
-            <h2 className="text-white text-base font-medium">
-              Suggested Widgets
-            </h2>
+            <RenderIf condition={filteredWidget.length !== 0}>
+              <h2 className="text-white text-base font-medium">
+                Suggested Widgets
+              </h2>
+            </RenderIf>
 
             <div className="grid min-w-full min-h-0 grid-cols-1 overflow-auto md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-8">
               {filteredWidget.map((widget, index) => {
+                const widgetSlug = widget.slug;
+
                 //every index of element that comes after third element
                 const indexTarget = index % 3 === 0 && index !== 0;
 
                 //every second row starting from the second
                 const rowTarget = (index / 3 - 1) * 2 + 2;
 
+                // only for the default state of the widgets when the modal is opened - (no search no tags selected)
+                const defaultSettings = !searchValue && selectedTag === "all";
+                // console.log("defaultSettings", selectedTag, searchValue);
+
+                const textCondition = indexTarget && defaultSettings;
+
                 return (
                   <>
-                    {/* text element */}
-                    {indexTarget && (
+                    {/* text elements */}
+                    {textCondition && (
                       <div
                         key={index}
                         className={`hidden xl:block w-full col-span-3 max-w-[17rem] row-start-[${rowTarget}]`}
@@ -355,19 +323,69 @@ export function QuickWidgets(props: IProps) {
                         style={{ background: "transparent", borderWidth: 0 }}
                         className="absolute bg-gradient-widget-preview-button z-[100] top-6 right-6 h-[24px] aspect-square border-[1px] border-[#353535] rounded-[6px] flex items-center justify-center"
                       >
-                        <button
+                        {/* <button
                           type="button"
                           className="scale-[0.875]"
                           // onClick={handleBack}
                         >
-                          {/* <PlusIcon fill="#fff" /> */}
+                          <PlusIcon fill="#fff" />
                           <Star fill="#fff" />
-                        </button>
+                        </button> */}
+                        <motion.button
+                          key={widget.id}
+                          type="button"
+                          variants={variants}
+                          className="absolute scale-[0.875]"
+                          whileTap="small"
+                          onClick={() => {
+                            const isFavorite =
+                              settings.favorite_widgets.includes(widgetSlug);
+
+                            let newWidgetArray: string[] = [];
+
+                            if (isFavorite) {
+                              newWidgetArray = settings.favorite_widgets.filter(
+                                (item) => item !== widgetSlug,
+                              );
+                            } else {
+                              newWidgetArray = [
+                                ...settings.favorite_widgets,
+                                widgetSlug,
+                              ];
+                            }
+                            updateSettings({
+                              ...settings,
+                              favorite_widgets: newWidgetArray,
+                            });
+                          }}
+                        >
+                          {settings.favorite_widgets.includes(widgetSlug) ? (
+                            <StarFilled />
+                          ) : (
+                            <Star />
+                          )}
+                        </motion.button>
                       </div>
                     </CommandGroup>
                   </>
                 );
               })}
+
+              {/* if no widgets */}
+              <RenderIf condition={filteredWidget.length === 0}>
+                <div className="absolute left-1/2 top-[45%] translate-x-[-50%] translate-y-[-50%]">
+                  <div className="max-w-[18rem] mx-auto h-full flex items-center">
+                    <div className="flex flex-col gap-1 items-center justify-between">
+                      <div className="mb-7">
+                        <Image src={dashboard.layout} alt="layout" />
+                      </div>
+                      <p className="text-[#9A9E9E] text-sm font-medium text-center font-sans">
+                        We can’t find your widget.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </RenderIf>
             </div>
           </div>
         </CommandList>

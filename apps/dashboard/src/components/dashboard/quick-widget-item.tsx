@@ -158,13 +158,16 @@ export function QuickWidgetItem(props: IProps) {
             </p>
           </div>
         </RenderIf> */}
-        <div className="select-none pointer-events-none absolute top-[35%] left-[10%] min-h-fit h-full aspect-square overflow-hidden rounded-[28px] border border-[#121212] bg-[#000]">
-          <Image
-            src={widget.image}
-            alt={widget.name}
-            fill
-            className="object-cover w-full h-full"
-          />
+        <div className="select-none pointer-events-none absolute top-[35%] left-5.5 min-h-fit h-full min-w-fit w-full overflow-hidden rounded-[28px] border border-[#121212] bg-[#000]">
+          <div className="relative w-full h-full flex items-start justify-start">
+            <Image
+              src={widget.image}
+              alt={widget.name}
+              // width={400}
+              // height={400}
+              className="object-cover"
+            />
+          </div>
         </div>
         {/* <div className="flex opacity-0">
           <div className="rounded-sm bg-[#141414] px-2 py-1">
