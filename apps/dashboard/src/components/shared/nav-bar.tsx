@@ -9,7 +9,7 @@ import NavbarProfileButton from "../ui/NavbarProfileButton";
 import { ProfileIcon } from "./profile-icon";
 import { Notification } from "../icons/icons";
 import SignalNotificationsPopover from "../signals/signal-notifications";
-import useAuthUserData from "@/lib/hooks/use-auth-user-data";
+import useUserData from "@/lib/hooks/use-user-data";
 
 const links = [
   {
@@ -31,7 +31,7 @@ const links = [
 
 const NavBar = () => {
   const path = usePathname();
-  const authUser = useAuthUserData();
+  const authUser = useUserData();
   return (
     <div className="nav-bar-gradient fixed top-0 left-1/2 mx-auto mt-4 h-[60px] w-full max-w-[590px] -translate-x-1/2 rounded-[15px] p-[0.4px]">
       <div className="flex h-full w-full items-center rounded-[15px] bg-black px-6 py-3.5">
@@ -43,7 +43,7 @@ const NavBar = () => {
               key={link.name}
               className={cn(
                 "flex items-center gap-2 text-xs font-medium text-white sm:text-sm",
-                path.startsWith(link.path) ? "text-white" : "text-[#737373]"
+                path.startsWith(link.path) ? "text-white" : "text-[#737373]",
               )}
             >
               {link.icon}

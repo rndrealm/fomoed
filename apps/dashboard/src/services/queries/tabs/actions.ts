@@ -6,10 +6,10 @@ export const getUserTabsAction = async () => {
   const supabase = createSupabaseBrowserClient();
 
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (!user) {
+  if (!session?.user) {
     throw new Error("Please login to view your tabs.");
   }
 
@@ -27,9 +27,9 @@ export const getUserTabsAction = async () => {
         draft,
         widgets (id,  meta, props, layout_id)
       )
-    `
+    `,
     )
-    .eq("user_id", user.id);
+    .eq("user_id", session?.user?.id);
 
   if (tabsError) {
     console.log("Error fetching tabs:", tabsError);
@@ -46,7 +46,7 @@ export const getUserTabsAction = async () => {
   // Create a default tab linked to the new layout
   const defaultTab = {
     name: "Untitled Layout",
-    user_id: user.id,
+    user_id: session?.user?.id,
     layout_id: null,
   };
 
@@ -64,7 +64,7 @@ export const getUserTabsAction = async () => {
         draft,
         widgets (id, props, meta, layout_id)
       )
-    `
+    `,
     )
     .single();
 
@@ -83,17 +83,17 @@ export const addTabAction = async (body: AddTabPayload) => {
   const supabase = createSupabaseBrowserClient();
 
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (!user) {
+  if (!session?.user) {
     throw new Error("Please login to add a tab.");
   }
 
   const newTab = {
     id: body.id,
     name: body.name,
-    user_id: user.id,
+    user_id: session?.user?.id,
     layout_id: null,
   };
 
@@ -111,7 +111,7 @@ export const addTabAction = async (body: AddTabPayload) => {
         draft,
         widgets (id, meta, props, layout_id)
       )
-    `
+    `,
     )
     .single();
 
@@ -128,10 +128,10 @@ export const deleteTabAction = async (tabId: string) => {
   const supabase = createSupabaseBrowserClient();
 
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (!user) {
+  if (!session?.user) {
     throw new Error("Please login to delete a tab.");
   }
 
@@ -139,7 +139,7 @@ export const deleteTabAction = async (tabId: string) => {
   const { error: deleteError } = await supabase
     .from("tabs")
     .delete()
-    .match({ id: tabId, user_id: user.id });
+    .match({ id: tabId, user_id: session?.user?.id });
 
   if (deleteError) {
     console.log("Error deleting tab:", deleteError);
@@ -151,7 +151,7 @@ export const deleteTabAction = async (tabId: string) => {
 
 export const replaceUserTabsAction = async (
   localTabs: SyncTabsPayload,
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ) => {
   const supabase = createSupabaseBrowserClient();
 
@@ -161,11 +161,11 @@ export const replaceUserTabsAction = async (
   }
 
   const {
-    data: { user },
+    data: { session },
     error: userError,
-  } = await supabase.auth.getUser();
+  } = await supabase.auth.getSession();
 
-  if (!user) {
+  if (!session?.user) {
     throw new Error("Please login to replace tabs.");
   }
 
@@ -177,7 +177,7 @@ export const replaceUserTabsAction = async (
   const { error: deleteError } = await supabase
     .from("tabs")
     .delete()
-    .match({ user_id: user.id });
+    .match({ user_id: session?.user?.id });
 
   if (deleteError) {
     throw new Error(deleteError.message);
@@ -191,7 +191,7 @@ export const replaceUserTabsAction = async (
   const tabsToInsert = localTabs.map((tab) => ({
     id: tab.id,
     name: tab.name,
-    user_id: user.id,
+    user_id: session?.user?.id,
     layout_id: tab.layout_id ?? null,
   }));
 

@@ -6,13 +6,14 @@ import { User } from "@supabase/supabase-js";
 import PassiveNav from "./passive-nav";
 import ActiveNav from "./active-nav";
 import { sideMenuAnimProps } from "./animations";
+import { UsersRow } from "@/lib/types/db.types";
 
 interface ISideNavProps {
   navLinks: INavLink[];
   bottomLinks: INavLink[];
   isSideMenuOpen: boolean;
   setIsSideMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  authUser: User | null;
+  authUser: UsersRow | null;
 }
 
 const SideNav = (props: ISideNavProps) => {

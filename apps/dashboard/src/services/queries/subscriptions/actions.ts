@@ -4,17 +4,17 @@ export const getActivePlan = async () => {
   const supabase = createSupabaseBrowserClient();
 
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (!user) {
+  if (!session?.user) {
     throw new Error("Please login.");
   }
 
   const { data: subscriptions, error: sub_error } = await supabase
     .from("subscriptions")
     .select()
-    .eq("user_id", user.id);
+    .eq("user_id", session?.user?.id);
 
   if (sub_error) {
     console.log("Error retrieving subscriptions!");
@@ -25,7 +25,7 @@ export const getActivePlan = async () => {
   console.log("subscriptions:", subscriptions);
 
   const subs = subscriptions.filter(
-    (sub) => new Date(sub.end_timestamp || "").getTime() > Date.now()
+    (sub) => new Date(sub.end_timestamp || "").getTime() > Date.now(),
   );
 
   if (subs.find((i) => i.plan_name === "plus")) {

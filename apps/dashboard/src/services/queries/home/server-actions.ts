@@ -1,27 +1,15 @@
 import { createSupabaseServerComponentClient } from "@/lib/utils/supabase/server-client";
+import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
 // import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
+
 import { AppRoutes } from "@/lib/routes";
 // import { UserGeoLocation } from "../geolocation/types";
 
-export const getDashboardData = async () => {
+export const getDashboardDataClient = async (userId: string) => {
   // const res: UserGeoLocation = (await axios.get("https://ipinfo.io/json")).data;
-  const supabase = await createSupabaseServerComponentClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    // Get the current URL from headers to use as the next parameter
-    const headersList = await headers();
-    const referer = headersList.get("referer") || "";
-    const currentUrl = referer ? new URL(referer).pathname + new URL(referer).search : "";
-
-    redirect(AppRoutes.auth.login.withNext(currentUrl));
-  }
+  const supabase = createSupabaseBrowserClient();
 
   // Try to fetch existing layouts for the user
   const { data: layoutData, error: layoutError } = await supabase
@@ -32,9 +20,9 @@ export const getDashboardData = async () => {
         name,
         draft,
         widgets ( id,  token, meta, props, layout_id )
-    `
+    `,
     )
-    .eq("user_id", user.id);
+    .eq("user_id", userId);
 
   if (layoutError) {
     console.log("Error getting Layouts:", layoutError);
@@ -52,9 +40,9 @@ export const getDashboardData = async () => {
         active_tab_id,
         favorite_widgets,
         favorite_tokens
-      `
+      `,
     )
-    .eq("user_id", user.id);
+    .eq("user_id", userId);
 
   if (settingsError) {
     console.log("Error getting dashboard settings:", settingsError);
@@ -64,14 +52,16 @@ export const getDashboardData = async () => {
     // Create default settings if none exist
     const defaultSettings = {
       id: uuidv4(),
-      user_id: user.id,
+      user_id: userId,
       auto_save: true,
       active_tab_id: null,
       favorite_widgets: [],
       favorite_tokens: [],
     };
 
-    const { error: insertError } = await supabase.from("dashboard_settings").insert(defaultSettings);
+    const { error: insertError } = await supabase
+      .from("dashboard_settings")
+      .insert(defaultSettings);
 
     if (insertError) {
       console.log("Error creating default settings:", insertError);
@@ -96,9 +86,9 @@ export const getDashboardData = async () => {
         draft,
         widgets (id,  meta, props, layout_id)
       )
-    `
+    `,
     )
-    .eq("user_id", user.id);
+    .eq("user_id", userId);
 
   if (tabsError) {
     console.log("Error fetching tabs:", tabsError);
@@ -121,7 +111,7 @@ export const getDashboardData = async () => {
   // Create a default tab linked to the new layout
   const defaultTab = {
     name: "Untitled Layout",
-    user_id: user.id,
+    user_id: userId,
     layout_id: null,
   };
 
@@ -139,7 +129,7 @@ export const getDashboardData = async () => {
         draft,
         widgets (id, props, meta, layout_id)
       )
-    `
+    `,
     )
     .single();
 

@@ -201,11 +201,11 @@ export async function fetchSimilarNewsFeed(
 export async function addNewsBookmark(newsId: string) {
   const supabase = createSupabaseBrowserClient();
   const {
-    data: { user },
+    data: { session },
     error: userError,
-  } = await supabase.auth.getUser();
+  } = await supabase.auth.getSession();
 
-  if (userError || !user) {
+  if (userError || !session?.user) {
     const err = new Error("You must be logged in to bookmark news.");
     err.name = "UnauthorizedError";
     throw err;
@@ -215,7 +215,7 @@ export async function addNewsBookmark(newsId: string) {
     .from("news_bookmarks")
     .insert({
       news_id: newsId,
-      user_id: user.id,
+      user_id: session?.user?.id,
     })
     .select()
     .single();
@@ -235,11 +235,11 @@ export async function deleteNewsBookmark(newsId: string) {
   const supabase = createSupabaseBrowserClient();
 
   const {
-    data: { user },
+    data: { session },
     error: userError,
-  } = await supabase.auth.getUser();
+  } = await supabase.auth.getSession();
 
-  if (userError || !user) {
+  if (userError || !session?.user) {
     toast.error("You must be logged in to bookmark news.");
     redirect(AppRoutes.auth.login.path);
   }
@@ -248,7 +248,7 @@ export async function deleteNewsBookmark(newsId: string) {
     .from("news_bookmarks")
     .delete()
     .eq("news_id", newsId)
-    .eq("user_id", user.id);
+    .eq("user_id", session?.user?.id);
 
   if (error) {
     console.log("Error deleting news bookmark:", error);
@@ -262,11 +262,11 @@ export async function checkNewsBookmark(newsId: string) {
   const supabase = createSupabaseBrowserClient();
 
   const {
-    data: { user },
+    data: { session },
     error: userError,
-  } = await supabase.auth.getUser();
+  } = await supabase.auth.getSession();
 
-  if (userError || !user) {
+  if (userError || !session?.user) {
     return false;
   }
 
@@ -274,7 +274,7 @@ export async function checkNewsBookmark(newsId: string) {
     .from("news_bookmarks")
     .select("id")
     .eq("news_id", newsId)
-    .eq("user_id", user.id);
+    .eq("user_id", session?.user?.id);
 
   if (error) {
     // If no bookmark found, return false instead of throwing error
@@ -327,11 +327,11 @@ export async function fetchUserBookmarkedNews(
   const supabase = createSupabaseBrowserClient();
 
   const {
-    data: { user },
+    data: { session },
     error: userError,
-  } = await supabase.auth.getUser();
+  } = await supabase.auth.getSession();
 
-  if (userError || !user) {
+  if (userError || !session?.user) {
     const err = new Error("You must be logged in to view bookmarks.");
     err.name = "UnauthorizedError";
     throw err;
@@ -357,7 +357,7 @@ export async function fetchUserBookmarkedNews(
     `,
       { count: "exact" },
     )
-    .eq("user_id", user.id)
+    .eq("user_id", session?.user?.id)
     .order("created_at", { ascending: false })
     .range(from, to);
 

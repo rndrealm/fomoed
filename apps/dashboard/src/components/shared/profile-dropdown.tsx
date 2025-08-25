@@ -7,9 +7,10 @@ import { useGetUserPlans } from "@/services/queries/subscriptions";
 import Link from "next/link";
 import { User } from "@supabase/supabase-js";
 import { AppRoutes } from "@/lib/routes";
+import { UsersRow } from "@/lib/types/db.types";
 
 interface IProps {
-  authUser: User | null;
+  authUser: UsersRow | null;
 }
 
 export function ProfileDropdown(props: IProps) {
@@ -61,7 +62,7 @@ export function ProfileDropdown(props: IProps) {
           </div>
           <div className="flex flex-col justify-center gap-1">
             <h4 className="text-base leading-[1.35] font-medium text-white">
-              {authUser?.user_metadata?.name}
+              {authUser?.username}
             </h4>
             <p className="font-regular text-xs leading-[1.35] text-[#A4A4A4]">
               {authUser?.email}

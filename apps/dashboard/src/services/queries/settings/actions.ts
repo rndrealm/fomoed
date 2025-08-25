@@ -3,7 +3,7 @@ import { IDashboardData } from "../home/types";
 
 export const updateSettingsAction = async (
   newSetting: IDashboardData["settings"],
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ) => {
   const supabase = createSupabaseBrowserClient();
 
@@ -12,10 +12,10 @@ export const updateSettingsAction = async (
   }
 
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (!user) {
+  if (!session?.user) {
     throw new Error("Please login to update settings.");
   }
 
@@ -39,7 +39,7 @@ export const updateSettingsAction = async (
 };
 export const updateSettingsActiveTab = async (
   new_active_tab: string,
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ) => {
   const supabase = createSupabaseBrowserClient();
 
@@ -48,10 +48,10 @@ export const updateSettingsActiveTab = async (
   }
 
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (!user) {
+  if (!session?.user) {
     throw new Error("Please login to update settings.");
   }
 
@@ -62,7 +62,7 @@ export const updateSettingsActiveTab = async (
   const { data, error } = await supabase
     .from("dashboard_settings")
     .update({ active_tab_id: new_active_tab })
-    .match({ user_id: user.id })
+    .match({ user_id: session?.user?.id })
     .select()
     .single();
 
