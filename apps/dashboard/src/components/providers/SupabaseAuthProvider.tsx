@@ -9,6 +9,7 @@ import React, {
 } from "react";
 import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
 import { Session, User } from "@supabase/supabase-js";
+import { usePathname, useRouter } from "next/navigation";
 
 // Define the context type
 type SupabaseAuthContextType = {
@@ -40,6 +41,8 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
   // const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const supabase = createSupabaseBrowserClient();
+  const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     // Get initial session
@@ -95,6 +98,17 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
   //     console.error("Error refreshing session:", error);
   //   }
   // };
+
+  // Check if user is trying to access protected routes without session
+  useEffect(() => {
+    if (!isLoading && !session) {
+      // Check if trying to access dashboard or signals routes
+      if (pathname.startsWith("/dashboard") || pathname.includes("/signals")) {
+        // Redirect to login page
+        router.push("/auth/login");
+      }
+    }
+  }, [isLoading, session, pathname, router]);
 
   // Provide the context value
   const value = {
