@@ -11,7 +11,7 @@ import useSubscription, {
   subscriptionStateToConfig,
 } from "@/hooks/subscription";
 import type { PriceLookupKey } from "@/lib/plans/plans.types";
-import { UserSubscriptionsResponseData } from "../api/subscriptions/route";
+import { UserSubscriptionsResponseData } from "../../api/subscriptions/route";
 import { BellIcon, Grid2X2Icon, GridIcon, LucidePuzzle, Puzzle, PuzzleIcon } from "lucide-react";
 import { WidgetDashboardIcon } from "@/components/icons/icons";
 
