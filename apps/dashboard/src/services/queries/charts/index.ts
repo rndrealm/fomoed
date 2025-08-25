@@ -265,38 +265,35 @@ export const useFetchLiquidDataMerged = (
 };
 
 export const useFetchBinancePriceData = (
-  symbol?: string, // e.g., 'BTCUSDT'
-  interval?: string, // e.g., '1h', '1d'
-  limit = 1000, // Number of candles (max 1000)
+  symbol?: string,
+  interval?: string,
+  limit = 1000,
   country = "",
 ) => {
   const isUS = country === "US";
   const queryKey = ["binance-price", symbol, interval, limit, isUS];
 
-  const baseUrl = isUS ? "https://api.binance.us" : "https://api.binance.com";
-
-  const res = useQuery<unknown>({
+  const res = useQuery<BinanceKlineRaw[]>({
     queryKey,
     queryFn: async () => {
       const response = await api.get({
-        url: `${baseUrl}/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`,
+        url: `/api/binance?source=binance&endpoint=/api/v3/klines&symbol=${symbol}&interval=${interval}&limit=${limit}&isUS=${isUS}`,
       });
-
       return response;
     },
     enabled: !!symbol && !!interval,
   });
 
-  const transformedData: BinanceKlineFormatted[] | undefined = (
-    res.data as BinanceKlineRaw[]
-  )?.map(([time, open, high, low, close]) => ({
-    time: Math.floor(time / 1000),
-    open: parseFloat(open),
-    high: parseFloat(high),
-    low: parseFloat(low),
-    close: parseFloat(close),
-    value: parseFloat(close),
-  }));
+  const transformedData: BinanceKlineFormatted[] | undefined = res.data?.map(
+    ([time, open, high, low, close]) => ({
+      time: Math.floor(time / 1000),
+      open: parseFloat(open),
+      high: parseFloat(high),
+      low: parseFloat(low),
+      close: parseFloat(close),
+      value: parseFloat(close),
+    }),
+  );
 
   return {
     ...res,
@@ -304,26 +301,25 @@ export const useFetchBinancePriceData = (
   };
 };
 
-export const useFetchTopGainerLoser = () => {
-  const queryKey = ["binance-top-gainer-loser"];
+export const useFetchTopGainerLoser = (country = "") => {
+  const isUS = country === "US";
+  const queryKey = ["binance-top-gainer-loser", isUS];
 
-  const res = useQuery<unknown>({
+  const res = useQuery<Ticker[]>({
     queryKey,
     queryFn: async () => {
       const response = await api.get({
-        url: `https://api.binance.com/api/v3/ticker/24hr`,
+        url: `/api/binance?source=binance&endpoint=/api/v3/ticker/24hr&isUS=${isUS}`,
       });
-
       return response;
     },
     refetchOnMount: "always",
     refetchOnWindowFocus: "always",
     refetchOnReconnect: "always",
-    // enabled: !!symbol && !!interval,
   });
 
   const usdtPairs =
-    (res.data as Ticker[])
+    res.data
       ?.filter((item) => item.symbol.endsWith("USDT"))
       .filter((item) => parseFloat(item.quoteVolume) > 1000000) || [];
 
@@ -363,27 +359,19 @@ export const useFetchBinanceTokens = (country = "") => {
   const isUS = country === "US";
   const queryKey = ["binance-tokens", isUS];
 
-  const baseUrl = isUS ? "https://api.binance.us" : "https://api.binance.com";
-
-  const res = useQuery<BinanceSymbolInfo[]>({
+  const res = useQuery<{ symbols: BinanceSymbolInfo[] }>({
     queryKey,
     queryFn: async () => {
       const response = await api.get({
-        url: `${baseUrl}/api/v3/exchangeInfo`,
+        url: `/api/binance?source=binance&endpoint=/api/v3/exchangeInfo&isUS=${isUS}`,
       });
-
       return response?.symbols;
     },
-    // enabled: !!country,
   });
-
-  // const usdtPairs = res?.data?.filter(
-  //   (item) => item.quoteAsset === "USDT" && item.status === "TRADING"
-  // );
 
   const mapped: CoinDataInterface[] = [];
 
-  res?.data?.forEach((item) => {
+  res?.data?.symbols?.forEach((item) => {
     if (item.quoteAsset === "USDT" && item.status === "TRADING") {
       const newItem = {
         price: 0,
@@ -397,7 +385,6 @@ export const useFetchBinanceTokens = (country = "") => {
         is_free: true,
         color: undefined,
       };
-
       mapped.push(newItem);
     }
   });
@@ -408,25 +395,24 @@ export const useFetchBinanceTokens = (country = "") => {
   };
 };
 
-export const useFetchBinanceTokenPrice = (token: string, country = "") => {
+export const useFetchBinanceTokenPrice = (token?: string, country = "") => {
   const isUS = country === "US";
   const queryKey = ["binance-token-price", token, isUS];
-
-  const baseUrl = isUS ? "https://api.binance.us" : "https://api.binance.com";
 
   const res = useQuery<BinanceTicker>({
     queryKey,
     queryFn: async () => {
       const response = await api.get({
-        url: `${baseUrl}/api/v3/ticker/24hr?symbol=${token.toUpperCase()}USDT`,
+        url: `/api/binance?source=binance&endpoint=/api/v3/ticker/24hr&symbol=${token?.toUpperCase()}USDT&isUS=${isUS}`,
       });
-
       return response;
     },
+    enabled: !!token,
   });
 
   return res;
 };
+
 
 export const useFetchCoinStatsToken = () => {
   const queryKey = ["coin-stats-tokens"];
