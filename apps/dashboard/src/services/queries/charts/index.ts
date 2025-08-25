@@ -18,7 +18,8 @@ import {
   OrderBookDeltaResponse,
   SupportedPairsData,
   Ticker,
-  WhaleTransactionResponse
+  WhaleTransactionResponse,
+  EconomicCalendarResponse
 } from "./types";
 import { supportedExchangePairsToOptions } from "@/lib/utils";
 import { ExchangePairOption } from "@/charts/types";
@@ -555,6 +556,36 @@ export const useFetchWhaleTransactions = () => {
         return response;
       },
       refetchInterval: 5000,
+    });
+
+  return {
+    data: data?.data,
+    isPending,
+    isSuccess,
+    error,
+    isFetching,
+    refetch,
+  };
+};
+
+export const useFetchEconomicCalendar = () => {
+  const queryKey = ["get-economic-calendar"];
+
+  const { data, isPending, error, isSuccess, isFetching, refetch } =
+    useQuery<EconomicCalendarResponse>({
+      queryKey: queryKey,
+      queryFn: async () => {
+        const url = `/api/economic-calendar`;
+        
+        const response = await api.get({ url });
+
+        if (!response.data) {
+          throw new Error(response.error || "Failed to fetch economic calendar data");
+        }
+        
+        return response;
+      },
+      refetchInterval: 300000,
     });
 
   return {

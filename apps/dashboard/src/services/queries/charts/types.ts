@@ -297,3 +297,18 @@ export interface WhaleTransaction {
 export interface WhaleTransactionResponse {
   data: WhaleTransaction[];
 }
+
+export interface EconomicEvent {
+  name: string;
+  country: string;
+  timestamp: number;
+  publishTime: string;
+  forecast: string | null;
+  previous: string | null;
+  actual: string | null;
+  revised: string | null;
+}
+
+export interface EconomicCalendarResponse {
+  data: EconomicEvent[];
+}
