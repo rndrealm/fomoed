@@ -1,40 +1,43 @@
-import { useQuery } from "@tanstack/react-query";
-import { getActivePlan } from "./actions";
-import api from "@/services/api";
-import { SubscriptionsResponse } from "./types";
+import useSubscription from "@/hooks/subscription";
 
-export const useGetActiveSubs = () => {
-  const hash = ["subs"];
-  const { data, isPending, error, isSuccess } = useQuery({
-    queryKey: hash,
-    queryFn: async () => {
-      const response = await getActivePlan();
-      return response;
-    },
-  });
-  return {
-    data,
-    isPending,
-    isSuccess,
-    error,
-  };
-};
-
+/**
+ * @deprecated
+ * @returns
+ */
 export const useGetUserPlans = () => {
-  const hash = ["plans"];
-  const { data, isPending, error, isSuccess } = useQuery({
-    queryKey: hash,
-    queryFn: async () => {
-      const response = await api.get({
-        url: `/api/subscriptions`,
-      });
-      return response.data as SubscriptionsResponse;
-    },
-  });
-  return {
-    data,
-    isPending,
-    isSuccess,
-    error,
+  const {activePlan, userSubscriptionsQuery, userSubscriptionQueryData} = useSubscription();
+
+  type LegacyPlanType = "FREE" | "PRO" | "PLUS";
+
+  type LegacyData = {
+    // If a plan is active
+    hasPlan: boolean;
+
+    // If a trialing subscription is in progress
+    hasTrial: boolean;
+
+    planType: LegacyPlanType;
+
+    hasActivePlans: LegacyPlanType;
+  }
+
+  const planTypeToLegacyPlanType: Record<string, "FREE" | "PRO" | "PLUS"> = {
+    "basic": "FREE",
+    "pro": "PRO",
+    "plus": "PLUS"
   };
+
+  const ret: {isPending: boolean, isSuccess: boolean, error: unknown, data: LegacyData | undefined} = {
+    isPending: userSubscriptionsQuery.isFetching,
+    isSuccess: userSubscriptionsQuery.isSuccess,
+    error: userSubscriptionsQuery.error,
+    data: {
+      hasPlan: activePlan !== "basic",
+      hasTrial: userSubscriptionQueryData?.hasTrialActive || false,
+      planType: planTypeToLegacyPlanType[activePlan || "basic"] || "FREE",
+      hasActivePlans: planTypeToLegacyPlanType[activePlan || "basic"] || "FREE",
+    }
+  };
+
+  return ret;
 };

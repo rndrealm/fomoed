@@ -5,6 +5,7 @@ import BasicPlanCard from "./cards/basicPlan-card";
 import ProPlanCard from "./cards/proPlan-card";
 import PlusPlanCard from "./cards/plusPlan-card";
 import PricingSwitch from "./pricing-switch";
+import { SubscriptionAction } from "@/hooks/subscription";
 
 type Feature = {
   icon: ReactNode;
@@ -13,26 +14,28 @@ type Feature = {
 
 export type PricingCard = {
   title: string;
-  price: string[];
+  prices: string[];
   description: string;
   features: Feature[];
   buttonConent?: string;
   switchActive?: boolean;
+  buttonColorProminent: boolean;
+  buttonAction?: SubscriptionAction;
 };
 
 type PricingCardsContent = {
-  prcingCardsConent: PricingCard[];
+  pricingCardsContent: PricingCard[];
 };
 
-const PricingCards = ({ prcingCardsConent }: PricingCardsContent) => {
-  const basicPlanCardContent = prcingCardsConent.find(
+const PricingCards = ({ pricingCardsContent }: PricingCardsContent) => {
+  const basicPlanCardContent = pricingCardsContent.find(
     (item) => item.title === "Basic",
   ) as PricingCard;
-  const proPlanCardContent = prcingCardsConent.find(
+  const proPlanCardContent = pricingCardsContent.find(
     (item) => item.title === "Pro",
   ) as PricingCard;
-  const plusPlanCardContent = prcingCardsConent.find(
-    (item) => item.title === "Voyager",
+  const plusPlanCardContent = pricingCardsContent.find(
+    (item) => item.title === "Plus",
   ) as PricingCard;
 
   const [switchActive, setSwitchActive] = useState<boolean>(false);

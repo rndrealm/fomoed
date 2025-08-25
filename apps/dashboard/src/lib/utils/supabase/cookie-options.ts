@@ -1,7 +1,7 @@
 import { CookieOptionsWithName } from "@supabase/ssr";
 
 export const supabaseCookieOpts: CookieOptionsWithName = {
-  domain: process.env.NEXT_PUBLIC_SUPABASE_COOKIE_DOMAIN,
+  domain: undefined,
   path: "/",
   sameSite: "lax",
   secure: true,

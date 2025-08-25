@@ -5,7 +5,7 @@ import CheckeredLine from "../../icons/CheckeredLine";
 
 const BasisPlanCard = ({
   title,
-  price,
+  prices,
   description,
   features,
 }: PricingCard) => {
@@ -22,7 +22,7 @@ const BasisPlanCard = ({
           <div className="flex flex-col gap-6">
             <h2 className="text-base">{title}</h2>
             <div className="flex flex-col gap-4">
-              <h2 className="text-4xl">{price[0]}</h2>
+              <h2 className="text-4xl">{prices[0]}</h2>
               <p className="text-base">{description}</p>
             </div>
           </div>

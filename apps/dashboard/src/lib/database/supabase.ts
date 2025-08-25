@@ -1681,7 +1681,7 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
-          email: string | null
+          email: string
           has_had_free_trial: boolean
           id: number
           is_kol: boolean
@@ -1693,7 +1693,7 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           created_at?: string
-          email?: string | null
+          email?: string
           has_had_free_trial?: boolean
           id?: number
           is_kol?: boolean
@@ -1705,7 +1705,7 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           created_at?: string
-          email?: string | null
+          email?: string
           has_had_free_trial?: boolean
           id?: number
           is_kol?: boolean

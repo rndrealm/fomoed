@@ -1,25 +1,26 @@
 import React from "react";
 import { Close, UpgradeStar } from "../icons/icons";
-import { IPlanType } from "@/services/queries/subscriptions/types";
 import { RenderIf } from "../shared";
+import { PlanType } from "@/lib/plans/plans.types";
+import Link from "next/link";
 
-const dataMap = {
+const dataMap: Record<PlanType, { title: string; details: string }> = {
   // tab: {
   //   title: "Upgrade to pro",
   //   details:
   //     "Get unlimited access to 10+ Tabs, 44+ crypto assets with Fomoed pro",
   // },
-  FREE: {
+  basic: {
     title: "Upgrade to pro",
     details:
       "Get unlimited access to 10+ Tabs, 44+ crypto assets, smart signals with Fomoed pro",
   },
-  PLUS: {
+  plus: {
     title: "Upgrade to pro",
     details:
       "Get unlimited access to 10+ Tabs, 44+ crypto assets, smart signals with Fomoed pro",
   },
-  PRO: {
+  pro: {
     title: "You’ve hit your current limit",
     details: "We’re working on expanding access - New plans are on the way.",
   },
@@ -31,15 +32,12 @@ const dataMap = {
 };
 
 interface IProps {
-  plan?: IPlanType;
+  plan?: PlanType;
   handleClose?: () => void;
 }
 
 export function Upgrade(props: IProps) {
-  const { plan = "FREE", handleClose } = props;
-  function handleGoToPlans() {
-    window.location.href = "https://app.fomoed.io/plans";
-  }
+  const { plan = "basic", handleClose } = props;
 
   return (
     <div
@@ -64,14 +62,13 @@ export function Upgrade(props: IProps) {
         </div>
 
         <div className="flex flex-col gap-1">
-          <RenderIf condition={plan !== "PRO"}>
-            <button
-              type="button"
-              className="rounded-md bg-white py-2 text-xs text-black font-medium leading-[1.5]"
-              onClick={handleGoToPlans}
+          <RenderIf condition={plan !== "pro"}>
+            <Link
+              className="rounded-md bg-white py-2 text-xs text-black font-medium leading-[1.5] text-center"
+              href="/pricing"
             >
               Upgrade to Fomoed+
-            </button>
+            </Link>
           </RenderIf>
 
           <div className="flex justify-center">
