@@ -70,7 +70,8 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
     };
 
     initializeAuth();
-  }, [supabase.auth]);
+    // eslint-disable-next-line
+  }, []);
 
   // Sign out function
   const signOut = async () => {
@@ -105,6 +106,7 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
       }
     }
   }, [isLoading, session, pathname, router]);
+  console.log(isLoading, session);
 
   // Provide the context value
   const value = {
