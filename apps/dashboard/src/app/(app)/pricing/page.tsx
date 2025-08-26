@@ -72,7 +72,7 @@ function getPricingCardsContent(
     {
       title: "Basic",
       prices: ["Free", "Free"],
-      description: "0$/month & 0$/year",
+      description: "$0/month & $0/year",
       features: [
         { icon: <WidgetDashboardIcon color="white" size={17} />, content: "Access to essential widgets" },
         { icon: <TrendingIcon />, content: "Access to BTC and ETH data" },
