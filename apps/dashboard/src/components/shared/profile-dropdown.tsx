@@ -51,9 +51,9 @@ export function ProfileDropdown(props: IProps) {
       const renewsToString =
         userSubscriptionQueryData.activePlan === userSubscriptionQueryData.nextPeriodPlan
           ? ""
-          : `in ${capitalize(userSubscriptionQueryData.nextPeriodPlan)} `;
+          : `; switches to ${capitalize(userSubscriptionQueryData.nextPeriodPlan)}`;
 
-      return `Renews in ${userSubscriptionQueryData?.renewsIn} ${renewsToString}for $${usdAmount}`;
+      return `Renews in ${userSubscriptionQueryData?.renewsIn}${renewsToString}`;
     }
 
     return `Expires in ${userSubscriptionQueryData?.cancelsIn}`;
