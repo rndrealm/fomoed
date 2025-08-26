@@ -1,12 +1,6 @@
 "use client";
 
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-} from "react";
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
 import { Session, User } from "@supabase/supabase-js";
 import { usePathname, useRouter } from "next/navigation";
@@ -74,7 +68,8 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
     };
 
     initializeAuth();
-  }, [supabase.auth]);
+    // eslint-disable-next-line
+  }, []);
 
   // Sign out function
   const signOut = async () => {
@@ -109,6 +104,7 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
       }
     }
   }, [isLoading, session, pathname, router]);
+  console.log(isLoading, session);
 
   // Provide the context value
   const value = {
@@ -119,9 +115,5 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
     // refreshSession,
   };
 
-  return (
-    <SupabaseAuthContext.Provider value={value}>
-      {children}
-    </SupabaseAuthContext.Provider>
-  );
+  return <SupabaseAuthContext.Provider value={value}>{children}</SupabaseAuthContext.Provider>;
 }
