@@ -1,12 +1,6 @@
 "use client";
 
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-} from "react";
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
 import { Session, User } from "@supabase/supabase-js";
 import { usePathname, useRouter } from "next/navigation";
@@ -45,6 +39,8 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
   const pathname = usePathname();
 
   useEffect(() => {
+    console.log("triggered use effect");
+
     // Get initial session
     const initializeAuth = async () => {
       setIsLoading(true);
@@ -119,9 +115,5 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
     // refreshSession,
   };
 
-  return (
-    <SupabaseAuthContext.Provider value={value}>
-      {children}
-    </SupabaseAuthContext.Provider>
-  );
+  return <SupabaseAuthContext.Provider value={value}>{children}</SupabaseAuthContext.Provider>;
 }
