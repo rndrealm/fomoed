@@ -47,10 +47,10 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
 
       try {
         // Get session data
-        // const {
-        //   data: { session },
-        // } = await supabase.auth.getSession();
-        // setSession(session);
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        setSession(session);
         // setUser(session?.user || null);
 
         // Listen for auth changes
