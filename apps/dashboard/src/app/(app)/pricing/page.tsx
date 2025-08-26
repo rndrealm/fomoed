@@ -142,8 +142,8 @@ const Pricing = () => {
   console.log({ userSubscriptionQueryData });
 
   return (
-    <main className="min-h-screen w-full relative bg-[#000] text-white flex items-start justify-center pb-8">
-      <div className="overflow-hidden px-6 h-full mt-28 sm:mt-[100px] flex flex-col items-center justify-center gap-[40px]">
+    <main className="h-screen w-full relative bg-[#000] text-white grid place-items-center overflow-y-auto overflow-x-hidden">
+      <div className="px-6 h-full flex flex-col items-center justify-center gap-y-4 lg:gap-y-[40px] py-12">
         <IntroSection />
 
         <PricingCards pricingCardsContent={pricingCardsContent} />
