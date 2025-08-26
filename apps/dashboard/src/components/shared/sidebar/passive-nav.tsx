@@ -3,12 +3,13 @@ import Image from "next/image";
 import dashboard from "@/lib/assets/dashboard";
 import { NavLink, INavLink } from "./nav-link";
 import { User } from "@supabase/supabase-js";
+import { UsersRow } from "@/lib/types/db.types";
 
 interface IPassiveNavProps {
   navLinks: INavLink[];
   setIsSideMenuOpen: (value: boolean) => void;
   setIsHovered: (value: boolean) => void;
-  authUser: User | null;
+  authUser: UsersRow | null;
 }
 
 // This component renders the passive navigation when the side menu is closed.

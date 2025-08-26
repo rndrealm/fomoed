@@ -22,7 +22,7 @@ import { utilsAtom } from "@/lib/atoms/utilsAtom";
 import { useAtomValue } from "jotai";
 import { RenderIf } from "./render-if";
 import SignalNotificationsPopover from "../signals/signal-notifications";
-import useAuthUserData from "@/lib/hooks/use-auth-user-data";
+import useUserData from "@/lib/hooks/use-user-data";
 
 const links = [
   {
@@ -72,9 +72,9 @@ export const Navbar = (props: IProps) => {
   const { isNews = false, isPricing = false } = props;
   const pathName = usePathname();
   const utils = useAtomValue(utilsAtom);
+  const authUser = useUserData();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const authUser = useAuthUserData();
 
   return (
     <nav

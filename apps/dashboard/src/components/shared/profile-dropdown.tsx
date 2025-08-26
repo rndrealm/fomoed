@@ -6,12 +6,13 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { User } from "@supabase/supabase-js";
 import { AppRoutes } from "@/lib/routes";
+import { UsersRow } from "@/lib/types/db.types";
 import useSubscription from "@/hooks/subscription";
 import { capitalize } from "lodash-es";
 import { useMemo } from "react";
 
 interface IProps {
-  authUser: User | null;
+  authUser: UsersRow | null;
 }
 
 export function ProfileDropdown(props: IProps) {
@@ -82,7 +83,7 @@ export function ProfileDropdown(props: IProps) {
             <ProfileIcon user={authUser} className="rounded-[4px]" />
           </div>
           <div className="flex flex-col justify-center gap-1">
-            <h4 className="text-base leading-[1.35] font-medium text-white">{authUser?.user_metadata?.name}</h4>
+            <h4 className="text-base leading-[1.35] font-medium text-white">{authUser?.username}</h4>
             <p className="font-regular text-xs leading-[1.35] text-[#A4A4A4]">{authUser?.email}</p>
           </div>
         </div>

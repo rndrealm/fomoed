@@ -12,9 +12,12 @@ import {
   getUpdatedFeedbackContent,
   SignalFeedbackSubmissionOpts,
 } from "@/lib/utils/feedback";
+import { useSupabaseAuth } from "../providers";
+import { Session } from "@supabase/supabase-js";
 
 interface UpsertFeedbackReportOpts extends SignalFeedbackSubmissionOpts {
   feedbackId: number | null;
+  session?: Session | null;
 }
 
 async function submitErrorReport({
@@ -22,16 +25,19 @@ async function submitErrorReport({
   prompt,
   errorReason,
   feedbackId,
+  session,
 }: UpsertFeedbackReportOpts) {
   const supabase = createSupabaseBrowserClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // const {
+  //   data: { user },
+  // } = await supabase.auth.getUser();
 
-  if (!user) {
+  if (!session?.user) {
     throw new Error("User must be authenticated to submit feedback");
   }
+
+  const user = session.user;
 
   let content: string;
 
@@ -77,6 +83,8 @@ export function SignalGenErrorBox({
   latestPrompt,
   feedbackId,
 }: SignalGenErrorBoxProps) {
+  const { session } = useSupabaseAuth();
+
   const [notes, setNotes] = useState("");
 
   const submitFeedbackMutation = useMutation({
@@ -86,6 +94,7 @@ export function SignalGenErrorBox({
         prompt: latestPrompt,
         errorReason: reason,
         feedbackId,
+        session,
       }),
   });
 
