@@ -9,6 +9,7 @@ import { useGetUserPlans } from "@/services/queries/subscriptions";
 import { useState } from "react";
 import { Upgrade } from "../modals";
 import { Button } from "../ui/button";
+import useSubscription from "@/hooks/subscription";
 
 const EmptyState = () => {
   const [_, setActiveSignalTab] = useAtom(activeSignalTabAtom);
@@ -35,9 +36,10 @@ const MySignals = () => {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   const { data } = useGetUserPlans();
+  const { activePlan } = useSubscription();
 
   const handleNewSignal = () => {
-    if (data?.planType === "FREE" && smartSignals.length >= 2) {
+    if (data?.hasActivePlans === "FREE" && smartSignals.length >= 2) {
       setShowUpgradeModal(true);
     } else {
       setActiveSignalTab("signal-builder");
@@ -102,7 +104,7 @@ const MySignals = () => {
         className="!max-w-[410px] !p-0 rounded-[24px]"
       >
         <Upgrade
-          plan={data?.planType}
+          plan={activePlan}
           handleClose={() => {
             setShowUpgradeModal(false);
           }}

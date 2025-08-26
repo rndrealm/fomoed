@@ -21,6 +21,7 @@ import { ModalContainer } from "../shared";
 import { Upgrade } from "../modals";
 import { track } from "@vercel/analytics";
 import { gridColAtom } from "@/lib/atoms/utilsAtom";
+import useSubscription from "@/hooks/subscription";
 
 interface IProps {
   widget: LayoutOptionType[0];
@@ -41,6 +42,7 @@ export function QuickWidgetItem(props: IProps) {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   const { data } = useGetUserPlans();
+  const {activePlan} = useSubscription();
 
   const isClicked = useRef(false);
 
@@ -90,7 +92,7 @@ export function QuickWidgetItem(props: IProps) {
               sync: syncCondition,
             });
           } else {
-            const planType = data?.planType || "FREE"; // Default to FREE if not set
+            const planType = data?.hasActivePlans || "FREE"; // Default to FREE if not set
             const maxTabs = maxTabsByPlan[planType] || 3;
             if (layouts.length >= maxTabs) {
               setShowUpgradeModal(true);
@@ -100,7 +102,7 @@ export function QuickWidgetItem(props: IProps) {
           }
           track("widget_added", {
             widget: widget.slug,
-            planType: data?.planType || "FREE",
+            planType: data?.hasActivePlans || "FREE",
           });
           handleGoBack();
           isClicked.current = false;
@@ -165,7 +167,7 @@ export function QuickWidgetItem(props: IProps) {
         className="!max-w-[410px] rounded-[24px] !p-0"
       >
         <Upgrade
-          plan={data?.planType}
+          plan={activePlan}
           handleClose={() => {
             setShowUpgradeModal(false);
           }}

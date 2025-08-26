@@ -23,7 +23,7 @@ const Layout = ({ children }: Props) => {
   return (
     <>
       <AutoShowUpgradePopup
-        upgradeToPlan="PRO"
+        upgradeToPlan="pro"
         onPlanLoaded={() => setPlanLoaded(true)}
       />
 

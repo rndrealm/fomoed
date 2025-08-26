@@ -10,7 +10,6 @@ This Turborepo includes the following packages/apps:
 
 ### Apps and Packages
 
-- `fomoed`: Existing dashboard at https://fomoed.io
 - `dashboard`: The new version of the dashboard being developed in React
 - `livesocket`: A proxy used with the cignals chart, deployed on Digital Ocean
 ---

@@ -1,22 +1,26 @@
 "use client";
+import classNames from "clsx";
 
 import React, { useState } from "react";
 import { PricingCard } from "../pricing-cards";
-import CheckeredLine from "../../icons/CheckeredLine";
 import ArrowRightPricing from "../../icons/ArrowRightPricing";
 import ProPlanTriangleDown from "../../icons/ProPlanTriangleDown";
 import ProPlanTriangleUp from "../../icons/ProPlanTriangleUp";
-import ProPlanPriceNumber from "../../icons/ProPlanPriceNumber";
 import { motion, AnimatePresence } from "motion/react";
+import useSubscription from "@/hooks/subscription";
+import { LoaderCircle } from "lucide-react";
 
 const ProPlanCard = ({
   title,
-  price,
+  prices,
   description,
   features,
   buttonConent,
   switchActive,
+  buttonColorProminent,
+  buttonAction,
 }: PricingCard) => {
+  const { changeSubscriptionMutation, isBusy } = useSubscription();
   const [isHovered, setIsHovered] = useState(false);
 
   const variants = {
@@ -32,6 +36,16 @@ const ProPlanCard = ({
       transition: { duration: 0.4, ease: "easeIn" },
     },
   };
+
+  function handleButtonClick() {
+    if (!buttonAction) throw new Error("Button action is not defined");
+
+    changeSubscriptionMutation.mutate({
+      action: buttonAction,
+      billingPeriod: switchActive ? "yearly" : "monthly",
+      plan: "pro",
+    });
+  }
 
   return (
     <motion.div
@@ -51,6 +65,7 @@ const ProPlanCard = ({
 
       <div
         className="relative h-full rounded-2xl backdrop-blur-2xl"
+        // TOOD revert this
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -103,14 +118,14 @@ const ProPlanCard = ({
                 <div className="overflow-hidden">
                   <AnimatePresence mode="wait">
                     <motion.h2
-                      key={switchActive ? price[1] : price[0]}
+                      key={switchActive ? prices[1] : prices[0]}
                       variants={variants}
                       initial="hidden"
                       animate="visible"
                       exit="exit"
                       className="text-4xl font-semibold"
                     >
-                      ${switchActive ? price[1] : price[0]}
+                      {switchActive ? prices[1] : prices[0]}
                     </motion.h2>
                   </AnimatePresence>
                 </div>
@@ -124,24 +139,18 @@ const ProPlanCard = ({
             </div>
 
             <div className="flex flex-col w-[90%] justify-center items-start gap-3 mb-4">
-              <p className="text-[13px] text-[#A5A5A5] mb-2">
-                Everything Basic, plus:
-              </p>
+              <p className="text-[13px] text-[#A5A5A5] mb-2">Everything Basic, plus:</p>
               {features.map((feature, index) => {
                 //Joshua Jake
                 if (feature.content.includes("training")) {
                   return (
                     <div key={index} className="flex items-center gap-2">
-                      <div className="p-0.5 ml-[-3.5px] mb-3">
-                        {feature.icon}
-                      </div>
+                      <div className="p-0.5 ml-[-3.5px] mb-3">{feature.icon}</div>
 
                       <p className="text-xs text-[#A5A5A5] mt-1">
                         {feature.content}
                         <span
-                          onClick={() =>
-                            window.open("https://x.com/itzjoshuajake", "_blank")
-                          }
+                          onClick={() => window.open("https://x.com/itzjoshuajake", "_blank")}
                           className="underline cursor-pointer text-xs text-[#FFFFFF] ml-1"
                         >
                           Joshua Jake
@@ -162,18 +171,30 @@ const ProPlanCard = ({
             </div>
             <motion.button
               style={{ willChange: "transform" }}
-              className="w-full flex flex-row justify-between items-center mt-2 bg-white py-2.5 px-4 rounded-[40px] text-[#373737] font-semibold"
               animate={{ y: isHovered ? "-20px" : "0" }}
+              onClick={handleButtonClick}
               transition={{ ease: [0.4, 0, 0.2, 1], duration: 0.5 }}
-            >
+              className={classNames(
+                "w-full flex flex-row justify-between items-center mt-2 py-2.5 px-4 rounded-[40px] font-semibold transition-colors duration-500",
+                {
+                  "bg-white text-[#373737]": buttonColorProminent,
+                  "bg-[#131313] text-[#878787] ": !buttonColorProminent,
+                  "!bg-white/10 !text-[#373737]": isBusy,
+                },
+              )}
+              >
               {buttonConent}
-              <ArrowRightPricing />
+              <span>
+                {isBusy ? (
+                  <LoaderCircle className="animate-spin"> </LoaderCircle>
+                ) : (
+                  <ArrowRightPricing color={isBusy ? "#0000" : buttonColorProminent ? "black" : "#878787"} />
+                )}
+              </span>
             </motion.button>
 
             <div className="w-full text-center">
-              <p className="font-normal text-xs text-[#A5A5A5]">
-                Switch plans or cancel anytime
-              </p>
+              <p className="font-normal text-xs text-[#A5A5A5]">Switch plans or cancel anytime</p>
             </div>
           </div>
         </motion.div>
