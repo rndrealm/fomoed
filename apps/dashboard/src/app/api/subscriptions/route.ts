@@ -66,7 +66,23 @@ export async function GET(): Promise<NextResponse<UserSubscriptionsResponse>> {
     console.warn("Multiple customers found for user, using the first one.");
   }
 
+  const noSubResponse = asNextResponseData<UserSubscriptionsResponseData>({
+    activePlan: "basic",
+    subscriptions: [],
+    hasTrialActive: false,
+    hasTrialAvailable: !userData.has_had_free_trial,
+    cancelsIn: null,
+    nextPeriodPlan: "basic",
+    renewsForUsd: null,
+    renewsIn: null,
+    trialEndsIn: null,
+  });
+
   const customer = userCustomers.data[0];
+
+  if (!customer) {
+    return noSubResponse;
+  }
 
   const customerSubs = await stripe.subscriptions.list({
     customer: customer.id,
@@ -74,25 +90,18 @@ export async function GET(): Promise<NextResponse<UserSubscriptionsResponse>> {
   const activeAndTrialingSubs = customerSubs.data.filter((sub) => sub.status === "active" || sub.status === "trialing");
 
   // The active sub shown needs to always be the sub with the highest price
-  const highestPriceSub = activeAndTrialingSubs.length > 0 ? activeAndTrialingSubs.reduce((prev, curr) => {
-    // @ts-expect-error The subs always have items, if not it's not gonna work anyways
-    return (prev.items.data[0].price.unit_amount > curr.items.data[0].price.unit_amount) ? prev : curr;
-  }) : undefined;
+  const highestPriceSub =
+    activeAndTrialingSubs.length > 0
+      ? activeAndTrialingSubs.reduce((prev, curr) => {
+          // @ts-expect-error The subs always have items, if not it's not gonna work anyways
+          return prev.items.data[0].price.unit_amount > curr.items.data[0].price.unit_amount ? prev : curr;
+        })
+      : undefined;
 
   const activeSub: Stripe.Subscription | undefined = highestPriceSub;
-  
+
   if (!activeSub) {
-    return asNextResponseData<UserSubscriptionsResponseData>({
-      activePlan: "basic",
-      subscriptions: [],
-      hasTrialActive: false,
-      hasTrialAvailable: !userData.has_had_free_trial,
-      cancelsIn: null,
-      nextPeriodPlan: "basic",
-      renewsForUsd: null,
-      renewsIn: null,
-      trialEndsIn: null,
-    });
+    return noSubResponse;
   }
 
   let upcomingSub: Stripe.Subscription | undefined;
@@ -105,11 +114,12 @@ export async function GET(): Promise<NextResponse<UserSubscriptionsResponse>> {
   // in order to be activated next period (when downgragin from Pro to Plus)
   if (activeSub.cancel_at_period_end && activeAndTrialingSubs.length > 1) {
     // Find upcoming plus subscription when downgrading from pro to plus
-    upcomingSub = activeAndTrialingSubs.find((sub) => sub.id !== activeSub.id && sub.status === "trialing" && sub.cancel_at_period_end !== true);
+    upcomingSub = activeAndTrialingSubs.find(
+      (sub) => sub.id !== activeSub.id && sub.status === "trialing" && sub.cancel_at_period_end !== true,
+    );
   } else {
     upcomingSub = activeSub.cancel_at_period_end ? undefined : activeSub;
   }
-
 
   let isTrialing = false;
 
@@ -162,7 +172,6 @@ export async function GET(): Promise<NextResponse<UserSubscriptionsResponse>> {
   }
 
   // console.log({upcomingInvoice})
-
 
   return asNextResponseData({
     subscriptions: activeAndTrialingSubs,
