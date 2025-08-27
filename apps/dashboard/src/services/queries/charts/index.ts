@@ -271,13 +271,13 @@ export const useFetchBinancePriceData = (
   country = "",
 ) => {
   const isUS = country === "US";
-  const queryKey = ["binance-price", symbol, interval, limit, isUS];
+  const queryKey = ["binance-price", symbol, interval, limit];
 
   const res = useQuery<BinanceKlineRaw[]>({
     queryKey,
     queryFn: async () => {
       const response = await api.get({
-        url: `/api/binance?source=binance&endpoint=/api/v3/klines&symbol=${symbol}&interval=${interval}&limit=${limit}&isUS=${isUS}`,
+        url: `/api/binance?source=binance&endpoint=/api/v3/klines&symbol=${symbol}&interval=${interval}&limit=${limit}`,
       });
       return response;
     },
@@ -303,13 +303,13 @@ export const useFetchBinancePriceData = (
 
 export const useFetchTopGainerLoser = (country = "") => {
   const isUS = country === "US";
-  const queryKey = ["binance-top-gainer-loser", isUS];
+  const queryKey = ["binance-top-gainer-loser"];
 
   const res = useQuery<Ticker[]>({
     queryKey,
     queryFn: async () => {
       const response = await api.get({
-        url: `/api/binance?source=binance&endpoint=/api/v3/ticker/24hr&isUS=${isUS}`,
+        url: `/api/binance?source=binance&endpoint=/api/v3/ticker/24hr`,
       });
       return response;
     },
@@ -357,13 +357,13 @@ export const useFetchMarkeData = () => {
 
 export const useFetchBinanceTokens = (country = "") => {
   const isUS = country === "US";
-  const queryKey = ["binance-tokens", isUS];
+  const queryKey = ["binance-tokens"];
 
   const res = useQuery<{ symbols: BinanceSymbolInfo[] }>({
     queryKey,
     queryFn: async () => {
       const response = await api.get({
-        url: `/api/binance?source=binance&endpoint=/api/v3/exchangeInfo&isUS=${isUS}`,
+        url: `/api/binance?source=binance&endpoint=/api/v3/exchangeInfo`,
       });
       return response?.symbols;
     },
@@ -397,13 +397,13 @@ export const useFetchBinanceTokens = (country = "") => {
 
 export const useFetchBinanceTokenPrice = (token?: string, country = "") => {
   const isUS = country === "US";
-  const queryKey = ["binance-token-price", token, isUS];
+  const queryKey = ["binance-token-price", token];
 
   const res = useQuery<BinanceTicker>({
     queryKey,
     queryFn: async () => {
       const response = await api.get({
-        url: `/api/binance?source=binance&endpoint=/api/v3/ticker/24hr&symbol=${token?.toUpperCase()}USDT&isUS=${isUS}`,
+        url: `/api/binance?source=binance&endpoint=/api/v3/ticker/24hr&symbol=${token?.toUpperCase()}USDT`,
       });
       return response;
     },
