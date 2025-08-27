@@ -5,19 +5,36 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 
 import { NextResponse } from "next/server";
+import type Stripe from "stripe";
+import { PlanType } from "@/lib/plans/plans.types";
+import { unixToRenewsIn } from "@/lib/plans/plans.utils";
+import { setHasHadFreeTrial } from "@/lib/users/users.utils.server";
+import { asNextResponseData } from "@/lib/utils/server.utils";
 
-const plansIdMap = {
-  pro:
-    process.env.STRIPE_PRODUCT_IDS_PRO_PLAN?.split(",").map((id) =>
-      id.trim(),
-    ) || [],
-  plus:
-    process.env.STRIPE_PRODUCT_IDS_PLUS_PLAN?.split(",").map((id) =>
-      id.trim(),
-    ) || [],
+export type UserSubscriptionsResponseData = {
+  subscriptions: Stripe.Subscription[];
+  hasTrialActive: boolean;
+  hasTrialAvailable: boolean;
+  nextPeriodPlan: PlanType;
+  activePlan: PlanType;
+  renewsIn: string | null;
+  cancelsIn: string | null;
+  renewsForUsd: number | null;
+  trialEndsIn: string | null;
 };
 
-const fetchUserPlans = async () => {
+export type UserSubscriptionsResponse = {
+  success: boolean;
+  data?: UserSubscriptionsResponseData;
+  message?: string;
+};
+
+const plansIdMap = {
+  pro: process.env.STRIPE_PRODUCT_IDS_PRO_PLAN?.split(",").map((id) => id.trim()) || [],
+  plus: process.env.STRIPE_PRODUCT_IDS_PLUS_PLAN?.split(",").map((id) => id.trim()) || [],
+};
+
+export async function GET(): Promise<NextResponse<UserSubscriptionsResponse>> {
   const supabase = await createSupabaseServerClient();
 
   const {
@@ -32,56 +49,130 @@ const fetchUserPlans = async () => {
 
     redirect(AppRoutes.auth.login.withNext(currentUrl));
   }
-  // For some reason, on stripe there are multiple customers with the same email
-  // Here we are searching for all customers with the email and retrieving all their subscriptions
 
-  const user_customers = await stripe.customers.search({
+  // Query user from the DB
+  const { data: userData, error: userError } = await supabase.from("users").select("*").eq("user_id", user.id).single();
+
+  if (!userData) {
+    console.error("User not found in DB", userError);
+    throw new Error("user was not found in the DB");
+  }
+
+  const userCustomers = await stripe.customers.search({
     query: `email:"${user.email}"`,
   });
 
-  const user_subscriptions = [];
+  if (userCustomers.data.length > 1) {
+    console.warn("Multiple customers found for user, using the first one.");
+  }
 
-  for (const customer of user_customers.data) {
-    const customer_subs = await stripe.subscriptions.list({
-      customer: customer.id,
+  const customer = userCustomers.data[0];
+
+  const customerSubs = await stripe.subscriptions.list({
+    customer: customer.id,
+  });
+  const activeAndTrialingSubs = customerSubs.data.filter((sub) => sub.status === "active" || sub.status === "trialing");
+
+  // The active sub shown needs to always be the sub with the highest price
+  const highestPriceSub = activeAndTrialingSubs.length > 0 ? activeAndTrialingSubs.reduce((prev, curr) => {
+    // @ts-expect-error The subs always have items, if not it's not gonna work anyways
+    return (prev.items.data[0].price.unit_amount > curr.items.data[0].price.unit_amount) ? prev : curr;
+  }) : undefined;
+
+  const activeSub: Stripe.Subscription | undefined = highestPriceSub;
+  
+  if (!activeSub) {
+    return asNextResponseData<UserSubscriptionsResponseData>({
+      activePlan: "basic",
+      subscriptions: [],
+      hasTrialActive: false,
+      hasTrialAvailable: !userData.has_had_free_trial,
+      cancelsIn: null,
+      nextPeriodPlan: "basic",
+      renewsForUsd: null,
+      renewsIn: null,
+      trialEndsIn: null,
     });
-
-    user_subscriptions.push(...customer_subs.data);
   }
 
-  const active_subs = user_subscriptions.filter((sub) => sub.status === "active" || sub.status === "trialing");
+  let upcomingSub: Stripe.Subscription | undefined;
 
-  let planType: "FREE" | "PRO" | "PLUS" = "FREE";
+  if (activeAndTrialingSubs.length > 2) {
+    console.error("User has multiple active subscriptions, this is unexpected, but continuing...");
+  }
 
-  for (const sub of active_subs) {
-    const subProductId = sub.items.data?.[0]?.plan?.product;
-    if (subProductId && plansIdMap.pro.includes(subProductId as string)) {
-      planType = "PRO";
-      break;
+  // Upcoming sub is either the current sub or a trialing sub, which is trialing
+  // in order to be activated next period (when downgragin from Pro to Plus)
+  if (activeSub.cancel_at_period_end && activeAndTrialingSubs.length > 1) {
+    // Find upcoming plus subscription when downgrading from pro to plus
+    upcomingSub = activeAndTrialingSubs.find((sub) => sub.id !== activeSub.id && sub.status === "trialing" && sub.cancel_at_period_end !== true);
+  } else {
+    upcomingSub = activeSub.cancel_at_period_end ? undefined : activeSub;
+  }
+
+
+  let isTrialing = false;
+
+  const prodId = activeSub.items.data?.[0]?.plan?.product;
+  const willCancel = activeSub.cancel_at_period_end;
+
+  let activePlan: PlanType = "basic";
+  let upcomingPlan: PlanType = "basic";
+
+  if (plansIdMap.pro.includes(prodId as string)) {
+    activePlan = "pro";
+  }
+
+  if (plansIdMap.plus.includes(prodId as string)) {
+    activePlan = "plus";
+  }
+
+  if (activeSub.status === "trialing") {
+    isTrialing = true;
+  }
+
+  const upcomingSubProId = upcomingSub?.items.data[0]?.plan?.product;
+
+  console.log({ upcomingSubProId });
+
+  if (plansIdMap.pro.includes(upcomingSubProId as string)) {
+    upcomingPlan = "pro";
+  }
+
+  if (plansIdMap.plus.includes(upcomingSubProId as string)) {
+    upcomingPlan = "plus";
+  }
+
+  const renewsIn = !activeSub || !upcomingSub ? null : unixToRenewsIn(upcomingSub.current_period_end);
+  const cancelsIn = activeSub?.cancel_at_period_end ? unixToRenewsIn(activeSub.current_period_end) : null;
+  const renewsForUsd = upcomingSub?.items.data[0].price.unit_amount || null;
+  const trialEndsIn = isTrialing ? unixToRenewsIn(activeSub.current_period_end) : null;
+
+  // This should be done via webhook, but for now we do it like this
+  // theoretically if the user never opens the page after subscribing,
+  // they would be able to get the free trial again, but I guess that's fine :)
+  if (isTrialing && !userData.has_had_free_trial) {
+    const { error } = await setHasHadFreeTrial(user.id, true);
+
+    if (error) {
+      console.warn("Failed to set has_had_free_trial for user", error);
     }
-    if (subProductId && plansIdMap.plus.includes(subProductId as string)) {
-      planType = "PLUS";
-      break;
-    }
+
+    userData.has_had_free_trial = true;
   }
 
-  return {
-    subscriptions: active_subs,
-    hasPlan: active_subs.length > 0,
-    hasTrial: active_subs.find((sub) => sub.status === "trialing") !== undefined,
-    planType,
-  };
-};
+  // console.log({upcomingInvoice})
 
-//! REQUEST HANDLER FOR /api/subscriptions
-export async function GET() {
-  try {
-    const data = await fetchUserPlans();
 
-    return NextResponse.json({ success: "true", data });
-  } catch (error) {
-    // Handle errors gracefully
-    console.log("Error fetching subsriptions data:", error);
-    return NextResponse.json({ error: "Failed to fetch subsriptions data" }, { status: 500 });
-  }
+  return asNextResponseData({
+    subscriptions: activeAndTrialingSubs,
+    hasTrialActive: isTrialing,
+    activePlan,
+    nextPeriodPlan: upcomingPlan,
+    hasTrialAvailable: !userData.has_had_free_trial,
+    renewsIn,
+    renewsForUsd,
+    cancelsIn,
+    trialEndsIn,
+  });
 }

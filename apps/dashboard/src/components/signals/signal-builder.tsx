@@ -35,6 +35,7 @@ import { SignalGenErrorBox } from "./signal-gen-error-box";
 import { useMutation } from "@tanstack/react-query";
 import { useCall } from "wagmi";
 import clsx from "clsx";
+import useSubscription from "@/hooks/subscription";
 
 const SignalBuilder = ({}) => {
   const [signalPrompt, setSignalPrompt] = useState("");
@@ -54,6 +55,7 @@ const SignalBuilder = ({}) => {
 
   const user = useUserData();
   const { data: userPlanData } = useGetUserPlans();
+  const { activePlan } = useSubscription();
 
   const { mutateAsync: createSignal, isPending } = useCreateSignalMutation();
 
@@ -62,7 +64,7 @@ const SignalBuilder = ({}) => {
   const handleSave = async () => {
     if (!rootGroup || !user?.user_id) return;
 
-    if (userPlanData?.planType === "FREE" && smartSignals.length >= 2) {
+    if (userPlanData?.hasActivePlans === "FREE" && smartSignals.length >= 2) {
       setShowUpgradeModal(true);
       return;
     }
@@ -268,7 +270,7 @@ const SignalBuilder = ({}) => {
         className="!max-w-[410px] !p-0 rounded-[24px]"
       >
         <Upgrade
-          plan={userPlanData?.planType}
+          plan={activePlan}
           handleClose={() => {
             setShowUpgradeModal(false);
           }}

@@ -446,9 +446,8 @@ button {
   cursor: pointer;
 }
 
-button:hover {
+button:hover:not(:disabled) {
   opacity: 0.8;
-  cursor: pointer;
 }
 
 button:disabled {

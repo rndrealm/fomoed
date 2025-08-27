@@ -1,44 +1,67 @@
 "use client";
-import React, { useEffect, useState } from "react";
+
 import { ProfileIcon } from "./profile-icon";
 import { Logout } from "../icons/icons";
 import { useRouter } from "next/navigation";
-import { useGetUserPlans } from "@/services/queries/subscriptions";
 import Link from "next/link";
 import { User } from "@supabase/supabase-js";
 import { AppRoutes } from "@/lib/routes";
+import { UsersRow } from "@/lib/types/db.types";
+import useSubscription from "@/hooks/subscription";
+import { capitalize } from "lodash-es";
+import { useMemo } from "react";
 
 interface IProps {
-  authUser: User | null;
+  authUser: UsersRow | null;
 }
 
 export function ProfileDropdown(props: IProps) {
   const { authUser } = props;
   const router = useRouter();
 
-  const [isBeta, setIsBeta] = useState(true);
+  const { userSubscriptionQueryData } = useSubscription();
 
-  const { data } = useGetUserPlans();
+  const planLabel = useMemo(() => {
+    if (!userSubscriptionQueryData) {
+      return "Loading...";
+    }
+
+    return capitalize(userSubscriptionQueryData.activePlan);
+  }, [userSubscriptionQueryData]);
 
   const handleLogout = async () => {
     router.push(AppRoutes.logout.path);
   };
 
-  function handleGoToPlans() {
-    window.location.href = "https://app.fomoed.io/plans";
-  }
-
-  useEffect(() => {
-    if (!isBeta) {
-      window.location.href = process.env.NEXT_PUBLIC_LEGACY_APP_URL!;
+  const planSubtitle = useMemo(() => {
+    if (!userSubscriptionQueryData || userSubscriptionQueryData.activePlan === "basic") {
+      return "";
     }
-  }, [isBeta]);
+
+    const usdAmount = (userSubscriptionQueryData.renewsForUsd || 0) / 100;
+
+    if (userSubscriptionQueryData.trialEndsIn && userSubscriptionQueryData.renewsIn) {
+      return `Trial (Pro) ends in ${userSubscriptionQueryData.trialEndsIn}, then $${usdAmount}`;
+    }
+
+    if (userSubscriptionQueryData.trialEndsIn && !userSubscriptionQueryData.renewsIn) {
+      return `Trial (Pro) ends in ${userSubscriptionQueryData.trialEndsIn}, then cancels`;
+    }
+
+    if (userSubscriptionQueryData.renewsIn) {
+      const renewsToString =
+        userSubscriptionQueryData.activePlan === userSubscriptionQueryData.nextPeriodPlan
+          ? ""
+          : `; switches to ${capitalize(userSubscriptionQueryData.nextPeriodPlan)}`;
+
+      return `Renews in ${userSubscriptionQueryData?.renewsIn}${renewsToString}`;
+    }
+
+    return `Expires in ${userSubscriptionQueryData?.cancelsIn}`;
+  }, [userSubscriptionQueryData]);
 
   if (!authUser) {
-    const currentUrl =
-      typeof window !== "undefined"
-        ? window.location.pathname + window.location.search
-        : "";
+    const currentUrl = typeof window !== "undefined" ? window.location.pathname + window.location.search : "";
 
     return (
       <div className="px-5 py-2">
@@ -53,19 +76,15 @@ export function ProfileDropdown(props: IProps) {
   }
 
   return (
-    <div className="w-[280px] rounded-[10px] border border-[#353535] bg-[#1A1A1A] py-0">
+    <div className="min-w-max w-[280px] rounded-[10px] border border-[#353535] bg-[#1A1A1A] py-0">
       <div className="flex flex-col gap-0">
         <div className="flex flex-row gap-2 px-4 py-4">
           <div className="w-[20px] overflow-hidden p-0.5 py-1">
             <ProfileIcon user={authUser} className="rounded-[4px]" />
           </div>
           <div className="flex flex-col justify-center gap-1">
-            <h4 className="text-base leading-[1.35] font-medium text-white">
-              {authUser?.user_metadata?.name}
-            </h4>
-            <p className="font-regular text-xs leading-[1.35] text-[#A4A4A4]">
-              {authUser?.email}
-            </p>
+            <h4 className="text-base leading-[1.35] font-medium text-white">{authUser?.username}</h4>
+            <p className="font-regular text-xs leading-[1.35] text-[#A4A4A4]">{authUser?.email}</p>
           </div>
         </div>
 
@@ -86,14 +105,15 @@ export function ProfileDropdown(props: IProps) {
 
           <div className="border-y border-[#212121] px-2 py-2">
             <a
-              href={process.env.NEXT_PUBLIC_LEGACY_APP_URL + "/plans"}
+              href="/pricing"
               className="flex cursor-pointer flex-row items-center justify-start gap-2 rounded-sm px-2 py-2 hover:bg-white/10"
             >
               <YellowStarSvg />
 
-              <p className="text-[13px] leading-[1.35] font-medium text-white">
-                {data?.planType || "Loading..."}
-              </p>
+              <div className="flex flex-col">
+                <div className="text-[13px] leading-[1.35] font-medium text-white">{planLabel}</div>
+                {planSubtitle && <div className="font-medium text-white/50 text-xs">{planSubtitle}</div>}
+              </div>
             </a>
           </div>
 
@@ -133,9 +153,7 @@ export function ProfileDropdown(props: IProps) {
               <div className="flex flex-row items-center justify-start gap-2">
                 <Logout />
 
-                <p className="text-[13px] leading-[1.35] font-medium text-white">
-                  Logout
-                </p>
+                <p className="text-[13px] leading-[1.35] font-medium text-white">Logout</p>
               </div>
             </button>
           </div>
@@ -147,13 +165,7 @@ export function ProfileDropdown(props: IProps) {
 
 const YellowStarSvg = () => {
   return (
-    <svg
-      width="20"
-      height="19"
-      viewBox="0 0 20 19"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg width="20" height="19" viewBox="0 0 20 19" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
         d="M8.69397 2.1472C8.9669 1.40962 10.0101 1.40963 10.283 2.1472L11.9161 6.56041C12.0019 6.7923 12.1847 6.97513 12.4166 7.06094L16.8298 8.69397C17.5674 8.9669 17.5674 10.0101 16.8298 10.283L12.4166 11.9161C12.1847 12.0019 12.0019 12.1847 11.9161 12.4166L10.283 16.8298C10.0101 17.5674 8.9669 17.5674 8.69397 16.8298L7.06094 12.4166C6.97513 12.1847 6.7923 12.0019 6.56041 11.9161L2.1472 10.283C1.40962 10.0101 1.40963 8.9669 2.1472 8.69397L6.56041 7.06094C6.7923 6.97513 6.97513 6.7923 7.06094 6.56041L8.69397 2.1472Z"
         fill="#9D9D9D"

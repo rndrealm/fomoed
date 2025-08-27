@@ -1,13 +1,14 @@
 "use client";
 
 import { ModalContainer } from "@/components/shared/modal-container";
-import { useGetUserPlans } from "@/services/queries/subscriptions";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { UpgradeTo } from "../upgrade-to";
+import useSubscription from "@/hooks/subscription";
+import { PlanType } from "@/lib/plans";
 
 interface AutoShowUpgradePopupProps {
-  upgradeToPlan: "PRO" | "PLUS";
+  upgradeToPlan: PlanType;
   onPlanLoaded?: () => void;
 }
 
@@ -15,13 +16,14 @@ export const AutoShowUpgradePopup = ({
   upgradeToPlan,
   onPlanLoaded,
 }: AutoShowUpgradePopupProps) => {
-  const { data: userPlansData } = useGetUserPlans();
+  const {activePlan} = useSubscription();
+
   const router = useRouter();
   const [showUpgradeModal, setShowUpgradeModal] = useState(true);
   const planLoadedCalledRef = useRef(false);
 
-  const userIsOnRequiredPlan = userPlansData?.planType === upgradeToPlan;
-  const planLoaded = userPlansData?.planType !== undefined;
+  const userIsOnRequiredPlan = activePlan === upgradeToPlan;
+  const planLoaded = activePlan !== undefined;
 
   useEffect(() => {
     if (planLoaded && !planLoadedCalledRef.current && onPlanLoaded) {

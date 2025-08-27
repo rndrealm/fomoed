@@ -1,11 +1,7 @@
 "use client";
 import { getOptimalGridPosition, getGridColumns } from "@/charts/helpers";
 import dashboard from "@/lib/assets/dashboard";
-import {
-  addWidgetToExistingLayoutAtom,
-  addWidgetToNewLayoutAtom,
-  layoutAtom,
-} from "@/lib/atoms/layoutAtom";
+import { addWidgetToExistingLayoutAtom, addWidgetToNewLayoutAtom, layoutAtom } from "@/lib/atoms/layoutAtom";
 import { settingAtom } from "@/lib/atoms/settingsAtom";
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 import { LayoutOptionType, widgetPropsDefaults } from "@/lib/static";
@@ -14,21 +10,14 @@ import { useGetUserPlans } from "@/services/queries/subscriptions";
 import { useAtomValue, useSetAtom } from "jotai";
 // import mixpanel from "mixpanel-browser";
 import Image from "next/image";
-import React, {
-  Fragment,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { Fragment, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { RenderIf } from "../shared";
 import { ModalContainer } from "../shared";
 import { Upgrade } from "../modals";
 import { track } from "@vercel/analytics";
-import AddIcon from "../icons/AddIcon";
-import PlusIcon from "../icons/PlusIcon";
 import { gridColAtom } from "@/lib/atoms/utilsAtom";
+import useSubscription from "@/hooks/subscription";
 
 interface IProps {
   widget: LayoutOptionType[0];
@@ -49,6 +38,7 @@ export function QuickWidgetItem(props: IProps) {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   const { data } = useGetUserPlans();
+  const { activePlan } = useSubscription();
 
   const isClicked = useRef(false);
 
@@ -58,8 +48,7 @@ export function QuickWidgetItem(props: IProps) {
     const currLayout = layouts.find((item) => item.id === currLayoutId);
 
     const newId = uuidv4();
-    const widgetDefaults =
-      widgetPropsDefaults[widget.slug as keyof typeof widgetPropsDefaults];
+    const widgetDefaults = widgetPropsDefaults[widget.slug as keyof typeof widgetPropsDefaults];
     const defaultWAndH = widgetDefaults.meta || { w: 3, h: 2 };
 
     // Use the new optimal positioning system
@@ -92,7 +81,7 @@ export function QuickWidgetItem(props: IProps) {
         sync: syncCondition,
       });
     } else {
-      const planType = data?.planType || "FREE"; // Default to FREE if not set
+      const planType = data?.hasActivePlans || "FREE"; // Default to FREE if not set
       const maxTabs = maxTabsByPlan[planType] || 3;
       if (layouts.length >= maxTabs) {
         setShowUpgradeModal(true);
@@ -102,7 +91,7 @@ export function QuickWidgetItem(props: IProps) {
     }
     track("widget_added", {
       widget: widget.slug,
-      planType: data?.planType || "FREE",
+      planType: data?.hasActivePlans || "FREE",
     });
     handleGoBack();
     isClicked.current = false;
@@ -140,8 +129,7 @@ export function QuickWidgetItem(props: IProps) {
         <div className="flex flex-col gap-1 text-start w-full max-w-[85%]">
           <h2 className="text-white text-[14px] font-medium">{widget.name}</h2>
           <p className="text-[#EBEBEB] text-xs font-normal">
-            View real-time token prices and trends to help guide your trading
-            decisions.
+            View real-time token prices and trends to help guide your trading decisions.
           </p>
         </div>
 
@@ -187,7 +175,7 @@ export function QuickWidgetItem(props: IProps) {
         className="!max-w-[410px] rounded-[24px] !p-0"
       >
         <Upgrade
-          plan={data?.planType}
+          plan={activePlan}
           handleClose={() => {
             setShowUpgradeModal(false);
           }}

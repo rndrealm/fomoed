@@ -1,9 +1,6 @@
 "use client";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import {
-  useReadSantimentTokenPrice,
-  useReadWeightedSentiment,
-} from "@/services/queries/santiment";
+import { useReadSantimentTokenPrice, useReadWeightedSentiment } from "@/services/queries/santiment";
 import { ColorType, Time } from "lightweight-charts";
 import {
   AreaSeries,
@@ -13,7 +10,7 @@ import {
   TimeScale,
   TimeScaleFitContentTrigger,
 } from "lightweight-charts-react-components";
-import useSession from "@/lib/hooks/use-session";
+import { useSupabaseAuth } from "@/components/providers";
 
 interface IProps {
   token?: string;
@@ -23,16 +20,16 @@ interface IProps {
 export default function WeightedChart(props: IProps) {
   const { token = "bitcoin", period = "1h" } = props;
 
-  const user = useSession();
+  const { session } = useSupabaseAuth();
 
   const { data = [] } = useReadWeightedSentiment({
-    auth_token: user?.access_token,
+    auth_token: session?.access_token,
     token,
     interval: period,
   });
 
   const { data: priceData = [] } = useReadSantimentTokenPrice({
-    auth_token: user?.access_token,
+    auth_token: session?.access_token,
     token,
     interval: period,
   });
@@ -121,14 +118,8 @@ export default function WeightedChart(props: IProps) {
           },
         }}
       >
-        <LineSeries
-          data={formattedPriceData}
-          options={{ priceScaleId: "right" }}
-        />
-        <HistogramSeries
-          data={formattedData}
-          options={{ priceScaleId: "left" }}
-        />
+        <LineSeries data={formattedPriceData} options={{ priceScaleId: "right" }} />
+        <HistogramSeries data={formattedData} options={{ priceScaleId: "left" }} />
 
         <TimeScale
           options={{

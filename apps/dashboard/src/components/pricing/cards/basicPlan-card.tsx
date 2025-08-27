@@ -3,12 +3,7 @@ import { PricingCard } from "../pricing-cards";
 import PricingSwitch from "../pricing-switch";
 import CheckeredLine from "../../icons/CheckeredLine";
 
-const BasisPlanCard = ({
-  title,
-  price,
-  description,
-  features,
-}: PricingCard) => {
+const BasisPlanCard = ({ title, prices, description, features }: PricingCard) => {
   return (
     <div className="relative h-fit w-[360px] flex flex-col justify-between gap-1.5">
       <div className="relative overflow-hidden p-[1px] h-full rounded-2xl backdrop-blur-2xl">
@@ -22,8 +17,8 @@ const BasisPlanCard = ({
           <div className="flex flex-col gap-6">
             <h2 className="text-base">{title}</h2>
             <div className="flex flex-col gap-4">
-              <h2 className="text-4xl">{price[0]}</h2>
-              <p className="text-base">{description}</p>
+              <h2 className="text-4xl">{prices[0]}</h2>
+              {/* <p className="text-base">{description}</p> */}
             </div>
           </div>
 

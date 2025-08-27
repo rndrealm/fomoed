@@ -87,13 +87,13 @@ export function SettingsDropdown() {
     }
     const supabase = createSupabaseBrowserClient();
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      toast("You need to be logged in to save your layout.", {});
-      return;
-    }
+    // const {
+    //   data: { user },
+    // } = await supabase.auth.getUser();
+    // if (!user) {
+    //   toast("You need to be logged in to save your layout.", {});
+    //   return;
+    // }
     const formatWidgets = currentLayout.widgets.map((widget) => {
       return {
         ...widget,

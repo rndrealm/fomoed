@@ -1,22 +1,13 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { AddTab } from "../../icons/icons";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "../../ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../ui/tooltip";
 // import mixpanel from "mixpanel-browser";
 import { NewTabs } from "./new-tab";
 import { ModalContainer, RenderIf } from "../../shared";
 import { QuickWidgets } from "../quick-widgets";
 import { useSyncLayouts } from "@/services/queries/widgets";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import {
-  layoutAtom,
-  layoutChangedAtom,
-  setLayoutDraftFalseAtom,
-} from "@/lib/atoms/layoutAtom";
+import { layoutAtom, layoutChangedAtom, setLayoutDraftFalseAtom } from "@/lib/atoms/layoutAtom";
 import { activeTabAtom, loadTabsFromApiAtom } from "@/lib/atoms/tabsAtom";
 import { toast } from "sonner";
 import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
@@ -26,11 +17,9 @@ import { NameLayout, Upgrade } from "@/components/modals";
 import { useGetUserPlans } from "@/services/queries/subscriptions";
 import { cn, maxTabsByPlan } from "@/lib/utils";
 
-import {
-  quickWidgetsVisibleAtom,
-  toggleQuickWidgetsAtom,
-} from "@/lib/atoms/shortcuts";
+import { quickWidgetsVisibleAtom, toggleQuickWidgetsAtom } from "@/lib/atoms/shortcuts";
 import { WidgetsPreview } from "../widgets-preview";
+import useSubscription from "@/hooks/subscription";
 import AddIcon from "@/components/icons/AddIcon";
 import { AnimatePresence } from "motion/react";
 import MenuPopover from "./menu-popover";
@@ -49,18 +38,10 @@ function ToolbarItem(props: IToolbarItem) {
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger onClick={onClick} disabled={disabled}>
-          <div
-            className={cn(
-              "group flex h-[28px] w-[28px] items-center justify-center",
-            )}
-          >
-            {icon}
-          </div>
+          <div className={cn("group flex h-[28px] w-[28px] items-center justify-center")}>{icon}</div>
         </TooltipTrigger>
         <TooltipContent side="bottom" className="bg-[#101010]">
-          <p className="text-xs leading-[1.25] font-semibold text-[#afafaf]">
-            {label}
-          </p>
+          <p className="text-xs leading-[1.25] font-semibold text-[#afafaf]">{label}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
@@ -75,6 +56,7 @@ export function Toolbar() {
 
   const { mutate, isPending, isError, isSuccess } = useSyncLayouts();
   const { data } = useGetUserPlans();
+  const { activePlan } = useSubscription();
 
   const activeTab = useAtomValue(activeTabAtom);
   const layouts = useAtomValue(layoutAtom);
@@ -90,9 +72,7 @@ export function Toolbar() {
 
   const handleSaveLayout = async () => {
     if (isPending) return;
-    const currentLayout = layouts.find(
-      (layout) => layout.id === activeTab.layout_id,
-    );
+    const currentLayout = layouts.find((layout) => layout.id === activeTab.layout_id);
     if (!currentLayout) {
       toast("You don't have any changes to save!", {});
       return;
@@ -103,7 +83,7 @@ export function Toolbar() {
     }
 
     //CHECK IF PRO USER
-    const planType = data?.planType || "FREE"; // Default to FREE if not set
+    const planType = data?.hasActivePlans || "FREE"; // Default to FREE if not set
     const maxTabs = maxTabsByPlan[planType] || 3;
     const savedLayouts = layouts.filter((item) => !item.draft);
 
@@ -118,15 +98,15 @@ export function Toolbar() {
       return;
     }
 
-    const supabase = createSupabaseBrowserClient();
+    // const supabase = createSupabaseBrowserClient();
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      toast("You need to be logged in to save your layout.", {});
-      return;
-    }
+    // const {
+    //   data: { user },
+    // } = await supabase.auth.getUser();
+    // if (!user) {
+    //   toast("You need to be logged in to save your layout.", {});
+    //   return;
+    // }
     const formatWidgets = currentLayout.widgets.map((widget) => {
       return {
         ...widget,
@@ -266,7 +246,7 @@ export function Toolbar() {
         className="!max-w-[410px] rounded-[24px] !p-0"
       >
         <Upgrade
-          plan={data?.planType}
+          plan={activePlan}
           handleClose={() => {
             setShowUpgradeModal(false);
           }}
@@ -278,13 +258,7 @@ export function Toolbar() {
 
 const NotiSvg = () => {
   return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 20 20"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
         d="M5.17263 15.3084C5.07832 15.3084 4.99818 15.2768 4.93221 15.2136C4.86624 15.1504 4.83325 15.0721 4.83325 14.9788C4.83325 14.8854 4.8652 14.8059 4.92909 14.7402C4.99297 14.6745 5.07214 14.6417 5.16659 14.6417H5.51284V8.87253C5.51284 7.72822 5.88165 6.73246 6.61929 5.88523C7.35707 5.03801 8.2895 4.54072 9.41659 4.39336V3.41732C9.41659 3.25523 9.47311 3.11753 9.58617 3.00419C9.69922 2.89072 9.83652 2.83398 9.99804 2.83398C10.1596 2.83398 10.2975 2.89072 10.4118 3.00419C10.5261 3.11753 10.5833 3.25523 10.5833 3.41732V4.39336C11.7103 4.54072 12.6428 5.03801 13.3805 5.88523C14.1182 6.73246 14.487 7.72822 14.487 8.87253V14.6417H14.8333C14.9277 14.6417 15.0069 14.6733 15.0708 14.7365C15.1346 14.7995 15.1666 14.8778 15.1666 14.9713C15.1666 15.0646 15.1347 15.1441 15.071 15.2098C15.0071 15.2755 14.928 15.3084 14.8337 15.3084H5.17263ZM9.99263 17.4877C9.66624 17.4877 9.38929 17.3722 9.16179 17.1413C8.93415 16.9103 8.82034 16.6327 8.82034 16.3084H11.1795C11.1795 16.6396 11.0633 16.919 10.8308 17.1465C10.5984 17.374 10.319 17.4877 9.99263 17.4877ZM6.1795 14.6417H13.8203V8.87253C13.8203 7.80405 13.4507 6.90017 12.7114 6.16086C11.9721 5.42155 11.0683 5.0519 9.99992 5.0519C8.93159 5.0519 8.02777 5.42155 7.28846 6.16086C6.54915 6.90017 6.1795 7.80405 6.1795 8.87253V14.6417Z"
         fill="white"
@@ -348,12 +322,7 @@ const BellIcon = forwardRef<BellIconHandle, BellIconProps>(
       [controls, onMouseLeave],
     );
     return (
-      <div
-        className={cn(className)}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        {...props}
-      >
+      <div className={cn(className)} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} {...props}>
         <motion.svg
           xmlns="http://www.w3.org/2000/svg"
           width={size}

@@ -16,12 +16,13 @@ import {
   WidgetDashboardIconV2,
 } from "../icons/icons";
 import { AppRoutes } from "@/lib/routes";
-import useAuthUserData from "@/lib/hooks/use-auth-user-data";
 import { User } from "@supabase/supabase-js";
 import SideNav, { INavLink } from "./sidebar";
 import { RenderIf } from "./render-if";
 import { useAtom } from "jotai";
 import { isSidebarOpenAtom } from "@/lib/atoms/utilsAtom";
+import useUserData from "@/lib/hooks/use-user-data";
+import { UsersRow } from "@/lib/types/db.types";
 
 const navLinks: INavLink[] = [
   {
@@ -94,7 +95,7 @@ export const NavbarNews = (props: IProps) => {
   const { isNews, isDashboard } = props;
   // const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
   const [isSideMenuOpen, setIsSideMenuOpen] = useAtom(isSidebarOpenAtom);
-  const authUser = useAuthUserData();
+  const authUser = useUserData();
   const pathname = usePathname();
 
   // Close sidebar when pathname changes (route navigation)
@@ -164,7 +165,7 @@ const NavigationTop = ({
   isNews,
   setIsSideMenuOpen,
 }: {
-  authUser: User | null;
+  authUser: UsersRow | null;
   isNews: boolean | undefined;
   setIsSideMenuOpen: (value: boolean) => void;
 }) => {

@@ -74,6 +74,8 @@ import newsV2 from "../../../../public/media/images/dashboard/news-v2.png";
 import screenerV2 from "../../../../public/media/images/dashboard/screener-v2.png";
 import summaryV2 from "../../../../public/media/images/dashboard/summary-v2.png";
 import orderBookV2 from "../../../../public/media/images/dashboard/order-book-v2.png";
+import usaIcon from "../../../../public/media/images/dashboard/usa-icon.png";
+import tradingCalendar from "../../../../public/media/images/dashboard/trading-calendar.png";
 
 const dashboard = {
   layoutPlaceholder,
@@ -141,6 +143,8 @@ const dashboard = {
   duckPlay,
   deltaSpread,
   whaleTracker,
+  usaIcon,
+  tradingCalendar,
   coinStatsV2,
   cfgiV2,
   dexV2,

@@ -3,7 +3,7 @@ import { SaveLayoutPayload } from "./types";
 
 export const syncLayoutAction = async (
   payload: SaveLayoutPayload,
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ) => {
   const supabase = createSupabaseBrowserClient();
 
@@ -12,10 +12,10 @@ export const syncLayoutAction = async (
   }
 
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (!user) {
+  if (!session?.user) {
     throw new Error("Please login to view your tabs.");
   }
   const { layoutData, widgetData } = payload;
@@ -27,7 +27,7 @@ export const syncLayoutAction = async (
 
   const { data: savedLayout, error: layoutError } = await supabase
     .from("layouts")
-    .upsert({ ...layoutData, user_id: user.id })
+    .upsert({ ...layoutData, user_id: session?.user?.id })
     .select()
     .single();
 
@@ -64,7 +64,7 @@ export const syncLayoutAction = async (
   const widgetsToSave = payload.widgetData.map((widget) => ({
     ...widget,
     layout_id: savedLayout.id,
-    user_id: user.id,
+    user_id: session?.user?.id,
   }));
 
   if (signal?.aborted) {
@@ -88,7 +88,7 @@ export const syncLayoutAction = async (
 };
 export const saveLayoutAction = async (
   payload: SaveLayoutPayload,
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ) => {
   const supabase = createSupabaseBrowserClient();
 
@@ -97,10 +97,10 @@ export const saveLayoutAction = async (
   }
 
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (!user) {
+  if (!session?.user) {
     throw new Error("Please login to view your tabs.");
   }
   const { layoutData, widgetData } = payload;
@@ -112,7 +112,7 @@ export const saveLayoutAction = async (
 
   const { data: savedLayout, error: layoutError } = await supabase
     .from("layouts")
-    .upsert({ ...layoutData, user_id: user.id, draft: false })
+    .upsert({ ...layoutData, user_id: session?.user?.id, draft: false })
     .select()
     .single();
 
@@ -149,7 +149,7 @@ export const saveLayoutAction = async (
   const widgetsToSave = payload.widgetData.map((widget) => ({
     ...widget,
     layout_id: savedLayout.id,
-    user_id: user.id,
+    user_id: session?.user?.id,
   }));
 
   if (signal?.aborted) {
@@ -176,10 +176,10 @@ export const getUserTabsAction = async () => {
   const supabase = createSupabaseBrowserClient();
 
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (!user) {
+  if (!session?.user) {
     throw new Error("Please login to view your tabs.");
   }
 
@@ -197,9 +197,9 @@ export const getUserTabsAction = async () => {
         draft,
         widgets (id,  meta, props, layout_id)
       )
-    `
+    `,
     )
-    .eq("user_id", user.id);
+    .eq("user_id", session?.user?.id);
 
   if (tabsError) {
     console.log("Error fetching tabs:", tabsError);
@@ -235,7 +235,7 @@ export const getUserTabsAction = async () => {
   // Create a default tab linked to the new layout
   const defaultTab = {
     name: "Untitled Layout",
-    user_id: user.id,
+    user_id: session?.user?.id,
     layout_id: null,
   };
 
@@ -253,7 +253,7 @@ export const getUserTabsAction = async () => {
         draft,
         widgets (id, props, meta, layout_id)
       )
-    `
+    `,
     )
     .single();
 
@@ -270,7 +270,7 @@ export const getUserTabsAction = async () => {
 export const attachLayoutToTabAction = async (
   tabId: string,
   layoutId: string,
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ) => {
   const supabase = createSupabaseBrowserClient();
 
@@ -280,10 +280,10 @@ export const attachLayoutToTabAction = async (
 
   // Get the current user
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (!user) {
+  if (!session?.user) {
     throw new Error("Please login to attach a layout to a tab.");
   }
 
@@ -296,7 +296,7 @@ export const attachLayoutToTabAction = async (
     .from("tabs")
     .update({ layout_id: layoutId })
     .eq("id", tabId)
-    .eq("user_id", user.id)
+    .eq("user_id", session?.user?.id)
     .select()
     .single();
 

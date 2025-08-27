@@ -1,19 +1,26 @@
 "use client";
+import classNames, { clsx } from "clsx";
 
 import React, { useState } from "react";
 import { PricingCard } from "../pricing-cards";
 import CheckeredLine from "../../icons/CheckeredLine";
 import ArrowRightPricing from "../../icons/ArrowRightPricing";
 import { AnimatePresence, motion } from "motion/react";
+import useSubscription from "@/hooks/subscription";
+import { LoaderCircle } from "lucide-react";
+import { RenderIf } from "@/components/shared";
 
 const PlusPlanCard = ({
   title,
-  price,
+  prices,
   description,
   features,
   buttonConent,
   switchActive,
+  buttonColorProminent,
+  buttonAction,
 }: PricingCard) => {
+  const { changeSubscriptionMutation, isBusy, userSubscriptionQueryData } = useSubscription();
   const [isHovered, setIsHovered] = useState(false);
 
   const variants = {
@@ -30,6 +37,16 @@ const PlusPlanCard = ({
     },
   };
 
+  function handleButtonClick() {
+    if (!buttonAction) throw new Error("Button action is not defined");
+
+    changeSubscriptionMutation.mutate({
+      action: buttonAction,
+      billingPeriod: switchActive ? "yearly" : "monthly",
+      plan: "plus",
+    });
+  }
+
   return (
     <motion.div
       style={{ willChange: "transform" }}
@@ -39,6 +56,7 @@ const PlusPlanCard = ({
     >
       <div
         className="relative h-full rounded-2xl backdrop-blur-2xl"
+        // TODO revert this
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -57,9 +75,7 @@ const PlusPlanCard = ({
             </h3>
             <div className="flex items-center justify-between bg-[#022A0F] rounded-[6px] py-1 pl-2.5 pr-3 gap-1.5">
               <StarIcon />
-              <h3 className="pointer-events-none text-white uppercase text-[10px] mt-[1px]">
-                new
-              </h3>
+              <h3 className="pointer-events-none text-white uppercase text-[10px] mt-[1px]">new</h3>
             </div>
           </div>
         </motion.div>
@@ -84,9 +100,7 @@ const PlusPlanCard = ({
                 <div className="relative p-[1px] overflow-hidden rounded-tr-[12px]">
                   <div className="gradient_border" />
                   <div className="relative flex flex-row justify-between items-center gap-1 px-2.5 py-1.5 bg-[#070707] rounded-tr-[12px]">
-                    <p className="text-white text-[13px] font-normal">
-                      Most Popular
-                    </p>
+                    <p className="text-white text-[13px] font-normal">Most Popular</p>
                   </div>
                 </div>
               </div>
@@ -95,14 +109,14 @@ const PlusPlanCard = ({
                 <div className="overflow-hidden">
                   <AnimatePresence mode="wait">
                     <motion.h2
-                      key={switchActive ? price[1] : price[0]}
+                      key={switchActive ? prices[1] : prices[0]}
                       variants={variants}
                       initial="hidden"
                       animate="visible"
                       exit="exit"
                       className="text-4xl font-semibold"
                     >
-                      ${switchActive ? price[1] : price[0]}
+                      {switchActive ? prices[1] : prices[0]}
                     </motion.h2>
                   </AnimatePresence>
                 </div>
@@ -116,9 +130,7 @@ const PlusPlanCard = ({
             </div>
 
             <div className="flex flex-col gap-3 mb-6 w-[90%] justify-center items-start">
-              <p className="text-xs text-[#A5A5A5] mb-2">
-                Everything Basic, plus:
-              </p>
+              <p className="text-xs text-[#A5A5A5] mb-2">Everything Basic, plus:</p>
               {features.map((feature, index) => (
                 <div key={index} className="flex items-center gap-2">
                   <div className="p-0.5 ml-[-3.5px]">{feature.icon}</div>
@@ -130,18 +142,28 @@ const PlusPlanCard = ({
 
             <motion.button
               style={{ willChange: "transform" }}
-              className="w-[50%] flex flex-row justify-between items-center mt-0 bg-[#131313] py-2.5 px-4 rounded-[40px] text-[#878787] font-semibold"
               animate={{ y: isHovered ? "-20px" : "0" }}
               transition={{ ease: [0.4, 0, 0.2, 1], duration: 0.5 }}
+              onClick={handleButtonClick}
+              className={classNames(
+                "min-w-[50%] flex flex-row justify-between items-center mt-0 bg-[#131313] py-2.5 px-4 rounded-[40px] font-semibold whitespace-nowrap gap-x-2 transition-colors duration-500",
+                {
+                  "text-white/10": isBusy,
+                },
+              )}
             >
               {buttonConent}
-              <ArrowRightPricing color="#878787" />
+              <span className={clsx("duration-500", { "opacity-10": isBusy && !userSubscriptionQueryData })}>
+                {isBusy ? (
+                  <LoaderCircle className="animate-spin"> </LoaderCircle>
+                ) : (
+                  <ArrowRightPricing color="#878787" />
+                )}
+              </span>
             </motion.button>
 
             <div className="w-full text-center">
-              <p className="font-normal text-xs text-[#A5A5A5]">
-                Switch plans or cancel anytime
-              </p>
+              <p className="font-normal text-xs text-[#A5A5A5]">Switch plans or cancel anytime</p>
             </div>
           </div>
         </motion.div>
@@ -152,13 +174,7 @@ const PlusPlanCard = ({
 
 function StarIcon() {
   return (
-    <svg
-      width="8"
-      height="8"
-      viewBox="0 0 8 8"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
         d="M4.37514 6.9862C4.24628 7.33445 3.75372 7.33445 3.62486 6.9862L2.98347 5.25286C2.94295 5.14337 2.85663 5.05705 2.74714 5.01653L1.0138 4.37514C0.665554 4.24628 0.665555 3.75372 1.0138 3.62486L2.74714 2.98347C2.85663 2.94295 2.94295 2.85663 2.98347 2.74714L3.62486 1.0138C3.75372 0.665555 4.24628 0.665555 4.37514 1.0138L5.01653 2.74714C5.05705 2.85663 5.14337 2.94295 5.25286 2.98347L6.9862 3.62486C7.33445 3.75372 7.33444 4.24628 6.9862 4.37514L5.25286 5.01653C5.14337 5.05705 5.05705 5.14337 5.01653 5.25286L4.37514 6.9862Z"
         fill="#F5E942"

@@ -1,9 +1,4 @@
-import {
-  MenuIconClosed,
-  MenuIconOpened,
-  SideBarClosedIcon,
-  SideBarOpenIcon,
-} from "@/components/icons/icons";
+import { MenuIconClosed, MenuIconOpened, SideBarClosedIcon, SideBarOpenIcon } from "@/components/icons/icons";
 import Image from "next/image";
 import { INavLink, NavLink } from "./nav-link";
 import { sideMenuAnimProps, sideMenuVariants } from "./animations";
@@ -13,6 +8,7 @@ import NavbarProfileButton from "@/components/ui/NavbarProfileButton";
 import { ProfileIcon } from "../profile-icon";
 import dashboard from "@/lib/assets/dashboard";
 import { cn } from "@/lib/utils";
+import { UsersRow } from "@/lib/types/db.types";
 
 interface IActiveNavProps {
   navLinks: INavLink[];
@@ -20,21 +16,13 @@ interface IActiveNavProps {
   isSideMenuOpen: boolean;
   setIsSideMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
   isHovered: boolean;
-  authUser: User | null;
+  authUser: UsersRow | null;
   className?: string;
 }
 
 // This component renders the active navigation when the side menu is open.
 const ActiveNav = (props: IActiveNavProps) => {
-  const {
-    navLinks,
-    bottomLinks,
-    isSideMenuOpen,
-    setIsSideMenuOpen,
-    isHovered,
-    authUser,
-    className,
-  } = props;
+  const { navLinks, bottomLinks, isSideMenuOpen, setIsSideMenuOpen, isHovered, authUser, className } = props;
 
   return (
     <div
@@ -162,12 +150,8 @@ const ActiveNav = (props: IActiveNavProps) => {
           animate={isSideMenuOpen ? "open" : "closed"}
           className="flex flex-col gap-1"
         >
-          <h3 className="text-[14px] font-normal text-white">
-            {authUser?.user_metadata?.name}
-          </h3>
-          <h4 className="text-xs font-normal text-[#A4A4A4]">
-            {authUser?.email}
-          </h4>
+          <h3 className="text-[14px] font-normal text-white">{authUser?.username}</h3>
+          <h4 className="text-xs font-normal text-[#A4A4A4]">{authUser?.email}</h4>
         </motion.div>
       </motion.div>
     </div>
@@ -178,37 +162,16 @@ export default ActiveNav;
 
 const RectFomoedLogo = () => {
   return (
-    <svg
-      width="32"
-      height="32"
-      viewBox="0 0 32 32"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
       <g filter="url(#filter0_i_478_104359)">
         <rect width="32" height="32" fill="url(#paint0_radial_478_104359)" />
       </g>
-      <mask
-        id="mask0_478_104359"
-        mask-type="alpha"
-        maskUnits="userSpaceOnUse"
-        x="-1"
-        y="0"
-        width="33"
-        height="32"
-      >
+      <mask id="mask0_478_104359" mask-type="alpha" maskUnits="userSpaceOnUse" x="-1" y="0" width="33" height="32">
         <rect x="-0.0078125" width="32" height="32" fill="#D9D9D9" />
       </mask>
       <g mask="url(#mask0_478_104359)">
         <g filter="url(#filter1_f_478_104359)">
-          <ellipse
-            cx="15.9959"
-            cy="-1.60047"
-            rx="12.16"
-            ry="2.88"
-            fill="#BF340A"
-            fill-opacity="0.5"
-          />
+          <ellipse cx="15.9959" cy="-1.60047" rx="12.16" ry="2.88" fill="#BF340A" fill-opacity="0.5" />
         </g>
       </g>
       <g filter="url(#filter2_d_478_104359)">
@@ -217,11 +180,7 @@ const RectFomoedLogo = () => {
           stroke="white"
           stroke-width="2.69224"
         />
-        <path
-          d="M12.1797 13.7295L19.6584 14.914"
-          stroke="white"
-          stroke-width="2.69224"
-        />
+        <path d="M12.1797 13.7295L19.6584 14.914" stroke="white" stroke-width="2.69224" />
         <path
           d="M17.3047 14.877L16.8835 17.536C16.8835 17.536 17.0111 16.7304 17.7252 16.3317C18.3942 15.9581 19.4122 16.2708 19.4122 16.2708L19.576 15.2367L17.3047 14.877Z"
           fill="white"
@@ -240,12 +199,7 @@ const RectFomoedLogo = () => {
           color-interpolation-filters="sRGB"
         >
           <feFlood flood-opacity="0" result="BackgroundImageFix" />
-          <feBlend
-            mode="normal"
-            in="SourceGraphic"
-            in2="BackgroundImageFix"
-            result="shape"
-          />
+          <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
           <feColorMatrix
             in="SourceAlpha"
             type="matrix"
@@ -255,15 +209,8 @@ const RectFomoedLogo = () => {
           <feOffset dy="-5.12" />
           <feGaussianBlur stdDeviation="1.92" />
           <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
-          <feColorMatrix
-            type="matrix"
-            values="0 0 0 0 0.921569 0 0 0 0 0.584314 0 0 0 0 0.333333 0 0 0 0.3 0"
-          />
-          <feBlend
-            mode="normal"
-            in2="shape"
-            result="effect1_innerShadow_478_104359"
-          />
+          <feColorMatrix type="matrix" values="0 0 0 0 0.921569 0 0 0 0 0.584314 0 0 0 0 0.333333 0 0 0 0.3 0" />
+          <feBlend mode="normal" in2="shape" result="effect1_innerShadow_478_104359" />
         </filter>
         <filter
           id="filter1_f_478_104359"
@@ -275,16 +222,8 @@ const RectFomoedLogo = () => {
           color-interpolation-filters="sRGB"
         >
           <feFlood flood-opacity="0" result="BackgroundImageFix" />
-          <feBlend
-            mode="normal"
-            in="SourceGraphic"
-            in2="BackgroundImageFix"
-            result="shape"
-          />
-          <feGaussianBlur
-            stdDeviation="4.224"
-            result="effect1_foregroundBlur_478_104359"
-          />
+          <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+          <feGaussianBlur stdDeviation="4.224" result="effect1_foregroundBlur_478_104359" />
         </filter>
         <filter
           id="filter2_d_478_104359"
@@ -305,21 +244,9 @@ const RectFomoedLogo = () => {
           <feOffset dx="0.224353" dy="0.67306" />
           <feGaussianBlur stdDeviation="0.224353" />
           <feComposite in2="hardAlpha" operator="out" />
-          <feColorMatrix
-            type="matrix"
-            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"
-          />
-          <feBlend
-            mode="normal"
-            in2="BackgroundImageFix"
-            result="effect1_dropShadow_478_104359"
-          />
-          <feBlend
-            mode="normal"
-            in="SourceGraphic"
-            in2="effect1_dropShadow_478_104359"
-            result="shape"
-          />
+          <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" />
+          <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_478_104359" />
+          <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_478_104359" result="shape" />
         </filter>
         <radialGradient
           id="paint0_radial_478_104359"

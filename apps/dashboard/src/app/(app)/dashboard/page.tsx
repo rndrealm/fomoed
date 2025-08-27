@@ -1,14 +1,22 @@
+"use client";
+import { Loader } from "@/components/dashboard";
 import Home from "@/components/dashboard/home";
-import { getDashboardData } from "@/services/queries/home/server-actions";
-import { Suspense } from "react";
+import { useSupabaseAuth } from "@/components/providers";
+import { RenderIf } from "@/components/shared";
+import { useReadDashboardData } from "@/services/queries/home";
 
-export default async function Page() {
-  const dashboardData = await getDashboardData();
+import { Fragment, Suspense } from "react";
 
-  return (
-    <Suspense fallback={<p>Error</p>}>
-      <Home dashboardData={dashboardData} />
-      {/* <div /> */}
-    </Suspense>
+export default function Page() {
+  const { session } = useSupabaseAuth();
+
+  const { data, isPending, error, isSuccess } = useReadDashboardData(
+    session?.user?.id || "",
   );
+
+  if (!data) {
+    return <Loader />;
+  }
+
+  return <Home dashboardData={data} />;
 }

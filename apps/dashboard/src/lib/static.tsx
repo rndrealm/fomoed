@@ -45,6 +45,7 @@ import WeightedPriceSentiment from "@/components/widgets/weighted-price-sentimen
 import DuckGame from "@/components/widgets/duck-game";
 import OrderbookDeltaWidget from "@/components/widgets/delta/delta-widget";
 import WhaleTransactionWidget from "@/components/widgets/whale-transaction/whale-transaction-widget";
+import TradingEconomicsWidget from "@/components/widgets/trading-economics/economic-calendar-widget";
 
 export const layoutClassMap = {
   SinglePane: "grid-rows-1 grid-cols-1",
@@ -307,6 +308,14 @@ export const layoutOptionsMap = [
     category: "charts",
     tags: ["charts", "new"],
   },
+  {
+  id: 214,
+  name: "Trading Economics",
+  slug: "trading-economics",
+  image: dashboard.tradingCalendar, 
+  category: "charts",
+  tags: ["charts", "new", "events"],
+}
 
   // {
   //   id: 10,
@@ -484,11 +493,18 @@ export const chartsMap = {
   },
   "whale-transaction-tracker": {
     name: "Whale Transaction Tracker",
-    extra: [], // This widget doesn't have extra props to save
+    extra: [], 
     component: (widget: LayoutType["widgets"][0]) => (
       <WhaleTransactionWidget widget={widget} />
     ),
   },
+  "trading-economics": {
+  name: "Trading Economics",
+  extra: [],
+  component: (widget: LayoutType["widgets"][0]) => (
+    <TradingEconomicsWidget widget={widget} />
+  ),
+},
 };
 
 export const widgetIdJoin = "@/$";
@@ -789,6 +805,16 @@ export const widgetPropsDefaults = {
       maxH: Infinity,
     },
   },
+  "trading-economics": {
+  meta: {
+    w: 8,
+    h: 4, 
+    minW: 6,
+    minH: 4,
+    maxW: Infinity,
+    maxH: Infinity,
+  },
+},
 };
 
 export const tourSteps = [

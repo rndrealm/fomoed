@@ -11,8 +11,7 @@
 ## Monorepo structure
 
 - You are working inside a monorepo.
-- apps/fomoed contains an old version of the app, that we are migrating to react.
-- The new react application is located inside apps/dashbaord.
+- The main React application is located inside apps/dashboard.
 
 ## Your output
 
