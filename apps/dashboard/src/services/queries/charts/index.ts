@@ -359,7 +359,7 @@ export const useFetchBinanceTokens = (country = "") => {
   const isUS = country === "US";
   const queryKey = ["binance-tokens"];
 
-  const res = useQuery<{ symbols: BinanceSymbolInfo[] }>({
+  const res = useQuery< BinanceSymbolInfo[] >({
     queryKey,
     queryFn: async () => {
       const response = await api.get({
@@ -371,7 +371,7 @@ export const useFetchBinanceTokens = (country = "") => {
 
   const mapped: CoinDataInterface[] = [];
 
-  res?.data?.symbols?.forEach((item) => {
+  res?.data?.forEach((item) => {
     if (item.quoteAsset === "USDT" && item.status === "TRADING") {
       const newItem = {
         price: 0,
