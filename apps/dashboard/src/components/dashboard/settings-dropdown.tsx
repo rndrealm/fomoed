@@ -119,14 +119,17 @@ export function SettingsDropdown() {
         }}
       >
         <Tooltip>
-          <TooltipTrigger>
+          <TooltipTrigger className="w-full">
             <DropdownMenuTrigger asChild>
-              <div className="h-[28px] w-[28px] flex items-center justify-center group">
-                <Settings active={isOpen} />
+              <div className="group w-full flex flex-row justify-start gap-3 items-center">
+                <div className="h-5 w-5 flex justify-center items-center">
+                  <Settings active={isOpen} />
+                </div>
+                <h3 className="text-[14px] text-[#c3c3c3]">Settings</h3>
               </div>
             </DropdownMenuTrigger>
           </TooltipTrigger>
-          <TooltipContent side="bottom" className="bg-[#101010]">
+          <TooltipContent side="left" className="bg-[#101010] mr-1">
             <p className="text-[#afafaf] text-xs font-semibold leading-[1.25]">
               Settings
             </p>
