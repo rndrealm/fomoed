@@ -10,6 +10,7 @@ type SupabaseAuthContextType = {
   session: Session | null;
   // user: User | null;
   isLoading: boolean;
+  isLoggedIn: boolean;
   signOut: () => Promise<void>;
   // refreshSession: () => Promise<void>;
 };
@@ -19,6 +20,7 @@ const SupabaseAuthContext = createContext<SupabaseAuthContextType>({
   session: null,
   // user: null,
   isLoading: true,
+  isLoggedIn: false,
   signOut: async () => {},
   // refreshSession: async () => {},
 });
@@ -109,10 +111,11 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
   console.log(isLoading, session);
 
   // Provide the context value
-  const value = {
+  const value: SupabaseAuthContextType = {
     session,
     // user,
     isLoading,
+    isLoggedIn: !!session,
     signOut,
     // refreshSession,
   };
