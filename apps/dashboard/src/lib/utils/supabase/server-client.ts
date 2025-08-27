@@ -24,8 +24,7 @@ export async function createSupabaseServerClient(component: boolean = false) {
         },
       },
       cookieOptions: supabaseCookieOpts,
-      cookieEncoding: "raw",
-    }
+    },
   );
 }
 // server component can only get cookies and not set them, hence the "component" check
@@ -56,7 +55,6 @@ export async function createSupabaseReqResClient(req: NextRequest, res: NextResp
         },
       },
       cookieOptions: supabaseCookieOpts,
-      cookieEncoding: "raw",
-    }
+    },
   );
 }
