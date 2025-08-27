@@ -43,12 +43,12 @@ const LinkPopup: React.FC<ILinkPopup> = ({
   return (
     <div
       className={cn(
-        "pointer-events-none absolute top-1/2 left-[42px] z-50 translate-y-[-50%] items-center justify-center rounded-[12px] border-[1px] border-[#262626] bg-[#0A0A0A] px-2 py-1.5 shadow-[0px_1px_2px_0px_#0000000D]",
+        "h-full max-h-[48px] flex justify-center items-center pointer-events-none absolute top-1/2 left-[42px] z-50 translate-y-[-50%] rounded-[12px] border-[1px] border-[#262626] bg-[#0A0A0A] px-2 py-1.5 shadow-[0px_1px_2px_0px_#0000000D]",
         className,
       )}
     >
       <div className="flex items-center gap-2">
-        <h2 className="font-inter text-xs font-normal text-nowrap text-[#FAFAFA]">
+        <h2 className="mx-1 font-inter text-xs font-normal text-nowrap text-[#FAFAFA]">
           {label}
         </h2>
 

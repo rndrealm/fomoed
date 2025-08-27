@@ -42,7 +42,7 @@ export function AddWidget(props: IProps) {
               }}
               className="bg-[#ff3b10] hover:bg-[#ff3b10] hover:opacity-[0.8] text-xs leading-[1.5] font-medium p-2"
             >
-              <AddTab />
+              <AddTab fill="#fff" />
               Add Widget
             </Button>
           </div>

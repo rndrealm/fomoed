@@ -3,23 +3,26 @@ import Image from "next/image";
 import dashboard from "@/lib/assets/dashboard";
 import { NavLink, INavLink } from "./nav-link";
 import { User } from "@supabase/supabase-js";
+import { cn } from "@/lib/utils";
 
 interface IPassiveNavProps {
   navLinks: INavLink[];
   setIsSideMenuOpen: (value: boolean) => void;
   setIsHovered: (value: boolean) => void;
   authUser: User | null;
+  className?: string;
 }
 
 // This component renders the passive navigation when the side menu is closed.
 const PassiveNav = (props: IPassiveNavProps) => {
-  const { navLinks, setIsSideMenuOpen, setIsHovered, authUser } = props;
+  const { navLinks, setIsSideMenuOpen, setIsHovered, authUser, className } =
+    props;
 
   return (
     <div
       id="passive-nav-active"
       className={
-        "font-inter pointer-events-auto relative z-50 hidden h-full w-full max-w-[52px] flex-col items-center justify-between border-l-[0px] border-[#2A2A2A] bg-[#000000] py-4 md:flex"
+        "font-inter pointer-events-auto relative z-50 hidden h-full w-full max-w-[64px] flex-col items-center justify-between border-l-[0px] border-[#111111] bg-[#0A0A0A] py-0 md:flex"
       }
       onClick={(e) => {
         // check for the click on icon - no open of the sidebar
@@ -48,10 +51,13 @@ const PassiveNav = (props: IPassiveNavProps) => {
     >
       <div
         id="passive-nav-active"
-        className="pointer-events-auto flex w-full flex-row items-center justify-between px-[10px]"
+        className="max-h-[64px] pointer-events-auto flex w-full flex-row items-center justify-between px-[16px]"
       >
-        <button style={{ opacity: 0 }} className="pointer-events-none">
-          <Image height={32} width={32} src={dashboard.logoMobile} alt="logo" />
+        <button
+          style={{ opacity: 0 }}
+          className="h-[64px] w-[64px] pointer-events-none"
+        >
+          {/* <Image height={32} width={32} src={dashboard.logoMobile} alt="logo" /> */}
         </button>
       </div>
 
@@ -59,7 +65,12 @@ const PassiveNav = (props: IPassiveNavProps) => {
         id="passive-nav-active"
         className="flex h-full w-full flex-col items-center justify-between px-2 py-14"
       >
-        <div className="pointer-events-none flex w-full flex-col gap-2">
+        <div
+          className={cn(
+            "pointer-events-none flex w-full flex-col gap-2",
+            className,
+          )}
+        >
           {navLinks.map((item, index) => {
             return (
               <NavLink
@@ -78,6 +89,11 @@ const PassiveNav = (props: IPassiveNavProps) => {
           })}
         </div>
       </div>
+
+      <div
+        id="passive-nav-active"
+        className="h-[64px] pointer-events-auto flex w-full flex-row items-center justify-between px-[16px]"
+      ></div>
     </div>
   );
 };

@@ -38,19 +38,19 @@ function AutoSaveToggle(props: IAutoSave) {
       <div
         className={cn(
           "flex items-center justify-center gap-1 p-[3px] rounded-lg border border-[#232323]",
-          autosave ? "bg-[#FF3B10] flex-row-reverse" : "bg-[#141414]"
+          autosave ? "bg-[#FF3B10] flex-row-reverse" : "bg-[#141414]",
         )}
       >
         <div
           className={cn(
             "w-[16px] h-[16px] rounded-sm",
-            autosave ? "bg-white" : "bg-[#373737]"
+            autosave ? "bg-white" : "bg-[#373737]",
           )}
         ></div>
         <p
           className={cn(
             "text-[8px] font-medium w-[16px] text-right",
-            autosave ? "text-white" : "text-[#9B9B9B]"
+            autosave ? "text-white" : "text-[#9B9B9B]",
           )}
         >
           {autosave ? "ON" : "OFF"}
@@ -75,7 +75,7 @@ export function SettingsDropdown() {
   const handleSaveLayout = async () => {
     if (isPending) return;
     const currentLayout = layouts.find(
-      (layout) => layout.id === activeTab.layout_id
+      (layout) => layout.id === activeTab.layout_id,
     );
     if (!currentLayout) {
       toast("You don't have any changes to save!", {});
@@ -119,14 +119,17 @@ export function SettingsDropdown() {
         }}
       >
         <Tooltip>
-          <TooltipTrigger>
+          <TooltipTrigger className="w-full">
             <DropdownMenuTrigger asChild>
-              <div className="h-[28px] w-[28px] flex items-center justify-center group">
-                <Settings active={isOpen} />
+              <div className="group w-full flex flex-row justify-start gap-3 items-center">
+                <div className="h-5 w-5 flex justify-center items-center">
+                  <Settings active={isOpen} />
+                </div>
+                <h3 className="text-[14px] text-[#c3c3c3]">Settings</h3>
               </div>
             </DropdownMenuTrigger>
           </TooltipTrigger>
-          <TooltipContent side="bottom" className="bg-[#101010]">
+          <TooltipContent side="left" className="bg-[#101010] mr-1">
             <p className="text-[#afafaf] text-xs font-semibold leading-[1.25]">
               Settings
             </p>

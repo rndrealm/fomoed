@@ -225,7 +225,7 @@ export function QuickWidgets(props: IProps) {
             <div className="h-[32px] bg-gradient-widget-preview-button aspect-square border-[1px] border-[#353535] rounded-[8px] absolute top-0 right-18 translate-x-1/2 flex items-center justify-center">
               <button
                 type="button"
-                className="scale-[0.825]"
+                className="scale-[0.675]"
                 onClick={handleBack}
               >
                 <CloseIcon color="#fff" />
@@ -234,7 +234,7 @@ export function QuickWidgets(props: IProps) {
           </div>
 
           {/* Category buttons */}
-          <div className="flex items-center gap-2.5 px-8 xl:px-16">
+          <div className="flex items-center gap-3 px-8 xl:px-16">
             {categoriesOptions.map((item) => {
               const active = selectedTag === item.value;
               return (
