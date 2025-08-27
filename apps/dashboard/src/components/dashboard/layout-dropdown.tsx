@@ -5,7 +5,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Delete, Edit, TabLayout, ToolbarLayout } from "../icons/icons";
-import { DropdownMenuGroup, DropdownMenuLabel, DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
+import {
+  DropdownMenuGroup,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "@radix-ui/react-dropdown-menu";
 import { useAtomValue, useSetAtom } from "jotai";
 import {
   deleteLayoutAtom,
@@ -16,7 +20,12 @@ import {
 } from "@/lib/atoms/layoutAtom";
 import { RenderIf } from "../shared";
 import { Fragment, RefObject, useRef } from "react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../ui/tooltip";
 import { useState } from "react";
 import { ConfirmationModal, NameLayout } from "../modals";
 
@@ -58,18 +67,27 @@ export function LayoutDropdown() {
           }}
         >
           <Tooltip>
-            <TooltipTrigger id="fifth-step">
+            <TooltipTrigger className="w-full">
               <DropdownMenuTrigger asChild>
-                <div className="group flex items-center justify-center rounded-sm">
-                  <ToolbarLayout active={isOpen} />
+                <div className="group w-full flex flex-row justify-start gap-3 items-center">
+                  <div className="h-5 w-5 flex justify-center items-center">
+                    <ToolbarLayout active={isOpen} />
+                  </div>
+                  <h3 className="text-[14px] text-[#c3c3c3]">Layouts</h3>
                 </div>
               </DropdownMenuTrigger>
             </TooltipTrigger>
-            <TooltipContent side="bottom" className="bg-[#101010]">
-              <p className="text-xs leading-[1.25] font-semibold text-[#afafaf]">Layouts</p>
+
+            <TooltipContent side="left" className="bg-[#101010] mr-1">
+              <p className="text-xs leading-[1.25] font-semibold text-[#afafaf]">
+                Layouts
+              </p>
             </TooltipContent>
           </Tooltip>
-          <DropdownMenuContent className="mt-2 w-[16rem] border border-[#333] bg-[#090909] p-0" align="end">
+          <DropdownMenuContent
+            className="mt-2 w-[16rem] border border-[#333] bg-[#090909] p-0"
+            align="end"
+          >
             <DropdownMenuLabel className="border-b border-[#333] p-2 text-[10px] font-medium text-[#646464]">
               LAYOUTS
             </DropdownMenuLabel>
@@ -77,7 +95,9 @@ export function LayoutDropdown() {
             <DropdownMenuGroup>
               <RenderIf condition={!!layouts && layouts?.length === 0}>
                 <div className="mx-auto max-w-[149px] py-[50px]">
-                  <p className="text-center text-xs font-medium text-[#848484]">You currently have no layout</p>
+                  <p className="text-center text-xs font-medium text-[#848484]">
+                    You currently have no layout
+                  </p>
                 </div>
               </RenderIf>
 
@@ -91,7 +111,9 @@ export function LayoutDropdown() {
                     }}
                   >
                     <TabLayout />
-                    <p className="flex-1 truncate">{layout.draft ? "Untitled Layout" : layout?.name}</p>
+                    <p className="flex-1 truncate">
+                      {layout.draft ? "Untitled Layout" : layout?.name}
+                    </p>
 
                     <div className="flex items-center gap-1">
                       <RenderIf condition={!layout.draft}>
@@ -123,7 +145,9 @@ export function LayoutDropdown() {
 
                 <RenderIf condition={unSavedLayouts?.length > 0}>
                   <div className="bg-[#0F0F0F] px-2 py-2">
-                    <p className="text-[10px] leading-[1.25] font-medium text-[#474747]">UNSAVED LAYOUTS</p>
+                    <p className="text-[10px] leading-[1.25] font-medium text-[#474747]">
+                      UNSAVED LAYOUTS
+                    </p>
                   </div>
                 </RenderIf>
 
@@ -136,7 +160,9 @@ export function LayoutDropdown() {
                     }}
                   >
                     <TabLayout />
-                    <p className="flex-1 truncate">{layout.draft ? "Untitled Layout" : layout?.name}</p>
+                    <p className="flex-1 truncate">
+                      {layout.draft ? "Untitled Layout" : layout?.name}
+                    </p>
 
                     <div className="flex items-center gap-1">
                       <button
