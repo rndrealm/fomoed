@@ -28,9 +28,10 @@ function Empty() {
         handleClose={() => {
           setShowWidgets(false);
         }}
-        className="h-full p-0 rounded-2xl"
+        className="!max-w-full !max-h-[120vh] w-[87.5%] sm:w-[520px] md:w-[680px] lg:w-[740px] xl:w-[1100px] 2xl:w-[1300px] h-full p-0 top-[calc(50%+100px)] bg-transparent"
         title="Add New Widget"
         noHeader
+        bgBlur={false}
       >
         <QuickWidgets
           handleBack={() => {

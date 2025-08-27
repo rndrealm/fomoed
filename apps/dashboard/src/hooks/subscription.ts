@@ -6,6 +6,21 @@ import { CheckoutResponse } from "@/app/api/stripe/checkout/route";
 import { BillingPeriod, PlanType, PriceLookupKey } from "@/lib/plans/plans.types";
 import { UserSubscriptionsResponseData } from "@/app/api/subscriptions/route";
 import { atom, useAtom } from "jotai";
+import { useSupabaseAuth } from "@/components/providers";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+const loggedOutSubscriptionsResponseData: UserSubscriptionsResponseData = {
+  activePlan: "basic",
+  nextPeriodPlan: "basic",
+  hasTrialActive: false,
+  hasTrialAvailable: false,
+  subscriptions: [],
+  cancelsIn: null,
+  renewsIn: null,
+  renewsForUsd: null,
+  trialEndsIn: null,
+};
 
 export type SubscriptionAction = "sub" | "unsub" | "switch-to" | "resub";
 export type SubscriptionState = "basic" | "pro-pro" | "plus-plus" | "pro-plus" | "pro-basic" | "plus-basic";
@@ -18,7 +33,7 @@ export type PricingPageConfig = {
   proBtnColorProminent: boolean;
 };
 
-export const subscriptionActionsPendingAtom = atom<number>(0);
+export const subscriptionActionsPendingAtom = atom(new Set<string>());
 
 function getBtnContent(action: SubscriptionAction, planName: "Pro" | "Plus", canHaveFreeTrial: boolean) {
   const actionToContentMap: Record<SubscriptionAction, string> = {
@@ -71,13 +86,15 @@ export function getSubscriptionState(subscriptionData: UserSubscriptionsResponse
 
   const state = `${subscriptionData.activePlan}-${subscriptionData.nextPeriodPlan}` as SubscriptionState;
 
-  console.log({ state });
-
   return state;
 }
 
 export const useSubscription = () => {
+  const router = useRouter();
+  const { isLoggedIn, sessionLoadedPromise } = useSupabaseAuth();
   const queryClient = useQueryClient();
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  const [busyKey, setBusyKey] = useState<string | null>(null);
 
   const [subscriptionActionsPending, setSubscriptionActionsPending] = useAtom(subscriptionActionsPendingAtom);
 
@@ -85,15 +102,24 @@ export const useSubscription = () => {
     action: SubscriptionAction;
     billingPeriod: BillingPeriod;
     plan: PlanType;
+    busyKey: string;
   }
 
   const changeSubscriptionMutation = useMutation({
-    mutationFn: async ({ action, billingPeriod, plan }: ChangeSubscriptionMutationOpts) => {
-      setSubscriptionActionsPending((c) => c + 1);
+    mutationFn: async ({ action, billingPeriod, plan, busyKey }: ChangeSubscriptionMutationOpts) => {
+      if (!isLoggedIn) {
+        setIsRedirecting(true);
+        router.push("/auth/login");
+        return;
+      }
 
+      setBusyKey(busyKey);
+
+      setSubscriptionActionsPending((s) => {
+        s.add("sub-mutation");
+        return new Set(s);
+      });
       const priceLookupKey = (plan + "_" + billingPeriod) as PriceLookupKey;
-
-      console.log({ action, billingPeriod, plan });
 
       const url = {
         sub: "/api/stripe/checkout",
@@ -108,21 +134,35 @@ export const useSubscription = () => {
       });
 
       if (res.redirectTo) {
-        setSubscriptionActionsPending((c) => c + 1);
+        setIsRedirecting(true);
         window.location.href = res.redirectTo;
       }
 
       queryClient.invalidateQueries({ queryKey: ["user-subscriptions"] });
     },
     onSettled: () => {
-      setSubscriptionActionsPending((c) => c - 1);
+      setSubscriptionActionsPending((s) => {
+        s.delete("sub-mutation");
+        return new Set(s);
+      });
+
+      setBusyKey(null);
     },
   });
 
   const userSubscriptionsQuery = useQuery({
-    queryKey: ["user-subscriptions"],
+    queryKey: ["user-subscriptions", isLoggedIn],
     queryFn: async () => {
-      setSubscriptionActionsPending((c) => c + 1);
+      await sessionLoadedPromise;
+
+      if (!isLoggedIn) {
+        return loggedOutSubscriptionsResponseData;
+      }
+
+      setSubscriptionActionsPending((s) => {
+        s.add("sub-mutation");
+        return s;
+      });
 
       try {
         const response = await api.get({
@@ -131,7 +171,10 @@ export const useSubscription = () => {
 
         return response.data as UserSubscriptionsResponseData;
       } finally {
-        setSubscriptionActionsPending((c) => c - 1);
+        setSubscriptionActionsPending((c) => {
+          c.delete("sub-mutation");
+          return c;
+        });
       }
     },
     refetchOnWindowFocus: true,
@@ -140,8 +183,10 @@ export const useSubscription = () => {
   const isProPlanActive = userSubscriptionsQuery.data?.activePlan === "pro";
   const isPlusPlanActive = userSubscriptionsQuery.data?.activePlan === "plus";
   const activePlan = userSubscriptionsQuery.data?.activePlan;
+  const nextPeriodPlan = userSubscriptionsQuery.data?.nextPeriodPlan;
 
-  const isBusy = subscriptionActionsPending || userSubscriptionsQuery.isFetching;
+  const isAnyUseSubscriptionHookBusy =
+    !!subscriptionActionsPending.size || userSubscriptionsQuery.isFetching || isRedirecting;
 
   return {
     userSubscriptionsQuery,
@@ -149,8 +194,11 @@ export const useSubscription = () => {
     isProPlanActive,
     isPlusPlanActive,
     activePlan,
+    nextPeriodPlan,
     changeSubscriptionMutation,
-    isBusy,
+    isAnyUseSubscriptionHookBusy,
+    isInitialLoading: !userSubscriptionsQuery.isFetched,
+    busyKey,
   };
 };
 

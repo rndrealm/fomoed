@@ -12,6 +12,8 @@ import {
   SmartSignalsIcon,
   CommunityIcon,
   Hamburger,
+  NewsIconV2,
+  WidgetDashboardIconV2,
 } from "../icons/icons";
 import { AppRoutes } from "@/lib/routes";
 import { User } from "@supabase/supabase-js";
@@ -24,24 +26,23 @@ import { UsersRow } from "@/lib/types/db.types";
 
 const navLinks: INavLink[] = [
   {
-    label: "Widget Dashboard",
-    icon: <WidgetDashboardIcon />,
-    href: AppRoutes.dashboard.path,
-    disabled: false,
-    beta: false,
-    alpha: false,
-    comingSoon: false,
-  },
-  {
     label: "News",
-    icon: <NewsIcon />,
+    icon: <NewsIconV2 />,
     href: AppRoutes.news.path,
     disabled: false,
     beta: false,
     alpha: false,
     comingSoon: false,
   },
-
+  {
+    label: "Widget Dashboard",
+    icon: <WidgetDashboardIconV2 />,
+    href: AppRoutes.dashboard.path,
+    disabled: false,
+    beta: false,
+    alpha: false,
+    comingSoon: false,
+  },
   {
     label: "Smart Signals",
     icon: <SmartSignalsIcon />,
@@ -87,10 +88,11 @@ const bottomLinks = [] as any[];
 
 interface IProps {
   isNews?: boolean;
+  isDashboard?: boolean;
 }
 
 export const NavbarNews = (props: IProps) => {
-  const { isNews } = props;
+  const { isNews, isDashboard } = props;
   // const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
   const [isSideMenuOpen, setIsSideMenuOpen] = useAtom(isSidebarOpenAtom);
   const authUser = useUserData();
@@ -106,7 +108,7 @@ export const NavbarNews = (props: IProps) => {
     function findActive(linkHref: string) {
       navLinks.find((item) => {
         // console.log(item.href, linkHref);
-        if (item.href === linkHref) {
+        if (item.href.includes(linkHref)) {
           item.active = true;
         } else {
           item.active = false;
@@ -116,7 +118,7 @@ export const NavbarNews = (props: IProps) => {
 
     if (pathname === AppRoutes.dashboard.path) {
       findActive(AppRoutes.dashboard.path);
-    } else if (pathname === AppRoutes.news.path) {
+    } else if (pathname.includes(AppRoutes.news.path)) {
       findActive(AppRoutes.news.path);
     } else if (pathname === AppRoutes.signals.path) {
       findActive(AppRoutes.signals.path);

@@ -10,16 +10,29 @@ type SupabaseAuthContextType = {
   session: Session | null;
   // user: User | null;
   isLoading: boolean;
+  isLoggedIn: boolean;
   signOut: () => Promise<void>;
+  sessionLoadedPromise: Promise<void>;
   // refreshSession: () => Promise<void>;
 };
+
+let resolveSessionLoaded: () => void;
+const sessionLoadedPromise = new Promise<void>((resolve) => {
+  resolveSessionLoaded = resolve;
+});
 
 // Create the context with default values
 const SupabaseAuthContext = createContext<SupabaseAuthContextType>({
   session: null,
   // user: null,
   isLoading: true,
+  isLoggedIn: false,
   signOut: async () => {},
+
+  // Resolves when supabase either loads the session with the user logged in
+  // or find that the user is not logged in
+  sessionLoadedPromise,
+
   // refreshSession: async () => {},
 });
 
@@ -58,6 +71,7 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
           data: { subscription },
         } = supabase.auth.onAuthStateChange((_event, session) => {
           setSession(session);
+          resolveSessionLoaded();
           // setUser(session?.user || null);
         });
 
@@ -109,11 +123,13 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
   console.log(isLoading, session);
 
   // Provide the context value
-  const value = {
+  const value: SupabaseAuthContextType = {
     session,
     // user,
     isLoading,
+    isLoggedIn: !!session,
     signOut,
+    sessionLoadedPromise,
     // refreshSession,
   };
 
