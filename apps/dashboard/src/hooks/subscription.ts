@@ -91,7 +91,7 @@ export function getSubscriptionState(subscriptionData: UserSubscriptionsResponse
 
 export const useSubscription = () => {
   const router = useRouter();
-  const { isLoggedIn } = useSupabaseAuth();
+  const { isLoggedIn, sessionLoadedPromise } = useSupabaseAuth();
   const queryClient = useQueryClient();
   const [isRedirecting, setIsRedirecting] = useState(false);
 
@@ -147,6 +147,8 @@ export const useSubscription = () => {
   const userSubscriptionsQuery = useQuery({
     queryKey: ["user-subscriptions", isLoggedIn],
     queryFn: async () => {
+      await sessionLoadedPromise;
+
       if (!isLoggedIn) {
         return loggedOutSubscriptionsResponseData;
       }
@@ -176,7 +178,7 @@ export const useSubscription = () => {
   const isPlusPlanActive = userSubscriptionsQuery.data?.activePlan === "plus";
   const activePlan = userSubscriptionsQuery.data?.activePlan;
 
-  const isBusy = subscriptionActionsPending.size || userSubscriptionsQuery.isFetching || isRedirecting;
+  const isBusy = !!subscriptionActionsPending.size || userSubscriptionsQuery.isFetching || isRedirecting;
 
   return {
     userSubscriptionsQuery,
@@ -186,6 +188,7 @@ export const useSubscription = () => {
     activePlan,
     changeSubscriptionMutation,
     isBusy,
+    isInitialLoading: !userSubscriptionsQuery.isFetched,
   };
 };
 
