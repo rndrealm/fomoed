@@ -7,6 +7,7 @@ import ProPlanTriangleUp from "../../icons/ProPlanTriangleUp";
 import { motion, AnimatePresence } from "motion/react";
 import useSubscription from "@/hooks/subscription";
 import { PricingCardButton } from "./pricing-card-common";
+import { RenderIf } from "@/components/shared";
 
 const ProPlanCard = ({
   title,
@@ -20,7 +21,7 @@ const ProPlanCard = ({
 }: PricingCard) => {
   const cardBusyKey = "pro";
 
-  const { changeSubscriptionMutation, busyKey } = useSubscription();
+  const { changeSubscriptionMutation, busyKey, nextPeriodPlan } = useSubscription();
   const [isHovered, setIsHovered] = useState(false);
 
   function handleButtonClick() {
@@ -79,7 +80,11 @@ const ProPlanCard = ({
           }}
           transition={{ ease: [0.4, 0, 0.2, 1], duration: 0.5 }}
         >
-          <h3 className="text-[#59281d] font-bold text-xs">We highly recommend this plan</h3>
+          <h3 className="text-[#59281d] font-bold text-xs">
+            <RenderIf condition={nextPeriodPlan === "basic"}>We highly recommend this plan</RenderIf>
+            <RenderIf condition={nextPeriodPlan === "plus"}>Switch to this plan</RenderIf>
+            <RenderIf condition={nextPeriodPlan === "pro"}>This plan is active</RenderIf>
+          </h3>
         </motion.div>
 
         <motion.div

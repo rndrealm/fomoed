@@ -6,6 +6,7 @@ import CheckeredLine from "../../icons/CheckeredLine";
 import { AnimatePresence, motion } from "motion/react";
 import useSubscription from "@/hooks/subscription";
 import { PricingCardButton } from "./pricing-card-common";
+import { RenderIf } from "@/components/shared";
 
 const PlusPlanCard = ({
   title,
@@ -19,7 +20,7 @@ const PlusPlanCard = ({
 }: PricingCard) => {
   const cardBusyKey = "plus";
 
-  const { changeSubscriptionMutation, busyKey } = useSubscription();
+  const { changeSubscriptionMutation, busyKey, activePlan, nextPeriodPlan } = useSubscription();
   const [isHovered, setIsHovered] = useState(false);
 
   function handleButtonClick() {
@@ -71,8 +72,11 @@ const PlusPlanCard = ({
         >
           <div className="flex flex-row items-center justify-start gap-2.5">
             <h3 className="text-[#022A0F] text-xs cursor-pointer underline mt-0.5 font-semibold">
-              Upgrade to this plan
+              <RenderIf condition={nextPeriodPlan === "basic"}>Upgrade to this plan</RenderIf>
+              <RenderIf condition={nextPeriodPlan === "plus"}>This plan is active</RenderIf>
+              <RenderIf condition={nextPeriodPlan === "pro"}>Switch to this plan</RenderIf>
             </h3>
+
             <div className="flex items-center justify-between bg-[#022A0F] rounded-[6px] py-1 pl-2.5 pr-3 gap-1.5">
               <StarIcon />
               <h3 className="pointer-events-none text-white uppercase text-[10px] mt-[1px]">new</h3>

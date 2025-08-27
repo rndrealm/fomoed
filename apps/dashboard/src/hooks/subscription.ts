@@ -183,6 +183,7 @@ export const useSubscription = () => {
   const isProPlanActive = userSubscriptionsQuery.data?.activePlan === "pro";
   const isPlusPlanActive = userSubscriptionsQuery.data?.activePlan === "plus";
   const activePlan = userSubscriptionsQuery.data?.activePlan;
+  const nextPeriodPlan = userSubscriptionsQuery.data?.nextPeriodPlan;
 
   const isAnyUseSubscriptionHookBusy =
     !!subscriptionActionsPending.size || userSubscriptionsQuery.isFetching || isRedirecting;
@@ -193,6 +194,7 @@ export const useSubscription = () => {
     isProPlanActive,
     isPlusPlanActive,
     activePlan,
+    nextPeriodPlan,
     changeSubscriptionMutation,
     isAnyUseSubscriptionHookBusy,
     isInitialLoading: !userSubscriptionsQuery.isFetched,
