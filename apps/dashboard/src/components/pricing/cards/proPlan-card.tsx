@@ -18,7 +18,9 @@ const ProPlanCard = ({
   buttonColorProminent,
   buttonAction,
 }: PricingCard) => {
-  const { changeSubscriptionMutation } = useSubscription();
+  const cardBusyKey = "pro";
+
+  const { changeSubscriptionMutation, busyKey } = useSubscription();
   const [isHovered, setIsHovered] = useState(false);
 
   function handleButtonClick() {
@@ -28,6 +30,7 @@ const ProPlanCard = ({
       action: buttonAction,
       billingPeriod: switchActive ? "yearly" : "monthly",
       plan: "pro",
+      busyKey: cardBusyKey,
     });
   }
 
@@ -176,6 +179,7 @@ const ProPlanCard = ({
                 onClick={handleButtonClick}
                 buttonColorProminent={buttonColorProminent}
                 fullWidth={true}
+                isBusy={busyKey === cardBusyKey}
               >
                 {buttonConent}
               </PricingCardButton>

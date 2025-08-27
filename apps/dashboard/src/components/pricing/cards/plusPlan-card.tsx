@@ -17,7 +17,9 @@ const PlusPlanCard = ({
   buttonColorProminent,
   buttonAction,
 }: PricingCard) => {
-  const { changeSubscriptionMutation } = useSubscription();
+  const cardBusyKey = "plus";
+
+  const { changeSubscriptionMutation, busyKey } = useSubscription();
   const [isHovered, setIsHovered] = useState(false);
 
   function handleButtonClick() {
@@ -27,6 +29,7 @@ const PlusPlanCard = ({
       action: buttonAction,
       billingPeriod: switchActive ? "yearly" : "monthly",
       plan: "plus",
+      busyKey: cardBusyKey,
     });
   }
 
@@ -143,7 +146,7 @@ const PlusPlanCard = ({
               transition={{ ease: [0.4, 0, 0.2, 1], duration: 0.5 }}
               className="w-full"
             >
-              <PricingCardButton onClick={handleButtonClick} fullWidth={false}>
+              <PricingCardButton onClick={handleButtonClick} fullWidth={false} isBusy={busyKey === cardBusyKey}>
                 {buttonConent}
               </PricingCardButton>
             </motion.div>

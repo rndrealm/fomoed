@@ -12,6 +12,7 @@ interface PricingCardButtonProps {
   buttonColorProminent?: boolean;
   fullWidth?: boolean;
   className?: string;
+  isBusy?: boolean;
 }
 
 export const PricingCardButton = ({
@@ -20,8 +21,9 @@ export const PricingCardButton = ({
   buttonColorProminent = false,
   fullWidth = false,
   className,
+  isBusy,
 }: PricingCardButtonProps) => {
-  const { isBusy, userSubscriptionQueryData, isInitialLoading } = useSubscription();
+  const { userSubscriptionQueryData, isInitialLoading, isAnyUseSubscriptionHookBusy } = useSubscription();
 
   const getArrowColor = () => {
     if (!!isBusy) return "#0000";
@@ -32,14 +34,14 @@ export const PricingCardButton = ({
   return (
     <motion.button
       onClick={onClick}
-      disabled={isBusy}
+      disabled={isAnyUseSubscriptionHookBusy}
       className={classNames(
         "flex flex-row justify-between items-center py-2.5 px-4 rounded-[40px] font-semibold duration-500 whitespace-nowrap gap-x-2 min-w-[50%] disabled:opacity-50",
         {
           "w-full": fullWidth,
           "bg-white text-[#373737]": buttonColorProminent,
           "bg-[#131313] text-[#878787]": !buttonColorProminent,
-          "!bg-white/10": !!isBusy && buttonColorProminent,
+          "!opacity-100": isInitialLoading,
 
           app_skeleton_loader: isInitialLoading,
         },

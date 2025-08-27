@@ -94,6 +94,7 @@ export const useSubscription = () => {
   const { isLoggedIn, sessionLoadedPromise } = useSupabaseAuth();
   const queryClient = useQueryClient();
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [busyKey, setBusyKey] = useState<string | null>(null);
 
   const [subscriptionActionsPending, setSubscriptionActionsPending] = useAtom(subscriptionActionsPendingAtom);
 
@@ -101,19 +102,22 @@ export const useSubscription = () => {
     action: SubscriptionAction;
     billingPeriod: BillingPeriod;
     plan: PlanType;
+    busyKey: string;
   }
 
   const changeSubscriptionMutation = useMutation({
-    mutationFn: async ({ action, billingPeriod, plan }: ChangeSubscriptionMutationOpts) => {
+    mutationFn: async ({ action, billingPeriod, plan, busyKey }: ChangeSubscriptionMutationOpts) => {
       if (!isLoggedIn) {
         setIsRedirecting(true);
         router.push("/auth/login");
         return;
       }
 
+      setBusyKey(busyKey);
+
       setSubscriptionActionsPending((s) => {
         s.add("sub-mutation");
-        return s;
+        return new Set(s);
       });
       const priceLookupKey = (plan + "_" + billingPeriod) as PriceLookupKey;
 
@@ -137,10 +141,12 @@ export const useSubscription = () => {
       queryClient.invalidateQueries({ queryKey: ["user-subscriptions"] });
     },
     onSettled: () => {
-      setSubscriptionActionsPending((c) => {
-        c.delete("sub-mutation");
-        return c;
+      setSubscriptionActionsPending((s) => {
+        s.delete("sub-mutation");
+        return new Set(s);
       });
+
+      setBusyKey(null);
     },
   });
 
@@ -178,7 +184,8 @@ export const useSubscription = () => {
   const isPlusPlanActive = userSubscriptionsQuery.data?.activePlan === "plus";
   const activePlan = userSubscriptionsQuery.data?.activePlan;
 
-  const isBusy = !!subscriptionActionsPending.size || userSubscriptionsQuery.isFetching || isRedirecting;
+  const isAnyUseSubscriptionHookBusy =
+    !!subscriptionActionsPending.size || userSubscriptionsQuery.isFetching || isRedirecting;
 
   return {
     userSubscriptionsQuery,
@@ -187,8 +194,9 @@ export const useSubscription = () => {
     isPlusPlanActive,
     activePlan,
     changeSubscriptionMutation,
-    isBusy,
+    isAnyUseSubscriptionHookBusy,
     isInitialLoading: !userSubscriptionsQuery.isFetched,
+    busyKey,
   };
 };
 
