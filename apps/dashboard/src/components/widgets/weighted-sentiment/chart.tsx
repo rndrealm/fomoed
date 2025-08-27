@@ -2,13 +2,9 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useReadWeightedSentiment } from "@/services/queries/santiment";
 import { ColorType, Time } from "lightweight-charts";
-import {
-  AreaSeries,
-  Chart,
-  TimeScale,
-  TimeScaleFitContentTrigger,
-} from "lightweight-charts-react-components";
-import useSession from "@/lib/hooks/use-session";
+import { AreaSeries, Chart, TimeScale, TimeScaleFitContentTrigger } from "lightweight-charts-react-components";
+
+import { useSupabaseAuth } from "@/components/providers";
 
 interface IProps {
   token?: string;
@@ -18,10 +14,10 @@ interface IProps {
 export default function WeightedChart(props: IProps) {
   const { token = "bitcoin", period = "1h" } = props;
 
-  const user = useSession();
+  const { session } = useSupabaseAuth();
 
   const { data = [] } = useReadWeightedSentiment({
-    auth_token: user?.access_token,
+    auth_token: session?.access_token,
     token,
     interval: period,
   });

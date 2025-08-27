@@ -38,19 +38,19 @@ function AutoSaveToggle(props: IAutoSave) {
       <div
         className={cn(
           "flex items-center justify-center gap-1 p-[3px] rounded-lg border border-[#232323]",
-          autosave ? "bg-[#FF3B10] flex-row-reverse" : "bg-[#141414]"
+          autosave ? "bg-[#FF3B10] flex-row-reverse" : "bg-[#141414]",
         )}
       >
         <div
           className={cn(
             "w-[16px] h-[16px] rounded-sm",
-            autosave ? "bg-white" : "bg-[#373737]"
+            autosave ? "bg-white" : "bg-[#373737]",
           )}
         ></div>
         <p
           className={cn(
             "text-[8px] font-medium w-[16px] text-right",
-            autosave ? "text-white" : "text-[#9B9B9B]"
+            autosave ? "text-white" : "text-[#9B9B9B]",
           )}
         >
           {autosave ? "ON" : "OFF"}
@@ -75,7 +75,7 @@ export function SettingsDropdown() {
   const handleSaveLayout = async () => {
     if (isPending) return;
     const currentLayout = layouts.find(
-      (layout) => layout.id === activeTab.layout_id
+      (layout) => layout.id === activeTab.layout_id,
     );
     if (!currentLayout) {
       toast("You don't have any changes to save!", {});
@@ -87,13 +87,13 @@ export function SettingsDropdown() {
     }
     const supabase = createSupabaseBrowserClient();
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      toast("You need to be logged in to save your layout.", {});
-      return;
-    }
+    // const {
+    //   data: { user },
+    // } = await supabase.auth.getUser();
+    // if (!user) {
+    //   toast("You need to be logged in to save your layout.", {});
+    //   return;
+    // }
     const formatWidgets = currentLayout.widgets.map((widget) => {
       return {
         ...widget,

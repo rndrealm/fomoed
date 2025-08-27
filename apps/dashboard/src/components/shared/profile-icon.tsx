@@ -3,9 +3,10 @@ import { User as UserIcon } from "lucide-react";
 import Image from "next/image";
 import { User } from "@supabase/supabase-js";
 import { cn } from "@/lib/utils";
+import { UsersRow } from "@/lib/types/db.types";
 
 interface IProps {
-  user: User | null;
+  user: UsersRow | null;
   className?: string;
 }
 
@@ -15,9 +16,9 @@ export function ProfileIcon(props: IProps) {
 
   return (
     <div className="flex h-full w-full items-start justify-start">
-      {hasUser && user?.user_metadata?.avatar_url ? (
+      {hasUser && user?.avatar_url ? (
         <Image
-          src={user.user_metadata.avatar_url}
+          src={user?.avatar_url}
           alt="User avatar"
           className={cn("w-full object-cover", className)}
           width={32}

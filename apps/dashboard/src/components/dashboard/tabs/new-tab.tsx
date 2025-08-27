@@ -17,6 +17,7 @@ import { useGetUserPlans } from "@/services/queries/subscriptions";
 import { deleteLayoutAtom, layoutAtom } from "@/lib/atoms/layoutAtom";
 import { MobileTab } from "./mobile-tab";
 import { isSidebarOpenAtom } from "@/lib/atoms/utilsAtom";
+import useSubscription from "@/hooks/subscription";
 
 interface ITabButton {
   handleClick?: () => void;
@@ -37,6 +38,7 @@ export function TabButton(props: ITabButton) {
     handleNameChange,
   } = props;
   const [hover, setHover] = useState(false);
+
 
   const inputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
@@ -127,6 +129,8 @@ export function TabButton(props: ITabButton) {
 }
 
 export function NewTabs() {
+  const {activePlan} = useSubscription();
+
   const tabs = useAtomValue(tabsAtom);
   const layouts = useAtomValue(layoutAtom);
   const [activeTab, setActiveTab] = useAtom(activeTabAtom);
@@ -150,7 +154,7 @@ export function NewTabs() {
   const { data } = useGetUserPlans();
 
   const handleAddNewTab = () => {
-    const planType = data?.planType || "FREE"; // Default to FREE if not set
+    const planType = data?.hasActivePlans || "FREE"; // Default to FREE if not set
     const maxTabs = maxTabsByPlan[planType] || 3;
 
     if (tabs.length >= maxTabs) {
@@ -258,7 +262,7 @@ export function NewTabs() {
         className="!md:max-w-[410px] bg-[transparent] !p-0"
       >
         <Upgrade
-          plan={data?.planType}
+          plan={activePlan}
           handleClose={() => {
             setShowUpgradeModal(false);
           }}

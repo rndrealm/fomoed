@@ -12,10 +12,10 @@ import { Close, FullScreen, Question, Weight } from "@/components/icons/icons";
 import { OptionsDropdown } from "../shared/options-dropwdown";
 import PeriodDropdown from "../shared/period-dropdown";
 import { useReadSantimentTokenList } from "@/services/queries/santiment";
-import useSession from "@/lib/hooks/use-session";
 import SanitmentTokenDropdown from "../shared/santiment-token-dropdown";
 import { FullscreenableChart } from "./fullscreenable-chart";
 import { FullscreenControls } from "./fullscreen-controls";
+import { useSupabaseAuth } from "@/components/providers";
 
 const pricePeriodOptions = [
   { value: "5m", label: "5M" },
@@ -36,11 +36,11 @@ export default function WeightedSentiment(props: IProps) {
   const [isControlsVisible, setIsControlsVisible] = useState(true);
   const [showInfo, setShowInfo] = useState(false);
 
-  const user = useSession();
+  const { session } = useSupabaseAuth();
   const overlayRoot = getOverlayRoot();
 
   const { data: tokenList = [] } = useReadSantimentTokenList({
-    auth_token: user?.access_token,
+    auth_token: session?.access_token,
   });
 
   const activeLayout = useAtomValue(activeTabAtom);
@@ -97,22 +97,17 @@ export default function WeightedSentiment(props: IProps) {
               <div className="w-[20px] h-[20px] flex items-center justify-center">
                 <Weight />
               </div>
-              <p className="font-semibold text-base leading-[1.35] text-[#878787]">
-                Weighted Sentiment
-              </p>
+              <p className="font-semibold text-base leading-[1.35] text-[#878787]">Weighted Sentiment</p>
             </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => {
-                  const isFavorite =
-                    settings.favorite_widgets.includes(widgetSlug);
+                  const isFavorite = settings.favorite_widgets.includes(widgetSlug);
 
                   let newWidgetArray: string[] = [];
 
                   if (isFavorite) {
-                    newWidgetArray = settings.favorite_widgets.filter(
-                      (item) => item !== widgetSlug,
-                    );
+                    newWidgetArray = settings.favorite_widgets.filter((item) => item !== widgetSlug);
                   } else {
                     newWidgetArray = [...settings.favorite_widgets, widgetSlug];
                   }
@@ -188,24 +183,17 @@ export default function WeightedSentiment(props: IProps) {
       </div>
 
       <div
-        className={cn(
-          "absolute right-[9px] bottom-[16px] z-[9] h-[28px] w-[28px] rounded-md border border-[#1c1c1c]",
-          {
-            "opacity-0": !isControlsVisible,
-            "opacity-100": isControlsVisible,
-          },
-        )}
+        className={cn("absolute right-[9px] bottom-[16px] z-[9] h-[28px] w-[28px] rounded-md border border-[#1c1c1c]", {
+          "opacity-0": !isControlsVisible,
+          "opacity-100": isControlsVisible,
+        })}
         style={{
-          background:
-            "linear-gradient(180deg, #1b1b1b 0%, rgba(0, 0, 0, 0.38) 72.15%)",
+          background: "linear-gradient(180deg, #1b1b1b 0%, rgba(0, 0, 0, 0.38) 72.15%)",
           backdropFilter: "blur(7px)",
           transition: "opacity 0.3s ease-in-out",
         }}
       >
-        <button
-          className="flex h-full w-full items-center justify-center"
-          onClick={toggleFullscreen}
-        >
+        <button className="flex h-full w-full items-center justify-center" onClick={toggleFullscreen}>
           <FullScreen />
         </button>
       </div>
@@ -223,17 +211,14 @@ export default function WeightedSentiment(props: IProps) {
               <div className="flex flex-col gap-4 justify-between flex-1 h-full">
                 <div className="flex flex-col gap-3">
                   <div className="flex flex-col">
-                    <h3 className="text-base leading-[1.35] font-semibold text-white">
-                      Weighted Sentiment Chart
-                    </h3>
+                    <h3 className="text-base leading-[1.35] font-semibold text-white">Weighted Sentiment Chart</h3>
                     <p className="text-[13px] leading-[1.25] font-light text-[#878787]">
                       Learn about the Weighted Sentiment Chart
                     </p>
                   </div>
                   <p className="text-[13px] leading-[1.35] font-medium text-white">
-                    Visualizes market sentiment by weighing bullish and bearish
-                    opinions based on their source’s influence, giving a more
-                    accurate view of crowd conviction than raw sentiment counts.
+                    Visualizes market sentiment by weighing bullish and bearish opinions based on their source’s
+                    influence, giving a more accurate view of crowd conviction than raw sentiment counts.
                   </p>
                 </div>
 

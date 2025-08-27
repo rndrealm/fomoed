@@ -7,6 +7,7 @@ import { motion } from "motion/react";
 import NavbarProfileButton from "@/components/ui/NavbarProfileButton";
 import { ProfileIcon } from "../profile-icon";
 import dashboard from "@/lib/assets/dashboard";
+import { UsersRow } from "@/lib/types/db.types";
 
 interface IActiveNavProps {
   navLinks: INavLink[];
@@ -14,7 +15,7 @@ interface IActiveNavProps {
   isSideMenuOpen: boolean;
   setIsSideMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
   isHovered: boolean;
-  authUser: User | null;
+  authUser: UsersRow | null;
 }
 
 // This component renders the active navigation when the side menu is open.
@@ -153,7 +154,7 @@ const ActiveNav = (props: IActiveNavProps) => {
           className="flex flex-col gap-1.5"
         >
           <h3 className="text-[14px] font-normal text-white">
-            {authUser?.user_metadata?.name}
+            {authUser?.username}
           </h3>
           <h4 className="text-xs font-normal text-[#A4A4A4]">
             {authUser?.email}

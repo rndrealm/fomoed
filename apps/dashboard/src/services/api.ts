@@ -23,11 +23,15 @@ const get = async ({ url, auth = true, headers }: Request) => {
   return ald as any;
 };
 
-const post = async ({ url, body, auth = true }: Request) => {
+async function post<ResT = any>({
+  url,
+  body,
+  auth = true,
+}: Request): Promise<ResT> {
   return await (auth
     ? axiosInstance.post(url, body)
     : axios.post(baseURL + url, body));
-};
+}
 
 const patch = async ({ url, body }: Request) => {
   return await axiosInstance.patch(url, body);

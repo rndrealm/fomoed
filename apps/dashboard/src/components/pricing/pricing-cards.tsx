@@ -5,6 +5,7 @@ import BasicPlanCard from "./cards/basicPlan-card";
 import ProPlanCard from "./cards/proPlan-card";
 import PlusPlanCard from "./cards/plusPlan-card";
 import PricingSwitch from "./pricing-switch";
+import { SubscriptionAction } from "@/hooks/subscription";
 
 type Feature = {
   icon: ReactNode;
@@ -13,27 +14,23 @@ type Feature = {
 
 export type PricingCard = {
   title: string;
-  price: string[];
+  prices: string[];
   description: string;
   features: Feature[];
   buttonConent?: string;
   switchActive?: boolean;
+  buttonColorProminent: boolean;
+  buttonAction?: SubscriptionAction;
 };
 
 type PricingCardsContent = {
-  prcingCardsConent: PricingCard[];
+  pricingCardsContent: PricingCard[];
 };
 
-const PricingCards = ({ prcingCardsConent }: PricingCardsContent) => {
-  const basicPlanCardContent = prcingCardsConent.find(
-    (item) => item.title === "Basic",
-  ) as PricingCard;
-  const proPlanCardContent = prcingCardsConent.find(
-    (item) => item.title === "Pro",
-  ) as PricingCard;
-  const plusPlanCardContent = prcingCardsConent.find(
-    (item) => item.title === "Voyager",
-  ) as PricingCard;
+const PricingCards = ({ pricingCardsContent }: PricingCardsContent) => {
+  const basicPlanCardContent = pricingCardsContent.find((item) => item.title === "Basic") as PricingCard;
+  const proPlanCardContent = pricingCardsContent.find((item) => item.title === "Pro") as PricingCard;
+  const plusPlanCardContent = pricingCardsContent.find((item) => item.title === "Plus") as PricingCard;
 
   const [switchActive, setSwitchActive] = useState<boolean>(false);
   // console.log(switchActive);
@@ -49,14 +46,17 @@ const PricingCards = ({ prcingCardsConent }: PricingCardsContent) => {
         />
       </div>
 
-      <section className="relative mt-[1rem] sm:mt-[3rem] flex justify-center items-center">
-        <div
-          style={{ transformOrigin: "top center" }}
-          className="scale-100 lg:scale-85 xl:scale-100  flex flex-col lg:flex-row gap-20 lg:gap-5"
-        >
-          <BasicPlanCard {...basicPlanCardContent} />
-          <ProPlanCard {...proPlanCardContent} switchActive={switchActive} />
-          <PlusPlanCard {...plusPlanCardContent} switchActive={switchActive} />
+      <section className="relative mt-[1rem] lg:mt-[3rem] flex justify-center items-center">
+        <div className="scale-100 lg:scale-85 xl:scale-100 w-0" style={{ transformOrigin: "top center" }}>
+          <div className="flex flex-col lg:flex-row gap-x-5 gap-y-8 min-w-max -translate-x-1/2">
+            <BasicPlanCard {...basicPlanCardContent} />
+
+            <div className="pt-8 lg:pt-0">
+              <ProPlanCard {...proPlanCardContent} switchActive={switchActive} />
+            </div>
+
+            <PlusPlanCard {...plusPlanCardContent} switchActive={switchActive} />
+          </div>
         </div>
       </section>
     </>

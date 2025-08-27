@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import useSession from "./use-session";
 import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
-import type { UsersRow } from "@/lib/types/db.types";
+import type { Database } from "@/lib/database/supabase";
+import { useSupabaseAuth } from "@/components/providers";
 
 export default function useUserData() {
-  const session = useSession();
-  const [userData, setUserData] = useState<UsersRow | null>(null);
+  const { session } = useSupabaseAuth();
+  const [userData, setUserData] = useState<Database["public"]["Tables"]["users"]["Row"] | null>(null);
 
   useEffect(() => {
     if (!session?.user?.id) {

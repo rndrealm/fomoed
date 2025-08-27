@@ -7,6 +7,7 @@ import { NuqsAdapter } from "nuqs/adapters/next/app";
 import "./globals.css";
 
 import { NotificationProvider } from "@/components/providers/NotificationProvider";
+import { SupabaseAuthProvider } from "@/components/providers/SupabaseAuthProvider";
 import "../../node_modules/react-grid-layout/css/styles.css";
 import { headers } from "next/headers";
 import OverlayRoot from "@/components/ui/overlay-root";
@@ -65,7 +66,9 @@ export default function RootLayout({
         <div id="root" className="h-full">
           <QueryProvider>
             <NuqsAdapter>
-              <NotificationProvider>{children}</NotificationProvider>
+              <SupabaseAuthProvider>
+                <NotificationProvider>{children}</NotificationProvider>
+              </SupabaseAuthProvider>
             </NuqsAdapter>
           </QueryProvider>
           <Toaster

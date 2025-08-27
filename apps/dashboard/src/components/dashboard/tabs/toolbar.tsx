@@ -43,6 +43,7 @@ import {
   toggleQuickWidgetsAtom,
 } from "@/lib/atoms/shortcuts";
 import { WidgetsPreview } from "../widgets-preview";
+import useSubscription from "@/hooks/subscription";
 
 interface IToolbarItem {
   onClick?: () => void;
@@ -84,6 +85,7 @@ export function Toolbar() {
 
   const { mutate, isPending, isError, isSuccess } = useSyncLayouts();
   const { data } = useGetUserPlans();
+  const {activePlan} = useSubscription();
 
   const activeTab = useAtomValue(activeTabAtom);
   const layouts = useAtomValue(layoutAtom);
@@ -111,7 +113,7 @@ export function Toolbar() {
     }
 
     //CHECK IF PRO USER
-    const planType = data?.planType || "FREE"; // Default to FREE if not set
+    const planType = data?.hasActivePlans || "FREE"; // Default to FREE if not set
     const maxTabs = maxTabsByPlan[planType] || 3;
     const savedLayouts = layouts.filter((item) => !item.draft);
 
@@ -126,15 +128,15 @@ export function Toolbar() {
       return;
     }
 
-    const supabase = createSupabaseBrowserClient();
+    // const supabase = createSupabaseBrowserClient();
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      toast("You need to be logged in to save your layout.", {});
-      return;
-    }
+    // const {
+    //   data: { user },
+    // } = await supabase.auth.getUser();
+    // if (!user) {
+    //   toast("You need to be logged in to save your layout.", {});
+    //   return;
+    // }
     const formatWidgets = currentLayout.widgets.map((widget) => {
       return {
         ...widget,
@@ -306,7 +308,7 @@ export function Toolbar() {
         className="!max-w-[410px] rounded-[24px] !p-0"
       >
         <Upgrade
-          plan={data?.planType}
+          plan={activePlan}
           handleClose={() => {
             setShowUpgradeModal(false);
           }}

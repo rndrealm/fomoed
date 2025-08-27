@@ -14,17 +14,17 @@ export const createLayoutAndAttachToTabAction = async ({
   const supabase = createSupabaseBrowserClient();
 
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (!user) {
+  if (!session?.user) {
     throw new Error("Please login to add widgets.");
   }
 
   // Create new layout
   const { data: savedLayout, error: layoutError } = await supabase
     .from("layouts")
-    .insert({ ...layoutData, user_id: user.id })
+    .insert({ ...layoutData, user_id: session?.user?.id })
     .select()
     .single();
 
@@ -38,7 +38,7 @@ export const createLayoutAndAttachToTabAction = async ({
     ...widgetData,
     meta: widgetData.meta as unknown as Json,
     layout_id: savedLayout.id,
-    user_id: user.id,
+    user_id: session?.user?.id,
   };
 
   const { error: widgetError } = await supabase
@@ -73,10 +73,10 @@ export const getLayoutsAction = async () => {
   const supabase = createSupabaseBrowserClient();
 
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (!user) {
+  if (!session?.user) {
     throw new Error("Please login to view your layouts.");
   }
 
@@ -88,9 +88,9 @@ export const getLayoutsAction = async () => {
     name,
     draft,
     widgets ( id,  token, meta, props, layout_id )
-  `
+  `,
     )
-    .eq("user_id", user.id);
+    .eq("user_id", session?.user?.id);
 
   if (error) {
     console.log("Error getting Layouts:", error);
@@ -106,10 +106,10 @@ export const deleteLayoutAction = async (layoutId: string) => {
   const supabase = createSupabaseBrowserClient();
 
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (!user) {
+  if (!session?.user) {
     throw new Error("Please login to delete a layout.");
   }
 
@@ -128,7 +128,7 @@ export const deleteLayoutAction = async (layoutId: string) => {
   const { error: tabUpdateError } = await supabase
     .from("tabs")
     .update({ layout_id: null })
-    .match({ layout_id: layoutId, user_id: user.id });
+    .match({ layout_id: layoutId, user_id: session?.user?.id });
 
   if (tabUpdateError) {
     console.log("Error updating tabs:", tabUpdateError);
@@ -139,7 +139,7 @@ export const deleteLayoutAction = async (layoutId: string) => {
   const { error: layoutDeleteError } = await supabase
     .from("layouts")
     .delete()
-    .match({ id: layoutId, user_id: user.id });
+    .match({ id: layoutId, user_id: session?.user?.id });
 
   if (layoutDeleteError) {
     console.log("Error deleting layout:", layoutDeleteError);
@@ -157,17 +157,17 @@ export const updateLayoutNameAction = async ({
   const supabase = createSupabaseBrowserClient();
 
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (!user) {
+  if (!session?.user) {
     throw new Error("Please login to update a layout.");
   }
 
   const { data, error } = await supabase
     .from("layouts")
     .update({ name: newName })
-    .match({ id: layoutId, user_id: user.id })
+    .match({ id: layoutId, user_id: session?.user?.id })
     .select()
     .single();
 

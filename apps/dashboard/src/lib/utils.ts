@@ -129,21 +129,6 @@ export const capitalizeFirst = (text: string) => {
   return text.charAt(0).toUpperCase() + text.slice(1);
 };
 
-export function getLoginUrl(): string {
-  const legacyAppUrl = process.env.NEXT_PUBLIC_LEGACY_APP_URL;
-  const useNewLogin = process.env.NEXT_PUBLIC_USE_NEW_LOGIN;
-
-  if (legacyAppUrl && !useNewLogin) {
-    return `${legacyAppUrl}/auth`;
-  } else {
-    const currentUrlCopy = new URL(window.location.href);
-
-    currentUrlCopy.pathname = "/login";
-
-    return currentUrlCopy.toString();
-  }
-}
-
 /**
  * Converts HTML entities and non-breaking spaces to regular text
  * @param htmlText Text with HTML entities

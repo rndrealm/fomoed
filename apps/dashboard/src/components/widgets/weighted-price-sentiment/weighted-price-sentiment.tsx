@@ -13,10 +13,10 @@ import { OptionsDropdown } from "../shared/options-dropwdown";
 import { createPortal } from "react-dom";
 import PeriodDropdown from "../shared/period-dropdown";
 import { useReadSantimentTokenList } from "@/services/queries/santiment";
-import useSession from "@/lib/hooks/use-session";
 import SanitmentTokenDropdown from "../shared/santiment-token-dropdown";
 import { FullscreenableChart } from "./fullscreenable-chart";
 import { FullscreenControls } from "./fullscreen-controls";
+import { useSupabaseAuth } from "@/components/providers";
 
 const pricePeriodOptions = [
   { value: "5m", label: "5M" },
@@ -35,11 +35,11 @@ export default function WeightedPriceSentiment(props: IProps) {
   const [isControlsVisible, setIsControlsVisible] = useState(true);
   const [showInfo, setShowInfo] = useState(false);
 
-  const user = useSession();
+  const { session } = useSupabaseAuth();
   const overlayRoot = getOverlayRoot();
 
   const { data: tokenList = [] } = useReadSantimentTokenList({
-    auth_token: user?.access_token,
+    auth_token: session?.access_token,
   });
 
   const activeLayout = useAtomValue(activeTabAtom);
@@ -77,22 +77,17 @@ export default function WeightedPriceSentiment(props: IProps) {
               <div className="w-[20px] h-[20px] flex items-center justify-center">
                 <Weight />
               </div>
-              <p className="font-semibold text-base leading-[1.35] text-[#878787]">
-                Price-Weighted Sentiment
-              </p>
+              <p className="font-semibold text-base leading-[1.35] text-[#878787]">Price-Weighted Sentiment</p>
             </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => {
-                  const isFavorite =
-                    settings.favorite_widgets.includes(widgetSlug);
+                  const isFavorite = settings.favorite_widgets.includes(widgetSlug);
 
                   let newWidgetArray: string[] = [];
 
                   if (isFavorite) {
-                    newWidgetArray = settings.favorite_widgets.filter(
-                      (item) => item !== widgetSlug,
-                    );
+                    newWidgetArray = settings.favorite_widgets.filter((item) => item !== widgetSlug);
                   } else {
                     newWidgetArray = [...settings.favorite_widgets, widgetSlug];
                   }
@@ -179,24 +174,17 @@ export default function WeightedPriceSentiment(props: IProps) {
       </div>
 
       <div
-        className={cn(
-          "absolute right-[9px] bottom-[16px] z-[9] h-[28px] w-[28px] rounded-md border border-[#1c1c1c]",
-          {
-            "opacity-0": !isControlsVisible,
-            "opacity-100": isControlsVisible,
-          },
-        )}
+        className={cn("absolute right-[9px] bottom-[16px] z-[9] h-[28px] w-[28px] rounded-md border border-[#1c1c1c]", {
+          "opacity-0": !isControlsVisible,
+          "opacity-100": isControlsVisible,
+        })}
         style={{
-          background:
-            "linear-gradient(180deg, #1b1b1b 0%, rgba(0, 0, 0, 0.38) 72.15%)",
+          background: "linear-gradient(180deg, #1b1b1b 0%, rgba(0, 0, 0, 0.38) 72.15%)",
           backdropFilter: "blur(7px)",
           transition: "opacity 0.3s ease-in-out",
         }}
       >
-        <button
-          className="flex h-full w-full items-center justify-center"
-          onClick={toggleFullscreen}
-        >
+        <button className="flex h-full w-full items-center justify-center" onClick={toggleFullscreen}>
           <FullScreen />
         </button>
       </div>
@@ -222,10 +210,8 @@ export default function WeightedPriceSentiment(props: IProps) {
                     </p>
                   </div>
                   <p className="text-[13px] leading-[1.35] font-medium text-white">
-                    Displays weighted market sentiment alongside price
-                    movements, allowing comparison between crowd conviction and
-                    actual market trends for deeper insight into potential
-                    correlations or divergences.
+                    Displays weighted market sentiment alongside price movements, allowing comparison between crowd
+                    conviction and actual market trends for deeper insight into potential correlations or divergences.
                   </p>
                 </div>
 

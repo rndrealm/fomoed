@@ -1,9 +1,10 @@
 import React from "react";
 import { Close, UpgradeStar } from "../icons/icons";
-import { IPlanType } from "@/services/queries/subscriptions/types";
+import { PlanType } from "@/lib/plans/plans.types";
+import Link from "next/link";
 
 const dataMap: Partial<
-  Record<IPlanType, { title: string; details: string; planName: string }>
+  Record<PlanType, { title: string; details: string; planName: string }>
 > = {
   // Not sure what are the Plus features at this time, rn I need only the PRO plan
   //
@@ -12,7 +13,7 @@ const dataMap: Partial<
   //     details:
   //       "Get unlimited access to 10+ Tabs, 44+ crypto assets, smart signals with Fomoed pro",
   //   },
-  PRO: {
+  pro: {
     title: "Upgrade to PRO",
     details:
       "Get access to 10+ Tabs, 44+ crypto assets and Smart Signals with the PRO plan",
@@ -21,16 +22,12 @@ const dataMap: Partial<
 };
 
 interface IProps {
-  upgradeToPlan: IPlanType;
+  upgradeToPlan: PlanType;
   handleClose?: () => void;
 }
 
 export function UpgradeTo(props: IProps) {
   const { upgradeToPlan, handleClose } = props;
-
-  function handleGoToPlans() {
-    window.location.href = `${process.env.NEXT_PUBLIC_LEGACY_APP_URL}/plans`;
-  }
 
   return (
     <div
@@ -55,13 +52,12 @@ export function UpgradeTo(props: IProps) {
         </div>
 
         <div className="flex flex-col gap-1">
-          <button
-            type="button"
+          <Link
             className="rounded-md bg-white py-2 text-xs text-black font-medium leading-[1.5]"
-            onClick={handleGoToPlans}
+            href="/pricing"
           >
             Upgrade to {dataMap[upgradeToPlan]?.planName}
-          </button>
+          </Link>
 
           <div className="flex justify-center">
             {/* <button
