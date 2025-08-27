@@ -63,6 +63,8 @@ import medal from "../../../../public/media/images/dashboard/medal.png";
 import duckPlay from "../../../../public/media/images/dashboard/duck-play.png";
 import deltaSpread from "../../../../public/media/images/dashboard/delta-spread.png";
 import whaleTracker from "../../../../public/media/images/dashboard/whale-tracker.png";
+import usaIcon from "../../../../public/media/images/dashboard/usa-icon.png";
+import tradingCalendar from "../../../../public/media/images/dashboard/trading-calendar.png";
 
 const dashboard = {
   layoutPlaceholder,
@@ -129,7 +131,9 @@ const dashboard = {
   medal,
   duckPlay,
   deltaSpread,
-  whaleTracker
+  whaleTracker,
+  usaIcon,
+  tradingCalendar,
 };
 
 export default dashboard;

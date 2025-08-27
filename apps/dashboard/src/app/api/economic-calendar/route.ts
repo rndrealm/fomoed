@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 async function fetchEconomicData(startTimestamp: number, endTimestamp: number) {
-  const url = `https://open-api-v4.coinglass.com/api/calendar/economic-data?start_time=${startTimestamp}&end_time=${endTimestamp}`;
+  const url = `https://open-api-v4.coinglass.com/api/calendar/economic-data?start_time=${startTimestamp}&end_time=${endTimestamp}&language=en`;
     
   const options = {
     method: "GET",
