@@ -10,6 +10,18 @@ import { useSupabaseAuth } from "@/components/providers";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+const loggedOutSubscriptionsResponseData: UserSubscriptionsResponseData = {
+  activePlan: "basic",
+  nextPeriodPlan: "basic",
+  hasTrialActive: false,
+  hasTrialAvailable: false,
+  subscriptions: [],
+  cancelsIn: null,
+  renewsIn: null,
+  renewsForUsd: null,
+  trialEndsIn: null,
+};
+
 export type SubscriptionAction = "sub" | "unsub" | "switch-to" | "resub";
 export type SubscriptionState = "basic" | "pro-pro" | "plus-plus" | "pro-plus" | "pro-basic" | "plus-basic";
 
@@ -79,7 +91,7 @@ export function getSubscriptionState(subscriptionData: UserSubscriptionsResponse
 
 export const useSubscription = () => {
   const router = useRouter();
-  const authContext = useSupabaseAuth();
+  const { isLoggedIn } = useSupabaseAuth();
   const queryClient = useQueryClient();
   const [isRedirecting, setIsRedirecting] = useState(false);
 
@@ -93,7 +105,7 @@ export const useSubscription = () => {
 
   const changeSubscriptionMutation = useMutation({
     mutationFn: async ({ action, billingPeriod, plan }: ChangeSubscriptionMutationOpts) => {
-      if (!authContext.isLoggedIn) {
+      if (!isLoggedIn) {
         setIsRedirecting(true);
         router.push("/auth/login");
         return;
@@ -133,8 +145,12 @@ export const useSubscription = () => {
   });
 
   const userSubscriptionsQuery = useQuery({
-    queryKey: ["user-subscriptions"],
+    queryKey: ["user-subscriptions", isLoggedIn],
     queryFn: async () => {
+      if (!isLoggedIn) {
+        return loggedOutSubscriptionsResponseData;
+      }
+
       setSubscriptionActionsPending((s) => {
         s.add("sub-mutation");
         return s;
