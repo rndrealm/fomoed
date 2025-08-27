@@ -1,14 +1,11 @@
 "use client";
-import classNames, { clsx } from "clsx";
 
 import React, { useState } from "react";
 import { PricingCard } from "../pricing-cards";
 import CheckeredLine from "../../icons/CheckeredLine";
-import ArrowRightPricing from "../../icons/ArrowRightPricing";
 import { AnimatePresence, motion } from "motion/react";
 import useSubscription from "@/hooks/subscription";
-import { LoaderCircle } from "lucide-react";
-import { RenderIf } from "@/components/shared";
+import { PricingCardButton } from "./pricing-card-common";
 
 const PlusPlanCard = ({
   title,
@@ -20,8 +17,18 @@ const PlusPlanCard = ({
   buttonColorProminent,
   buttonAction,
 }: PricingCard) => {
-  const { changeSubscriptionMutation, isBusy, userSubscriptionQueryData } = useSubscription();
+  const { changeSubscriptionMutation } = useSubscription();
   const [isHovered, setIsHovered] = useState(false);
+
+  function handleButtonClick() {
+    if (!buttonAction) throw new Error("Button action is not defined");
+
+    changeSubscriptionMutation.mutate({
+      action: buttonAction,
+      billingPeriod: switchActive ? "yearly" : "monthly",
+      plan: "plus",
+    });
+  }
 
   const variants = {
     hidden: { y: "-100%", opacity: 0 },
@@ -36,16 +43,6 @@ const PlusPlanCard = ({
       transition: { duration: 0.4, ease: "easeIn" },
     },
   };
-
-  function handleButtonClick() {
-    if (!buttonAction) throw new Error("Button action is not defined");
-
-    changeSubscriptionMutation.mutate({
-      action: buttonAction,
-      billingPeriod: switchActive ? "yearly" : "monthly",
-      plan: "plus",
-    });
-  }
 
   return (
     <motion.div
@@ -140,27 +137,16 @@ const PlusPlanCard = ({
               ))}
             </div>
 
-            <motion.button
+            <motion.div
               style={{ willChange: "transform" }}
               animate={{ y: isHovered ? "-20px" : "0" }}
               transition={{ ease: [0.4, 0, 0.2, 1], duration: 0.5 }}
-              onClick={handleButtonClick}
-              className={classNames(
-                "min-w-[50%] flex flex-row justify-between items-center mt-0 bg-[#131313] py-2.5 px-4 rounded-[40px] font-semibold whitespace-nowrap gap-x-2 transition-colors duration-500",
-                {
-                  "text-white/10": isBusy,
-                },
-              )}
+              className="w-full"
             >
-              {buttonConent}
-              <span className={clsx("duration-500", { "opacity-10": isBusy && !userSubscriptionQueryData })}>
-                {isBusy ? (
-                  <LoaderCircle className="animate-spin"> </LoaderCircle>
-                ) : (
-                  <ArrowRightPricing color="#878787" />
-                )}
-              </span>
-            </motion.button>
+              <PricingCardButton onClick={handleButtonClick} fullWidth={false}>
+                {buttonConent}
+              </PricingCardButton>
+            </motion.div>
 
             <div className="w-full text-center">
               <p className="font-normal text-xs text-[#A5A5A5]">Switch plans or cancel anytime</p>
