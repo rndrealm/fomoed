@@ -1,9 +1,6 @@
 import { geoLocationAtom } from "@/lib/atoms/geoLocation";
 import { formatPriceSignificant } from "@/lib/utils";
-import {
-  useFetchBinancePriceData,
-  useFetchBinanceTokenPrice,
-} from "@/services/queries/charts";
+import { useFetchBinancePriceData, useFetchBinanceTokenPrice } from "@/services/queries/charts";
 import { useAtomValue } from "jotai";
 import { useEffect, useRef, useState } from "react";
 
@@ -27,46 +24,43 @@ export function LivePrice(props: IProps) {
     // if (!location?.country) return;
     setTokenPrice("");
     setPercentChange(0);
-    // const ws = new WebSocket(
-    //   `wss://stream.binance.com:9443/stream?streams=${token.toLowerCase()}usdt@trade/${token.toLowerCase()}usdt@miniTicker`
-    // );
 
-    let ws: WebSocket;
+    // Create EventSource for Server-Sent Events instead of WebSocket
+    const eventSource = new EventSource(
+      `/api/websocket-proxy?token=${token}&country=${location?.country || "global"}&streamType=ticker`,
+    );
 
-    if (location?.country === "US") {
-      ws = new WebSocket(
-        `wss://stream.binance.us:9443/stream?streams=${token.toLowerCase()}usdt@trade/${token.toLowerCase()}usdt@miniTicker`
-      );
-    } else {
-      ws = new WebSocket(
-        `wss://stream.binance.com:9443/stream?streams=${token.toLowerCase()}usdt@trade/${token.toLowerCase()}usdt@miniTicker`
-      );
-    }
+    eventSource.onmessage = (event) => {
+      try {
+        const message = JSON.parse(event.data);
+        const stream = message.stream; // e.g., "btcusdt@trade"
+        const data = message.data;
 
-    ws.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      const stream = message.stream; // e.g., "btcusdt@trade"
-      const data = message.data;
+        if (stream.endsWith("@trade")) {
+          setTokenPrice(data.p);
+          hasLivePrice.current = true;
+        }
 
-      if (stream.endsWith("@trade")) {
-        setTokenPrice(data.p);
-        hasLivePrice.current = true;
-      }
+        if (stream.endsWith("@miniTicker")) {
+          const current = parseFloat(data.c); // close price
+          const open = parseFloat(data.o); // open price
+          const change = ((current - open) / open) * 100;
 
-      if (stream.endsWith("@miniTicker")) {
-        const current = parseFloat(data.c); // close price
-        const open = parseFloat(data.o); // open price
-        const change = ((current - open) / open) * 100;
-
-        setPercentChange(change);
-        hasLivePrice.current = true;
+          setPercentChange(change);
+          hasLivePrice.current = true;
+        }
+      } catch (error) {
+        console.error("Error parsing SSE message:", error);
       }
     };
 
+    eventSource.onerror = (error) => {
+      console.error("EventSource error:", error);
+      eventSource.close();
+    };
+
     return () => {
-      if (ws) {
-        ws.close();
-      }
+      eventSource.close();
     };
   }, [token, location?.country]);
 
@@ -83,9 +77,7 @@ export function LivePrice(props: IProps) {
 
   return (
     <div className="flex flex-col gap-1">
-      <h3 className="text-[#C3C3C3] text-[15px] leading-[1.25] font-medium">
-        Price
-      </h3>
+      <h3 className="text-[#C3C3C3] text-[15px] leading-[1.25] font-medium">Price</h3>
       <div className="flex items-center gap-2">
         <h2 className="text-xl sm:text-2xl text-white leading-[1.35] font-bold">
           <span className="text-[#AFAFAF] text-xl">$</span>
