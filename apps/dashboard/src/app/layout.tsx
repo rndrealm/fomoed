@@ -13,6 +13,7 @@ import { headers } from "next/headers";
 import OverlayRoot from "@/components/ui/overlay-root";
 import AnalyticsProvider from "@/components/providers/AnalyticsProvider";
 import ServiceWorkerRegister from "@/lib/sw/ServiceWorkerRegister";
+import CookiesManager from "@/lib/cookies/cookies-manager";
 // import { ReactScan } from "@/components/shared/ReactScan";
 
 const geistSans = Geist({
@@ -27,8 +28,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Fomoed",
-  description:
-    "Navigate crypto emotions, access Altcoins, and get precise market sentiment analysis effortlessly.",
+  description: "Navigate crypto emotions, access Altcoins, and get precise market sentiment analysis effortlessly.",
   keywords: [
     "web3",
     "ethereum",
@@ -60,9 +60,8 @@ export default function RootLayout({
     <html lang="en" className="h-full">
       {/* <ReactScan /> */}
       <ServiceWorkerRegister />
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} h-full bg-[#0C0C0C] antialiased`}
-      >
+      <CookiesManager />
+      <body className={`${geistSans.variable} ${geistMono.variable} h-full bg-[#0C0C0C] antialiased`}>
         <OverlayRoot />
         <Analytics />
         <div id="root" className="h-full">
