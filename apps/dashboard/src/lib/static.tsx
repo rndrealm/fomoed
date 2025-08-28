@@ -109,6 +109,8 @@ export const layoutOptions: LayoutOptions[] = [
   },
 ];
 
+const disabledWgSlugs = process.env.NEXT_PUBLIC_DISABLED_WG_SLUGS?.split(",") || [];
+
 export const layoutOptionsMap = [
   // {
   //   name: "Token Price History",
@@ -325,7 +327,7 @@ export const layoutOptionsMap = [
   //   category: "charts",
   //   tags: ["charts"],
   // },
-];
+].filter((i) => !disabledWgSlugs.includes(i.slug));
 
 export type LayoutOptionType = typeof layoutOptionsMap;
 
