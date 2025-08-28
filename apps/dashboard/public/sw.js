@@ -28,7 +28,7 @@ function supabaseResponseHandler(response) {
         console.log("[SW] Supabase JSON response:", json);
       }
 
-      if (maybeJson?.code === "refresh_token_not_found") {
+      if (json?.code === "refresh_token_not_found") {
         console.log("[SW] Detected refresh_token_not_found error");
       }
     });
