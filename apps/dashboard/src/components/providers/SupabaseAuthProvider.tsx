@@ -52,7 +52,7 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
   const pathname = usePathname();
 
   useEffect(() => {
-    console.log("triggered use effect");
+    console.log("triggered auth use effect");
 
     // Get initial session
     const initializeAuth = async () => {
@@ -120,7 +120,6 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
       }
     }
   }, [isLoading, session, pathname, router]);
-  console.log(isLoading, session);
 
   // Provide the context value
   const value: SupabaseAuthContextType = {
