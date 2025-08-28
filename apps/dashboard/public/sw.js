@@ -18,6 +18,8 @@ function sendClearCookies() {
   console.log("[SW] Sent message to client to clear cookies");
 }
 
+const clearCookiesAfterErrorCodes = ["refresh_token_already_used", "refresh_token_not_found"];
+
 function supabaseResponseHandler(response) {
   if (DEBUG) {
     response
@@ -37,8 +39,8 @@ function supabaseResponseHandler(response) {
         console.log("[SW] Supabase JSON response:", json);
       }
 
-      if (json?.code === "refresh_token_not_found") {
-        console.log("[SW] Detected refresh_token_not_found error");
+      if (json?.code && clearCookiesAfterErrorCodes.includes(json.code)) {
+        console.log(`[SW] Detected ${json?.code} error`);
         sendClearCookies();
       }
     });
