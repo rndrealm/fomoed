@@ -21,48 +21,106 @@ export function LivePrice(props: IProps) {
   const [percentChange, setPercentChange] = useState(0);
 
   useEffect(() => {
-    // if (!location?.country) return;
-    setTokenPrice("");
-    setPercentChange(0);
+  setTokenPrice("");
+  setPercentChange(0);
 
-    // Create EventSource for Server-Sent Events instead of WebSocket
-    const eventSource = new EventSource(
-      `/api/websocket-proxy?token=${token}&country=${location?.country || "global"}&streamType=ticker`,
-    );
+  let eventSource: EventSource | null = null;
+  let reconnectTimeout: NodeJS.Timeout | null = null;
+  let isComponentMounted = true;
+
+  const connect = () => {
+    if (!isComponentMounted) return;
+
+    eventSource = new EventSource(`/api/websocket-proxy?token=${token}&streamType=ticker`);
+
+    eventSource.onopen = () => {
+      // console.log("Ticker SSE connection opened");
+      if (reconnectTimeout) {
+        clearTimeout(reconnectTimeout);
+        reconnectTimeout = null;
+      }
+    };
 
     eventSource.onmessage = (event) => {
       try {
         const message = JSON.parse(event.data);
-        const stream = message.stream; // e.g., "btcusdt@trade"
-        const data = message.data;
 
-        if (stream.endsWith("@trade")) {
-          setTokenPrice(data.p);
-          hasLivePrice.current = true;
+        // Skip heartbeat messages
+        if (message.type === "heartbeat") {
+          return;
         }
 
-        if (stream.endsWith("@miniTicker")) {
+        // For multi-stream, data comes wrapped in stream/data format
+        const stream = message.stream;
+        const data = message.data;
+
+        if (!stream || !data) {
+          // console.log("No stream or data found:", message);
+          return;
+        }
+
+        // console.log("Received stream:", stream, "Data:", data);
+
+        // Handle trade stream for real-time price
+        if (stream?.endsWith("@trade")) {
+          setTokenPrice(data.p);
+          hasLivePrice.current = true;
+          // console.log("Updated price from trade:", data.p);
+        }
+
+        // Handle miniTicker stream for percentage change
+        if (stream?.endsWith("@miniTicker")) {
           const current = parseFloat(data.c); // close price
           const open = parseFloat(data.o); // open price
           const change = ((current - open) / open) * 100;
 
           setPercentChange(change);
           hasLivePrice.current = true;
+          // console.log("Updated percentage change from miniTicker:", change.toFixed(2) + "%");
+
+          // Also update price from miniTicker if no trade data yet
+          if (!hasLivePrice.current) {
+            setTokenPrice(data.c);
+          }
         }
       } catch (error) {
-        console.error("Error parsing SSE message:", error);
+        console.error("Error parsing SSE message:", error, "Raw data:", event.data);
       }
     };
 
     eventSource.onerror = (error) => {
-      console.error("EventSource error:", error);
-      eventSource.close();
-    };
+      console.error("Ticker EventSource error:", error);
 
-    return () => {
-      eventSource.close();
+      if (eventSource) {
+        eventSource.close();
+        eventSource = null;
+      }
+
+      if (isComponentMounted && !reconnectTimeout) {
+        reconnectTimeout = setTimeout(() => {
+          if (isComponentMounted) {
+            console.log("Attempting to reconnect ticker...");
+            connect();
+          }
+        }, 3000);
+      }
     };
-  }, [token, location?.country]);
+  };
+
+  connect();
+
+  return () => {
+    isComponentMounted = false;
+
+    if (reconnectTimeout) {
+      clearTimeout(reconnectTimeout);
+    }
+
+    if (eventSource) {
+      eventSource.close();
+    }
+  };
+}, [token]);
 
   useEffect(() => {
     if (price?.lastPrice && !hasLivePrice.current) {

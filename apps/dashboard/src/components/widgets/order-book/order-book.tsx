@@ -59,53 +59,142 @@ function Orders(props: IOrders) {
   const activeLayout = useAtomValue(activeTabAtom);
   const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
 
-  useEffect(() => {
+   useEffect(() => {
     const tokenOption = `${widget?.props?.token?.toLowerCase()}usdt`;
+    let orderBookSource: EventSource | null = null;
+    let tradeSource: EventSource | null = null;
+    const reconnectTimeout: NodeJS.Timeout | null = null;
+    let isComponentMounted = true;
 
-    const eventSource = new EventSource(
-      `/api/websocket-proxy?token=${widget?.props?.token}&country=${location?.country || "global"}&streamType=orderbook`,
-    );
+    const connectOrderBook = () => {
+      if (!isComponentMounted) return;
 
-    eventSource.onmessage = (event) => {
-      try {
-        const message = JSON.parse(event.data);
-        const data = message.data;
-        const stream = message.stream;
+      // Separate connection for order book data
+      orderBookSource = new EventSource(`/api/websocket-proxy?token=${widget?.props?.token}&streamType=depth`);
 
-        if (stream === `${tokenOption}@depth20@100ms`) {
-          setBuys(normalizeOrders(data.bids));
-          setSales(normalizeOrders(data.asks));
-        }
+      orderBookSource.onopen = () => {
+        // console.log("Order book SSE connection opened");
+      };
 
-        if (stream === `${tokenOption}@trade`) {
-          const currentPrice = parseFloat(data.p);
-          setLivePrice(data.p);
+      orderBookSource.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data);
 
-          if (previousPriceRef.current !== null) {
-            if (currentPrice > previousPriceRef.current) {
-              setPriceDirection("up");
-            } else if (currentPrice < previousPriceRef.current) {
-              setPriceDirection("down");
-            }
+          if (message.type === "heartbeat") {
+            return;
           }
 
-          previousPriceRef.current = currentPrice;
-          hasLivePrice.current = true;
+          // Handle depth data
+          if (message.stream && message.stream.includes('@depth')) {
+            const data = message.data;
+            setBuys(normalizeOrders(data.bids));
+            setSales(normalizeOrders(data.asks));
+          } else if (message.bids && message.asks) {
+            // Direct depth data without stream wrapper
+            setBuys(normalizeOrders(message.bids));
+            setSales(normalizeOrders(message.asks));
+          }
+        } catch (error) {
+          console.error("Error parsing order book SSE message:", error);
         }
-      } catch (error) {
-        console.error("Error parsing SSE message:", error);
-      }
+      };
+
+      orderBookSource.onerror = (error) => {
+        console.error("Order book EventSource error:", error);
+        if (orderBookSource) {
+          orderBookSource.close();
+          orderBookSource = null;
+        }
+      };
     };
 
-    eventSource.onerror = (error) => {
-      console.error("EventSource error:", error);
-      eventSource.close();
+    const connectTrades = () => {
+      if (!isComponentMounted) return;
+
+      // Separate connection for trade data
+      tradeSource = new EventSource(`/api/websocket-proxy?token=${widget?.props?.token}&streamType=trade`);
+
+      tradeSource.onopen = () => {
+        // console.log("Trade SSE connection opened");
+      };
+
+      tradeSource.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data);
+
+          if (message.type === "heartbeat") {
+            return;
+          }
+
+          // console.log('Trade message received:', message);
+
+          let tradeData = null;
+
+          // Handle trade data with stream wrapper
+          if (message.stream && message.stream.includes('@trade')) {
+            tradeData = message.data;
+          } 
+          // Handle direct trade data
+          else if (message.p && message.q && message.T) {
+            tradeData = message;
+          }
+
+          if (tradeData) {
+            const currentPrice = parseFloat(tradeData.p);
+            setLivePrice(tradeData.p);
+
+            // console.log('Setting live price:', tradeData.p, 'Parsed:', currentPrice);
+
+            if (previousPriceRef.current !== null) {
+              if (currentPrice > previousPriceRef.current) {
+                setPriceDirection("up");
+                // console.log('Price went UP');
+              } else if (currentPrice < previousPriceRef.current) {
+                setPriceDirection("down");
+                // console.log('Price went DOWN');
+              }
+            }
+
+            previousPriceRef.current = currentPrice;
+            hasLivePrice.current = true;
+          }
+        } catch (error) {
+          console.error("Error parsing trade SSE message:", error, event.data);
+        }
+      };
+
+      tradeSource.onerror = (error) => {
+        console.error("Trade EventSource error:", error);
+        if (tradeSource) {
+          tradeSource.close();
+          tradeSource = null;
+        }
+      };
     };
+
+    // Reset live price flag when token changes
+    hasLivePrice.current = false;
+    
+    // Connect both streams
+    connectOrderBook();
+    connectTrades();
 
     return () => {
-      eventSource.close();
+      isComponentMounted = false;
+
+      if (reconnectTimeout) {
+        clearTimeout(reconnectTimeout);
+      }
+
+      if (orderBookSource) {
+        orderBookSource.close();
+      }
+
+      if (tradeSource) {
+        tradeSource.close();
+      }
     };
-  }, [widget?.props?.token, location?.country]);
+  }, [widget?.props?.token]);
 
   useEffect(() => {
     if (price?.lastPrice && !hasLivePrice.current) {

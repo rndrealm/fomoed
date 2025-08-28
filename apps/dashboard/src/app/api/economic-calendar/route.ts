@@ -42,7 +42,7 @@ export async function GET() {
     const filteredAndFormattedData = rawData.data
       .filter((event: any) => {
         const isUS = event.country_code === "USA";
-        const isHighImpact = event.importance_level === 3;
+        const isHighImpact = event.importance_level >= 3;
         return isUS && isHighImpact;
       })
       .map((event: any) => {
