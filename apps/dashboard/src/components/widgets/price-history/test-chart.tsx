@@ -9,15 +9,7 @@ import {
   TimeScaleApiRef,
   TimeScaleFitContentTrigger,
 } from "lightweight-charts-react-components";
-import {
-  CandlestickData,
-  ColorType,
-  Coordinate,
-  LineData,
-  LineType,
-  MouseEventParams,
-  Time,
-} from "lightweight-charts";
+import { CandlestickData, ColorType, Coordinate, LineData, LineType, MouseEventParams, Time } from "lightweight-charts";
 import { RenderIf } from "@/components/shared";
 import { useFetchBinancePriceData } from "@/services/queries/charts";
 import { formatChartTooltipDate, formatPriceSignificant } from "@/lib/utils";
@@ -48,12 +40,7 @@ function TestChart(props: IProps) {
 
   const location = useAtomValue(geoLocationAtom);
 
-  const { data = [] } = useFetchBinancePriceData(
-    `${token}USDT`,
-    period,
-    1000,
-    location?.country,
-  );
+  const { data = [] } = useFetchBinancePriceData(`${token}USDT`, period, 1000, location?.country);
 
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
@@ -112,9 +99,7 @@ function TestChart(props: IProps) {
         const res = param.seriesData.get(seriesApi) as CandlestickData;
         data.time = res.time as number;
         data.value = res.close;
-        coordinate = candleSeriesRef.current
-          .api()
-          ?.priceToCoordinate(data.value);
+        coordinate = candleSeriesRef.current.api()?.priceToCoordinate(data.value);
       }
     }
 
@@ -128,10 +113,7 @@ function TestChart(props: IProps) {
     if (!coordinate) return;
 
     let shiftedCoordinate = param.point.x - toolTipWidth / 2;
-    shiftedCoordinate = Math.max(
-      0,
-      Math.min(container.clientWidth - toolTipWidth, shiftedCoordinate),
-    );
+    shiftedCoordinate = Math.max(0, Math.min(container.clientWidth - toolTipWidth, shiftedCoordinate));
 
     const coordinateY =
       coordinate - toolTipHeight - toolTipMargin > 0
@@ -149,48 +131,96 @@ function TestChart(props: IProps) {
   useEffect(() => {
     if (!token || !period) return;
 
-    let ws: WebSocket;
+    let eventSource: EventSource | null = null;
+    let reconnectTimeout: NodeJS.Timeout | null = null;
+    let isComponentMounted = true;
 
-    if (location?.country === "US") {
-      ws = new WebSocket(
-        `wss://stream.binance.us:9443/ws/${token.toLowerCase()}usdt@kline_${period}`,
-      );
-    } else {
-      ws = new WebSocket(
-        `wss://stream.binance.com:9443/ws/${token.toLowerCase()}usdt@kline_${period}`,
-      );
-    }
+    const connect = () => {
+      if (!isComponentMounted) return;
 
-    ws.onmessage = (event) => {
-      const msg = JSON.parse(event.data);
-      const k = msg.k;
+      eventSource = new EventSource(`/api/websocket-proxy?token=${token}&streamType=kline&period=${period}`);
 
-      const newData = {
-        time: Math.floor(k.t / 1000),
-        open: parseFloat(k.o),
-        high: parseFloat(k.h),
-        low: parseFloat(k.l),
-        close: parseFloat(k.c),
-        value: parseFloat(k.c),
+      eventSource.onopen = () => {
+        // console.log(`Kline SSE connection opened for ${token} - ${period}`);
+        if (reconnectTimeout) {
+          clearTimeout(reconnectTimeout);
+          reconnectTimeout = null;
+        }
       };
 
-      dataRef.current.push(newData as any);
+      eventSource.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data);
 
-      if ((lineSeriesRef.current || candleSeriesRef.current) && data?.length) {
-        if (isCandleStick) {
-          candleSeriesRef.current?.api()?.update(newData as any);
-        } else {
-          lineSeriesRef?.current?.api()?.update(newData as any);
+          if (message.type === "heartbeat") {
+            return;
+          }
+
+          const k = message.k;
+
+          if (!k) {
+            console.warn("No kline data in message:", message);
+            return;
+          }
+
+          const newData = {
+            time: Math.floor(k.t / 1000),
+            open: parseFloat(k.o),
+            high: parseFloat(k.h),
+            low: parseFloat(k.l),
+            close: parseFloat(k.c),
+            value: parseFloat(k.c),
+          };
+
+          dataRef.current.push(newData as any);
+
+          if ((lineSeriesRef.current || candleSeriesRef.current) && data?.length) {
+            if (isCandleStick) {
+              candleSeriesRef.current?.api()?.update(newData as any);
+            } else {
+              lineSeriesRef?.current?.api()?.update(newData as any);
+            }
+          }
+        } catch (error) {
+          console.error("Error parsing kline SSE message:", error);
         }
-      }
+      };
+
+      eventSource.onerror = (error) => {
+        console.error("Kline EventSource error:", error);
+
+        if (eventSource) {
+          eventSource.close();
+          eventSource = null;
+        }
+
+        
+        if (isComponentMounted && !reconnectTimeout) {
+          reconnectTimeout = setTimeout(() => {
+            if (isComponentMounted) {
+              // console.log(`Attempting to reconnect kline for ${token} - ${period}...`);
+              connect();
+            }
+          }, 3000);
+        }
+      };
     };
+
+    
+    connect();
 
     return () => {
-      if (ws) {
-        ws.close();
+      isComponentMounted = false;
+
+      if (reconnectTimeout) {
+        clearTimeout(reconnectTimeout);
+      }
+
+      if (eventSource) {
+        eventSource.close();
       }
     };
-  }, [token, period, data, isCandleStick, location?.country]);
+  }, [token, period, data, isCandleStick]); 
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
@@ -274,11 +304,7 @@ function TestChart(props: IProps) {
         </RenderIf>
 
         <RenderIf condition={isCandleStick}>
-          <CandlestickSeries
-            ref={candleSeriesRef}
-            data={data as any}
-            reactive
-          />
+          <CandlestickSeries ref={candleSeriesRef} data={data as any} reactive />
         </RenderIf>
         <TimeScale
           ref={timeScaleRef}
