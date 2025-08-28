@@ -60,53 +60,50 @@ function Orders(props: IOrders) {
   const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
 
   useEffect(() => {
-    // if (!location?.country) return;
     const tokenOption = `${widget?.props?.token?.toLowerCase()}usdt`;
-    // const ws = new WebSocket(
-    //   `wss://stream.binance.com:9443/stream?streams=${tokenOption}@depth5@100ms/${tokenOption}@trade`
-    // );
 
-    let ws: WebSocket;
+    const eventSource = new EventSource(
+      `/api/websocket-proxy?token=${widget?.props?.token}&country=${location?.country || "global"}&streamType=orderbook`,
+    );
 
-    if (location?.country === "US") {
-      ws = new WebSocket(
-        `wss://stream.binance.us:9443/stream?streams=${tokenOption}@depth20@100ms/${tokenOption}@trade`
-      );
-    } else {
-      ws = new WebSocket(
-        `wss://stream.binance.com:9443/stream?streams=${tokenOption}@depth20@100ms/${tokenOption}@trade`
-      );
-    }
+    eventSource.onmessage = (event) => {
+      try {
+        const message = JSON.parse(event.data);
+        const data = message.data;
+        const stream = message.stream;
 
-    ws.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      const data = message.data;
-      const stream = message.stream;
-
-      if (stream === `${tokenOption}@depth20@100ms`) {
-        setBuys(normalizeOrders(data.bids));
-        setSales(normalizeOrders(data.asks));
-      }
-
-      if (stream === `${tokenOption}@trade`) {
-        const currentPrice = parseFloat(data.p);
-        setLivePrice(data.p); // last price
-
-        if (previousPriceRef.current !== null) {
-          if (currentPrice > previousPriceRef.current) {
-            setPriceDirection("up");
-          } else if (currentPrice < previousPriceRef.current) {
-            setPriceDirection("down");
-          }
+        if (stream === `${tokenOption}@depth20@100ms`) {
+          setBuys(normalizeOrders(data.bids));
+          setSales(normalizeOrders(data.asks));
         }
 
-        previousPriceRef.current = currentPrice;
-        hasLivePrice.current = true;
+        if (stream === `${tokenOption}@trade`) {
+          const currentPrice = parseFloat(data.p);
+          setLivePrice(data.p);
+
+          if (previousPriceRef.current !== null) {
+            if (currentPrice > previousPriceRef.current) {
+              setPriceDirection("up");
+            } else if (currentPrice < previousPriceRef.current) {
+              setPriceDirection("down");
+            }
+          }
+
+          previousPriceRef.current = currentPrice;
+          hasLivePrice.current = true;
+        }
+      } catch (error) {
+        console.error("Error parsing SSE message:", error);
       }
     };
 
+    eventSource.onerror = (error) => {
+      console.error("EventSource error:", error);
+      eventSource.close();
+    };
+
     return () => {
-      ws.close();
+      eventSource.close();
     };
   }, [widget?.props?.token, location?.country]);
 
@@ -165,7 +162,7 @@ function Orders(props: IOrders) {
               "text-base leading-[1.35] font-semibold",
               priceDirection === "up" && "text-[#1FC16B]",
               priceDirection === "down" && "text-[#FF8970]",
-              !priceDirection && "text-white"
+              !priceDirection && "text-white",
             )}
           >
             {formatPriceSignificant(livePrice)}
