@@ -246,9 +246,9 @@ const SvgLeft = () => {
           width="113.141"
           height="145.455"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
-          <feFlood flood-opacity="2" result="BackgroundImageFix" />
+          <feFlood floodOpacity="2" result="BackgroundImageFix" />
           <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
           <feColorMatrix
             in="SourceAlpha"
@@ -279,12 +279,12 @@ const SvgLeft = () => {
           y2="335"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0.1" stop-color="#555555" />
-          <stop offset="0.503054" stop-color="#111111" stop-opacity="0.5" />
+          <stop offset="0.1" stopColor="#555555" />
+          <stop offset="0.503054" stopColor="#111111" stop-opacity="0.5" />
         </linearGradient>
         <linearGradient id="paint1_linear_8352_196685" x1="-10" y1="6" x2="124" y2="140" gradientUnits="userSpaceOnUse">
           <stop offset="0.662914" stop-opacity="0" />
-          <stop offset="1" stop-color="#C0561E" />
+          <stop offset="1" stopColor="#C0561E" />
         </linearGradient>
       </defs>
     </svg>
@@ -308,9 +308,9 @@ const SvgRight = () => {
           width="113.141"
           height="145.455"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
           <feColorMatrix
             in="SourceAlpha"
@@ -341,8 +341,8 @@ const SvgRight = () => {
           y2="335"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0.1" stop-color="#555555" />
-          <stop offset="0.503054" stop-color="#111111" stop-opacity="0.5" />
+          <stop offset="0.1" stopColor="#555555" />
+          <stop offset="0.503054" stopColor="#111111" stop-opacity="0.5" />
         </linearGradient>
       </defs>
     </svg>

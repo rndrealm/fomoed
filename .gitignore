@@ -42,3 +42,6 @@ supabase/.temp/
 
 # IDE
 .vscode
+
+# Custom
+tmp/

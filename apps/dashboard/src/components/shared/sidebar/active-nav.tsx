@@ -177,21 +177,21 @@ const RectFomoedLogo = () => {
       </mask>
       <g mask="url(#mask0_478_104359)">
         <g filter="url(#filter1_f_478_104359)">
-          <ellipse cx="15.9959" cy="-1.60047" rx="12.16" ry="2.88" fill="#BF340A" fill-opacity="0.5" />
+          <ellipse cx="15.9959" cy="-1.60047" rx="12.16" ry="2.88" fill="#BF340A" fillOpacity="0.5" />
         </g>
       </g>
       <g filter="url(#filter2_d_478_104359)">
         <path
           d="M22.2607 8.62134L21.2081 8.45463C18.9441 8.09604 16.818 9.64072 16.4594 11.9048L15.0731 20.6576C14.7145 22.9217 12.5884 24.4664 10.3243 24.1078L9.60417 23.9937"
           stroke="white"
-          stroke-width="2.69224"
+          strokeWidth="2.69224"
         />
-        <path d="M12.1797 13.7295L19.6584 14.914" stroke="white" stroke-width="2.69224" />
+        <path d="M12.1797 13.7295L19.6584 14.914" stroke="white" strokeWidth="2.69224" />
         <path
           d="M17.3047 14.877L16.8835 17.536C16.8835 17.536 17.0111 16.7304 17.7252 16.3317C18.3942 15.9581 19.4122 16.2708 19.4122 16.2708L19.576 15.2367L17.3047 14.877Z"
           fill="white"
           stroke="white"
-          stroke-width="0.112177"
+          strokeWidth="0.112177"
         />
       </g>
       <defs>
@@ -202,9 +202,9 @@ const RectFomoedLogo = () => {
           width="32"
           height="35.84"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
           <feColorMatrix
             in="SourceAlpha"
@@ -225,9 +225,9 @@ const RectFomoedLogo = () => {
           width="41.2158"
           height="22.6558"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
           <feGaussianBlur stdDeviation="4.224" result="effect1_foregroundBlur_478_104359" />
         </filter>
@@ -238,9 +238,9 @@ const RectFomoedLogo = () => {
           width="13.9751"
           height="19.571"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feColorMatrix
             in="SourceAlpha"
             type="matrix"
@@ -262,11 +262,11 @@ const RectFomoedLogo = () => {
           gradientUnits="userSpaceOnUse"
           gradientTransform="translate(16 6.15384) rotate(90) scale(28.3077 39.7201)"
         >
-          <stop offset="0.339415" stop-color="#020100" />
-          <stop offset="0.631104" stop-color="#631B06" />
-          <stop offset="0.719585" stop-color="#8B2505" />
-          <stop offset="0.835125" stop-color="#BD4618" />
-          <stop offset="0.91044" stop-color="#F7984B" />
+          <stop offset="0.339415" stopColor="#020100" />
+          <stop offset="0.631104" stopColor="#631B06" />
+          <stop offset="0.719585" stopColor="#8B2505" />
+          <stop offset="0.835125" stopColor="#BD4618" />
+          <stop offset="0.91044" stopColor="#F7984B" />
         </radialGradient>
       </defs>
     </svg>
