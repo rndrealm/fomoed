@@ -102,18 +102,6 @@ export async function loginUser(body: Omit<RegisterUserPayload, "username">): Pr
       };
     }
 
-    const insertPublicRes = await supabase.from("public_user_data").upsert({
-      display_name: data.user.email?.split("@")[0],
-      user_id: data.user.id,
-    });
-
-    if (insertPublicRes.error) {
-      return {
-        success: false,
-        message: "Failed to insert public user data",
-      };
-    }
-
     return {
       email,
       success: true,
