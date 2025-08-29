@@ -29,7 +29,10 @@ const ActiveNav = (props: IActiveNavProps) => {
       style={{ pointerEvents: isSideMenuOpen ? "all" : "none" }}
       className="font-inter absolute left-[0px] inset-0 z-50 flex h-full w-full min-w-[292px] flex-col items-center justify-between border-l-[0px] border-[#2A2A2A] bg-transparent py-0"
     >
-      <div className="max-h-[63px] border-b-[1px] border-[#111111] box-content flex w-full flex-row items-center justify-between px-[0px]">
+      <div
+        style={{ borderColor: isHovered ? "transparent" : "#111111" }}
+        className="max-h-[63px] border-b-[1px] border-[#111111] box-content flex w-full flex-row items-center justify-between px-[0px]"
+      >
         <motion.button
           className="relative flex h-[64px] w-[64px] items-center justify-center"
           animate={{ x: isSideMenuOpen ? "8px" : 0 }}
@@ -126,8 +129,7 @@ const ActiveNav = (props: IActiveNavProps) => {
           borderTopColor: isSideMenuOpen ? "#111111" : "#111111",
         }}
         transition={sideMenuAnimProps}
-        id="popup-trigger-div"
-        className="flex w-full flex-row min-h-[64px] items-center gap-3 border-t-[1px] border-[#111111] px-[0px] pt-0"
+        className="pointer-events-none flex w-full flex-row min-h-[64px] items-center gap-3 border-t-[1px] border-[#111111] px-[0px] pt-0"
       >
         <motion.div
           initial={{ x: 0 }}
@@ -137,9 +139,13 @@ const ActiveNav = (props: IActiveNavProps) => {
             ease: sideMenuAnimProps.ease,
             duration: sideMenuAnimProps.duration,
           }}
-          className="pointer-events-auto flex h-[24px] w-[24px] mx-[18px] md:mx-[0px] md:h-[64px] md:w-[64px] cursor-pointer items-center justify-center overflow-hidden rounded-[4px]"
+          className="flex h-[24px] w-[24px] mx-[18px] md:mx-[0px] md:h-[64px] md:w-[64px] cursor-pointer items-center justify-center overflow-hidden rounded-[4px]"
         >
-          <NavbarProfileButton authUser={authUser} className="pr-0 pb-2.5 pl-3">
+          <NavbarProfileButton
+            authUser={authUser}
+            buttonClassName="pointer-events-auto"
+            menuClassName="pr-0 pb-2.5 pl-3"
+          >
             <ProfileIcon user={authUser} />
           </NavbarProfileButton>
         </motion.div>

@@ -2,11 +2,7 @@ import React, { useMemo, useRef, useState } from "react";
 import SearchIcon from "../icons/SearchIcon";
 import { Input } from "../ui/input";
 import { QuickWidgetItem } from "./quick-widget-item";
-import {
-  layoutOptionsMap,
-  LayoutOptionType,
-  widgetPropsDefaults,
-} from "@/lib/static";
+import { layoutOptionsMap, LayoutOptionType, widgetPropsDefaults } from "@/lib/static";
 import { RenderIf } from "../shared";
 import Image from "next/image";
 import dashboard from "@/lib/assets/dashboard";
@@ -15,21 +11,10 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { settingAtom, updateSettingAtom } from "@/lib/atoms/settingsAtom";
 import { v4 as uuidv4 } from "uuid";
 
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { CommunityIcon } from "../icons/icons";
 import CloseIcon from "../icons/CloseIcon";
-import {
-  addWidgetToExistingLayoutAtom,
-  addWidgetToNewLayoutAtom,
-  layoutAtom,
-} from "@/lib/atoms/layoutAtom";
+import { addWidgetToExistingLayoutAtom, addWidgetToNewLayoutAtom, layoutAtom } from "@/lib/atoms/layoutAtom";
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 import { useGetUserPlans } from "@/services/queries/subscriptions";
 import { getGridPosition } from "@/charts/helpers";
@@ -72,8 +57,7 @@ export function QuickWidgets(props: IProps) {
     });
 
     // return the default widget layout for the modal
-    if (!searchValue && selectedTag === "all")
-      return filteredDefaultWidgetLayout;
+    if (!searchValue && selectedTag === "all") return filteredDefaultWidgetLayout;
 
     const fillFavoriteWidgetOptions = settings.favorite_widgets.map((slug) => {
       const findWidget = layoutOptionsMap.find((ln) => ln.slug === slug)!;
@@ -95,10 +79,7 @@ export function QuickWidgets(props: IProps) {
       // const category = widget.category.toLowerCase();
       const search = searchValue.toLowerCase();
 
-      return (
-        name.includes(search) &&
-        (tags.includes(selectedTag) || selectedTag === "all")
-      );
+      return name.includes(search) && (tags.includes(selectedTag) || selectedTag === "all");
     });
   }, [searchValue, selectedTag, settings.favorite_widgets]);
 
@@ -123,8 +104,7 @@ export function QuickWidgets(props: IProps) {
 
     const { x, y } = getGridPosition(currLayout?.widgets.length || 0);
     const newId = uuidv4();
-    const widgetDefaults =
-      widgetPropsDefaults[widget.slug as keyof typeof widgetPropsDefaults];
+    const widgetDefaults = widgetPropsDefaults[widget.slug as keyof typeof widgetPropsDefaults];
     const defaultWAndH = widgetDefaults.meta || { w: 3, h: 2 };
     const newWidget = {
       id: newId,
@@ -178,10 +158,7 @@ export function QuickWidgets(props: IProps) {
   };
 
   return (
-    <Command
-      style={{ backdropFilter: "blur(24px)" }}
-      className="bg-[#1011139a] rounded-[40px] py-8"
-    >
+    <Command style={{ backdropFilter: "blur(24px)" }} className="bg-[#1011139a] rounded-[40px] py-8">
       <div className="relative h-full w-full flex flex-col justify-start items-center gap-8">
         {/* bottom opacity thing */}
         <div className="absolute z-10 bottom-16 left-0 w-full h-24 bg-gradient-to-b from-transparent to-black/100 pointer-events-none"></div>
@@ -223,11 +200,7 @@ export function QuickWidgets(props: IProps) {
             </div>
 
             <div className="h-[32px] bg-gradient-widget-preview-button aspect-square border-[1px] border-[#353535] rounded-[8px] absolute top-0 right-18 translate-x-1/2 flex items-center justify-center">
-              <button
-                type="button"
-                className="scale-[0.675]"
-                onClick={handleBack}
-              >
+              <button type="button" className="scale-[0.675]" onClick={handleBack}>
                 <CloseIcon color="#fff" />
               </button>
             </div>
@@ -243,9 +216,7 @@ export function QuickWidgets(props: IProps) {
                   type="button"
                   className={cn(
                     "text-xs font-semibold px-3 py-2 rounded-[34px]",
-                    active
-                      ? "text-[#737373] bg-[#fff]"
-                      : "text-[#737373] bg-[#1D1D1D]",
+                    active ? "text-[#737373] bg-[#fff]" : "text-[#737373] bg-[#1D1D1D]",
                   )}
                   onClick={() => {
                     setSelectedTag(item.value);
@@ -262,9 +233,7 @@ export function QuickWidgets(props: IProps) {
         <CommandList className="h-[70%] scrollbar max-h-full min-w-full px-8 xl:px-16 focus:outline-hidden pb-4">
           <div className="flex flex-col gap-8">
             <RenderIf condition={filteredWidget.length !== 0}>
-              <h2 className="text-white text-base font-medium">
-                Suggested Widgets
-              </h2>
+              <h2 className="text-white text-base font-medium">Suggested Widgets</h2>
             </RenderIf>
 
             <div className="grid min-w-full min-h-0 grid-cols-1 overflow-auto md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-8">
@@ -291,16 +260,14 @@ export function QuickWidgets(props: IProps) {
                         key={index}
                         className={`hidden xl:block w-full col-span-3 max-w-[17rem] row-start-[${rowTarget}]`}
                       >
-                        <h2 className="text-white text-base font-medium">
-                          {textCategoryContent[index / 3 - 1]}
-                        </h2>
+                        <h2 className="text-white text-base font-medium">{textCategoryContent[index / 3 - 1]}</h2>
                       </div>
                     )}
 
                     {/* widget cell */}
                     <CommandGroup
                       key={widget.slug}
-                      className="relative min-h-fit aspect-square rounded-[24px] p-0"
+                      className="mx-auto max-w-[340px] relative min-h-fit aspect-square rounded-[24px] p-0"
                     >
                       <CommandItem
                         key={widget.name}
@@ -310,18 +277,13 @@ export function QuickWidgets(props: IProps) {
                           handleWidgetClick(widget);
                         }}
                       >
-                        <QuickWidgetItem
-                          tag={selectedTag}
-                          key={widget.id}
-                          widget={widget}
-                          handleGoBack={handleBack}
-                        />
+                        <QuickWidgetItem tag={selectedTag} key={widget.id} widget={widget} handleGoBack={handleBack} />
                       </CommandItem>
 
                       {/* button for favourites */}
                       <div
                         style={{ background: "transparent", borderWidth: 0 }}
-                        className="absolute bg-gradient-widget-preview-button z-[100] top-6 right-6 h-[24px] aspect-square border-[1px] border-[#353535] rounded-[6px] flex items-center justify-center"
+                        className="absolute bg-gradient-widget-preview-button z-[100] top-5 right-5 h-[24px] aspect-square border-[1px] border-[#353535] rounded-[6px] flex items-center justify-center"
                       >
                         {/* <button
                           type="button"
@@ -338,20 +300,14 @@ export function QuickWidgets(props: IProps) {
                           className="absolute scale-[0.875]"
                           whileTap="small"
                           onClick={() => {
-                            const isFavorite =
-                              settings.favorite_widgets.includes(widgetSlug);
+                            const isFavorite = settings.favorite_widgets.includes(widgetSlug);
 
                             let newWidgetArray: string[] = [];
 
                             if (isFavorite) {
-                              newWidgetArray = settings.favorite_widgets.filter(
-                                (item) => item !== widgetSlug,
-                              );
+                              newWidgetArray = settings.favorite_widgets.filter((item) => item !== widgetSlug);
                             } else {
-                              newWidgetArray = [
-                                ...settings.favorite_widgets,
-                                widgetSlug,
-                              ];
+                              newWidgetArray = [...settings.favorite_widgets, widgetSlug];
                             }
                             updateSettings({
                               ...settings,
@@ -359,11 +315,7 @@ export function QuickWidgets(props: IProps) {
                             });
                           }}
                         >
-                          {settings.favorite_widgets.includes(widgetSlug) ? (
-                            <StarFilled />
-                          ) : (
-                            <Star />
-                          )}
+                          {settings.favorite_widgets.includes(widgetSlug) ? <StarFilled /> : <Star />}
                         </motion.button>
                       </div>
                     </CommandGroup>
@@ -396,13 +348,7 @@ export function QuickWidgets(props: IProps) {
 
 const SearchSvgIcon = () => {
   return (
-    <svg
-      width="15"
-      height="14"
-      viewBox="0 0 15 14"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg width="15" height="14" viewBox="0 0 15 14" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
         d="M13.4375 14L8.45833 9.02083C8.04167 9.32639 7.58479 9.56597 7.08771 9.73958C6.59062 9.91319 6.0616 10 5.50063 10C4.11132 10 2.93056 9.51389 1.95833 8.54167C0.986111 7.56944 0.5 6.38889 0.5 5C0.5 3.61111 0.986111 2.43056 1.95833 1.45833C2.93056 0.486111 4.11111 0 5.5 0C6.88889 0 8.06944 0.486111 9.04167 1.45833C10.0139 2.43056 10.5 3.61132 10.5 5.00063C10.5 5.5616 10.4132 6.09062 10.2396 6.58771C10.066 7.08479 9.82639 7.54167 9.52083 7.95833L14.5 12.9375L13.4375 14ZM5.5 8.5C6.47222 8.5 7.29861 8.15972 7.97917 7.47917C8.65972 6.79861 9 5.97222 9 5C9 4.02778 8.65972 3.20139 7.97917 2.52083C7.29861 1.84028 6.47222 1.5 5.5 1.5C4.52778 1.5 3.70139 1.84028 3.02083 2.52083C2.34028 3.20139 2 4.02778 2 5C2 5.97222 2.34028 6.79861 3.02083 7.47917C3.70139 8.15972 4.52778 8.5 5.5 8.5Z"
         fill="white"
