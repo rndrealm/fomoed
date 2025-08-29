@@ -51,7 +51,7 @@ const CoinDropdown = (props: ICoinDropdownProps) => {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button className="flex cursor-pointer items-center gap-2 whitespace-nowrap">
+        <button className="flex cursor-pointer items-center gap-2 whitespace-nowrap min-w-max">
           <div className="flex-shrink-0">
             <RenderIf condition={!!activeCoin?.icon}>
               <Image width={32} height={32} src={activeCoin?.icon || ""} alt="Coin Icon" />
