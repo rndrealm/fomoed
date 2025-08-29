@@ -1,34 +1,59 @@
 # Fomoed Monorepo
 
-## Changelog
+### Changelog
 
 See [CHANGELOG.md](./CHANGELOG.md)
 
-## What's inside?
+### Environments
+
+
+#### Development deploy
+
+- App: https://dashboard-dev.fomoed.io
+- Built from `develop` branch
+- Linked to https://supabase.com/dashboard/project/ijgmstxxracfrqwzxdhq
+- Stripe test cards can be used for testing payments: https://docs.stripe.com/testing
+
+#### Staging deploy
+
+- App: https://staging.fomoed.io
+- Built from the latest branch which's name starts with `release`
+- Linked to https://supabase.com/dashboard/project/btgeprcuhlfnnzzrwsuu - same as production
+
+#### Production deploy
+- App: https://fomoed.io
+- Built from `main` branch
+- Linked to https://supabase.com/dashboard/project/btgeprcuhlfnnzzrwsuu
+
+### Database
+
+This project uses supabase. The same supabase project is used across the dashboard and the marketing app.
+
+Database migrations are stored in: https://github.com/fomoed-dev/fomoed-db
+
+Please follow instructions in that repo when making changes to the DB schema.
+
+
+### What's inside?
 
 This Turborepo includes the following packages/apps:
 
 ### Apps and Packages
 
 - `dashboard`: The new version of the dashboard being developed in React
-- `livesocket`: A proxy used with the cignals chart, deployed on Digital Ocean
----
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+- `livesocket`: A proxy used with the footprint chart, deployed on Digital Ocean
 
 ### Build
 
 To build all apps and packages, run the following command:
 
 ```
-cd my-turborepo
 pnpm build
 ```
 
 ### Develop
 
-To develop all apps and packages, run the following command:
+To start the app in dev mode, run:
 
 ```
 pnpm dev
