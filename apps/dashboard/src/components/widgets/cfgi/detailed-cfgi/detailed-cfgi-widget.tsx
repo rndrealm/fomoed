@@ -17,6 +17,7 @@ import CameraAndRefresh from "../../shared/camera-and-refresh";
 import WidgetHeader from "../../shared/widget-header";
 import WidgetModalWrapper from "@/components/modals/widget-modal";
 import { FullScreen } from "@/components/icons/icons";
+import { SkeletonLoader } from "@/components/shared";
 
 const colorToCfgi = [
   {
@@ -53,11 +54,7 @@ export default function DetailedCfgiWidget(props: IProps) {
     return coinData?.find((coin) => coin.symbol === widget.props?.token)?.slug;
   }, [widget.props?.token, coinData]);
 
-  const { data, refetch, isFetching } = useReadCfgiData(
-    widget.props?.token,
-    widget.props?.period,
-    activeCoinSlug,
-  );
+  const { data, refetch, isFetching } = useReadCfgiData(widget.props?.token, widget.props?.period, activeCoinSlug);
 
   const activeLayout = useAtomValue(activeTabAtom);
   const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
@@ -68,11 +65,7 @@ export default function DetailedCfgiWidget(props: IProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   return (
-    <WidgetModalWrapper
-      widget={widget}
-      isFullscreen={isFullscreen}
-      setIsFullscreen={setIsFullscreen}
-    >
+    <WidgetModalWrapper widget={widget} isFullscreen={isFullscreen} setIsFullscreen={setIsFullscreen}>
       <div
         className="flex h-full flex-col gap-4 rounded-2xl border border-[#1b1b1b] bg-[#080808] px-6 py-3"
         ref={chartRef}
@@ -81,69 +74,66 @@ export default function DetailedCfgiWidget(props: IProps) {
           <div className="grid items-center w-full grid-cols-3">
             <WidgetHeader widget={widget} />
           </div>
-          <div
-            className={cn(
-              "flex h-full w-full flex-col justify-center rounded-sm",
-            )}
-          >
-            <div className="py-4">
+          <div className={cn("flex h-full w-full flex-col justify-center rounded-sm")}>
+            <div className="pt-4 pb-3">
               {coinData ? (
-                <div className="flex items-center justify-between">
-                  <CoinDropdown
-                    options={coinData || []}
-                    value={widget.props?.token}
-                    setValue={(coin: string) => {
-                      updateWidgetPropsFromAtom({
-                        tabId: activeLayout.id,
-                        widgetId: widget.id,
-                        widgetProps: { ...widget.props, token: coin },
-                      });
-                    }}
-                    title="Fear and Greed Chart"
-                  />
-                  <div className="flex items-center gap-2">
-                    <ChartTab
-                      value={widget.props?.sentiment_tab || "both"}
-                      setValue={(val) => {
+                <div className="flex items-center justify-between gap-x-4 flex-wrap gap-y-3">
+                  <div className="flex-grow">
+                    <CoinDropdown
+                      options={coinData || []}
+                      value={widget.props?.token}
+                      setValue={(coin: string) => {
                         updateWidgetPropsFromAtom({
                           tabId: activeLayout.id,
                           widgetId: widget.id,
-                          widgetProps: { ...widget.props, sentiment_tab: val },
+                          widgetProps: { ...widget.props, token: coin },
                         });
                       }}
+                      title="Fear and Greed Chart"
                     />
-                    <PeriodDropdown
-                      options={CfgiPeriods}
-                      value={
-                        widget.props?.period ||
-                        (CFGI_SUPPORTED_PERIODS_ENUM.DAY1 as string)
-                      }
-                      setValue={(value: string) => {
-                        updateWidgetPropsFromAtom({
-                          tabId: activeLayout.id,
-                          widgetId: widget.id,
-                          widgetProps: { ...widget.props, period: value },
-                        });
-                      }}
-                    />
-                    <CameraAndRefresh
-                      isFetching={isFetching}
-                      chartRef={chartRef}
-                      file="Detailed Fear and Greed Chart.png"
-                      refetch={refetch}
-                    />
+                  </div>
+                  <div className="flex items-center gap-2 flex-1 justify-between">
+                    <div className="flex gap-2">
+                      <ChartTab
+                        value={widget.props?.sentiment_tab || "both"}
+                        setValue={(val) => {
+                          updateWidgetPropsFromAtom({
+                            tabId: activeLayout.id,
+                            widgetId: widget.id,
+                            widgetProps: { ...widget.props, sentiment_tab: val },
+                          });
+                        }}
+                      />
+                      <PeriodDropdown
+                        options={CfgiPeriods}
+                        value={widget.props?.period || (CFGI_SUPPORTED_PERIODS_ENUM.DAY1 as string)}
+                        setValue={(value: string) => {
+                          updateWidgetPropsFromAtom({
+                            tabId: activeLayout.id,
+                            widgetId: widget.id,
+                            widgetProps: { ...widget.props, period: value },
+                          });
+                        }}
+                      />
+                    </div>
+
+                    <div className="flex gap-2">
+                      <CameraAndRefresh
+                        isFetching={isFetching}
+                        chartRef={chartRef}
+                        file="Detailed Fear and Greed Chart.png"
+                        refetch={refetch}
+                      />
+                    </div>
                   </div>
                 </div>
               ) : null}
             </div>
-            <div className="h-full mx-3 relative">
+            <div className="h-full relative">
               {data ? (
-                <DetailedCfgiChart
-                  cfgiData={data}
-                  viewOption={widget.props?.sentiment_tab || "both"}
-                />
+                <DetailedCfgiChart cfgiData={data} viewOption={widget.props?.sentiment_tab || "both"} />
               ) : (
-                <Skeleton className="w-full h-full bg-widget-background-200" />
+                <div className="w-full h-full app_skeleton_loader rounded-lg" />
               )}
             </div>
 
@@ -157,8 +147,7 @@ export default function DetailedCfgiWidget(props: IProps) {
           <div
             className="absolute bottom-[16px] right-[9px] w-[28px] h-[28px] rounded-md z-[9] border border-[#1c1c1c]"
             style={{
-              background:
-                "linear-gradient(180deg, #1b1b1b 0%, rgba(0, 0, 0, 0.38) 72.15%)",
+              background: "linear-gradient(180deg, #1b1b1b 0%, rgba(0, 0, 0, 0.38) 72.15%)",
               backdropFilter: "blur(7px)",
               opacity: isFullscreen ? 0 : 1,
             }}

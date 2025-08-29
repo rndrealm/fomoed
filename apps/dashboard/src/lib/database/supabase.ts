@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -165,6 +165,7 @@ export type Database = {
           banner_url: string | null
           budget: number | null
           campaign_brief: string | null
+          campaign_objectives: string[] | null
           campaign_type: string | null
           category: string | null
           content_types: string[] | null
@@ -179,6 +180,7 @@ export type Database = {
           location: string | null
           media_kit: string | null
           milestones: Json | null
+          payment_mode: string | null
           platforms: string[] | null
           project_id: number
           reference_content: string | null
@@ -202,6 +204,7 @@ export type Database = {
           banner_url?: string | null
           budget?: number | null
           campaign_brief?: string | null
+          campaign_objectives?: string[] | null
           campaign_type?: string | null
           category?: string | null
           content_types?: string[] | null
@@ -216,6 +219,7 @@ export type Database = {
           location?: string | null
           media_kit?: string | null
           milestones?: Json | null
+          payment_mode?: string | null
           platforms?: string[] | null
           project_id: number
           reference_content?: string | null
@@ -239,6 +243,7 @@ export type Database = {
           banner_url?: string | null
           budget?: number | null
           campaign_brief?: string | null
+          campaign_objectives?: string[] | null
           campaign_type?: string | null
           category?: string | null
           content_types?: string[] | null
@@ -253,6 +258,7 @@ export type Database = {
           location?: string | null
           media_kit?: string | null
           milestones?: Json | null
+          payment_mode?: string | null
           platforms?: string[] | null
           project_id?: number
           reference_content?: string | null
@@ -305,6 +311,64 @@ export type Database = {
           yesterday?: Json | null
         }
         Relationships: []
+      }
+      clipfarm_payable: {
+        Row: {
+          campaign_id: number
+          created_at: string
+          hits: number
+          id: number
+          maximum_payout_per_submission: number
+          minimum_payout: number
+          payout_id: number | null
+          payout_per_1k_views: number
+          updated_at: string
+        }
+        Insert: {
+          campaign_id: number
+          created_at?: string
+          hits?: number
+          id?: number
+          maximum_payout_per_submission: number
+          minimum_payout: number
+          payout_id?: number | null
+          payout_per_1k_views: number
+          updated_at?: string
+        }
+        Update: {
+          campaign_id?: number
+          created_at?: string
+          hits?: number
+          id?: number
+          maximum_payout_per_submission?: number
+          minimum_payout?: number
+          payout_id?: number | null
+          payout_per_1k_views?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clipfarm_payable_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_with_meta"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clipfarm_payable_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clipfarm_payable_payout_id_fkey"
+            columns: ["payout_id"]
+            isOneToOne: false
+            referencedRelation: "payouts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       comment_likes: {
         Row: {
@@ -390,13 +454,6 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "comments_user_id_fkey2"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "public_user_data"
             referencedColumns: ["user_id"]
           },
         ]
@@ -494,6 +551,73 @@ export type Database = {
           },
         ]
       }
+      deliverables: {
+        Row: {
+          campaign_id: number
+          created_at: string
+          description: string | null
+          hits: number
+          id: number
+          name: string
+          payout_amount: number
+          payout_id: number | null
+          quota: number
+          target_value: number
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          campaign_id: number
+          created_at?: string
+          description?: string | null
+          hits?: number
+          id?: number
+          name: string
+          payout_amount: number
+          payout_id?: number | null
+          quota: number
+          target_value: number
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          campaign_id?: number
+          created_at?: string
+          description?: string | null
+          hits?: number
+          id?: number
+          name?: string
+          payout_amount?: number
+          payout_id?: number | null
+          quota?: number
+          target_value?: number
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deliverables_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_with_meta"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deliverables_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deliverables_payout_id_fkey"
+            columns: ["payout_id"]
+            isOneToOne: false
+            referencedRelation: "payouts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       exchangeLiqMapCache: {
         Row: {
           asset: string
@@ -535,6 +659,57 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      in_app_notifications: {
+        Row: {
+          body: string
+          created_at: string
+          id: number
+          meta: Json | null
+          read_at: string | null
+          status: string
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: number
+          meta?: Json | null
+          read_at?: string | null
+          status?: string
+          title: string
+          type: string
+          user_id?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: number
+          meta?: Json | null
+          read_at?: string | null
+          status?: string
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "in_app_notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "signals_users"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "in_app_notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       intake_forms: {
         Row: {
@@ -644,6 +819,136 @@ export type Database = {
             isOneToOne: true
             referencedRelation: "users"
             referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      kol_clipfarm_payable: {
+        Row: {
+          campaign_id: number
+          clipfarm_payable_id: number
+          completed_on: string | null
+          created_at: string
+          earned_amount: number
+          id: number
+          kol_id: number
+          post_id: number | null
+          updated_at: string
+          views: number
+        }
+        Insert: {
+          campaign_id: number
+          clipfarm_payable_id: number
+          completed_on?: string | null
+          created_at?: string
+          earned_amount?: number
+          id?: number
+          kol_id: number
+          post_id?: number | null
+          updated_at?: string
+          views?: number
+        }
+        Update: {
+          campaign_id?: number
+          clipfarm_payable_id?: number
+          completed_on?: string | null
+          created_at?: string
+          earned_amount?: number
+          id?: number
+          kol_id?: number
+          post_id?: number | null
+          updated_at?: string
+          views?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kol_clipfarm_payable_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_with_meta"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kol_clipfarm_payable_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kol_clipfarm_payable_clipfarm_payable_id_fkey"
+            columns: ["clipfarm_payable_id"]
+            isOneToOne: false
+            referencedRelation: "clipfarm_payable"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kol_clipfarm_payable_kol_id_fkey"
+            columns: ["kol_id"]
+            isOneToOne: false
+            referencedRelation: "kols"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kol_deliverables: {
+        Row: {
+          campaign_id: number
+          completed_on: string | null
+          created_at: string
+          deliverable_id: number
+          hits: number
+          id: number
+          kol_id: number
+          updated_at: string
+        }
+        Insert: {
+          campaign_id: number
+          completed_on?: string | null
+          created_at?: string
+          deliverable_id: number
+          hits?: number
+          id?: number
+          kol_id: number
+          updated_at?: string
+        }
+        Update: {
+          campaign_id?: number
+          completed_on?: string | null
+          created_at?: string
+          deliverable_id?: number
+          hits?: number
+          id?: number
+          kol_id?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kol_deliverables_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_with_meta"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kol_deliverables_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kol_deliverables_deliverable_id_fkey"
+            columns: ["deliverable_id"]
+            isOneToOne: false
+            referencedRelation: "deliverables"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kol_deliverables_kol_id_fkey"
+            columns: ["kol_id"]
+            isOneToOne: false
+            referencedRelation: "kols"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -819,6 +1124,7 @@ export type Database = {
           location: string | null
           onboarding: boolean | null
           profile_url: string | null
+          twitter_handle: string | null
           updated_at: string
           user_id: string | null
           wallet_address: string | null
@@ -836,6 +1142,7 @@ export type Database = {
           location?: string | null
           onboarding?: boolean | null
           profile_url?: string | null
+          twitter_handle?: string | null
           updated_at?: string
           user_id?: string | null
           wallet_address?: string | null
@@ -853,6 +1160,7 @@ export type Database = {
           location?: string | null
           onboarding?: boolean | null
           profile_url?: string | null
+          twitter_handle?: string | null
           updated_at?: string
           user_id?: string | null
           wallet_address?: string | null
@@ -1282,6 +1590,7 @@ export type Database = {
           chain: string
           created_at: string
           id: number
+          kol_clipfarm_payable_id: number | null
           kol_id: number
           milestone_id: number | null
           notes: string | null
@@ -1300,6 +1609,7 @@ export type Database = {
           chain?: string
           created_at?: string
           id?: number
+          kol_clipfarm_payable_id?: number | null
           kol_id: number
           milestone_id?: number | null
           notes?: string | null
@@ -1318,6 +1628,7 @@ export type Database = {
           chain?: string
           created_at?: string
           id?: number
+          kol_clipfarm_payable_id?: number | null
           kol_id?: number
           milestone_id?: number | null
           notes?: string | null
@@ -1362,6 +1673,13 @@ export type Database = {
             columns: ["campaign_id"]
             isOneToOne: false
             referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payouts_kol_clipfarm_payable_id_fkey"
+            columns: ["kol_clipfarm_payable_id"]
+            isOneToOne: false
+            referencedRelation: "kol_clipfarm_payable"
             referencedColumns: ["id"]
           },
           {
@@ -1418,64 +1736,73 @@ export type Database = {
           banner_url: string | null
           budget: number | null
           category: string | null
+          connected_platforms: string[] | null
           created_at: string
           description: string | null
           end_date: string | null
+          exchange_listings: Json
           id: number
+          instagram_handle: string | null
           name: string
           objectives: string[]
+          social_links: Json | null
           start_date: string | null
           status: string
+          tiktok_handle: string | null
+          token_address: string | null
+          token_chain: string | null
+          twitter_handle: string | null
           updated_at: string
+          website: string | null
+          youtube_handle: string | null
         }
         Insert: {
           banner_url?: string | null
           budget?: number | null
           category?: string | null
+          connected_platforms?: string[] | null
           created_at?: string
           description?: string | null
           end_date?: string | null
+          exchange_listings?: Json
           id?: number
+          instagram_handle?: string | null
           name: string
           objectives?: string[]
+          social_links?: Json | null
           start_date?: string | null
           status?: string
+          tiktok_handle?: string | null
+          token_address?: string | null
+          token_chain?: string | null
+          twitter_handle?: string | null
           updated_at?: string
+          website?: string | null
+          youtube_handle?: string | null
         }
         Update: {
           banner_url?: string | null
           budget?: number | null
           category?: string | null
+          connected_platforms?: string[] | null
           created_at?: string
           description?: string | null
           end_date?: string | null
+          exchange_listings?: Json
           id?: number
+          instagram_handle?: string | null
           name?: string
           objectives?: string[]
+          social_links?: Json | null
           start_date?: string | null
           status?: string
+          tiktok_handle?: string | null
+          token_address?: string | null
+          token_chain?: string | null
+          twitter_handle?: string | null
           updated_at?: string
-        }
-        Relationships: []
-      }
-      public_user_data: {
-        Row: {
-          avatar_url: string | null
-          created_at: string
-          display_name: string | null
-          user_id: string
-        }
-        Insert: {
-          avatar_url?: string | null
-          created_at?: string
-          display_name?: string | null
-          user_id: string
-        }
-        Update: {
-          avatar_url?: string | null
-          created_at?: string
-          display_name?: string | null
-          user_id?: string
+          website?: string | null
+          youtube_handle?: string | null
         }
         Relationships: []
       }
@@ -1546,45 +1873,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      subscriptions: {
-        Row: {
-          created_at: string
-          end_timestamp: string | null
-          has_cancelled: boolean
-          id: number
-          plan_name: string | null
-          price_id: string | null
-          start_timestamp: string | null
-          subscription_id: string
-          updated_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          end_timestamp?: string | null
-          has_cancelled?: boolean
-          id?: number
-          plan_name?: string | null
-          price_id?: string | null
-          start_timestamp?: string | null
-          subscription_id: string
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          end_timestamp?: string | null
-          has_cancelled?: boolean
-          id?: number
-          plan_name?: string | null
-          price_id?: string | null
-          start_timestamp?: string | null
-          subscription_id?: string
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: []
       }
       tabs: {
         Row: {
@@ -1685,6 +1973,8 @@ export type Database = {
           has_had_free_trial: boolean
           id: number
           is_kol: boolean
+          is_kol_allowed: boolean
+          is_marketing_allowed: boolean
           is_project_manager: boolean
           updated_at: string | null
           user_id: string
@@ -1693,10 +1983,12 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           created_at?: string
-          email?: string
+          email: string
           has_had_free_trial?: boolean
           id?: number
           is_kol?: boolean
+          is_kol_allowed?: boolean
+          is_marketing_allowed?: boolean
           is_project_manager?: boolean
           updated_at?: string | null
           user_id: string
@@ -1709,6 +2001,8 @@ export type Database = {
           has_had_free_trial?: boolean
           id?: number
           is_kol?: boolean
+          is_kol_allowed?: boolean
+          is_marketing_allowed?: boolean
           is_project_manager?: boolean
           updated_at?: string | null
           user_id?: string
