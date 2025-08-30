@@ -266,7 +266,7 @@ export function QuickWidgets(props: IProps) {
                       {/* button for favourites */}
                       <div
                         style={{ background: "transparent", borderWidth: 0 }}
-                        className="absolute bg-gradient-widget-preview-button z-[100] top-6 right-6 h-[24px] aspect-square border-[1px] border-[#353535] rounded-[6px] flex items-center justify-center"
+                        className="absolute bg-gradient-widget-preview-button z-[100] top-5 right-5 h-[24px] aspect-square border-[1px] border-[#353535] rounded-[6px] flex items-center justify-center"
                       >
                         {/* <button
                           type="button"

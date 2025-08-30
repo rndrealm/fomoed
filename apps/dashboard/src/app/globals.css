@@ -795,7 +795,8 @@ input[type="number"] {
   background-size: cover;
 }
 
-.app_dashboard_content {
+.app_dashboard_content,
+.app_dot_pattern_bg {
   background-image: url(../../public/media/images/dashboard/dashboard-bg.png);
   background-position: center center;
   background-repeat: no-repeat;

@@ -38,8 +38,8 @@ const ProPlanTriangleUp = () => {
                             <feGaussianBlur stdDeviation="30" result="effect1_foregroundBlur_4417_172" />
                         </filter>
                         <linearGradient id="paint0_linear_4417_172" x1="-11.2607" y1="329.5" x2="389.5" y2="-71.2608" gradientUnits="userSpaceOnUse">
-                            <stop offset="0.150061" stop-color="#0C0C0C" />
-                            <stop offset="0.38998" stop-color="#080808" />
+                            <stop offset="0.150061" stopColor="#0C0C0C" />
+                            <stop offset="0.38998" stopColor="#080808" />
                         </linearGradient>
                     </defs>
                 </svg>

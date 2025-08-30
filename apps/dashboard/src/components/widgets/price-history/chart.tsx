@@ -27,11 +27,7 @@ interface IProps {
 const Chart = (props: IProps) => {
   const {
     data,
-    colors: {
-      backgroundColor = "transparent",
-      lineColor = "#2962FF",
-      textColor = "#C3C3C3",
-    } = {},
+    colors: { backgroundColor = "transparent", lineColor = "#2962FF", textColor = "#C3C3C3" } = {},
     token = "btc",
     period = "1d",
     isCandleStick = true,
@@ -73,9 +69,7 @@ const Chart = (props: IProps) => {
         tickMarkFormatter: (time: number) => {
           const date = new Date(time * 1000); // time is in seconds
           const day = date.getDate();
-          const month = date
-            .toLocaleString("en-US", { month: "short" })
-            .toUpperCase(); // e.g., MAR
+          const month = date.toLocaleString("en-US", { month: "short" }).toUpperCase(); // e.g., MAR
 
           return `${day} ${month}`;
         },
@@ -132,9 +126,7 @@ const Chart = (props: IProps) => {
         return;
       }
 
-      const data = param.seriesData.get(
-        isCandleStick ? candleSeries : areaSeries
-      )! as any;
+      const data = param.seriesData.get(isCandleStick ? candleSeries : areaSeries)! as any;
       const price = data.value ?? data.close;
 
       tooltip.style.display = "flex";
@@ -144,16 +136,11 @@ const Chart = (props: IProps) => {
       </div>
     `;
 
-      const coordinate = isCandleStick
-        ? candleSeries.priceToCoordinate(price)
-        : areaSeries.priceToCoordinate(price);
+      const coordinate = isCandleStick ? candleSeries.priceToCoordinate(price) : areaSeries.priceToCoordinate(price);
       if (coordinate === null) return;
 
       let shiftedCoordinate = param.point.x - toolTipWidth / 2;
-      shiftedCoordinate = Math.max(
-        0,
-        Math.min(container.clientWidth - toolTipWidth, shiftedCoordinate)
-      );
+      shiftedCoordinate = Math.max(0, Math.min(container.clientWidth - toolTipWidth, shiftedCoordinate));
 
       const coordinateY =
         coordinate - toolTipHeight - toolTipMargin > 0
@@ -185,43 +172,111 @@ const Chart = (props: IProps) => {
   useEffect(() => {
     if (!token || !seriesRef.current || !period) return;
 
-    const ws = new WebSocket(
-      `wss://stream.binance.com:9443/ws/${token.toLowerCase()}usdt@kline_${period}`
-    );
+    let eventSource: EventSource | null = null;
+    let reconnectTimeout: NodeJS.Timeout | null = null;
+    let isComponentMounted = true;
 
-    ws.onmessage = (event) => {
-      const msg = JSON.parse(event.data);
-      const k = msg.k;
+    const connect = () => {
+      if (!isComponentMounted) return;
 
-      const candlestickData = {
-        time: Math.floor(k.t / 1000),
-        open: parseFloat(k.o),
-        high: parseFloat(k.h),
-        low: parseFloat(k.l),
-        close: parseFloat(k.c),
-        value: parseFloat(k.c),
+      eventSource = new EventSource(`/api/websocket-proxy?token=${token}&streamType=kline&period=${period}`);
+
+      eventSource.onopen = () => {
+        // console.log(`Kline SSE connection opened for ${token} - ${period}`);
+        if (reconnectTimeout) {
+          clearTimeout(reconnectTimeout);
+          reconnectTimeout = null;
+        }
       };
 
-      if (seriesRef.current && data?.length) {
-        // const lastIndex = seriesRef.current.data().length - 1;
-        // const lastData =
-        //   lastIndex >= 0 ? seriesRef.current.dataByIndex(lastIndex) : null;
+      eventSource.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data);
 
-        // if (lastData && candlestickData.time >= lastData.time) {
-        //   seriesRef.current.update(candlestickData);
-        // }
-        if (isCandleStick) {
-          candleSeriesRef.current?.update(candlestickData);
-        } else {
-          seriesRef.current.update(candlestickData);
+          if (message.type === "heartbeat") {
+            return;
+          }
+
+          // Handle both potential data formats
+          let klineData = null;
+
+          // Direct kline format (single stream)
+          if (message.k) {
+            klineData = message.k;
+          }
+          // Wrapped format (if stream wrapper is used)
+          else if (message.data && message.data.k) {
+            klineData = message.data.k;
+          }
+          // Sometimes the entire message is the kline data
+          else if (message.t && message.o && message.h && message.l && message.c) {
+            klineData = message;
+          }
+
+          if (!klineData) {
+            console.warn("No kline data found in message:", message);
+            return;
+          }
+
+          const candlestickData = {
+            time: Math.floor(klineData.t / 1000),
+            open: parseFloat(klineData.o),
+            high: parseFloat(klineData.h),
+            low: parseFloat(klineData.l),
+            close: parseFloat(klineData.c),
+            value: parseFloat(klineData.c),
+          };
+
+          // console.log(`Kline update for ${token}:`, candlestickData);
+
+          // Only update if we have valid series and data
+          if (seriesRef.current && data?.length) {
+            if (isCandleStick && candleSeriesRef.current) {
+              candleSeriesRef.current.update(candlestickData);
+            } else {
+              seriesRef.current.update(candlestickData);
+            }
+          } else {
+            console.warn("Series ref or data not available for update");
+          }
+        } catch (error) {
+          console.error("Error parsing kline SSE message:", error, "Raw data:", event.data);
         }
-      }
+      };
+
+      eventSource.onerror = (error) => {
+        console.error("Kline EventSource error:", error);
+
+        if (eventSource) {
+          eventSource.close();
+          eventSource = null;
+        }
+
+        if (isComponentMounted && !reconnectTimeout) {
+          reconnectTimeout = setTimeout(() => {
+            if (isComponentMounted) {
+              // console.log(`Attempting to reconnect kline for ${token} - ${period}...`);
+              connect();
+            }
+          }, 5000); // Slightly longer timeout for kline reconnection
+        }
+      };
     };
+
+    connect();
 
     return () => {
-      ws.close();
+      isComponentMounted = false;
+
+      if (reconnectTimeout) {
+        clearTimeout(reconnectTimeout);
+      }
+
+      if (eventSource) {
+        eventSource.close();
+      }
     };
-  }, [token, period, data, isCandleStick]);
+  }, [token, period, data?.length, isCandleStick]); // Changed data to data?.length to avoid unnecessary reconnections
 
   return (
     <div className="h-full w-full relative">

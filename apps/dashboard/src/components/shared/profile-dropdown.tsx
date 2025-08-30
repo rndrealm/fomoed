@@ -1,15 +1,16 @@
 "use client";
+import classNames from "clsx";
 
 import { ProfileIcon } from "./profile-icon";
 import { Logout } from "../icons/icons";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { User } from "@supabase/supabase-js";
 import { AppRoutes } from "@/lib/routes";
 import { UsersRow } from "@/lib/types/db.types";
 import useSubscription from "@/hooks/subscription";
 import { capitalize } from "lodash-es";
 import { useMemo } from "react";
+import { RenderIf } from "./render-if";
 
 interface IProps {
   authUser: UsersRow | null;
@@ -23,7 +24,7 @@ export function ProfileDropdown(props: IProps) {
 
   const planLabel = useMemo(() => {
     if (!userSubscriptionQueryData) {
-      return "Loading...";
+      return "";
     }
 
     return capitalize(userSubscriptionQueryData.activePlan);
@@ -103,17 +104,24 @@ export function ProfileDropdown(props: IProps) {
             </RenderIf>
           </div> */}
 
-          <div className="border-y border-[#212121] px-2 py-2">
+          <div className="border-y border-[#212121] px-2 py-2 h-17">
             <a
               href="/pricing"
-              className="flex cursor-pointer flex-row items-center justify-start gap-2 rounded-sm px-2 py-2 hover:bg-white/10"
+              className={classNames(
+                "flex cursor-pointer flex-row items-center justify-start gap-2 rounded-sm px-2 py-2 hover:bg-white/10 h-full",
+                {
+                  app_skeleton_loader: !userSubscriptionQueryData,
+                },
+              )}
             >
-              <YellowStarSvg />
+              <RenderIf condition={!!userSubscriptionQueryData}>
+                {userSubscriptionQueryData?.activePlan !== "basic" && <YellowStarSvg />}
 
-              <div className="flex flex-col">
-                <div className="text-[13px] leading-[1.35] font-medium text-white">{planLabel}</div>
-                {planSubtitle && <div className="font-medium text-white/50 text-xs">{planSubtitle}</div>}
-              </div>
+                <div className="flex flex-col">
+                  <div className="text-[13px] leading-[1.35] font-medium text-white">{planLabel}</div>
+                  {planSubtitle && <div className="font-medium text-white/50 text-xs">{planSubtitle}</div>}
+                </div>
+              </RenderIf>
             </a>
           </div>
 

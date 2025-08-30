@@ -44,6 +44,7 @@
     "@tanstack/react-query": "^5.74.4",
     "@tanstack/react-query-devtools": "^5.76.0",
     "@types/three": "^0.178.1",
+    "@types/ws": "^8.5.14",
     "@vercel/analytics": "^1.5.0",
     "ai": "^4.3.15",
     "axios": "^1.7.9",
@@ -94,6 +95,7 @@
     "uuid": "^9.0.1",
     "viem": "2.x",
     "wagmi": "^2.15.4",
+    "ws": "^8.18.0",
     "yup": "^1.6.1",
     "zod": "^3.24.4"
   },

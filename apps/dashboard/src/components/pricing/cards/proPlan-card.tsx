@@ -1,14 +1,13 @@
 "use client";
-import classNames from "clsx";
 
 import React, { useState } from "react";
 import { PricingCard } from "../pricing-cards";
-import ArrowRightPricing from "../../icons/ArrowRightPricing";
 import ProPlanTriangleDown from "../../icons/ProPlanTriangleDown";
 import ProPlanTriangleUp from "../../icons/ProPlanTriangleUp";
 import { motion, AnimatePresence } from "motion/react";
 import useSubscription from "@/hooks/subscription";
-import { LoaderCircle } from "lucide-react";
+import { PricingCardButton } from "./pricing-card-common";
+import { RenderIf } from "@/components/shared";
 
 const ProPlanCard = ({
   title,
@@ -20,8 +19,21 @@ const ProPlanCard = ({
   buttonColorProminent,
   buttonAction,
 }: PricingCard) => {
-  const { changeSubscriptionMutation, isBusy } = useSubscription();
+  const cardBusyKey = "pro";
+
+  const { changeSubscriptionMutation, busyKey, nextPeriodPlan } = useSubscription();
   const [isHovered, setIsHovered] = useState(false);
+
+  function handleButtonClick() {
+    if (!buttonAction) throw new Error("Button action is not defined");
+
+    changeSubscriptionMutation.mutate({
+      action: buttonAction,
+      billingPeriod: switchActive ? "yearly" : "monthly",
+      plan: "pro",
+      busyKey: cardBusyKey,
+    });
+  }
 
   const variants = {
     hidden: { y: "-100%", opacity: 0 },
@@ -36,16 +48,6 @@ const ProPlanCard = ({
       transition: { duration: 0.4, ease: "easeIn" },
     },
   };
-
-  function handleButtonClick() {
-    if (!buttonAction) throw new Error("Button action is not defined");
-
-    changeSubscriptionMutation.mutate({
-      action: buttonAction,
-      billingPeriod: switchActive ? "yearly" : "monthly",
-      plan: "pro",
-    });
-  }
 
   return (
     <motion.div
@@ -79,7 +81,9 @@ const ProPlanCard = ({
           transition={{ ease: [0.4, 0, 0.2, 1], duration: 0.5 }}
         >
           <h3 className="text-[#59281d] font-bold text-xs">
-            We highly recommend this plan
+            <RenderIf condition={nextPeriodPlan === "basic"}>We highly recommend this plan</RenderIf>
+            <RenderIf condition={nextPeriodPlan === "plus"}>Switch to this plan</RenderIf>
+            <RenderIf condition={nextPeriodPlan === "pro"}>This plan is active</RenderIf>
           </h3>
         </motion.div>
 
@@ -169,29 +173,22 @@ const ProPlanCard = ({
                 );
               })}
             </div>
-            <motion.button
+
+            <motion.div
               style={{ willChange: "transform" }}
               animate={{ y: isHovered ? "-20px" : "0" }}
-              onClick={handleButtonClick}
               transition={{ ease: [0.4, 0, 0.2, 1], duration: 0.5 }}
-              className={classNames(
-                "w-full flex flex-row justify-between items-center mt-2 py-2.5 px-4 rounded-[40px] font-semibold transition-colors duration-500",
-                {
-                  "bg-white text-[#373737]": buttonColorProminent,
-                  "bg-[#131313] text-[#878787] ": !buttonColorProminent,
-                  "!bg-white/10 !text-[#373737]": isBusy,
-                },
-              )}
+              className="w-full"
+            >
+              <PricingCardButton
+                onClick={handleButtonClick}
+                buttonColorProminent={buttonColorProminent}
+                fullWidth={true}
+                isBusy={busyKey === cardBusyKey}
               >
-              {buttonConent}
-              <span>
-                {isBusy ? (
-                  <LoaderCircle className="animate-spin"> </LoaderCircle>
-                ) : (
-                  <ArrowRightPricing color={isBusy ? "#0000" : buttonColorProminent ? "black" : "#878787"} />
-                )}
-              </span>
-            </motion.button>
+                {buttonConent}
+              </PricingCardButton>
+            </motion.div>
 
             <div className="w-full text-center">
               <p className="font-normal text-xs text-[#A5A5A5]">Switch plans or cancel anytime</p>
