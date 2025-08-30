@@ -41,8 +41,6 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
   const pathname = usePathname();
 
   useEffect(() => {
-    console.log("triggered use effect");
-
     // Get initial session
     const initializeAuth = async () => {
       setIsLoading(true);
@@ -58,7 +56,7 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
         // Listen for auth changes
         const {
           data: { subscription },
-        } = supabase.auth.onAuthStateChange((_event, session) => {
+        } = supabase.auth.onAuthStateChange((_event: string, session: Session | null) => {
           setSession(session);
           // setUser(session?.user || null);
         });
@@ -108,7 +106,6 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
       }
     }
   }, [isLoading, session, pathname, router]);
-  console.log(isLoading, session);
 
   // Provide the context value
   const value: SupabaseAuthContextType = {
