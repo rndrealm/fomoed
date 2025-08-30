@@ -68,7 +68,6 @@ export function Toolbar() {
 
   const currLayoutId = activeTab.layout_id;
   const currLayout = layouts.find((item) => item.id === currLayoutId);
-  console.log("currLayout", currLayoutId);
 
   const handleSaveLayout = async () => {
     if (isPending) return;

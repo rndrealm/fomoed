@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { Fragment, useMemo, useRef, useState } from "react";
 import SearchIcon from "../icons/SearchIcon";
 import { Input } from "../ui/input";
 import { QuickWidgetItem } from "./quick-widget-item";
@@ -239,19 +239,16 @@ export function QuickWidgets(props: IProps) {
                 const textCondition = indexTarget && defaultSettings;
 
                 return (
-                  <>
+                  <Fragment key={widget.slug}>
                     {/* text elements */}
                     {textCondition && (
-                      <div
-                        key={index}
-                        className={`hidden xl:block w-full col-span-3 max-w-[17rem] row-start-[${rowTarget}]`}
-                      >
+                      <div className={`hidden xl:block w-full col-span-3 max-w-[17rem] row-start-[${rowTarget}]`}>
                         <h2 className="text-white text-base font-medium">{textCategoryContent[index / 3 - 1]}</h2>
                       </div>
                     )}
 
                     {/* widget cell */}
-                    <CommandGroup key={widget.slug} className="relative min-h-fit aspect-square rounded-[24px] p-0">
+                    <CommandGroup className="relative min-h-fit aspect-square rounded-[24px] p-0">
                       <CommandItem
                         key={widget.name}
                         className="min-h-fit aspect-square bg-[#28282866] data-[selected=true]:bg-[#27292E] rounded-[24px] p-0 overflow-hidden cursor-pointer"
@@ -277,7 +274,6 @@ export function QuickWidgets(props: IProps) {
                           <Star fill="#fff" />
                         </button> */}
                         <motion.button
-                          key={widget.id}
                           type="button"
                           variants={variants}
                           className="absolute scale-[0.875]"
@@ -302,7 +298,7 @@ export function QuickWidgets(props: IProps) {
                         </motion.button>
                       </div>
                     </CommandGroup>
-                  </>
+                  </Fragment>
                 );
               })}
 

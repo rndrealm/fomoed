@@ -13,7 +13,7 @@ import { cn, maxTabsByPlan } from "@/lib/utils";
 import { ConfirmationModal, Upgrade } from "../../modals";
 import { ModalContainer, RenderIf } from "../../shared";
 import { useGetUserPlans } from "@/services/queries/subscriptions";
-import { deleteLayoutAtom, layoutAtom } from "@/lib/atoms/layoutAtom";
+import { deleteLayoutAtom, editLayoutNameAtom, layoutAtom } from "@/lib/atoms/layoutAtom";
 import { MobileTab } from "./mobile-tab";
 import { isSidebarOpenAtom } from "@/lib/atoms/utilsAtom";
 import useSubscription from "@/hooks/subscription";
@@ -66,8 +66,8 @@ export function TabButton(props: ITabButton) {
         type="button"
         onClick={handleClick}
         onDoubleClick={() => {
-          // inputRef.current?.focus();
-          // inputRef.current?.select();
+          inputRef.current?.focus();
+          inputRef.current?.select();
         }}
       >
         <motion.div
@@ -153,6 +153,7 @@ export function NewTabs() {
   const deleteLayout = useSetAtom(deleteLayoutAtom);
   const renameTab = useSetAtom(renameTabAtom);
   const addNewTab = useSetAtom(addNewTabAtom);
+  const editLayoutName = useSetAtom(editLayoutNameAtom);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -218,7 +219,11 @@ export function NewTabs() {
                   setShowDeleteModal(true);
                 }}
                 handleNameChange={(name) => {
-                  renameTab({ id: item.id, name });
+                  if (item?.layout_id) {
+                    editLayoutName({ layoutId: item.layout_id || "", newName: name });
+                  } else {
+                    renameTab({ id: item.id, name });
+                  }
                 }}
               />
             );

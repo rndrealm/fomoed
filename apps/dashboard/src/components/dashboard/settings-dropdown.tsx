@@ -1,10 +1,5 @@
 import React, { useState } from "react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "../ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 import { SaveDraft, Settings } from "../icons/icons";
 import {
   DropdownMenu,
@@ -41,18 +36,8 @@ function AutoSaveToggle(props: IAutoSave) {
           autosave ? "bg-[#FF3B10] flex-row-reverse" : "bg-[#141414]",
         )}
       >
-        <div
-          className={cn(
-            "w-[16px] h-[16px] rounded-sm",
-            autosave ? "bg-white" : "bg-[#373737]",
-          )}
-        ></div>
-        <p
-          className={cn(
-            "text-[8px] font-medium w-[16px] text-right",
-            autosave ? "text-white" : "text-[#9B9B9B]",
-          )}
-        >
+        <div className={cn("w-[16px] h-[16px] rounded-sm", autosave ? "bg-white" : "bg-[#373737]")}></div>
+        <p className={cn("text-[8px] font-medium w-[16px] text-right", autosave ? "text-white" : "text-[#9B9B9B]")}>
           {autosave ? "ON" : "OFF"}
         </p>
       </div>
@@ -74,9 +59,7 @@ export function SettingsDropdown() {
 
   const handleSaveLayout = async () => {
     if (isPending) return;
-    const currentLayout = layouts.find(
-      (layout) => layout.id === activeTab.layout_id,
-    );
+    const currentLayout = layouts.find((layout) => layout.id === activeTab.layout_id);
     if (!currentLayout) {
       toast("You don't have any changes to save!", {});
       return;
@@ -118,7 +101,7 @@ export function SettingsDropdown() {
           setIsOpen(e);
         }}
       >
-        <Tooltip>
+        <Tooltip open={false}>
           <TooltipTrigger className="w-full">
             <DropdownMenuTrigger asChild>
               <div className="group w-full flex flex-row justify-start gap-3 items-center">
@@ -130,15 +113,10 @@ export function SettingsDropdown() {
             </DropdownMenuTrigger>
           </TooltipTrigger>
           <TooltipContent side="left" className="bg-[#101010] mr-1">
-            <p className="text-[#afafaf] text-xs font-semibold leading-[1.25]">
-              Settings
-            </p>
+            <p className="text-[#afafaf] text-xs font-semibold leading-[1.25]">Settings</p>
           </TooltipContent>
         </Tooltip>
-        <DropdownMenuContent
-          className="w-[16rem] mt-2 bg-[#090909] border border-[#333]"
-          align="end"
-        >
+        <DropdownMenuContent className="w-[16rem] mt-2 bg-[#090909] border border-[#333]" align="end">
           <DropdownMenuLabel className="text-[#646464] font-medium text-[10px] p-2 border-b border-[#333]">
             SETTINGS
           </DropdownMenuLabel>
@@ -176,11 +154,7 @@ export function SettingsDropdown() {
               }}
               disabled={currLayout?.draft}
             >
-              <AutoSaveToggle
-                autosave={
-                  currLayout?.draft ? true : settings.auto_save || false
-                }
-              />
+              <AutoSaveToggle autosave={currLayout?.draft ? true : settings.auto_save || false} />
             </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>

@@ -5,11 +5,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Delete, Edit, TabLayout, ToolbarLayout } from "../icons/icons";
-import {
-  DropdownMenuGroup,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-} from "@radix-ui/react-dropdown-menu";
+import { DropdownMenuGroup, DropdownMenuLabel, DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
 import { useAtomValue, useSetAtom } from "jotai";
 import {
   deleteLayoutAtom,
@@ -20,12 +16,7 @@ import {
 } from "@/lib/atoms/layoutAtom";
 import { RenderIf } from "../shared";
 import { Fragment, RefObject, useRef } from "react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "../ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 import { useState } from "react";
 import { ConfirmationModal, NameLayout } from "../modals";
 
@@ -66,7 +57,7 @@ export function LayoutDropdown() {
             }, 1000);
           }}
         >
-          <Tooltip>
+          <Tooltip open={false}>
             <TooltipTrigger className="w-full">
               <DropdownMenuTrigger asChild>
                 <div className="group w-full flex flex-row justify-start gap-3 items-center">
@@ -79,15 +70,10 @@ export function LayoutDropdown() {
             </TooltipTrigger>
 
             <TooltipContent side="left" className="bg-[#101010] mr-1">
-              <p className="text-xs leading-[1.25] font-semibold text-[#afafaf]">
-                Layouts
-              </p>
+              <p className="text-xs leading-[1.25] font-semibold text-[#afafaf]">Layouts</p>
             </TooltipContent>
           </Tooltip>
-          <DropdownMenuContent
-            className="mt-2 w-[16rem] border border-[#333] bg-[#090909] p-0"
-            align="end"
-          >
+          <DropdownMenuContent className="mt-2 w-[16rem] border border-[#333] bg-[#090909] p-0" align="end">
             <DropdownMenuLabel className="border-b border-[#333] p-2 text-[10px] font-medium text-[#646464]">
               LAYOUTS
             </DropdownMenuLabel>
@@ -95,9 +81,7 @@ export function LayoutDropdown() {
             <DropdownMenuGroup>
               <RenderIf condition={!!layouts && layouts?.length === 0}>
                 <div className="mx-auto max-w-[149px] py-[50px]">
-                  <p className="text-center text-xs font-medium text-[#848484]">
-                    You currently have no layout
-                  </p>
+                  <p className="text-center text-xs font-medium text-[#848484]">You currently have no layout</p>
                 </div>
               </RenderIf>
 
@@ -111,9 +95,7 @@ export function LayoutDropdown() {
                     }}
                   >
                     <TabLayout />
-                    <p className="flex-1 truncate">
-                      {layout.draft ? "Untitled Layout" : layout?.name}
-                    </p>
+                    <p className="flex-1 truncate">{layout.draft ? "Untitled Layout" : layout?.name}</p>
 
                     <div className="flex items-center gap-1">
                       <RenderIf condition={!layout.draft}>
@@ -145,9 +127,7 @@ export function LayoutDropdown() {
 
                 <RenderIf condition={unSavedLayouts?.length > 0}>
                   <div className="bg-[#0F0F0F] px-2 py-2">
-                    <p className="text-[10px] leading-[1.25] font-medium text-[#474747]">
-                      UNSAVED LAYOUTS
-                    </p>
+                    <p className="text-[10px] leading-[1.25] font-medium text-[#474747]">UNSAVED LAYOUTS</p>
                   </div>
                 </RenderIf>
 
@@ -160,9 +140,7 @@ export function LayoutDropdown() {
                     }}
                   >
                     <TabLayout />
-                    <p className="flex-1 truncate">
-                      {layout.draft ? "Untitled Layout" : layout?.name}
-                    </p>
+                    <p className="flex-1 truncate">{layout.draft ? "Untitled Layout" : layout?.name}</p>
 
                     <div className="flex items-center gap-1">
                       <button
