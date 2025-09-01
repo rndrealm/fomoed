@@ -49,6 +49,8 @@ function TestChart(props: IProps) {
   const timeScaleRef = useRef<TimeScaleApiRef>(null);
   const dataRef = useRef<(LineData | CandlestickData)[]>([]);
   const [dimension, setDimension] = useState({ width: 0, height: 0 });
+  const wsRef = useRef<WebSocket | null>(null);
+  const eventSourceRef = useRef<EventSource | null>(null);
 
   const visibleRangeRef = useRef<{
     from?: Time;
@@ -129,98 +131,112 @@ function TestChart(props: IProps) {
   // const to = data[len - 1]?.time as Time;
 
   useEffect(() => {
-    if (!token || !period) return;
+    // Guard clause to ensure all dependencies are available.
+    if (!token || !period || !location?.country) return;
 
-    let eventSource: EventSource | null = null;
-    let reconnectTimeout: NodeJS.Timeout | null = null;
-    let isComponentMounted = true;
+    // --- 1. SHARED KLINE DATA HANDLER ---
+    // This function processes the raw kline data and updates the chart series.
+    // It's used by both the primary WebSocket and the fallback EventSource.
+    const handleKlineUpdate = (klineData: any) => {
+      if (!klineData || !klineData.t) {
+        console.warn("handleKlineUpdate received invalid kline data:", klineData);
+        return;
+      }
 
-    const connect = () => {
-      if (!isComponentMounted) return;
-
-      eventSource = new EventSource(`/api/websocket-proxy?token=${token}&streamType=kline&period=${period}`);
-
-      eventSource.onopen = () => {
-        // console.log(`Kline SSE connection opened for ${token} - ${period}`);
-        if (reconnectTimeout) {
-          clearTimeout(reconnectTimeout);
-          reconnectTimeout = null;
-        }
+      const newData = {
+        time: Math.floor(klineData.t / 1000), // Convert ms to seconds
+        open: parseFloat(klineData.o),
+        high: parseFloat(klineData.h),
+        low: parseFloat(klineData.l),
+        close: parseFloat(klineData.c),
+        value: parseFloat(klineData.c), // For line charts
       };
+
+      // This logic directly mirrors your original implementation.
+      dataRef.current.push(newData as any);
+
+      if ((lineSeriesRef.current || candleSeriesRef.current) && data?.length) {
+        if (isCandleStick) {
+          candleSeriesRef.current?.api()?.update(newData as any);
+        } else {
+          lineSeriesRef?.current?.api()?.update(newData as any);
+        }
+      }
+    };
+
+    // --- 2. FALLBACK CONNECTION LOGIC ---
+    // Connects to your EventSource proxy if the primary WebSocket fails.
+    const connectEventSourceProxy = () => {
+      console.log(`Primary Kline WebSocket failed for ${token}. Attempting fallback...`);
+      const eventSource = new EventSource(`/api/websocket-proxy?token=${token}&streamType=kline&period=${period}`);
+      eventSourceRef.current = eventSource;
 
       eventSource.onmessage = (event) => {
         try {
           const message = JSON.parse(event.data);
-
-          if (message.type === "heartbeat") {
-            return;
-          }
-
-          const k = message.k;
-
-          if (!k) {
-            console.warn("No kline data in message:", message);
-            return;
-          }
-
-          const newData = {
-            time: Math.floor(k.t / 1000),
-            open: parseFloat(k.o),
-            high: parseFloat(k.h),
-            low: parseFloat(k.l),
-            close: parseFloat(k.c),
-            value: parseFloat(k.c),
-          };
-
-          dataRef.current.push(newData as any);
-
-          if ((lineSeriesRef.current || candleSeriesRef.current) && data?.length) {
-            if (isCandleStick) {
-              candleSeriesRef.current?.api()?.update(newData as any);
-            } else {
-              lineSeriesRef?.current?.api()?.update(newData as any);
-            }
+          if (message.type !== "heartbeat" && message.k) {
+            handleKlineUpdate(message.k);
           }
         } catch (error) {
-          console.error("Error parsing kline SSE message:", error);
+          console.error("Error parsing kline fallback message:", error);
         }
       };
 
       eventSource.onerror = (error) => {
-        console.error("Kline EventSource error:", error);
-
-        if (eventSource) {
-          eventSource.close();
-          eventSource = null;
-        }
-
-        
-        if (isComponentMounted && !reconnectTimeout) {
-          reconnectTimeout = setTimeout(() => {
-            if (isComponentMounted) {
-              // console.log(`Attempting to reconnect kline for ${token} - ${period}...`);
-              connect();
-            }
-          }, 3000);
-        }
+        // console.error("Kline EventSource fallback also failed:", error);
+        eventSource.close();
       };
     };
 
-    
-    connect();
+    // --- 3. PRIMARY CONNECTION LOGIC ---
+    // Attempts to connect directly to Binance's WebSocket first.
+    const connectWebSocket = () => {
+      const streamName = `${token.toLowerCase()}usdt@kline_${period}`;
+      const endpoint =
+        location.country === "US"
+          ? `wss://stream.binance.us:9443/ws/${streamName}`
+          : `wss://stream.binance.com:9443/ws/${streamName}`;
 
+      const ws = new WebSocket(endpoint);
+      wsRef.current = ws;
+
+      ws.onopen = () => {
+        console.log(`Direct Kline WebSocket connection established for ${token}. ✅`);
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data);
+          if (message && message.k) {
+            handleKlineUpdate(message.k);
+          }
+        } catch (error) {
+          console.error("Error parsing kline WebSocket message:", error);
+        }
+      };
+
+      ws.onerror = (error) => {
+        // console.error("Direct Kline WebSocket connection error:", error);
+        ws.close();
+        // Trigger the fallback when the primary connection fails.
+        connectEventSourceProxy();
+      };
+    };
+
+    // --- 4. INITIATE CONNECTION ---
+    connectWebSocket();
+
+    // --- 5. UNIVERSAL CLEANUP ---
+    // Safely closes any active connection when dependencies change or the component unmounts.
     return () => {
-      isComponentMounted = false;
-
-      if (reconnectTimeout) {
-        clearTimeout(reconnectTimeout);
+      if (wsRef.current) {
+        wsRef.current.close();
       }
-
-      if (eventSource) {
-        eventSource.close();
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close();
       }
     };
-  }, [token, period, data, isCandleStick]); 
+  }, [token, period, data, isCandleStick, location?.country]);
 
   useEffect(() => {
     if (!chartContainerRef.current) return;

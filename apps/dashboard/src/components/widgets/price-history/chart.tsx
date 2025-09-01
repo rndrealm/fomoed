@@ -9,6 +9,8 @@ import {
   CandlestickSeries,
 } from "lightweight-charts";
 import { formatChartTooltipDate, formatPriceSignificant } from "@/lib/utils";
+import { useAtomValue } from "jotai";
+import { geoLocationAtom } from "@/lib/atoms/geoLocation";
 
 interface ChartColors {
   backgroundColor?: string;
@@ -37,6 +39,11 @@ const Chart = (props: IProps) => {
   const seriesRef = useRef<ISeriesApi<any>>(null);
   const candleSeriesRef = useRef<ISeriesApi<any>>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
+
+  const wsRef = useRef<WebSocket | null>(null);
+  const eventSourceRef = useRef<EventSource | null>(null);
+
+  const location = useAtomValue(geoLocationAtom);
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
@@ -170,113 +177,100 @@ const Chart = (props: IProps) => {
   }, [data, backgroundColor, lineColor, textColor, isCandleStick]);
 
   useEffect(() => {
-    if (!token || !seriesRef.current || !period) return;
+    if (!token || !seriesRef.current || !period || !location?.country) return;
 
-    let eventSource: EventSource | null = null;
-    let reconnectTimeout: NodeJS.Timeout | null = null;
-    let isComponentMounted = true;
+    const handleKlineUpdate = (klineData: any) => {
+      if (!klineData) {
+        console.warn("handleKlineUpdate received no data");
+        return;
+      }
 
-    const connect = () => {
-      if (!isComponentMounted) return;
-
-      eventSource = new EventSource(`/api/websocket-proxy?token=${token}&streamType=kline&period=${period}`);
-
-      eventSource.onopen = () => {
-        // console.log(`Kline SSE connection opened for ${token} - ${period}`);
-        if (reconnectTimeout) {
-          clearTimeout(reconnectTimeout);
-          reconnectTimeout = null;
-        }
+      const candlestickData = {
+        time: Math.floor(klineData.t / 1000),
+        open: parseFloat(klineData.o),
+        high: parseFloat(klineData.h),
+        low: parseFloat(klineData.l),
+        close: parseFloat(klineData.c),
+        value: parseFloat(klineData.c),
       };
+
+      if (seriesRef.current && data?.length) {
+        if (isCandleStick && candleSeriesRef.current) {
+          candleSeriesRef.current.update(candlestickData);
+        } else {
+          seriesRef.current.update(candlestickData);
+        }
+      }
+    };
+
+    const connectEventSourceProxy = () => {
+      console.log("Primary Kline WebSocket failed. Attempting fallback to EventSource proxy...");
+      const eventSource = new EventSource(`/api/websocket-proxy?token=${token}&streamType=kline&period=${period}`);
+      eventSourceRef.current = eventSource;
 
       eventSource.onmessage = (event) => {
         try {
           const message = JSON.parse(event.data);
+          if (message.type === "heartbeat") return;
 
-          if (message.type === "heartbeat") {
-            return;
-          }
-
-          // Handle both potential data formats
-          let klineData = null;
-
-          // Direct kline format (single stream)
-          if (message.k) {
-            klineData = message.k;
-          }
-          // Wrapped format (if stream wrapper is used)
-          else if (message.data && message.data.k) {
-            klineData = message.data.k;
-          }
-          // Sometimes the entire message is the kline data
-          else if (message.t && message.o && message.h && message.l && message.c) {
-            klineData = message;
-          }
-
-          if (!klineData) {
-            console.warn("No kline data found in message:", message);
-            return;
-          }
-
-          const candlestickData = {
-            time: Math.floor(klineData.t / 1000),
-            open: parseFloat(klineData.o),
-            high: parseFloat(klineData.h),
-            low: parseFloat(klineData.l),
-            close: parseFloat(klineData.c),
-            value: parseFloat(klineData.c),
-          };
-
-          // console.log(`Kline update for ${token}:`, candlestickData);
-
-          // Only update if we have valid series and data
-          if (seriesRef.current && data?.length) {
-            if (isCandleStick && candleSeriesRef.current) {
-              candleSeriesRef.current.update(candlestickData);
-            } else {
-              seriesRef.current.update(candlestickData);
-            }
-          } else {
-            console.warn("Series ref or data not available for update");
+          const klineData = message.k || (message.data && message.data.k) || null;
+          if (klineData) {
+            handleKlineUpdate(klineData);
           }
         } catch (error) {
-          console.error("Error parsing kline SSE message:", error, "Raw data:", event.data);
+          console.error("Error parsing kline fallback message:", error);
         }
       };
 
       eventSource.onerror = (error) => {
-        console.error("Kline EventSource error:", error);
-
-        if (eventSource) {
-          eventSource.close();
-          eventSource = null;
-        }
-
-        if (isComponentMounted && !reconnectTimeout) {
-          reconnectTimeout = setTimeout(() => {
-            if (isComponentMounted) {
-              // console.log(`Attempting to reconnect kline for ${token} - ${period}...`);
-              connect();
-            }
-          }, 5000); // Slightly longer timeout for kline reconnection
-        }
+        // console.error("Kline EventSource fallback also failed:", error);
+        eventSource.close();
       };
     };
 
-    connect();
+    const connectWebSocket = () => {
+      const streamName = `${token.toLowerCase()}usdt@kline_${period}`;
+      const endpoint =
+        location.country === "US"
+          ? `wss://stream.binance.us:9443/ws/${streamName}`
+          : `wss://stream.binance.com:9443/ws/${streamName}`;
+
+      const ws = new WebSocket(endpoint);
+      wsRef.current = ws;
+
+      ws.onopen = () => {
+        console.log(`Direct Kline WebSocket connection established for ${token} - ${period}. ✅`);
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data);
+          if (message && message.k) {
+            handleKlineUpdate(message.k);
+          }
+        } catch (error) {
+          console.error("Error parsing kline WebSocket message:", error);
+        }
+      };
+
+      ws.onerror = (error) => {
+        // console.error("Direct Kline WebSocket connection error:", error);
+        ws.close();
+        connectEventSourceProxy();
+      };
+    };
+
+    connectWebSocket();
 
     return () => {
-      isComponentMounted = false;
-
-      if (reconnectTimeout) {
-        clearTimeout(reconnectTimeout);
+      if (wsRef.current) {
+        wsRef.current.close();
       }
-
-      if (eventSource) {
-        eventSource.close();
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close();
       }
     };
-  }, [token, period, data?.length, isCandleStick]); // Changed data to data?.length to avoid unnecessary reconnections
+  }, [token, period, data?.length, isCandleStick, location?.country]);
 
   return (
     <div className="h-full w-full relative">

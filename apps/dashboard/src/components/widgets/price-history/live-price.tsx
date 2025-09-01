@@ -20,107 +20,105 @@ export function LivePrice(props: IProps) {
   const [tokenPrice, setTokenPrice] = useState("");
   const [percentChange, setPercentChange] = useState(0);
 
+  const wsRef = useRef<WebSocket | null>(null);
+  const eventSourceRef = useRef<EventSource | null>(null);
+
   useEffect(() => {
-  setTokenPrice("");
-  setPercentChange(0);
+    if (!token || !location?.country) return;
 
-  let eventSource: EventSource | null = null;
-  let reconnectTimeout: NodeJS.Timeout | null = null;
-  let isComponentMounted = true;
+    setTokenPrice("");
+    setPercentChange(0);
+    hasLivePrice.current = false;
 
-  const connect = () => {
-    if (!isComponentMounted) return;
 
-    eventSource = new EventSource(`/api/websocket-proxy?token=${token}&streamType=ticker`);
+    const handleTickerUpdate = (stream: string, data: any) => {
+        if (!stream || !data) return;
 
-    eventSource.onopen = () => {
-      // console.log("Ticker SSE connection opened");
-      if (reconnectTimeout) {
-        clearTimeout(reconnectTimeout);
-        reconnectTimeout = null;
-      }
+        if (stream.endsWith("@trade")) {
+            setTokenPrice(data.p);
+            hasLivePrice.current = true;
+        }
+
+        if (stream.endsWith("@miniTicker")) {
+            const current = parseFloat(data.c); 
+            const open = parseFloat(data.o);    
+            if (open > 0) { 
+                const change = ((current - open) / open) * 100;
+                setPercentChange(change);
+            }
+            
+
+            if (!hasLivePrice.current) {
+                setTokenPrice(data.c);
+            }
+        }
     };
 
-    eventSource.onmessage = (event) => {
-      try {
-        const message = JSON.parse(event.data);
+    const connectEventSourceProxy = () => {
+        console.log("Primary Ticker WebSocket failed. Attempting fallback to EventSource proxy...");
+        const eventSource = new EventSource(`/api/websocket-proxy?token=${token}&streamType=ticker`);
+        eventSourceRef.current = eventSource;
 
-        // Skip heartbeat messages
-        if (message.type === "heartbeat") {
-          return;
-        }
+        eventSource.onmessage = (event) => {
+            try {
+                const message = JSON.parse(event.data);
+                if (message.type !== "heartbeat") {
+                    handleTickerUpdate(message.stream, message.data);
+                }
+            } catch (error) {
+                console.error("Error parsing ticker fallback message:", error);
+            }
+        };
 
-        // For multi-stream, data comes wrapped in stream/data format
-        const stream = message.stream;
-        const data = message.data;
-
-        if (!stream || !data) {
-          // console.log("No stream or data found:", message);
-          return;
-        }
-
-        // console.log("Received stream:", stream, "Data:", data);
-
-        // Handle trade stream for real-time price
-        if (stream?.endsWith("@trade")) {
-          setTokenPrice(data.p);
-          hasLivePrice.current = true;
-          // console.log("Updated price from trade:", data.p);
-        }
-
-        // Handle miniTicker stream for percentage change
-        if (stream?.endsWith("@miniTicker")) {
-          const current = parseFloat(data.c); // close price
-          const open = parseFloat(data.o); // open price
-          const change = ((current - open) / open) * 100;
-
-          setPercentChange(change);
-          hasLivePrice.current = true;
-          // console.log("Updated percentage change from miniTicker:", change.toFixed(2) + "%");
-
-          // Also update price from miniTicker if no trade data yet
-          if (!hasLivePrice.current) {
-            setTokenPrice(data.c);
-          }
-        }
-      } catch (error) {
-        console.error("Error parsing SSE message:", error, "Raw data:", event.data);
-      }
+        eventSource.onerror = (error) => {
+            // console.error("Ticker EventSource fallback also failed:", error);
+            eventSource.close();
+        };
     };
 
-    eventSource.onerror = (error) => {
-      console.error("Ticker EventSource error:", error);
+    const connectWebSocket = () => {
+        const lowerToken = token.toLowerCase();
+        const streams = `${lowerToken}usdt@trade/${lowerToken}usdt@miniTicker`;
+        const endpoint = location.country === "US"
+            ? `wss://stream.binance.us:9443/stream?streams=${streams}`
+            : `wss://stream.binance.com:9443/stream?streams=${streams}`;
 
-      if (eventSource) {
-        eventSource.close();
-        eventSource = null;
-      }
+        const ws = new WebSocket(endpoint);
+        wsRef.current = ws;
 
-      if (isComponentMounted && !reconnectTimeout) {
-        reconnectTimeout = setTimeout(() => {
-          if (isComponentMounted) {
-            console.log("Attempting to reconnect ticker...");
-            connect();
-          }
-        }, 3000);
-      }
+        ws.onopen = () => {
+            console.log(`Direct Ticker WebSocket connection established for ${token}. ✅`);
+        };
+
+        ws.onmessage = (event) => {
+            try {
+                const message = JSON.parse(event.data);
+                if (message.stream && message.data) {
+                    handleTickerUpdate(message.stream, message.data);
+                }
+            } catch (error) {
+                console.error("Error parsing ticker WebSocket message:", error);
+            }
+        };
+
+        ws.onerror = (error) => {
+            // console.error("Direct Ticker WebSocket connection error:", error);
+            ws.close();
+            connectEventSourceProxy();
+        };
     };
-  };
 
-  connect();
+    connectWebSocket();
 
-  return () => {
-    isComponentMounted = false;
-
-    if (reconnectTimeout) {
-      clearTimeout(reconnectTimeout);
-    }
-
-    if (eventSource) {
-      eventSource.close();
-    }
-  };
-}, [token]);
+    return () => {
+        if (wsRef.current) {
+            wsRef.current.close();
+        }
+        if (eventSourceRef.current) {
+            eventSourceRef.current.close();
+        }
+    };
+}, [token, location?.country]);
 
   useEffect(() => {
     if (price?.lastPrice && !hasLivePrice.current) {
