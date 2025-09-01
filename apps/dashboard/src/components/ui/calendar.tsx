@@ -34,6 +34,7 @@ export function Calendar({
   selected,
   onSelect,
   className,
+  initialFocus, // <-- FIX: Destructure initialFocus here to "catch" it
   disabled,
   showOutsideDays = true,
   ...props
