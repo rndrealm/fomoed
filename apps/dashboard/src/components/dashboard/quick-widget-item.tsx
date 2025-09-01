@@ -126,10 +126,12 @@ export function QuickWidgetItem(props: IProps) {
             </p>
           </div>
         </RenderIf> */}
-        <div className="flex flex-col gap-1 text-start w-full max-w-[85%]">
+        <div className="flex flex-col gap-1 text-start w-full max-w-[100%]">
           <h2 className="text-white text-[14px] font-medium">{widget.name}</h2>
           <p className="text-[#EBEBEB] text-xs font-normal">
-            View real-time token prices and trends to help guide your trading decisions.
+            {widget.description
+              ? widget.description
+              : "Everything you need, in one place. Stay on top of your business. Get your data in the palm of your hand."}
           </p>
         </div>
 

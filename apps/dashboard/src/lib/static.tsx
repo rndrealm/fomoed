@@ -140,6 +140,7 @@ export const layoutOptionsMap = [
     showId: 5,
     name: "DEX",
     slug: "dex",
+    description: "Trade directly from your dashboard seamless swaps, real-time prices, and execution built in.",
     image: dashboard.dexV2,
     category: "charts",
     tags: ["new", "charts"],
@@ -150,6 +151,7 @@ export const layoutOptionsMap = [
     showId: 0,
     name: "Price Chart Widget",
     slug: "new-price-history",
+    description: "See price trends unfold in real time, with a clean chart built for clarity.",
     image: dashboard.tokenHistoryV2,
     category: "charts",
     tags: ["charts", "new"],
@@ -160,6 +162,7 @@ export const layoutOptionsMap = [
     showId: 8,
     name: "Bitcoin Dominance",
     slug: "btc-dominance",
+    description: "Track Bitcoin’s market share  a clear view of dominance shaping sentiment.",
     image: dashboard.btcDominanceV2,
     category: "charts",
     tags: ["charts", "new"],
@@ -170,6 +173,7 @@ export const layoutOptionsMap = [
     showId: 10,
     name: "Order Book",
     slug: "order-book",
+    description: "See market depth in real time bids and asks displayed with precision and balance.",
     image: dashboard.orderBookV2,
     category: "charts",
     tags: ["charts", "new"],
@@ -179,6 +183,7 @@ export const layoutOptionsMap = [
     showId: 6,
     name: "Coin Stats",
     slug: "coin-stats",
+    description: "Stay informed at a glance  market cap, volume, and supply, presented with clear precision.",
     image: dashboard.coinStatsV2,
     category: "charts",
     tags: ["charts", "new"],
@@ -189,6 +194,7 @@ export const layoutOptionsMap = [
     showId: 4,
     name: "Summary",
     slug: "summary",
+    description: "Your trading day at a glance key positions, performance, and insights distilled into clarity.",
     image: dashboard.summaryV2,
     category: "charts",
     tags: ["charts", "new"],
@@ -199,6 +205,7 @@ export const layoutOptionsMap = [
     showId: 1,
     name: "Crypto Fear and Greed Widget",
     slug: "cfgi",
+    description: "Measure market sentiment instantly a clear index revealing when fear or greed drives decisions.",
     image: dashboard.cfgiV2,
     category: "charts",
     tags: ["charts", "new"],
@@ -209,6 +216,7 @@ export const layoutOptionsMap = [
     showId: 3,
     name: "Screener",
     slug: "screener",
+    description: "Discover opportunities fast filter tokens by performance, volume, and trend with precision.",
     image: dashboard.screenerV2,
     category: "charts",
     tags: ["new"],
@@ -219,6 +227,7 @@ export const layoutOptionsMap = [
     showId: 9,
     name: "News",
     slug: "token-news",
+    description: "Stay ahead with curated crypto headlines market-moving updates with clarity and focus.",
     image: dashboard.newsV2,
     category: "news",
     tags: ["news", "new"],
@@ -228,6 +237,7 @@ export const layoutOptionsMap = [
     showId: 7,
     name: "Liquidation Heat Map",
     slug: "liquidation-heat-map",
+    description: "Visualize liquidations in real time  spot market pressure zones with clarity andcontext pairs.",
     image: dashboard.heatMapV2,
     category: "charts",
     tags: ["charts"],
@@ -303,7 +313,7 @@ export const layoutOptionsMap = [
   },
 
   {
-    id: 213, 
+    id: 213,
     name: "Whale Transaction Tracker",
     slug: "whale-transaction-tracker",
     image: dashboard.whaleTracker,
@@ -311,13 +321,13 @@ export const layoutOptionsMap = [
     tags: ["charts", "new"],
   },
   {
-  id: 214,
-  name: "Trading Economics",
-  slug: "trading-economics",
-  image: dashboard.tradingCalendar, 
-  category: "charts",
-  tags: ["charts", "new", "events"],
-}
+    id: 214,
+    name: "Trading Economics",
+    slug: "trading-economics",
+    image: dashboard.tradingCalendar,
+    category: "charts",
+    tags: ["charts", "new", "events"],
+  },
 
   // {
   //   id: 10,
@@ -336,117 +346,85 @@ export const chartsMap = {
   "detailed-cfgi": {
     name: "Crypto Fear and Greed Map",
     extra: ["period", "token", "chart-tab", "exchange-token"],
-    component: (widget: LayoutType["widgets"][0]) => (
-      <DetailedCfgiWidget widget={widget} fullScreenButton />
-    ),
+    component: (widget: LayoutType["widgets"][0]) => <DetailedCfgiWidget widget={widget} fullScreenButton />,
   },
   "simple-cfgi": {
     name: "Simplified Crypto Fear and Greed Map",
     extra: ["period", "token"],
-    component: (widget: LayoutType["widgets"][0]) => (
-      <SimpleCfgiWidget widget={widget} fullScreenButton />
-    ),
+    component: (widget: LayoutType["widgets"][0]) => <SimpleCfgiWidget widget={widget} fullScreenButton />,
   },
   "liquidation-map": {
     name: "Liquidation Map",
     extra: ["period", "token", "exchange-token"],
-    component: (widget: LayoutType["widgets"][0]) => (
-      <LiquidationWidget widget={widget} fullScreenButton />
-    ),
+    component: (widget: LayoutType["widgets"][0]) => <LiquidationWidget widget={widget} fullScreenButton />,
   },
   "liquidation-heat-map": {
     name: "Liquidation Heat Map",
     extra: ["period", "token", "exchange-token"],
-    component: (widget: LayoutType["widgets"][0]) => (
-      <LiquidationHeatmapWidget widget={widget} fullScreenButton />
-    ),
+    component: (widget: LayoutType["widgets"][0]) => <LiquidationHeatmapWidget widget={widget} fullScreenButton />,
   },
   "exchange-liquidation-map": {
     name: "Exchange Liquidation Map",
     extra: ["period", "token", "exchange-token"],
-    component: (widget: LayoutType["widgets"][0]) => (
-      <LiquidationExchangeWidget widget={widget} fullScreenButton />
-    ),
+    component: (widget: LayoutType["widgets"][0]) => <LiquidationExchangeWidget widget={widget} fullScreenButton />,
   },
   "token-news": {
     name: "Token News",
     extra: ["token"],
-    component: (widget: LayoutType["widgets"][0]) => (
-      <NewsWidget widget={widget} />
-    ),
+    component: (widget: LayoutType["widgets"][0]) => <NewsWidget widget={widget} />,
   },
   dex: {
     name: "Dex",
     extra: [""],
-    component: (widget: LayoutType["widgets"][0]) => (
-      <DexWidget widget={widget} />
-    ),
+    component: (widget: LayoutType["widgets"][0]) => <DexWidget widget={widget} />,
   },
   "cignals-chart": {
     name: "Cignals Chart",
     extra: [""],
-    component: (widget: LayoutType["widgets"][0]) => (
-      <CignalsWidget widget={widget} />
-    ),
+    component: (widget: LayoutType["widgets"][0]) => <CignalsWidget widget={widget} />,
   },
   "cryptocurrency-market": {
     name: "Cryptocurrency Market",
     extra: [""],
-    component: (widget: LayoutType["widgets"][0]) => (
-      <CryptocurrencyMarket widget={widget} />
-    ),
+    component: (widget: LayoutType["widgets"][0]) => <CryptocurrencyMarket widget={widget} />,
   },
   "token-price-history": {
     name: "Token Price History",
     extra: [""],
-    component: (widget: LayoutType["widgets"][0]) => (
-      <PriceHistory widget={widget} />
-    ),
+    component: (widget: LayoutType["widgets"][0]) => <PriceHistory widget={widget} />,
   },
   heatmap: {
     name: "Token Price History",
     extra: [""],
-    component: (widget: LayoutType["widgets"][0]) => (
-      <Heatmap widget={widget} />
-    ),
+    component: (widget: LayoutType["widgets"][0]) => <Heatmap widget={widget} />,
   },
   "new-price-history": {
     name: "New Price History",
     extra: ["period", "token"],
-    component: (widget: LayoutType["widgets"][0]) => (
-      <NewPriceHistory widget={widget} />
-    ),
+    component: (widget: LayoutType["widgets"][0]) => <NewPriceHistory widget={widget} />,
   },
   "btc-dominance": {
     name: "BTC Dominance",
     extra: [""],
-    component: (widget: LayoutType["widgets"][0]) => (
-      <Dominance widget={widget} />
-    ),
+    component: (widget: LayoutType["widgets"][0]) => <Dominance widget={widget} />,
   },
 
   "order-book": {
     name: "Order Book",
     extra: ["token"],
-    component: (widget: LayoutType["widgets"][0]) => (
-      <OrderBook widget={widget} />
-    ),
+    component: (widget: LayoutType["widgets"][0]) => <OrderBook widget={widget} />,
   },
 
   "coin-stats": {
     name: "Coin Stats",
     extra: [""],
-    component: (widget: LayoutType["widgets"][0]) => (
-      <CoinStats widget={widget} />
-    ),
+    component: (widget: LayoutType["widgets"][0]) => <CoinStats widget={widget} />,
   },
 
   summary: {
     name: "Summary",
     extra: [""],
-    component: (widget: LayoutType["widgets"][0]) => (
-      <SummaryWidget widget={widget} />
-    ),
+    component: (widget: LayoutType["widgets"][0]) => <SummaryWidget widget={widget} />,
   },
 
   cfgi: {
@@ -458,55 +436,41 @@ export const chartsMap = {
   screener: {
     name: "Screener",
     extra: [""],
-    component: (widget: LayoutType["widgets"][0]) => (
-      <Screener widget={widget} />
-    ),
+    component: (widget: LayoutType["widgets"][0]) => <Screener widget={widget} />,
   },
 
   "weighted-sentiment": {
     name: "Weighted Sentiment",
     extra: ["period", "token"],
-    component: (widget: LayoutType["widgets"][0]) => (
-      <WeightedSentiment widget={widget} />
-    ),
+    component: (widget: LayoutType["widgets"][0]) => <WeightedSentiment widget={widget} />,
   },
 
   "weighted-price-sentiment": {
     name: "Weighted Price Sentiment",
     extra: ["period", "token"],
-    component: (widget: LayoutType["widgets"][0]) => (
-      <WeightedPriceSentiment widget={widget} />
-    ),
+    component: (widget: LayoutType["widgets"][0]) => <WeightedPriceSentiment widget={widget} />,
   },
 
   "duck-game": {
     name: "Duck Game",
     extra: [""],
-    component: (widget: LayoutType["widgets"][0]) => (
-      <DuckGame widget={widget} />
-    ),
+    component: (widget: LayoutType["widgets"][0]) => <DuckGame widget={widget} />,
   },
   "orderbook-delta": {
     name: "Delta Spread",
     extra: ["interval", "range", "token", "exchange_token"],
-    component: (widget: LayoutType["widgets"][0]) => (
-      <OrderbookDeltaWidget widget={widget} />
-    ),
+    component: (widget: LayoutType["widgets"][0]) => <OrderbookDeltaWidget widget={widget} />,
   },
   "whale-transaction-tracker": {
     name: "Whale Transaction Tracker",
-    extra: [], 
-    component: (widget: LayoutType["widgets"][0]) => (
-      <WhaleTransactionWidget widget={widget} />
-    ),
+    extra: [],
+    component: (widget: LayoutType["widgets"][0]) => <WhaleTransactionWidget widget={widget} />,
   },
   "trading-economics": {
-  name: "Trading Economics",
-  extra: [],
-  component: (widget: LayoutType["widgets"][0]) => (
-    <TradingEconomicsWidget widget={widget} />
-  ),
-},
+    name: "Trading Economics",
+    extra: [],
+    component: (widget: LayoutType["widgets"][0]) => <TradingEconomicsWidget widget={widget} />,
+  },
 };
 
 export const widgetIdJoin = "@/$";
@@ -808,15 +772,15 @@ export const widgetPropsDefaults = {
     },
   },
   "trading-economics": {
-  meta: {
-    w: 8,
-    h: 4, 
-    minW: 6,
-    minH: 4,
-    maxW: Infinity,
-    maxH: Infinity,
+    meta: {
+      w: 8,
+      h: 4,
+      minW: 6,
+      minH: 4,
+      maxW: Infinity,
+      maxH: Infinity,
+    },
   },
-},
 };
 
 export const tourSteps = [
@@ -837,8 +801,7 @@ export const tourSteps = [
       {
         icon: "👋",
         selector: "#second-step",
-        content:
-          "Pick a widget to add to your dashboard. You can start with the ** widget if you’re not sure",
+        content: "Pick a widget to add to your dashboard. You can start with the ** widget if you’re not sure",
         title: "Pick a Widget",
         side: "left",
         showControls: true,
@@ -849,8 +812,7 @@ export const tourSteps = [
       {
         icon: "👋",
         selector: "#third-step",
-        content:
-          "Click this ‘Save’ icon to lock in your layout so you can always return to it.",
+        content: "Click this ‘Save’ icon to lock in your layout so you can always return to it.",
         title: "Looks good! Now Save Your Layout",
         side: "bottom-right",
         showControls: true,
@@ -861,8 +823,7 @@ export const tourSteps = [
       {
         icon: "👋",
         selector: "#fourth-step",
-        content:
-          "You can now name your layout. This will help you identify it later.",
+        content: "You can now name your layout. This will help you identify it later.",
         title: "Name your layout",
         side: "left",
         showControls: true,
@@ -873,8 +834,7 @@ export const tourSteps = [
       {
         icon: "👋",
         selector: "#fifth-step",
-        content:
-          "Click here to view all your saved layouts, you can switch between them or create new ones anytime",
+        content: "Click here to view all your saved layouts, you can switch between them or create new ones anytime",
         title: "Access Saved Layouts Anytime",
         side: "bottom-right",
         showControls: true,
@@ -908,8 +868,7 @@ export const widgetPreviewData: IWidgetPreviewData[] = [
     options: [
       {
         id: 1,
-        descripton:
-          "Get a quick overview of top movers & losers within the space",
+        descripton: "Get a quick overview of top movers & losers within the space",
         img: widgetsPreview.summary,
         name: "Summary",
         slug: "summary",
@@ -936,8 +895,7 @@ export const widgetPreviewData: IWidgetPreviewData[] = [
 
       {
         id: 4,
-        descripton:
-          "View real-time token prices and trends to help guide your trading decisions.",
+        descripton: "View real-time token prices and trends to help guide your trading decisions.",
         img: widgetsPreview.priceChart,
         name: "Price Chart",
         slug: "new-price-history",

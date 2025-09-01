@@ -35,6 +35,8 @@ const PassiveNav = (props: IPassiveNavProps) => {
             setIsSideMenuOpen(true);
           }
         }
+
+        setIsHovered(false);
       }}
       onMouseEnter={() => {
         document.body.style.cursor = "pointer";
@@ -47,7 +49,7 @@ const PassiveNav = (props: IPassiveNavProps) => {
     >
       <div
         id="passive-nav-active"
-        className="max-h-[64px] pointer-events-auto flex w-full flex-row items-center justify-between px-[16px]"
+        className="max-h-[64px] border-b-[1px] border-[#111111] pointer-events-auto flex w-full flex-row items-center justify-between px-[16px]"
       >
         <button style={{ opacity: 0 }} className="h-[64px] w-[64px] pointer-events-none">
           {/* <Image height={32} width={32} src={dashboard.logoMobile} alt="logo" /> */}
