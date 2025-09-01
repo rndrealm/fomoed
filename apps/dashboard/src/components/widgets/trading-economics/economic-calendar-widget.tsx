@@ -23,6 +23,7 @@ interface IProps {
 const TradingEconomicsWidget = (props: IProps) => {
   const { widget } = props;
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [initialDate] = useState(() => new Date()); // Capture initial date
   const [currentTime, setCurrentTime] = useState(new Date());
   const [showInfo, setShowInfo] = useState(false);
 
@@ -36,19 +37,25 @@ const TradingEconomicsWidget = (props: IProps) => {
   }, []);
 
   const eventsForCalendarView = useMemo(() => {
-    const startOfSelectedDay = new Date(selectedDate);
-    startOfSelectedDay.setHours(0, 0, 0, 0);
+    // **MODIFIED LOGIC STARTS HERE**
+    const isInitialView = selectedDate.toDateString() === initialDate.toDateString();
+
+    const startDate = isInitialView
+      ? new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1)
+      : new Date(selectedDate);
+      
+    startDate.setHours(0, 0, 0, 0);
 
     const endOfMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0);
     endOfMonth.setHours(23, 59, 59, 999); 
     
-    const futureEvents = events.filter(event => {
+    const filteredEvents = events.filter(event => {
         const eventDate = new Date(event.timestamp);
-        return eventDate >= startOfSelectedDay && eventDate <= endOfMonth;
+        return eventDate >= startDate && eventDate <= endOfMonth;
     });
 
     const groupedEvents = new Map<string, EconomicEvent[]>();
-    futureEvents.forEach(event => {
+    filteredEvents.forEach(event => {
         const dateString = new Date(event.timestamp).toDateString();
         if (!groupedEvents.has(dateString)) {
             groupedEvents.set(dateString, []);
@@ -57,7 +64,8 @@ const TradingEconomicsWidget = (props: IProps) => {
     });
 
     return groupedEvents;
-  }, [events, selectedDate]);
+    // **MODIFIED LOGIC ENDS HERE**
+  }, [events, selectedDate, initialDate]);
 
 
   const offsetMinutes = new Date().getTimezoneOffset();
@@ -69,27 +77,27 @@ const TradingEconomicsWidget = (props: IProps) => {
         title={"Economic Calendar"}
         widget={widget}
         handleLearnMore={() => setShowInfo(true)}
-        className="bg-gray-100 text-black"
+        className="bg-neutral-900 text-white"
     >
         {/* Date and Time Controls */}
-        <div className="bg-gray-200/70 rounded-lg py-2 px-6 flex justify-between items-center mb-1">
+        <div className="bg-neutral-800/70 rounded-lg py-2 px-6 flex justify-between items-center mb-1">
             <Popover>
-              <PopoverTrigger asChild>
-                <button className="flex items-center gap-2 cursor-pointer text-sm p-1 rounded-md">
-                    <CalendarIcon className="h-5 w-5 text-neutral-600" />
-                    <span className="font-medium">{selectedDate.toDateString()}</span>
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={(date) => date && setSelectedDate(date)}
-                  initialFocus
-                />
-              </PopoverContent>
+                <PopoverTrigger asChild>
+                    <button className="flex items-center gap-2 cursor-pointer text-sm p-1 rounded-md">
+                        <CalendarIcon className="h-5 w-5 text-neutral-400" />
+                        <span className="font-medium">{selectedDate.toDateString()}</span>
+                    </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                        mode="single"
+                        selected={selectedDate}
+                        onSelect={(date) => date && setSelectedDate(date)}
+                        initialFocus
+                    />
+                </PopoverContent>
             </Popover>
-            <div className="text-sm text-neutral-600">
+            <div className="text-sm text-neutral-400">
                 {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ({utcOffsetString})
             </div>
         </div>
@@ -97,11 +105,11 @@ const TradingEconomicsWidget = (props: IProps) => {
         {/* Content Area */}
         <div className="flex-grow overflow-auto py-1">
             {isPending ? (
-            <Skeleton className="h-full w-full bg-gray-200" />
+            <Skeleton className="h-full w-full bg-neutral-800" />
             ) : error ? (
             <div className="text-red-500">Error: {error.message}</div>
             ) : (
-              <EconomicCalendarTableView eventsByDate={eventsForCalendarView} />
+                <EconomicCalendarTableView eventsByDate={eventsForCalendarView} />
             )}
         </div>
 
@@ -109,7 +117,7 @@ const TradingEconomicsWidget = (props: IProps) => {
         {showInfo && (
           <div className="absolute top-[10px] right-[10px] bottom-[10px] left-[10px] z-9 flex items-end">
             <motion.div
-              className="scrollbar max-h-full overflow-auto rounded-[22px] bg-white text-black px-5 py-4"
+              className="scrollbar max-h-full overflow-auto rounded-[22px] bg-neutral-800 text-white px-5 py-4"
               variants={modalSlide}
               initial="hidden"
               animate="visible"
@@ -119,14 +127,14 @@ const TradingEconomicsWidget = (props: IProps) => {
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-col">
                     <h3 className="text-base leading-[1.35] font-semibold">Economic Calendar</h3>
-                    <p className="text-[13px] leading-[1.25] font-light text-neutral-600">Learn about the Economic Calendar</p>
+                    <p className="text-[13px] leading-[1.25] font-light text-neutral-400">Learn about the Economic Calendar</p>
                   </div>
                   <p className="text-[13px] leading-[1.35] font-medium">
                     The economic calendar displays key economic events and indicators. It helps traders stay informed about market-moving news, showing actual, forecast, and previous data for important releases.
                   </p>
                 </div>
 
-                <p className="text-xs font-semibold text-neutral-500 text-[1.25]">
+                <p className="text-xs font-semibold text-neutral-400 text-[1.25]">
                   We use data from{" "}
                   <a href="https://www.coinglass.com/" target="_blank" className="underline">
                     Coinglass.com
@@ -136,7 +144,7 @@ const TradingEconomicsWidget = (props: IProps) => {
                 <div className="flex justify-center">
                   <button
                     type="button"
-                    className="app_widget_button flex h-[26px] items-center justify-center gap-1 rounded-[40px] bg-gray-200"
+                    className="app_widget_button flex h-[26px] items-center justify-center gap-1 rounded-[40px] bg-neutral-700"
                     onClick={() => setShowInfo(false)}
                   >
                     <p className="app_widget_button__text text-[13px] font-medium whitespace-nowrap">
