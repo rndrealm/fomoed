@@ -133,10 +133,6 @@ function TestChart(props: IProps) {
   useEffect(() => {
     // Guard clause to ensure all dependencies are available.
     if (!token || !period || !location?.country) return;
-
-    // --- 1. SHARED KLINE DATA HANDLER ---
-    // This function processes the raw kline data and updates the chart series.
-    // It's used by both the primary WebSocket and the fallback EventSource.
     const handleKlineUpdate = (klineData: any) => {
       if (!klineData || !klineData.t) {
         console.warn("handleKlineUpdate received invalid kline data:", klineData);
@@ -144,15 +140,14 @@ function TestChart(props: IProps) {
       }
 
       const newData = {
-        time: Math.floor(klineData.t / 1000), // Convert ms to seconds
+        time: Math.floor(klineData.t / 1000),
         open: parseFloat(klineData.o),
         high: parseFloat(klineData.h),
         low: parseFloat(klineData.l),
         close: parseFloat(klineData.c),
-        value: parseFloat(klineData.c), // For line charts
+        value: parseFloat(klineData.c), 
       };
 
-      // This logic directly mirrors your original implementation.
       dataRef.current.push(newData as any);
 
       if ((lineSeriesRef.current || candleSeriesRef.current) && data?.length) {
@@ -164,8 +159,6 @@ function TestChart(props: IProps) {
       }
     };
 
-    // --- 2. FALLBACK CONNECTION LOGIC ---
-    // Connects to your EventSource proxy if the primary WebSocket fails.
     const connectEventSourceProxy = () => {
       console.log(`Primary Kline WebSocket failed for ${token}. Attempting fallback...`);
       const eventSource = new EventSource(`/api/websocket-proxy?token=${token}&streamType=kline&period=${period}`);
@@ -183,13 +176,10 @@ function TestChart(props: IProps) {
       };
 
       eventSource.onerror = (error) => {
-        // console.error("Kline EventSource fallback also failed:", error);
         eventSource.close();
       };
     };
 
-    // --- 3. PRIMARY CONNECTION LOGIC ---
-    // Attempts to connect directly to Binance's WebSocket first.
     const connectWebSocket = () => {
       const streamName = `${token.toLowerCase()}usdt@kline_${period}`;
       const endpoint =
@@ -218,16 +208,12 @@ function TestChart(props: IProps) {
       ws.onerror = (error) => {
         // console.error("Direct Kline WebSocket connection error:", error);
         ws.close();
-        // Trigger the fallback when the primary connection fails.
         connectEventSourceProxy();
       };
     };
 
-    // --- 4. INITIATE CONNECTION ---
     connectWebSocket();
 
-    // --- 5. UNIVERSAL CLEANUP ---
-    // Safely closes any active connection when dependencies change or the component unmounts.
     return () => {
       if (wsRef.current) {
         wsRef.current.close();
