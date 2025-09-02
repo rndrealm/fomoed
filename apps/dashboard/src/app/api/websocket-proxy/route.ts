@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import WebSocket from 'ws';
 
+export const maxDuration = 600
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const token = searchParams.get('token');

@@ -34,7 +34,7 @@ export function Calendar({
   selected,
   onSelect,
   className,
-  initialFocus, // <-- FIX: Destructure initialFocus here to "catch" it
+  initialFocus,
   disabled,
   showOutsideDays = true,
   ...props
@@ -86,34 +86,51 @@ export function Calendar({
     const year = currentMonth.getFullYear();
     const month = currentMonth.getMonth();
 
+    // First day of the current month
     const firstDay = new Date(year, month, 1);
+    // Last day of the current month
     const lastDay = new Date(year, month + 1, 0);
+    // First day of week (0 = Sunday)
     const firstDayOfWeek = firstDay.getDay();
+    // Total days in current month
     const daysInMonth = lastDay.getDate();
 
     const days: (Date | null)[] = [];
 
-    // Previous month days
-    const prevMonth = new Date(year, month - 1, 0);
-    for (let i = firstDayOfWeek - 1; i >= 0; i--) {
-      if (showOutsideDays) {
-        days.push(new Date(year, month - 1, prevMonth.getDate() - i));
-      } else {
+    // Add previous month's days to fill the first week
+    if (showOutsideDays && firstDayOfWeek > 0) {
+      // Get the last day of previous month
+      const prevMonthLastDay = new Date(year, month, 0);
+      const prevMonthLastDate = prevMonthLastDay.getDate();
+      
+      // Add the last few days of previous month
+      for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+        const dayNumber = prevMonthLastDate - i;
+        days.push(new Date(year, month - 1, dayNumber));
+      }
+    } else {
+      // Add null placeholders
+      for (let i = 0; i < firstDayOfWeek; i++) {
         days.push(null);
       }
     }
 
-    // Current month days
+    // Add current month days
     for (let day = 1; day <= daysInMonth; day++) {
       days.push(new Date(year, month, day));
     }
 
-    // Next month days
-    const remainingDays = 42 - days.length;
-    for (let day = 1; day <= remainingDays; day++) {
-      if (showOutsideDays) {
+    // Add next month days to complete the 6-week grid
+    const totalCells = 42; // 6 weeks × 7 days
+    const remainingCells = totalCells - days.length;
+    
+    if (showOutsideDays && remainingCells > 0) {
+      for (let day = 1; day <= remainingCells; day++) {
         days.push(new Date(year, month + 1, day));
-      } else {
+      }
+    } else {
+      // Add null placeholders
+      for (let i = 0; i < remainingCells; i++) {
         days.push(null);
       }
     }
