@@ -1,7 +1,7 @@
 "use client";
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useMemo, useState } from "react";
 
-import { CandleStick, Close, Delete, Ellipsis, FullScreen, Learn, LineChart, Question } from "@/components/icons/icons";
+import { CandleStick, Close, Delete, Ellipsis, FullScreen, Learn, LineChart, Question, TokenStats } from "@/components/icons/icons";
 import { cn, modalSlide, splitWidgetSlug } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -32,6 +32,18 @@ import StarFilled from "@/components/icons/StarFilled";
 interface IOptionsDropdown {
   widget: LayoutType["widgets"][0];
 }
+
+// Time periods configuration
+const timePeriods = [
+  { label: '1D', value: '1d', binanceInterval: '5m' },
+  { label: '1W', value: '1w', binanceInterval: '1h' },
+  { label: '1M', value: '1m', binanceInterval: '4h' },
+  { label: '3M', value: '3m', binanceInterval: '1d' },
+  { label: '6M', value: '6m', binanceInterval: '1d' },
+  { label: 'YTD', value: 'ytd', binanceInterval: '1d' },
+  { label: '1Y', value: '1y', binanceInterval: '1d' },
+  { label: 'ALL', value: 'all', binanceInterval: '1w' },
+];
 
 function OptionsDropdown(props: IOptionsDropdown) {
   const { widget } = props;
@@ -109,6 +121,8 @@ export default function NewPriceHistory(props: IProps) {
   const [isCandleStick, setIsCandleStick] = useState(false);
   const [isFullScreen, setIsFullscreen] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
+  const [selectedPeriod, setSelectedPeriod] = useState('1M');
+  const [showTokenStats, setShowTokenStats] = useState(false);
 
   const location = useAtomValue(geoLocationAtom);
 
@@ -122,6 +136,11 @@ export default function NewPriceHistory(props: IProps) {
 
   const widgetSlug = splitWidgetSlug(widget.meta.i).slug;
 
+    // Get current period configuration
+    const currentPeriodConfig = useMemo(() => {
+      return timePeriods.find(p => p.label === selectedPeriod) || timePeriods[2]; // Default to 1M
+    }, [selectedPeriod]);
+
   return (
     <Fragment>
       <div className="relative flex h-full flex-col gap-0 rounded-2xl bg-[#000] pt-0 pb-2">
@@ -131,7 +150,7 @@ export default function NewPriceHistory(props: IProps) {
           </div>
 
           <div className="mb-1 flex items-center justify-between px-4">
-            <div className="">
+            <div className="flex gap-4 items-center">
               <PriceTokenDropdown
                 options={coinData}
                 setValue={(coin: string) => {
@@ -147,6 +166,7 @@ export default function NewPriceHistory(props: IProps) {
                 }}
                 value={widget?.props?.token}
               />
+              <LivePrice token={widget?.props?.token} period={currentPeriodConfig} selectedPeriod={selectedPeriod} />
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -194,10 +214,8 @@ export default function NewPriceHistory(props: IProps) {
           </div>
         </div>
         <div className="relative flex flex-1">
-          <div className="absolute top-[4px] right-0 left-0 z-[999]">
+          {/* <div className="absolute top-[4px] right-0 left-0 z-[999]">
             <div className="flex items-center justify-between px-4">
-              <LivePrice token={widget?.props?.token} />
-
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-[2px] rounded-[5px] bg-[#161616] p-[1px]">
                   <button
@@ -240,9 +258,33 @@ export default function NewPriceHistory(props: IProps) {
                 />
               </div>
             </div>
-          </div>
+          </div> */}
+          
           <div className="absolute top-0 right-0 bottom-0 left-0">
-            <TestChart isCandleStick={isCandleStick} token={widget?.props?.token} period={widget?.props?.period} />
+          {/* Time Period Selector */}
+            <div className="flex gap-1 bg-[#0C0C0C] justify-around my-3 rounded-lg">
+              {timePeriods.map((period) => (
+                <button
+                  key={period.label}
+                  onClick={() => setSelectedPeriod(period.label)}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                    selectedPeriod === period.label
+                      ? 'bg-[#272727] text-white'
+                      : 'text-gray-400 hover:text-white hover:bg-[#1B1B1B]'
+                  }`}
+                >
+                  {period.label}
+                </button>
+              ))}
+            </div>
+            <TestChart
+              isCandleStick={isCandleStick}
+              token={widget?.props?.token}
+              period={currentPeriodConfig}
+              selectedPeriod={selectedPeriod}
+              showTokenStats={showTokenStats}
+              setShowTokenStats={setShowTokenStats}
+            />
           </div>
           {/* <div className=""></div> */}
 
@@ -257,6 +299,19 @@ export default function NewPriceHistory(props: IProps) {
             token={widget?.props?.token}
             period={widget?.props?.period}
           /> */}
+        </div>
+
+        <div
+          className="absolute left-[9px] bottom-[24px] z-[9] h-[28px] py-1 pl-1 pr-2.5 rounded-full border border-[#393939] bg-[#2B2C2E]"
+        >
+          <button
+            className="flex h-full w-full items-center justify-center text-xs text-neutral-50"
+            onClick={() => {
+              setShowTokenStats(true);
+            }}
+          >
+            <TokenStats /> | Click to activate Token Stats
+          </button>
         </div>
 
         <div
