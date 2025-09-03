@@ -134,7 +134,10 @@ const EconomicCalendarTableView = ({ eventsByDate }: IProps) => {
               <thead className="text-xs uppercase bg-neutral-800">
                 <tr>
                   <th scope="col" className="py-3 px-2 font-medium w-[60%]">
-                    USA
+                    <div className="flex items-center gap-2">
+                      <Image src={dashboard.usaIcon} width={20} height={20} alt="USA Flag" />
+                      USA
+                    </div>
                   </th>
                   <th scope="col" className="py-3 px-2 text-center font-medium">
                     Actual
