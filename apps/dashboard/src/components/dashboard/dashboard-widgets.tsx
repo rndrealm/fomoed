@@ -71,11 +71,15 @@ export function DashboardWidgets(props: IProps) {
         }}
       >
         {data?.widgets.map((layout, index) => {
-          const { x = 0, y = 0 } = layout.meta;
+          const x = layout.meta.x || 0;
+          const y = layout.meta.y || 0;
 
           const dimensionDefault =
             widgetPropsDefaults[splitWidgetSlug(layout.meta.i).slug as keyof typeof widgetPropsDefaults]?.meta;
-          const { minH = 0, minW = 0, maxH = 0, maxW = 0 } = dimensionDefault;
+          const minH = dimensionDefault?.minH || 0;
+          const minW = dimensionDefault?.minW || 0;
+          const maxH = dimensionDefault?.maxH || 0;
+          const maxW = dimensionDefault?.maxW || 0;
 
           const h = layout?.meta?.h || dimensionDefault?.h;
           const w = layout?.meta?.w || dimensionDefault?.w;
