@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { Suspense, useState } from "react";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { FormBottomLink, GoogleLogin, SubmitButton, TextInput } from "@/components/auth";
@@ -7,7 +7,7 @@ import ArrowRight from "@/components/icons/ArrowRight";
 import FormLogo from "@/components/icons/FormLogo";
 import FormBottomDivider from "@/components/icons/FormBottomDivider";
 import { AppRoutes } from "@/lib/routes";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { track } from "@vercel/analytics";
 import { signUpNewUser } from "@/services/queries/auth/server-actions";
@@ -33,17 +33,30 @@ const initialValues = {
 type InitialValues = ReturnType<() => typeof initialValues>;
 
 export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SignupForm />
+    </Suspense>
+  );
+}
+
+const SignupForm = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const searchParams = useSearchParams();
+  const redirectUrl = searchParams.get("redirectUrl");
+
   const onSubmit = async (_values: InitialValues) => {
     try {
       setIsLoading(true);
-      const retUser = await signUpNewUser(_values);
+      const retUser = await signUpNewUser(_values, redirectUrl || undefined);
       if (retUser.success) {
         track("signup", {
           username: _values.username,
           email: _values.email,
         });
+        // Redirect to full url on signup
+
         router.push(AppRoutes.auth.mailAuthenticate.path);
       } else {
         toast(retUser.message || "Something went wrong!");
@@ -130,7 +143,7 @@ export default function Page() {
           </div>
 
           <div className="relative mt-3 flex justify-center">
-            <GoogleLogin />
+            <GoogleLogin redirectUrl={redirectUrl || undefined} />
           </div>
         </div>
       </div>
@@ -139,8 +152,16 @@ export default function Page() {
         <div className="flex w-full">
           <FormBottomDivider />
         </div>
-        <FormBottomLink href={AppRoutes.auth.login.path} infoText="Already on Fomoed?" linkText="Sign In" />
+        <FormBottomLink
+          href={
+            redirectUrl
+              ? `${AppRoutes.auth.login.path}?redirectUrl=${encodeURIComponent(redirectUrl)}`
+              : AppRoutes.auth.login.path
+          }
+          infoText="Already on Fomoed?"
+          linkText="Sign In"
+        />
       </div>
     </div>
   );
-}
+};
