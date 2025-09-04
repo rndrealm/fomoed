@@ -3,16 +3,10 @@ import Chart from "chart.js/auto";
 
 import "chartjs-adapter-dayjs-4/dist/chartjs-adapter-dayjs-4.esm";
 import type { ZoomPluginOptions } from "chartjs-plugin-zoom/types/options";
-import {
-  commaFormatNumber,
-  registerChartPluginZoomInBrowser,
-} from "@/charts/helpers";
+import { commaFormatNumber, registerChartPluginZoomInBrowser } from "@/charts/helpers";
 import { FormatLiquidationDataResult } from "@/services/queries/charts/types";
 
-import {
-  CrosshairPluginConfig,
-  CrosshairPlugin,
-} from "@/charts/plugins/CrosshairPlugin";
+import { CrosshairPluginConfig, CrosshairPlugin } from "@/charts/plugins/CrosshairPlugin";
 import { humanizeNumber } from "@/lib/utils";
 
 Chart.register(CrosshairPlugin);
@@ -20,6 +14,7 @@ Chart.register(CrosshairPlugin);
 interface ICfgiCard {
   liquidationData: FormatLiquidationDataResult;
   viewOption?: string;
+  token?: string;
 }
 
 const getScaleFormatter = (maxValue: number) => {
@@ -45,7 +40,7 @@ const LiquidationChart = (props: ICfgiCard) => {
   useEffect(() => {
     registerChartPluginZoomInBrowser();
   }, []);
-  const { liquidationData, viewOption } = props;
+  const { liquidationData, viewOption, token } = props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
 
@@ -61,6 +56,8 @@ const LiquidationChart = (props: ICfgiCard) => {
 
       const minPricePoint = liquidationData.minPrice;
       const maxPricePoint = liquidationData.maxPrice;
+      const dynamicMinRange = (maxPricePoint - minPricePoint) * 0.01 || 0.001;
+
       const maxShownCumulativeValue = liquidationData.maxCumulativeValue * 1.15;
 
       const zoomPluginOptions: ZoomPluginOptions = {
@@ -73,7 +70,6 @@ const LiquidationChart = (props: ICfgiCard) => {
             enabled: true,
           },
           mode: "x",
-          // scaleMode: 'y'
         },
         pan: {
           enabled: true,
@@ -81,7 +77,7 @@ const LiquidationChart = (props: ICfgiCard) => {
           threshold: 0,
         },
         limits: {
-          x: { minRange: 100, min: minPricePoint, max: maxPricePoint },
+          x: { minRange: dynamicMinRange, min: minPricePoint, max: maxPricePoint },
           y: { min: 0 },
           cumulative: { min: 0, max: maxShownCumulativeValue },
         },
@@ -100,17 +96,78 @@ const LiquidationChart = (props: ICfgiCard) => {
             scaleId: "y",
             label: "At price",
             getText: () => (val) => humanizeNumber(val),
-            getTextColor: () => (val) => "white",
+            getTextColor: () => () => "white",
           },
           {
             scaleId: "cumulative",
             label: "Cumulative",
             getText: () => (val) => humanizeNumber(val),
-            getTextColor: () => (val) => "white",
+            getTextColor: () => () => "white",
           },
         ],
         crosshairEnableDelay: 200,
         labelStackDirection: "vertical",
+      };
+
+      const isAltcoin = token && token !== "BTC" && token !== "ETH";
+
+      // Define the custom plugin to draw the price indicator
+      const customPriceIndicatorPlugin = {
+        id: "customPriceIndicator",
+        afterDraw: (chart: Chart) => {
+          if (liquidationData.currentPrice !== null) {
+            const {
+              ctx,
+              chartArea: { top, bottom },
+              scales: { x },
+            } = chart;
+            const xCoord = x.getPixelForValue(liquidationData.currentPrice);
+
+            // --- Draw Dashed Line ---
+            ctx.save();
+            ctx.beginPath();
+            ctx.setLineDash([6, 6]);
+            ctx.moveTo(xCoord, top);
+            ctx.lineTo(xCoord, bottom);
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = "red";
+            ctx.stroke();
+            ctx.restore();
+
+            // --- Draw Arrowhead ---
+            ctx.beginPath();
+            ctx.moveTo(xCoord, top);
+            ctx.lineTo(xCoord - 5, top + 8);
+            ctx.lineTo(xCoord + 5, top + 8);
+            ctx.closePath();
+            ctx.fillStyle = "red";
+            ctx.fill();
+
+            // --- Draw Label ---
+            const labelText = `Current Price: ${commaFormatNumber(liquidationData.currentPrice)}`;
+            ctx.font = "bold 12px sans-serif";
+            const textMetrics = ctx.measureText(labelText);
+            const textWidth = textMetrics.width;
+            const textHeight = 12;
+
+            // Label box properties
+            const padding = { x: 5, y: 4 };
+            const boxWidth = textWidth + padding.x * 2;
+            const boxHeight = textHeight + padding.y * 0;
+            const boxY = top - boxHeight - 10;
+            const boxX = xCoord - boxWidth / 2;
+
+            // Draw label background
+            ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+            ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+
+            // Draw label text
+            ctx.fillStyle = "white";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(labelText, xCoord, boxY + boxHeight / 2);
+          }
+        },
       };
 
       chartRef.current?.destroy();
@@ -122,11 +179,12 @@ const LiquidationChart = (props: ICfgiCard) => {
               {
                 type: "bar",
                 data: liquidationData.liqBars,
-                barThickness: 0.5,
                 order: 20,
                 backgroundColor: liquidationData.liqBars.map((i) => i.color),
                 xAxisID: "x",
                 yAxisID: "y",
+                // barPercentage: isAltcoin ? 1.0 : undefined,
+                // categoryPercentage: isAltcoin ? 1.0 : undefined,
               },
               {
                 type: "line",
@@ -157,28 +215,25 @@ const LiquidationChart = (props: ICfgiCard) => {
             ],
           },
           options: {
+            layout: {
+              padding: {
+                top: 40,
+              },
+            },
             spanGaps: true,
             animation: false,
             responsive: true,
             maintainAspectRatio: false,
-
             scales: {
               x: {
                 type: "linear",
                 ticks: {
                   callback: (val: any) => {
-                    const formatter = getScaleFormatter(
-                      liquidationData.maxPrice,
-                    );
-
+                    const formatter = getScaleFormatter(liquidationData.maxPrice);
                     if (formatter.suffix === "K" || formatter.suffix === "M") {
-                      return (
-                        Math.round(val / formatter.divisor) + formatter.suffix
-                      );
+                      return Math.round(val / formatter.divisor) + formatter.suffix;
                     } else {
-                      return (
-                        (val / formatter.divisor).toFixed(2) + formatter.suffix
-                      );
+                      return (val / formatter.divisor).toFixed(3) + formatter.suffix;
                     }
                   },
                 },
@@ -192,7 +247,7 @@ const LiquidationChart = (props: ICfgiCard) => {
               y: {
                 type: "linear",
                 grid: {
-                  color: "#fff2",
+                  color: "#fff1",
                 },
                 border: {
                   dash: [4, 2],
@@ -200,10 +255,7 @@ const LiquidationChart = (props: ICfgiCard) => {
                 min: 0,
                 ticks: {
                   callback: (val: any) => {
-                    // Find the maximum value in liqBars for dynamic formatting
-                    const maxBarValue = Math.max(
-                      ...liquidationData.liqBars.map((bar) => bar.y),
-                    );
+                    const maxBarValue = Math.max(...liquidationData.liqBars.map((bar) => bar.y));
                     const formatter = getScaleFormatter(maxBarValue);
                     return `${Math.round(val / formatter.divisor)}${formatter.suffix}`;
                   },
@@ -222,9 +274,7 @@ const LiquidationChart = (props: ICfgiCard) => {
                 },
                 ticks: {
                   callback: (val: any) => {
-                    const formatter = getScaleFormatter(
-                      liquidationData.maxCumulativeValue,
-                    );
+                    const formatter = getScaleFormatter(liquidationData.maxCumulativeValue);
                     return `${Math.round(val / formatter.divisor)}${formatter.suffix}`;
                   },
                 },
@@ -238,42 +288,19 @@ const LiquidationChart = (props: ICfgiCard) => {
               legend: {
                 display: false,
               },
-
               tooltip: {
                 enabled: false,
-              },
-              annotation: {
-                annotations: {
-                  currentPriceLine: {
-                    type: "line",
-                    yMin: 0,
-                    yMax: liquidationData.maxCumulativeValue * 1.15,
-                    yScaleID: "cumulative",
-                    borderColor: "red",
-                    borderWidth: 2,
-                    xMin: liquidationData.currentPrice,
-                    xMax: liquidationData.currentPrice,
-                    borderDash: [8, 4],
-                    arrowHeads: {
-                      end: {
-                        backgroundColor: "red",
-                        display: true,
-                        fill: true,
-                        borderDash: [0, 0],
-                      },
-                    },
-                  },
-                },
               },
               zoom: zoomPluginOptions,
             },
           },
+          plugins: [customPriceIndicatorPlugin],
         });
       }
 
       chartRef.current?.resize();
     },
-    [liquidationData],
+    [liquidationData, token],
   );
 
   useEffect(() => {
@@ -281,16 +308,11 @@ const LiquidationChart = (props: ICfgiCard) => {
     const ctx = canvasRef.current?.getContext("2d");
     if (!ctx) return;
     chart_init(ctx);
-  }, [liquidationData, viewOption, chart_init]);
+  }, [liquidationData, viewOption, chart_init, token]);
 
   return (
     <div className="relative h-full w-full pb-1">
-      <canvas
-        width="400"
-        height={0}
-        ref={canvasRef}
-        // className="absolute top-0 left-0 right-0 bottom-0 !w-full !h-full"
-      ></canvas>
+      <canvas width="400" height={0} ref={canvasRef}></canvas>
     </div>
   );
 };

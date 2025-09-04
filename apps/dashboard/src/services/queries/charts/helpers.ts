@@ -3,7 +3,7 @@ import { range, maxBy, sumBy } from "lodash-es";
 
 function getLiqBarColorFromLevRatio(leverage: number) {
   if (leverage === 100) {
-    return "#FF8300";
+    return "#ff5e00ff";
   }
 
   if (leverage === 50) {
