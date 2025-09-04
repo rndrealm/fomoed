@@ -10,6 +10,8 @@ export async function GET(request: NextRequest) {
   const token_hash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
   const next = searchParams.get("next") ?? "/";
+  // Takes precedence
+  const redirectUrl = searchParams.get("redirectUrl");
 
   if (token_hash && type) {
     const supabase = await createSupabaseServerClient();
@@ -20,7 +22,7 @@ export async function GET(request: NextRequest) {
     });
     if (!error) {
       // redirect user to specified redirect URL or root of app
-      redirect(next);
+      redirect(redirectUrl || next);
     }
     console.log(error);
     redirect(`${AppRoutes.auth.authError.path}?code=400&message=${error.message}.`);

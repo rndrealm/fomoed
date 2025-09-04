@@ -84,8 +84,10 @@ export async function GET(request: Request) {
   const code = searchParams.get("code");
 
   // if "next" is in param, use it in the redirect URL
+  // redirectUrl takes priority over next and from
   const next = searchParams.get("next") ?? "/";
   const from = searchParams.get("from") ?? "/";
+  const redirectUrl = searchParams.get("redirectUrl");
 
   if (code) {
     const supabase = await createSupabaseServerClient();
@@ -95,14 +97,16 @@ export async function GET(request: Request) {
 
     if (!data.user) {
       return NextResponse.redirect(
-        `${origin}${AppRoutes.auth.authError.path}?code=${error?.code}&message=${error?.message}`
+        `${origin}${AppRoutes.auth.authError.path}?code=${error?.code}&message=${error?.message}`,
       );
     }
 
     await createOrLinkUserFromOAuth(data.user);
 
     if (!error) {
-      if (from === "marketing") {
+      if (redirectUrl) {
+        return NextResponse.redirect(redirectUrl);
+      } else if (from === "marketing") {
         const marketingUrl = process.env.NEXT_PUBLIC_MARKETING_APP_URL;
         return NextResponse.redirect(marketingUrl || "https://marketing.fomoed.io");
       } else {
@@ -115,6 +119,6 @@ export async function GET(request: Request) {
   // TODO: Create this page
   // return the user to an error page with instructions
   return NextResponse.redirect(
-    `${origin}${AppRoutes.auth.authError.path}?code=400&message=Login%20attempt%20failed.%20Please%20try%20again.`
+    `${origin}${AppRoutes.auth.authError.path}?code=400&message=Login%20attempt%20failed.%20Please%20try%20again.`,
   );
 }
