@@ -84,10 +84,8 @@ export async function GET(request: Request) {
   const code = searchParams.get("code");
 
   // if "next" is in param, use it in the redirect URL
-  // redirectUrl takes priority over next and from
   const next = searchParams.get("next") ?? "/";
   const from = searchParams.get("from") ?? "/";
-  const redirectUrl = searchParams.get("redirectUrl");
 
   if (code) {
     const supabase = await createSupabaseServerClient();
@@ -104,9 +102,7 @@ export async function GET(request: Request) {
     await createOrLinkUserFromOAuth(data.user);
 
     if (!error) {
-      if (redirectUrl) {
-        return NextResponse.redirect(redirectUrl);
-      } else if (from === "marketing") {
+      if (from === "marketing") {
         const marketingUrl = process.env.NEXT_PUBLIC_MARKETING_APP_URL;
         return NextResponse.redirect(marketingUrl || "https://marketing.fomoed.io");
       } else {

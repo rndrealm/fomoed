@@ -9,26 +9,24 @@ import { RenderIf } from "../shared";
 import { Loader2 } from "lucide-react";
 
 interface GoogleLoginButtonProps {
+  redirectTo?: string;
   className?: string;
   nextUrl?: string;
   fromUrl?: string;
-  redirectUrl?: string;
 }
 
-export function GoogleLogin({ className, nextUrl, fromUrl, redirectUrl }: GoogleLoginButtonProps) {
+export function GoogleLogin({ className, nextUrl, fromUrl }: GoogleLoginButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSignIn = async () => {
     const supabase = createSupabaseBrowserClient();
 
-    // Build callback URL with next parameter if provided (redirectUrl takes priority with full redirectUrl)
-    const callbackUrl = redirectUrl
-      ? `${window.location.origin}/auth/callback?redirectUrl=${encodeURIComponent(redirectUrl)}`
-      : fromUrl
-        ? `${window.location.origin}/auth/callback?from=${encodeURIComponent(fromUrl)}`
-        : nextUrl
-          ? `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextUrl)}`
-          : `${window.location.origin}/auth/callback`;
+    // Build callback URL with next parameter if provided
+    const callbackUrl = fromUrl
+      ? `${window.location.origin}/auth/callback?from=${encodeURIComponent(fromUrl)}`
+      : nextUrl
+        ? `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextUrl)}`
+        : `${window.location.origin}/auth/callback`;
 
     await supabase.auth.signInWithOAuth({
       provider: "google",

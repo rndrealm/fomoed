@@ -7,7 +7,7 @@ import { headers } from "next/headers";
 
 export async function signUpNewUser(
   body: RegisterUserPayload,
-  redirectUrl?: string,
+  fromUrl?: string | null,
 ): Promise<LoginUserFunctionResponse> {
   const supabase = await createSupabaseServerWithAnonKey();
 
@@ -22,7 +22,7 @@ export async function signUpNewUser(
     email,
     password,
     options: {
-      emailRedirectTo: redirectUrl ? `${origin}&redirectUrl=${encodeURIComponent(redirectUrl)}` : `${origin}`,
+      emailRedirectTo: fromUrl ? `${origin}&fromUrl=${fromUrl}` : `${origin}`,
     },
   });
 

@@ -34,7 +34,7 @@ type InitialValues = ReturnType<() => typeof initialValues>;
 
 export default function Page() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense>
       <SignupForm />
     </Suspense>
   );
@@ -44,12 +44,11 @@ const SignupForm = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const searchParams = useSearchParams();
-  const redirectUrl = searchParams.get("redirectUrl");
-
+  const fromUrl = searchParams.get("from");
   const onSubmit = async (_values: InitialValues) => {
     try {
       setIsLoading(true);
-      const retUser = await signUpNewUser(_values, redirectUrl || undefined);
+      const retUser = await signUpNewUser(_values, fromUrl || undefined);
       if (retUser.success) {
         track("signup", {
           username: _values.username,
@@ -67,7 +66,6 @@ const SignupForm = () => {
       setIsLoading(false);
     }
   };
-
   return (
     <div className="font-inter flex min-h-screen w-full flex-col bg-[#000] px-4 pb-8">
       <div className="flex h-full flex-1 items-center justify-center">
@@ -143,7 +141,7 @@ const SignupForm = () => {
           </div>
 
           <div className="relative mt-3 flex justify-center">
-            <GoogleLogin redirectUrl={redirectUrl || undefined} />
+            <GoogleLogin fromUrl={fromUrl || undefined} />
           </div>
         </div>
       </div>
@@ -154,9 +152,7 @@ const SignupForm = () => {
         </div>
         <FormBottomLink
           href={
-            redirectUrl
-              ? `${AppRoutes.auth.login.path}?redirectUrl=${encodeURIComponent(redirectUrl)}`
-              : AppRoutes.auth.login.path
+            fromUrl ? `${AppRoutes.auth.login.path}?from=${encodeURIComponent(fromUrl)}` : AppRoutes.auth.login.path
           }
           infoText="Already on Fomoed?"
           linkText="Sign In"
