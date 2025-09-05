@@ -22,7 +22,7 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        source: "/auth/(.*)", // applies only to /auth/*
+        source: "/auth", // applies only to /auth/*
         headers: [
           {
             key: "Cache-Control",
