@@ -1,5 +1,5 @@
 "use client";
-import React, { Fragment, useMemo, useState } from "react";
+import React, { Fragment, useEffect, useMemo, useState } from "react";
 
 import { CandleStick, Close, Delete, Ellipsis, FullScreen, Learn, LineChart, Question, TokenStats } from "@/components/icons/icons";
 import { cn, modalSlide, splitWidgetSlug } from "@/lib/utils";
@@ -16,7 +16,6 @@ import { LivePrice } from "./live-price";
 import { deleteWidgetAtom, LayoutType, updateWidgetPropsAtom } from "@/lib/atoms/layoutAtom";
 import { useAtomValue, useSetAtom } from "jotai";
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
-import { pricePeriodOptions } from "@/constant";
 import PriceTokenDropdown from "../shared/price-token-dropdown";
 import { ConfirmationModal } from "@/components/modals";
 import { chartsMap } from "@/lib/static";
@@ -32,6 +31,20 @@ import StarFilled from "@/components/icons/StarFilled";
 interface IOptionsDropdown {
   widget: LayoutType["widgets"][0];
 }
+
+export const dailyPricePeriodOptions = [
+  { value: "1m", label: "1M" },
+  { value: "3m", label: "3M" },
+  { value: "5m", label: "5M" },
+  { value: "15m", label: "15M" },
+  { value: "30m", label: "30M" },
+  { value: "1h", label: "1H" },
+  { value: "2h", label: "2H" },
+  { value: "4h", label: "4H" },
+  { value: "6h", label: "6H" },
+  { value: "8h", label: "8H" },
+  { value: "12h", label: "12H" },
+];
 
 // Time periods configuration
 const timePeriods = [
@@ -121,8 +134,19 @@ export default function NewPriceHistory(props: IProps) {
   const [isCandleStick, setIsCandleStick] = useState(false);
   const [isFullScreen, setIsFullscreen] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
-  const [selectedPeriod, setSelectedPeriod] = useState('1M');
+  const [selectedPeriod, setSelectedPeriod] = useState('1D');
   const [showTokenStats, setShowTokenStats] = useState(false);
+  const [dailyBinanceInterval, setDailyBinanceInterval] = useState(() => {
+    if (selectedPeriod === '1D') {
+      const isValidBinanceInterval = widget.props?.period && 
+        dailyPricePeriodOptions.some(opt => opt.value === widget.props.period);
+      
+      if (isValidBinanceInterval) {
+        return widget.props.period;
+      }
+    }
+    return '15m'; // Default fallback
+  });
 
   const location = useAtomValue(geoLocationAtom);
 
@@ -136,10 +160,46 @@ export default function NewPriceHistory(props: IProps) {
 
   const widgetSlug = splitWidgetSlug(widget.meta.i).slug;
 
-    // Get current period configuration
-    const currentPeriodConfig = useMemo(() => {
-      return timePeriods.find(p => p.label === selectedPeriod) || timePeriods[2]; // Default to 1M
-    }, [selectedPeriod]);
+  // Get current period configuration
+  const currentPeriodConfig = useMemo(() => {
+    const basePeriod = timePeriods.find(p => p.label === selectedPeriod) || timePeriods[0];
+    
+    if (selectedPeriod === '1D') {
+      return {
+        ...basePeriod,
+        binanceInterval: widget.props?.period || dailyBinanceInterval || '15m',
+      };
+    }
+    
+    return basePeriod;
+  }, [selectedPeriod, dailyBinanceInterval, widget.props?.period]);
+
+  useEffect(() => {
+    if (selectedPeriod === '1D') {
+      const currentPeriod = widget.props?.period;
+      const isValidBinanceInterval = dailyPricePeriodOptions.some(opt => opt.value === currentPeriod);
+      
+      if (!currentPeriod || !isValidBinanceInterval) {
+        updateWidgetPropsFromAtom({
+          tabId: activeLayout.id,
+          widgetId: widget.id,
+          widgetProps: { 
+            ...widget.props, 
+            period: '15m'
+          },
+        });
+      }
+    }
+  }, [activeLayout.id, selectedPeriod, updateWidgetPropsFromAtom, widget.id, widget.props]);
+
+  useEffect(() => {
+    if (selectedPeriod === '1D' && widget.props?.period) {
+      const isValidBinanceInterval = dailyPricePeriodOptions.some(opt => opt.value === widget.props.period);
+      if (isValidBinanceInterval) {
+        setDailyBinanceInterval(widget.props.period);
+      }
+    }
+  }, [selectedPeriod, widget.props?.period]);
 
   return (
     <Fragment>
@@ -169,6 +229,59 @@ export default function NewPriceHistory(props: IProps) {
               <LivePrice token={widget?.props?.token} period={currentPeriodConfig} selectedPeriod={selectedPeriod} />
             </div>
             <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-[2px] rounded-[5px] bg-[#161616] p-[1px]">
+                    <button
+                      type="button"
+                      className={cn(
+                        "flex h-[22px] w-[32px] items-center justify-center rounded-sm",
+                        isCandleStick ? "bg-[#434343]" : ""
+                      )}
+                      onClick={() => {
+                        setIsCandleStick(true);
+                      }}
+                    >
+                      <CandleStick active={isCandleStick} />
+                    </button>
+                    <button
+                      type="button"
+                      className={cn(
+                        "flex h-[22px] w-[32px] items-center justify-center rounded-sm",
+                        !isCandleStick ? "bg-[#434343]" : ""
+                      )}
+                      onClick={() => {
+                        setIsCandleStick(false);
+                      }}
+                    >
+                      <LineChart active={!isCandleStick} />
+                    </button>
+                  </div>
+                  {selectedPeriod === '1D' && (
+                    <PeriodDropdown
+                      options={dailyPricePeriodOptions}
+                      value={
+                        widget.props?.period && 
+                        dailyPricePeriodOptions.some(opt => opt.value === widget.props.period)
+                          ? widget.props.period
+                          : dailyBinanceInterval || '15m'
+                      }
+                      setValue={(value: string) => {
+                        setDailyBinanceInterval(value);
+                        updateWidgetPropsFromAtom({
+                          tabId: activeLayout.id,
+                          widgetId: widget.id,
+                          widgetProps: { 
+                            ...widget.props, 
+                            period: value
+                          },
+                        });
+                      }}
+                      triggerClassName="h-6 w-15"
+                    />
+                  )}
+                </div>
+              </div>
               <button
                 onClick={() => {
                   const isFavorite = settings.favorite_widgets.includes(widgetSlug);
@@ -214,59 +327,36 @@ export default function NewPriceHistory(props: IProps) {
           </div>
         </div>
         <div className="relative flex flex-1">
-          {/* <div className="absolute top-[4px] right-0 left-0 z-[999]">
-            <div className="flex items-center justify-between px-4">
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-[2px] rounded-[5px] bg-[#161616] p-[1px]">
-                  <button
-                    type="button"
-                    className={cn(
-                      "flex h-[22px] w-[32px] items-center justify-center rounded-sm",
-                      isCandleStick ? "bg-[#434343]" : ""
-                    )}
-                    onClick={() => {
-                      setIsCandleStick(true);
-                    }}
-                  >
-                    <CandleStick active={isCandleStick} />
-                  </button>
-                  <button
-                    type="button"
-                    className={cn(
-                      "flex h-[22px] w-[32px] items-center justify-center rounded-sm",
-                      !isCandleStick ? "bg-[#434343]" : ""
-                    )}
-                    onClick={() => {
-                      setIsCandleStick(false);
-                    }}
-                  >
-                    <LineChart active={!isCandleStick} />
-                  </button>
-                </div>
-
-                <PeriodDropdown
-                  options={pricePeriodOptions}
-                  value={widget?.props?.period}
-                  setValue={(value: string) => {
-                    updateWidgetPropsFromAtom({
-                      tabId: activeLayout.id,
-                      widgetId: widget.id,
-                      widgetProps: { ...widget.props, period: value },
-                    });
-                  }}
-                  triggerClassName="h-6 w-15"
-                />
-              </div>
-            </div>
-          </div> */}
-          
           <div className="absolute top-0 right-0 bottom-0 left-0">
           {/* Time Period Selector */}
             <div className="flex gap-1 bg-[#0C0C0C] justify-around my-3 rounded-lg">
               {timePeriods.map((period) => (
                 <button
                   key={period.label}
-                  onClick={() => setSelectedPeriod(period.label)}
+                  onClick={() => {
+                    setSelectedPeriod(period.label);
+                    if (period.label === '1D') {
+                      const defaultInterval = '15m';
+                      setDailyBinanceInterval(defaultInterval);
+                      updateWidgetPropsFromAtom({
+                        tabId: activeLayout.id,
+                        widgetId: widget.id,
+                        widgetProps: { 
+                          ...widget.props, 
+                          period: defaultInterval,
+                        },
+                      });
+                    } else {
+                      updateWidgetPropsFromAtom({
+                        tabId: activeLayout.id,
+                        widgetId: widget.id,
+                        widgetProps: { 
+                          ...widget.props, 
+                          period: undefined, // Clear period for non-1D
+                        },
+                      });
+                    }
+                  }}
                   className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
                     selectedPeriod === period.label
                       ? 'bg-[#272727] text-white'
@@ -310,7 +400,7 @@ export default function NewPriceHistory(props: IProps) {
               setShowTokenStats(true);
             }}
           >
-            <TokenStats /> | Click to activate Token Stats
+            <TokenStats /> | Click to View Token Stats
           </button>
         </div>
 

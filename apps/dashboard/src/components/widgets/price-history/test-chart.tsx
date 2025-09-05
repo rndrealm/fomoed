@@ -1,6 +1,7 @@
 "use client";
 import React, { ReactNode, useEffect, useRef, useState, useMemo, useCallback, Dispatch, SetStateAction } from "react";
 import {
+  CandlestickSeries,
   Chart,
   LineSeries,
   SeriesApiRef,
@@ -11,12 +12,15 @@ import {
 import { CandlestickData, ColorType, Coordinate, LineData, LineType, MouseEventParams, Time } from "lightweight-charts";
 import { RenderIf } from "@/components/shared";
 import { useFetchBinancePriceData } from "@/services/queries/charts";
-import { formatPriceSignificant, modalSlide } from "@/lib/utils";
+import { formatMarketCapNumber, formatPriceSignificant, modalSlide } from "@/lib/utils";
 import { useAtomValue } from "jotai";
 import { geoLocationAtom } from "@/lib/atoms/geoLocation";
 import { AnimatePresence, motion } from "motion/react";
 import { Close } from "@/components/icons/icons";
 import { useRouter } from "next/navigation";
+import { useReadSantimentMarketCap, useReadSantimentVolume } from "@/services/queries/santiment";
+import { useSupabaseAuth } from "@/components/providers";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ITooltip {
   x: number | null;
@@ -37,14 +41,20 @@ interface IProps {
   className?: string;
 }
 
-const toolTipWidth = 280;
+const toolTipWidth = 320;
 const toolTipHeight = 80;
 const toolTipMargin = 25;
+
+const tokenMapping: Record<string, string> = {
+  btc: "bitcoin",
+  eth: "ethereum",
+};
 
 function TestChart(props: IProps) {
   const { isCandleStick = false, period, selectedPeriod, showTokenStats, setShowTokenStats, token = "BTC", className = "" } = props;
   
   const location = useAtomValue(geoLocationAtom);
+  const { session } = useSupabaseAuth();
 
   const { data = [] } = useFetchBinancePriceData(
     `${token}USDT`, 
@@ -52,6 +62,18 @@ function TestChart(props: IProps) {
     1000, 
     location?.country
   );
+  const getIntervalMinutes = (interval: string): number => {
+    const unit = interval.slice(-1);
+    const value = parseInt(interval.slice(0, -1));
+    
+    switch (unit) {
+      case 'm': return value;
+      case 'h': return value * 60;
+      case 'd': return value * 1440;
+      case 'w': return value * 10080;
+      default: return 60;
+    }
+  };  
 
   const filteredData = useMemo(() => {
     if (!data.length) return [];
@@ -64,7 +86,17 @@ function TestChart(props: IProps) {
       case "1D":
         cutoffDate = new Date(now);
         cutoffDate.setDate(now.getDate() - 1);
-        break;
+        
+        let filteredDailyData = data.filter(d => (d.time as number) * 1000 >= cutoffDate.getTime());
+        
+        const intervalMinutes = getIntervalMinutes(period?.binanceInterval);
+        if (intervalMinutes <= 5 && filteredDailyData.length > 288) {
+          filteredDailyData = filteredDailyData.slice(-288);
+        } else if (intervalMinutes <= 15 && filteredDailyData.length > 96) {
+          filteredDailyData = filteredDailyData.slice(-96);
+        }
+        
+        return filteredDailyData;
 
       case "1W":
         cutoffDate = new Date(now);
@@ -102,8 +134,107 @@ function TestChart(props: IProps) {
     const cutoff = cutoffDate.getTime();
 
     return data.filter(d => (d.time as number) * 1000 >= cutoff);
-  }, [data, selectedPeriod]);  
+  }, [data, selectedPeriod, period?.binanceInterval]);
 
+  const getSantimentTimeframe = useCallback(() => {
+  const getFrom = (days: number) => `utc_now-${days - 1}d`;
+
+  let from: string;
+  let interval: "5m" | "1h" | "8h" | "1d" |  "";
+
+  switch (selectedPeriod) {
+    case "1D":
+      from = getFrom(2);
+      interval = "5m";
+      break;
+    case "1W":
+      from = getFrom(7);
+      interval = "1d";
+      break;
+    case "1M":
+      from = getFrom(30);
+      interval = "1d";
+      break;
+    case "3M":
+      from = getFrom(90);
+      interval = "1d";
+      break;
+    case "6M":
+      from = getFrom(180);
+      interval = "1d";
+      break;
+    case "YTD": {
+      const now = new Date();
+      const startOfYear = new Date(Date.UTC(now.getUTCFullYear(), 0, 1)); 
+      
+      from = startOfYear.toISOString();
+      interval = "1d";
+      break;
+    }
+    case "1Y":
+      from = getFrom(365);
+      interval = "1d";
+      break;
+    case "ALL": {
+      const totalPoints = filteredData.length;
+      const daysBack = totalPoints * 7;
+      from = getFrom(daysBack);
+      interval = "1d";
+      break;
+    }
+    default:
+      from = getFrom(30);
+      interval = "1d";
+  }
+
+    return { from, to: "utc_now", interval };
+  }, [filteredData.length, selectedPeriod]);
+
+  const { from, to, interval } = getSantimentTimeframe();
+
+  const { data: santimentVolumeRaw } = useReadSantimentVolume({
+    token: tokenMapping[token.toLowerCase()],
+    from,
+    to,
+    interval,
+    auth_token: session?.access_token,
+  });
+
+  const santimentVolume = useMemo(() => {
+    if (!santimentVolumeRaw) return [];
+    if (selectedPeriod === "1D") {
+      return santimentVolumeRaw.length > 0
+        ? [santimentVolumeRaw[santimentVolumeRaw.length - 1]]
+        : [];
+    }
+    return santimentVolumeRaw;
+  }, [santimentVolumeRaw, selectedPeriod]);
+
+  const volumeMetrics = useMemo(() => {
+    if (!santimentVolume || santimentVolume.length === 0)
+      return { totalVolume: 0, avgVolume: 0 };
+
+    const totalVolume = santimentVolume.reduce((sum, d) => sum + d.value, 0);
+
+    return {
+      totalVolume,
+      avgVolume: totalVolume / santimentVolume.length,
+    };
+  }, [santimentVolume]);
+
+    const {data: santimentMarketcap } = useReadSantimentMarketCap({
+    token: tokenMapping[token.toLowerCase()],
+    interval: "5m",
+    auth_token: session?.access_token,
+  })
+
+  const formatLargeNumber = (value: number) => {
+    return new Intl.NumberFormat("en-US", {
+      notation: "compact",
+      maximumFractionDigits: 2,
+    }).format(value);;
+  };
+  
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
   const lineSeriesRef = useRef<SeriesApiRef<"Line">>(null);
@@ -114,6 +245,8 @@ function TestChart(props: IProps) {
   const wsRef = useRef<WebSocket | null>(null);
   const eventSourceRef = useRef<EventSource | null>(null);
   const [isHovering, setIsHovering] = useState(false);
+  // Store default zoom range for zoom limits
+  const defaultZoomRangeRef = useRef<{ from: number; to: number } | null>(null);
 
   const router = useRouter();
 
@@ -187,59 +320,58 @@ function TestChart(props: IProps) {
 
   // Chart colors based on performance
   const chartColors = useMemo(() => ({
-    lineColor: isHovering ? '#6B88CA' : (performanceMetrics.isPositive ? '#00AF58' : '#FF8970'),
-    upColor: '#00AF58',
-    downColor: '#FF8970',
-    borderUpColor: '#00AF58',
-    borderDownColor: '#FF8970',
-    wickUpColor: '#00AF58',
-    wickDownColor: '#FF8970',
+    lineColor: isHovering ? '#6B88CA' : (performanceMetrics.isPositive ? '#17C583' : '#BD2E36'),
+    upColor: '#17C583',
+    downColor: '#BD2E36',
+    borderUpColor: '#17C583',
+    borderDownColor: '#BD2E36',
+    wickUpColor: '#17C583',
+    wickDownColor: '#BD2E36',
   }), [isHovering, performanceMetrics.isPositive]);
 
   useEffect(() => {
     if (!performanceMetrics.startPrice) return;
 
     let priceLine: any;
-    const candleSeriesApiRef = candleSeriesRef.current;
-    const lineSeriesApiRef = lineSeriesRef.current;
+    const candleApi = candleSeriesRef.current?.api();
+    const lineApi = lineSeriesRef.current?.api();
 
-    if (isCandleStick && candleSeriesApiRef) {
-      const api = candleSeriesApiRef.api();
-      if (api) {
-        priceLine = api.createPriceLine({
-          price: performanceMetrics.startPrice,
-          color: "#FFFFFF",
-          lineWidth: 1,
-          lineStyle: 2, // dashed
-          axisLabelVisible: false,
-        });
-      }
+    if (isCandleStick && candleApi) {
+      priceLine = candleApi.createPriceLine({
+        price: performanceMetrics.startPrice,
+        color: "#FFFFFF",
+        lineWidth: 1,
+        lineStyle: 2,
+        axisLabelVisible: false,
+      });
     }
 
-    if (!isCandleStick && lineSeriesApiRef) {
-      const api = lineSeriesApiRef.api();
-      if (api) {
-        priceLine = api.createPriceLine({
-          price: performanceMetrics.startPrice,
-          color: "#FFFFFF",
-          lineWidth: 1,
-          lineStyle: 2,
-          axisLabelVisible: false,
-        });
-      }
+    if (!isCandleStick && lineApi) {
+      priceLine = lineApi.createPriceLine({
+        price: performanceMetrics.startPrice,
+        color: "#FFFFFF",
+        lineWidth: 1,
+        lineStyle: 2,
+        axisLabelVisible: false,
+      });
     }
 
     return () => {
-      if (isCandleStick && candleSeriesApiRef && priceLine) {
-        candleSeriesApiRef.api()?.removePriceLine(priceLine);
+      if (isCandleStick && candleApi && priceLine) {
+        candleApi.removePriceLine(priceLine);
       }
-      if (!isCandleStick && lineSeriesApiRef && priceLine) {
-        lineSeriesApiRef.api()?.removePriceLine(priceLine);
+      if (!isCandleStick && lineApi && priceLine) {
+        lineApi.removePriceLine(priceLine);
       }
     };
-  }, [performanceMetrics.startPrice, performanceMetrics.isPositive, isCandleStick]);
+  }, [performanceMetrics.startPrice, isCandleStick]);
 
+  // Format price for OHLC display
+  const formatOHLCPrice = (price: number) => {
+    return formatPriceSignificant(price);
+  };
 
+  // Enhanced crosshair move handler with OHLC tooltip
   const onCrosshairMove = useCallback((param: MouseEventParams<Time>) => {
     const container = chartContainerRef.current!;
     const tooltip = tooltipRef.current!;
@@ -297,7 +429,6 @@ function TestChart(props: IProps) {
     // Calculate change from start price
     const startPrice = performanceMetrics.startPrice;
     const change = data.close - startPrice;
-    const changePercent = startPrice ? (change / startPrice) * 100 : 0;
     const dateObj = new Date(data.time * 1000);
     const formattedDate = dateObj.toLocaleDateString('en-US', { 
       day: 'numeric',
@@ -306,16 +437,46 @@ function TestChart(props: IProps) {
     });
 
     tooltip.style.display = "flex";
-    tooltip.innerHTML = `
-      <div style="background: #1C1C1E; border-radius: 12px; padding: 12px; border: 1px solid #333; box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
-        <div style="color: ${changePercent >= 0 ? '#00AF58' : '#FF8970'}; font-size: 16px; font-weight: 700; margin-bottom: 4px;">
-          ${formatPriceSignificant(data.close)}
+
+    // Different tooltip for candlestick vs line chart
+    if (isCandleStick) {
+      // OHLC Tooltip for Candlestick
+      const isGreen = data.close >= data.open;
+      tooltip.innerHTML = `
+        <div style="background: #1C1C1E; border-radius: 12px; padding: 14px; border: 1px solid #333; box-shadow: 0 8px 32px rgba(0,0,0,0.4); min-width: 280px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px;">
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: #888;">Open:</span>
+              <span style="color: white; font-weight: 500;">${formatOHLCPrice(data.open)}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: #888;">High:</span>
+              <span style="color: #17C583; font-weight: 500;">${formatOHLCPrice(data.high)}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: #888;">Close:</span>
+              <span style="color: ${isGreen ? '#17C583' : '#BD2E36'}; font-weight: 500;">${formatOHLCPrice(data.close)}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: #888;">Low:</span>
+              <span style="color: #BD2E36; font-weight: 500;">${formatOHLCPrice(data.low)}</span>
+            </div>
+          </div>
         </div>
-        <div style="color: #888; font-size: 12px; text-align: center; margin-bottom: -4px">
-          ${formattedDate}
+      `;
+    } else {
+      // Simple tooltip for line chart
+      tooltip.innerHTML = `
+        <div style="background: #1C1C1E; border-radius: 12px; padding: 12px; border: 1px solid #333; box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
+          <div style="color: ${change >= 0 ? '#17C583' : '#BD2E36'}; font-size: 16px; font-weight: 700; margin-bottom: 4px;">
+            ${formatPriceSignificant(data.close)}
+          </div>
+          <div style="color: #888; font-size: 12px; text-align: center; margin-bottom: -4px">
+            ${formattedDate}
+          </div>
         </div>
-      </div>
-    `;
+      `;
+    }
 
     if (!coordinate) return;
 
@@ -329,9 +490,122 @@ function TestChart(props: IProps) {
 
     tooltip.style.left = `${shiftedCoordinate}px`;
     tooltip.style.top = `${coordinateY}px`;
-  }, [performanceMetrics.startPrice]);
+  }, [performanceMetrics.startPrice, isCandleStick]);
 
-  const len = data?.length;
+  // Set default zoom range when data loads
+  useEffect(() => {
+    if (filteredData.length > 0 && !defaultZoomRangeRef.current) {
+      const defaultFrom = Math.max(0, filteredData.length - 50);
+      const defaultTo = filteredData.length - 1;
+      defaultZoomRangeRef.current = { from: defaultFrom, to: defaultTo };
+    }
+  }, [filteredData]);
+
+  // Handle zoom restrictions
+  const handleVisibleLogicalRangeChange = useCallback((newRange: { from: number; to: number } | null) => {
+    if (!newRange || !defaultZoomRangeRef.current) return;
+
+    const defaultRange = defaultZoomRangeRef.current;
+    const dataLength = filteredData.length;
+    
+    // Calculate current visible data points
+    const currentDataPoints = newRange.to - newRange.from;
+    const defaultDataPoints = defaultRange.to - defaultRange.from;
+
+    // Allow zoom out up to showing all available data
+    const maxAllowedDataPoints = Math.min(dataLength, defaultDataPoints * 2); // Allow zoom out up to 2x default or all data
+    
+    // Prevent zooming out beyond maximum allowed range
+    if (currentDataPoints > maxAllowedDataPoints) {
+      // Calculate centered range that shows maximum allowed data points
+      const center = (newRange.from + newRange.to) / 2;
+      const halfRange = maxAllowedDataPoints / 2;
+      
+      let adjustedFrom = Math.max(0, center - halfRange);
+      let adjustedTo = Math.min(dataLength - 1, center + halfRange);
+      
+      // If we hit the boundaries, adjust accordingly
+      if (adjustedFrom === 0) {
+        adjustedTo = Math.min(dataLength - 1, maxAllowedDataPoints);
+      } else if (adjustedTo === dataLength - 1) {
+        adjustedFrom = Math.max(0, dataLength - maxAllowedDataPoints);
+      }
+
+      timeScaleRef.current?.api()?.setVisibleLogicalRange({
+        from: adjustedFrom,
+        to: adjustedTo
+      });
+      return;
+    }
+
+    // Prevent zooming in too much (minimum 10 data points visible)
+    const minDataPoints = 10;
+    if (currentDataPoints < minDataPoints) {
+      const center = (newRange.from + newRange.to) / 2;
+      const halfRange = minDataPoints / 2;
+      
+      timeScaleRef.current?.api()?.setVisibleLogicalRange({
+        from: Math.max(0, center - halfRange),
+        to: Math.min(dataLength - 1, center + halfRange)
+      });
+      return;
+    }
+
+    // Prevent scrolling beyond data boundaries
+    if (newRange.from < 0 || newRange.to >= dataLength) {
+      const rangeSize = newRange.to - newRange.from;
+      let adjustedFrom = newRange.from;
+      let adjustedTo = newRange.to;
+
+      if (newRange.from < 0) {
+        adjustedFrom = 0;
+        adjustedTo = rangeSize;
+      }
+      
+      if (newRange.to >= dataLength) {
+        adjustedTo = dataLength - 1;
+        adjustedFrom = Math.max(0, adjustedTo - rangeSize);
+      }
+
+      timeScaleRef.current?.api()?.setVisibleLogicalRange({
+        from: adjustedFrom,
+        to: adjustedTo
+      });
+      return;
+    }
+
+    // Update the visible range reference for valid ranges
+    visibleLogicalRangeRef.current = {
+      from: newRange.from,
+      to: newRange.to,
+    };
+  }, [filteredData.length]);
+
+  useEffect(() => {
+  if (filteredData.length > 0) {
+    // Always recalculate default range when data changes
+    const defaultFrom = Math.max(0, filteredData.length - 50);
+    const defaultTo = filteredData.length - 1;
+    
+    defaultZoomRangeRef.current = { from: defaultFrom, to: defaultTo };
+    
+    // Reset visible range when data changes significantly
+    if (!visibleLogicalRangeRef.current) {
+      visibleLogicalRangeRef.current = { from: defaultFrom, to: defaultTo };
+    }
+  }
+}, [filteredData.length]);
+
+  const handleMouseEnter = useCallback(() => {
+    setIsHovering(true);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    if (tooltipRef.current) {
+      tooltipRef.current.style.display = "none";
+    }
+    setIsHovering(false);
+  }, []);
 
   useEffect(() => {
     // Guard clause to ensure all dependencies are available.
@@ -352,13 +626,31 @@ function TestChart(props: IProps) {
         value: parseFloat(klineData.c), 
       };
 
-      dataRef.current.push(newData as any);
+      if (selectedPeriod === '1D') {
+        const now = Date.now();
+        const dataTime = newData.time * 1000;
+        
+        // Only update when the data are from the past 24 hours
+        if (now - dataTime <= 24 * 60 * 60 * 1000) {
+          dataRef.current.push(newData as any);
 
-      if ((lineSeriesRef.current || candleSeriesRef.current) && data?.length) {
-        if (isCandleStick) {
-          candleSeriesRef.current?.api()?.update(newData as any);
-        } else {
-          lineSeriesRef?.current?.api()?.update(newData as any);
+          if ((lineSeriesRef.current || candleSeriesRef.current) && data?.length) {
+            if (isCandleStick) {
+              candleSeriesRef.current?.api()?.update(newData as any);
+            } else {
+              lineSeriesRef?.current?.api()?.update(newData as any);
+            }
+          }
+        }
+      } else {
+        dataRef.current.push(newData as any);
+
+        if ((lineSeriesRef.current || candleSeriesRef.current) && data?.length) {
+          if (isCandleStick) {
+            candleSeriesRef.current?.api()?.update(newData as any);
+          } else {
+            lineSeriesRef?.current?.api()?.update(newData as any);
+          }
         }
       }
     };
@@ -395,7 +687,7 @@ function TestChart(props: IProps) {
       wsRef.current = ws;
 
       ws.onopen = () => {
-        console.log(`Direct Kline WebSocket connection established for ${token}. ✅`);
+        console.log(`Direct Kline WebSocket connection established for ${token} with ${period.binanceInterval} interval. ✅`);
       };
 
       ws.onmessage = (event) => {
@@ -425,7 +717,7 @@ function TestChart(props: IProps) {
         eventSourceRef.current.close();
       }
     };
-  }, [token, period.binanceInterval, isCandleStick, location?.country, data?.length]);
+  }, [token, period.binanceInterval, selectedPeriod, isCandleStick, location?.country, data?.length]);
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
@@ -441,15 +733,15 @@ function TestChart(props: IProps) {
     return () => observer.disconnect();
   }, []);
 
-    const formatPrice = (price?: number) => {
-      if(price === undefined) return
-      return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-      }).format(price);
-    };
+  const formatPrice = (price?: number) => {
+    if(price === undefined) return
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(price);
+  };
 
   return (
     <div className={`bg-[#0C0C0C] rounded-xl px-4 pt-6 ${className} overflow-scroll`}>
@@ -458,7 +750,8 @@ function TestChart(props: IProps) {
         ref={chartContainerRef}
         style={{ width: "100%", height: "320px" }}
         className="app_line_chart_component relative flex flex-1 mb-6"
-        onMouseLeave={() => setIsHovering(false)}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         <Chart
           options={{
@@ -515,7 +808,7 @@ function TestChart(props: IProps) {
             />
           </RenderIf>
 
-          {/* <RenderIf condition={isCandleStick}>
+          <RenderIf condition={isCandleStick}>
             <CandlestickSeries 
               ref={candleSeriesRef} 
               data={filteredData as CandlestickData[]} 
@@ -529,7 +822,7 @@ function TestChart(props: IProps) {
                 wickDownColor: chartColors.wickDownColor,
               }}
             />
-          </RenderIf> */}
+          </RenderIf>
           
           <TimeScale
             ref={timeScaleRef}
@@ -541,8 +834,15 @@ function TestChart(props: IProps) {
                 const date = new Date(time * 1000);
                 const range = timeScaleRef.current?.api()?.getVisibleRange();
                 const rangeDuration = Number(range?.to) - Number(range?.from);
+                // Enhanced formatting untuk daily period
+                if (selectedPeriod === '1D') {
+                  return date.toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
+                  });
+                }
                 const TWO_DAYS_IN_SECONDS = 2 * 24 * 60 * 60;
-
                 if (rangeDuration < TWO_DAYS_IN_SECONDS) {
                   return date.toLocaleTimeString("en-US", {
                     hour: "2-digit",
@@ -558,12 +858,13 @@ function TestChart(props: IProps) {
               },
             }}
             visibleLogicalRange={
-              data?.length === 0
+              data?.length === 0 || !defaultZoomRangeRef.current
                 ? undefined
                 : (() => {
-                    const from = visibleLogicalRangeRef?.current?.from ?? Math.max(0, len - 50);
-                    const to = visibleLogicalRangeRef?.current?.to ?? len - 1;
-                    return from <= to ? { from, to } : { from: 0, to: len - 1 };
+                    const defaultRange = defaultZoomRangeRef.current!;
+                    const from = visibleLogicalRangeRef?.current?.from ?? defaultRange.from;
+                    const to = visibleLogicalRangeRef?.current?.to ?? defaultRange.to;
+                    return from <= to ? { from, to } : defaultRange;
                   })()
             }
             onVisibleTimeRangeChange={(e) => {
@@ -572,21 +873,20 @@ function TestChart(props: IProps) {
                 to: e?.to,
               };
             }}
-            onVisibleLogicalRangeChange={(e) => {
-              visibleLogicalRangeRef.current = {
-                from: e?.from,
-                to: e?.to,
-              };
-            }}
+            onVisibleLogicalRangeChange={handleVisibleLogicalRangeChange}
           >
-            <TimeScaleFitContentTrigger deps={[filteredData]} />
+            <TimeScaleFitContentTrigger deps={[filteredData.length, selectedPeriod]} />
           </TimeScale>
         </Chart>
         
         <div
           ref={tooltipRef}
-          className="pointer-events-none absolute top-0 left-0 z-[9] h-[80px] w-[280px] overflow-visible whitespace-nowrap"
-          style={{ display: 'none' }}
+          className="pointer-events-none absolute top-0 left-0 z-[9] overflow-visible whitespace-nowrap"
+          style={{ 
+            display: 'none',
+            width: `${toolTipWidth}px`,
+            height: `${toolTipHeight}px`
+          }}
         />
         <AnimatePresence>
           {showTokenStats && (
@@ -617,64 +917,85 @@ function TestChart(props: IProps) {
                       </div>
                     </div>
                     {/* Statistics Grid */}
-                    <div className="grid grid-cols-4 gap-2.5 border-b border-[#242424] text-sm">
+                    <div className="grid grid-cols-3 gap-2.5 border-b border-[#242424] text-sm">
                       <div className="space-y-3 pr-2.5 border-r border-[#242424]">
                         <div className="flex justify-between">
                           <span className="text-gray-400">Open</span>
-                          <span className="text-white">{formatPrice(performanceMetrics.startPrice)}</span>
+                          {!performanceMetrics.startPrice ? (
+                              <Skeleton className="mb-2 w-16 h-4" />
+                            ) : (
+                              <span className="text-white">{formatPrice(performanceMetrics.startPrice)}</span>
+                            )
+                          }
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-400">High</span>
-                          <span className="text-white">{formatPrice(performanceMetrics.high)}</span>
+                          {!performanceMetrics.high ? (
+                              <Skeleton className="mb-2 w-16 h-4" />
+                            ) : (
+                              <span className="text-white">{formatPrice(performanceMetrics.high)}</span>
+                            )
+                          }
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-400">Low</span>
-                          <span className="text-white">{formatPrice(performanceMetrics.low)}</span>
+                          {!performanceMetrics.low ? (
+                              <Skeleton className="mb-2 w-16 h-4" />
+                            ) : (
+                              <span className="text-white">{formatPrice(performanceMetrics.low)}</span>
+                            )
+                          }
                         </div>
                       </div>
                       
                       <div className="space-y-3 pr-2.5 border-r border-[#242424]">
                         <div className="flex justify-between">
                           <span className="text-gray-400">Vol</span>
-                          <span className="text-white">71.89B</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">P/E</span>
-                          <span className="text-white">—</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Mkt Cap</span>
-                          <span className="text-white">2.21T</span>
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-3 pr-2.5 border-r border-[#242424]">
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">1Y H</span>
-                          <span className="text-white">{formatPrice(oneYearMetrics.high)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">1Y L</span>
-                          <span className="text-white">{formatPrice(oneYearMetrics.low)}</span>
+                          {!volumeMetrics.totalVolume ? (
+                              <Skeleton className="mb-2 w-16 h-4" />
+                            ) : (
+                              <span className="text-white">{formatLargeNumber(volumeMetrics.totalVolume)}</span>
+                            )
+                          }
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-400">Avg Vol</span>
-                          <span className="text-white">60.79B</span>
+                          {!volumeMetrics.avgVolume ? (
+                              <Skeleton className="mb-2 w-16 h-4" />
+                            ) : (
+                              <span className="text-white">{formatLargeNumber(volumeMetrics.avgVolume)}</span>
+                            )
+                          }
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Mkt Cap</span>
+                          {!santimentMarketcap ? (
+                              <Skeleton className="mb-2 w-16 h-4" />
+                            ) : (
+                              <span className="text-white">{formatMarketCapNumber(santimentMarketcap || "")}</span>
+                            )
+                          }
                         </div>
                       </div>
-
-                      <div className="space-y-3">
+                      
+                      <div className="space-y-3 pr-2.5">
                         <div className="flex justify-between">
-                          <span className="text-gray-400">Yield</span>
-                          <span className="text-white">-</span>
+                          <span className="text-gray-400">52W H</span>
+                          {!oneYearMetrics.high ? (
+                              <Skeleton className="mb-2 w-16 h-4" />
+                            ) : (
+                              <span className="text-white">{formatPrice(oneYearMetrics.high)}</span>
+                            )
+                          }
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-400">Beta</span>
-                          <span className="text-white">-</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">EPS</span>
-                          <span className="text-white">-</span>
+                          <span className="text-gray-400">52W L</span>
+                          {!oneYearMetrics.low ? (
+                              <Skeleton className="mb-2 w-16 h-4" />
+                            ) : (
+                              <span className="text-white">{formatPrice(oneYearMetrics.low)}</span>
+                            )
+                          }
                         </div>
                       </div>
                     </div>
