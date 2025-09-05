@@ -1,14 +1,15 @@
 import { NextResponse } from "next/server";
 
-export interface ErrorWrapper {
+export type ErrorWrapper = {
   message: string;
   status: number;
-}
+  detail?: any;
+};
 
-export type ErrorOrData<T> = { error: ErrorWrapper; data: undefined } | { data: T; error?: undefined };
+export type ErrorOrData<T> = { error: ErrorWrapper; data?: undefined } | { data: T; error?: undefined };
 
-export function makeErrorWrapper(message: string, status: number): ErrorWrapper {
-  return { message, status };
+export function makeErrorWrapper(message: string, status: number, detail?: any): ErrorWrapper {
+  return { message, status, detail };
 }
 
 export function makeErrorOrData(message: string, status: number): ErrorOrData<never> {
@@ -20,7 +21,10 @@ export function propagateErrorOrData(errorWrapper: ErrorWrapper): ErrorOrData<ne
 }
 
 export function asNextResponseError(errorW: ErrorWrapper): NextResponse {
-  return NextResponse.json({ message: errorW.message, success: false }, { status: errorW.status });
+  return NextResponse.json(
+    { message: errorW.message, success: false, detail: errorW.detail },
+    { status: errorW.status },
+  );
 }
 
 export function asNextResponseData<T>(data: T) {

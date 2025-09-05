@@ -13,8 +13,6 @@ import { YouTubeIcon } from "@/components/icons/YouTube";
 import { useEffect, useState } from "react";
 import { ChannelsSearchResult } from "@/lib/types/models/signals-api.types";
 
-const BACKEND_BASE = process.env.NEXT_PUBLIC_BACKEND_BASE || "https://api.fomoed.io";
-
 function YoutubeChannelSearchResultCard({
   result,
   selected,
