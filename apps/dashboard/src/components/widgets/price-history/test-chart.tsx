@@ -12,15 +12,11 @@ import {
 import { CandlestickData, ColorType, Coordinate, LineData, LineType, MouseEventParams, Time } from "lightweight-charts";
 import { RenderIf } from "@/components/shared";
 import { useFetchBinancePriceData } from "@/services/queries/charts";
-import { formatMarketCapNumber, formatPriceSignificant, modalSlide } from "@/lib/utils";
+import { formatPriceSignificant } from "@/lib/utils";
 import { useAtomValue } from "jotai";
 import { geoLocationAtom } from "@/lib/atoms/geoLocation";
 import { AnimatePresence, motion } from "motion/react";
-import { Close } from "@/components/icons/icons";
-import { useRouter } from "next/navigation";
-import { useReadSantimentMarketCap, useReadSantimentVolume } from "@/services/queries/santiment";
-import { useSupabaseAuth } from "@/components/providers";
-import { Skeleton } from "@/components/ui/skeleton";
+import PriceChartCoinStats from "./coin-stats";
 
 interface ITooltip {
   x: number | null;
@@ -45,16 +41,10 @@ const toolTipWidth = 320;
 const toolTipHeight = 80;
 const toolTipMargin = 25;
 
-const tokenMapping: Record<string, string> = {
-  btc: "bitcoin",
-  eth: "ethereum",
-};
-
 function TestChart(props: IProps) {
   const { isCandleStick = false, period, selectedPeriod, showTokenStats, setShowTokenStats, token = "BTC", className = "" } = props;
   
   const location = useAtomValue(geoLocationAtom);
-  const { session } = useSupabaseAuth();
 
   const { data = [] } = useFetchBinancePriceData(
     `${token}USDT`, 
@@ -135,105 +125,6 @@ function TestChart(props: IProps) {
 
     return data.filter(d => (d.time as number) * 1000 >= cutoff);
   }, [data, selectedPeriod, period?.binanceInterval]);
-
-  const getSantimentTimeframe = useCallback(() => {
-  const getFrom = (days: number) => `utc_now-${days - 1}d`;
-
-  let from: string;
-  let interval: "5m" | "1h" | "8h" | "1d" |  "";
-
-  switch (selectedPeriod) {
-    case "1D":
-      from = getFrom(2);
-      interval = "5m";
-      break;
-    case "1W":
-      from = getFrom(7);
-      interval = "1d";
-      break;
-    case "1M":
-      from = getFrom(30);
-      interval = "1d";
-      break;
-    case "3M":
-      from = getFrom(90);
-      interval = "1d";
-      break;
-    case "6M":
-      from = getFrom(180);
-      interval = "1d";
-      break;
-    case "YTD": {
-      const now = new Date();
-      const startOfYear = new Date(Date.UTC(now.getUTCFullYear(), 0, 1)); 
-      
-      from = startOfYear.toISOString();
-      interval = "1d";
-      break;
-    }
-    case "1Y":
-      from = getFrom(365);
-      interval = "1d";
-      break;
-    case "ALL": {
-      const totalPoints = filteredData.length;
-      const daysBack = totalPoints * 7;
-      from = getFrom(daysBack);
-      interval = "1d";
-      break;
-    }
-    default:
-      from = getFrom(30);
-      interval = "1d";
-  }
-
-    return { from, to: "utc_now", interval };
-  }, [filteredData.length, selectedPeriod]);
-
-  const { from, to, interval } = getSantimentTimeframe();
-
-  const { data: santimentVolumeRaw } = useReadSantimentVolume({
-    token: tokenMapping[token.toLowerCase()],
-    from,
-    to,
-    interval,
-    auth_token: session?.access_token,
-  });
-
-  const santimentVolume = useMemo(() => {
-    if (!santimentVolumeRaw) return [];
-    if (selectedPeriod === "1D") {
-      return santimentVolumeRaw.length > 0
-        ? [santimentVolumeRaw[santimentVolumeRaw.length - 1]]
-        : [];
-    }
-    return santimentVolumeRaw;
-  }, [santimentVolumeRaw, selectedPeriod]);
-
-  const volumeMetrics = useMemo(() => {
-    if (!santimentVolume || santimentVolume.length === 0)
-      return { totalVolume: 0, avgVolume: 0 };
-
-    const totalVolume = santimentVolume.reduce((sum, d) => sum + d.value, 0);
-
-    return {
-      totalVolume,
-      avgVolume: totalVolume / santimentVolume.length,
-    };
-  }, [santimentVolume]);
-
-    const {data: santimentMarketcap } = useReadSantimentMarketCap({
-    token: tokenMapping[token.toLowerCase()],
-    interval: "5m",
-    auth_token: session?.access_token,
-  })
-
-  const formatLargeNumber = (value: number) => {
-    return new Intl.NumberFormat("en-US", {
-      notation: "compact",
-      maximumFractionDigits: 2,
-    }).format(value);;
-  };
   
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
@@ -247,8 +138,6 @@ function TestChart(props: IProps) {
   const [isHovering, setIsHovering] = useState(false);
   // Store default zoom range for zoom limits
   const defaultZoomRangeRef = useRef<{ from: number; to: number } | null>(null);
-
-  const router = useRouter();
 
   const visibleRangeRef = useRef<{
     from?: Time;
@@ -733,16 +622,6 @@ function TestChart(props: IProps) {
     return () => observer.disconnect();
   }, []);
 
-  const formatPrice = (price?: number) => {
-    if(price === undefined) return
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(price);
-  };
-
   return (
     <div className={`bg-[#0C0C0C] rounded-xl px-4 pt-6 ${className} overflow-scroll`}>
       {/* Chart Container */}
@@ -890,129 +769,14 @@ function TestChart(props: IProps) {
         />
         <AnimatePresence>
           {showTokenStats && (
-            <div className="absolute top-0 right-[10px] bottom-0 -left-2 z-99 flex items-end">
-              <motion.div
-                className="scrollbar max-h-full w-9/10 overflow-auto rounded-[22px] bg-[#141414] px-5 py-4"
-                variants={modalSlide}
-                initial="hidden"
-                animate="visible"
-                exit="hidden"
-              >
-                <div className="flex flex-col gap-4">
-                  <div className="flex flex-col gap-3">
-                    <div className="flex justify-between items-center pb-4.5">
-                      <h3 className="text-base leading-[1.35] font-semibold text-white">View Coin Stats</h3>
-                      <div className="flex justify-end">
-                        <button
-                          type="button"
-                          className="flex h-[26px] items-center justify-center gap-1 rounded-[40px]"
-                          onClick={() => {
-                            setShowTokenStats(false);
-                          }}
-                        >
-                          <div className="">
-                            <Close fill="#878787" />
-                          </div>
-                        </button>
-                      </div>
-                    </div>
-                    {/* Statistics Grid */}
-                    <div className="grid grid-cols-3 gap-2.5 border-b border-[#242424] text-sm">
-                      <div className="space-y-3 pr-2.5 border-r border-[#242424]">
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Open</span>
-                          {!performanceMetrics.startPrice ? (
-                              <Skeleton className="mb-2 w-16 h-4" />
-                            ) : (
-                              <span className="text-white">{formatPrice(performanceMetrics.startPrice)}</span>
-                            )
-                          }
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">High</span>
-                          {!performanceMetrics.high ? (
-                              <Skeleton className="mb-2 w-16 h-4" />
-                            ) : (
-                              <span className="text-white">{formatPrice(performanceMetrics.high)}</span>
-                            )
-                          }
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Low</span>
-                          {!performanceMetrics.low ? (
-                              <Skeleton className="mb-2 w-16 h-4" />
-                            ) : (
-                              <span className="text-white">{formatPrice(performanceMetrics.low)}</span>
-                            )
-                          }
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-3 pr-2.5 border-r border-[#242424]">
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Vol</span>
-                          {!volumeMetrics.totalVolume ? (
-                              <Skeleton className="mb-2 w-16 h-4" />
-                            ) : (
-                              <span className="text-white">{formatLargeNumber(volumeMetrics.totalVolume)}</span>
-                            )
-                          }
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Avg Vol</span>
-                          {!volumeMetrics.avgVolume ? (
-                              <Skeleton className="mb-2 w-16 h-4" />
-                            ) : (
-                              <span className="text-white">{formatLargeNumber(volumeMetrics.avgVolume)}</span>
-                            )
-                          }
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Mkt Cap</span>
-                          {!santimentMarketcap ? (
-                              <Skeleton className="mb-2 w-16 h-4" />
-                            ) : (
-                              <span className="text-white">{formatMarketCapNumber(santimentMarketcap || "")}</span>
-                            )
-                          }
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-3 pr-2.5">
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">52W H</span>
-                          {!oneYearMetrics.high ? (
-                              <Skeleton className="mb-2 w-16 h-4" />
-                            ) : (
-                              <span className="text-white">{formatPrice(oneYearMetrics.high)}</span>
-                            )
-                          }
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">52W L</span>
-                          {!oneYearMetrics.low ? (
-                              <Skeleton className="mb-2 w-16 h-4" />
-                            ) : (
-                              <span className="text-white">{formatPrice(oneYearMetrics.low)}</span>
-                            )
-                          }
-                        </div>
-                      </div>
-                    </div>
-                    <div className="py-3">
-                      <button
-                        className="text-[#167AFD] text-sm"
-                        onClick={() => {
-                          router.push("/news")
-                        }}
-                      >
-                        In the News &gt;
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            </div>
+            <PriceChartCoinStats
+              filteredData={filteredData}
+              oneYearMetrics={oneYearMetrics}
+              performanceMetrics={performanceMetrics}
+              selectedPeriod={selectedPeriod}
+              setShowTokenStats={setShowTokenStats}
+              token={token}
+            />
           )}
         </AnimatePresence>
       </div>
