@@ -1,14 +1,9 @@
 {
-    "$schema": "https://openapi.vercel.sh/vercel.json",
-    "crons": [
-        {
-            "path": "/api/scrape-cfgi",
-            "schedule": "0 */12 * * *"
-        }
-    ],
-    "functions": {
-    "app/api/websocket-proxy/route.ts": {
-      "maxDuration": 300 
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "crons": [
+    {
+      "path": "/api/scrape-cfgi",
+      "schedule": "0 */12 * * *"
     }
-  }
+  ]
 }

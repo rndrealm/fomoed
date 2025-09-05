@@ -118,7 +118,7 @@ function Orders(props: IOrders) {
         orderBookSource.close();
       };
 
-      const tradeSource = new EventSource(`/api/websocket-proxy?token=${token}&streamType=trade`);
+      const tradeSource = new EventSource(`https://binance.fomoed.io/stream?token=${token}&streamType=trade`);
       tradeEventSourceRef.current = tradeSource;
 
       tradeSource.onmessage = (event) => {
