@@ -102,3 +102,80 @@ export const useReadSantimentTokenList = (
     data: res?.data?.data as WeightedSentimentToken[],
   };
 };
+
+interface ReadSantimentVolumeProps {
+  auth_token?: string;
+  token?: string;
+  interval?: "5m" | "1h" | "8h" | "1d";
+  from?: string;
+  to?: string;
+}
+
+export const useReadSantimentVolume = (props: ReadSantimentVolumeProps) => {
+  const {
+    auth_token,
+    token = "bitcoin",
+    interval = "1d",
+    from = "utc_now-1d",
+    to = "utc_now",
+  } = props;
+
+  const hash = ["santiment-volume", token, interval, from, to];
+
+  const res = useQuery({
+    queryKey: hash,
+    queryFn: async () => {
+      const response = await api.get({
+        url: `${BASE_URL}/santiment/volume-usd?slug=${token}&interval=${interval}&from=${from}&to=${to}`,
+        auth: false,
+        headers: getAuthHeaders(auth_token),
+      });
+      return response?.data as any;
+    },
+    enabled: !!auth_token,
+    refetchInterval: 5 * 60 * 1000
+  });
+
+  return {
+    ...res,
+    data: res?.data?.data as { datetime: string; value: number }[],
+  };
+};
+
+interface ReadSantimentMarketCapProps {
+  auth_token?: string;
+  token?: string;
+  interval?: "5m" | "1h" | "8h" | "1d";
+}
+
+
+export const useReadSantimentMarketCap = (props: ReadSantimentMarketCapProps) => {
+  const {
+    auth_token,
+    token = "bitcoin",
+    interval = "1d",
+  } = props;
+
+  const hash = ["santiment-marketcap", token, interval];
+
+  const res = useQuery({
+    queryKey: hash,
+    queryFn: async () => {
+      const response = await api.get({
+        url: `${BASE_URL}/santiment/marketcap-usd?slug=${token}&interval=${interval}`,
+        auth: false,
+        headers: getAuthHeaders(auth_token),
+      });
+      return response?.data as any;
+    },
+    enabled: !!auth_token,
+    refetchInterval: 5 * 60 * 1000
+  });
+
+  return {
+    ...res,
+    data: res?.data?.data?.length as { datetime: string; value: number }
+      ? res.data.data[res.data.data.length - 1].value
+      : undefined,
+  };
+};

@@ -189,6 +189,20 @@ export function FullScreen({ fill = "#656565" }: { fill?: string }) {
   );
 }
 
+export function TokenStats () {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 20 20"
+    >
+      <rect width="20" height="20" fill="#000" rx="10"></rect>
+      <path
+        fill="#84EBB4"
+        d="M8 4h4v4H8zM4 8h4v4H4zM12 8h4v4h-4zM8 12h4v4H8z"
+      ></path>
+    </svg>
+  );
+}
+
 export function ExitFullScreen() {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
