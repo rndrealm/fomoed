@@ -148,7 +148,11 @@ const SignupForm = () => {
         <div className="flex w-full">
           <FormBottomDivider />
         </div>
-        <FormBottomLink href={AppRoutes.auth.login.path} infoText="Already on Fomoed?" linkText="Sign In" />
+        <FormBottomLink
+          href={fromUrl ? `${AppRoutes.auth.login.path}?from=${fromUrl}` : AppRoutes.auth.login.path}
+          infoText="Already on Fomoed?"
+          linkText="Sign In"
+        />
       </div>
     </div>
   );
