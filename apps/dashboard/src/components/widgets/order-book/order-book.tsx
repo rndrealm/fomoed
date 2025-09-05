@@ -99,7 +99,7 @@ function Orders(props: IOrders) {
       console.log("Primary WebSocket failed. Attempting fallback to EventSource proxy...");
       const token = widget?.props?.token;
 
-      const orderBookSource = new EventSource(`/api/websocket-proxy?token=${token}&streamType=depth`);
+      const orderBookSource = new EventSource(`https://binance.fomoed.io/stream?token=${token}&streamType=depth`);
       orderBookEventSourceRef.current = orderBookSource;
 
       orderBookSource.onmessage = (event) => {

@@ -205,7 +205,9 @@ const Chart = (props: IProps) => {
 
     const connectEventSourceProxy = () => {
       console.log("Primary Kline WebSocket failed. Attempting fallback to EventSource proxy...");
-      const eventSource = new EventSource(`/api/websocket-proxy?token=${token}&streamType=kline&period=${period}`);
+      const eventSource = new EventSource(
+        `https://binance.fomoed.io/stream?token=${token}&streamType=kline&period=${period}`,
+      );
       eventSourceRef.current = eventSource;
 
       eventSource.onmessage = (event) => {
