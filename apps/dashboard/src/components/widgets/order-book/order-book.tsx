@@ -58,143 +58,135 @@ function Orders(props: IOrders) {
   const location = useAtomValue(geoLocationAtom);
   const activeLayout = useAtomValue(activeTabAtom);
   const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
+  const wsRef = useRef<WebSocket | null>(null);
+  const orderBookEventSourceRef = useRef<EventSource | null>(null);
+  const tradeEventSourceRef = useRef<EventSource | null>(null);
 
-   useEffect(() => {
-    const tokenOption = `${widget?.props?.token?.toLowerCase()}usdt`;
-    let orderBookSource: EventSource | null = null;
-    let tradeSource: EventSource | null = null;
-    const reconnectTimeout: NodeJS.Timeout | null = null;
-    let isComponentMounted = true;
+  useEffect(() => {
+    if (!widget?.props?.token || !location?.country) return;
 
-    const connectOrderBook = () => {
-      if (!isComponentMounted) return;
+    const handleWebSocketMessage = (dataString: string) => {
+      try {
+        const message = JSON.parse(dataString);
+        if (message.stream) {
+          const stream = message.stream;
+          const data = message.data;
 
-      // Separate connection for order book data
-      orderBookSource = new EventSource(`/api/websocket-proxy?token=${widget?.props?.token}&streamType=depth`);
-
-      orderBookSource.onopen = () => {
-        // console.log("Order book SSE connection opened");
-      };
-
-      orderBookSource.onmessage = (event) => {
-        try {
-          const message = JSON.parse(event.data);
-
-          if (message.type === "heartbeat") {
-            return;
-          }
-
-          // Handle depth data
-          if (message.stream && message.stream.includes('@depth')) {
-            const data = message.data;
+          if (stream.includes("@depth")) {
             setBuys(normalizeOrders(data.bids));
             setSales(normalizeOrders(data.asks));
-          } else if (message.bids && message.asks) {
-            // Direct depth data without stream wrapper
-            setBuys(normalizeOrders(message.bids));
-            setSales(normalizeOrders(message.asks));
-          }
-        } catch (error) {
-          console.error("Error parsing order book SSE message:", error);
-        }
-      };
-
-      orderBookSource.onerror = (error) => {
-        console.error("Order book EventSource error:", error);
-        if (orderBookSource) {
-          orderBookSource.close();
-          orderBookSource = null;
-        }
-      };
-    };
-
-    const connectTrades = () => {
-      if (!isComponentMounted) return;
-
-      // Separate connection for trade data
-      tradeSource = new EventSource(`/api/websocket-proxy?token=${widget?.props?.token}&streamType=trade`);
-
-      tradeSource.onopen = () => {
-        // console.log("Trade SSE connection opened");
-      };
-
-      tradeSource.onmessage = (event) => {
-        try {
-          const message = JSON.parse(event.data);
-
-          if (message.type === "heartbeat") {
-            return;
-          }
-
-          // console.log('Trade message received:', message);
-
-          let tradeData = null;
-
-          // Handle trade data with stream wrapper
-          if (message.stream && message.stream.includes('@trade')) {
-            tradeData = message.data;
-          } 
-          // Handle direct trade data
-          else if (message.p && message.q && message.T) {
-            tradeData = message;
-          }
-
-          if (tradeData) {
-            const currentPrice = parseFloat(tradeData.p);
-            setLivePrice(tradeData.p);
-
-            // console.log('Setting live price:', tradeData.p, 'Parsed:', currentPrice);
+          } else if (stream.includes("@trade")) {
+            const currentPrice = parseFloat(data.p);
+            setLivePrice(data.p);
 
             if (previousPriceRef.current !== null) {
               if (currentPrice > previousPriceRef.current) {
                 setPriceDirection("up");
-                // console.log('Price went UP');
               } else if (currentPrice < previousPriceRef.current) {
                 setPriceDirection("down");
-                // console.log('Price went DOWN');
               }
             }
+            previousPriceRef.current = currentPrice;
+            hasLivePrice.current = true;
+          }
+        }
+      } catch (error) {
+        console.error("Error parsing WebSocket message:", error);
+      }
+    };
 
+    const connectEventSourceProxy = () => {
+      console.log("Primary WebSocket failed. Attempting fallback to EventSource proxy...");
+      const token = widget?.props?.token;
+
+      const orderBookSource = new EventSource(`/api/websocket-proxy?token=${token}&streamType=depth`);
+      orderBookEventSourceRef.current = orderBookSource;
+
+      orderBookSource.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data);
+          if (message.bids && message.asks) {
+            setBuys(normalizeOrders(message.bids));
+            setSales(normalizeOrders(message.asks));
+          }
+        } catch (error) {
+          console.error("Error parsing order book fallback message:", error);
+        }
+      };
+      orderBookSource.onerror = (error) => {
+        // console.error("Order book EventSource fallback failed:", error);
+        orderBookSource.close();
+      };
+
+      const tradeSource = new EventSource(`/api/websocket-proxy?token=${token}&streamType=trade`);
+      tradeEventSourceRef.current = tradeSource;
+
+      tradeSource.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data);
+          if (message.p && message.T) {
+            const currentPrice = parseFloat(message.p);
+            setLivePrice(message.p);
+
+            if (previousPriceRef.current !== null) {
+              if (currentPrice > previousPriceRef.current) {
+                setPriceDirection("up");
+              } else if (currentPrice < previousPriceRef.current) {
+                setPriceDirection("down");
+              }
+            }
             previousPriceRef.current = currentPrice;
             hasLivePrice.current = true;
           }
         } catch (error) {
-          console.error("Error parsing trade SSE message:", error, event.data);
+          console.error("Error parsing trade fallback message:", error);
         }
       };
-
       tradeSource.onerror = (error) => {
-        console.error("Trade EventSource error:", error);
-        if (tradeSource) {
-          tradeSource.close();
-          tradeSource = null;
-        }
+        // console.error("Trade EventSource fallback failed:", error);
+        tradeSource.close();
       };
     };
 
-    // Reset live price flag when token changes
-    hasLivePrice.current = false;
-    
-    // Connect both streams
-    connectOrderBook();
-    connectTrades();
+    const connectWebSocket = () => {
+      const tokenOption = `${widget?.props?.token?.toLowerCase()}usdt`;
+      const endpoint =
+        location.country === "US"
+          ? `wss://stream.binance.us:9443/stream?streams=${tokenOption}@depth20@100ms/${tokenOption}@trade`
+          : `wss://stream.binance.com:9443/stream?streams=${tokenOption}@depth20@100ms/${tokenOption}@trade`;
+
+      const ws = new WebSocket(endpoint);
+      wsRef.current = ws;
+
+      ws.onopen = () => {
+        console.log("Direct WebSocket connection established. ✅");
+      };
+
+      ws.onmessage = (event) => {
+        handleWebSocketMessage(event.data);
+      };
+
+      ws.onerror = (error) => {
+        // console.error("Direct WebSocket connection error:", error);
+        ws.close();
+        connectEventSourceProxy();
+      };
+    };
+
+    connectWebSocket();
 
     return () => {
-      isComponentMounted = false;
-
-      if (reconnectTimeout) {
-        clearTimeout(reconnectTimeout);
+      if (wsRef.current) {
+        wsRef.current.close();
       }
-
-      if (orderBookSource) {
-        orderBookSource.close();
+      if (orderBookEventSourceRef.current) {
+        orderBookEventSourceRef.current.close();
       }
-
-      if (tradeSource) {
-        tradeSource.close();
+      if (tradeEventSourceRef.current) {
+        tradeEventSourceRef.current.close();
       }
     };
-  }, [widget?.props?.token]);
+  }, [widget?.props?.token, location?.country]);
 
   useEffect(() => {
     if (price?.lastPrice && !hasLivePrice.current) {

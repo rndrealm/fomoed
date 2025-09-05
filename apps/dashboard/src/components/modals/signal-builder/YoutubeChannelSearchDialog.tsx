@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -20,8 +13,7 @@ import { YouTubeIcon } from "@/components/icons/YouTube";
 import { useEffect, useState } from "react";
 import { ChannelsSearchResult } from "@/lib/types/models/signals-api.types";
 
-const BACKEND_BASE =
-  process.env.NEXT_PUBLIC_BACKEND_BASE || "https://api.fomoed.io";
+const BACKEND_BASE = process.env.NEXT_PUBLIC_BACKEND_BASE || "https://api.fomoed.io";
 
 function YoutubeChannelSearchResultCard({
   result,
@@ -52,9 +44,7 @@ function YoutubeChannelSearchResultCard({
 
       <CardContent className="p-0 flex flex-col">
         <div className="font-medium pb-0.5">{result.title}</div>
-        <div className="text-xs text-muted-foreground">
-          {result.description}
-        </div>
+        <div className="text-xs text-muted-foreground">{result.description}</div>
       </CardContent>
     </Card>
   );
@@ -67,8 +57,7 @@ export function YoutubeChannelSearchDialog({
   onChange: (channelId: string | null) => void;
   selectedTopic?: string | null;
 }) {
-  const [pickedChannel, setPickedChannel] =
-    useState<PickedYoutubeChannel | null>(null);
+  const [pickedChannel, setPickedChannel] = useState<PickedYoutubeChannel | null>(null);
 
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -77,6 +66,7 @@ export function YoutubeChannelSearchDialog({
   const [loading, setLoading] = useState(false);
 
   // Debounce search
+  // TODO refactor this terrible code into tanstac querk
   useEffect(() => {
     if (!search) {
       setResults([]);
@@ -85,14 +75,10 @@ export function YoutubeChannelSearchDialog({
     }
     setLoading(true);
     const timeout = setTimeout(() => {
-      fetch(
-        `${BACKEND_BASE}/api/v1/smart-signals/builder/yt/channels/search?s=${encodeURIComponent(
-          search,
-        )}`,
-      )
+      fetch(`/api/signals/builder/yt-channels-search?s=${encodeURIComponent(search)}`)
         .then((res) => res.json())
         .then((data) => {
-          setResults(Array.isArray(data) ? data : []);
+          setResults(Array.isArray(data?.data?.channels) ? data.data.channels : []);
         })
         .finally(() => setLoading(false));
     }, 1000);
@@ -137,10 +123,7 @@ export function YoutubeChannelSearchDialog({
           className="border-white/20 bg-[#212121] text-white !py-5 h-12 group w-full text-left justify-start"
         >
           <Avatar className="border border-white/10 group-hover:border-black/50">
-            <AvatarImage
-              src={pickedChannel?.avatarUrl || ""}
-              alt={pickedChannel?.name || "YouTube Channel"}
-            />
+            <AvatarImage src={pickedChannel?.avatarUrl || ""} alt={pickedChannel?.name || "YouTube Channel"} />
 
             <AvatarFallback className="flex items-center justify-center w-full h-full bg-transparent">
               <div className="p-2">
@@ -148,9 +131,7 @@ export function YoutubeChannelSearchDialog({
               </div>
             </AvatarFallback>
           </Avatar>
-          <span className="pl-1">
-            {pickedChannel?.name ? pickedChannel.name : "Pick a Channel"}
-          </span>
+          <span className="pl-1">{pickedChannel?.name ? pickedChannel.name : "Pick a Channel"}</span>
         </Button>
       </DialogTrigger>
 
@@ -172,15 +153,11 @@ export function YoutubeChannelSearchDialog({
         <div className="flex-1 overflow-y-scroll max-h-full pt-4">
           <div className="grid gap-3">
             <RenderIf condition={loading}>
-              <div className="text-muted-foreground text-sm px-2 py-4 w-full text-center">
-                Loading...
-              </div>
+              <div className="text-muted-foreground text-sm px-2 py-4 w-full text-center">Loading...</div>
             </RenderIf>
 
             <RenderIf condition={!loading && results.length === 0 && !!search}>
-              <div className="text-muted-foreground text-sm px-2 py-4 w-full">
-                No results found.
-              </div>
+              <div className="text-muted-foreground text-sm px-2 py-4 w-full">No results found.</div>
             </RenderIf>
 
             <RenderIf condition={!loading && results.length > 0}>

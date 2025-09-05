@@ -2,130 +2,195 @@ import { geoLocationAtom } from "@/lib/atoms/geoLocation";
 import { formatPriceSignificant } from "@/lib/utils";
 import { useFetchBinancePriceData, useFetchBinanceTokenPrice } from "@/services/queries/charts";
 import { useAtomValue } from "jotai";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 
 interface IProps {
   token?: string;
-  period?: string;
+  period?: {
+    label: string;
+    value: string;
+    binanceInterval: string;
+  };
+  selectedPeriod?: string;
 }
 
 export function LivePrice(props: IProps) {
-  const { token = "" } = props;
+  const { token = "", period, selectedPeriod } = props;
 
   const location = useAtomValue(geoLocationAtom);
 
+  // Fetch real-time price for current price display
   const { data: price } = useFetchBinanceTokenPrice(token, location?.country);
+  
+  // Fetch historical data for percentage calculation
+  const { data: historicalData = [] } = useFetchBinancePriceData(
+    `${token}USDT`, 
+    period?.binanceInterval, 
+    1000, 
+    location?.country
+  );
 
   const hasLivePrice = useRef(false);
   const [tokenPrice, setTokenPrice] = useState("");
   const [percentChange, setPercentChange] = useState(0);
 
+  const wsRef = useRef<WebSocket | null>(null);
+  const eventSourceRef = useRef<EventSource | null>(null);
+
+  // Filter historical data based on selected period
+  const filteredHistoricalData = useMemo(() => {
+    if (!historicalData.length || !selectedPeriod) return [];
+
+    const now = new Date();
+    let cutoffDate: Date;
+
+    switch (selectedPeriod) {
+      case "1D":
+        cutoffDate = new Date(now);
+        cutoffDate.setDate(now.getDate() - 1);
+        break;
+      case "1W":
+        cutoffDate = new Date(now);
+        cutoffDate.setDate(now.getDate() - 7);
+        break;
+      case "1M":
+        cutoffDate = new Date(now);
+        cutoffDate.setMonth(now.getMonth() - 1);
+        break;
+      case "3M":
+        cutoffDate = new Date(now);
+        cutoffDate.setMonth(now.getMonth() - 3);
+        break;
+      case "6M":
+        cutoffDate = new Date(now);
+        cutoffDate.setMonth(now.getMonth() - 6);
+        break;
+      case "1Y":
+        cutoffDate = new Date(now);
+        cutoffDate.setFullYear(now.getFullYear() - 1);
+        break;
+      case "YTD":
+        cutoffDate = new Date(now.getFullYear(), 0, 1);
+        break;
+      default:
+        return historicalData;
+    }
+
+    const cutoff = cutoffDate.getTime();
+    return historicalData.filter(d => (d.time as number) * 1000 >= cutoff);
+  }, [historicalData, selectedPeriod]);
+
+  // Calculate percentage change based on filtered historical data
+  const calculatedPercentChange = useMemo(() => {
+    if (!filteredHistoricalData.length || !tokenPrice) return 0;
+
+    const currentPrice = parseFloat(tokenPrice);
+    const startPrice = (filteredHistoricalData[0] as any)?.value || (filteredHistoricalData[0] as any)?.close;
+    
+    if (!startPrice || startPrice <= 0) return 0;
+    
+    return ((currentPrice - startPrice) / startPrice) * 100;
+  }, [filteredHistoricalData, tokenPrice]);
+
+  // Update percentage change when calculated value changes
   useEffect(() => {
-  setTokenPrice("");
-  setPercentChange(0);
+    if (filteredHistoricalData.length > 0 && tokenPrice) {
+      setPercentChange(calculatedPercentChange);
+    }
+  }, [calculatedPercentChange, filteredHistoricalData, tokenPrice]);
 
-  let eventSource: EventSource | null = null;
-  let reconnectTimeout: NodeJS.Timeout | null = null;
-  let isComponentMounted = true;
+  const handleTickerUpdate = (stream: string, data: any) => {
+    if (!stream || !data) return;
 
-  const connect = () => {
-    if (!isComponentMounted) return;
+    if (stream.endsWith("@trade")) {
+      setTokenPrice(data.p);
+      hasLivePrice.current = true;
+    }
 
-    eventSource = new EventSource(`/api/websocket-proxy?token=${token}&streamType=ticker`);
-
-    eventSource.onopen = () => {
-      // console.log("Ticker SSE connection opened");
-      if (reconnectTimeout) {
-        clearTimeout(reconnectTimeout);
-        reconnectTimeout = null;
+    // Remove the miniTicker percentage calculation since we'll use our own
+    if (stream.endsWith("@miniTicker")) {
+      if (!hasLivePrice.current) {
+        setTokenPrice(data.c);
       }
-    };
+    }
+  };
 
-    eventSource.onmessage = (event) => {
-      try {
-        const message = JSON.parse(event.data);
+  useEffect(() => {
+    if (!token || !location?.country) return;
 
-        // Skip heartbeat messages
-        if (message.type === "heartbeat") {
-          return;
-        }
+    setTokenPrice("");
+    setPercentChange(0);
+    hasLivePrice.current = false;
 
-        // For multi-stream, data comes wrapped in stream/data format
-        const stream = message.stream;
-        const data = message.data;
+    const connectEventSourceProxy = () => {
+      console.log("Primary Ticker WebSocket failed. Attempting fallback to EventSource proxy...");
+      const eventSource = new EventSource(`/api/websocket-proxy?token=${token}&streamType=ticker`);
+      eventSourceRef.current = eventSource;
 
-        if (!stream || !data) {
-          // console.log("No stream or data found:", message);
-          return;
-        }
-
-        // console.log("Received stream:", stream, "Data:", data);
-
-        // Handle trade stream for real-time price
-        if (stream?.endsWith("@trade")) {
-          setTokenPrice(data.p);
-          hasLivePrice.current = true;
-          // console.log("Updated price from trade:", data.p);
-        }
-
-        // Handle miniTicker stream for percentage change
-        if (stream?.endsWith("@miniTicker")) {
-          const current = parseFloat(data.c); // close price
-          const open = parseFloat(data.o); // open price
-          const change = ((current - open) / open) * 100;
-
-          setPercentChange(change);
-          hasLivePrice.current = true;
-          // console.log("Updated percentage change from miniTicker:", change.toFixed(2) + "%");
-
-          // Also update price from miniTicker if no trade data yet
-          if (!hasLivePrice.current) {
-            setTokenPrice(data.c);
+      eventSource.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data);
+          if (message.type !== "heartbeat") {
+            handleTickerUpdate(message.stream, message.data);
           }
+        } catch (error) {
+          console.error("Error parsing ticker fallback message:", error);
         }
-      } catch (error) {
-        console.error("Error parsing SSE message:", error, "Raw data:", event.data);
-      }
-    };
+      };
 
-    eventSource.onerror = (error) => {
-      console.error("Ticker EventSource error:", error);
-
-      if (eventSource) {
+      eventSource.onerror = (error) => {
         eventSource.close();
-        eventSource = null;
-      }
+      };
+    };
 
-      if (isComponentMounted && !reconnectTimeout) {
-        reconnectTimeout = setTimeout(() => {
-          if (isComponentMounted) {
-            console.log("Attempting to reconnect ticker...");
-            connect();
+    const connectWebSocket = () => {
+      const lowerToken = token.toLowerCase();
+      const streams = `${lowerToken}usdt@trade/${lowerToken}usdt@miniTicker`;
+      const endpoint = location.country === "US"
+        ? `wss://stream.binance.us:9443/stream?streams=${streams}`
+        : `wss://stream.binance.com:9443/stream?streams=${streams}`;
+
+      const ws = new WebSocket(endpoint);
+      wsRef.current = ws;
+
+      ws.onopen = () => {
+        console.log(`Direct Ticker WebSocket connection established for ${token}. ✅`);
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data);
+          if (message.stream && message.data) {
+            handleTickerUpdate(message.stream, message.data);
           }
-        }, 3000);
+        } catch (error) {
+          console.error("Error parsing ticker WebSocket message:", error);
+        }
+      };
+
+      ws.onerror = (error) => {
+        ws.close();
+        connectEventSourceProxy();
+      };
+    };
+
+    connectWebSocket();
+
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close();
       }
     };
-  };
+  }, [token, location?.country]);
 
-  connect();
-
-  return () => {
-    isComponentMounted = false;
-
-    if (reconnectTimeout) {
-      clearTimeout(reconnectTimeout);
-    }
-
-    if (eventSource) {
-      eventSource.close();
-    }
-  };
-}, [token]);
-
+  // Fallback to API data if no live price
   useEffect(() => {
     if (price?.lastPrice && !hasLivePrice.current) {
       setTokenPrice(price?.lastPrice);
-      setPercentChange(Number(price?.priceChangePercent));
+      // Don't use API percentage change anymore
     }
   }, [price]);
 
@@ -135,13 +200,14 @@ export function LivePrice(props: IProps) {
 
   return (
     <div className="flex flex-col gap-1">
-      <h3 className="text-[#C3C3C3] text-[15px] leading-[1.25] font-medium">Price</h3>
       <div className="flex items-center gap-2">
         <h2 className="text-xl sm:text-2xl text-white leading-[1.35] font-bold">
           <span className="text-[#AFAFAF] text-xl">$</span>
           {tokenPrice ? formatPriceSignificant(tokenPrice) : "..."}
         </h2>
-        <p className="text-[13px] text-[#C3C3C3] leading-[1.25] font-medium">
+        <p className={`text-[13px] leading-[1.25] font-medium ${
+          percentChange >= 0 ? 'text-[#00AF58]' : 'text-[#FF8970]'
+        }`}>
           {`${percentChange > 0 ? "+" : ""}` + percentChange.toFixed(2) + "%"}
         </p>
       </div>

@@ -138,7 +138,11 @@ export function LoginForm() {
         <div className="flex w-full">
           <FormBottomDivider />
         </div>
-        <FormBottomLink href={AppRoutes.auth.path} infoText="Don't have an account yet?" linkText="Sign Up" />
+        <FormBottomLink
+          href={fromUrl ? `${AppRoutes.auth.path}?from=${fromUrl}` : AppRoutes.auth.path}
+          infoText="Don't have an account yet?"
+          linkText="Sign Up"
+        />
       </div>
     </div>
   );

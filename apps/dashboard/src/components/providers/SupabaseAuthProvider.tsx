@@ -52,8 +52,6 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
   const pathname = usePathname();
 
   useEffect(() => {
-    console.log("triggered auth use effect");
-
     // Get initial session
     const initializeAuth = async () => {
       setIsLoading(true);
@@ -69,7 +67,7 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
         // Listen for auth changes
         const {
           data: { subscription },
-        } = supabase.auth.onAuthStateChange((_event, session) => {
+        } = supabase.auth.onAuthStateChange((_event: string, session: Session | null) => {
           setSession(session);
           resolveSessionLoaded();
           // setUser(session?.user || null);

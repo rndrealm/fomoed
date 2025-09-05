@@ -95,7 +95,7 @@ export async function GET(request: Request) {
 
     if (!data.user) {
       return NextResponse.redirect(
-        `${origin}${AppRoutes.auth.authError.path}?code=${error?.code}&message=${error?.message}`
+        `${origin}${AppRoutes.auth.authError.path}?code=${error?.code}&message=${error?.message}`,
       );
     }
 
@@ -115,6 +115,6 @@ export async function GET(request: Request) {
   // TODO: Create this page
   // return the user to an error page with instructions
   return NextResponse.redirect(
-    `${origin}${AppRoutes.auth.authError.path}?code=400&message=Login%20attempt%20failed.%20Please%20try%20again.`
+    `${origin}${AppRoutes.auth.authError.path}?code=400&message=Login%20attempt%20failed.%20Please%20try%20again.`,
   );
 }

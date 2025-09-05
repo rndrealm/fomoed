@@ -2,6 +2,7 @@ import { type EmailOtpType } from "@supabase/supabase-js";
 import { type NextRequest } from "next/server";
 
 import { redirect } from "next/navigation";
+import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/utils/supabase/server-client";
 import { AppRoutes } from "@/lib/routes";
 
@@ -10,6 +11,11 @@ export async function GET(request: NextRequest) {
   const token_hash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
   const next = searchParams.get("next") ?? "/";
+  const fromUrl = searchParams.get("fromUrl");
+
+  console.log("type:", type);
+  console.log("token:", token_hash);
+  console.log("fromurl:", fromUrl);
 
   if (token_hash && type) {
     const supabase = await createSupabaseServerClient();
@@ -20,7 +26,12 @@ export async function GET(request: NextRequest) {
     });
     if (!error) {
       // redirect user to specified redirect URL or root of app
-      redirect(next);
+      if (fromUrl === "marketing") {
+        const marketingUrl = process.env.NEXT_PUBLIC_MARKETING_APP_URL;
+        return NextResponse.redirect(marketingUrl || "https://marketing.fomoed.io");
+      } else {
+        redirect(next);
+      }
     }
     console.log(error);
     redirect(`${AppRoutes.auth.authError.path}?code=400&message=${error.message}.`);

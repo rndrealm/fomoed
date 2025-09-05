@@ -60,8 +60,8 @@ const navLinks: INavLink[] = [
   {
     label: "Community",
     icon: <CommunityIcon />,
-    href: "Community",
-    disabled: true,
+    href: `${process.env.NEXT_PUBLIC_MARKETING_APP_URL}/kol/explore`,
+    disabled: false,
     beta: false,
     alpha: false,
     comingSoon: true,

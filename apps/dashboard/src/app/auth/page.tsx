@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { Suspense, useState } from "react";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { FormBottomLink, GoogleLogin, SubmitButton, TextInput } from "@/components/auth";
@@ -7,7 +7,7 @@ import ArrowRight from "@/components/icons/ArrowRight";
 import FormLogo from "@/components/icons/FormLogo";
 import FormBottomDivider from "@/components/icons/FormBottomDivider";
 import { AppRoutes } from "@/lib/routes";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { track } from "@vercel/analytics";
 import { signUpNewUser } from "@/services/queries/auth/server-actions";
@@ -33,17 +33,29 @@ const initialValues = {
 type InitialValues = ReturnType<() => typeof initialValues>;
 
 export default function Page() {
+  return (
+    <Suspense>
+      <SignupForm />
+    </Suspense>
+  );
+}
+
+const SignupForm = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const searchParams = useSearchParams();
+  const fromUrl = searchParams.get("from");
   const onSubmit = async (_values: InitialValues) => {
     try {
       setIsLoading(true);
-      const retUser = await signUpNewUser(_values);
+      const retUser = await signUpNewUser(_values, fromUrl || undefined);
       if (retUser.success) {
         track("signup", {
           username: _values.username,
           email: _values.email,
         });
+        // Redirect to full url on signup
+
         router.push(AppRoutes.auth.mailAuthenticate.path);
       } else {
         toast(retUser.message || "Something went wrong!");
@@ -54,7 +66,6 @@ export default function Page() {
       setIsLoading(false);
     }
   };
-
   return (
     <div className="font-inter flex min-h-screen w-full flex-col bg-[#000] px-4 pb-8">
       <div className="flex h-full flex-1 items-center justify-center">
@@ -130,7 +141,7 @@ export default function Page() {
           </div>
 
           <div className="relative mt-3 flex justify-center">
-            <GoogleLogin />
+            <GoogleLogin fromUrl={fromUrl || undefined} />
           </div>
         </div>
       </div>
@@ -139,8 +150,14 @@ export default function Page() {
         <div className="flex w-full">
           <FormBottomDivider />
         </div>
-        <FormBottomLink href={AppRoutes.auth.login.path} infoText="Already on Fomoed?" linkText="Sign In" />
+        <FormBottomLink
+          href={
+            fromUrl ? `${AppRoutes.auth.login.path}?from=${encodeURIComponent(fromUrl)}` : AppRoutes.auth.login.path
+          }
+          infoText="Already on Fomoed?"
+          linkText="Sign In"
+        />
       </div>
     </div>
   );
-}
+};
