@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import dashboard from "@/lib/assets/dashboard";
 import { NavLink, INavLink } from "./nav-link";
-import { User } from "@supabase/supabase-js";
 import { UsersRow } from "@/lib/types/db.types";
 import { cn } from "@/lib/utils";
 
@@ -59,6 +58,8 @@ const PassiveNav = (props: IPassiveNavProps) => {
       <div id="passive-nav-active" className="flex h-full w-full flex-col items-center justify-between px-2 py-14">
         <div className={cn("pointer-events-none flex w-full flex-col gap-2", className)}>
           {navLinks.map((item, index) => {
+            // console.log(item.keyboardBoxes[0]);
+
             return (
               <NavLink
                 key={index}

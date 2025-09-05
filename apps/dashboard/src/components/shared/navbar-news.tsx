@@ -14,15 +14,17 @@ import {
   Hamburger,
   NewsIconV2,
   WidgetDashboardIconV2,
+  Command,
 } from "../icons/icons";
 import { AppRoutes } from "@/lib/routes";
-import { User } from "@supabase/supabase-js";
 import SideNav, { INavLink } from "./sidebar";
 import { RenderIf } from "./render-if";
 import { useAtom } from "jotai";
 import { isSidebarOpenAtom } from "@/lib/atoms/utilsAtom";
 import useUserData from "@/lib/hooks/use-user-data";
 import { UsersRow } from "@/lib/types/db.types";
+
+// const ComandSvg
 
 const navLinks: INavLink[] = [
   {
@@ -33,15 +35,17 @@ const navLinks: INavLink[] = [
     beta: false,
     alpha: false,
     comingSoon: false,
+    keyboardBoxes: ["command", "Enter"],
   },
   {
-    label: "Widget Dashboard",
+    label: "Widgets",
     icon: <WidgetDashboardIconV2 />,
     href: AppRoutes.dashboard.path,
     disabled: false,
     beta: false,
     alpha: false,
     comingSoon: false,
+    keyboardBoxes: ["command", "K"],
   },
   {
     label: "Smart Signals",
@@ -51,6 +55,7 @@ const navLinks: INavLink[] = [
     beta: false,
     alpha: true,
     comingSoon: false,
+    keyboardBoxes: ["command", "K"],
   },
   {
     label: "Community",
@@ -129,11 +134,7 @@ export const NavbarNews = (props: IProps) => {
     <Fragment>
       {/* Top Nav */}
       <RenderIf condition={!!isNews}>
-        <NavigationTop
-          authUser={authUser}
-          isNews={isNews}
-          setIsSideMenuOpen={setIsSideMenuOpen}
-        />
+        <NavigationTop authUser={authUser} isNews={isNews} setIsSideMenuOpen={setIsSideMenuOpen} />
       </RenderIf>
 
       {/* Blur Layer */}
@@ -193,9 +194,7 @@ const NavigationTop = ({
           {isNews && (
             <div className="py-1">
               <div className="rounded-[4px] bg-[#1F8B4C] px-3 py-1">
-                <h2 className="font-inter text-xs font-normal text-white uppercase">
-                  News
-                </h2>
+                <h2 className="font-inter text-xs font-normal text-white uppercase">News</h2>
               </div>
             </div>
           )}

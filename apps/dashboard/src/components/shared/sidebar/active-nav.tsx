@@ -2,7 +2,6 @@ import { MenuIconClosed, MenuIconOpened, SideBarClosedIcon, SideBarOpenIcon } fr
 import Image from "next/image";
 import { INavLink, NavLink } from "./nav-link";
 import { sideMenuAnimProps, sideMenuVariants } from "./animations";
-import { User } from "@supabase/supabase-js";
 import { motion } from "motion/react";
 import NavbarProfileButton from "@/components/ui/NavbarProfileButton";
 import { ProfileIcon } from "../profile-icon";
@@ -83,6 +82,7 @@ const ActiveNav = (props: IActiveNavProps) => {
       </div>
 
       <div className="flex h-full w-full flex-col items-center justify-between px-2 py-14">
+        {/* top links */}
         <div className={cn("flex w-full flex-col gap-2", className)}>
           {navLinks.map((item, index) => {
             return (
@@ -94,6 +94,7 @@ const ActiveNav = (props: IActiveNavProps) => {
                 active={item.active}
                 disabled={item.disabled}
                 comingSoon={item.comingSoon}
+                keyboardBoxes={item.keyboardBoxes}
                 beta={item.beta}
                 alpha={item.alpha}
                 variant="active"
@@ -103,6 +104,7 @@ const ActiveNav = (props: IActiveNavProps) => {
           })}
         </div>
 
+        {/* bottom links */}
         <div className="flex w-full flex-col gap-2">
           {bottomLinks.map((item, index) => {
             return (

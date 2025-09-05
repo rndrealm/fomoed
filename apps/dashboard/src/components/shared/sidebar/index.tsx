@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { NavLink, INavLink } from "./nav-link";
-import { User } from "@supabase/supabase-js";
 import PassiveNav from "./passive-nav";
 import ActiveNav from "./active-nav";
 import { sideMenuAnimProps } from "./animations";
