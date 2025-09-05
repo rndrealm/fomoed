@@ -15,7 +15,7 @@ export async function signUpNewUser(
   const protocol = headersList.get("x-forwarded-proto") || "http";
   const host = headersList.get("host") || "localhost";
 
-  const origin = `${protocol}://${host}/auth/callback?type=mail`;
+  const origin = `${protocol}://${host}/auth/confirm?type=email`;
 
   const { email, password, username } = body;
   const authRes = await supabase.auth.signUp({
