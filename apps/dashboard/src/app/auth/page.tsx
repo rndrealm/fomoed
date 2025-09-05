@@ -48,7 +48,7 @@ const SignupForm = () => {
   const onSubmit = async (_values: InitialValues) => {
     try {
       setIsLoading(true);
-      const retUser = await signUpNewUser(_values);
+      const retUser = await signUpNewUser(_values, fromUrl);
       if (retUser.success) {
         track("signup", {
           username: _values.username,

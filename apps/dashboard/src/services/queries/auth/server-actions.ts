@@ -5,21 +5,24 @@ import { createUserRow, userWithEmailExists } from "./helpers";
 import { createSupabaseServerClient, createSupabaseServerWithAnonKey } from "@/lib/utils/supabase/server-client";
 import { headers } from "next/headers";
 
-export async function signUpNewUser(body: RegisterUserPayload): Promise<LoginUserFunctionResponse> {
+export async function signUpNewUser(
+  body: RegisterUserPayload,
+  fromUrl?: string | null,
+): Promise<LoginUserFunctionResponse> {
   const supabase = await createSupabaseServerWithAnonKey();
 
   const headersList = await headers();
   const protocol = headersList.get("x-forwarded-proto") || "http";
   const host = headersList.get("host") || "localhost";
 
-  const origin = `${protocol}://${host}`;
+  const origin = `${protocol}://${host}/auth/callback?type=mail`;
 
   const { email, password, username } = body;
   const authRes = await supabase.auth.signUp({
     email,
     password,
     options: {
-      emailRedirectTo: `${origin}`,
+      emailRedirectTo: fromUrl ? `${origin}&fromUrl=${fromUrl}` : `${origin}`,
     },
   });
 
@@ -75,7 +78,7 @@ export async function signUpNewUser(body: RegisterUserPayload): Promise<LoginUse
         username,
         user_id: supabaseUserId,
       },
-      supabase
+      supabase,
     );
   }
 
