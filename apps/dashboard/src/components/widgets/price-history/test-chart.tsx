@@ -42,28 +42,36 @@ const toolTipHeight = 80;
 const toolTipMargin = 25;
 
 function TestChart(props: IProps) {
-  const { isCandleStick = false, period, selectedPeriod, showTokenStats, setShowTokenStats, token = "BTC", className = "" } = props;
-  
+  const {
+    isCandleStick = false,
+    period,
+    selectedPeriod,
+    showTokenStats,
+    setShowTokenStats,
+    token = "BTC",
+    className = "",
+  } = props;
+
   const location = useAtomValue(geoLocationAtom);
 
-  const { data = [] } = useFetchBinancePriceData(
-    `${token}USDT`, 
-    period?.binanceInterval, 
-    1000, 
-    location?.country
-  );
+  const { data = [] } = useFetchBinancePriceData(`${token}USDT`, period?.binanceInterval, 1000, location?.country);
   const getIntervalMinutes = (interval: string): number => {
     const unit = interval.slice(-1);
     const value = parseInt(interval.slice(0, -1));
-    
+
     switch (unit) {
-      case 'm': return value;
-      case 'h': return value * 60;
-      case 'd': return value * 1440;
-      case 'w': return value * 10080;
-      default: return 60;
+      case "m":
+        return value;
+      case "h":
+        return value * 60;
+      case "d":
+        return value * 1440;
+      case "w":
+        return value * 10080;
+      default:
+        return 60;
     }
-  };  
+  };
 
   const filteredData = useMemo(() => {
     if (!data.length) return [];
@@ -76,16 +84,16 @@ function TestChart(props: IProps) {
       case "1D":
         cutoffDate = new Date(now);
         cutoffDate.setDate(now.getDate() - 1);
-        
-        let filteredDailyData = data.filter(d => (d.time as number) * 1000 >= cutoffDate.getTime());
-        
+
+        let filteredDailyData = data.filter((d) => (d.time as number) * 1000 >= cutoffDate.getTime());
+
         const intervalMinutes = getIntervalMinutes(period?.binanceInterval);
         if (intervalMinutes <= 5 && filteredDailyData.length > 288) {
           filteredDailyData = filteredDailyData.slice(-288);
         } else if (intervalMinutes <= 15 && filteredDailyData.length > 96) {
           filteredDailyData = filteredDailyData.slice(-96);
         }
-        
+
         return filteredDailyData;
 
       case "1W":
@@ -123,9 +131,9 @@ function TestChart(props: IProps) {
 
     const cutoff = cutoffDate.getTime();
 
-    return data.filter(d => (d.time as number) * 1000 >= cutoff);
+    return data.filter((d) => (d.time as number) * 1000 >= cutoff);
   }, [data, selectedPeriod, period?.binanceInterval]);
-  
+
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
   const lineSeriesRef = useRef<SeriesApiRef<"Line">>(null);
@@ -163,11 +171,11 @@ function TestChart(props: IProps) {
       };
     }
 
-    const currentPrice = isCandleStick 
+    const currentPrice = isCandleStick
       ? (filteredData[filteredData.length - 1] as CandlestickData)?.close || 0
       : (filteredData[filteredData.length - 1] as any)?.value || 0;
 
-    const startPrice = isCandleStick 
+    const startPrice = isCandleStick
       ? (filteredData[0] as CandlestickData)?.open || 0
       : (filteredData[0] as any)?.value || 0;
 
@@ -180,8 +188,8 @@ function TestChart(props: IProps) {
       changePercent,
       currentPrice,
       startPrice,
-      high: Math.max(...filteredData.map(d => isCandleStick ? (d as CandlestickData).high : (d as any).value)),
-      low: Math.min(...filteredData.map(d => isCandleStick ? (d as CandlestickData).low : (d as any).value)),
+      high: Math.max(...filteredData.map((d) => (isCandleStick ? (d as CandlestickData).high : (d as any).value))),
+      low: Math.min(...filteredData.map((d) => (isCandleStick ? (d as CandlestickData).low : (d as any).value))),
     };
   }, [filteredData, isCandleStick]);
 
@@ -195,28 +203,31 @@ function TestChart(props: IProps) {
     cutoffDate.setFullYear(now.getFullYear() - 1);
     const cutoff = cutoffDate.getTime();
 
-    const lastYearData = data.filter(d => (d.time as number) * 1000 >= cutoff);
+    const lastYearData = data.filter((d) => (d.time as number) * 1000 >= cutoff);
 
     if (!lastYearData.length) {
       return { high: 0, low: 0 };
     }
 
     return {
-      high: Math.max(...lastYearData.map(d => isCandleStick ? (d as CandlestickData).high : (d as any).value)),
-      low: Math.min(...lastYearData.map(d => isCandleStick ? (d as CandlestickData).low : (d as any).value)),
+      high: Math.max(...lastYearData.map((d) => (isCandleStick ? (d as CandlestickData).high : (d as any).value))),
+      low: Math.min(...lastYearData.map((d) => (isCandleStick ? (d as CandlestickData).low : (d as any).value))),
     };
   }, [data, isCandleStick]);
 
   // Chart colors based on performance
-  const chartColors = useMemo(() => ({
-    lineColor: isHovering ? '#6B88CA' : (performanceMetrics.isPositive ? '#17C583' : '#BD2E36'),
-    upColor: '#17C583',
-    downColor: '#BD2E36',
-    borderUpColor: '#17C583',
-    borderDownColor: '#BD2E36',
-    wickUpColor: '#17C583',
-    wickDownColor: '#BD2E36',
-  }), [isHovering, performanceMetrics.isPositive]);
+  const chartColors = useMemo(
+    () => ({
+      lineColor: isHovering ? "#6B88CA" : performanceMetrics.isPositive ? "#17C583" : "#BD2E36",
+      upColor: "#17C583",
+      downColor: "#BD2E36",
+      borderUpColor: "#17C583",
+      borderDownColor: "#BD2E36",
+      wickUpColor: "#17C583",
+      wickDownColor: "#BD2E36",
+    }),
+    [isHovering, performanceMetrics.isPositive],
+  );
 
   useEffect(() => {
     if (!performanceMetrics.startPrice) return;
@@ -261,77 +272,78 @@ function TestChart(props: IProps) {
   };
 
   // Enhanced crosshair move handler with OHLC tooltip
-  const onCrosshairMove = useCallback((param: MouseEventParams<Time>) => {
-    const container = chartContainerRef.current!;
-    const tooltip = tooltipRef.current!;
+  const onCrosshairMove = useCallback(
+    (param: MouseEventParams<Time>) => {
+      const container = chartContainerRef.current!;
+      const tooltip = tooltipRef.current!;
 
-    if (
-      !param.point ||
-      !param.time ||
-      param.point.x < 0 ||
-      param.point.x > container.clientWidth ||
-      param.point.y < 0 ||
-      param.point.y > container.clientHeight
-    ) {
-      tooltip.style.display = "none";
-      setIsHovering(false);
-      return;
-    }
-
-    setIsHovering(true);
-
-    const data = {
-      value: 0,
-      time: Date.now(),
-      open: 0,
-      high: 0,
-      low: 0,
-      close: 0,
-    };
-    let coordinate: Coordinate | null | undefined;
-
-    if (lineSeriesRef.current) {
-      const seriesApi = lineSeriesRef.current.api();
-      if (seriesApi) {
-        const res = param.seriesData.get(seriesApi) as LineData;
-        data.time = res.time as number;
-        data.value = res.value;
-        data.close = res.value;
-        coordinate = lineSeriesRef.current.api()?.priceToCoordinate(data.value);
+      if (
+        !param.point ||
+        !param.time ||
+        param.point.x < 0 ||
+        param.point.x > container.clientWidth ||
+        param.point.y < 0 ||
+        param.point.y > container.clientHeight
+      ) {
+        tooltip.style.display = "none";
+        setIsHovering(false);
+        return;
       }
-    }
 
-    if (candleSeriesRef.current) {
-      const seriesApi = candleSeriesRef.current.api();
-      if (seriesApi) {
-        const res = param.seriesData.get(seriesApi) as CandlestickData;
-        data.time = res.time as number;
-        data.value = res.close;
-        data.open = res.open;
-        data.high = res.high;
-        data.low = res.low;
-        data.close = res.close;
-        coordinate = candleSeriesRef.current.api()?.priceToCoordinate(data.value);
+      setIsHovering(true);
+
+      const data = {
+        value: 0,
+        time: Date.now(),
+        open: 0,
+        high: 0,
+        low: 0,
+        close: 0,
+      };
+      let coordinate: Coordinate | null | undefined;
+
+      if (lineSeriesRef.current) {
+        const seriesApi = lineSeriesRef.current.api();
+        if (seriesApi) {
+          const res = param.seriesData.get(seriesApi) as LineData;
+          data.time = res.time as number;
+          data.value = res.value;
+          data.close = res.value;
+          coordinate = lineSeriesRef.current.api()?.priceToCoordinate(data.value);
+        }
       }
-    }
 
-    // Calculate change from start price
-    const startPrice = performanceMetrics.startPrice;
-    const change = data.close - startPrice;
-    const dateObj = new Date(data.time * 1000);
-    const formattedDate = dateObj.toLocaleDateString('en-US', { 
-      day: 'numeric',
-      month: 'short', 
-      year: 'numeric' 
-    });
+      if (candleSeriesRef.current) {
+        const seriesApi = candleSeriesRef.current.api();
+        if (seriesApi) {
+          const res = param.seriesData.get(seriesApi) as CandlestickData;
+          data.time = res.time as number;
+          data.value = res.close;
+          data.open = res.open;
+          data.high = res.high;
+          data.low = res.low;
+          data.close = res.close;
+          coordinate = candleSeriesRef.current.api()?.priceToCoordinate(data.value);
+        }
+      }
 
-    tooltip.style.display = "flex";
+      // Calculate change from start price
+      const startPrice = performanceMetrics.startPrice;
+      const change = data.close - startPrice;
+      const dateObj = new Date(data.time * 1000);
+      const formattedDate = dateObj.toLocaleDateString("en-US", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      });
 
-    // Different tooltip for candlestick vs line chart
-    if (isCandleStick) {
-      // OHLC Tooltip for Candlestick
-      const isGreen = data.close >= data.open;
-      tooltip.innerHTML = `
+      tooltip.style.display = "flex";
+
+      // Different tooltip for candlestick vs line chart
+      if (isCandleStick) {
+        // OHLC Tooltip for Candlestick
+        const isGreen = data.close >= data.open;
+        tooltip.innerHTML = `
         <div style="background: #1C1C1E; border-radius: 12px; padding: 14px; border: 1px solid #333; box-shadow: 0 8px 32px rgba(0,0,0,0.4); min-width: 280px;">
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px;">
             <div style="display: flex; justify-content: space-between;">
@@ -344,7 +356,7 @@ function TestChart(props: IProps) {
             </div>
             <div style="display: flex; justify-content: space-between;">
               <span style="color: #888;">Close:</span>
-              <span style="color: ${isGreen ? '#17C583' : '#BD2E36'}; font-weight: 500;">${formatOHLCPrice(data.close)}</span>
+              <span style="color: ${isGreen ? "#17C583" : "#BD2E36"}; font-weight: 500;">${formatOHLCPrice(data.close)}</span>
             </div>
             <div style="display: flex; justify-content: space-between;">
               <span style="color: #888;">Low:</span>
@@ -353,11 +365,11 @@ function TestChart(props: IProps) {
           </div>
         </div>
       `;
-    } else {
-      // Simple tooltip for line chart
-      tooltip.innerHTML = `
+      } else {
+        // Simple tooltip for line chart
+        tooltip.innerHTML = `
         <div style="background: #1C1C1E; border-radius: 12px; padding: 12px; border: 1px solid #333; box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
-          <div style="color: ${change >= 0 ? '#17C583' : '#BD2E36'}; font-size: 16px; font-weight: 700; margin-bottom: 4px;">
+          <div style="color: ${change >= 0 ? "#17C583" : "#BD2E36"}; font-size: 16px; font-weight: 700; margin-bottom: 4px;">
             ${formatPriceSignificant(data.close)}
           </div>
           <div style="color: #888; font-size: 12px; text-align: center; margin-bottom: -4px">
@@ -365,21 +377,23 @@ function TestChart(props: IProps) {
           </div>
         </div>
       `;
-    }
+      }
 
-    if (!coordinate) return;
+      if (!coordinate) return;
 
-    let shiftedCoordinate = param.point.x - toolTipWidth / 2;
-    shiftedCoordinate = Math.max(0, Math.min(container.clientWidth - toolTipWidth, shiftedCoordinate));
+      let shiftedCoordinate = param.point.x - toolTipWidth / 2;
+      shiftedCoordinate = Math.max(0, Math.min(container.clientWidth - toolTipWidth, shiftedCoordinate));
 
-    const coordinateY =
-      coordinate - toolTipHeight - toolTipMargin > 0
-        ? coordinate - toolTipHeight - toolTipMargin
-        : coordinate + toolTipMargin;
+      const coordinateY =
+        coordinate - toolTipHeight - toolTipMargin > 0
+          ? coordinate - toolTipHeight - toolTipMargin
+          : coordinate + toolTipMargin;
 
-    tooltip.style.left = `${shiftedCoordinate}px`;
-    tooltip.style.top = `${coordinateY}px`;
-  }, [performanceMetrics.startPrice, isCandleStick]);
+      tooltip.style.left = `${shiftedCoordinate}px`;
+      tooltip.style.top = `${coordinateY}px`;
+    },
+    [performanceMetrics.startPrice, isCandleStick],
+  );
 
   // Set default zoom range when data loads
   useEffect(() => {
@@ -391,99 +405,102 @@ function TestChart(props: IProps) {
   }, [filteredData]);
 
   // Handle zoom restrictions
-  const handleVisibleLogicalRangeChange = useCallback((newRange: { from: number; to: number } | null) => {
-    if (!newRange || !defaultZoomRangeRef.current) return;
+  const handleVisibleLogicalRangeChange = useCallback(
+    (newRange: { from: number; to: number } | null) => {
+      if (!newRange || !defaultZoomRangeRef.current) return;
 
-    const defaultRange = defaultZoomRangeRef.current;
-    const dataLength = filteredData.length;
-    
-    // Calculate current visible data points
-    const currentDataPoints = newRange.to - newRange.from;
-    const defaultDataPoints = defaultRange.to - defaultRange.from;
+      const defaultRange = defaultZoomRangeRef.current;
+      const dataLength = filteredData.length;
 
-    // Allow zoom out up to showing all available data
-    const maxAllowedDataPoints = Math.min(dataLength, defaultDataPoints * 2); // Allow zoom out up to 2x default or all data
-    
-    // Prevent zooming out beyond maximum allowed range
-    if (currentDataPoints > maxAllowedDataPoints) {
-      // Calculate centered range that shows maximum allowed data points
-      const center = (newRange.from + newRange.to) / 2;
-      const halfRange = maxAllowedDataPoints / 2;
-      
-      let adjustedFrom = Math.max(0, center - halfRange);
-      let adjustedTo = Math.min(dataLength - 1, center + halfRange);
-      
-      // If we hit the boundaries, adjust accordingly
-      if (adjustedFrom === 0) {
-        adjustedTo = Math.min(dataLength - 1, maxAllowedDataPoints);
-      } else if (adjustedTo === dataLength - 1) {
-        adjustedFrom = Math.max(0, dataLength - maxAllowedDataPoints);
+      // Calculate current visible data points
+      const currentDataPoints = newRange.to - newRange.from;
+      const defaultDataPoints = defaultRange.to - defaultRange.from;
+
+      // Allow zoom out up to showing all available data
+      const maxAllowedDataPoints = Math.min(dataLength, defaultDataPoints * 2); // Allow zoom out up to 2x default or all data
+
+      // Prevent zooming out beyond maximum allowed range
+      if (currentDataPoints > maxAllowedDataPoints) {
+        // Calculate centered range that shows maximum allowed data points
+        const center = (newRange.from + newRange.to) / 2;
+        const halfRange = maxAllowedDataPoints / 2;
+
+        let adjustedFrom = Math.max(0, center - halfRange);
+        let adjustedTo = Math.min(dataLength - 1, center + halfRange);
+
+        // If we hit the boundaries, adjust accordingly
+        if (adjustedFrom === 0) {
+          adjustedTo = Math.min(dataLength - 1, maxAllowedDataPoints);
+        } else if (adjustedTo === dataLength - 1) {
+          adjustedFrom = Math.max(0, dataLength - maxAllowedDataPoints);
+        }
+
+        timeScaleRef.current?.api()?.setVisibleLogicalRange({
+          from: adjustedFrom,
+          to: adjustedTo,
+        });
+        return;
       }
 
-      timeScaleRef.current?.api()?.setVisibleLogicalRange({
-        from: adjustedFrom,
-        to: adjustedTo
-      });
-      return;
-    }
+      // Prevent zooming in too much (minimum 10 data points visible)
+      const minDataPoints = 10;
+      if (currentDataPoints < minDataPoints) {
+        const center = (newRange.from + newRange.to) / 2;
+        const halfRange = minDataPoints / 2;
 
-    // Prevent zooming in too much (minimum 10 data points visible)
-    const minDataPoints = 10;
-    if (currentDataPoints < minDataPoints) {
-      const center = (newRange.from + newRange.to) / 2;
-      const halfRange = minDataPoints / 2;
-      
-      timeScaleRef.current?.api()?.setVisibleLogicalRange({
-        from: Math.max(0, center - halfRange),
-        to: Math.min(dataLength - 1, center + halfRange)
-      });
-      return;
-    }
-
-    // Prevent scrolling beyond data boundaries
-    if (newRange.from < 0 || newRange.to >= dataLength) {
-      const rangeSize = newRange.to - newRange.from;
-      let adjustedFrom = newRange.from;
-      let adjustedTo = newRange.to;
-
-      if (newRange.from < 0) {
-        adjustedFrom = 0;
-        adjustedTo = rangeSize;
-      }
-      
-      if (newRange.to >= dataLength) {
-        adjustedTo = dataLength - 1;
-        adjustedFrom = Math.max(0, adjustedTo - rangeSize);
+        timeScaleRef.current?.api()?.setVisibleLogicalRange({
+          from: Math.max(0, center - halfRange),
+          to: Math.min(dataLength - 1, center + halfRange),
+        });
+        return;
       }
 
-      timeScaleRef.current?.api()?.setVisibleLogicalRange({
-        from: adjustedFrom,
-        to: adjustedTo
-      });
-      return;
-    }
+      // Prevent scrolling beyond data boundaries
+      if (newRange.from < 0 || newRange.to >= dataLength) {
+        const rangeSize = newRange.to - newRange.from;
+        let adjustedFrom = newRange.from;
+        let adjustedTo = newRange.to;
 
-    // Update the visible range reference for valid ranges
-    visibleLogicalRangeRef.current = {
-      from: newRange.from,
-      to: newRange.to,
-    };
-  }, [filteredData.length]);
+        if (newRange.from < 0) {
+          adjustedFrom = 0;
+          adjustedTo = rangeSize;
+        }
+
+        if (newRange.to >= dataLength) {
+          adjustedTo = dataLength - 1;
+          adjustedFrom = Math.max(0, adjustedTo - rangeSize);
+        }
+
+        timeScaleRef.current?.api()?.setVisibleLogicalRange({
+          from: adjustedFrom,
+          to: adjustedTo,
+        });
+        return;
+      }
+
+      // Update the visible range reference for valid ranges
+      visibleLogicalRangeRef.current = {
+        from: newRange.from,
+        to: newRange.to,
+      };
+    },
+    [filteredData.length],
+  );
 
   useEffect(() => {
-  if (filteredData.length > 0) {
-    // Always recalculate default range when data changes
-    const defaultFrom = Math.max(0, filteredData.length - 50);
-    const defaultTo = filteredData.length - 1;
-    
-    defaultZoomRangeRef.current = { from: defaultFrom, to: defaultTo };
-    
-    // Reset visible range when data changes significantly
-    if (!visibleLogicalRangeRef.current) {
-      visibleLogicalRangeRef.current = { from: defaultFrom, to: defaultTo };
+    if (filteredData.length > 0) {
+      // Always recalculate default range when data changes
+      const defaultFrom = Math.max(0, filteredData.length - 50);
+      const defaultTo = filteredData.length - 1;
+
+      defaultZoomRangeRef.current = { from: defaultFrom, to: defaultTo };
+
+      // Reset visible range when data changes significantly
+      if (!visibleLogicalRangeRef.current) {
+        visibleLogicalRangeRef.current = { from: defaultFrom, to: defaultTo };
+      }
     }
-  }
-}, [filteredData.length]);
+  }, [filteredData.length]);
 
   const handleMouseEnter = useCallback(() => {
     setIsHovering(true);
@@ -499,7 +516,7 @@ function TestChart(props: IProps) {
   useEffect(() => {
     // Guard clause to ensure all dependencies are available.
     if (!token || !period.binanceInterval || !location?.country) return;
-    
+
     const handleKlineUpdate = (klineData: any) => {
       if (!klineData || !klineData.t) {
         console.warn("handleKlineUpdate received invalid kline data:", klineData);
@@ -512,13 +529,13 @@ function TestChart(props: IProps) {
         high: parseFloat(klineData.h),
         low: parseFloat(klineData.l),
         close: parseFloat(klineData.c),
-        value: parseFloat(klineData.c), 
+        value: parseFloat(klineData.c),
       };
 
-      if (selectedPeriod === '1D') {
+      if (selectedPeriod === "1D") {
         const now = Date.now();
         const dataTime = newData.time * 1000;
-        
+
         // Only update when the data are from the past 24 hours
         if (now - dataTime <= 24 * 60 * 60 * 1000) {
           dataRef.current.push(newData as any);
@@ -546,7 +563,9 @@ function TestChart(props: IProps) {
 
     const connectEventSourceProxy = () => {
       console.log(`Primary Kline WebSocket failed for ${token}. Attempting fallback...`);
-      const eventSource = new EventSource(`/api/websocket-proxy?token=${token}&streamType=kline&period=${period.binanceInterval}`);
+      const eventSource = new EventSource(
+        `https://binance.fomoed.io/stream?token=${token}&streamType=kline&period=${period.binanceInterval}`,
+      );
       eventSourceRef.current = eventSource;
 
       eventSource.onmessage = (event) => {
@@ -576,7 +595,9 @@ function TestChart(props: IProps) {
       wsRef.current = ws;
 
       ws.onopen = () => {
-        console.log(`Direct Kline WebSocket connection established for ${token} with ${period.binanceInterval} interval. ✅`);
+        console.log(
+          `Direct Kline WebSocket connection established for ${token} with ${period.binanceInterval} interval. ✅`,
+        );
       };
 
       ws.onmessage = (event) => {
@@ -642,19 +663,19 @@ function TestChart(props: IProps) {
             grid: {
               horzLines: {
                 visible: true,
-                color: '#2A2A2A',
+                color: "#2A2A2A",
                 style: 1,
               },
               vertLines: {
                 visible: true,
-                color: '#2A2A2A',
+                color: "#2A2A2A",
                 style: 1,
               },
             },
             rightPriceScale: {
               visible: true,
-              borderColor: 'transparent',
-              textColor: '#666',
+              borderColor: "transparent",
+              textColor: "#666",
             },
             leftPriceScale: {
               visible: false,
@@ -688,9 +709,9 @@ function TestChart(props: IProps) {
           </RenderIf>
 
           <RenderIf condition={isCandleStick}>
-            <CandlestickSeries 
-              ref={candleSeriesRef} 
-              data={filteredData as CandlestickData[]} 
+            <CandlestickSeries
+              ref={candleSeriesRef}
+              data={filteredData as CandlestickData[]}
               reactive
               options={{
                 upColor: chartColors.upColor,
@@ -702,7 +723,7 @@ function TestChart(props: IProps) {
               }}
             />
           </RenderIf>
-          
+
           <TimeScale
             ref={timeScaleRef}
             options={{
@@ -714,7 +735,7 @@ function TestChart(props: IProps) {
                 const range = timeScaleRef.current?.api()?.getVisibleRange();
                 const rangeDuration = Number(range?.to) - Number(range?.from);
                 // Enhanced formatting untuk daily period
-                if (selectedPeriod === '1D') {
+                if (selectedPeriod === "1D") {
                   return date.toLocaleTimeString("en-US", {
                     hour: "2-digit",
                     minute: "2-digit",
@@ -757,14 +778,14 @@ function TestChart(props: IProps) {
             <TimeScaleFitContentTrigger deps={[filteredData.length, selectedPeriod]} />
           </TimeScale>
         </Chart>
-        
+
         <div
           ref={tooltipRef}
           className="pointer-events-none absolute top-0 left-0 z-[9] overflow-visible whitespace-nowrap"
-          style={{ 
-            display: 'none',
+          style={{
+            display: "none",
             width: `${toolTipWidth}px`,
-            height: `${toolTipHeight}px`
+            height: `${toolTipHeight}px`,
           }}
         />
         <AnimatePresence>

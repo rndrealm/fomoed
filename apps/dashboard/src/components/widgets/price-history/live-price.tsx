@@ -21,13 +21,13 @@ export function LivePrice(props: IProps) {
 
   // Fetch real-time price for current price display
   const { data: price } = useFetchBinanceTokenPrice(token, location?.country);
-  
+
   // Fetch historical data for percentage calculation
   const { data: historicalData = [] } = useFetchBinancePriceData(
-    `${token}USDT`, 
-    period?.binanceInterval, 
-    1000, 
-    location?.country
+    `${token}USDT`,
+    period?.binanceInterval,
+    1000,
+    location?.country,
   );
 
   const hasLivePrice = useRef(false);
@@ -77,7 +77,7 @@ export function LivePrice(props: IProps) {
     }
 
     const cutoff = cutoffDate.getTime();
-    return historicalData.filter(d => (d.time as number) * 1000 >= cutoff);
+    return historicalData.filter((d) => (d.time as number) * 1000 >= cutoff);
   }, [historicalData, selectedPeriod]);
 
   // Calculate percentage change based on filtered historical data
@@ -86,9 +86,9 @@ export function LivePrice(props: IProps) {
 
     const currentPrice = parseFloat(tokenPrice);
     const startPrice = (filteredHistoricalData[0] as any)?.value || (filteredHistoricalData[0] as any)?.close;
-    
+
     if (!startPrice || startPrice <= 0) return 0;
-    
+
     return ((currentPrice - startPrice) / startPrice) * 100;
   }, [filteredHistoricalData, tokenPrice]);
 
@@ -124,7 +124,8 @@ export function LivePrice(props: IProps) {
 
     const connectEventSourceProxy = () => {
       console.log("Primary Ticker WebSocket failed. Attempting fallback to EventSource proxy...");
-      const eventSource = new EventSource(`/api/websocket-proxy?token=${token}&streamType=ticker`);
+      const eventSource = new EventSource(`https://binance.fomoed.io/stream?token=${token}&streamType=ticker`);
+      // const eventSource = new EventSource(`/api/websocket-proxy?token=${token}&streamType=ticker`);
       eventSourceRef.current = eventSource;
 
       eventSource.onmessage = (event) => {
@@ -146,9 +147,10 @@ export function LivePrice(props: IProps) {
     const connectWebSocket = () => {
       const lowerToken = token.toLowerCase();
       const streams = `${lowerToken}usdt@trade/${lowerToken}usdt@miniTicker`;
-      const endpoint = location.country === "US"
-        ? `wss://stream.binance.us:9443/stream?streams=${streams}`
-        : `wss://stream.binance.com:9443/stream?streams=${streams}`;
+      const endpoint =
+        location.country === "US"
+          ? `wss://stream.binance.us:9443/stream?streams=${streams}`
+          : `wss://stream.binance.com:9443/stream?streams=${streams}`;
 
       const ws = new WebSocket(endpoint);
       wsRef.current = ws;
@@ -205,9 +207,11 @@ export function LivePrice(props: IProps) {
           <span className="text-[#AFAFAF] text-xl">$</span>
           {tokenPrice ? formatPriceSignificant(tokenPrice) : "..."}
         </h2>
-        <p className={`text-[13px] leading-[1.25] font-medium ${
-          percentChange >= 0 ? 'text-[#00AF58]' : 'text-[#FF8970]'
-        }`}>
+        <p
+          className={`text-[13px] leading-[1.25] font-medium ${
+            percentChange >= 0 ? "text-[#00AF58]" : "text-[#FF8970]"
+          }`}
+        >
           {`${percentChange > 0 ? "+" : ""}` + percentChange.toFixed(2) + "%"}
         </p>
       </div>
