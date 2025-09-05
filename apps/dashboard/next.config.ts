@@ -22,7 +22,25 @@ const nextConfig: NextConfig = {
         ],
       },
       {
+        source: "/auth", // applies only to /auth/*
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "no-store, max-age=0", // disable caching
+          },
+        ],
+      },
+      {
         source: "/auth/callback", // applies only to /auth/login
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "no-store, max-age=0", // disable caching
+          },
+        ],
+      },
+      {
+        source: "/auth/confirm", // applies only to /auth/login
         headers: [
           {
             key: "Cache-Control",

@@ -48,7 +48,7 @@ const SignupForm = () => {
   const onSubmit = async (_values: InitialValues) => {
     try {
       setIsLoading(true);
-      const retUser = await signUpNewUser(_values, fromUrl || undefined);
+      const retUser = await signUpNewUser(_values, fromUrl);
       if (retUser.success) {
         track("signup", {
           username: _values.username,
@@ -151,9 +151,7 @@ const SignupForm = () => {
           <FormBottomDivider />
         </div>
         <FormBottomLink
-          href={
-            fromUrl ? `${AppRoutes.auth.login.path}?from=${encodeURIComponent(fromUrl)}` : AppRoutes.auth.login.path
-          }
+          href={fromUrl ? `${AppRoutes.auth.login.path}?from=${fromUrl}` : AppRoutes.auth.login.path}
           infoText="Already on Fomoed?"
           linkText="Sign In"
         />
