@@ -72,7 +72,7 @@ const TradingEconomicsWidget = (props: IProps) => {
 
   return (
     <WidgetWrapper
-      title={"Economic Calendar"}
+      title={"US Economic Calendar"}
       widget={widget}
       handleLearnMore={() => setShowInfo(true)}
       className="bg-neutral-900 text-white"

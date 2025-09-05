@@ -33,14 +33,18 @@ export function LoginForm() {
   // Get the next parameter for redirect after login
   const nextUrl = searchParams.get("next");
   const fromUrl = searchParams.get("from");
+  const redirectUrl = searchParams.get("redirectUrl");
 
   const onSubmit = async (_values: InitialValues) => {
     try {
       setIsLoading(true);
       const retUser = await loginUser(_values);
       if (retUser.success) {
-        // Redirect to next URL if available, otherwise to dashboard
-        if (fromUrl === "marketing") {
+        // This is the master redirect method (it redirects to a full url so we don't have to worry about env). I'll keep the rest for compatibility until all envs are synced across products
+        if (redirectUrl) {
+          window.location.href = redirectUrl;
+        } else if (fromUrl === "marketing") {
+          // Redirect to next URL if available, otherwise to dashboard
           const marketingUrl = process.env.NEXT_PUBLIC_MARKETING_APP_URL;
           window.location.href = marketingUrl || "https://marketing.fomoed.io";
         } else {
@@ -122,7 +126,11 @@ export function LoginForm() {
 
           <div className="relative flex flex-col gap-6">
             <div className="mt-3 flex justify-center">
-              <GoogleLogin nextUrl={nextUrl || undefined} fromUrl={fromUrl || undefined} />
+              <GoogleLogin
+                nextUrl={nextUrl || undefined}
+                fromUrl={fromUrl || undefined}
+                redirectUrl={redirectUrl || undefined}
+              />
             </div>
 
             <div className="flex items-center justify-center gap-[3px]">
@@ -138,7 +146,14 @@ export function LoginForm() {
         <div className="flex w-full">
           <FormBottomDivider />
         </div>
-        <FormBottomLink href={AppRoutes.auth.path} infoText="Don't have an account yet?" linkText="Sign Up" />
+        <FormBottomLink
+          // Persist redirectUrl across auth routes
+          href={
+            redirectUrl ? `${AppRoutes.auth.path}?redirectUrl=${encodeURIComponent(redirectUrl)}` : AppRoutes.auth.path
+          }
+          infoText="Don't have an account yet?"
+          linkText="Sign Up"
+        />
       </div>
     </div>
   );

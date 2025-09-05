@@ -19,7 +19,7 @@ import {
   SupportedPairsData,
   Ticker,
   WhaleTransactionResponse,
-  EconomicCalendarResponse
+  EconomicCalendarResponse,
 } from "./types";
 import { supportedExchangePairsToOptions } from "@/lib/utils";
 import { ExchangePairOption } from "@/charts/types";
@@ -27,23 +27,18 @@ import { formatLiquidationData, formatMergetLiquidMapData } from "./helpers";
 import axios from "axios";
 import { fetchFearAndGreed } from "./actions";
 
-export const useReadCfgiData = (
-  token?: string,
-  period?: string,
-  token_slug?: string,
-) => {
+export const useReadCfgiData = (token?: string, period?: string, token_slug?: string) => {
   const hash = ["cfgi", token, period, token_slug];
-  const { data, isPending, error, isSuccess, refetch, isLoading, isFetching } =
-    useQuery<CfgiDataResponse[]>({
-      queryKey: hash,
-      queryFn: async () => {
-        const response = await api.get({
-          url: `/api/cfgi?token=${token}&period=${period}&values=1200&token_slug=${token_slug}`,
-        });
-        return response.data;
-      },
-      enabled: !!token && !!period && !!token_slug,
-    });
+  const { data, isPending, error, isSuccess, refetch, isLoading, isFetching } = useQuery<CfgiDataResponse[]>({
+    queryKey: hash,
+    queryFn: async () => {
+      const response = await api.get({
+        url: `/api/cfgi?token=${token}&period=${period}&values=1200&token_slug=${token_slug}`,
+      });
+      return response.data;
+    },
+    enabled: !!token && !!period && !!token_slug,
+  });
   return {
     data,
     isPending,
@@ -68,21 +63,23 @@ export const useReadCoinList = (summary = false) => {
     refetchOnWindowFocus: summary ? "always" : false,
   });
 
-  let returnData = data?.map((coin) => {
-    return {
-      price: coin.price,
-      priceChange: coin.priceChange1d,
-      marketCap: coin.marketCap,
-      volume: coin.volume,
-      icon: coin.icon,
-      symbol: coin.symbol,
-      name: coin.name,
-      color: undefined, // CoinStatsTokenInfo does not include a color field
-      slug: coin.id,
-      is_free: coin.id === "bitcoin" || coin.id === "ethereum",
-      explorer: coin.explorers,
-    };
-  });
+  let returnData = data
+    ?.filter((coin) => !coin.symbol.startsWith("USD")) // Filter out stablecoins
+    .map((coin) => {
+      return {
+        price: coin.price,
+        priceChange: coin.priceChange1d,
+        marketCap: coin.marketCap,
+        volume: coin.volume,
+        icon: coin.icon,
+        symbol: coin.symbol,
+        name: coin.name,
+        color: undefined, // CoinStatsTokenInfo does not include a color field
+        slug: coin.id,
+        is_free: coin.id === "bitcoin" || coin.id === "ethereum",
+        explorer: coin.explorers,
+      };
+    });
 
   if (summary) {
     returnData = returnData?.sort((a, b) => b.priceChange - a.priceChange);
@@ -94,6 +91,7 @@ export const useReadCoinList = (summary = false) => {
     error,
   };
 };
+
 export const useReadCoinListDep = (summary = false) => {
   const hash = ["coin-list-dep"];
   const { data, isPending, error, isSuccess } = useQuery({
@@ -167,30 +165,17 @@ export const useFetchLiquidMapData = (
   baseAsset?: string,
   quoteAsset?: string,
 ) => {
-  const hash = [
-    "get-liquid-map",
-    timeframe,
-    exchange,
-    instrumentId,
-    baseAsset,
-    quoteAsset,
-  ];
-  const { data, isPending, error, isSuccess, refetch, isFetching } =
-    useQuery<LiquidMapDataResponse>({
-      queryKey: hash,
-      queryFn: async () => {
-        const response = await api.get({
-          url: `/api/liq-map?timeframe=${timeframe}&exchange=${exchange}&instrumentId=${instrumentId}&baseAsset=${baseAsset}&quoteAsset=${quoteAsset}`,
-        });
-        return response.data;
-      },
-      enabled:
-        !!timeframe &&
-        !!exchange &&
-        !!instrumentId &&
-        !!baseAsset &&
-        !!quoteAsset,
-    });
+  const hash = ["get-liquid-map", timeframe, exchange, instrumentId, baseAsset, quoteAsset];
+  const { data, isPending, error, isSuccess, refetch, isFetching } = useQuery<LiquidMapDataResponse>({
+    queryKey: hash,
+    queryFn: async () => {
+      const response = await api.get({
+        url: `/api/liq-map?timeframe=${timeframe}&exchange=${exchange}&instrumentId=${instrumentId}&baseAsset=${baseAsset}&quoteAsset=${quoteAsset}`,
+      });
+      return response.data;
+    },
+    enabled: !!timeframe && !!exchange && !!instrumentId && !!baseAsset && !!quoteAsset,
+  });
   let returnData: FormatLiquidationDataResult | undefined = undefined;
   if (data) {
     returnData = formatLiquidationData(data);
@@ -205,24 +190,19 @@ export const useFetchLiquidMapData = (
   };
 };
 
-export const useFetchLiquidHeatMapData = (
-  timeframe?: string,
-  exchange?: string,
-  symbol?: string,
-) => {
+export const useFetchLiquidHeatMapData = (timeframe?: string, exchange?: string, symbol?: string) => {
   const hash = ["get-liquid-heat-map", timeframe, exchange, symbol];
-  const { data, isPending, error, isSuccess, isFetching, refetch } =
-    useQuery<LiquidHeatmapResponse>({
-      queryKey: hash,
-      queryFn: async () => {
-        const response = await api.get({
-          url: `/api/liq-heatmap?timeframe=${timeframe}&exchange=${exchange}&symbol=${symbol}`,
-        });
-        console.log("response", response);
-        return response.data;
-      },
-      enabled: !!timeframe && !!exchange && !!symbol,
-    });
+  const { data, isPending, error, isSuccess, isFetching, refetch } = useQuery<LiquidHeatmapResponse>({
+    queryKey: hash,
+    queryFn: async () => {
+      const response = await api.get({
+        url: `/api/liq-heatmap?timeframe=${timeframe}&exchange=${exchange}&symbol=${symbol}`,
+      });
+      console.log("response", response);
+      return response.data;
+    },
+    enabled: !!timeframe && !!exchange && !!symbol,
+  });
 
   return {
     data,
@@ -233,22 +213,18 @@ export const useFetchLiquidHeatMapData = (
     refetch,
   };
 };
-export const useFetchLiquidDataMerged = (
-  timeframe?: string,
-  asset?: string,
-) => {
+export const useFetchLiquidDataMerged = (timeframe?: string, asset?: string) => {
   const hash = ["get-liquid-exchange-map", timeframe, asset];
-  const { data, isPending, error, isSuccess, isFetching, refetch } =
-    useQuery<LiquidExchangeResponse>({
-      queryKey: hash,
-      queryFn: async () => {
-        const response = await api.get({
-          url: `/api/ex-liq-map?timeframe=${timeframe}&asset=${asset}`,
-        });
-        return response.data;
-      },
-      enabled: !!timeframe && !!asset,
-    });
+  const { data, isPending, error, isSuccess, isFetching, refetch } = useQuery<LiquidExchangeResponse>({
+    queryKey: hash,
+    queryFn: async () => {
+      const response = await api.get({
+        url: `/api/ex-liq-map?timeframe=${timeframe}&asset=${asset}`,
+      });
+      return response.data;
+    },
+    enabled: !!timeframe && !!asset,
+  });
   let resData: FormatLiquidationDataResult | null = null;
   if (data) {
     resData = formatMergetLiquidMapData(data);
@@ -264,12 +240,7 @@ export const useFetchLiquidDataMerged = (
   };
 };
 
-export const useFetchBinancePriceData = (
-  symbol?: string,
-  interval?: string,
-  limit = 1000,
-  country = "",
-) => {
+export const useFetchBinancePriceData = (symbol?: string, interval?: string, limit = 1000, country = "") => {
   const isUS = country === "US";
   const queryKey = ["binance-price", symbol, interval, limit];
 
@@ -284,16 +255,14 @@ export const useFetchBinancePriceData = (
     enabled: !!symbol && !!interval,
   });
 
-  const transformedData: BinanceKlineFormatted[] | undefined = res.data?.map(
-    ([time, open, high, low, close]) => ({
-      time: Math.floor(time / 1000),
-      open: parseFloat(open),
-      high: parseFloat(high),
-      low: parseFloat(low),
-      close: parseFloat(close),
-      value: parseFloat(close),
-    }),
-  );
+  const transformedData: BinanceKlineFormatted[] | undefined = res.data?.map(([time, open, high, low, close]) => ({
+    time: Math.floor(time / 1000),
+    open: parseFloat(open),
+    high: parseFloat(high),
+    low: parseFloat(low),
+    close: parseFloat(close),
+    value: parseFloat(close),
+  }));
 
   return {
     ...res,
@@ -319,14 +288,10 @@ export const useFetchTopGainerLoser = (country = "") => {
   });
 
   const usdtPairs =
-    res.data
-      ?.filter((item) => item.symbol.endsWith("USDT"))
-      .filter((item) => parseFloat(item.quoteVolume) > 1000000) || [];
+    res.data?.filter((item) => item.symbol.endsWith("USDT")).filter((item) => parseFloat(item.quoteVolume) > 1000000) ||
+    [];
 
-  const sorted = (usdtPairs || []).sort(
-    (a, b) =>
-      parseFloat(b.priceChangePercent) - parseFloat(a.priceChangePercent),
-  );
+  const sorted = (usdtPairs || []).sort((a, b) => parseFloat(b.priceChangePercent) - parseFloat(a.priceChangePercent));
 
   const newData = {
     mover: sorted[0],
@@ -359,7 +324,7 @@ export const useFetchBinanceTokens = (country = "") => {
   const isUS = country === "US";
   const queryKey = ["binance-tokens"];
 
-  const res = useQuery< BinanceSymbolInfo[] >({
+  const res = useQuery<BinanceSymbolInfo[]>({
     queryKey,
     queryFn: async () => {
       const response = await api.get({
@@ -412,7 +377,6 @@ export const useFetchBinanceTokenPrice = (token?: string, country = "") => {
 
   return res;
 };
-
 
 export const useFetchCoinStatsToken = () => {
   const queryKey = ["coin-stats-tokens"];
@@ -495,24 +459,23 @@ export const useFetchCoinStatsScreener = () => {
 
 export const useFetchOrderbookDelta = (exchange: string, symbol: string, interval: string, range: string) => {
   const queryKey = ["get-orderbook-delta", exchange, symbol, interval, range];
-  const { data, isPending, error, isSuccess, isFetching, refetch } =
-    useQuery<OrderBookDeltaResponse>({
-      queryKey: queryKey,
-      queryFn: async () => {
-        const url = `/api/delta?exchange=${exchange}&symbol=${symbol}&interval=${interval}&range=${range}`;
-        
-        const response = await fetch(url);
+  const { data, isPending, error, isSuccess, isFetching, refetch } = useQuery<OrderBookDeltaResponse>({
+    queryKey: queryKey,
+    queryFn: async () => {
+      const url = `/api/delta?exchange=${exchange}&symbol=${symbol}&interval=${interval}&range=${range}`;
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || "Failed to fetch orderbook delta data");
-        }
-        
-        const responseData = await response.json();
-        return responseData; 
-      },
-      enabled: !!exchange && !!symbol && !!interval && !!range,
-    });
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to fetch orderbook delta data");
+      }
+
+      const responseData = await response.json();
+      return responseData;
+    },
+    enabled: !!exchange && !!symbol && !!interval && !!range,
+  });
 
   return {
     data,
@@ -522,27 +485,26 @@ export const useFetchOrderbookDelta = (exchange: string, symbol: string, interva
     isFetching,
     refetch,
   };
-}
+};
 
 export const useFetchWhaleTransactions = () => {
   const queryKey = ["get-whale-transactions"];
 
-  const { data, isPending, error, isSuccess, isFetching, refetch } =
-    useQuery<WhaleTransactionResponse>({
-      queryKey: queryKey,
-      queryFn: async () => {
-        const url = `/api/whale-transaction`;
-        
-        const response = await api.get({ url });
+  const { data, isPending, error, isSuccess, isFetching, refetch } = useQuery<WhaleTransactionResponse>({
+    queryKey: queryKey,
+    queryFn: async () => {
+      const url = `/api/whale-transaction`;
 
-        if (!response.data) {
-          throw new Error(response.error || "Failed to fetch whale transaction data");
-        }
-        
-        return response;
-      },
-      refetchInterval: 5000,
-    });
+      const response = await api.get({ url });
+
+      if (!response.data) {
+        throw new Error(response.error || "Failed to fetch whale transaction data");
+      }
+
+      return response;
+    },
+    refetchInterval: 5000,
+  });
 
   return {
     data: data?.data,
@@ -557,22 +519,21 @@ export const useFetchWhaleTransactions = () => {
 export const useFetchEconomicCalendar = () => {
   const queryKey = ["get-economic-calendar"];
 
-  const { data, isPending, error, isSuccess, isFetching, refetch } =
-    useQuery<EconomicCalendarResponse>({
-      queryKey: queryKey,
-      queryFn: async () => {
-        const url = `/api/economic-calendar`;
-        
-        const response = await api.get({ url });
+  const { data, isPending, error, isSuccess, isFetching, refetch } = useQuery<EconomicCalendarResponse>({
+    queryKey: queryKey,
+    queryFn: async () => {
+      const url = `/api/economic-calendar`;
 
-        if (!response.data) {
-          throw new Error(response.error || "Failed to fetch economic calendar data");
-        }
-        
-        return response;
-      },
-      refetchInterval: 300000,
-    });
+      const response = await api.get({ url });
+
+      if (!response.data) {
+        throw new Error(response.error || "Failed to fetch economic calendar data");
+      }
+
+      return response;
+    },
+    refetchInterval: 300000,
+  });
 
   return {
     data: data?.data,

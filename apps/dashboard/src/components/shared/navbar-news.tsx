@@ -55,8 +55,8 @@ const navLinks: INavLink[] = [
   {
     label: "Community",
     icon: <CommunityIcon />,
-    href: "Community",
-    disabled: true,
+    href: `${process.env.NEXT_PUBLIC_MARKETING_APP_URL}/kol/explore`,
+    disabled: false,
     beta: false,
     alpha: false,
     comingSoon: true,
@@ -129,11 +129,7 @@ export const NavbarNews = (props: IProps) => {
     <Fragment>
       {/* Top Nav */}
       <RenderIf condition={!!isNews}>
-        <NavigationTop
-          authUser={authUser}
-          isNews={isNews}
-          setIsSideMenuOpen={setIsSideMenuOpen}
-        />
+        <NavigationTop authUser={authUser} isNews={isNews} setIsSideMenuOpen={setIsSideMenuOpen} />
       </RenderIf>
 
       {/* Blur Layer */}
@@ -193,9 +189,7 @@ const NavigationTop = ({
           {isNews && (
             <div className="py-1">
               <div className="rounded-[4px] bg-[#1F8B4C] px-3 py-1">
-                <h2 className="font-inter text-xs font-normal text-white uppercase">
-                  News
-                </h2>
+                <h2 className="font-inter text-xs font-normal text-white uppercase">News</h2>
               </div>
             </div>
           )}
