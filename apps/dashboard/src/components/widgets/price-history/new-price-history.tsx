@@ -33,17 +33,17 @@ interface IOptionsDropdown {
 }
 
 export const dailyPricePeriodOptions = [
-  { value: "1m", label: "1M" },
-  { value: "3m", label: "3M" },
-  { value: "5m", label: "5M" },
-  { value: "15m", label: "15M" },
-  { value: "30m", label: "30M" },
-  { value: "1h", label: "1H" },
-  { value: "2h", label: "2H" },
-  { value: "4h", label: "4H" },
-  { value: "6h", label: "6H" },
-  { value: "8h", label: "8H" },
-  { value: "12h", label: "12H" },
+  { value: "1m", label: "1m" },
+  { value: "3m", label: "3m" },
+  { value: "5m", label: "5m" },
+  { value: "15m", label: "15m" },
+  { value: "30m", label: "30m" },
+  { value: "1h", label: "1h" },
+  { value: "2h", label: "2h" },
+  { value: "4h", label: "4h" },
+  { value: "6h", label: "6h" },
+  { value: "8h", label: "8h" },
+  { value: "12h", label: "12h" },
 ];
 
 // Time periods configuration

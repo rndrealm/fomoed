@@ -133,6 +133,7 @@ export const useReadSantimentVolume = (props: ReadSantimentVolumeProps) => {
       return response?.data as any;
     },
     enabled: !!auth_token,
+    refetchInterval: 5 * 60 * 1000
   });
 
   return {
@@ -168,6 +169,7 @@ export const useReadSantimentMarketCap = (props: ReadSantimentMarketCapProps) =>
       return response?.data as any;
     },
     enabled: !!auth_token,
+    refetchInterval: 5 * 60 * 1000
   });
 
   return {
