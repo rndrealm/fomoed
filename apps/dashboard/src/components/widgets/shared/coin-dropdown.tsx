@@ -97,7 +97,7 @@ const CoinDropdown = (props: ICoinDropdownProps) => {
                     setOpen(false);
                     setValue(item.symbol);
                   }}
-                  disabled={!userPlans?.hasPlan && item.symbol !== "BTC" && item.symbol !== "ETH"}
+                  // disabled={!userPlans?.hasPlan && item.symbol !== "BTC" && item.symbol !== "ETH"}
                 >
                   <div className="flex items-center gap-2">
                     <div className="h-[20px] w-[20px]">

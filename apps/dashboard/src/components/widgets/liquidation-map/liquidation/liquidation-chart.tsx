@@ -1,13 +1,12 @@
-import React, { useEffect, useRef, useCallback } from "react";
+import React, { useEffect, useRef, useCallback, memo } from "react";
 import Chart from "chart.js/auto";
-
 import "chartjs-adapter-dayjs-4/dist/chartjs-adapter-dayjs-4.esm";
 import type { ZoomPluginOptions } from "chartjs-plugin-zoom/types/options";
 import { commaFormatNumber, registerChartPluginZoomInBrowser } from "@/charts/helpers";
 import { FormatLiquidationDataResult } from "@/services/queries/charts/types";
-
 import { CrosshairPluginConfig, CrosshairPlugin } from "@/charts/plugins/CrosshairPlugin";
-import { humanizeNumber } from "@/lib/utils";
+import { humanizeNumber, cn } from "@/lib/utils";
+import { FullscreenableContainer } from "../../shared";
 
 Chart.register(CrosshairPlugin);
 
@@ -15,6 +14,8 @@ interface ICfgiCard {
   liquidationData: FormatLiquidationDataResult;
   viewOption?: string;
   token?: string;
+  isFullscreen: boolean;
+  onAnimationComplete?: () => void;
 }
 
 const getScaleFormatter = (maxValue: number) => {
@@ -36,13 +37,11 @@ const getScaleFormatter = (maxValue: number) => {
   }
 };
 
-const LiquidationChart = (props: ICfgiCard) => {
-  useEffect(() => {
-    registerChartPluginZoomInBrowser();
-  }, []);
-  const { liquidationData, viewOption, token } = props;
+const LiquidationChart = memo((props: ICfgiCard) => {
+  const { liquidationData, viewOption, token, isFullscreen, onAnimationComplete } = props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
+  const zoomStateRef = useRef<{ min?: number; max?: number } | null>(null);
 
   const chart_init = useCallback(
     (ctx: CanvasRenderingContext2D) => {
@@ -57,7 +56,6 @@ const LiquidationChart = (props: ICfgiCard) => {
       const minPricePoint = liquidationData.minPrice;
       const maxPricePoint = liquidationData.maxPrice;
       const dynamicMinRange = (maxPricePoint - minPricePoint) * 0.01 || 0.001;
-
       const maxShownCumulativeValue = liquidationData.maxCumulativeValue * 1.15;
 
       const zoomPluginOptions: ZoomPluginOptions = {
@@ -70,14 +68,32 @@ const LiquidationChart = (props: ICfgiCard) => {
             enabled: true,
           },
           mode: "x",
+          onZoom: ({ chart }) => {
+            const xScale = chart.scales.x;
+            zoomStateRef.current = {
+              min: xScale.min,
+              max: xScale.max,
+            };
+          },
         },
         pan: {
           enabled: true,
           mode: "x",
           threshold: 0,
+          onPan: ({ chart }) => {
+            const xScale = chart.scales.x;
+            zoomStateRef.current = {
+              min: xScale.min,
+              max: xScale.max,
+            };
+          },
         },
         limits: {
-          x: { minRange: dynamicMinRange, min: minPricePoint, max: maxPricePoint },
+          x: {
+            minRange: dynamicMinRange,
+            min: minPricePoint,
+            max: maxPricePoint,
+          },
           y: { min: 0 },
           cumulative: { min: 0, max: maxShownCumulativeValue },
         },
@@ -111,7 +127,6 @@ const LiquidationChart = (props: ICfgiCard) => {
 
       const isAltcoin = token && token !== "BTC" && token !== "ETH";
 
-      // Define the custom plugin to draw the price indicator
       const customPriceIndicatorPlugin = {
         id: "customPriceIndicator",
         afterDraw: (chart: Chart) => {
@@ -144,7 +159,7 @@ const LiquidationChart = (props: ICfgiCard) => {
             ctx.fill();
 
             // --- Draw Label ---
-            const labelText = `Current Price: ${commaFormatNumber(liquidationData.currentPrice)}`;
+            const labelText = `Current Price: $${commaFormatNumber(liquidationData.currentPrice)}`;
             ctx.font = "bold 12px sans-serif";
             const textMetrics = ctx.measureText(labelText);
             const textWidth = textMetrics.width;
@@ -183,8 +198,8 @@ const LiquidationChart = (props: ICfgiCard) => {
                 backgroundColor: liquidationData.liqBars.map((i) => i.color),
                 xAxisID: "x",
                 yAxisID: "y",
-                // barPercentage: isAltcoin ? 1.0 : undefined,
-                // categoryPercentage: isAltcoin ? 1.0 : undefined,
+                barPercentage: 1.0,
+                categoryPercentage: 0.9, 
               },
               {
                 type: "line",
@@ -224,6 +239,8 @@ const LiquidationChart = (props: ICfgiCard) => {
             animation: false,
             responsive: true,
             maintainAspectRatio: false,
+            onResize: (chart) => {
+            },
             scales: {
               x: {
                 type: "linear",
@@ -240,8 +257,9 @@ const LiquidationChart = (props: ICfgiCard) => {
                 grid: {
                   display: false,
                 },
-                min: liquidationData.minPrice,
-                max: liquidationData.maxPrice,
+                // Restore zoom state if it exists, otherwise use default range
+                min: zoomStateRef.current?.min !== undefined ? zoomStateRef.current.min : liquidationData.minPrice,
+                max: zoomStateRef.current?.max !== undefined ? zoomStateRef.current.max : liquidationData.maxPrice,
                 offset: false,
               },
               y: {
@@ -257,7 +275,7 @@ const LiquidationChart = (props: ICfgiCard) => {
                   callback: (val: any) => {
                     const maxBarValue = Math.max(...liquidationData.liqBars.map((bar) => bar.y));
                     const formatter = getScaleFormatter(maxBarValue);
-                    return `${Math.round(val / formatter.divisor)}${formatter.suffix}`;
+                    return `$${Math.round(val / formatter.divisor)}${formatter.suffix}`;
                   },
                 },
               },
@@ -275,7 +293,7 @@ const LiquidationChart = (props: ICfgiCard) => {
                 ticks: {
                   callback: (val: any) => {
                     const formatter = getScaleFormatter(liquidationData.maxCumulativeValue);
-                    return `${Math.round(val / formatter.divisor)}${formatter.suffix}`;
+                    return `$${Math.round(val / formatter.divisor)}${formatter.suffix}`;
                   },
                 },
               },
@@ -304,17 +322,57 @@ const LiquidationChart = (props: ICfgiCard) => {
   );
 
   useEffect(() => {
-    if (!canvasRef.current) return;
-    const ctx = canvasRef.current?.getContext("2d");
-    if (!ctx) return;
-    chart_init(ctx);
+    const handleVisibilityChange = () => {
+      if (!document.hidden && chartRef.current && zoomStateRef.current) {
+        setTimeout(() => {
+          if (chartRef.current && zoomStateRef.current) {
+            const chart = chartRef.current;
+            if (zoomStateRef.current.min !== undefined && zoomStateRef.current.max !== undefined) {
+              chart.zoomScale(
+                "x",
+                {
+                  min: zoomStateRef.current.min,
+                  max: zoomStateRef.current.max,
+                },
+                "none",
+              );
+            }
+          }
+        }, 100);
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    zoomStateRef.current = null;
+  }, [token]);
+
+  useEffect(() => {
+    const initChart = async () => {
+      await registerChartPluginZoomInBrowser();
+      if (!canvasRef.current) return;
+      const ctx = canvasRef.current?.getContext("2d");
+      if (!ctx) return;
+      chart_init(ctx);
+    };
+
+    initChart();
   }, [liquidationData, viewOption, chart_init, token]);
 
   return (
-    <div className="relative h-full w-full pb-1">
-      <canvas width="400" height={0} ref={canvasRef}></canvas>
-    </div>
+    <FullscreenableContainer isFullscreen={isFullscreen} onAnimationComplete={onAnimationComplete}>
+      <div className={cn("relative h-full w-full pb-1", isFullscreen && "pt-[50px]")}>
+        <canvas width="400" height={0} ref={canvasRef}></canvas>
+      </div>
+    </FullscreenableContainer>
   );
-};
+});
+
+LiquidationChart.displayName = "LiquidationChart";
 
 export default LiquidationChart;

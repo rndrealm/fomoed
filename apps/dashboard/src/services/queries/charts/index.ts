@@ -20,10 +20,12 @@ import {
   Ticker,
   WhaleTransactionResponse,
   EconomicCalendarResponse,
+  FormatLeverageLiquidationDataResult,
+  LeverageLiquidationResponse
 } from "./types";
 import { supportedExchangePairsToOptions } from "@/lib/utils";
 import { ExchangePairOption } from "@/charts/types";
-import { formatLiquidationData, formatMergetLiquidMapData } from "./helpers";
+import { formatLiquidationData, formatMergetLiquidMapData, formatLeverageLiquidationData } from "./helpers";
 import axios from "axios";
 import { fetchFearAndGreed } from "./actions";
 
@@ -211,11 +213,11 @@ export const useFetchLiquidHeatMapData = (timeframe?: string, exchange?: string,
     error,
     isFetching,
     refetch,
-  };
-};
+  }
+}
 export const useFetchLiquidDataMerged = (timeframe?: string, asset?: string) => {
-  const hash = ["get-liquid-exchange-map", timeframe, asset];
-  const { data, isPending, error, isSuccess, isFetching, refetch } = useQuery<LiquidExchangeResponse>({
+  const hash = ["get-liquid-leverage-map", timeframe, asset];
+  const { data, isPending, error, isSuccess, isFetching, refetch } = useQuery<LeverageLiquidationResponse>({
     queryKey: hash,
     queryFn: async () => {
       const response = await api.get({
@@ -225,9 +227,10 @@ export const useFetchLiquidDataMerged = (timeframe?: string, asset?: string) => 
     },
     enabled: !!timeframe && !!asset,
   });
-  let resData: FormatLiquidationDataResult | null = null;
+  
+  let resData: FormatLeverageLiquidationDataResult | null = null;
   if (data) {
-    resData = formatMergetLiquidMapData(data);
+    resData = formatLeverageLiquidationData(data);
   }
 
   return {

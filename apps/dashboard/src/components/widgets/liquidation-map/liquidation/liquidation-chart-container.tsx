@@ -1,12 +1,13 @@
-import React, { useEffect, useRef, useCallback, memo } from "react";
+import React, { useEffect, useRef, useCallback } from "react";
 import Chart from "chart.js/auto";
+
 import "chartjs-adapter-dayjs-4/dist/chartjs-adapter-dayjs-4.esm";
 import type { ZoomPluginOptions } from "chartjs-plugin-zoom/types/options";
 import { commaFormatNumber, registerChartPluginZoomInBrowser } from "@/charts/helpers";
 import { FormatLiquidationDataResult } from "@/services/queries/charts/types";
+
 import { CrosshairPluginConfig, CrosshairPlugin } from "@/charts/plugins/CrosshairPlugin";
-import { humanizeNumber, cn } from "@/lib/utils";
-import { FullscreenableContainer } from "../../shared";
+import { humanizeNumber } from "@/lib/utils";
 
 Chart.register(CrosshairPlugin);
 
@@ -14,17 +15,10 @@ interface ICfgiCard {
   liquidationData: FormatLiquidationDataResult;
   viewOption?: string;
   token?: string;
-  isFullscreen: boolean;
-  onAnimationComplete?: () => void;
 }
 
 const getScaleFormatter = (maxValue: number) => {
-  if (maxValue >= 1000000000) {
-    return {
-      divisor: 1000000000,
-      suffix: "B",
-    };
-  } else if (maxValue >= 1000000) {
+  if (maxValue >= 1000000) {
     return {
       divisor: 1000000,
       suffix: "M",
@@ -42,22 +36,13 @@ const getScaleFormatter = (maxValue: number) => {
   }
 };
 
-const LiquidationChart = memo((props: ICfgiCard) => {
-  const { liquidationData, viewOption, token, isFullscreen, onAnimationComplete } = props;
+const LiquidationChart = (props: ICfgiCard) => {
+  useEffect(() => {
+    registerChartPluginZoomInBrowser();
+  }, []);
+  const { liquidationData, viewOption, token } = props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
-  const zoomStateRef = useRef<{ min?: number; max?: number } | null>(null);
-
-  useEffect(() => {
-    if (liquidationData?.liqBars) {
-      console.log(" liquidation bars count:", liquidationData.liqBars.length);
-      console.log(" bars sample:", liquidationData.liqBars.slice(0, 10));
-      console.log(" price range:", {
-        min: liquidationData.minPrice,
-        max: liquidationData.maxPrice,
-      });
-    }
-  }, [liquidationData, token]);
 
   const chart_init = useCallback(
     (ctx: CanvasRenderingContext2D) => {
@@ -71,15 +56,9 @@ const LiquidationChart = memo((props: ICfgiCard) => {
 
       const minPricePoint = liquidationData.minPrice;
       const maxPricePoint = liquidationData.maxPrice;
-      const priceRange = maxPricePoint - minPricePoint;
-
-      const dynamicMinRange = Math.max(priceRange * 0.05, priceRange / (liquidationData.liqBars.length * 2));
+      const dynamicMinRange = (maxPricePoint - minPricePoint) * 0.01 || 0.001;
 
       const maxShownCumulativeValue = liquidationData.maxCumulativeValue * 1.15;
-
-      const pricePadding = priceRange * 0.02;
-      const adjustedMinPrice = Math.max(0, minPricePoint - pricePadding);
-      const adjustedMaxPrice = maxPricePoint + pricePadding;
 
       const zoomPluginOptions: ZoomPluginOptions = {
         zoom: {
@@ -91,13 +70,6 @@ const LiquidationChart = memo((props: ICfgiCard) => {
             enabled: true,
           },
           mode: "x",
-          onZoom: ({ chart }) => {
-            const xScale = chart.scales.x;
-            zoomStateRef.current = {
-              min: xScale.min,
-              max: xScale.max,
-            };
-          },
         },
         pan: {
           enabled: true,
@@ -105,11 +77,7 @@ const LiquidationChart = memo((props: ICfgiCard) => {
           threshold: 0,
         },
         limits: {
-          x: {
-            minRange: dynamicMinRange,
-            min: minPricePoint,
-            max: maxPricePoint,
-          },
+          x: { minRange: dynamicMinRange, min: minPricePoint, max: maxPricePoint },
           y: { min: 0 },
           cumulative: { min: 0, max: maxShownCumulativeValue },
         },
@@ -143,22 +111,17 @@ const LiquidationChart = memo((props: ICfgiCard) => {
 
       const isAltcoin = token && token !== "BTC" && token !== "ETH";
 
+      // Define the custom plugin to draw the price indicator
       const customPriceIndicatorPlugin = {
         id: "customPriceIndicator",
         afterDraw: (chart: Chart) => {
           if (liquidationData.currentPrice !== null) {
             const {
               ctx,
-              chartArea: { top, bottom, left, right },
+              chartArea: { top, bottom },
               scales: { x },
             } = chart;
-
-            const currentPriceInRange = liquidationData.currentPrice >= x.min && liquidationData.currentPrice <= x.max;
-            if (!currentPriceInRange) return;
-
             const xCoord = x.getPixelForValue(liquidationData.currentPrice);
-
-            if (xCoord < left || xCoord > right) return;
 
             // --- Draw Dashed Line ---
             ctx.save();
@@ -181,7 +144,7 @@ const LiquidationChart = memo((props: ICfgiCard) => {
             ctx.fill();
 
             // --- Draw Label ---
-            const labelText = `Current Price: $${commaFormatNumber(liquidationData.currentPrice)}`;
+            const labelText = `Current Price: ${commaFormatNumber(liquidationData.currentPrice)}`;
             ctx.font = "bold 12px sans-serif";
             const textMetrics = ctx.measureText(labelText);
             const textWidth = textMetrics.width;
@@ -190,23 +153,19 @@ const LiquidationChart = memo((props: ICfgiCard) => {
             // Label box properties
             const padding = { x: 5, y: 4 };
             const boxWidth = textWidth + padding.x * 2;
-            const boxHeight = textHeight + padding.y * 2;
+            const boxHeight = textHeight + padding.y * 0;
             const boxY = top - boxHeight - 10;
-            let boxX = xCoord - boxWidth / 2;
-
-            // Ensure label stays within chart bounds
-            if (boxX < left) boxX = left;
-            if (boxX + boxWidth > right) boxX = right - boxWidth;
+            const boxX = xCoord - boxWidth / 2;
 
             // Draw label background
-            ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+            ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
             ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
 
             // Draw label text
             ctx.fillStyle = "white";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
-            ctx.fillText(labelText, boxX + boxWidth / 2, boxY + boxHeight / 2);
+            ctx.fillText(labelText, xCoord, boxY + boxHeight / 2);
           }
         },
       };
@@ -214,7 +173,6 @@ const LiquidationChart = memo((props: ICfgiCard) => {
       chartRef.current?.destroy();
 
       if (canvasRef.current) {
-        console.log("COLOR: " + liquidationData.liqBars[0]?.color);
         chartRef.current = new Chart(canvasRef.current, {
           data: {
             datasets: [
@@ -225,9 +183,8 @@ const LiquidationChart = memo((props: ICfgiCard) => {
                 backgroundColor: liquidationData.liqBars.map((i) => i.color),
                 xAxisID: "x",
                 yAxisID: "y",
-                barPercentage: 0.85,
-                categoryPercentage: 1.0,
-                stack: "liquidation-bars",
+                // barPercentage: isAltcoin ? 1.0 : undefined,
+                // categoryPercentage: isAltcoin ? 1.0 : undefined,
               },
               {
                 type: "line",
@@ -267,15 +224,13 @@ const LiquidationChart = memo((props: ICfgiCard) => {
             animation: false,
             responsive: true,
             maintainAspectRatio: false,
-            onResize: (chart) => {},
             scales: {
               x: {
                 type: "linear",
-                stacked: true,
                 ticks: {
                   callback: (val: any) => {
                     const formatter = getScaleFormatter(liquidationData.maxPrice);
-                    if (formatter.suffix === "K" || formatter.suffix === "M" || formatter.suffix === "B") {
+                    if (formatter.suffix === "K" || formatter.suffix === "M") {
                       return Math.round(val / formatter.divisor) + formatter.suffix;
                     } else {
                       return (val / formatter.divisor).toFixed(3) + formatter.suffix;
@@ -285,13 +240,12 @@ const LiquidationChart = memo((props: ICfgiCard) => {
                 grid: {
                   display: false,
                 },
-                min: zoomStateRef.current?.min !== undefined ? zoomStateRef.current.min : adjustedMinPrice,
-                max: zoomStateRef.current?.max !== undefined ? zoomStateRef.current.max : adjustedMaxPrice,
+                min: liquidationData.minPrice,
+                max: liquidationData.maxPrice,
                 offset: false,
               },
               y: {
                 type: "linear",
-                stacked: true,
                 grid: {
                   color: "#fff1",
                 },
@@ -303,7 +257,7 @@ const LiquidationChart = memo((props: ICfgiCard) => {
                   callback: (val: any) => {
                     const maxBarValue = Math.max(...liquidationData.liqBars.map((bar) => bar.y));
                     const formatter = getScaleFormatter(maxBarValue);
-                    return `$${Math.round(val / formatter.divisor)}${formatter.suffix}`;
+                    return `${Math.round(val / formatter.divisor)}${formatter.suffix}`;
                   },
                 },
               },
@@ -321,7 +275,7 @@ const LiquidationChart = memo((props: ICfgiCard) => {
                 ticks: {
                   callback: (val: any) => {
                     const formatter = getScaleFormatter(liquidationData.maxCumulativeValue);
-                    return `$${Math.round(val / formatter.divisor)}${formatter.suffix}`;
+                    return `${Math.round(val / formatter.divisor)}${formatter.suffix}`;
                   },
                 },
               },
@@ -350,57 +304,17 @@ const LiquidationChart = memo((props: ICfgiCard) => {
   );
 
   useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (!document.hidden && chartRef.current) {
-        if (zoomStateRef.current && zoomStateRef.current.min !== undefined && zoomStateRef.current.max !== undefined) {
-          setTimeout(() => {
-            if (chartRef.current && zoomStateRef.current) {
-              const chart = chartRef.current;
-              chart.zoomScale(
-                "x",
-                {
-                  min: zoomStateRef.current.min!,
-                  max: zoomStateRef.current.max!,
-                },
-                "none",
-              );
-            }
-          }, 100);
-        }
-      }
-    };
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
-  }, []);
-
-  useEffect(() => {
-    zoomStateRef.current = null;
-  }, [token]);
-
-  useEffect(() => {
-    const initChart = async () => {
-      await registerChartPluginZoomInBrowser();
-      if (!canvasRef.current) return;
-      const ctx = canvasRef.current?.getContext("2d");
-      if (!ctx) return;
-      chart_init(ctx);
-    };
-
-    initChart();
+    if (!canvasRef.current) return;
+    const ctx = canvasRef.current?.getContext("2d");
+    if (!ctx) return;
+    chart_init(ctx);
   }, [liquidationData, viewOption, chart_init, token]);
 
   return (
-    <FullscreenableContainer isFullscreen={isFullscreen} onAnimationComplete={onAnimationComplete}>
-      <div className={cn("relative h-full w-full pb-1", isFullscreen && "pt-[50px]")}>
-        <canvas width="400" height={0} ref={canvasRef}></canvas>
-      </div>
-    </FullscreenableContainer>
+    <div className="relative h-full w-full pb-1">
+      <canvas width="400" height={0} ref={canvasRef}></canvas>
+    </div>
   );
-});
-
-LiquidationChart.displayName = "LiquidationChart";
+};
 
 export default LiquidationChart;

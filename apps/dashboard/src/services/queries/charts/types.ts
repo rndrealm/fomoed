@@ -106,6 +106,21 @@ export interface LiquidMapDataResponse {
   };
 }
 
+export interface LeverageLiquidationResponse {
+  currentPriceUsd: number;
+  combinedLiqData: Record<number, [number, number, number, null][]>;
+}
+
+export interface FormatLeverageLiquidationDataResult {
+  liqBars: LiquidationBar[];
+  currentPrice: number;
+  cumulativeLongLiqLeverage: { x: number; y: number }[];
+  cumulativeShortLiqLeverage: { x: number; y: number }[];
+  maxCumulativeValue: number;
+  minPrice: number;
+  maxPrice: number;
+}
+
 export type LiquidationBar = {
   x: number;
   y: number;

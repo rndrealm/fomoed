@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { now } from "lodash-es";
 
 const maxCacheAgeSeconds = 120;
+
 async function fetchPairMarkets(symbol: string) {
   const url = `https://open-api-v4.coinglass.com/api/futures/pairs-markets?symbol=${symbol}`;
   const options = {
@@ -70,7 +71,6 @@ async function fetchCoinglassLiqMap(range: string, exchange: string, symbol: str
   return data;
 }
 
-//! REQUEST HANDLER FOR /api/ex-liq-map
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -96,7 +96,7 @@ export async function GET(request: NextRequest) {
 
       if (ageSeconds < maxCacheAgeSeconds) {
         return NextResponse.json({
-          data: { currentPriceUsd, exLiqData: cached.data[0].data },
+          data: { currentPriceUsd, combinedLiqData: cached.data[0].data },
         });
       }
     }
@@ -111,26 +111,18 @@ export async function GET(request: NextRequest) {
 
     const aggregatedExchanges = ["Binance", "OKX", "Bybit"];
 
-    type ExName = string;
-    type TotalExLiqMap = Record<number, number>;
+    const combinedLiqData: Record<number, [number, number, number, null][]> = {};
 
-    const totalExLiq: Record<ExName, TotalExLiqMap> = {};
-
-    // Kep only Binance, OKX, Bybit
     for (const exchange of Object.keys(supportedFuturePairs)) {
       if (!aggregatedExchanges.includes(exchange)) {
         delete supportedFuturePairs[exchange];
-      } else {
-        totalExLiq[exchange] = {};
       }
     }
 
-    // Keep only instruments with requested asset
     for (const [exchange, instruments] of Object.entries(supportedFuturePairs)) {
       supportedFuturePairs[exchange] = instruments.filter((i) => i.base_asset === asset);
     }
 
-    // Replace the nested for loops with parallel requests
     const fetchPromises = [];
 
     for (const [exchange, instruments] of Object.entries(supportedFuturePairs)) {
@@ -150,36 +142,42 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Process all results at once
     const results = await Promise.all(fetchPromises);
 
-    // Process the results
     for (const result of results) {
       if (!result || !result.data) continue;
 
-      const { exchange, data } = result;
+      const { data } = result;
 
       for (const [price, liquidations] of Object.entries(data)) {
-        const roundedPrice = parseInt(price);
+        const numericPrice = parseFloat(price);
+        
+        if (numericPrice < currentPriceUsd * 0.1) {
+          continue;
+        }
 
-        // Assert type of liquidations before iterating
         if (Array.isArray(liquidations)) {
           for (const liquidation of liquidations as [number, number, number, null][]) {
-            const liqLevel = liquidation[1];
-            totalExLiq[exchange][roundedPrice] = (totalExLiq[exchange][roundedPrice] || 0) + liqLevel;
+            const [liquidationPrice, liquidationLevel, leverageRatio] = liquidation;
+            
+            const liqEntry: [number, number, number, null] = [liquidationPrice, liquidationLevel, leverageRatio, null];
+            
+            if (combinedLiqData[numericPrice]) {
+              combinedLiqData[numericPrice].push(liqEntry);
+            } else {
+              combinedLiqData[numericPrice] = [liqEntry];
+            }
           }
         }
       }
     }
 
-    // Cache retrieved data
-    await supabaseServer.from("exchangeLiqMapCache").upsert({ asset: cacheAssetId, data: totalExLiq });
+    await supabaseServer.from("exchangeLiqMapCache").upsert({ asset: cacheAssetId, data: combinedLiqData });
 
     return NextResponse.json({
-      data: { currentPriceUsd, exLiqData: totalExLiq },
+      data: { currentPriceUsd, combinedLiqData },
     });
   } catch (error) {
-    // Handle errors gracefully
     console.log("Error fetching liquidation data:", error);
     return NextResponse.json({ error: "Failed to fetch Liquidation data4" }, { status: 500 });
   }

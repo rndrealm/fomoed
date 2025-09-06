@@ -244,7 +244,7 @@ export const layoutOptionsMap = [
   },
   {
     id: 5,
-    name: "Exchange Liquidation Map",
+    name: "Aggregated Exchange Liquidation Map",
     slug: "exchange-liquidation-map",
     image: dashboard.cfgi2,
     category: "charts",
@@ -356,7 +356,7 @@ export const chartsMap = {
   "liquidation-map": {
     name: "Liquidation Map",
     extra: ["period", "token", "exchange-token"],
-    component: (widget: LayoutType["widgets"][0]) => <LiquidationWidget widget={widget} fullScreenButton />,
+    component: (widget: LayoutType["widgets"][0]) => <LiquidationWidget widget={widget} />,
   },
   "liquidation-heat-map": {
     name: "Liquidation Heat Map",
@@ -364,9 +364,9 @@ export const chartsMap = {
     component: (widget: LayoutType["widgets"][0]) => <LiquidationHeatmapWidget widget={widget} fullScreenButton />,
   },
   "exchange-liquidation-map": {
-    name: "Exchange Liquidation Map",
+    name: "Aggregated Exchange Liquidation Map",
     extra: ["period", "token", "exchange-token"],
-    component: (widget: LayoutType["widgets"][0]) => <LiquidationExchangeWidget widget={widget} fullScreenButton />,
+    component: (widget: LayoutType["widgets"][0]) => <LiquidationExchangeWidget widget={widget} />,
   },
   "token-news": {
     name: "Token News",
