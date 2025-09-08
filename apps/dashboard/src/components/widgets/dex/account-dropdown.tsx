@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import * as React from "react";
@@ -55,15 +54,9 @@ const AccountDropdown = (props: IAccountDropdownProps) => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-1 bg-[#161616] border border-[#141414] pl-1 pr-2 py-1 rounded-[10px]">
-          <WalletImage
-            icon={connections[0].connector.icon}
-            width={24}
-            height={24}
-          />
+          <WalletImage icon={connections[0]?.connector?.icon} width={24} height={24} />
           {/* <p className="font-medium text-xxs">{account?.displayBalance}</p> */}
-          <p className="text-[#4B4B4B] font-semibold text-sm pl-2 ">
-            {account?.displayName}
-          </p>
+          <p className="text-[#4B4B4B] font-semibold text-sm pl-2 ">{account?.displayName}</p>
           {/* <ChevronDown className="w-4 text-[#878787]" /> */}
         </button>
       </DropdownMenuTrigger>
@@ -76,19 +69,11 @@ const AccountDropdown = (props: IAccountDropdownProps) => {
           rel="noopener noreferrer"
         >
           <div className="flex items-center gap-1 ">
-            <WalletImage
-              icon={connections[0].connector.icon}
-              width={24}
-              height={24}
-            />
-            <h3 className="font-medium text-white text-ideal">
-              {connections[0]?.connector.name}
-            </h3>
+            <WalletImage icon={connections[0]?.connector?.icon} width={24} height={24} />
+            <h3 className="font-medium text-white text-ideal">{connections[0]?.connector?.name}</h3>
           </div>
           <div>
-            <p className="text-[#4B4B4B] text-sm  font-medium">
-              {account?.displayName}
-            </p>
+            <p className="text-[#4B4B4B] text-sm  font-medium">{account?.displayName}</p>
           </div>
         </Link>
         <div className="flex items-center gap-1 p-3">

@@ -1,6 +1,3 @@
-"use client";
-import { getDefaultConfig } from "@rainbow-me/rainbowkit";
-import { http } from "wagmi";
 import {
   mainnet,
   polygon,
@@ -20,14 +17,10 @@ import {
   scroll,
   zora,
   aurora,
-} from "wagmi/chains";
+} from "viem/chains";
 
-// Get projectId from https://cloud.walletconnect.com
-export const projectId = process.env.NEXT_PUBLIC_REOWN_PROJECT_ID;
+import { cookieStorage, createConfig, createStorage, http } from "wagmi";
 
-if (!projectId) throw new Error("Project ID is not defined");
-
-// Create wagmiConfig
 export const supportedChains = [
   mainnet,
   optimism,
@@ -48,13 +41,17 @@ export const supportedChains = [
   zora,
   aurora,
 ] as const;
-export const config = getDefaultConfig({
-  appName: "Fomoed",
-  projectId,
+
+console.log("supported chains number", supportedChains.length);
+
+export const config = createConfig({
   chains: supportedChains,
-  transports: supportedChains.reduce(
-    (obj, chain) => ({ ...obj, [chain.id]: http() }),
-    {}
-  ),
   ssr: true,
+  storage: createStorage({
+    storage: cookieStorage,
+  }),
+  transports: Object.fromEntries(supportedChains.map((chain) => [chain.id, http()])) as Record<
+    (typeof supportedChains)[number]["id"],
+    ReturnType<typeof http>
+  >,
 });
