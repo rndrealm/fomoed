@@ -12,6 +12,7 @@ import { AppRoutes } from "@/lib/routes";
 import { useRouter, useSearchParams } from "next/navigation";
 import { loginUser } from "@/services/queries/auth/server-actions";
 import { toast } from "sonner";
+import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().email("Please enter a valid email address").required("Please enter your email address"),
@@ -38,6 +39,10 @@ export function LoginForm() {
     try {
       setIsLoading(true);
       const retUser = await loginUser(_values);
+
+      const supabase = createSupabaseBrowserClient();
+      await supabase.auth.refreshSession();
+
       if (retUser.success) {
         // Redirect to next URL if available, otherwise to dashboard
         if (fromUrl === "marketing") {
