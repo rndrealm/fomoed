@@ -11,6 +11,7 @@ import * as THREE from "three";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { motion } from "motion/react";
 import Link from "next/link";
+import * as Sentry from "@sentry/nextjs";
 
 
 const content = {
@@ -21,7 +22,13 @@ const content = {
     label: "Reload Dashboard",
 };
 
-export default function NotFound() {
+export default function NotFound({
+    error
+}: {error: Error & { digest?: string }}) {
+    useEffect(() => {
+        Sentry.captureException(error)
+    }, [error])
+
     // return <ErrorComponent content={content} />;
     return <Error3DComponent />
 }
