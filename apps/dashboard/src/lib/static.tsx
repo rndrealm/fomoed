@@ -121,8 +121,8 @@ export const layoutOptionsMap = [
   // },
   {
     id: 8,
-    name: "Cignals Chart",
-    slug: "cignals-chart",
+    name: "Footprint Chart",
+    slug: "footprint-chart",
     image: dashboard.footprint,
     category: "charts",
     tags: ["charts", "new"],
@@ -378,7 +378,7 @@ export const chartsMap = {
     extra: [""],
     component: (widget: LayoutType["widgets"][0]) => <DexWidget widget={widget} />,
   },
-  "cignals-chart": {
+  "footprint-chart": {
     name: "Cignals Chart",
     extra: [""],
     component: (widget: LayoutType["widgets"][0]) => <CignalsWidget widget={widget} />,
@@ -574,7 +574,7 @@ export const widgetPropsDefaults = {
       maxH: Infinity,
     },
   },
-  "cignals-chart": {
+  "footprint-chart": {
     token: "BTC",
     instrument: null,
     timeInterval: "5m",
