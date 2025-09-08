@@ -1,25 +1,23 @@
 "use client";
 
 import React, { ReactNode } from "react";
-import { config, projectId } from "@/config/wagmi";
+import { config } from "@/config/wagmi";
 
 import { State, WagmiProvider } from "wagmi";
 import { darkTheme, RainbowKitProvider, Theme } from "@rainbow-me/rainbowkit";
 import merge from "lodash.merge";
+import { QueryProvider } from ".";
 
-if (!projectId) throw new Error("Project ID is not defined");
+// if (!projectId) throw new Error("Project ID is not defined");
 
-export default function DexProvider({
-  children,
-}: {
-  children: ReactNode;
-  initialState?: State;
-}) {
+export default function DexProvider({ children, initialState }: { children: ReactNode; initialState?: State }) {
   const myTheme = merge(darkTheme() as Theme);
 
   return (
-    <WagmiProvider config={config}>
-      <RainbowKitProvider theme={myTheme}>{children}</RainbowKitProvider>
+    <WagmiProvider config={config} initialState={initialState}>
+      <QueryProvider>
+        <RainbowKitProvider theme={myTheme}>{children}</RainbowKitProvider>
+      </QueryProvider>
     </WagmiProvider>
   );
 }

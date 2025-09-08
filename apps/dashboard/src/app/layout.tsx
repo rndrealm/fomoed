@@ -14,6 +14,7 @@ import OverlayRoot from "@/components/ui/overlay-root";
 import AnalyticsProvider from "@/components/providers/AnalyticsProvider";
 import ServiceWorkerRegister from "@/lib/sw/ServiceWorkerRegister";
 import CookiesManager from "@/lib/cookies/cookies-manager";
+import GeneralProvider from "@/components/providers/GeneralProvider";
 // import { ReactScan } from "@/components/shared/ReactScan";
 
 const geistSans = Geist({
@@ -65,13 +66,8 @@ export default function RootLayout({
         <OverlayRoot />
         <Analytics />
         <div id="root" className="h-full">
-          <QueryProvider>
-            <NuqsAdapter>
-              <SupabaseAuthProvider>
-                <NotificationProvider>{children}</NotificationProvider>
-              </SupabaseAuthProvider>
-            </NuqsAdapter>
-          </QueryProvider>
+          <GeneralProvider>{children}</GeneralProvider>
+
           <Toaster
             toastOptions={{
               style: {
