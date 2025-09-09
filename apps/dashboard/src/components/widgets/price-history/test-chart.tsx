@@ -3,20 +3,29 @@ import React, { ReactNode, useEffect, useRef, useState, useMemo, useCallback, Di
 import {
   CandlestickSeries,
   Chart,
-  LineSeries,
+  HistogramSeries,
   SeriesApiRef,
   TimeScale,
   TimeScaleApiRef,
   TimeScaleFitContentTrigger,
+  AreaSeries,
 } from "lightweight-charts-react-components";
-import { CandlestickData, ColorType, Coordinate, LineData, LineType, MouseEventParams, Time } from "lightweight-charts";
+import { CandlestickData, ColorType, Coordinate, LineData, LineType, MouseEventParams, Time, HistogramData } from "lightweight-charts";
 import { RenderIf } from "@/components/shared";
 import { useFetchBinancePriceData } from "@/services/queries/charts";
 import { formatPriceSignificant } from "@/lib/utils";
 import { useAtomValue } from "jotai";
 import { geoLocationAtom } from "@/lib/atoms/geoLocation";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence } from "motion/react";
 import PriceChartCoinStats from "./coin-stats";
+
+export interface BinanceKlineFormatted {
+  time: number; // seconds
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+}
 
 interface ITooltip {
   x: number | null;
@@ -53,28 +62,60 @@ function TestChart(props: IProps) {
   } = props;
 
   const location = useAtomValue(geoLocationAtom);
+  const { data: historicalData = [] } = useFetchBinancePriceData(`${token}USDT`, period?.binanceInterval, 1000, location?.country);
 
-  const { data = [] } = useFetchBinancePriceData(`${token}USDT`, period?.binanceInterval, 1000, location?.country);
-  const getIntervalMinutes = (interval: string): number => {
+  // State management
+  const [dimension, setDimension] = useState({ width: 0, height: 0 });
+  const [isHovering, setIsHovering] = useState(false);
+  const [lastPeriod, setLastPeriod] = useState(selectedPeriod);
+  const [additionalData, setAdditionalData] = useState<(LineData | CandlestickData)[]>([]);
+
+  // Handle period change
+  useEffect(() => {
+    if (lastPeriod !== selectedPeriod) {
+      // Reset chart state
+      defaultZoomRangeRef.current = null;
+      visibleLogicalRangeRef.current = null;
+      setLastPeriod(selectedPeriod);
+      setAdditionalData([]);
+    }
+  }, [selectedPeriod, lastPeriod]);
+
+  // Refs
+  const chartContainerRef = useRef<HTMLDivElement>(null);
+  // const volumeContainerRef = useRef<HTMLDivElement>(null);
+  const tooltipRef = useRef<HTMLDivElement>(null);
+  const lineSeriesRef = useRef<SeriesApiRef<"Area">>(null);
+  const candleSeriesRef = useRef<SeriesApiRef<"Candlestick">>(null);
+  // const volumeSeriesRef = useRef<SeriesApiRef<"Histogram">>(null);
+  const timeScaleRef = useRef<TimeScaleApiRef>(null);
+  // const volumeTimeScaleRef = useRef<TimeScaleApiRef>(null);
+  const dataRef = useRef<(LineData | CandlestickData)[]>([]);
+  const wsRef = useRef<WebSocket | null>(null);
+  const eventSourceRef = useRef<EventSource | null>(null);
+  
+  // Range management refs
+  const defaultZoomRangeRef = useRef<{ from: number; to: number } | null>(null);
+  const visibleRangeRef = useRef<{ from?: Time; to?: Time; } | null>(null);
+  const visibleLogicalRangeRef = useRef<{ from?: number; to?: number; } | null>(null);
+
+  // Utility functions
+  const getIntervalMinutes = (interval: string) => {
     const unit = interval.slice(-1);
     const value = parseInt(interval.slice(0, -1));
-
     switch (unit) {
-      case "m":
-        return value;
-      case "h":
-        return value * 60;
-      case "d":
-        return value * 1440;
-      case "w":
-        return value * 10080;
-      default:
-        return 60;
+      case "m": return value;
+      case "h": return value * 60;
+      case "d": return value * 1440;
+      default: return 60;
     }
   };
 
+  const fullData = useMemo(() => [...historicalData, ...additionalData], [historicalData, additionalData]);
+
+  // Data filtering
   const filteredData = useMemo(() => {
-    if (!data.length) return [];
+    if (!fullData.length) return [];
 
     const now = new Date();
 
@@ -83,9 +124,9 @@ function TestChart(props: IProps) {
     switch (selectedPeriod) {
       case "1D":
         cutoffDate = new Date(now);
-        cutoffDate.setDate(now.getDate() - 1);
+        cutoffDate.setHours(0, 0, 0, 0);
 
-        let filteredDailyData = data.filter((d) => (d.time as number) * 1000 >= cutoffDate.getTime());
+        let filteredDailyData = fullData.filter((d) => (d.time as number) * 1000 >= cutoffDate.getTime());
 
         const intervalMinutes = getIntervalMinutes(period?.binanceInterval);
         if (intervalMinutes <= 5 && filteredDailyData.length > 288) {
@@ -126,40 +167,84 @@ function TestChart(props: IProps) {
         break;
 
       default:
-        return data;
+        return fullData;
     }
 
     const cutoff = cutoffDate.getTime();
+    return fullData.filter((d) => (d.time as number) * 1000 >= cutoff);
+  }, [fullData, selectedPeriod, period?.binanceInterval]);
 
-    return data.filter((d) => (d.time as number) * 1000 >= cutoff);
-  }, [data, selectedPeriod, period?.binanceInterval]);
+  // Volume data
+  const volumeData: HistogramData<Time>[] = useMemo(() => {
+    if (!filteredData || filteredData.length === 0) return [];
 
-  const chartContainerRef = useRef<HTMLDivElement>(null);
-  const tooltipRef = useRef<HTMLDivElement>(null);
-  const lineSeriesRef = useRef<SeriesApiRef<"Line">>(null);
-  const candleSeriesRef = useRef<SeriesApiRef<"Candlestick">>(null);
-  const timeScaleRef = useRef<TimeScaleApiRef>(null);
-  const dataRef = useRef<(LineData | CandlestickData)[]>([]);
-  const [dimension, setDimension] = useState({ width: 0, height: 0 });
-  const wsRef = useRef<WebSocket | null>(null);
-  const eventSourceRef = useRef<EventSource | null>(null);
-  const [isHovering, setIsHovering] = useState(false);
-  // Store default zoom range for zoom limits
-  const defaultZoomRangeRef = useRef<{ from: number; to: number } | null>(null);
+    return filteredData.map((candle) => ({
+      time: candle.time as Time,
+      value: Number((candle as any).volume || 0),
+      color: "#5C5C5C",
+    }));
+  }, [filteredData]);
 
-  const visibleRangeRef = useRef<{
-    from?: Time;
-    to?: Time;
-  } | null>(null);
+  // Aggregated or thinned data for 1D with small intervals
+  const aggregatedData = useMemo(() => {
+    if (selectedPeriod !== "1D") return filteredData;
 
-  const visibleLogicalRangeRef = useRef<{
-    from?: number;
-    to?: number;
-  } | null>(null);
+    const intervalMin = getIntervalMinutes(period?.binanceInterval || "1m");
+    const maxPoints = 300;
+    const theoreticalPoints = Math.ceil(1440 / intervalMin);
+
+    if (theoreticalPoints <= maxPoints) return filteredData;
+
+    const thinningFactor = Math.ceil(theoreticalPoints / maxPoints);
+
+    if (!isCandleStick) {
+      // For line/area, thin by taking every thinningFactor point
+      return filteredData.filter((_, i) => i % thinningFactor === 0);
+    } else {
+      // For candlestick, aggregate OHLC
+      const aggregated: CandlestickData[] = [];
+      for (let i = 0; i < filteredData.length; i += thinningFactor) {
+        const bin = filteredData.slice(i, i + thinningFactor) as CandlestickData[];
+        if (bin.length === 0) break;
+        const open = bin[0].open;
+        const close = bin[bin.length - 1].close;
+        const high = Math.max(...bin.map((d) => d.high));
+        const low = Math.min(...bin.map((d) => d.low));
+        const time = bin[0].time;
+        aggregated.push({ time, open, high, low, close });
+      }
+      return aggregated;
+    }
+  }, [filteredData, selectedPeriod, period?.binanceInterval, isCandleStick]);
+
+  // Transform aggregatedData to BinanceKlineFormatted for PriceChartCoinStats
+  const statsData: BinanceKlineFormatted[] = useMemo(() => {
+    return aggregatedData.map((item) => {
+      if (isCandleStick) {
+        const candlestick = item as CandlestickData;
+        return {
+          time: candlestick.time as number,
+          open: candlestick.open,
+          high: candlestick.high,
+          low: candlestick.low,
+          close: candlestick.close,
+        };
+      } else {
+        const lineData = item as LineData;
+        return {
+          time: lineData.time as number,
+          open: lineData.value,
+          high: lineData.value,
+          low: lineData.value,
+          close: lineData.value,
+        };
+      }
+    });
+  }, [aggregatedData, isCandleStick]);
 
   // Calculate performance metrics
   const performanceMetrics = useMemo(() => {
-    if (!filteredData.length) {
+    if (!aggregatedData.length) {
       return {
         isPositive: true,
         change: 0,
@@ -172,12 +257,12 @@ function TestChart(props: IProps) {
     }
 
     const currentPrice = isCandleStick
-      ? (filteredData[filteredData.length - 1] as CandlestickData)?.close || 0
-      : (filteredData[filteredData.length - 1] as any)?.value || 0;
+      ? (aggregatedData[aggregatedData.length - 1] as CandlestickData)?.close || 0
+      : (aggregatedData[aggregatedData.length - 1] as any)?.value || 0;
 
     const startPrice = isCandleStick
-      ? (filteredData[0] as CandlestickData)?.open || 0
-      : (filteredData[0] as any)?.value || 0;
+      ? (aggregatedData[0] as CandlestickData)?.open || 0
+      : (aggregatedData[0] as any)?.value || 0;
 
     const change = currentPrice - startPrice;
     const changePercent = startPrice ? (change / startPrice) * 100 : 0;
@@ -188,45 +273,283 @@ function TestChart(props: IProps) {
       changePercent,
       currentPrice,
       startPrice,
-      high: Math.max(...filteredData.map((d) => (isCandleStick ? (d as CandlestickData).high : (d as any).value))),
-      low: Math.min(...filteredData.map((d) => (isCandleStick ? (d as CandlestickData).low : (d as any).value))),
+      high: Math.max(...aggregatedData.map((d) => (isCandleStick ? (d as CandlestickData).high : (d as any).value))),
+      low: Math.min(...aggregatedData.map((d) => (isCandleStick ? (d as CandlestickData).low : (d as any).value))),
     };
-  }, [filteredData, isCandleStick]);
+  }, [aggregatedData, isCandleStick]);
 
   const oneYearMetrics = useMemo(() => {
-    if (!data.length) {
-      return { high: 0, low: 0 };
-    }
+    if (!historicalData.length) return { high: 0, low: 0 };
 
     const now = new Date();
     const cutoffDate = new Date(now);
     cutoffDate.setFullYear(now.getFullYear() - 1);
     const cutoff = cutoffDate.getTime();
 
-    const lastYearData = data.filter((d) => (d.time as number) * 1000 >= cutoff);
-
-    if (!lastYearData.length) {
-      return { high: 0, low: 0 };
-    }
+    const lastYearData = historicalData.filter((d) => (d.time as number) * 1000 >= cutoff);
+    if (!lastYearData.length) return { high: 0, low: 0 };
 
     return {
       high: Math.max(...lastYearData.map((d) => (isCandleStick ? (d as CandlestickData).high : (d as any).value))),
       low: Math.min(...lastYearData.map((d) => (isCandleStick ? (d as CandlestickData).low : (d as any).value))),
     };
-  }, [data, isCandleStick]);
+  }, [historicalData, isCandleStick]);
 
   // Chart colors based on performance
-  const chartColors = useMemo(
-    () => ({
-      lineColor: isHovering ? "#6B88CA" : performanceMetrics.isPositive ? "#17C583" : "#BD2E36",
-      upColor: "#17C583",
-      downColor: "#BD2E36",
-      borderUpColor: "#17C583",
-      borderDownColor: "#BD2E36",
-      wickUpColor: "#17C583",
-      wickDownColor: "#BD2E36",
-    }),
-    [isHovering, performanceMetrics.isPositive],
+  const chartColors = useMemo(() => ({
+    lineColor: isHovering ? "#6B88CA" : performanceMetrics.isPositive ? "#17C583" : "#BD2E36",
+    upColor: "#17C583",
+    downColor: "#BD2E36",
+    borderUpColor: "#17C583",
+    borderDownColor: "#BD2E36",
+    wickUpColor: "#17C583",
+    wickDownColor: "#BD2E36",
+  }), [isHovering, performanceMetrics.isPositive]);
+
+  // const syncVolumeRange = useCallback((newRange: { from: number; to: number } | null) => {
+  //   if (newRange && volumeTimeScaleRef.current?.api()) {
+  //     volumeTimeScaleRef.current.api()?.setVisibleLogicalRange(newRange);
+  //   }
+  // }, []);
+
+  // Get visible range for daily timeframe
+  const getDailyVisibleLogicalRange = useCallback(() => {
+    if (selectedPeriod !== "1D" || !aggregatedData.length) {
+      return historicalData?.length === 0 || !defaultZoomRangeRef.current
+        ? undefined
+        : (() => {
+            const defaultRange = defaultZoomRangeRef.current!;
+            const from = visibleLogicalRangeRef?.current?.from ?? defaultRange.from;
+            const to = visibleLogicalRangeRef?.current?.to ?? defaultRange.to;
+            return from <= to ? { from, to } : defaultRange;
+          })();
+    }
+
+    const intervalMin = getIntervalMinutes(period?.binanceInterval || "1m");
+    const maxPoints = 300;
+    const theoreticalPoints = Math.ceil(1440 / intervalMin);
+    const thinningFactor = theoreticalPoints > maxPoints ? Math.ceil(theoreticalPoints / maxPoints) : 1;
+    const effectiveInterval = intervalMin * thinningFactor;
+    const totalPoints = Math.ceil(1440 / effectiveInterval);
+
+    return {
+      from: 0,
+      to: totalPoints,
+    };
+  }, [selectedPeriod, aggregatedData.length, historicalData?.length, period?.binanceInterval]);
+
+  // Calculate initial range on mount and when period changes
+  useEffect(() => {
+    if (!aggregatedData.length) return;
+
+    const calculateRange = () => {
+      if (selectedPeriod === "1D") {
+        const intervalMin = getIntervalMinutes(period?.binanceInterval || "1m");
+        const maxPoints = 300;
+        const theoreticalPoints = Math.ceil(1440 / intervalMin);
+        const thinningFactor = theoreticalPoints > maxPoints ? Math.ceil(theoreticalPoints / maxPoints) : 1;
+        const effectiveInterval = intervalMin * thinningFactor;
+        const totalPoints = Math.ceil(1440 / effectiveInterval);
+        return {
+          from: 0,
+          to: totalPoints
+        };
+      } else {
+        return {
+          from: 0,
+          to: aggregatedData.length
+        };
+      }
+    };
+
+    const range = calculateRange();
+    defaultZoomRangeRef.current = range;
+    visibleLogicalRangeRef.current = range;
+
+    requestAnimationFrame(() => {
+      if (timeScaleRef.current?.api()) {
+        timeScaleRef.current.api()?.setVisibleLogicalRange(range);
+      }
+      // if (volumeTimeScaleRef.current?.api()) {
+      //   volumeTimeScaleRef.current.api()?.setVisibleLogicalRange(range);
+      // }
+    });
+  }, [selectedPeriod, aggregatedData.length, period?.binanceInterval]);
+
+  // Update visible range periodically for daily chart
+  useEffect(() => {
+    if (selectedPeriod !== "1D") return;
+
+    const updateRange = () => {
+      const intervalMin = getIntervalMinutes(period?.binanceInterval || "1m");
+      const maxPoints = 300;
+      const theoreticalPoints = Math.ceil(1440 / intervalMin);
+      const thinningFactor = theoreticalPoints > maxPoints ? Math.ceil(theoreticalPoints / maxPoints) : 1;
+      const effectiveInterval = intervalMin * thinningFactor;
+      const totalPoints = Math.ceil(1440 / effectiveInterval);
+
+      const defaultFrom = 0;
+      const defaultTo = totalPoints;
+
+      defaultZoomRangeRef.current = { from: defaultFrom, to: defaultTo };
+      visibleLogicalRangeRef.current = { from: defaultFrom, to: defaultTo };
+
+      requestAnimationFrame(() => {
+        if (timeScaleRef.current?.api()) {
+          timeScaleRef.current.api()?.setVisibleLogicalRange({
+            from: defaultFrom,
+            to: defaultTo
+          });
+        }
+        // if (volumeTimeScaleRef.current?.api()) {
+        //   volumeTimeScaleRef.current.api()?.setVisibleLogicalRange({
+        //     from: defaultFrom,
+        //     to: defaultTo
+        //   });
+        // }
+      });
+    };
+
+    updateRange();
+
+    const intervalId = setInterval(updateRange, 1000);
+
+    return () => clearInterval(intervalId);
+  }, [selectedPeriod, period?.binanceInterval]);
+
+  // Handle zoom restrictions
+  const handleVisibleLogicalRangeChange = useCallback(
+    (newRange: { from: number; to: number } | null) => {
+      if (!newRange || !defaultZoomRangeRef.current) return;
+
+      if (selectedPeriod === "1D") {
+        const dataLength = aggregatedData.length;
+        if (dataLength === 0) return;
+
+        const intervalMin = getIntervalMinutes(period?.binanceInterval || "1m");
+        const maxPoints = 300;
+        const theoreticalPoints = Math.ceil(1440 / intervalMin);
+        const thinningFactor = theoreticalPoints > maxPoints ? Math.ceil(theoreticalPoints / maxPoints) : 1;
+        const effectiveInterval = intervalMin * thinningFactor;
+        const totalPoints = Math.ceil(1440 / effectiveInterval);
+
+        const minVisibleRange = Math.max(20, totalPoints * 0.1);
+        const maxVisibleRange = totalPoints;
+
+        let adjustedFrom = newRange.from;
+        let adjustedTo = newRange.to;
+        let currentRange = adjustedTo - adjustedFrom;
+
+        if (currentRange < minVisibleRange) {
+          const center = (adjustedFrom + adjustedTo) / 2;
+          adjustedFrom = Math.max(0, center - minVisibleRange / 2);
+          adjustedTo = adjustedFrom + minVisibleRange;
+          currentRange = minVisibleRange;
+        }
+
+        if (currentRange > maxVisibleRange) {
+          const center = (adjustedFrom + adjustedTo) / 2;
+          adjustedFrom = Math.max(0, center - maxVisibleRange / 2);
+          adjustedTo = adjustedFrom + maxVisibleRange;
+        }
+
+        if (adjustedFrom < 0) {
+          adjustedTo -= adjustedFrom;
+          adjustedFrom = 0;
+        }
+
+        if (adjustedTo > maxVisibleRange) {
+          adjustedFrom -= (adjustedTo - maxVisibleRange);
+          adjustedTo = maxVisibleRange;
+          if (adjustedFrom < 0) {
+            adjustedFrom = 0;
+            adjustedTo = Math.min(maxVisibleRange, adjustedFrom + currentRange);
+          }
+        }
+
+        timeScaleRef.current?.api()?.setVisibleLogicalRange({
+          from: adjustedFrom,
+          to: adjustedTo,
+        });
+        // syncVolumeRange({ from: adjustedFrom, to: adjustedTo });
+        visibleLogicalRangeRef.current = { from: adjustedFrom, to: adjustedTo };
+        return;
+      }
+
+      // Logic for other timeframes
+      const dataLength = aggregatedData.length;
+      const currentDataPoints = newRange.to - newRange.from;
+      const maxAllowedDataPoints = dataLength;
+
+      if (currentDataPoints > maxAllowedDataPoints) {
+        const center = (newRange.from + newRange.to) / 2;
+        const halfRange = maxAllowedDataPoints / 2;
+
+        let adjustedFrom = Math.max(0, center - halfRange);
+        let adjustedTo = Math.min(dataLength - 1, center + halfRange);
+
+        if (adjustedFrom === 0) {
+          adjustedTo = Math.min(dataLength - 1, maxAllowedDataPoints);
+        } else if (adjustedTo === dataLength - 1) {
+          adjustedFrom = Math.max(0, dataLength - maxAllowedDataPoints);
+        }
+
+        timeScaleRef.current?.api()?.setVisibleLogicalRange({
+          from: adjustedFrom,
+          to: adjustedTo,
+        });
+        // syncVolumeRange({ from: adjustedFrom, to: adjustedTo });
+        return;
+      }
+
+      const minDataPoints = 10;
+      if (currentDataPoints < minDataPoints) {
+        const center = (newRange.from + newRange.to) / 2;
+        const halfRange = minDataPoints / 2;
+
+        timeScaleRef.current?.api()?.setVisibleLogicalRange({
+          from: Math.max(0, center - halfRange),
+          to: Math.min(dataLength - 1, center + halfRange),
+        });
+        // syncVolumeRange({
+        //   from: Math.max(0, center - halfRange),
+        //   to: Math.min(dataLength - 1, center + halfRange),
+        // });
+        return;
+      }
+
+      if (newRange.from < 0 || newRange.to >= dataLength) {
+        const rangeSize = newRange.to - newRange.from;
+        let adjustedFrom = newRange.from;
+        let adjustedTo = newRange.to;
+
+        if (newRange.from < 0) {
+          adjustedFrom = 0;
+          adjustedTo = rangeSize;
+        }
+
+        if (newRange.to >= dataLength) {
+          adjustedTo = dataLength - 1;
+          adjustedFrom = Math.max(0, adjustedTo - rangeSize);
+        }
+
+        timeScaleRef.current?.api()?.setVisibleLogicalRange({
+          from: adjustedFrom,
+          to: adjustedTo,
+        });
+        // syncVolumeRange({ from: adjustedFrom, to: adjustedTo });
+        return;
+      }
+
+      visibleLogicalRangeRef.current = { from: newRange.from, to: newRange.to };
+      // syncVolumeRange({ from: newRange.from, to: newRange.to });
+    },
+    [
+      selectedPeriod,
+      aggregatedData.length,
+      period?.binanceInterval,
+      // syncVolumeRange
+    ],
   );
 
   useEffect(() => {
@@ -301,15 +624,22 @@ function TestChart(props: IProps) {
         close: 0,
       };
       let coordinate: Coordinate | null | undefined;
+      let hasValidData = false;
 
       if (lineSeriesRef.current) {
         const seriesApi = lineSeriesRef.current.api();
         if (seriesApi) {
           const res = param.seriesData.get(seriesApi) as LineData;
-          data.time = res.time as number;
-          data.value = res.value;
-          data.close = res.value;
-          coordinate = lineSeriesRef.current.api()?.priceToCoordinate(data.value);
+          if (res && res.time !== undefined && res.value !== undefined) {
+            data.time = res.time as number;
+            data.value = res.value;
+            data.close = res.value;
+            data.open = res.value;
+            data.high = res.value;
+            data.low = res.value;
+            coordinate = lineSeriesRef.current.api()?.priceToCoordinate(data.value);
+            hasValidData = true;
+          }
         }
       }
 
@@ -317,17 +647,25 @@ function TestChart(props: IProps) {
         const seriesApi = candleSeriesRef.current.api();
         if (seriesApi) {
           const res = param.seriesData.get(seriesApi) as CandlestickData;
-          data.time = res.time as number;
-          data.value = res.close;
-          data.open = res.open;
-          data.high = res.high;
-          data.low = res.low;
-          data.close = res.close;
-          coordinate = candleSeriesRef.current.api()?.priceToCoordinate(data.value);
+          if (res && res.time !== undefined && res.close !== undefined) {
+            data.time = res.time as number;
+            data.value = res.close;
+            data.open = res.open;
+            data.high = res.high;
+            data.low = res.low;
+            data.close = res.close;
+            coordinate = candleSeriesRef.current.api()?.priceToCoordinate(data.value);
+            hasValidData = true;
+          }
         }
       }
 
       // Calculate change from start price
+      if (!hasValidData) {
+        tooltip.style.display = "none";
+        setIsHovering(false);
+        return;
+      }
       const startPrice = performanceMetrics.startPrice;
       const change = data.close - startPrice;
       const dateObj = new Date(data.time * 1000);
@@ -397,101 +735,18 @@ function TestChart(props: IProps) {
 
   // Set default zoom range when data loads
   useEffect(() => {
-    if (filteredData.length > 0 && !defaultZoomRangeRef.current) {
-      const defaultFrom = Math.max(0, filteredData.length - 50);
-      const defaultTo = filteredData.length - 1;
+    if (aggregatedData.length > 0 && !defaultZoomRangeRef.current) {
+      const defaultFrom = Math.max(0, aggregatedData.length - 50);
+      const defaultTo = aggregatedData.length - 1;
       defaultZoomRangeRef.current = { from: defaultFrom, to: defaultTo };
     }
-  }, [filteredData]);
-
-  // Handle zoom restrictions
-  const handleVisibleLogicalRangeChange = useCallback(
-    (newRange: { from: number; to: number } | null) => {
-      if (!newRange || !defaultZoomRangeRef.current) return;
-
-      const defaultRange = defaultZoomRangeRef.current;
-      const dataLength = filteredData.length;
-
-      // Calculate current visible data points
-      const currentDataPoints = newRange.to - newRange.from;
-      const defaultDataPoints = defaultRange.to - defaultRange.from;
-
-      // Allow zoom out up to showing all available data
-      const maxAllowedDataPoints = Math.min(dataLength, defaultDataPoints * 2); // Allow zoom out up to 2x default or all data
-
-      // Prevent zooming out beyond maximum allowed range
-      if (currentDataPoints > maxAllowedDataPoints) {
-        // Calculate centered range that shows maximum allowed data points
-        const center = (newRange.from + newRange.to) / 2;
-        const halfRange = maxAllowedDataPoints / 2;
-
-        let adjustedFrom = Math.max(0, center - halfRange);
-        let adjustedTo = Math.min(dataLength - 1, center + halfRange);
-
-        // If we hit the boundaries, adjust accordingly
-        if (adjustedFrom === 0) {
-          adjustedTo = Math.min(dataLength - 1, maxAllowedDataPoints);
-        } else if (adjustedTo === dataLength - 1) {
-          adjustedFrom = Math.max(0, dataLength - maxAllowedDataPoints);
-        }
-
-        timeScaleRef.current?.api()?.setVisibleLogicalRange({
-          from: adjustedFrom,
-          to: adjustedTo,
-        });
-        return;
-      }
-
-      // Prevent zooming in too much (minimum 10 data points visible)
-      const minDataPoints = 10;
-      if (currentDataPoints < minDataPoints) {
-        const center = (newRange.from + newRange.to) / 2;
-        const halfRange = minDataPoints / 2;
-
-        timeScaleRef.current?.api()?.setVisibleLogicalRange({
-          from: Math.max(0, center - halfRange),
-          to: Math.min(dataLength - 1, center + halfRange),
-        });
-        return;
-      }
-
-      // Prevent scrolling beyond data boundaries
-      if (newRange.from < 0 || newRange.to >= dataLength) {
-        const rangeSize = newRange.to - newRange.from;
-        let adjustedFrom = newRange.from;
-        let adjustedTo = newRange.to;
-
-        if (newRange.from < 0) {
-          adjustedFrom = 0;
-          adjustedTo = rangeSize;
-        }
-
-        if (newRange.to >= dataLength) {
-          adjustedTo = dataLength - 1;
-          adjustedFrom = Math.max(0, adjustedTo - rangeSize);
-        }
-
-        timeScaleRef.current?.api()?.setVisibleLogicalRange({
-          from: adjustedFrom,
-          to: adjustedTo,
-        });
-        return;
-      }
-
-      // Update the visible range reference for valid ranges
-      visibleLogicalRangeRef.current = {
-        from: newRange.from,
-        to: newRange.to,
-      };
-    },
-    [filteredData.length],
-  );
+  }, [aggregatedData]);
 
   useEffect(() => {
-    if (filteredData.length > 0) {
+    if (aggregatedData.length > 0) {
       // Always recalculate default range when data changes
-      const defaultFrom = Math.max(0, filteredData.length - 50);
-      const defaultTo = filteredData.length - 1;
+      const defaultFrom = Math.max(0, aggregatedData.length - 50);
+      const defaultTo = aggregatedData.length - 1;
 
       defaultZoomRangeRef.current = { from: defaultFrom, to: defaultTo };
 
@@ -500,7 +755,7 @@ function TestChart(props: IProps) {
         visibleLogicalRangeRef.current = { from: defaultFrom, to: defaultTo };
       }
     }
-  }, [filteredData.length]);
+  }, [aggregatedData.length]);
 
   const handleMouseEnter = useCallback(() => {
     setIsHovering(true);
@@ -530,33 +785,55 @@ function TestChart(props: IProps) {
         low: parseFloat(klineData.l),
         close: parseFloat(klineData.c),
         value: parseFloat(klineData.c),
+        // volume: parseFloat(klineData.v),
       };
 
       if (selectedPeriod === "1D") {
         const now = Date.now();
         const dataTime = newData.time * 1000;
 
-        // Only update when the data are from the past 24 hours
         if (now - dataTime <= 24 * 60 * 60 * 1000) {
-          dataRef.current.push(newData as any);
+          setAdditionalData((prev) => {
+            if (prev.length && prev[prev.length - 1].time === newData.time) {
+              return [...prev.slice(0, -1), newData as any];
+            } else {
+              return [...prev, newData as any];
+            }
+          });
 
-          if ((lineSeriesRef.current || candleSeriesRef.current) && data?.length) {
+          if ((lineSeriesRef.current || candleSeriesRef.current) && historicalData?.length) {
             if (isCandleStick) {
               candleSeriesRef.current?.api()?.update(newData as any);
             } else {
               lineSeriesRef?.current?.api()?.update(newData as any);
             }
+            // volumeSeriesRef.current?.api()?.update({
+            //   time: newData.time as Time,
+            //   value: newData.volume,
+            //   color: "#5C5C5C",
+            // });
           }
         }
       } else {
-        dataRef.current.push(newData as any);
+        setAdditionalData((prev) => {
+          if (prev.length && prev[prev.length - 1].time === newData.time) {
+            return [...prev.slice(0, -1), newData as any];
+          } else {
+            return [...prev, newData as any];
+          }
+        });
 
-        if ((lineSeriesRef.current || candleSeriesRef.current) && data?.length) {
+        if ((lineSeriesRef.current || candleSeriesRef.current) && historicalData?.length) {
           if (isCandleStick) {
             candleSeriesRef.current?.api()?.update(newData as any);
           } else {
             lineSeriesRef?.current?.api()?.update(newData as any);
           }
+          // volumeSeriesRef.current?.api()?.update({
+          //   time: newData.time as Time,
+          //   value: newData.volume,
+          //   color: "#5C5C5C",
+          // });
         }
       }
     };
@@ -627,7 +904,7 @@ function TestChart(props: IProps) {
         eventSourceRef.current.close();
       }
     };
-  }, [token, period.binanceInterval, selectedPeriod, isCandleStick, location?.country, data?.length]);
+  }, [token, period.binanceInterval, selectedPeriod, isCandleStick, location?.country, historicalData?.length]);
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
@@ -644,7 +921,7 @@ function TestChart(props: IProps) {
   }, []);
 
   return (
-    <div className={`bg-[#0C0C0C] rounded-xl px-4 pt-6 ${className} overflow-scroll`}>
+    <div className={`bg-[#0C0C0C] rounded-xl px-4 ${className} overflow-scroll`}>
       {/* Chart Container */}
       <div
         ref={chartContainerRef}
@@ -685,6 +962,19 @@ function TestChart(props: IProps) {
             autoSize: false,
             width: dimension.width,
             height: dimension.height,
+            localization: {
+              timeFormatter: (time: number) => {
+                const date = new Date(time * 1000);
+                return date.toLocaleString(undefined, {
+                  year: "2-digit",
+                  month: "short",
+                  day: "2-digit",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: false,
+                });
+              },
+            },
           }}
           containerProps={{
             style: {
@@ -694,24 +984,26 @@ function TestChart(props: IProps) {
           onCrosshairMove={onCrosshairMove}
         >
           <RenderIf condition={!isCandleStick}>
-            <LineSeries
+            <AreaSeries
               ref={lineSeriesRef}
               options={{
-                color: chartColors.lineColor,
+                topColor: chartColors.lineColor,
+                bottomColor: "#08090B",
+                lineColor: chartColors.lineColor,
                 lineType: LineType.Curved,
                 lineWidth: 3,
                 pointMarkersVisible: false,
                 lastValueVisible: false,
                 priceLineVisible: false,
               }}
-              data={filteredData as any}
+              data={aggregatedData as any}
             />
           </RenderIf>
 
           <RenderIf condition={isCandleStick}>
             <CandlestickSeries
               ref={candleSeriesRef}
-              data={filteredData as CandlestickData[]}
+              data={aggregatedData as CandlestickData[]}
               reactive
               options={{
                 upColor: chartColors.upColor,
@@ -757,16 +1049,7 @@ function TestChart(props: IProps) {
                 }
               },
             }}
-            visibleLogicalRange={
-              data?.length === 0 || !defaultZoomRangeRef.current
-                ? undefined
-                : (() => {
-                    const defaultRange = defaultZoomRangeRef.current!;
-                    const from = visibleLogicalRangeRef?.current?.from ?? defaultRange.from;
-                    const to = visibleLogicalRangeRef?.current?.to ?? defaultRange.to;
-                    return from <= to ? { from, to } : defaultRange;
-                  })()
-            }
+            visibleLogicalRange={getDailyVisibleLogicalRange()}
             onVisibleTimeRangeChange={(e) => {
               visibleRangeRef.current = {
                 from: e?.from,
@@ -775,7 +1058,7 @@ function TestChart(props: IProps) {
             }}
             onVisibleLogicalRangeChange={handleVisibleLogicalRangeChange}
           >
-            <TimeScaleFitContentTrigger deps={[filteredData.length, selectedPeriod]} />
+            <TimeScaleFitContentTrigger deps={[aggregatedData.length, selectedPeriod]} />
           </TimeScale>
         </Chart>
 
@@ -791,7 +1074,7 @@ function TestChart(props: IProps) {
         <AnimatePresence>
           {showTokenStats && (
             <PriceChartCoinStats
-              filteredData={filteredData}
+              filteredData={statsData}
               oneYearMetrics={oneYearMetrics}
               performanceMetrics={performanceMetrics}
               selectedPeriod={selectedPeriod}
@@ -801,6 +1084,101 @@ function TestChart(props: IProps) {
           )}
         </AnimatePresence>
       </div>
+      {/* Volume Chart Container */}
+      {/* <div
+        ref={volumeContainerRef}
+        style={{ width: "100%", height: "15px", marginTop: -20 }}
+      >
+        <Chart
+          options={{
+            layout: {
+              background: { type: ColorType.Solid, color: "#0C0C0C" },
+              attributionLogo: false,
+              textColor: "transparent",
+            },
+            handleScroll: false,
+            handleScale: false,
+            autoSize: false,
+            width: dimension.width && dimension.width - 85,
+            height: 40,
+            rightPriceScale: {
+              visible: false,
+              minimumWidth: 85,
+            },
+            crosshair: {
+              vertLine: { visible: false },
+              horzLine: { visible: false },
+            },
+            grid: {
+              horzLines: {
+                visible: false,
+              },
+              vertLines: {
+                visible: false,
+              },
+            },
+          }}
+          containerProps={{
+            style: {
+              flexGrow: 1,
+            },
+          }}
+        >
+          <RenderIf condition={volumeData.length > 0}>
+            <HistogramSeries
+              ref={volumeSeriesRef}
+              data={volumeData}
+              options={{
+                priceLineVisible: false,
+                color: "#5C5C5C",
+                priceScaleId: 'volume-price-scale', // Separate price scale for volume
+              }}
+            />
+          </RenderIf>
+          <TimeScale
+            ref={volumeTimeScaleRef}
+            options={{
+              borderColor: "transparent",
+              timeVisible: true,
+              secondsVisible: false,
+              tickMarkFormatter: (time: number) => {
+                const date = new Date(time * 1000);
+                const range = timeScaleRef.current?.api()?.getVisibleRange();
+                const rangeDuration = Number(range?.to) - Number(range?.from);
+                if (selectedPeriod === "1D") {
+                  return date.toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
+                  });
+                }
+                const TWO_DAYS_IN_SECONDS = 2 * 24 * 60 * 60;
+                if (rangeDuration < TWO_DAYS_IN_SECONDS) {
+                  return date.toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
+                  });
+                } else {
+                  return date.toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                  });
+                }
+              },
+            }}
+            visibleLogicalRange={getDailyVisibleLogicalRange()}
+            onVisibleLogicalRangeChange={(newRange) => {
+              // Sync back to main chart if needed
+              if (newRange && timeScaleRef.current?.api()) {
+                timeScaleRef.current.api()?.setVisibleLogicalRange(newRange);
+              }
+            }}
+          >
+            <TimeScaleFitContentTrigger deps={[aggregatedData.length, selectedPeriod]} />
+          </TimeScale>
+        </Chart>
+      </div> */}
     </div>
   );
 }

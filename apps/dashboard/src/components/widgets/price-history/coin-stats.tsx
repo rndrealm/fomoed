@@ -151,7 +151,7 @@ export default function PriceChartCoinStats(props: IProps) {
   return (
     <div className="absolute top-0 right-[10px] bottom-0 -left-2 z-99 flex items-end">
       <motion.div
-        className="scrollbar max-h-full w-9/10 overflow-auto rounded-[22px] bg-[#141414] px-5 py-4"
+        className="scrollbar max-h-full w-full md:w-9/10 overflow-auto rounded-[22px] bg-[#141414] px-5 py-4"
         variants={modalSlide}
         initial="hidden"
         animate="visible"
@@ -176,8 +176,8 @@ export default function PriceChartCoinStats(props: IProps) {
               </div>
             </div>
             {/* Statistics Grid */}
-            <div className="grid grid-cols-3 gap-2.5 border-b border-[#242424] text-sm">
-              <div className="space-y-3 pr-2.5 border-r border-[#242424]">
+            <div className="grid grid-cols-3 text-xxs md:text-base gap-2.5 border-b border-[#242424] text-sm">
+              <div className="space-y-3 pr-1 md:pr-2.5 border-r border-[#242424]">
                 <div className="flex justify-between">
                   <span className="text-gray-400">Open</span>
                   {!performanceMetrics.startPrice ? (
@@ -207,7 +207,7 @@ export default function PriceChartCoinStats(props: IProps) {
                 </div>
               </div>
               
-              <div className="space-y-3 pr-2.5 border-r border-[#242424]">
+              <div className="space-y-3 pr-1 md:pr-2.5 border-r border-[#242424]">
                 <div className="flex justify-between">
                   <span className="text-gray-400">Vol</span>
                   {!volumeMetrics.totalVolume ? (
@@ -237,7 +237,7 @@ export default function PriceChartCoinStats(props: IProps) {
                 </div>
               </div>
               
-              <div className="space-y-3 pr-2.5">
+              <div className="space-y-3 pr-1 md:pr-2.5">
                 <div className="flex justify-between">
                   <span className="text-gray-400">52W H</span>
                   {!oneYearMetrics.high ? (

@@ -45,10 +45,12 @@ export function LivePrice(props: IProps) {
     let cutoffDate: Date;
 
     switch (selectedPeriod) {
-      case "1D":
+      case "1D": {
+        // For daily timeframe, use today's start (00:00)
         cutoffDate = new Date(now);
-        cutoffDate.setDate(now.getDate() - 1);
+        cutoffDate.setHours(0, 0, 0, 0);
         break;
+      }
       case "1W":
         cutoffDate = new Date(now);
         cutoffDate.setDate(now.getDate() - 7);
@@ -85,12 +87,33 @@ export function LivePrice(props: IProps) {
     if (!filteredHistoricalData.length || !tokenPrice) return 0;
 
     const currentPrice = parseFloat(tokenPrice);
-    const startPrice = (filteredHistoricalData[0] as any)?.value || (filteredHistoricalData[0] as any)?.close;
+    
+    // For daily timeframe, ensure we get the first price of the day (00:00)
+    if (selectedPeriod === "1D") {
+      const now = new Date();
+      const startOfDay = new Date(now);
+      startOfDay.setHours(0, 0, 0, 0);
+      
+      // Find the closest data point to start of day
+      const startOfDayData = filteredHistoricalData.find(d => {
+        const dataTime = new Date((d.time as number) * 1000);
+        return dataTime >= startOfDay;
+      });
 
+      if (startOfDayData) {
+        const startPrice = (startOfDayData as any)?.value || (startOfDayData as any)?.close;
+        if (startPrice && startPrice > 0) {
+          return ((currentPrice - startPrice) / startPrice) * 100;
+        }
+      }
+    }
+
+    // For other timeframes, use the first data point in the filtered data
+    const startPrice = (filteredHistoricalData[0] as any)?.value || (filteredHistoricalData[0] as any)?.close;
     if (!startPrice || startPrice <= 0) return 0;
 
     return ((currentPrice - startPrice) / startPrice) * 100;
-  }, [filteredHistoricalData, tokenPrice]);
+  }, [filteredHistoricalData, tokenPrice, selectedPeriod]);
 
   // Update percentage change when calculated value changes
   useEffect(() => {
