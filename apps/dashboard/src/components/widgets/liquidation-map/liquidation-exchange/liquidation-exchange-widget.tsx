@@ -21,16 +21,16 @@ import { LiquidationExchangeFullscreenControls } from "./liquidation-exchange-fu
 
 const colorToCfgi = [
   {
-    label: "100x leverage",
+    label: "Binance",
     color: "#ff5e00ff",
   },
   {
-    label: "50x leverage",
-    color: "#FFC403",
+    label: "Bybit",
+    color: "#73D8DA",
   },
   {
-    label: "25x leverage",
-    color: "#73D8DA",
+    label: "OKX",
+    color: "#FFC403",
   },
   {
     label: "Cumulative Short Liquidation Leverage",
@@ -81,7 +81,7 @@ export default function LiquidationExchangeWidget(props: IProps) {
 
   return (
     <>
-      <WidgetWrapper widget={widget} title="Aggregated Exchange Liquidation Map" handleLearnMore={() => setShowInfo(true)}>
+      <WidgetWrapper widget={widget} title="Exchange Liquidation Map" handleLearnMore={() => setShowInfo(true)}>
         <div className={cn("relative flex h-full w-full flex-col", isFullscreen && "py-[60px]")} ref={chartRef}>
           {!isFullscreen && coinData && (
             <div className="py-2">
@@ -167,13 +167,13 @@ export default function LiquidationExchangeWidget(props: IProps) {
                         <div className="flex flex-col gap-4 overflow-auto">
                           <div className="flex flex-col gap-4">
                             <div className="flex flex-col">
-                              <h3 className="text-base leading-[1.35] font-semibold">Economic Calendar</h3>
+                              <h3 className="text-base leading-[1.35] font-semibold">Exchange Liquidation Map</h3>
                               <p className="text-[13px] leading-[1.25] font-light text-neutral-400">
-                                Learn about the Liquidation Map
+                                Learn about the Exchange Liquidation Map
                               </p>
                             </div>
                             <p className="text-[13px] leading-[1.35] font-medium">
-                              A liquidation map is a visual chart that predicts at which price levels a large number of
+                              An Exchange liquidation map is a visual chart that predicts at which price levels a large number of
                               cryptocurrency futures positions will be forcibly closed. Its horizontal axis (X-axis) shows the
                               price, while its vertical axis (Y-axis) represents the relative intensity of potential
                               liquidations, highlighting areas of high financial risk.{" "}

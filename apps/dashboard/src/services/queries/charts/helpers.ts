@@ -22,11 +22,16 @@ function getLiqBarColorFromLevRatio(leverage: number) {
 }
 
 const getPriceBucketSize = (currentPrice: number): number => {
-  if (currentPrice >= 10000) return 78; 
-  if (currentPrice >= 1000) return 3;  
-  if (currentPrice >= 100) return 0.5;  
-  if (currentPrice >= 10) return 0.02;  
-  return 0.002; 
+  if (currentPrice >= 10000) return 78;
+  if (currentPrice >= 1000) return 3;
+  if (currentPrice >= 100) return 0.5;
+  if (currentPrice >= 10) return 0.02;
+  if (currentPrice >= 1) return 0.002;
+  if (currentPrice >= 0.1) return 0.0002;
+  if (currentPrice >= 0.01) return 0.00002;
+  if (currentPrice >= 0.001) return 0.000002;
+  if (currentPrice >= 0.0001) return 0.0000002;
+  return 0.000000002;
 };
 
 const bucketPrice = (price: number, bucketSize: number): number => {
@@ -45,7 +50,7 @@ export const formatLiquidationData = (liquidResponse: LiquidMapDataResponse) => 
   const bucketSize = getPriceBucketSize(currentPrice);
 
   const combinedLiqData: Record<number, [number, number, number, null][]> = {};
-  
+
   for (const [price, arrays] of Object.entries(liquidationData)) {
     const price_ = parseFloat(price);
     const bucketedPrice = bucketPrice(price_, bucketSize);
@@ -83,28 +88,38 @@ export const formatLiquidationData = (liquidResponse: LiquidMapDataResponse) => 
 
   const liqBars: LiquidationBar[] = [...sparseLiqBars];
 
+  const groupedByPrice: Record<number, number> = {};
+  for (const liqBar of liqBars) {
+    if (!groupedByPrice[liqBar.x]) {
+      groupedByPrice[liqBar.x] = 0;
+    }
+    groupedByPrice[liqBar.x] += liqBar.y;
+  }
+
+  const uniquePrices = Object.keys(groupedByPrice)
+    .map(parseFloat)
+    .sort((a, b) => a - b);
+  const currentPriceIndex = uniquePrices.findLastIndex((price) => price < currentPrice);
+
   const cumulativeLongLiqLeverage: { x: number; y: number }[] = [];
   const cumulativeShortLiqLeverage: { x: number; y: number }[] = [];
-  const lastCurrPriceIdx = liqBars.findLastIndex((i) => i.x < currentPrice) + 1;
 
+  const longPrices = uniquePrices.slice(currentPriceIndex + 1);
   let cumulativeLongLiqLeverageAcc = 0;
-  const longBars = liqBars.slice(lastCurrPriceIdx);
-
-  for (const liqBar of longBars) {
-    cumulativeLongLiqLeverageAcc += liqBar.y;
+  for (const price of longPrices) {
+    cumulativeLongLiqLeverageAcc += groupedByPrice[price];
     cumulativeLongLiqLeverage.push({
-      x: liqBar.x,
+      x: price,
       y: Math.round(cumulativeLongLiqLeverageAcc),
     });
   }
 
+  const shortPrices = uniquePrices.slice(0, currentPriceIndex + 1).reverse();
   let cumulativeShortLiqLeverageAcc = 0;
-  const shortBars = liqBars.slice(0, lastCurrPriceIdx).toReversed();
-
-  for (const liqBar of shortBars) {
-    cumulativeShortLiqLeverageAcc += liqBar.y;
+  for (const price of shortPrices) {
+    cumulativeShortLiqLeverageAcc += groupedByPrice[price];
     cumulativeShortLiqLeverage.push({
-      x: liqBar.x,
+      x: price,
       y: Math.round(cumulativeShortLiqLeverageAcc),
     });
   }
@@ -116,75 +131,79 @@ export const formatLiquidationData = (liquidResponse: LiquidMapDataResponse) => 
     currentPrice,
     cumulativeLongLiqLeverage,
     cumulativeShortLiqLeverage,
-    maxCumulativeValue: Math.max(
-      cumulativeLongLiqLeverageAcc, 
-      cumulativeShortLiqLeverageAcc,
-      1
-    ),
+    maxCumulativeValue: Math.max(cumulativeLongLiqLeverageAcc, cumulativeShortLiqLeverageAcc, 1),
     minPrice,
     maxPrice,
   };
 };
 
 export const formatMergetLiquidMapData = (resData: LiquidExchangeResponse) => {
-  const exLiqData = resData.exLiqData;
-  const currentPriceUsd = resData.currentPriceUsd;
+  const { exLiqData, currentPriceUsd } = resData;
 
-  const exToBarColor: Record<string, string> = {
-    Binance: "#FF8300",
-    OKX: "#FFC403", 
-    Bybit: "#73D8DA",
-  };
+  const priceLimitPercentage = 0.25;
+  const lowerPriceBound = currentPriceUsd * (1 - priceLimitPercentage);
+  const upperPriceBound = currentPriceUsd * (1 + priceLimitPercentage);
 
-  const allPrices = new Set<number>();
-  
+  const bucketSize = getAggPriceBucketSize(currentPriceUsd);
+
+  const bucketedData: Record<number, { Binance: number; OKX: number; Bybit: number }> = {};
+
   for (const ex in exLiqData) {
     for (const priceStr in exLiqData[ex as keyof typeof exLiqData]) {
-      allPrices.add(parseFloat(priceStr)); 
+      const price = parseFloat(priceStr);
+
+      if (price < lowerPriceBound || price > upperPriceBound) {
+        continue;
+      }
+
+      const bucketedPrice = bucketAggPrice(price, bucketSize);
+      const liqValue = exLiqData[ex as keyof typeof exLiqData][priceStr];
+
+      if (!bucketedData[bucketedPrice]) {
+        bucketedData[bucketedPrice] = { Binance: 0, OKX: 0, Bybit: 0 };
+      }
+      bucketedData[bucketedPrice][ex as keyof typeof exLiqData] += liqValue;
     }
   }
 
-  const prices = Array.from(allPrices).sort((a, b) => a - b);
-  
-  if (prices.length === 0) {
+  const bucketedPrices = Object.keys(bucketedData)
+    .map(parseFloat)
+    .sort((a, b) => a - b);
+
+  if (bucketedPrices.length === 0) {
     return null;
   }
 
-  const minPrice = Math.min(...prices);
-  const maxPrice = Math.max(...prices);
+  const minPrice = Math.min(...bucketedPrices);
+  const maxPrice = Math.max(...bucketedPrices);
 
-  const combinedLiqBars: LiquidationBar[] = [];
+  const binanceData: { x: number; y: number }[] = [];
+  const okxData: { x: number; y: number }[] = [];
+  const bybitData: { x: number; y: number }[] = [];
 
-  for (const price of prices) {
-    const liqValues = [
-      { ex: "Binance", liqValue: exLiqData["Binance"][price] || 0 },
-      { ex: "OKX", liqValue: exLiqData["OKX"][price] || 0 },
-      { ex: "Bybit", liqValue: exLiqData["Bybit"][price] || 0 },
-    ];
+  for (const price of bucketedPrices) {
+    const liqValuesByEx = bucketedData[price];
 
-    const totalLiquidation = sumBy(liqValues, (i) => i.liqValue);
-    
-    if (totalLiquidation === 0) continue;
+    binanceData.push({ x: price, y: liqValuesByEx.Binance });
+    okxData.push({ x: price, y: liqValuesByEx.OKX });
+    bybitData.push({ x: price, y: liqValuesByEx.Bybit });
+  }
 
-    const maxLiq = maxBy(liqValues, (i) => i.liqValue);
-    const color = maxLiq ? exToBarColor[maxLiq.ex] : "#FF8300";
-
-    combinedLiqBars.push({
-      color,
-      x: price,
-      y: totalLiquidation,
-    });
+  const totalLiquidationByPrice: Record<number, number> = {};
+  for (const price of bucketedPrices) {
+    const liqValuesByEx = bucketedData[price];
+    totalLiquidationByPrice[price] = liqValuesByEx.Binance + liqValuesByEx.OKX + liqValuesByEx.Bybit;
   }
 
   const cumulativeLongLiqLeverage: { x: number; y: number }[] = [];
   const cumulativeShortLiqLeverage: { x: number; y: number }[] = [];
 
-  const longPrices = prices.filter(p => p >= currentPriceUsd).sort((a, b) => a - b);
-  const shortPrices = prices.filter(p => p < currentPriceUsd).sort((a, b) => b - a);
+  const longPrices = bucketedPrices.filter((p) => p >= currentPriceUsd).sort((a, b) => a - b);
+  const shortPrices = bucketedPrices.filter((p) => p < currentPriceUsd).sort((a, b) => b - a);
 
   let cumulativeLongLiqLeverageAcc = 0;
   for (const price of longPrices) {
-    const totalAtPrice = combinedLiqBars.find(bar => bar.x === price)?.y || 0;
+    const totalAtPrice = totalLiquidationByPrice[price] || 0;
     if (totalAtPrice > 0) {
       cumulativeLongLiqLeverageAcc += totalAtPrice;
       cumulativeLongLiqLeverage.push({
@@ -196,7 +215,7 @@ export const formatMergetLiquidMapData = (resData: LiquidExchangeResponse) => {
 
   let cumulativeShortLiqLeverageAcc = 0;
   for (const price of shortPrices) {
-    const totalAtPrice = combinedLiqBars.find(bar => bar.x === price)?.y || 0;
+    const totalAtPrice = totalLiquidationByPrice[price] || 0;
     if (totalAtPrice > 0) {
       cumulativeShortLiqLeverageAcc += totalAtPrice;
       cumulativeShortLiqLeverage.push({
@@ -211,27 +230,31 @@ export const formatMergetLiquidMapData = (resData: LiquidExchangeResponse) => {
   return {
     cumulativeLongLiqLeverage,
     cumulativeShortLiqLeverage,
-    liqBars: combinedLiqBars,
+    exchangeData: {
+      binance: binanceData,
+      okx: okxData,
+      bybit: bybitData,
+    },
     currentPrice: currentPriceUsd,
     minPrice,
     maxPrice,
-    maxCumulativeValue: Math.max(
-      cumulativeLongLiqLeverageAcc,
-      cumulativeShortLiqLeverageAcc,
-      1
-    ),
+    maxCumulativeValue: Math.max(cumulativeLongLiqLeverageAcc, cumulativeShortLiqLeverageAcc, 1),
   };
 };
-
-type LiquidationPoint = [number, number, number, null]; 
+type LiquidationPoint = [number, number, number, null];
 type CombinedLiqData = Record<string, LiquidationPoint[]>;
 
 const getAggPriceBucketSize = (currentPrice: number): number => {
-  if (currentPrice >= 10000) return 116; 
-  if (currentPrice >= 1000) return 4.8;  
-  if (currentPrice >= 100) return 0.9;  
-  if (currentPrice >= 10) return 0.03;  
-  return 0.003; 
+  if (currentPrice >= 10000) return 116;
+  if (currentPrice >= 1000) return 4.8;
+  if (currentPrice >= 100) return 0.9;
+  if (currentPrice >= 10) return 0.03;
+  if (currentPrice >= 1) return 0.003;
+  if (currentPrice >= 0.1) return 0.0003;
+  if (currentPrice >= 0.01) return 0.00003;
+  if (currentPrice >= 0.001) return 0.00003;
+  if (currentPrice >= 0.0001) return 0.000003;
+  return 0.00000003;
 };
 
 const bucketAggPrice = (price: number, bucketSize: number): number => {
@@ -243,19 +266,19 @@ export const formatLeverageLiquidationData = (resData: LeverageLiquidationRespon
   const currentPriceUsd = resData.currentPriceUsd;
 
   const prices = Object.keys(combinedLiqData).map((i) => parseFloat(i));
-  
+
   if (prices.length === 0) {
     return null;
   }
 
   const bucketSize = getAggPriceBucketSize(currentPriceUsd);
-  
+
   const bucketedData: Record<number, LiquidationPoint[]> = {};
-  
+
   for (const [price, arrays] of Object.entries(combinedLiqData)) {
     const price_ = parseFloat(price);
     const bucketedPrice = bucketAggPrice(price_, bucketSize);
-    
+
     if (bucketedData[bucketedPrice]) {
       bucketedData[bucketedPrice].push(...arrays);
     } else {
@@ -291,7 +314,7 @@ export const formatLeverageLiquidationData = (resData: LeverageLiquidationRespon
 
   const cumulativeLongLiqLeverage = [];
   const cumulativeShortLiqLeverage = [];
-  
+
   const lastCurrPriceIdx = liqBars.findLastIndex((i) => i.x < currentPriceUsd) + 1;
 
   let cumulativeLongLiqLeverageAcc = 0;
@@ -323,11 +346,7 @@ export const formatLeverageLiquidationData = (resData: LeverageLiquidationRespon
     currentPrice: currentPriceUsd,
     cumulativeLongLiqLeverage,
     cumulativeShortLiqLeverage,
-    maxCumulativeValue: Math.max(
-      cumulativeLongLiqLeverageAcc, 
-      cumulativeShortLiqLeverageAcc,
-      1
-    ),
+    maxCumulativeValue: Math.max(cumulativeLongLiqLeverageAcc, cumulativeShortLiqLeverageAcc, 1),
     minPrice,
     maxPrice,
   };

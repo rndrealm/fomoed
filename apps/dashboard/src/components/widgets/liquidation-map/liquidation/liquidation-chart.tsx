@@ -37,6 +37,35 @@ const getScaleFormatter = (maxValue: number) => {
   }
 };
 
+const getPriceBucketSize = (currentPrice: number): number => {
+  if (currentPrice >= 10000) return 78;
+  if (currentPrice >= 1000) return 3;
+  if (currentPrice >= 100) return 0.5;
+  if (currentPrice >= 10) return 0.02;
+  if (currentPrice >= 1) return 0.002;
+  if (currentPrice >= 0.1) return 0.0002;
+  if (currentPrice >= 0.01) return 0.00002;
+  if (currentPrice >= 0.001) return 0.000002;
+  if (currentPrice >= 0.0001) return 0.0000002;
+  return 0.000000002;
+};
+
+const getDecimalPlaces = (bucketSize: number): number => {
+  let decimals = 0;
+  let size = bucketSize;
+
+  while (size < 1) {
+    size *= 10;
+    decimals++;
+  }
+
+  if (decimals <= 0) {
+    decimals = 1
+  }
+
+  return decimals -1; 
+};
+
 const LiquidationChart = memo((props: ICfgiCard) => {
   const { liquidationData, viewOption, token, isFullscreen, onAnimationComplete } = props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -62,7 +91,8 @@ const LiquidationChart = memo((props: ICfgiCard) => {
         zoom: {
           wheel: {
             enabled: true,
-            speed: 0.05,
+            speed: 0.1, 
+            modifierKey: undefined, 
           },
           pinch: {
             enabled: true,
@@ -79,14 +109,7 @@ const LiquidationChart = memo((props: ICfgiCard) => {
         pan: {
           enabled: true,
           mode: "x",
-          threshold: 0,
-          onPan: ({ chart }) => {
-            const xScale = chart.scales.x;
-            zoomStateRef.current = {
-              min: xScale.min,
-              max: xScale.max,
-            };
-          },
+          threshold: 0, 
         },
         limits: {
           x: {
@@ -105,7 +128,9 @@ const LiquidationChart = memo((props: ICfgiCard) => {
             scaleId: "x",
             label: "Price",
             getText: () => (val) => {
-              return "$" + commaFormatNumber(val);
+              const bucket = getPriceBucketSize(liquidationData.maxPrice);
+              const decimals = getDecimalPlaces(bucket);
+              return "$" + Number(val).toFixed(decimals);
             },
           },
           {
@@ -113,6 +138,7 @@ const LiquidationChart = memo((props: ICfgiCard) => {
             label: "At price",
             getText: () => (val) => humanizeNumber(val),
             getTextColor: () => () => "white",
+            drawPoint: false,
           },
           {
             scaleId: "cumulative",
@@ -121,7 +147,7 @@ const LiquidationChart = memo((props: ICfgiCard) => {
             getTextColor: () => () => "white",
           },
         ],
-        crosshairEnableDelay: 200,
+        crosshairEnableDelay: 50, 
         labelStackDirection: "vertical",
       };
 
@@ -192,17 +218,61 @@ const LiquidationChart = memo((props: ICfgiCard) => {
           data: {
             datasets: [
               {
+                type: "line",
+                data: liquidationData.liqBars.map((bar) => ({ x: bar.x, y: 0 })),
+                borderColor: "rgba(0,0,0,0)", 
+                backgroundColor: "rgba(0,0,0,0)",
+                pointRadius: 0,
+                borderWidth: 0,
+                xAxisID: "x",
+                yAxisID: "y",
+                order: 0, 
+                label: "", 
+                parsing: false,
+                hidden: true, 
+              },
+              {
                 type: "bar",
-                data: liquidationData.liqBars,
-                order: 20,
-                backgroundColor: liquidationData.liqBars.map((i) => i.color),
+                data: liquidationData.liqBars.filter((bar) => bar.color === "#73D8DA"),
+                order: 21,
+                backgroundColor: "#73D8DA",
                 xAxisID: "x",
                 yAxisID: "y",
                 barPercentage: 1.0,
-                categoryPercentage: 0.9, 
+                categoryPercentage: 0.9,
+                stack: "liquidation-bars",
+                label: "Long Liquidations",
+                parsing: false,
+              },
+              {
+                type: "bar",
+                data: liquidationData.liqBars.filter((bar) => bar.color === "#FFC403"),
+                order: 22,
+                backgroundColor: "#FFC403",
+                xAxisID: "x",
+                yAxisID: "y",
+                barPercentage: 1.0,
+                categoryPercentage: 0.9,
+                stack: "liquidation-bars",
+                label: "Mid Liquidations",
+                parsing: false,
+              },
+              {
+                type: "bar",
+                data: liquidationData.liqBars.filter((bar) => bar.color === "#ff5e00ff"),
+                order: 23,
+                backgroundColor: "#ff5e00ff",
+                xAxisID: "x",
+                yAxisID: "y",
+                barPercentage: 1.0,
+                categoryPercentage: 0.9,
+                stack: "liquidation-bars",
+                label: "High Liquidations",
+                parsing: false,
               },
               {
                 type: "line",
+                label: "Cumulative Long Liquidation",
                 data: liquidationData.cumulativeLongLiqLeverage,
                 borderColor: "#22AB94",
                 spanGaps: true,
@@ -216,6 +286,7 @@ const LiquidationChart = memo((props: ICfgiCard) => {
               },
               {
                 type: "line",
+                label: "Cumulative Short Liquidation",
                 data: liquidationData.cumulativeShortLiqLeverage,
                 borderColor: "#FF3B10",
                 spanGaps: true,
@@ -236,34 +307,38 @@ const LiquidationChart = memo((props: ICfgiCard) => {
               },
             },
             spanGaps: true,
-            animation: false,
+            animation: false, 
             responsive: true,
             maintainAspectRatio: false,
-            onResize: (chart) => {
-            },
+            onResize: (chart) => {},
             scales: {
               x: {
                 type: "linear",
+                stacked: true,
                 ticks: {
+                  maxTicksLimit: 15,
                   callback: (val: any) => {
                     const formatter = getScaleFormatter(liquidationData.maxPrice);
+
                     if (formatter.suffix === "K" || formatter.suffix === "M") {
                       return Math.round(val / formatter.divisor) + formatter.suffix;
                     } else {
-                      return (val / formatter.divisor).toFixed(3) + formatter.suffix;
+                      const bucket = getPriceBucketSize(liquidationData.maxPrice);
+                      const decimals = getDecimalPlaces(bucket);
+                      return (val / formatter.divisor).toFixed(decimals) + formatter.suffix;
                     }
                   },
                 },
                 grid: {
                   display: false,
                 },
-                // Restore zoom state if it exists, otherwise use default range
                 min: zoomStateRef.current?.min !== undefined ? zoomStateRef.current.min : liquidationData.minPrice,
                 max: zoomStateRef.current?.max !== undefined ? zoomStateRef.current.max : liquidationData.maxPrice,
                 offset: false,
               },
               y: {
                 type: "linear",
+                stacked: true, 
                 grid: {
                   color: "#fff1",
                 },
@@ -272,10 +347,11 @@ const LiquidationChart = memo((props: ICfgiCard) => {
                 },
                 min: 0,
                 ticks: {
+                  maxTicksLimit: 15, 
                   callback: (val: any) => {
                     const maxBarValue = Math.max(...liquidationData.liqBars.map((bar) => bar.y));
                     const formatter = getScaleFormatter(maxBarValue);
-                    return `$${Math.round(val / formatter.divisor)}${formatter.suffix}`;
+                    return `${Math.round(val / formatter.divisor)}${formatter.suffix}`;
                   },
                 },
               },
@@ -291,6 +367,7 @@ const LiquidationChart = memo((props: ICfgiCard) => {
                   dash: [8, 4],
                 },
                 ticks: {
+                  maxTicksLimit: 15, 
                   callback: (val: any) => {
                     const formatter = getScaleFormatter(liquidationData.maxCumulativeValue);
                     return `$${Math.round(val / formatter.divisor)}${formatter.suffix}`;
@@ -298,8 +375,11 @@ const LiquidationChart = memo((props: ICfgiCard) => {
                 },
               },
             },
-            // @ts-expect-error HOTFIX
-            interaction: false,
+            interaction: {
+              intersect: false,
+              mode: "index",
+              axis: "x",
+            },
             plugins: {
               // @ts-expect-error HOTFIX
               crosshair: crosshairPluginOptions,
@@ -310,6 +390,15 @@ const LiquidationChart = memo((props: ICfgiCard) => {
                 enabled: false,
               },
               zoom: zoomPluginOptions,
+            },
+            elements: {
+              point: {
+                radius: 0, 
+                hoverRadius: 0,
+              },
+              line: {
+                tension: 0,
+              },
             },
           },
           plugins: [customPriceIndicatorPlugin],
@@ -338,7 +427,7 @@ const LiquidationChart = memo((props: ICfgiCard) => {
               );
             }
           }
-        }, 100);
+        }, 50); 
       }
     };
 

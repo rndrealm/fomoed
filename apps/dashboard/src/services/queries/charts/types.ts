@@ -137,6 +137,20 @@ export interface FormatLiquidationDataResult {
   maxPrice: number;
 }
 
+export interface FormatExcLiquidationDataResult {
+  exchangeData: {
+    binance: { x: number; y: number }[];
+    okx: { x: number; y: number }[];
+    bybit: { x: number; y: number }[];
+  };
+  currentPrice: number | null;
+  cumulativeLongLiqLeverage: { x: number; y: number }[];
+  cumulativeShortLiqLeverage: { x: number; y: number }[];
+  maxCumulativeValue: number;
+  minPrice: number;
+  maxPrice: number;
+}
+
 export interface LiquidHeatmapResponse {
   y_axis: Array<number>;
   liquidation_leverage_data: Array<Array<number>>;

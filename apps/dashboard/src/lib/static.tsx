@@ -244,7 +244,7 @@ export const layoutOptionsMap = [
   },
   {
     id: 5,
-    name: "Aggregated Exchange Liquidation Map",
+    name: "Exchange Liquidation Map",
     slug: "exchange-liquidation-map",
     image: dashboard.cfgi2,
     category: "charts",
@@ -364,7 +364,7 @@ export const chartsMap = {
     component: (widget: LayoutType["widgets"][0]) => <LiquidationHeatmapWidget widget={widget} fullScreenButton />,
   },
   "exchange-liquidation-map": {
-    name: "Aggregated Exchange Liquidation Map",
+    name: "Exchange Liquidation Map",
     extra: ["period", "token", "exchange-token"],
     component: (widget: LayoutType["widgets"][0]) => <LiquidationExchangeWidget widget={widget} />,
   },

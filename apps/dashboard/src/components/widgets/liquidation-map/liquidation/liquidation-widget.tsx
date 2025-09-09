@@ -209,7 +209,7 @@ export default function LiquidationWidget(props: IProps) {
                 <div className="flex flex-col gap-4 overflow-auto">
                   <div className="flex flex-col gap-4">
                     <div className="flex flex-col">
-                      <h3 className="text-base leading-[1.35] font-semibold">Economic Calendar</h3>
+                      <h3 className="text-base leading-[1.35] font-semibold">Liquidation Map</h3>
                       <p className="text-[13px] leading-[1.25] font-light text-neutral-400">
                         Learn about the Liquidation Map
                       </p>

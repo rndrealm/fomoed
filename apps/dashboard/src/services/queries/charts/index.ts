@@ -21,7 +21,8 @@ import {
   WhaleTransactionResponse,
   EconomicCalendarResponse,
   FormatLeverageLiquidationDataResult,
-  LeverageLiquidationResponse
+  LeverageLiquidationResponse,
+  FormatExcLiquidationDataResult
 } from "./types";
 import { supportedExchangePairsToOptions } from "@/lib/utils";
 import { ExchangePairOption } from "@/charts/types";
@@ -215,22 +216,25 @@ export const useFetchLiquidHeatMapData = (timeframe?: string, exchange?: string,
     refetch,
   }
 }
-export const useFetchLiquidDataMerged = (timeframe?: string, asset?: string) => {
-  const hash = ["get-liquid-leverage-map", timeframe, asset];
-  const { data, isPending, error, isSuccess, isFetching, refetch } = useQuery<LeverageLiquidationResponse>({
-    queryKey: hash,
-    queryFn: async () => {
-      const response = await api.get({
-        url: `/api/ex-liq-map?timeframe=${timeframe}&asset=${asset}`,
-      });
-      return response.data;
-    },
-    enabled: !!timeframe && !!asset,
-  });
-  
-  let resData: FormatLeverageLiquidationDataResult | null = null;
+export const useFetchLiquidDataMerged = (
+  timeframe?: string,
+  asset?: string,
+) => {
+  const hash = ["get-liquid-exchange-map", timeframe, asset];
+  const { data, isPending, error, isSuccess, isFetching, refetch } =
+    useQuery<LiquidExchangeResponse>({
+      queryKey: hash,
+      queryFn: async () => {
+        const response = await api.get({
+          url: `/api/ex-liq-map?timeframe=${timeframe}&asset=${asset}`,
+        });
+        return response.data;
+      },
+      enabled: !!timeframe && !!asset,
+    });
+  let resData: FormatExcLiquidationDataResult | null = null;
   if (data) {
-    resData = formatLeverageLiquidationData(data);
+    resData = formatMergetLiquidMapData(data);
   }
 
   return {
