@@ -33,8 +33,8 @@ interface IOptionsDropdown {
 }
 
 export const dailyPricePeriodOptions = [
-  { value: "1m", label: "1m" },
-  { value: "3m", label: "3m" },
+  // { value: "1m", label: "1m" },
+  // { value: "3m", label: "3m" },
   { value: "5m", label: "5m" },
   { value: "15m", label: "15m" },
   { value: "30m", label: "30m" },

@@ -1,5 +1,5 @@
 "use client";
-import React, { ReactNode, useEffect, useRef, useState, useMemo, useCallback, Dispatch, SetStateAction } from "react";
+import React, { ReactNode, useEffect, useRef, useState, useMemo, useCallback, Dispatch, SetStateAction, Fragment } from "react";
 import {
   CandlestickSeries,
   Chart,
@@ -18,6 +18,7 @@ import { useAtomValue } from "jotai";
 import { geoLocationAtom } from "@/lib/atoms/geoLocation";
 import { AnimatePresence } from "motion/react";
 import PriceChartCoinStats from "./coin-stats";
+import { Spinner } from "@/components/ui/shadcn-io/spinner";
 
 export interface BinanceKlineFormatted {
   time: number; // seconds
@@ -62,24 +63,34 @@ function TestChart(props: IProps) {
   } = props;
 
   const location = useAtomValue(geoLocationAtom);
-  const { data: historicalData = [] } = useFetchBinancePriceData(`${token}USDT`, period?.binanceInterval, 1000, location?.country);
+  const { data: historicalData = [], isLoading } = useFetchBinancePriceData(`${token}USDT`, period?.binanceInterval, 1000, location?.country);
 
   // State management
   const [dimension, setDimension] = useState({ width: 0, height: 0 });
   const [isHovering, setIsHovering] = useState(false);
   const [lastPeriod, setLastPeriod] = useState(selectedPeriod);
   const [additionalData, setAdditionalData] = useState<(LineData | CandlestickData)[]>([]);
+  const [isWebSocketPaused, setIsWebSocketPaused] = useState(false);
+  const [userHasZoomed, setUserHasZoomed] = useState(false);
 
   // Handle period change
   useEffect(() => {
     if (lastPeriod !== selectedPeriod) {
       // Reset chart state
+      setUserHasZoomed(false);
+      setIsWebSocketPaused(true);
       defaultZoomRangeRef.current = null;
       visibleLogicalRangeRef.current = null;
-      setLastPeriod(selectedPeriod);
       setAdditionalData([]);
+      setLastPeriod(selectedPeriod);
     }
   }, [selectedPeriod, lastPeriod]);
+
+  useEffect(() => {
+    if (!isLoading && historicalData.length > 0) {
+      setIsWebSocketPaused(false);
+    }
+  }, [isLoading, historicalData]);
 
   // Refs
   const chartContainerRef = useRef<HTMLDivElement>(null);
@@ -111,7 +122,15 @@ function TestChart(props: IProps) {
     }
   };
 
-  const fullData = useMemo(() => [...historicalData, ...additionalData], [historicalData, additionalData]);
+  const fullData = useMemo(() => {
+    const combined = [...historicalData, ...additionalData];
+    // Sort by time and remove duplicates (keep the latest entry for each time)
+    return combined
+      .sort((a, b) => (a.time as number) - (b.time as number))
+      .filter((item, index, self) =>
+        index === self.findIndex((t) => (t.time as number) === (item.time as number))
+      );
+  }, [historicalData, additionalData]);
 
   // Data filtering
   const filteredData = useMemo(() => {
@@ -125,15 +144,16 @@ function TestChart(props: IProps) {
       case "1D":
         cutoffDate = new Date(now);
         cutoffDate.setHours(0, 0, 0, 0);
+        const filteredDailyData = fullData
+          .filter((d) => (d.time as number) * 1000 >= cutoffDate.getTime())
+          .sort((a, b) => (a.time as number) - (b.time as number)); // Ensure sorted
 
-        let filteredDailyData = fullData.filter((d) => (d.time as number) * 1000 >= cutoffDate.getTime());
-
-        const intervalMinutes = getIntervalMinutes(period?.binanceInterval);
-        if (intervalMinutes <= 5 && filteredDailyData.length > 288) {
-          filteredDailyData = filteredDailyData.slice(-288);
-        } else if (intervalMinutes <= 15 && filteredDailyData.length > 96) {
-          filteredDailyData = filteredDailyData.slice(-96);
-        }
+        // const intervalMinutes = getIntervalMinutes(period?.binanceInterval);
+        // if (intervalMinutes <= 5 && filteredDailyData.length > 288) {
+        //   filteredDailyData = filteredDailyData.slice(-288); // Take last 288 after sorting
+        // } else if (intervalMinutes <= 15 && filteredDailyData.length > 96) {
+        //   filteredDailyData = filteredDailyData.slice(-96);
+        // }
 
         return filteredDailyData;
 
@@ -167,12 +187,14 @@ function TestChart(props: IProps) {
         break;
 
       default:
-        return fullData;
+        return fullData.sort((a, b) => (a.time as number) - (b.time as number)); // Sort all data
     }
 
     const cutoff = cutoffDate.getTime();
-    return fullData.filter((d) => (d.time as number) * 1000 >= cutoff);
-  }, [fullData, selectedPeriod, period?.binanceInterval]);
+    return fullData
+      .filter((d) => (d.time as number) * 1000 >= cutoff)
+      .sort((a, b) => (a.time as number) - (b.time as number)); // Ensure sorted
+  }, [fullData, selectedPeriod]);
 
   // Volume data
   const volumeData: HistogramData<Time>[] = useMemo(() => {
@@ -190,12 +212,15 @@ function TestChart(props: IProps) {
     if (selectedPeriod !== "1D") return filteredData;
 
     const intervalMin = getIntervalMinutes(period?.binanceInterval || "1m");
-    const maxPoints = 300;
+    const maxPoints = 1000;
     const theoreticalPoints = Math.ceil(1440 / intervalMin);
 
-    if (theoreticalPoints <= maxPoints) return filteredData;
+    // Only thin if the interval is larger than 1m or points exceed maxPoints
+    if (intervalMin === 1 && theoreticalPoints <= maxPoints) {
+      return filteredData; // No thinning for 1m if within 300 points
+    }
 
-    const thinningFactor = Math.ceil(theoreticalPoints / maxPoints);
+    const thinningFactor = theoreticalPoints > maxPoints ? Math.ceil(theoreticalPoints / maxPoints) : 1;
 
     if (!isCandleStick) {
       // For line/area, thin by taking every thinningFactor point
@@ -312,32 +337,6 @@ function TestChart(props: IProps) {
   //   }
   // }, []);
 
-  // Get visible range for daily timeframe
-  const getDailyVisibleLogicalRange = useCallback(() => {
-    if (selectedPeriod !== "1D" || !aggregatedData.length) {
-      return historicalData?.length === 0 || !defaultZoomRangeRef.current
-        ? undefined
-        : (() => {
-            const defaultRange = defaultZoomRangeRef.current!;
-            const from = visibleLogicalRangeRef?.current?.from ?? defaultRange.from;
-            const to = visibleLogicalRangeRef?.current?.to ?? defaultRange.to;
-            return from <= to ? { from, to } : defaultRange;
-          })();
-    }
-
-    const intervalMin = getIntervalMinutes(period?.binanceInterval || "1m");
-    const maxPoints = 300;
-    const theoreticalPoints = Math.ceil(1440 / intervalMin);
-    const thinningFactor = theoreticalPoints > maxPoints ? Math.ceil(theoreticalPoints / maxPoints) : 1;
-    const effectiveInterval = intervalMin * thinningFactor;
-    const totalPoints = Math.ceil(1440 / effectiveInterval);
-
-    return {
-      from: 0,
-      to: totalPoints,
-    };
-  }, [selectedPeriod, aggregatedData.length, historicalData?.length, period?.binanceInterval]);
-
   // Calculate initial range on mount and when period changes
   useEffect(() => {
     if (!aggregatedData.length) return;
@@ -381,6 +380,9 @@ function TestChart(props: IProps) {
     if (selectedPeriod !== "1D") return;
 
     const updateRange = () => {
+      if (userHasZoomed) {
+        return;
+      }
       const intervalMin = getIntervalMinutes(period?.binanceInterval || "1m");
       const maxPoints = 300;
       const theoreticalPoints = Math.ceil(1440 / intervalMin);
@@ -415,7 +417,7 @@ function TestChart(props: IProps) {
     const intervalId = setInterval(updateRange, 1000);
 
     return () => clearInterval(intervalId);
-  }, [selectedPeriod, period?.binanceInterval]);
+  }, [selectedPeriod, period?.binanceInterval, userHasZoomed]);
 
   // Handle zoom restrictions
   const handleVisibleLogicalRangeChange = useCallback(
@@ -433,7 +435,12 @@ function TestChart(props: IProps) {
         const effectiveInterval = intervalMin * thinningFactor;
         const totalPoints = Math.ceil(1440 / effectiveInterval);
 
-        const minVisibleRange = Math.max(20, totalPoints * 0.1);
+        const isDefaultRange = newRange.from === 0 && newRange.to === totalPoints;
+        if (!isDefaultRange) {
+          setUserHasZoomed(true);
+        }
+
+        const minVisibleRange = 10;
         const maxVisibleRange = totalPoints;
 
         let adjustedFrom = newRange.from;
@@ -773,6 +780,10 @@ function TestChart(props: IProps) {
     if (!token || !period.binanceInterval || !location?.country) return;
 
     const handleKlineUpdate = (klineData: any) => {
+      if (isWebSocketPaused || isLoading || !historicalData.length) {
+        console.log("Update paused: loading or no historical data");
+        return;
+      }
       if (!klineData || !klineData.t) {
         console.warn("handleKlineUpdate received invalid kline data:", klineData);
         return;
@@ -791,6 +802,11 @@ function TestChart(props: IProps) {
       if (selectedPeriod === "1D") {
         const now = Date.now();
         const dataTime = newData.time * 1000;
+
+        if (newData.time > (now/1000) + 3600) { // Reject data more than 1 hour in the future
+          console.warn("Rejecting future data:", newData.time);
+          return;
+        }
 
         if (now - dataTime <= 24 * 60 * 60 * 1000) {
           setAdditionalData((prev) => {
@@ -904,7 +920,7 @@ function TestChart(props: IProps) {
         eventSourceRef.current.close();
       }
     };
-  }, [token, period.binanceInterval, selectedPeriod, isCandleStick, location?.country, historicalData?.length]);
+  }, [token, period.binanceInterval, selectedPeriod, isCandleStick, location?.country, historicalData.length, isWebSocketPaused, isLoading]);
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
@@ -921,169 +937,174 @@ function TestChart(props: IProps) {
   }, []);
 
   return (
-    <div className={`bg-[#0C0C0C] rounded-xl px-4 ${className} overflow-scroll`}>
+    <Fragment>
       {/* Chart Container */}
-      <div
-        ref={chartContainerRef}
-        style={{ width: "100%", height: "320px" }}
-        className="app_line_chart_component relative flex flex-1 mb-6"
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-      >
-        <Chart
-          options={{
-            layout: {
-              background: { type: ColorType.Solid, color: "#0C0C0C" },
-              attributionLogo: false,
-              textColor: "#666",
-            },
-            grid: {
-              horzLines: {
-                visible: true,
-                color: "#2A2A2A",
-                style: 1,
-              },
-              vertLines: {
-                visible: true,
-                color: "#2A2A2A",
-                style: 1,
-              },
-            },
-            rightPriceScale: {
-              visible: true,
-              borderColor: "transparent",
-              textColor: "#666",
-            },
-            leftPriceScale: {
-              visible: false,
-            },
-            handleScroll: true,
-            handleScale: true,
-            autoSize: false,
-            width: dimension.width,
-            height: dimension.height,
-            localization: {
-              timeFormatter: (time: number) => {
-                const date = new Date(time * 1000);
-                return date.toLocaleString(undefined, {
-                  year: "2-digit",
-                  month: "short",
-                  day: "2-digit",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  hour12: false,
-                });
-              },
-            },
-          }}
-          containerProps={{
-            style: {
-              flexGrow: 1,
-            },
-          }}
-          onCrosshairMove={onCrosshairMove}
-        >
-          <RenderIf condition={!isCandleStick}>
-            <AreaSeries
-              ref={lineSeriesRef}
-              options={{
-                topColor: chartColors.lineColor,
-                bottomColor: "#08090B",
-                lineColor: chartColors.lineColor,
-                lineType: LineType.Curved,
-                lineWidth: 3,
-                pointMarkersVisible: false,
-                lastValueVisible: false,
-                priceLineVisible: false,
-              }}
-              data={aggregatedData as any}
-            />
-          </RenderIf>
-
-          <RenderIf condition={isCandleStick}>
-            <CandlestickSeries
-              ref={candleSeriesRef}
-              data={aggregatedData as CandlestickData[]}
-              reactive
-              options={{
-                upColor: chartColors.upColor,
-                downColor: chartColors.downColor,
-                borderUpColor: chartColors.borderUpColor,
-                borderDownColor: chartColors.borderDownColor,
-                wickUpColor: chartColors.wickUpColor,
-                wickDownColor: chartColors.wickDownColor,
-              }}
-            />
-          </RenderIf>
-
-          <TimeScale
-            ref={timeScaleRef}
-            options={{
-              borderColor: "transparent",
-              timeVisible: true,
-              secondsVisible: false,
-              tickMarkFormatter: (time: number) => {
-                const date = new Date(time * 1000);
-                const range = timeScaleRef.current?.api()?.getVisibleRange();
-                const rangeDuration = Number(range?.to) - Number(range?.from);
-                // Enhanced formatting untuk daily period
-                if (selectedPeriod === "1D") {
-                  return date.toLocaleTimeString("en-US", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hour12: false,
-                  });
-                }
-                const TWO_DAYS_IN_SECONDS = 2 * 24 * 60 * 60;
-                if (rangeDuration < TWO_DAYS_IN_SECONDS) {
-                  return date.toLocaleTimeString("en-US", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hour12: false,
-                  });
-                } else {
-                  return date.toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                  });
-                }
-              },
-            }}
-            visibleLogicalRange={getDailyVisibleLogicalRange()}
-            onVisibleTimeRangeChange={(e) => {
-              visibleRangeRef.current = {
-                from: e?.from,
-                to: e?.to,
-              };
-            }}
-            onVisibleLogicalRangeChange={handleVisibleLogicalRangeChange}
-          >
-            <TimeScaleFitContentTrigger deps={[aggregatedData.length, selectedPeriod]} />
-          </TimeScale>
-        </Chart>
-
+      {isLoading ? (
+        <div className="flex items-center h-[345px] justify-center bg-[#0C0C0C] rounded-xl px-4 ">
+          <Spinner size={60} variant="circle" color="#272727" />
+        </div>
+      ) : (
+      <div className={`bg-[#0C0C0C] rounded-xl px-4 ${className} overflow-scroll`}>
         <div
-          ref={tooltipRef}
-          className="pointer-events-none absolute top-0 left-0 z-[9] overflow-visible whitespace-nowrap"
-          style={{
-            display: "none",
-            width: `${toolTipWidth}px`,
-            height: `${toolTipHeight}px`,
-          }}
-        />
-        <AnimatePresence>
-          {showTokenStats && (
-            <PriceChartCoinStats
-              filteredData={statsData}
-              oneYearMetrics={oneYearMetrics}
-              performanceMetrics={performanceMetrics}
-              selectedPeriod={selectedPeriod}
-              setShowTokenStats={setShowTokenStats}
-              token={token}
-            />
-          )}
-        </AnimatePresence>
-      </div>
+          ref={chartContainerRef}
+          style={{ width: "100%", height: "320px" }}
+          className="app_line_chart_component relative flex flex-1 mb-6"
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
+          <Chart
+            options={{
+              layout: {
+                background: { type: ColorType.Solid, color: "#0C0C0C" },
+                attributionLogo: false,
+                textColor: "#666",
+              },
+              grid: {
+                horzLines: {
+                  visible: true,
+                  color: "#2A2A2A",
+                  style: 1,
+                },
+                vertLines: {
+                  visible: true,
+                  color: "#2A2A2A",
+                  style: 1,
+                },
+              },
+              rightPriceScale: {
+                visible: true,
+                borderColor: "transparent",
+                textColor: "#666",
+              },
+              leftPriceScale: {
+                visible: false,
+              },
+              handleScroll: true,
+              handleScale: true,
+              autoSize: false,
+              width: dimension.width,
+              height: dimension.height,
+              localization: {
+                timeFormatter: (time: number) => {
+                  const date = new Date(time * 1000);
+                  return date.toLocaleString(undefined, {
+                    year: "2-digit",
+                    month: "short",
+                    day: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
+                  });
+                },
+              },
+            }}
+            containerProps={{
+              style: {
+                flexGrow: 1,
+              },
+            }}
+            onCrosshairMove={onCrosshairMove}
+          >
+            <RenderIf condition={!isCandleStick}>
+              <AreaSeries
+                ref={lineSeriesRef}
+                options={{
+                  topColor: chartColors.lineColor,
+                  bottomColor: "#08090B",
+                  lineColor: chartColors.lineColor,
+                  lineType: LineType.Curved,
+                  lineWidth: 3,
+                  pointMarkersVisible: false,
+                  lastValueVisible: false,
+                  priceLineVisible: false,
+                }}
+                data={aggregatedData as any}
+              />
+            </RenderIf>
+
+            <RenderIf condition={isCandleStick}>
+              <CandlestickSeries
+                ref={candleSeriesRef}
+                data={aggregatedData as CandlestickData[]}
+                reactive
+                options={{
+                  upColor: chartColors.upColor,
+                  downColor: chartColors.downColor,
+                  borderUpColor: chartColors.borderUpColor,
+                  borderDownColor: chartColors.borderDownColor,
+                  wickUpColor: chartColors.wickUpColor,
+                  wickDownColor: chartColors.wickDownColor,
+                }}
+              />
+            </RenderIf>
+
+            <TimeScale
+              ref={timeScaleRef}
+              options={{
+                borderColor: "transparent",
+                timeVisible: true,
+                secondsVisible: false,
+                tickMarkFormatter: (time: number) => {
+                  const date = new Date(time * 1000);
+                  const range = timeScaleRef.current?.api()?.getVisibleRange();
+                  const rangeDuration = Number(range?.to) - Number(range?.from);
+                  // Enhanced formatting for daily period
+                  if (selectedPeriod === "1D") {
+                    return date.toLocaleTimeString("en-US", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: false,
+                    });
+                  }
+                  const TWO_DAYS_IN_SECONDS = 2 * 24 * 60 * 60;
+                  if (rangeDuration < TWO_DAYS_IN_SECONDS) {
+                    return date.toLocaleTimeString("en-US", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: false,
+                    });
+                  } else {
+                    return date.toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                    });
+                  }
+                },
+              }}
+              onVisibleTimeRangeChange={(e) => {
+                visibleRangeRef.current = {
+                  from: e?.from,
+                  to: e?.to,
+                };
+              }}
+              onVisibleLogicalRangeChange={handleVisibleLogicalRangeChange}
+            >
+              <TimeScaleFitContentTrigger deps={[aggregatedData.length, selectedPeriod]} />
+            </TimeScale>
+          </Chart>
+
+          <div
+            ref={tooltipRef}
+            className="pointer-events-none absolute top-0 left-0 z-[9] overflow-visible whitespace-nowrap"
+            style={{
+              display: "none",
+              width: `${toolTipWidth}px`,
+              height: `${toolTipHeight}px`,
+            }}
+          />
+          <AnimatePresence>
+            {showTokenStats && (
+              <PriceChartCoinStats
+                filteredData={statsData}
+                oneYearMetrics={oneYearMetrics}
+                performanceMetrics={performanceMetrics}
+                selectedPeriod={selectedPeriod}
+                setShowTokenStats={setShowTokenStats}
+                token={token}
+              />
+            )}
+          </AnimatePresence>
+        </div>
       {/* Volume Chart Container */}
       {/* <div
         ref={volumeContainerRef}
@@ -1179,7 +1200,9 @@ function TestChart(props: IProps) {
           </TimeScale>
         </Chart>
       </div> */}
-    </div>
+      </div>
+      )}
+    </Fragment>
   );
 }
 
