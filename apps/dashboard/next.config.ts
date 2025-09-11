@@ -1,4 +1,4 @@
-import { withSentryConfig } from "@sentry/nextjs";
+import { SentryBuildOptions, withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
@@ -82,7 +82,7 @@ const nextConfig: NextConfig = {
   productionBrowserSourceMaps: false,
 };
 
-export default withSentryConfig(nextConfig, {
+const sentryConfig: SentryBuildOptions = {
   // For all available options, see:
   // https://www.npmjs.com/package/@sentry/webpack-plugin#options
 
@@ -113,4 +113,10 @@ export default withSentryConfig(nextConfig, {
   // https://docs.sentry.io/product/crons/
   // https://vercel.com/docs/cron-jobs
   automaticVercelMonitors: true,
-});
+};
+
+if (process.env.TURBOPACK) {
+  module.exports = nextConfig;
+} else {
+  module.exports = withSentryConfig(nextConfig, sentryConfig);
+}
