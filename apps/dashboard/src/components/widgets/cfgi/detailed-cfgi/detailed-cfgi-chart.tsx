@@ -258,15 +258,13 @@ const DetailedCfgiChart = memo((props: ICfgiCard) => {
   }, [cfgiData, viewOption, chart_init]);
 
   return (
-    <FullscreenableContainer isFullscreen={isFullscreen} onAnimationComplete={onAnimationComplete}>
-      <div className={cn("relative h-full w-full", isFullscreen && "pt-4")}>
-        <canvas
-          ref={canvasRef}
-          className="absolute top-0 left-0 right-0 bottom-0 !w-full !h-full"
-        ></canvas>
-      </div>
-    </FullscreenableContainer>
-  );
+    <div className="relative h-full w-full">
+      <canvas
+        ref={canvasRef}
+        className="absolute top-0 left-0 right-0 bottom-0 !h-full !w-full"
+      ></canvas>
+    </div>
+  );
 });
 
 DetailedCfgiChart.displayName = "DetailedCfgiChart";

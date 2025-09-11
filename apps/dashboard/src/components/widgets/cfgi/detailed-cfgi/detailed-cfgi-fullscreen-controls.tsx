@@ -1,5 +1,4 @@
-"use client";
-
+// DetailedCfgiFullscreenControls.tsx
 import React, { Fragment } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
@@ -7,29 +6,44 @@ import { getOverlayRoot } from "@/lib/utils";
 import { FullScreen } from "@/components/icons/icons";
 import CoinDropdown from "../../shared/coin-dropdown";
 import PeriodDropdown from "../../shared/period-dropdown";
-import CameraAndRefresh from "../../shared/camera-and-refresh";
 import ChartTab from "../../shared/chart-tab";
-import { CFGI_SUPPORTED_PERIODS_ENUM, CfgiPeriods } from "@/constant/cfgi-data";
-import { useSetAtom, useAtomValue } from "jotai";
-import { updateWidgetPropsAtom, LayoutType } from "@/lib/atoms/layoutAtom";
-import { activeTabAtom } from "@/lib/atoms/tabsAtom";
+import { CoinDataInterface } from "@/services/queries/charts/types"; // Import correct type
+import { CfgiPeriods } from "@/constant/cfgi-data";
 
+// NEW, simplified props interface
 interface IProps {
   isFullscreen: boolean;
   toggleFullscreen: () => void;
-  widget: LayoutType["widgets"][0];
-  coinData: any[];
-  isFetching: boolean;
-  chartRef: React.RefObject<HTMLDivElement | null>;
-  refetch: () => void;
+
+  // Control values and setters passed from the parent
+  coinOptions: CoinDataInterface[];
+  tokenValue?: string;
+  setTokenValue: (token: string) => void;
+
+  tabValue?: string;
+  setTabValue: (tab: string) => void;
+  
+  periodOptions: { label: string; value: string }[];
+  periodValue?: string;
+  setPeriodValue: (period: string) => void;
 }
 
 export function DetailedCfgiFullscreenControls(props: IProps) {
-  const { isFullscreen, toggleFullscreen, widget, coinData, isFetching, chartRef, refetch } = props;
+  // Destructure the new, simple props
+  const {
+    isFullscreen,
+    toggleFullscreen,
+    coinOptions,
+    tokenValue,
+    setTokenValue,
+    tabValue,
+    setTabValue,
+    periodOptions,
+    periodValue,
+    setPeriodValue,
+  } = props;
 
   const overlayRoot = getOverlayRoot();
-  const activeLayout = useAtomValue(activeTabAtom);
-  const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
 
   return (
     <Fragment>
@@ -45,43 +59,19 @@ export function DetailedCfgiFullscreenControls(props: IProps) {
             >
               <div className="flex flex-wrap items-center gap-2">
                 <CoinDropdown
-                  options={coinData || []}
-                  value={widget.props?.token}
-                  setValue={(coin: string) => {
-                    updateWidgetPropsFromAtom({
-                      tabId: activeLayout.id,
-                      widgetId: widget.id,
-                      widgetProps: { ...widget.props, token: coin },
-                    });
-                  }}
+                  options={coinOptions}
+                  value={tokenValue}
+                  setValue={setTokenValue} // Just call the prop function
                   title="Fear and Greed Chart"
                 />
                 <ChartTab
-                  value={widget.props?.sentiment_tab || "both"}
-                  setValue={(val) => {
-                    updateWidgetPropsFromAtom({
-                      tabId: activeLayout.id,
-                      widgetId: widget.id,
-                      widgetProps: { ...widget.props, sentiment_tab: val },
-                    });
-                  }}
+                  value={tabValue || "both"}
+                  setValue={setTabValue} // Just call the prop function
                 />
                 <PeriodDropdown
-                  options={CfgiPeriods}
-                  value={widget.props?.period || (CFGI_SUPPORTED_PERIODS_ENUM.DAY1 as string)}
-                  setValue={(value: string) => {
-                    updateWidgetPropsFromAtom({
-                      tabId: activeLayout.id,
-                      widgetId: widget.id,
-                      widgetProps: { ...widget.props, period: value },
-                    });
-                  }}
-                />
-                <CameraAndRefresh
-                  isFetching={isFetching}
-                  chartRef={chartRef}
-                  file="Detailed Fear and Greed Chart.png"
-                  refetch={refetch}
+                  options={periodOptions}
+                  value={periodValue as string}
+                  setValue={setPeriodValue} // Just call the prop function
                 />
               </div>
               <div className="flex items-center">

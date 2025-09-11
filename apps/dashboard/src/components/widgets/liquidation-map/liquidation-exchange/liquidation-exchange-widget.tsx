@@ -2,7 +2,7 @@
 
 import { useFetchLiquidDataMerged, useGetSupportedxchangePairs, useReadCoinList } from "@/services/queries/charts";
 import CoinDropdown from "../../shared/coin-dropdown";
-import { useCallback, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import PeriodDropdown from "../../shared/period-dropdown";
 import { LiquidTabOptions, liquidTimeframeOptions } from "@/constant/cfgi-data";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -17,7 +17,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { cn, modalSlide } from "@/lib/utils";
 import { FullScreen, Close } from "@/components/icons/icons";
 import CameraAndRefresh from "../../shared/camera-and-refresh";
-import { LiquidationExchangeFullscreenControls } from "./liquidation-exchange-fullscreen-controls";
+import WidgetModalWrapper from "@/components/modals/widget-modal";
 
 const colorToCfgi = [
   {
@@ -44,32 +44,19 @@ const colorToCfgi = [
 
 interface IProps {
   widget: LayoutType["widgets"][0];
+  fullScreenButton?: boolean;
 }
 
 export default function LiquidationExchangeWidget(props: IProps) {
   const { widget } = props;
   const [showInfo, setShowInfo] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isControlsVisible, setIsControlsVisible] = useState(true);
   const chartRef = useRef<HTMLDivElement>(null);
 
   const { data: coinData } = useReadCoinList();
   const { data: pairsData } = useGetSupportedxchangePairs();
   const activeLayout = useAtomValue(activeTabAtom);
   const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
-
-  const toggleFullscreen = () => {
-    setIsFullscreen((prev) => !prev);
-    if (!isFullscreen) {
-      setIsControlsVisible(false);
-    }
-  };
-
-  const onAnimationComplete = useCallback(() => {
-    if (!isFullscreen) {
-      setIsControlsVisible(true);
-    }
-  }, [isFullscreen]);
 
   const {
     data: liquidationData,
@@ -80,10 +67,10 @@ export default function LiquidationExchangeWidget(props: IProps) {
   const [chartViewOptions] = useState(LiquidTabOptions[1].value);
 
   return (
-    <>
+    <WidgetModalWrapper widget={widget} isFullscreen={isFullscreen} setIsFullscreen={setIsFullscreen}>
       <WidgetWrapper widget={widget} title="Exchange Liquidation Map" handleLearnMore={() => setShowInfo(true)}>
-        <div className={cn("relative flex h-full w-full flex-col", isFullscreen && "py-[60px]")} ref={chartRef}>
-          {!isFullscreen && coinData && (
+        <div className={cn("relative flex h-full w-full flex-col")} ref={chartRef}>
+          {  coinData && (
             <div className="py-2">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <CoinDropdown
@@ -130,119 +117,105 @@ export default function LiquidationExchangeWidget(props: IProps) {
           )}
 
           <div className="flex h-full w-full flex-col">
-            <div className={cn(isFullscreen && "pt-[60px]")}>
+            <div>
               <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 pt-1">
                 <ChartLegend colorOptions={colorToCfgi} />
               </div>
             </div>
             <PremiumOverlay>
-            <div className="mx-3 flex-grow min-h-[250px]">
-              {liquidationData && !isFetching ? (
-                <LiquidationChart
-                  liquidationData={liquidationData}
-                  viewOption={chartViewOptions}
-                  token={widget.props?.token}
-                  isFullscreen={isFullscreen}
-                  onAnimationComplete={onAnimationComplete}
-                />
-              ) : (
-                <Skeleton className="bg-widget-background-200 h-full w-full" />
-              )}
-            </div>
+              <div className="mx-3 flex-grow min-h-[250px]">
+                {liquidationData && !isFetching ? (
+                  <LiquidationChart
+                    liquidationData={liquidationData}
+                    viewOption={chartViewOptions}
+                    token={widget.props?.token}
+                    isFullscreen={isFullscreen}
+                  />
+                ) : (
+                  <Skeleton className="bg-widget-background-200 h-full w-full" />
+                )}
+              </div>
             </PremiumOverlay>
           </div>
         </div>
 
         {/* Learn More Modal */}
         <AnimatePresence>
-                  {showInfo && (
-                    <div className="absolute top-[10px] right-[10px] bottom-[10px] left-[10px] z-9 flex items-end">
-                      <motion.div
-                        className="scrollbar max-h-full overflow-auto rounded-[22px] bg-neutral-800 text-white px-5 py-4"
-                        variants={modalSlide}
-                        initial="hidden"
-                        animate="visible"
-                        exit="hidden"
-                      >
-                        <div className="flex flex-col gap-4 overflow-auto">
-                          <div className="flex flex-col gap-4">
-                            <div className="flex flex-col">
-                              <h3 className="text-base leading-[1.35] font-semibold">Exchange Liquidation Map</h3>
-                              <p className="text-[13px] leading-[1.25] font-light text-neutral-400">
-                                Learn about the Exchange Liquidation Map
-                              </p>
-                            </div>
-                            <p className="text-[13px] leading-[1.35] font-medium">
-                              An Exchange liquidation map is a visual chart that predicts at which price levels a large number of
-                              cryptocurrency futures positions will be forcibly closed. Its horizontal axis (X-axis) shows the
-                              price, while its vertical axis (Y-axis) represents the relative intensity of potential
-                              liquidations, highlighting areas of high financial risk.{" "}
-                            </p>
-                            <p className="text-[13px] leading-[1.35] font-medium">
-                              When a dense cluster of liquidations is triggered, it can cause a &quot;cascading effect.&quot;
-                              The initial forced selling or buying creates rapid price movements, which in turn liquidates more
-                              nearby positions. This chain reaction generates significant market volatility and a surge of
-                              liquidity.{" "}
-                            </p>
-                            <p className="text-[13px] leading-[1.35] font-medium">
-                              Traders use these maps to gain a strategic edge. They can identify optimal entry and exit points,
-                              place stop-losses more intelligently to avoid being prematurely triggered, and find high-liquidity
-                              zones to execute large trades with minimal price slippage.{" "}
-                            </p>
-                          </div>
-        
-                          <p className="text-xs font-semibold text-neutral-400 text-[1.25]">
-                            We use data from{" "}
-                            <a href="https://www.coinglass.com/" target="_blank" className="underline">
-                              Coinglass.com
-                            </a>
-                          </p>
-        
-                          <div className="flex justify-center">
-                            <button
-                              type="button"
-                              className="app_widget_button flex h-[26px] items-center justify-center gap-1 rounded-[40px] bg-neutral-700"
-                              onClick={() => setShowInfo(false)}
-                            >
-                              <p className="app_widget_button__text text-[13px] font-medium whitespace-nowrap">Close</p>
-                              <div className="app_widget_button__icon">
-                                <Close />
-                              </div>
-                            </button>
-                          </div>
-                        </div>
-                      </motion.div>
+          {showInfo && (
+            <div className="absolute top-[10px] right-[10px] bottom-[10px] left-[10px] z-9 flex items-end">
+              <motion.div
+                className="scrollbar max-h-full overflow-auto rounded-[22px] bg-neutral-800 text-white px-5 py-4"
+                variants={modalSlide}
+                initial="hidden"
+                animate="visible"
+                exit="hidden"
+              >
+                <div className="flex flex-col gap-4 overflow-auto">
+                  <div className="flex flex-col gap-4">
+                    <div className="flex flex-col">
+                      <h3 className="text-base leading-[1.35] font-semibold">Exchange Liquidation Map</h3>
+                      <p className="text-[13px] leading-[1.25] font-light text-neutral-400">
+                        Learn about the Exchange Liquidation Map
+                      </p>
                     </div>
-                  )}
-                </AnimatePresence>
+                    <p className="text-[13px] leading-[1.35] font-medium">
+                      An Exchange liquidation map is a visual chart that predicts at which price levels a large number of
+                      cryptocurrency futures positions will be forcibly closed. Its horizontal axis (X-axis) shows the
+                      price, while its vertical axis (Y-axis) represents the relative intensity of potential
+                      liquidations, highlighting areas of high financial risk.
+                    </p>
+                    <p className="text-[13px] leading-[1.35] font-medium">
+                      When a dense cluster of liquidations is triggered, it can cause a &quot;cascading effect.&quot;
+                      The initial forced selling or buying creates rapid price movements, which in turn liquidates more
+                      nearby positions. This chain reaction generates significant market volatility and a surge of
+                      liquidity.
+                    </p>
+                    <p className="text-[13px] leading-[1.35] font-medium">
+                      Traders use these maps to gain a strategic edge. They can identify optimal entry and exit points,
+                      place stop-losses more intelligently to avoid being prematurely triggered, and find high-liquidity
+                      zones to execute large trades with minimal price slippage.
+                    </p>
+                  </div>
+
+                  <p className="text-xs font-semibold text-neutral-400 text-[1.25]">
+                    We use data from{" "}
+                    <a href="https://www.coinglass.com/" target="_blank" className="underline">
+                      Coinglass.com
+                    </a>
+                  </p>
+
+                  <div className="flex justify-center">
+                    <button
+                      type="button"
+                      className="app_widget_button flex h-[26px] items-center justify-center gap-1 rounded-[40px] bg-neutral-700"
+                      onClick={() => setShowInfo(false)}
+                    >
+                      <p className="app_widget_button__text text-[13px] font-medium whitespace-nowrap">Close</p>
+                      <div className="app_widget_button__icon">
+                        <Close />
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* Fullscreen button */}
+        <div
+          className="absolute right-[9px] bottom-[16px] z-[9] h-[28px] w-[28px] rounded-md border border-[#1c1c1c]"
+          style={{
+            background: "linear-gradient(180deg, #1b1b1b 0%, rgba(0, 0, 0, 0.38) 72.15%)",
+            backdropFilter: "blur(7px)",
+            opacity: isFullscreen ? 0 : 1,
+          }}
+        >
+          <button className="flex h-full w-full items-center justify-center" onClick={() => setIsFullscreen(true)}>
+            <FullScreen />
+          </button>
+        </div>
       </WidgetWrapper>
-
-      <LiquidationExchangeFullscreenControls
-        isFullscreen={isFullscreen}
-        toggleFullscreen={toggleFullscreen}
-        widget={widget}
-        coinData={coinData || []}
-        pairsData={pairsData || []}
-        isFetching={isFetching}
-        chartRef={chartRef}
-        refetch={refetch}
-      />
-
-      <div
-        className={cn("absolute right-[9px] bottom-[16px] z-[9] h-[28px] w-[28px] rounded-md border border-[#1c1c1c]", {
-          "opacity-0": !isControlsVisible,
-          "opacity-100": isControlsVisible,
-        })}
-        style={{
-          background: "linear-gradient(180deg, #1b1b1b 0%, rgba(0, 0, 0, 0.38) 72.15%)",
-          backdropFilter: "blur(7px)",
-          transition: "opacity 0.3s ease-in-out",
-        }}
-      >
-        <button className="flex h-full w-full items-center justify-center" onClick={toggleFullscreen}>
-          <FullScreen />
-        </button>
-      </div>
-    </>
+    </WidgetModalWrapper>
   );
 }

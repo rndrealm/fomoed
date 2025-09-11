@@ -464,11 +464,11 @@ const LiquidationChart = memo((props: ICfgiCard) => {
   }, [liquidationData, viewOption, chart_init, token]);
 
   return (
-    <FullscreenableContainer isFullscreen={isFullscreen} onAnimationComplete={onAnimationComplete}>
+    //<FullscreenableContainer isFullscreen={isFullscreen} onAnimationComplete={onAnimationComplete}>
       <div className={cn("relative h-full w-full pb-1", isFullscreen && "pt-[50px]")}>
         <canvas width="400" height={0} ref={canvasRef}></canvas>
       </div>
-    </FullscreenableContainer>
+    //</FullscreenableContainer>
   );
 });
 
