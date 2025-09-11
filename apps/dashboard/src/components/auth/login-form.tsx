@@ -49,7 +49,7 @@ export function LoginForm() {
           const marketingUrl = process.env.NEXT_PUBLIC_MARKETING_APP_URL;
           window.location.href = marketingUrl || "https://marketing.fomoed.io";
         } else {
-          const redirectUrl = nextUrl && nextUrl !== "/auth/login" ? nextUrl : AppRoutes.news.path;
+          const redirectUrl = nextUrl && nextUrl !== "/auth/login" ? nextUrl : AppRoutes.dashboard.path;
           router.push(redirectUrl);
         }
       } else {

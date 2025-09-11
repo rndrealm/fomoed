@@ -14,6 +14,7 @@ import {
   Hamburger,
   NewsIconV2,
   WidgetDashboardIconV2,
+  EducationIcon,
 } from "../icons/icons";
 import { AppRoutes } from "@/lib/routes";
 import { User } from "@supabase/supabase-js";
@@ -60,6 +61,15 @@ const navLinks: INavLink[] = [
     beta: false,
     alpha: false,
     comingSoon: false,
+  },
+  {
+    label: "Fomoed Education",
+    icon: <EducationIcon />,
+    href: `#`,
+    disabled: false,
+    beta: false,
+    alpha: false,
+    comingSoon: true,
   },
 ];
 
