@@ -154,7 +154,7 @@ const DetailedCfgiChart = (props: ICfgiCard) => {
         interaction: {
           mode: "nearest",
         },
-        responsive: false,
+        responsive: true,
         maintainAspectRatio: false,
         animations: false,
         scales: {
