@@ -1,4 +1,4 @@
-import {withSentryConfig} from "@sentry/nextjs";
+import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
@@ -79,7 +79,7 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  productionBrowserSourceMaps: true,
+  productionBrowserSourceMaps: false,
 };
 
 export default withSentryConfig(nextConfig, {
