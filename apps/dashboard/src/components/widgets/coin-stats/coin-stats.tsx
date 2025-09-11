@@ -107,7 +107,7 @@ export default function CoinStats(props: IProps) {
               <LinkItem icon={Twitter} label="X (Twitter)" />
               <LinkItem icon={Explorer} label="Explorer" /> */}
 
-              <LinkItem icon={<Globe />} label="" href={coinStats?.websiteUrl} />
+              <LinkItem icon={<Globe />} label="" href={widget.props.token === "bitcoin" ? "https://bitcoin.org/" : coinStats?.websiteUrl} />
               <LinkItem icon={<Twitter />} label="" href={coinStats?.twitterUrl} />
               <LinkItem icon={<Explorer />} label="" href={coinStats?.explorers?.[0]} />
             </div>
