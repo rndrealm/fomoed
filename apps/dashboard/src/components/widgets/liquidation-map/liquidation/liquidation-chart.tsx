@@ -60,10 +60,10 @@ const getDecimalPlaces = (bucketSize: number): number => {
   }
 
   if (decimals <= 0) {
-    decimals = 1
+    decimals = 1;
   }
 
-  return decimals -1; 
+  return decimals - 1;
 };
 
 const LiquidationChart = memo((props: ICfgiCard) => {
@@ -91,8 +91,8 @@ const LiquidationChart = memo((props: ICfgiCard) => {
         zoom: {
           wheel: {
             enabled: true,
-            speed: 0.1, 
-            modifierKey: undefined, 
+            speed: 0.1,
+            modifierKey: undefined,
           },
           pinch: {
             enabled: true,
@@ -109,7 +109,7 @@ const LiquidationChart = memo((props: ICfgiCard) => {
         pan: {
           enabled: true,
           mode: "x",
-          threshold: 0, 
+          threshold: 0,
         },
         limits: {
           x: {
@@ -147,7 +147,7 @@ const LiquidationChart = memo((props: ICfgiCard) => {
             getTextColor: () => () => "white",
           },
         ],
-        crosshairEnableDelay: 50, 
+        crosshairEnableDelay: 50,
         labelStackDirection: "vertical",
       };
 
@@ -220,16 +220,16 @@ const LiquidationChart = memo((props: ICfgiCard) => {
               {
                 type: "line",
                 data: liquidationData.liqBars.map((bar) => ({ x: bar.x, y: 0 })),
-                borderColor: "rgba(0,0,0,0)", 
+                borderColor: "rgba(0,0,0,0)",
                 backgroundColor: "rgba(0,0,0,0)",
                 pointRadius: 0,
                 borderWidth: 0,
                 xAxisID: "x",
                 yAxisID: "y",
-                order: 0, 
-                label: "", 
+                order: 0,
+                label: "",
                 parsing: false,
-                hidden: true, 
+                hidden: true,
               },
               {
                 type: "bar",
@@ -271,6 +271,19 @@ const LiquidationChart = memo((props: ICfgiCard) => {
                 parsing: false,
               },
               {
+                type: "bar",
+                data: liquidationData.liqBars.filter((bar) => bar.color === "#6EC2F0"),
+                order: 20, 
+                backgroundColor: "#6EC2F0",
+                xAxisID: "x",
+                yAxisID: "y",
+                barPercentage: 1.0,
+                categoryPercentage: 0.9,
+                stack: "liquidation-bars",
+                label: "10x Liquidations", 
+                parsing: false,
+              },
+              {
                 type: "line",
                 label: "Cumulative Long Liquidation",
                 data: liquidationData.cumulativeLongLiqLeverage,
@@ -307,7 +320,7 @@ const LiquidationChart = memo((props: ICfgiCard) => {
               },
             },
             spanGaps: true,
-            animation: false, 
+            animation: false,
             responsive: true,
             maintainAspectRatio: false,
             onResize: (chart) => {},
@@ -338,7 +351,7 @@ const LiquidationChart = memo((props: ICfgiCard) => {
               },
               y: {
                 type: "linear",
-                stacked: true, 
+                stacked: true,
                 grid: {
                   color: "#fff1",
                 },
@@ -347,7 +360,7 @@ const LiquidationChart = memo((props: ICfgiCard) => {
                 },
                 min: 0,
                 ticks: {
-                  maxTicksLimit: 15, 
+                  maxTicksLimit: 15,
                   callback: (val: any) => {
                     const maxBarValue = Math.max(...liquidationData.liqBars.map((bar) => bar.y));
                     const formatter = getScaleFormatter(maxBarValue);
@@ -367,7 +380,7 @@ const LiquidationChart = memo((props: ICfgiCard) => {
                   dash: [8, 4],
                 },
                 ticks: {
-                  maxTicksLimit: 15, 
+                  maxTicksLimit: 15,
                   callback: (val: any) => {
                     const formatter = getScaleFormatter(liquidationData.maxCumulativeValue);
                     return `$${Math.round(val / formatter.divisor)}${formatter.suffix}`;
@@ -393,7 +406,7 @@ const LiquidationChart = memo((props: ICfgiCard) => {
             },
             elements: {
               point: {
-                radius: 0, 
+                radius: 0,
                 hoverRadius: 0,
               },
               line: {
@@ -427,7 +440,7 @@ const LiquidationChart = memo((props: ICfgiCard) => {
               );
             }
           }
-        }, 50); 
+        }, 50);
       }
     };
 

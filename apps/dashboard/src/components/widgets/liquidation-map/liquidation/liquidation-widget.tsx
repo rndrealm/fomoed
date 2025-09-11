@@ -34,6 +34,10 @@ const colorToCfgi = [
     color: "#73D8DA",
   },
   {
+    label: "10x leverage",
+    color: "#6EC2F0",
+  },
+  {
     label: "Cumulative Short Liquidation Leverage",
     color: "#22AB94",
   },
