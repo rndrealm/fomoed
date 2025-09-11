@@ -13,25 +13,16 @@ interface BadgeProps {
   isSideMenuOpen: boolean;
 }
 
-function StatusBadge({
-  text,
-  borderColor,
-  backgroundColor,
-  textColor,
-  isSideMenuOpen,
-}: BadgeProps) {
+function StatusBadge({ text, borderColor, backgroundColor, textColor, isSideMenuOpen }: BadgeProps) {
   return (
     <motion.div
-      className={`mr-3 absolute top-1/2 right-0 hidden translate-y-[-50%] rounded-[8px] border-[1px] px-2 py-1 md:flex`}
+      className={`mr-3 absolute top-1/2 right-0 hidden translate-y-[-50%] rounded-[8px] border-[1px] px-[0.4rem] py-1 md:flex`}
       style={{ borderColor, backgroundColor }}
       initial="closed"
       variants={sideMenuVariants}
       animate={isSideMenuOpen ? "open" : "closed"}
     >
-      <h3
-        className="text-xs font-normal text-nowrap"
-        style={{ color: textColor }}
-      >
+      <h3 className="text-xs font-normal text-nowrap" style={{ color: textColor }}>
         {text}
       </h3>
     </motion.div>
@@ -114,9 +105,7 @@ export function NavLink(props: INavLinkProps) {
           className={cn(
             "pointer-events-auto relative flex h-[40px] w-[40px] max-h-[40px] items-center justify-center rounded-[10px] px-0 py-2",
             isHovered && !disabled ? "bg-[#161616]" : "bg-[#0a0a0a]",
-            active
-              ? "bg-[#161616] border-[1px] border-[#242424]"
-              : "border-none",
+            active ? "bg-[#161616] border-[1px] border-[#242424]" : "border-none",
           )}
         >
           {/* icon can be hovered */}
@@ -124,24 +113,14 @@ export function NavLink(props: INavLinkProps) {
             {/* make the active icon white */}
             <div key={label}>
               {React.cloneElement(icon, {
-                ...(active
-                  ? { fill: "#ffff" }
-                  : disabled
-                    ? { fill: "#838383" }
-                    : {}),
+                ...(active ? { fill: "#ffff" } : disabled ? { fill: "#838383" } : {}),
               })}
             </div>
           </div>
 
           {/* hover popup */}
           {isHovered && (
-            <LinkPopup
-              label={label}
-              className="left-[48px]"
-              beta={beta}
-              alpha={alpha}
-              comingSoon={comingSoon}
-            />
+            <LinkPopup label={label} className="left-[48px]" beta={beta} alpha={alpha} comingSoon={comingSoon} />
           )}
         </div>
       </Link>
@@ -192,9 +171,7 @@ export function NavLink(props: INavLinkProps) {
           <div
             className={cn(
               "w-[48px] h-[40px] flex items-center justify-center",
-              !active &&
-                !isBottomLink &&
-                "!opacity-100 md:!opacity-0 md:group-hover:!opacity-100",
+              !active && !isBottomLink && "!opacity-100 md:!opacity-0 md:group-hover:!opacity-100",
               isBottomLink ? "" : "mt-[0px]",
             )}
           >
@@ -213,7 +190,7 @@ export function NavLink(props: INavLinkProps) {
           </div>
           <motion.p
             className={cn(
-              "text-sm font-normal md:text-[14px]",
+              "text-sm font-normal md:text-[13px]",
               isBottomLink
                 ? "text-[#838383]"
                 : active
