@@ -10,7 +10,7 @@ import Chart from "chart.js/auto";
 import "chartjs-adapter-dayjs-4/dist/chartjs-adapter-dayjs-4.esm";
 import type { ZoomPluginOptions } from "chartjs-plugin-zoom/types/options";
 import dayjs from "dayjs";
-import { useCallback, useEffect, useRef, memo } from "react"; // 1. Import memo
+import { useCallback, useEffect, useRef, memo } from "react"; 
 
 import {
   CrosshairPlugin,
@@ -19,12 +19,11 @@ import {
 import { TabOptions } from "@/constant/cfgi-data";
 import { signalModalConfigAtom } from "@/lib/atoms/signalModalAtom";
 import { useAtom } from "jotai";
-import { FullscreenableContainer } from "../../shared"; // 2. Import FullscreenableContainer
-import { cn } from "@/lib/utils"; // 3. Import cn utility
+import { FullscreenableContainer } from "../../shared";
+import { cn } from "@/lib/utils";
 
 Chart.register(CrosshairPlugin);
 
-// 4. Update the props interface
 interface ICfgiCard {
   cfgiData: CfgiDataResponse[];
   viewOption: string;
@@ -32,13 +31,11 @@ interface ICfgiCard {
   onAnimationComplete?: () => void;
 }
 
-// 5. Wrap component in memo and update props
 const DetailedCfgiChart = memo((props: ICfgiCard) => {
   useEffect(() => {
     registerChartPluginZoomInBrowser();
   }, []);
   
-  // 6. Destructure new props
   const { cfgiData, viewOption, isFullscreen, onAnimationComplete } = props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
@@ -56,7 +53,6 @@ const DetailedCfgiChart = memo((props: ICfgiCard) => {
 
   const chart_init = useCallback(
     (ctx: CanvasRenderingContext2D) => {
-      // ... all of your existing chart_init logic remains exactly the same ...
       const data = cfgiData.filter((d) => d.price && d.cfgi);
       const prices_data = data.map((d) => {
         return { x: d.date, y: d.price };
@@ -261,7 +257,6 @@ const DetailedCfgiChart = memo((props: ICfgiCard) => {
     chart_init(ctx);
   }, [cfgiData, viewOption, chart_init]);
 
-  // 7. Update the return statement
   return (
     <FullscreenableContainer isFullscreen={isFullscreen} onAnimationComplete={onAnimationComplete}>
       <div className={cn("relative h-full w-full", isFullscreen && "pt-4")}>

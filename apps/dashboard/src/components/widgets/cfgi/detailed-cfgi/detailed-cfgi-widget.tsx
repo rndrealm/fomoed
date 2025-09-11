@@ -14,10 +14,10 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { LayoutType, updateWidgetPropsAtom } from "@/lib/atoms/layoutAtom";
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 import CameraAndRefresh from "../../shared/camera-and-refresh";
-import { WidgetWrapper } from "../../shared"; // Make sure this import is correct
+import { WidgetWrapper } from "../../shared"; 
 import { AnimatePresence, motion } from "motion/react";
 import { Close, FullScreen } from "@/components/icons/icons";
-import { DetailedCfgiFullscreenControls } from "./detailed-cfgi-fullscreen-controls"; // Import the new component
+import { DetailedCfgiFullscreenControls } from "./detailed-cfgi-fullscreen-controls";
 
 const colorToCfgi = [
   { label: "0-25", color: "#FF3B10" },
@@ -62,7 +62,7 @@ export default function DetailedCfgiWidget(props: IProps) {
 
   return (
     <>
-      <WidgetWrapper widget={widget} title="Detailed CFGI" handleLearnMore={() => setShowInfo(true)}>
+      <WidgetWrapper widget={widget} title="Fear and Greed Chart" handleLearnMore={() => setShowInfo(true)}>
         <div className={cn("relative flex h-full w-full flex-col", isFullscreen && "py-[60px]")} ref={chartRef}>
           {!isFullscreen && coinData && (
             <div className="py-2">
@@ -77,7 +77,7 @@ export default function DetailedCfgiWidget(props: IProps) {
                       widgetProps: { ...widget.props, token: coin },
                     });
                   }}
-                  title="Fear and Greed Chart"
+                  title=""
                 />
                 <div className="flex flex-wrap items-center justify-start sm:justify-end gap-2">
                   <ChartTab
@@ -119,7 +119,7 @@ export default function DetailedCfgiWidget(props: IProps) {
                   isFullscreen={isFullscreen}
                   cfgiData={data}
                   viewOption={widget.props?.sentiment_tab || "both"}
-                  onAnimationComplete={onAnimationComplete} // Pass this down if the chart library supports it
+                  onAnimationComplete={onAnimationComplete} 
                 />
               ) : (
                 <Skeleton className="bg-widget-background-200 h-full w-full" />
@@ -145,7 +145,7 @@ export default function DetailedCfgiWidget(props: IProps) {
                 <div className="flex flex-col gap-4 overflow-auto">
                   <div className="flex flex-col gap-4">
                     <div className="flex flex-col">
-                      <h3 className="text-base leading-[1.35] font-semibold">Detailed CFGI</h3>
+                      <h3 className="text-base leading-[1.35] font-semibold">Fear and Greed Chart</h3>
                       <p className="text-[13px] leading-[1.25] font-light text-neutral-400">
                         Learn about the Crypto Fear & Greed Index
                       </p>
