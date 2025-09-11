@@ -19,7 +19,11 @@ interface BadgeProps {
 function StatusBadge({ text, borderColor, backgroundColor, textColor, isSideMenuOpen }: BadgeProps) {
   return (
     <motion.div
+<<<<<<< HEAD
       className={`pointer-events-none mr-3 absolute top-1/2 right-0 flex translate-y-[-50%] rounded-[8px] border-[1px] px-2 py-1`}
+=======
+      className={`mr-3 absolute top-1/2 right-0 hidden translate-y-[-50%] rounded-[8px] border-[1px] px-[0.4rem] py-1 md:flex`}
+>>>>>>> e16dcf97 (feat: fix navbar text spacing)
       style={{ borderColor, backgroundColor }}
       initial="closed"
       variants={sideMenuVariants}
@@ -200,7 +204,11 @@ export function NavLink(props: INavLinkProps) {
             className={cn(
               "w-[48px] h-[40px] flex items-center justify-center",
               !active && !isBottomLink && "!opacity-100 md:!opacity-0 md:group-hover:!opacity-100",
+<<<<<<< HEAD
               isBottomLink ? "!opacity-100" : "mt-[0px]",
+=======
+              isBottomLink ? "" : "mt-[0px]",
+>>>>>>> e16dcf97 (feat: fix navbar text spacing)
             )}
           >
             <div
@@ -220,7 +228,11 @@ export function NavLink(props: INavLinkProps) {
           {/* link label */}
           <motion.p
             className={cn(
+<<<<<<< HEAD
               "ml-[-6px] text-sm font-normal md:text-[14px]",
+=======
+              "text-sm font-normal md:text-[13px]",
+>>>>>>> e16dcf97 (feat: fix navbar text spacing)
               isBottomLink
                 ? "text-[#838383] group-hover:text-white"
                 : active
