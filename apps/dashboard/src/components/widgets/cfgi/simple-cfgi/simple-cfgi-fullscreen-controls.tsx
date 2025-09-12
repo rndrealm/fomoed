@@ -5,9 +5,7 @@ import { getOverlayRoot } from "@/lib/utils";
 import { FullScreen } from "@/components/icons/icons";
 import CoinDropdown from "../../shared/coin-dropdown";
 import PeriodDropdown from "../../shared/period-dropdown";
-import ChartTab from "../../shared/chart-tab";
-import { CoinDataInterface } from "@/services/queries/charts/types"; 
-import { CfgiPeriods } from "@/constant/cfgi-data";
+import { CoinDataInterface } from "@/services/queries/charts/types";
 
 interface IProps {
   isFullscreen: boolean;
@@ -15,22 +13,18 @@ interface IProps {
   coinOptions: CoinDataInterface[];
   tokenValue?: string;
   setTokenValue: (token: string) => void;
-  tabValue?: string;
-  setTabValue: (tab: string) => void;
   periodOptions: { label: string; value: string }[];
   periodValue?: string;
   setPeriodValue: (period: string) => void;
 }
 
-export function DetailedCfgiFullscreenControls(props: IProps) {
+export function SimpleCfgiFullscreenControls(props: IProps) {
   const {
     isFullscreen,
     toggleFullscreen,
     coinOptions,
     tokenValue,
     setTokenValue,
-    tabValue,
-    setTabValue,
     periodOptions,
     periodValue,
     setPeriodValue,
@@ -54,17 +48,13 @@ export function DetailedCfgiFullscreenControls(props: IProps) {
                 <CoinDropdown
                   options={coinOptions}
                   value={tokenValue}
-                  setValue={setTokenValue} 
+                  setValue={setTokenValue}
                   title="Fear and Greed Chart"
-                />
-                <ChartTab
-                  value={tabValue || "both"}
-                  setValue={setTabValue} 
                 />
                 <PeriodDropdown
                   options={periodOptions}
                   value={periodValue as string}
-                  setValue={setPeriodValue} 
+                  setValue={setPeriodValue}
                 />
               </div>
               <div className="flex items-center">

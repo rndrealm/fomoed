@@ -17,7 +17,7 @@ import { cn, modalSlide } from "@/lib/utils";
 import { Close, FullScreen } from "@/components/icons/icons";
 import CameraAndRefresh from "../../shared/camera-and-refresh";
 import PremiumOverlay from "../../shared/premium-overlay";
-import WidgetModalWrapper from "@/components/modals/widget-modal"; // Import the wrapper
+import WidgetModalWrapper from "@/components/modals/widget-modal"; 
 import { AnimatePresence, motion } from "motion/react";
 
 const colorToCfgi = [
@@ -55,7 +55,7 @@ interface IProps {
 export default function LiquidationWidget(props: IProps) {
   const { widget } = props;
   const [showInfo, setShowInfo] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false); // State for the modal
+  const [isFullscreen, setIsFullscreen] = useState(false); 
   const chartRef = useRef<HTMLDivElement>(null);
 
   const { data: coinData } = useReadCoinList();
@@ -248,13 +248,12 @@ export default function LiquidationWidget(props: IProps) {
           )}
         </AnimatePresence>
 
-        {/* Fullscreen button from example */}
         <div
           className="absolute right-[9px] bottom-[16px] z-[9] h-[28px] w-[28px] rounded-md border border-[#1c1c1c]"
           style={{
             background: "linear-gradient(180deg, #1b1b1b 0%, rgba(0, 0, 0, 0.38) 72.15%)",
             backdropFilter: "blur(7px)",
-            opacity: isFullscreen ? 0 : 1, // Hide when fullscreen
+            opacity: isFullscreen ? 0 : 1,
           }}
         >
           <button className="flex h-full w-full items-center justify-center" onClick={() => setIsFullscreen(true)}>

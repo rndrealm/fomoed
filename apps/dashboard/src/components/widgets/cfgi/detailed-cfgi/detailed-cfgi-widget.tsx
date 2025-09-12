@@ -16,8 +16,6 @@ import { AnimatePresence, motion } from "motion/react";
 import { Close, FullScreen, Question } from "@/components/icons/icons";
 import { DetailedCfgiFullscreenControls } from "./detailed-cfgi-fullscreen-controls";
 import { FullscreenableCfgiChart } from "./fullscreenable-cfgi-chart";
-
-// --- IMPORTS FOR WRAPPER LOGIC ---
 import { OptionsDropdown } from "../../shared/options-dropwdown";
 import { settingAtom, updateSettingAtom } from "@/lib/atoms/settingsAtom";
 import StarFilled from "@/components/icons/StarFilled";
@@ -45,7 +43,6 @@ export default function DetailedCfgiWidget(props: IProps) {
   const activeLayout = useAtomValue(activeTabAtom);
   const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
 
-  // --- STATE MANAGEMENT FOR HEADER ICONS ---
   const settings = useAtomValue(settingAtom);
   const updateSettings = useSetAtom(updateSettingAtom);
   const widgetSlug = splitWidgetSlug(widget.meta.i).slug;

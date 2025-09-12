@@ -1,5 +1,5 @@
 import React from "react";
-import DetailedCfgiChart from "./detailed-cfgi-chart";
+import SimpleCfgiChart from "./simple-cfgi-chart";
 import { FullscreenableContainer } from "../../shared";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CfgiDataResponse } from "@/services/queries/charts/types";
@@ -9,12 +9,11 @@ interface FullscreenableChartProps {
   isPending: boolean;
   error: Error | null;
   cfgiData?: CfgiDataResponse[];
-  viewOption: "fear" | "greed" | "both";
   onAnimationComplete?: () => void;
 }
 
-export function FullscreenableCfgiChart(props: FullscreenableChartProps) {
-  const { isFullscreen, isPending, error, cfgiData, viewOption, onAnimationComplete } = props;
+export function FullscreenableSimpleCfgiChart(props: FullscreenableChartProps) {
+  const { isFullscreen, isPending, error, cfgiData, onAnimationComplete } = props;
 
   return (
     <FullscreenableContainer isFullscreen={isFullscreen} onAnimationComplete={onAnimationComplete}>
@@ -23,11 +22,9 @@ export function FullscreenableCfgiChart(props: FullscreenableChartProps) {
       ) : error ? (
         <div className="flex h-full w-full items-center justify-center text-red-500">Error: {error.message}</div>
       ) : cfgiData && cfgiData.length > 0 ? (
-        <DetailedCfgiChart
+        <SimpleCfgiChart
           cfgiData={cfgiData}
-          viewOption={viewOption}
-          isFullscreen={isFullscreen}
-          onAnimationComplete={onAnimationComplete} 
+          isFullscreen={isFullscreen} 
         />
       ) : (
         <div className="flex h-full w-full items-center justify-center text-gray-500">No data available.</div>

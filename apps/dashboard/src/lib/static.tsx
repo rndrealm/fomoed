@@ -351,7 +351,7 @@ export const chartsMap = {
   "simple-cfgi": {
     name: "Simplified Crypto Fear and Greed Map",
     extra: ["period", "token"],
-    component: (widget: LayoutType["widgets"][0]) => <SimpleCfgiWidget widget={widget} fullScreenButton />,
+    component: (widget: LayoutType["widgets"][0]) => <SimpleCfgiWidget widget={widget} />,
   },
   "liquidation-map": {
     name: "Liquidation Map",

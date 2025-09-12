@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useCallback } from "react";
+
 import Chart from "chart.js/auto";
 
 import "chartjs-adapter-dayjs-4/dist/chartjs-adapter-dayjs-4.esm";
@@ -19,6 +20,7 @@ Chart.register(LiqHeatmapController);
 interface ICfgiCard {
   liquidationData: LiquidHeatmapResponse;
 }
+
 registerCandleStickPluginBrowser();
 
 const LiquidationHeatmapChart = (props: ICfgiCard) => {
@@ -29,6 +31,12 @@ const LiquidationHeatmapChart = (props: ICfgiCard) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
   const [maxValue, setMaxValue] = React.useState(0);
+  const [chartArea, setChartArea] = React.useState<{
+    top: number;
+    bottom: number;
+    left: number;
+    height: number;
+  } | null>(null);
 
   const chart_init = useCallback(
     (ctx: CanvasRenderingContext2D) => {
@@ -148,11 +156,15 @@ const LiquidationHeatmapChart = (props: ICfgiCard) => {
             scales: {
               x: {
                 type: "time",
-                offset: true,
+                offset: false,
+                min: minTimestampSeconds,
+                max: maxTimestampSeconds,
               },
               y: {
                 position: "right",
                 type: "linear",
+                min: minPrice,
+                max: maxPrice,
                 grid: {
                   display: false,
                 },
@@ -166,7 +178,7 @@ const LiquidationHeatmapChart = (props: ICfgiCard) => {
                       return "";
                     }
 
-                    return `$${Math.round(value / 1000)}k`;
+                    return `${Math.round(value / 1000)}k`;
                   },
                 },
               },
@@ -202,6 +214,18 @@ const LiquidationHeatmapChart = (props: ICfgiCard) => {
                 ctx.restore();
               },
             },
+            {
+              id: "updateChartArea",
+              afterRender: (chart: Chart) => {
+                const { chartArea } = chart;
+                setChartArea({
+                  top: chartArea.top,
+                  bottom: chartArea.bottom,
+                  left: chartArea.left,
+                  height: chartArea.bottom - chartArea.top,
+                });
+              },
+            },
           ],
         });
       }
@@ -219,36 +243,45 @@ const LiquidationHeatmapChart = (props: ICfgiCard) => {
   }, [liquidationData, chart_init]);
 
   const humanizedMaxLiqValue = humanizeNumber(maxValue);
+  
   return (
-    <div className="relative h-full w-full pb-1 pl-6">
-      <div
-        className={cn(
-          "font-paralucent absolute -top-3 bottom-2 left-0 flex flex-col gap-y-[5px] pl-2 text-xs font-medium text-[#FFFFFF66] opacity-100 duration-500",
-          {
-            "opacity-0": !humanizedMaxLiqValue,
-          },
-        )}
-      >
-        <div className="whitespace-nowrap">{humanizedMaxLiqValue}</div>
-
+    <div className="relative h-full w-full pb-1">
+      {chartArea && (
         <div
-          className="w-2 flex-grow rounded"
+          className={cn(
+            "font-paralucent absolute flex flex-col gap-y-[5px] text-xs font-medium text-[#FFFFFF66] opacity-100 duration-500 z-10",
+            {
+              "opacity-0": !humanizedMaxLiqValue,
+            },
+          )}
           style={{
-            background:
-              "linear-gradient(180deg, #E7E60B 0%, #63C752 22.5%, #27A77D 47%, #2F5C86 75%, #44095F 100%)",
+            top: `${chartArea.top}px`,
+            left: `${chartArea.left - 25}px`,
+            height: `${chartArea.height}px`,
+            width: '40px',
           }}
-        ></div>
+        >
+          <div className="whitespace-nowrap" style={{ marginLeft: 'auto', marginRight: '8px', textAlign: 'center' }}>{humanizedMaxLiqValue}</div>
 
-        <div>0</div>
-      </div>
+          <div
+            className="w-2 flex-grow rounded"
+            style={{
+              marginLeft: 'auto',
+              marginRight: '8px',
+              background:
+                "linear-gradient(180deg, #E7E60B 0%, #63C752 22.5%, #27A77D 47%, #2F5C86 75%, #44095F 100%)",
+            }}
+          ></div>
+
+          <div style={{ marginLeft: 'auto', marginRight: '8px', textAlign: 'center' }}>0</div>
+        </div>
+      )}
 
       <canvas
         width="400"
-        // className="bg-no-repeat bg-auto"
         height={0}
-        // style={{ backgroundPosition: "50px -30px" }}
         ref={canvasRef}
-        // className="absolute top-0 left-0 right-0 bottom-0"
+        className="ml-6"
       ></canvas>
     </div>
   );
