@@ -13,6 +13,7 @@ import { WidgetWrapper } from "../shared";
 import { OrderBookSection } from "./order-book-section";
 import { BinanceTicker, CoinDataInterface } from "@/services/queries/charts/types";
 import { slice } from "lodash-es";
+import { getBinanceWsServerUrl, throwFailedToConnectBinanceWsError } from "@/lib/utils/binance-client.utils";
 
 type IOrder = [string, string]; // [price, quantity]
 
@@ -59,8 +60,6 @@ function Orders(props: IOrders) {
   const activeLayout = useAtomValue(activeTabAtom);
   const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
   const wsRef = useRef<WebSocket | null>(null);
-  const orderBookEventSourceRef = useRef<EventSource | null>(null);
-  const tradeEventSourceRef = useRef<EventSource | null>(null);
 
   useEffect(() => {
     if (!widget?.props?.token || !location?.country) return;
@@ -95,65 +94,9 @@ function Orders(props: IOrders) {
       }
     };
 
-    const connectEventSourceProxy = () => {
-      console.log("Primary WebSocket failed. Attempting fallback to EventSource proxy...");
-      const token = widget?.props?.token;
-
-      const orderBookSource = new EventSource(`https://binance.fomoed.io/stream?token=${token}&streamType=depth`);
-      orderBookEventSourceRef.current = orderBookSource;
-
-      orderBookSource.onmessage = (event) => {
-        try {
-          const message = JSON.parse(event.data);
-          if (message.bids && message.asks) {
-            setBuys(normalizeOrders(message.bids));
-            setSales(normalizeOrders(message.asks));
-          }
-        } catch (error) {
-          console.error("Error parsing order book fallback message:", error);
-        }
-      };
-      orderBookSource.onerror = (error) => {
-        // console.error("Order book EventSource fallback failed:", error);
-        orderBookSource.close();
-      };
-
-      const tradeSource = new EventSource(`https://binance.fomoed.io/stream?token=${token}&streamType=trade`);
-      tradeEventSourceRef.current = tradeSource;
-
-      tradeSource.onmessage = (event) => {
-        try {
-          const message = JSON.parse(event.data);
-          if (message.p && message.T) {
-            const currentPrice = parseFloat(message.p);
-            setLivePrice(message.p);
-
-            if (previousPriceRef.current !== null) {
-              if (currentPrice > previousPriceRef.current) {
-                setPriceDirection("up");
-              } else if (currentPrice < previousPriceRef.current) {
-                setPriceDirection("down");
-              }
-            }
-            previousPriceRef.current = currentPrice;
-            hasLivePrice.current = true;
-          }
-        } catch (error) {
-          console.error("Error parsing trade fallback message:", error);
-        }
-      };
-      tradeSource.onerror = (error) => {
-        // console.error("Trade EventSource fallback failed:", error);
-        tradeSource.close();
-      };
-    };
-
-    const connectWebSocket = () => {
+    function connectWebsocket(wsServerUrl: string, onError: () => void) {
       const tokenOption = `${widget?.props?.token?.toLowerCase()}usdt`;
-      const endpoint =
-        location.country === "US"
-          ? `wss://stream.binance.us:9443/stream?streams=${tokenOption}@depth20@100ms/${tokenOption}@trade`
-          : `wss://stream.binance.com:9443/stream?streams=${tokenOption}@depth20@100ms/${tokenOption}@trade`;
+      const endpoint = wsServerUrl + `/stream?streams=${tokenOption}@depth20@100ms/${tokenOption}@trade`;
 
       const ws = new WebSocket(endpoint);
       wsRef.current = ws;
@@ -167,26 +110,23 @@ function Orders(props: IOrders) {
       };
 
       ws.onerror = (error) => {
-        // console.error("Direct WebSocket connection error:", error);
         ws.close();
-        connectEventSourceProxy();
+        onError();
       };
-    };
+    }
 
-    connectWebSocket();
+    connectWebsocket(getBinanceWsServerUrl("binance", location), () => {
+      connectWebsocket(getBinanceWsServerUrl("proxy", location), () => {
+        throwFailedToConnectBinanceWsError();
+      });
+    });
 
     return () => {
       if (wsRef.current) {
         wsRef.current.close();
       }
-      if (orderBookEventSourceRef.current) {
-        orderBookEventSourceRef.current.close();
-      }
-      if (tradeEventSourceRef.current) {
-        tradeEventSourceRef.current.close();
-      }
     };
-  }, [widget?.props?.token, location?.country]);
+  }, [widget?.props?.token, location]);
 
   useEffect(() => {
     if (price?.lastPrice && !hasLivePrice.current) {
