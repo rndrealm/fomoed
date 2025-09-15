@@ -208,12 +208,12 @@ export function LivePrice(props: IProps) {
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-center gap-2">
-        <h2 className="text-xl sm:text-2xl text-white leading-[1.35] font-bold">
+        <h2 className="text-lg sm:text-2xl text-white leading-[1.35] font-bold">
           <span className="text-[#AFAFAF] text-xl">$</span>
           {tokenPrice ? formatPriceSignificant(tokenPrice) : "..."}
         </h2>
         <p
-          className={`text-[13px] leading-[1.25] font-medium ${
+          className={`text-[10px] sm:text-[13px] leading-[1.25] font-medium ${
             percentChange >= 0 ? "text-[#00AF58]" : "text-[#FF8970]"
           }`}
         >

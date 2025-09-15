@@ -981,9 +981,7 @@ function TestChart(props: IProps) {
               },
               handleScroll: true,
               handleScale: true,
-              autoSize: false,
-              width: dimension.width,
-              height: dimension.height,
+              autoSize: true,
               localization: {
                 timeFormatter: (time: number) => {
                   const date = new Date(time * 1000);
@@ -1000,6 +998,8 @@ function TestChart(props: IProps) {
             }}
             containerProps={{
               style: {
+                width: '100%',
+                height: '100%',
                 flexGrow: 1,
               },
             }}
