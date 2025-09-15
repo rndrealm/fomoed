@@ -12,7 +12,8 @@ export type ActiveTabType =
   | "Subscriptions"
   | "Billing"
   | "Notifications"
-  | "Keyboard Shortcuts";
+  | "Keyboard Shortcuts"
+  | "Whats New";
 
 export type popoverOptionsType = {
   label: string;
@@ -49,6 +50,10 @@ const SidebarTabs = ({ popoverOptions, activeTab, setActiveTab }: SidebarTabsPro
     router.push(AppRoutes.logout.path);
   };
 
+  const handleGoToNews = async () => {
+    router.push(AppRoutes.news.path);
+  };
+
   return (
     <Command className="rounded-[0px] w-[160px] md:w-[234px] max-w-[234px] h-full border-r-[1px] border-[#242424] bg-[#111111]">
       <CommandList className="scrollbar px-2 max-h-full w-full outline-none">
@@ -72,14 +77,16 @@ const SidebarTabs = ({ popoverOptions, activeTab, setActiveTab }: SidebarTabsPro
                       className={cn(
                         "group cursor-pointer w-full h-[38px] px-4 flex flex-row items-center justify-start gap-2 max-h-[40px] rounded-[8px] bg-transparent data-[selected=true]:bg-[#151515]",
                         isActive && "!bg-[#1A1A1A]",
-                        tab.disabled && "cursor-not-allowed opacity-50 data-[selected=true]:bg-transparent",
+                        tab.disabled && "cursor-not-allowed opacity-[50%] data-[selected=true]:bg-[#1A1A1A]",
                       )}
                       onSelect={(e) => {
                         // stops selection if disabled
                         if (tab.disabled) {
                           return;
                         }
-                        setActiveTab({ open: true, activeTab: tab.name });
+                        // setActiveTab({ open: true, activeTab: tab.name });
+
+                        tab.onClick();
                       }}
                     >
                       <div className="h-5 aspect-square flex items-center justify-center">
@@ -98,8 +105,12 @@ const SidebarTabs = ({ popoverOptions, activeTab, setActiveTab }: SidebarTabsPro
         <div className="mt-3 px-1 flex flex-col gap-0 items-start justify-between">
           <CommandItem
             className={cn(
-              "group px-3 cursor-pointer w-full h-[52px] border-t-[1px] rounded-[0px] border-[#242424] flex flex-row items-center justify-start gap-2 bg-transparent data-[selected=true]:bg-transparent hover:opacity-80",
+              "group px-3 cursor-pointer w-full h-[52px] border-t-[1px] rounded-[0px] border-[#242424] flex flex-row items-center justify-start gap-2 bg-transparent data-[selected=true]:bg-[#1A1A1A] hover:opacity-80",
             )}
+            onSelect={() => {
+              handleGoToNews();
+              setActiveTab({ open: false, activeTab: "Whats New" });
+            }}
           >
             <div className="h-5 aspect-square flex items-center justify-center">
               {React.cloneElement(<WhattsNewIcon />, { fill: "#fff" })}
@@ -107,9 +118,12 @@ const SidebarTabs = ({ popoverOptions, activeTab, setActiveTab }: SidebarTabsPro
             <h2 className="text-[14px] leading-[18px] font-normal text-white">Whats New</h2>
           </CommandItem>
           <CommandItem
-            onSelect={() => handleLogout()}
+            onSelect={() => {
+              handleLogout();
+              setActiveTab({ open: false, activeTab: "Profile" });
+            }}
             className={cn(
-              "group px-3 cursor-pointer w-full h-[52px] border-t-[1px] rounded-[0px] border-[#242424] flex flex-row items-center justify-start gap-2 bg-transparent data-[selected=true]:bg-transparent hover:opacity-80",
+              "group px-3 cursor-pointer w-full h-[52px] border-t-[1px] rounded-[0px] border-[#242424] flex flex-row items-center justify-start gap-2 bg-transparent data-[selected=true]:bg-[#1A1A1A] hover:opacity-80",
             )}
           >
             <div className="h-5 aspect-square flex items-center justify-center">

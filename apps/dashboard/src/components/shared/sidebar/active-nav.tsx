@@ -148,7 +148,9 @@ const ActiveNav = (props: IActiveNavProps) => {
           className="flex mx-[0px] h-[64px] w-[64px] cursor-pointer items-center justify-center overflow-hidden rounded-[4px]"
         >
           <NavbarProfileButton authUser={authUser} buttonClassName="pointer-events-auto" menuClassName="pr-0 pb-5 pl-5">
-            <ProfileIcon user={authUser} />
+            <div className="flex mx-[0px] h-[32px] w-[32px] cursor-pointer items-center justify-center overflow-hidden rounded-[4px]">
+              <ProfileIcon user={authUser} />
+            </div>
           </NavbarProfileButton>
         </motion.div>
 

@@ -228,3 +228,33 @@ export const replaceUsername = async ({ username }: { username: string }) => {
 
   return newUsername;
 };
+
+export const replaceUserAvatar = async ({ avatar_url }: { avatar_url: string }) => {
+  const supabase = createSupabaseBrowserClient();
+
+  const {
+    data: { session },
+    error: userError,
+  } = await supabase.auth.getSession();
+
+  if (!session?.user) {
+    throw new Error("Please login to update username.");
+  }
+
+  if (userError) {
+    throw new Error(userError.message);
+  }
+
+  const { data: newAvatarUrl, error: replaceUrlError } = await supabase
+    .from("users")
+    .update({ avatar_url })
+    .eq("user_id", session.user.id)
+    .select()
+    .single();
+
+  if (replaceUrlError) {
+    throw new Error(replaceUrlError.message);
+  }
+
+  return newAvatarUrl;
+};
