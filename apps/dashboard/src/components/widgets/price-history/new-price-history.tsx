@@ -329,7 +329,7 @@ export default function NewPriceHistory(props: IProps) {
         <div className="relative flex flex-1">
           <div className="absolute top-0 right-0 bottom-0 left-0">
           {/* Time Period Selector */}
-            <div className="flex gap-1 bg-[#0C0C0C] justify-around my-3 rounded-lg overflow-x-scroll">
+            <div className="flex gap-1 bg-[#0C0C0C] justify-around my-3 rounded-lg overflow-x-auto">
               {timePeriods.map((period) => (
                 <button
                   key={period.label}
