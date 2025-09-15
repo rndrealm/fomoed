@@ -1,5 +1,15 @@
 "use client";
-import React, { ReactNode, useEffect, useRef, useState, useMemo, useCallback, Dispatch, SetStateAction, Fragment } from "react";
+import React, {
+  ReactNode,
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+  useCallback,
+  Dispatch,
+  SetStateAction,
+  Fragment,
+} from "react";
 import {
   CandlestickSeries,
   Chart,
@@ -10,7 +20,16 @@ import {
   TimeScaleFitContentTrigger,
   AreaSeries,
 } from "lightweight-charts-react-components";
-import { CandlestickData, ColorType, Coordinate, LineData, LineType, MouseEventParams, Time, HistogramData } from "lightweight-charts";
+import {
+  CandlestickData,
+  ColorType,
+  Coordinate,
+  LineData,
+  LineType,
+  MouseEventParams,
+  Time,
+  HistogramData,
+} from "lightweight-charts";
 import { RenderIf } from "@/components/shared";
 import { useFetchBinancePriceData } from "@/services/queries/charts";
 import { formatPriceSignificant } from "@/lib/utils";
@@ -19,6 +38,9 @@ import { geoLocationAtom } from "@/lib/atoms/geoLocation";
 import { AnimatePresence } from "motion/react";
 import PriceChartCoinStats from "./coin-stats";
 import { Spinner } from "@/components/ui/shadcn-io/spinner";
+import { getBinanceWsServerUrl, throwFailedToConnectBinanceWsError } from "@/lib/utils/binance-client.utils";
+
+const logKey = "[TestChart]:"
 
 export interface BinanceKlineFormatted {
   time: number; // seconds
@@ -103,7 +125,6 @@ function TestChart(props: IProps) {
   // const volumeTimeScaleRef = useRef<TimeScaleApiRef>(null);
   const dataRef = useRef<(LineData | CandlestickData)[]>([]);
   const wsRef = useRef<WebSocket | null>(null);
-  const eventSourceRef = useRef<EventSource | null>(null);
   
   // Range management refs
   const defaultZoomRangeRef = useRef<{ from: number; to: number } | null>(null);
@@ -854,43 +875,17 @@ function TestChart(props: IProps) {
       }
     };
 
-    const connectEventSourceProxy = () => {
-      console.log(`Primary Kline WebSocket failed for ${token}. Attempting fallback...`);
-      const eventSource = new EventSource(
-        `https://binance.fomoed.io/stream?token=${token}&streamType=kline&period=${period.binanceInterval}`,
-      );
-      eventSourceRef.current = eventSource;
-
-      eventSource.onmessage = (event) => {
-        try {
-          const message = JSON.parse(event.data);
-          if (message.type !== "heartbeat" && message.k) {
-            handleKlineUpdate(message.k);
-          }
-        } catch (error) {
-          console.error("Error parsing kline fallback message:", error);
-        }
-      };
-
-      eventSource.onerror = (error) => {
-        eventSource.close();
-      };
-    };
-
-    const connectWebSocket = () => {
+    function connectWebSocket(wsServerUrl: string, onError: () => void) {
       const streamName = `${token.toLowerCase()}usdt@kline_${period.binanceInterval}`;
-      const endpoint =
-        location.country === "US"
-          ? `wss://stream.binance.us:9443/ws/${streamName}`
-          : `wss://stream.binance.com:9443/ws/${streamName}`;
+      const endpoint = wsServerUrl + "/ws/" + streamName;
+
+      console.log(endpoint);
 
       const ws = new WebSocket(endpoint);
       wsRef.current = ws;
 
       ws.onopen = () => {
-        console.log(
-          `Direct Kline WebSocket connection established for ${token} with ${period.binanceInterval} interval. ✅`,
-        );
+        console.info(logKey, `WS connection to ${endpoint} estabilished.`)
       };
 
       ws.onmessage = (event) => {
@@ -906,21 +901,31 @@ function TestChart(props: IProps) {
 
       ws.onerror = (error) => {
         ws.close();
-        connectEventSourceProxy();
+        onError();
       };
-    };
+    }
 
-    connectWebSocket();
+    connectWebSocket(getBinanceWsServerUrl("binance", location), () => {
+      connectWebSocket(getBinanceWsServerUrl("proxy", location), () => {
+        throwFailedToConnectBinanceWsError();
+      });
+    });
 
     return () => {
       if (wsRef.current) {
         wsRef.current.close();
       }
-      if (eventSourceRef.current) {
-        eventSourceRef.current.close();
-      }
     };
-  }, [token, period.binanceInterval, selectedPeriod, isCandleStick, location?.country, historicalData.length, isWebSocketPaused, isLoading]);
+  }, [
+    token,
+    period.binanceInterval,
+    selectedPeriod,
+    isCandleStick,
+    location,
+    historicalData.length,
+    isWebSocketPaused,
+    isLoading,
+  ]);
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
