@@ -949,7 +949,7 @@ function TestChart(props: IProps) {
           <Spinner size={60} variant="circle" color="#272727" />
         </div>
       ) : (
-      <div className={`bg-[#0C0C0C] rounded-xl px-4 ${className} overflow-scroll`}>
+      <div className={`bg-[#0C0C0C] rounded-xl px-4 ${className} overflow-auto`}>
         <div
           ref={chartContainerRef}
           style={{ width: "100%", height: "320px" }}
