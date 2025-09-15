@@ -1,293 +1,295 @@
-import React, { Fragment, useEffect, useRef } from "react";
-import {
-  createChart,
-  ColorType,
-  LineSeries,
-  LineType,
-  LineStyle,
-  ISeriesApi,
-  CandlestickSeries,
-} from "lightweight-charts";
-import { formatChartTooltipDate, formatPriceSignificant } from "@/lib/utils";
-import { useAtomValue } from "jotai";
-import { geoLocationAtom } from "@/lib/atoms/geoLocation";
+// UNUSED
 
-interface ChartColors {
-  backgroundColor?: string;
-  lineColor?: string;
-  textColor?: string;
-}
+// import React, { Fragment, useEffect, useRef } from "react";
+// import {
+//   createChart,
+//   ColorType,
+//   LineSeries,
+//   LineType,
+//   LineStyle,
+//   ISeriesApi,
+//   CandlestickSeries,
+// } from "lightweight-charts";
+// import { formatChartTooltipDate, formatPriceSignificant } from "@/lib/utils";
+// import { useAtomValue } from "jotai";
+// import { geoLocationAtom } from "@/lib/atoms/geoLocation";
 
-interface IProps {
-  data: any[];
-  colors?: ChartColors;
-  token?: string;
-  period?: string;
-  isCandleStick?: boolean;
-}
+// interface ChartColors {
+//   backgroundColor?: string;
+//   lineColor?: string;
+//   textColor?: string;
+// }
 
-const Chart = (props: IProps) => {
-  const {
-    data,
-    colors: { backgroundColor = "transparent", lineColor = "#2962FF", textColor = "#C3C3C3" } = {},
-    token = "btc",
-    period = "1d",
-    isCandleStick = true,
-  } = props;
+// interface IProps {
+//   data: any[];
+//   colors?: ChartColors;
+//   token?: string;
+//   period?: string;
+//   isCandleStick?: boolean;
+// }
 
-  const chartContainerRef = useRef<HTMLDivElement>(null);
-  const seriesRef = useRef<ISeriesApi<any>>(null);
-  const candleSeriesRef = useRef<ISeriesApi<any>>(null);
-  const tooltipRef = useRef<HTMLDivElement>(null);
+// const Chart = (props: IProps) => {
+//   const {
+//     data,
+//     colors: { backgroundColor = "transparent", lineColor = "#2962FF", textColor = "#C3C3C3" } = {},
+//     token = "btc",
+//     period = "1d",
+//     isCandleStick = true,
+//   } = props;
 
-  const wsRef = useRef<WebSocket | null>(null);
-  const eventSourceRef = useRef<EventSource | null>(null);
+//   const chartContainerRef = useRef<HTMLDivElement>(null);
+//   const seriesRef = useRef<ISeriesApi<any>>(null);
+//   const candleSeriesRef = useRef<ISeriesApi<any>>(null);
+//   const tooltipRef = useRef<HTMLDivElement>(null);
 
-  const location = useAtomValue(geoLocationAtom);
+//   const wsRef = useRef<WebSocket | null>(null);
+//   const eventSourceRef = useRef<EventSource | null>(null);
 
-  useEffect(() => {
-    if (!chartContainerRef.current) return;
+//   const location = useAtomValue(geoLocationAtom);
 
-    const chart = createChart(chartContainerRef.current, {
-      layout: {
-        background: { type: ColorType.Solid, color: backgroundColor },
-        textColor,
-        attributionLogo: false,
-      },
-      width: chartContainerRef.current.clientWidth,
-      height: chartContainerRef.current.clientHeight,
-      // height: 282,
-      grid: {
-        horzLines: {
-          // color: "blue",
-          style: LineStyle.Solid,
-          visible: false,
-        },
-        vertLines: {
-          visible: false,
-        },
-      },
-      rightPriceScale: {
-        visible: isCandleStick,
-      },
-      timeScale: {
-        borderColor: "transparent",
+//   useEffect(() => {
+//     if (!chartContainerRef.current) return;
 
-        tickMarkFormatter: (time: number) => {
-          const date = new Date(time * 1000); // time is in seconds
-          const day = date.getDate();
-          const month = date.toLocaleString("en-US", { month: "short" }).toUpperCase(); // e.g., MAR
+//     const chart = createChart(chartContainerRef.current, {
+//       layout: {
+//         background: { type: ColorType.Solid, color: backgroundColor },
+//         textColor,
+//         attributionLogo: false,
+//       },
+//       width: chartContainerRef.current.clientWidth,
+//       height: chartContainerRef.current.clientHeight,
+//       // height: 282,
+//       grid: {
+//         horzLines: {
+//           // color: "blue",
+//           style: LineStyle.Solid,
+//           visible: false,
+//         },
+//         vertLines: {
+//           visible: false,
+//         },
+//       },
+//       rightPriceScale: {
+//         visible: isCandleStick,
+//       },
+//       timeScale: {
+//         borderColor: "transparent",
 
-          return `${day} ${month}`;
-        },
-      },
-    });
+//         tickMarkFormatter: (time: number) => {
+//           const date = new Date(time * 1000); // time is in seconds
+//           const day = date.getDate();
+//           const month = date.toLocaleString("en-US", { month: "short" }).toUpperCase(); // e.g., MAR
 
-    // chart.addSeries
-    // const areaSeries = chart.addSeries(CandlestickSeries, {
-    // downColor: "yellow",
-    // upColor: "blue",
-    // });
+//           return `${day} ${month}`;
+//         },
+//       },
+//     });
 
-    const areaSeries = chart.addSeries(LineSeries, {
-      color: "#fff",
-      lineType: LineType.Curved,
-    });
+//     // chart.addSeries
+//     // const areaSeries = chart.addSeries(CandlestickSeries, {
+//     // downColor: "yellow",
+//     // upColor: "blue",
+//     // });
 
-    const candleSeries = chart.addSeries(CandlestickSeries);
+//     const areaSeries = chart.addSeries(LineSeries, {
+//       color: "#fff",
+//       lineType: LineType.Curved,
+//     });
 
-    if (isCandleStick) {
-      candleSeries.setData(data);
-    } else {
-      areaSeries.setData(data);
-    }
+//     const candleSeries = chart.addSeries(CandlestickSeries);
 
-    seriesRef.current = areaSeries;
-    candleSeriesRef.current = candleSeries;
+//     if (isCandleStick) {
+//       candleSeries.setData(data);
+//     } else {
+//       areaSeries.setData(data);
+//     }
 
-    // const len = data?.length;
-    // const from = data[len - 20]?.time;
-    // const to = data[len - 1]?.time;
+//     seriesRef.current = areaSeries;
+//     candleSeriesRef.current = candleSeries;
 
-    // if (from && to) {
-    //   chart.timeScale().setVisibleRange({ from, to });
-    // }
+//     // const len = data?.length;
+//     // const from = data[len - 20]?.time;
+//     // const to = data[len - 1]?.time;
 
-    const tooltip = tooltipRef.current!;
-    const container = chartContainerRef.current!;
+//     // if (from && to) {
+//     //   chart.timeScale().setVisibleRange({ from, to });
+//     // }
 
-    const toolTipWidth = 240;
-    const toolTipHeight = 24;
-    const toolTipMargin = 25;
+//     const tooltip = tooltipRef.current!;
+//     const container = chartContainerRef.current!;
 
-    chart.subscribeCrosshairMove((param) => {
-      if (
-        !param.point ||
-        !param.time ||
-        param.point.x < 0 ||
-        param.point.x > container.clientWidth ||
-        param.point.y < 0 ||
-        param.point.y > container.clientHeight
-      ) {
-        tooltip.style.display = "none";
-        return;
-      }
+//     const toolTipWidth = 240;
+//     const toolTipHeight = 24;
+//     const toolTipMargin = 25;
 
-      const data = param.seriesData.get(isCandleStick ? candleSeries : areaSeries)! as any;
-      const price = data.value ?? data.close;
+//     chart.subscribeCrosshairMove((param) => {
+//       if (
+//         !param.point ||
+//         !param.time ||
+//         param.point.x < 0 ||
+//         param.point.x > container.clientWidth ||
+//         param.point.y < 0 ||
+//         param.point.y > container.clientHeight
+//       ) {
+//         tooltip.style.display = "none";
+//         return;
+//       }
 
-      tooltip.style.display = "flex";
-      tooltip.innerHTML = `
-      <div style="background: #1C1C1C; border-radius: 8px; padding: 3px 6px">
-        <p style="color: #878787; font-size: 13px; line-height: 135%; font-weight: 600"><span style="color: #ffffff; font-weight: 700;">${formatPriceSignificant(price)}</span> ${formatChartTooltipDate(data.time * 1000)}</p>
-      </div>
-    `;
+//       const data = param.seriesData.get(isCandleStick ? candleSeries : areaSeries)! as any;
+//       const price = data.value ?? data.close;
 
-      const coordinate = isCandleStick ? candleSeries.priceToCoordinate(price) : areaSeries.priceToCoordinate(price);
-      if (coordinate === null) return;
+//       tooltip.style.display = "flex";
+//       tooltip.innerHTML = `
+//       <div style="background: #1C1C1C; border-radius: 8px; padding: 3px 6px">
+//         <p style="color: #878787; font-size: 13px; line-height: 135%; font-weight: 600"><span style="color: #ffffff; font-weight: 700;">${formatPriceSignificant(price)}</span> ${formatChartTooltipDate(data.time * 1000)}</p>
+//       </div>
+//     `;
 
-      let shiftedCoordinate = param.point.x - toolTipWidth / 2;
-      shiftedCoordinate = Math.max(0, Math.min(container.clientWidth - toolTipWidth, shiftedCoordinate));
+//       const coordinate = isCandleStick ? candleSeries.priceToCoordinate(price) : areaSeries.priceToCoordinate(price);
+//       if (coordinate === null) return;
 
-      const coordinateY =
-        coordinate - toolTipHeight - toolTipMargin > 0
-          ? coordinate - toolTipHeight - toolTipMargin
-          : coordinate + toolTipMargin;
+//       let shiftedCoordinate = param.point.x - toolTipWidth / 2;
+//       shiftedCoordinate = Math.max(0, Math.min(container.clientWidth - toolTipWidth, shiftedCoordinate));
 
-      tooltip.style.left = `${shiftedCoordinate}px`;
-      tooltip.style.top = `${coordinateY}px`;
-    });
-    // chart.timeScale().fitContent();
+//       const coordinateY =
+//         coordinate - toolTipHeight - toolTipMargin > 0
+//           ? coordinate - toolTipHeight - toolTipMargin
+//           : coordinate + toolTipMargin;
 
-    const observer = new ResizeObserver(() => {
-      if (chartContainerRef.current) {
-        chart.applyOptions({
-          width: chartContainerRef.current.clientWidth,
-          height: chartContainerRef.current.clientHeight,
-        });
-      }
-    });
+//       tooltip.style.left = `${shiftedCoordinate}px`;
+//       tooltip.style.top = `${coordinateY}px`;
+//     });
+//     // chart.timeScale().fitContent();
 
-    observer.observe(chartContainerRef.current);
+//     const observer = new ResizeObserver(() => {
+//       if (chartContainerRef.current) {
+//         chart.applyOptions({
+//           width: chartContainerRef.current.clientWidth,
+//           height: chartContainerRef.current.clientHeight,
+//         });
+//       }
+//     });
 
-    return () => {
-      observer.disconnect();
-      chart.remove();
-    };
-  }, [data, backgroundColor, lineColor, textColor, isCandleStick]);
+//     observer.observe(chartContainerRef.current);
 
-  useEffect(() => {
-    if (!token || !seriesRef.current || !period || !location?.country) return;
+//     return () => {
+//       observer.disconnect();
+//       chart.remove();
+//     };
+//   }, [data, backgroundColor, lineColor, textColor, isCandleStick]);
 
-    const handleKlineUpdate = (klineData: any) => {
-      if (!klineData) {
-        console.warn("handleKlineUpdate received no data");
-        return;
-      }
+//   useEffect(() => {
+//     if (!token || !seriesRef.current || !period || !location?.country) return;
 
-      const candlestickData = {
-        time: Math.floor(klineData.t / 1000),
-        open: parseFloat(klineData.o),
-        high: parseFloat(klineData.h),
-        low: parseFloat(klineData.l),
-        close: parseFloat(klineData.c),
-        value: parseFloat(klineData.c),
-      };
+//     const handleKlineUpdate = (klineData: any) => {
+//       if (!klineData) {
+//         console.warn("handleKlineUpdate received no data");
+//         return;
+//       }
 
-      if (seriesRef.current && data?.length) {
-        if (isCandleStick && candleSeriesRef.current) {
-          candleSeriesRef.current.update(candlestickData);
-        } else {
-          seriesRef.current.update(candlestickData);
-        }
-      }
-    };
+//       const candlestickData = {
+//         time: Math.floor(klineData.t / 1000),
+//         open: parseFloat(klineData.o),
+//         high: parseFloat(klineData.h),
+//         low: parseFloat(klineData.l),
+//         close: parseFloat(klineData.c),
+//         value: parseFloat(klineData.c),
+//       };
 
-    const connectEventSourceProxy = () => {
-      console.log("Primary Kline WebSocket failed. Attempting fallback to EventSource proxy...");
-      const eventSource = new EventSource(
-        `https://binance.fomoed.io/stream?token=${token}&streamType=kline&period=${period}`,
-      );
-      eventSourceRef.current = eventSource;
+//       if (seriesRef.current && data?.length) {
+//         if (isCandleStick && candleSeriesRef.current) {
+//           candleSeriesRef.current.update(candlestickData);
+//         } else {
+//           seriesRef.current.update(candlestickData);
+//         }
+//       }
+//     };
 
-      eventSource.onmessage = (event) => {
-        try {
-          const message = JSON.parse(event.data);
-          if (message.type === "heartbeat") return;
+//     const connectEventSourceProxy = () => {
+//       console.log("Primary Kline WebSocket failed. Attempting fallback to EventSource proxy...");
+//       const eventSource = new EventSource(
+//         `https://binance.fomoed.io/stream?token=${token}&streamType=kline&period=${period}`,
+//       );
+//       eventSourceRef.current = eventSource;
 
-          const klineData = message.k || (message.data && message.data.k) || null;
-          if (klineData) {
-            handleKlineUpdate(klineData);
-          }
-        } catch (error) {
-          console.error("Error parsing kline fallback message:", error);
-        }
-      };
+//       eventSource.onmessage = (event) => {
+//         try {
+//           const message = JSON.parse(event.data);
+//           if (message.type === "heartbeat") return;
 
-      eventSource.onerror = (error) => {
-        // console.error("Kline EventSource fallback also failed:", error);
-        eventSource.close();
-      };
-    };
+//           const klineData = message.k || (message.data && message.data.k) || null;
+//           if (klineData) {
+//             handleKlineUpdate(klineData);
+//           }
+//         } catch (error) {
+//           console.error("Error parsing kline fallback message:", error);
+//         }
+//       };
 
-    const connectWebSocket = () => {
-      const streamName = `${token.toLowerCase()}usdt@kline_${period}`;
-      const endpoint =
-        location.country === "US"
-          ? `wss://stream.binance.us:9443/ws/${streamName}`
-          : `wss://stream.binance.com:9443/ws/${streamName}`;
+//       eventSource.onerror = (error) => {
+//         // console.error("Kline EventSource fallback also failed:", error);
+//         eventSource.close();
+//       };
+//     };
 
-      const ws = new WebSocket(endpoint);
-      wsRef.current = ws;
+//     const connectWebSocket = () => {
+//       const streamName = `${token.toLowerCase()}usdt@kline_${period}`;
+//       const endpoint =
+//         location.country === "US"
+//           ? `wss://stream.binance.us:9443/ws/${streamName}`
+//           : `wss://stream.binance.com:9443/ws/${streamName}`;
 
-      ws.onopen = () => {
-        console.log(`Direct Kline WebSocket connection established for ${token} - ${period}. ✅`);
-      };
+//       const ws = new WebSocket(endpoint);
+//       wsRef.current = ws;
 
-      ws.onmessage = (event) => {
-        try {
-          const message = JSON.parse(event.data);
-          if (message && message.k) {
-            handleKlineUpdate(message.k);
-          }
-        } catch (error) {
-          console.error("Error parsing kline WebSocket message:", error);
-        }
-      };
+//       ws.onopen = () => {
+//         console.log(`Direct Kline WebSocket connection established for ${token} - ${period}. ✅`);
+//       };
 
-      ws.onerror = (error) => {
-        // console.error("Direct Kline WebSocket connection error:", error);
-        ws.close();
-        connectEventSourceProxy();
-      };
-    };
+//       ws.onmessage = (event) => {
+//         try {
+//           const message = JSON.parse(event.data);
+//           if (message && message.k) {
+//             handleKlineUpdate(message.k);
+//           }
+//         } catch (error) {
+//           console.error("Error parsing kline WebSocket message:", error);
+//         }
+//       };
 
-    connectWebSocket();
+//       ws.onerror = (error) => {
+//         // console.error("Direct Kline WebSocket connection error:", error);
+//         ws.close();
+//         connectEventSourceProxy();
+//       };
+//     };
 
-    return () => {
-      if (wsRef.current) {
-        wsRef.current.close();
-      }
-      if (eventSourceRef.current) {
-        eventSourceRef.current.close();
-      }
-    };
-  }, [token, period, data?.length, isCandleStick, location?.country]);
+//     connectWebSocket();
 
-  return (
-    <div className="h-full w-full relative">
-      <div
-        ref={chartContainerRef}
-        style={{ width: "100%", height: "100%" }}
-        className="app_line_chart_component flex-1"
-      />
+//     return () => {
+//       if (wsRef.current) {
+//         wsRef.current.close();
+//       }
+//       if (eventSourceRef.current) {
+//         eventSourceRef.current.close();
+//       }
+//     };
+//   }, [token, period, data?.length, isCandleStick, location?.country]);
 
-      <div
-        ref={tooltipRef}
-        className="absolute top-[0] right-[0] w-[220px] h-[24px] hidden z-[9] justify-center overflow-visible whitespace-nowrap"
-      ></div>
-    </div>
-  );
-};
+//   return (
+//     <div className="h-full w-full relative">
+//       <div
+//         ref={chartContainerRef}
+//         style={{ width: "100%", height: "100%" }}
+//         className="app_line_chart_component flex-1"
+//       />
 
-export const ChartComponent = React.memo(Chart);
+//       <div
+//         ref={tooltipRef}
+//         className="absolute top-[0] right-[0] w-[220px] h-[24px] hidden z-[9] justify-center overflow-visible whitespace-nowrap"
+//       ></div>
+//     </div>
+//   );
+// };
+
+// export const ChartComponent = React.memo(Chart);
