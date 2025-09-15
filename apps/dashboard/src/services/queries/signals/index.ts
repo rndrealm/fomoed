@@ -4,14 +4,10 @@ import { SmartSignalRow } from "@/screens/hooks/use-smart-signals";
 import api from "@/services/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import {
-  CreateSignalDTO,
-  GetAiSignalResponseBody,
-  UpdateSignalDTO,
-} from "./types";
+import { CreateSignalDTO, GetAiSignalResponseBody, UpdateSignalDTO } from "./types";
 
 export const useSmartSignalById = (signalId: string | null) => {
-  const userData = useUserData();
+  const { data: userData, isLoading, error } = useUserData();
 
   const hash = ["get-smart-signal", signalId];
 
@@ -19,11 +15,7 @@ export const useSmartSignalById = (signalId: string | null) => {
     queryKey: hash,
     queryFn: async () => {
       const supabase = createSupabaseBrowserClient();
-      const { data, error } = await supabase
-        .from("smart_signals")
-        .select("*")
-        .eq("id", +signalId!)
-        .single();
+      const { data, error } = await supabase.from("smart_signals").select("*").eq("id", +signalId!).single();
 
       if (error) {
         throw new Error("Failed to fetch smart signal");
@@ -39,7 +31,7 @@ export const useSmartSignalById = (signalId: string | null) => {
 };
 
 export const useSmartSignals = () => {
-  const userData = useUserData();
+  const { data: userData, isLoading, error } = useUserData();
   const hash = ["get-smart-signals", userData?.id];
 
   return useQuery<SmartSignalRow[]>({
@@ -70,10 +62,7 @@ export const useDeleteSmartSignal = () => {
   return useMutation({
     mutationFn: async (signalId: number) => {
       const supabase = createSupabaseBrowserClient();
-      const { error } = await supabase
-        .from("smart_signals")
-        .delete()
-        .eq("id", signalId);
+      const { error } = await supabase.from("smart_signals").delete().eq("id", signalId);
 
       if (error) {
         throw new Error("Failed to delete smart signal");
@@ -138,10 +127,7 @@ function processTopicArrays(jsonString: string): string {
     const processedData = processObject(data);
 
     // Handle condition field which might contain stringified JSON
-    if (
-      processedData.condition &&
-      typeof processedData.condition === "string"
-    ) {
+    if (processedData.condition && typeof processedData.condition === "string") {
       try {
         const conditionJson = JSON.parse(processedData.condition);
         const processedConditionJson = processObject(conditionJson);
@@ -200,10 +186,7 @@ export const useDuplicateSmartSignal = () => {
       };
 
       // Use the same backend endpoint as signal creation
-      await axios.post(
-        process.env.NEXT_PUBLIC_BACKEND_BASE + "/api/v1/smart-signal/new",
-        data,
-      );
+      await axios.post(process.env.NEXT_PUBLIC_BACKEND_BASE + "/api/v1/smart-signal/new", data);
 
       client.invalidateQueries({
         queryKey: ["get-smart-signals"],
@@ -216,10 +199,7 @@ export const useUpdateSmartSignal = () => {
   return useMutation({
     mutationFn: async (data: UpdateSignalDTO) => {
       const supabase = createSupabaseBrowserClient();
-      const { error } = await supabase
-        .from("smart_signals")
-        .update(data)
-        .eq("id", data.id);
+      const { error } = await supabase.from("smart_signals").update(data).eq("id", data.id);
 
       if (error) {
         throw new Error("Failed to update smart signal");
@@ -234,10 +214,7 @@ export const useCreateSignalMutation = () => {
   return useMutation({
     mutationFn: async (data: CreateSignalDTO) => {
       // this will be replaced with an axios instance. leave it for now
-      await axios.post(
-        process.env.NEXT_PUBLIC_BACKEND_BASE + "/api/v1/smart-signal/new",
-        data,
-      );
+      await axios.post(process.env.NEXT_PUBLIC_BACKEND_BASE + "/api/v1/smart-signal/new", data);
 
       client.invalidateQueries({
         queryKey: ["get-smart-signals"],
@@ -246,9 +223,7 @@ export const useCreateSignalMutation = () => {
   });
 };
 
-export async function fetchGenerateSignal(
-  prompt: string,
-): Promise<GetAiSignalResponseBody> {
+export async function fetchGenerateSignal(prompt: string): Promise<GetAiSignalResponseBody> {
   const res = await api.post({
     url: "/api/signals/ai-builder",
     body: { prompt },
@@ -272,10 +247,7 @@ export const useGenerateSignalDetails = () => {
   });
 };
 
-export const useValueSuggestions = (
-  dataSourceId: string | null,
-  topic: string | null,
-) => {
+export const useValueSuggestions = (dataSourceId: string | null, topic: string | null) => {
   return useQuery({
     queryKey: ["value-suggestions", dataSourceId, topic],
     queryFn: async () => {

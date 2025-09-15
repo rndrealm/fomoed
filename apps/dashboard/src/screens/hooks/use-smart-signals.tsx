@@ -45,11 +45,7 @@ export function getTopicsFromCondition(condition: ConditionObject): string[] {
     }
 
     // Handle topic object
-    if (
-      obj.topic &&
-      Array.isArray(obj.topic) &&
-      typeof obj.topic[0] === "string"
-    ) {
+    if (obj.topic && Array.isArray(obj.topic) && typeof obj.topic[0] === "string") {
       topics.push(obj.topic[0]);
     }
   }
@@ -64,7 +60,7 @@ export interface CreateSmartSignalOptions {
 }
 
 export function useSmartSignals() {
-  const userData = useUserData();
+  const { data: userData, isLoading: isUserDataLoading, error: userDataError } = useUserData();
   const [smartSignals, setSmartSignals] = useAtom(smartSignalsAtom);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -74,10 +70,7 @@ export function useSmartSignals() {
       return;
     }
     const supabase = createSupabaseBrowserClient();
-    const { data, error } = await supabase
-      .from("smart_signals")
-      .select("*")
-      .eq("user_id", userData.id);
+    const { data, error } = await supabase.from("smart_signals").select("*").eq("user_id", userData.id);
     if (!error && data) {
       setSmartSignals(data as SmartSignalRow[]);
     }
@@ -86,7 +79,7 @@ export function useSmartSignals() {
 
   const saveSmartSignal = async (
     condition: ConditionObject,
-    options: CreateSmartSignalOptions
+    options: CreateSmartSignalOptions,
   ): Promise<SmartSignalRow | null> => {
     if (!userData) {
       return null;
@@ -117,11 +110,7 @@ export function useSmartSignals() {
       updated_at: new Date().toISOString(),
     };
     const supabase = createSupabaseBrowserClient();
-    const { data, error } = await supabase
-      .from("smart_signals")
-      .insert([smartSignal])
-      .select("*")
-      .single();
+    const { data, error } = await supabase.from("smart_signals").insert([smartSignal]).select("*").single();
     if (!error) {
       await refreshSmartSignals();
     }
@@ -133,11 +122,7 @@ export function useSmartSignals() {
       return false;
     }
     const supabase = createSupabaseBrowserClient();
-    const { error } = await supabase
-      .from("smart_signals")
-      .delete()
-      .eq("id", id)
-      .eq("user_id", userData.id);
+    const { error } = await supabase.from("smart_signals").delete().eq("id", id).eq("user_id", userData.id);
     if (!error) {
       await refreshSmartSignals();
     }

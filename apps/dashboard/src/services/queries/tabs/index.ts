@@ -1,10 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  addTabAction,
-  deleteTabAction,
-  getUserTabsAction,
-  replaceUserTabsAction,
-} from "./actions";
+import { addTabAction, deleteTabAction, getUserTabsAction, replaceUsername, replaceUserTabsAction } from "./actions";
 import { AddTabPayload, SyncTabsPayload } from "./types";
 
 export const useAddTabs = () => {
@@ -85,6 +80,32 @@ export const useSyncTabs = () => {
   });
   return {
     mutate,
+    isPending,
+    isError,
+  };
+};
+
+export const useUpdateUsername = () => {
+  const queryClient = useQueryClient();
+  const { mutate, isPending, isError } = useMutation({
+    mutationFn: async (body: { username: string }): Promise<any> => {
+      return await replaceUsername(body);
+    },
+
+    onSuccess: async (data) => {
+      console.log("data:", data);
+
+      // refetches user data after successful username update
+      await queryClient.invalidateQueries({
+        queryKey: ["userData"],
+      });
+    },
+    onError: (error, newTab, context) => {
+      console.log("error:", error.message);
+    },
+  });
+  return {
+    updateUsername: mutate,
     isPending,
     isError,
   };

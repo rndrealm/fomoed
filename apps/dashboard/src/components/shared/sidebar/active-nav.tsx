@@ -8,6 +8,7 @@ import { ProfileIcon } from "../profile-icon";
 import dashboard from "@/lib/assets/dashboard";
 import { cn } from "@/lib/utils";
 import { UsersRow } from "@/lib/types/db.types";
+import { Database } from "@/lib/database/supabase";
 
 interface IActiveNavProps {
   navLinks: INavLink[];
@@ -15,22 +16,24 @@ interface IActiveNavProps {
   isSideMenuOpen: boolean;
   setIsSideMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
   isHovered: boolean;
-  authUser: UsersRow | null;
+  authUser: Database["public"]["Tables"]["users"]["Row"] | null | undefined;
   className?: string;
+  paddingClassName?: string;
 }
 
 // This component renders the active navigation when the side menu is open.
 const ActiveNav = (props: IActiveNavProps) => {
-  const { navLinks, bottomLinks, isSideMenuOpen, setIsSideMenuOpen, isHovered, authUser, className } = props;
+  const { navLinks, bottomLinks, isSideMenuOpen, setIsSideMenuOpen, isHovered, authUser, className, paddingClassName } =
+    props;
 
   return (
     <div
       style={{ pointerEvents: isSideMenuOpen ? "all" : "none" }}
-      className="font-inter absolute left-[0px] inset-0 z-50 flex h-full w-full min-w-[292px] flex-col items-center justify-between border-l-[0px] border-[#2A2A2A] bg-transparent py-0"
+      className=" absolute left-[0px] inset-0 z-50 flex h-full w-full min-w-[292px] flex-col items-center justify-between border-l-[0px] border-[#2A2A2A] bg-transparent py-0"
     >
       <div
-        style={{ borderColor: isHovered ? "transparent" : "#111111" }}
-        className="max-h-[63px] border-b-[1px] border-[#111111] box-content flex w-full flex-row items-center justify-between px-[0px]"
+        style={{ borderColor: isHovered ? "transparent" : "#222222" }}
+        className="max-h-[63px] border-b-[1px] border-[#222222] box-content flex w-full flex-row items-center justify-between px-[0px]"
       >
         <motion.button
           className="relative flex h-[64px] w-[64px] items-center justify-center"
@@ -81,9 +84,9 @@ const ActiveNav = (props: IActiveNavProps) => {
         </motion.button>
       </div>
 
-      <div className="flex h-full w-full flex-col items-center justify-between px-2 py-14">
+      <div className={cn("flex h-full w-full flex-col items-center justify-between px-2 pt-10 pb-9", paddingClassName)}>
         {/* top links */}
-        <div className={cn("flex w-full flex-col gap-2", className)}>
+        <div className={cn("flex w-full flex-col gap-0", className)}>
           {navLinks.map((item, index) => {
             return (
               <NavLink
@@ -105,7 +108,7 @@ const ActiveNav = (props: IActiveNavProps) => {
         </div>
 
         {/* bottom links */}
-        <div className="flex w-full flex-col gap-2">
+        <div className="flex w-full flex-col gap-0">
           {bottomLinks.map((item, index) => {
             return (
               <NavLink
@@ -118,6 +121,7 @@ const ActiveNav = (props: IActiveNavProps) => {
                 comingSoon={item.comingSoon}
                 variant="active"
                 isSideMenuOpen={isSideMenuOpen}
+                setIsSideMenuOpen={setIsSideMenuOpen}
                 isBottomLink={true}
               />
             );
@@ -128,10 +132,10 @@ const ActiveNav = (props: IActiveNavProps) => {
       <motion.div
         initial={{ borderTopColor: "#000" }}
         animate={{
-          borderTopColor: isSideMenuOpen ? "#111111" : "#111111",
+          borderTopColor: isSideMenuOpen ? "#222222" : "#222222",
         }}
         transition={sideMenuAnimProps}
-        className="pointer-events-none flex w-full flex-row min-h-[64px] items-center gap-3 border-t-[1px] border-[#111111] px-[0px] pt-0"
+        className="pointer-events-none flex w-full flex-row min-h-[64px] items-center gap-3 border-t-[1px] border-[#222222] px-[0px] pt-0"
       >
         <motion.div
           initial={{ x: 0 }}
@@ -141,13 +145,9 @@ const ActiveNav = (props: IActiveNavProps) => {
             ease: sideMenuAnimProps.ease,
             duration: sideMenuAnimProps.duration,
           }}
-          className="flex h-[24px] w-[24px] mx-[18px] md:mx-[0px] md:h-[64px] md:w-[64px] cursor-pointer items-center justify-center overflow-hidden rounded-[4px]"
+          className="flex mx-[0px] h-[64px] w-[64px] cursor-pointer items-center justify-center overflow-hidden rounded-[4px]"
         >
-          <NavbarProfileButton
-            authUser={authUser}
-            buttonClassName="pointer-events-auto"
-            menuClassName="pr-0 pb-2.5 pl-3"
-          >
+          <NavbarProfileButton authUser={authUser} buttonClassName="pointer-events-auto" menuClassName="pr-0 pb-5 pl-5">
             <ProfileIcon user={authUser} />
           </NavbarProfileButton>
         </motion.div>

@@ -6,13 +6,14 @@ import PassiveNav from "./passive-nav";
 import ActiveNav from "./active-nav";
 import { sideMenuAnimProps } from "./animations";
 import { UsersRow } from "@/lib/types/db.types";
+import { Database } from "@/lib/database/supabase";
 
 interface ISideNavProps {
   navLinks: INavLink[];
   bottomLinks: INavLink[];
   isSideMenuOpen: boolean;
   setIsSideMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  authUser: UsersRow | null;
+  authUser: Database["public"]["Tables"]["users"]["Row"] | null | undefined;
 }
 
 const SideNav = (props: ISideNavProps) => {
@@ -20,14 +21,15 @@ const SideNav = (props: ISideNavProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
   // class that targets both active and passive nav container with likns (gap)
-  const className = "gap-1";
+  const className = "gap-0";
+  const paddingClassName = "py-10";
 
   return (
     // sliding background
     <motion.div
       id="sidebar"
       className={cn(
-        "fixed inset-0 z-[49] h-[100dvh] max-h-[100dvh] w-[292px] max-w-[292px] overflow-hidden rounded-none bg-[#0A0A0A] border-r-[1px] border-[#111111] p-0 opacity-100 font-inter",
+        "fixed inset-0 z-[49] h-[100dvh] max-h-[100dvh] w-[292px] max-w-[292px] overflow-hidden rounded-none bg-[#0A0A0A] border-r-[1px] border-[#222222] p-0 opacity-100",
         {
           "pointer-events-none opacity-0 md:pointer-events-auto md:opacity-100": !isSideMenuOpen,
         },
@@ -41,6 +43,7 @@ const SideNav = (props: ISideNavProps) => {
         setIsSideMenuOpen={setIsSideMenuOpen}
         setIsHovered={setIsHovered}
         className={className}
+        paddingClassName={paddingClassName}
       />
       <ActiveNav
         navLinks={navLinks}
@@ -50,6 +53,7 @@ const SideNav = (props: ISideNavProps) => {
         isHovered={isHovered}
         authUser={authUser}
         className={className}
+        paddingClassName={paddingClassName}
       />
     </motion.div>
   );

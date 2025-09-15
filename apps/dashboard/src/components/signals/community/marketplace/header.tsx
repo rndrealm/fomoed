@@ -1,5 +1,5 @@
 import CaretDown from "@/components/icons/CaretDown";
-import { Command } from "@/components/icons/icons";
+import { CommandIcon } from "@/components/icons/icons";
 import SearchIcon from "@/components/icons/SearchIcon";
 import { Input } from "@/components/ui/input";
 import React from "react";
@@ -23,7 +23,7 @@ export function Header() {
 
         <div className="relative w-full flex-1 h-full">
           <div className="absolute top-0 bottom-0 right-[8px] flex items-center gap-1 justify-center">
-            <Command />
+            <CommandIcon />
             <p className="text-sm leading-[20px] text-[#525252]">K</p>
           </div>
           <Input

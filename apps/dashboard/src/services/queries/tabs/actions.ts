@@ -136,10 +136,7 @@ export const deleteTabAction = async (tabId: string) => {
   }
 
   // Verify the tab belongs to the user before deleting
-  const { error: deleteError } = await supabase
-    .from("tabs")
-    .delete()
-    .match({ id: tabId, user_id: session?.user?.id });
+  const { error: deleteError } = await supabase.from("tabs").delete().match({ id: tabId, user_id: session?.user?.id });
 
   if (deleteError) {
     console.log("Error deleting tab:", deleteError);
@@ -149,10 +146,7 @@ export const deleteTabAction = async (tabId: string) => {
   return { success: true, deletedId: tabId };
 };
 
-export const replaceUserTabsAction = async (
-  localTabs: SyncTabsPayload,
-  signal?: AbortSignal,
-) => {
+export const replaceUserTabsAction = async (localTabs: SyncTabsPayload, signal?: AbortSignal) => {
   const supabase = createSupabaseBrowserClient();
 
   if (signal?.aborted) {
@@ -174,10 +168,7 @@ export const replaceUserTabsAction = async (
     // throw new DOMException("Aborted", "AbortError");
   }
 
-  const { error: deleteError } = await supabase
-    .from("tabs")
-    .delete()
-    .match({ user_id: session?.user?.id });
+  const { error: deleteError } = await supabase.from("tabs").delete().match({ user_id: session?.user?.id });
 
   if (deleteError) {
     throw new Error(deleteError.message);
@@ -206,4 +197,34 @@ export const replaceUserTabsAction = async (
   return {
     tabs: insertedTabs,
   };
+};
+
+export const replaceUsername = async ({ username }: { username: string }) => {
+  const supabase = createSupabaseBrowserClient();
+
+  const {
+    data: { session },
+    error: userError,
+  } = await supabase.auth.getSession();
+
+  if (!session?.user) {
+    throw new Error("Please login to update username.");
+  }
+
+  if (userError) {
+    throw new Error(userError.message);
+  }
+
+  const { data: newUsername, error: renameError } = await supabase
+    .from("users")
+    .update({ username })
+    .eq("user_id", session.user.id)
+    .select()
+    .single();
+
+  if (renameError) {
+    throw new Error(renameError.message);
+  }
+
+  return newUsername;
 };

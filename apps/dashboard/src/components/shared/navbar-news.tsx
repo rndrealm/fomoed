@@ -14,7 +14,10 @@ import {
   Hamburger,
   NewsIconV2,
   WidgetDashboardIconV2,
-  Command,
+  HelpSupportIcon,
+  HowToUseIcon,
+  SettingsIcon,
+  ReferAndEarnIcon,
 } from "../icons/icons";
 import { AppRoutes } from "@/lib/routes";
 import SideNav, { INavLink } from "./sidebar";
@@ -23,6 +26,9 @@ import { useAtom } from "jotai";
 import { isSidebarOpenAtom } from "@/lib/atoms/utilsAtom";
 import useUserData from "@/lib/hooks/use-user-data";
 import { UsersRow } from "@/lib/types/db.types";
+import SidebarShortcuts from "../dashboard/shared/keyboard-shortcuts/sidebar-shortcuts";
+import ProfilePopover from "./profilePopover";
+import { Database } from "@/lib/database/supabase";
 
 // const ComandSvg
 
@@ -66,30 +72,39 @@ const navLinks: INavLink[] = [
     alpha: false,
     comingSoon: true,
   },
+  {
+    label: "Refer and Earn",
+    icon: <ReferAndEarnIcon />,
+    href: `/`,
+    disabled: false,
+    beta: false,
+    alpha: false,
+    comingSoon: false,
+  },
 ];
 
-// const bottomLinks = [
-//   {
-//     label: "Help & Support",
-//     icon: <HelpSupportIcon />,
-//     href: "/",
-//     disabled: true,
-//   },
-//   {
-//     label: "How to use Fomoed",
-//     icon: <HowToUseIcon />,
-//     href: "/",
-//     disabled: true,
-//   },
-//   {
-//     label: "Settings",
-//     icon: <SettingsIcon />,
-//     href: "/",
-//     disabled: true,
-//   },
-// ];
+const bottomLinks = [
+  {
+    label: "Help & Support",
+    icon: <HelpSupportIcon />,
+    href: "/",
+    disabled: false,
+  },
+  {
+    label: "How to use Fomoed",
+    icon: <HowToUseIcon />,
+    href: "/",
+    disabled: false,
+  },
+  {
+    label: "Settings",
+    icon: <SettingsIcon />,
+    href: "/",
+    disabled: false,
+  },
+];
 
-const bottomLinks = [] as any[];
+// const bottomLinks = [] as any[];
 
 interface IProps {
   isNews?: boolean;
@@ -100,7 +115,7 @@ export const NavbarNews = (props: IProps) => {
   const { isNews, isDashboard } = props;
   // const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
   const [isSideMenuOpen, setIsSideMenuOpen] = useAtom(isSidebarOpenAtom);
-  const authUser = useUserData();
+  const { data: authUser, isLoading, error } = useUserData();
   const pathname = usePathname();
 
   // Close sidebar when pathname changes (route navigation)
@@ -132,6 +147,9 @@ export const NavbarNews = (props: IProps) => {
 
   return (
     <Fragment>
+      {/* profile popover */}
+      <ProfilePopover />
+
       {/* Top Nav */}
       <RenderIf condition={!!isNews}>
         <NavigationTop authUser={authUser} isNews={isNews} setIsSideMenuOpen={setIsSideMenuOpen} />
@@ -157,6 +175,9 @@ export const NavbarNews = (props: IProps) => {
         setIsSideMenuOpen={setIsSideMenuOpen}
         authUser={authUser}
       />
+
+      {/* shortcuts */}
+      <SidebarShortcuts />
     </Fragment>
   );
 };
@@ -166,7 +187,7 @@ const NavigationTop = ({
   isNews,
   setIsSideMenuOpen,
 }: {
-  authUser: UsersRow | null;
+  authUser: Database["public"]["Tables"]["users"]["Row"] | null | undefined;
   isNews: boolean | undefined;
   setIsSideMenuOpen: (value: boolean) => void;
 }) => {

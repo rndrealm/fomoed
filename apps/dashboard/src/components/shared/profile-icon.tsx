@@ -4,9 +4,10 @@ import Image from "next/image";
 import { User } from "@supabase/supabase-js";
 import { cn } from "@/lib/utils";
 import { UsersRow } from "@/lib/types/db.types";
+import { Database } from "@/lib/database/supabase";
 
 interface IProps {
-  user: UsersRow | null;
+  user: Database["public"]["Tables"]["users"]["Row"] | null | undefined;
   className?: string;
 }
 

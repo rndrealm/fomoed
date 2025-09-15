@@ -4,7 +4,9 @@ import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import LinkPopup from "./nav-link-popup";
 import { sideMenuVariants } from "./animations";
-import { Command } from "@/components/icons/icons";
+import { CommandIcon } from "@/components/icons/icons";
+import { useSetAtom } from "jotai";
+import { profilePopoverAtom } from "@/lib/atoms/profilePopover";
 
 interface BadgeProps {
   text: string;
@@ -17,7 +19,7 @@ interface BadgeProps {
 function StatusBadge({ text, borderColor, backgroundColor, textColor, isSideMenuOpen }: BadgeProps) {
   return (
     <motion.div
-      className={`mr-3 absolute top-1/2 right-0 hidden translate-y-[-50%] rounded-[8px] border-[1px] px-2 py-1 md:flex`}
+      className={`pointer-events-none mr-3 absolute top-1/2 right-0 hidden translate-y-[-50%] rounded-[8px] border-[1px] px-2 py-1 md:flex`}
       style={{ borderColor, backgroundColor }}
       initial="closed"
       variants={sideMenuVariants}
@@ -47,6 +49,7 @@ interface INavLinkProps extends INavLink {
   variant: "passive" | "active";
   isSideMenuOpen?: boolean;
   isBottomLink?: boolean;
+  setIsSideMenuOpen?: (value: boolean) => void;
 }
 
 export function NavLink(props: INavLinkProps) {
@@ -64,15 +67,34 @@ export function NavLink(props: INavLinkProps) {
     variant,
     isSideMenuOpen,
     isBottomLink,
+    setIsSideMenuOpen,
   } = props;
+
+  const setProfilePopoverAtom = useSetAtom(profilePopoverAtom);
 
   const [isHovered, setIsHovered] = useState(false);
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // have the sidebar still hidden
+    const sidebar = document.getElementById("sidebar");
+    if (sidebar) {
+      sidebar.style.overflow = "hidden";
+    }
+
     if (disabled) {
       e.preventDefault();
       return;
     }
+
+    if (isBottomLink) {
+      setIsSideMenuOpen?.(false);
+    }
+
+    // settings popover
+    if (label === "Settings") {
+      setProfilePopoverAtom({ open: true, activeTab: "Subscriptions" });
+    }
+
     onClick?.();
   };
 
@@ -106,7 +128,7 @@ export function NavLink(props: INavLinkProps) {
           }}
           id="popup-trigger-div"
           className={cn(
-            "pointer-events-auto relative flex h-[40px] w-[40px] max-h-[40px] items-center justify-center rounded-[10px] px-0 py-2",
+            "pointer-events-auto relative flex h-[40px] w-[40px] max-h-[40px] items-center justify-center rounded-[8px] px-0 py-2",
             isHovered && !disabled ? "bg-[#161616]" : "bg-[#0a0a0a]",
             active ? "bg-[#161616] border-[1px] border-[#242424]" : "border-none",
           )}
@@ -134,9 +156,9 @@ export function NavLink(props: INavLinkProps) {
   return (
     <motion.div
       className={cn(
-        "group relative flex max-h-[40px] items-center rounded-[10px] px-0 py-0 bg-transparent",
+        "group relative flex max-h-[40px] items-center rounded-[8px] px-0 py-0 bg-transparent",
         isBottomLink
-          ? "justify-start gap-2  bg-transparent"
+          ? "justify-start gap-2 bg-transparent"
           : active
             ? "justify-between bg-transparent"
             : disabled
@@ -153,29 +175,29 @@ export function NavLink(props: INavLinkProps) {
           className={cn(
             "h-full w-full rounded-[8px] bg-transparent border-[#242424]",
             isBottomLink
-              ? "justify-start gap-2 bg-[#000] border-[0px] border-[#242424]"
+              ? "justify-start gap-2 bg-transparent border-[0px] border-[#242424] group-hover:bg-[#131313] group-hover:border-[0px] group-hover:border-[#242424]"
               : active
                 ? "justify-between bg-[#161616] border-[1px] border-[#242424]"
                 : disabled
                   ? "justify-between bg-transparent border-[0px] border-[#242424]"
-                  : "justify-between bg-transparent group-hover:border-[1px] group-hover:border-[#242424] group-hover:bg-[#161616] border-[0px] border-[#242424]",
+                  : "justify-between bg-transparent group-hover:bg-[#131313] group-hover:border-[0px] group-hover:border-[#242424] border-[0px] border-[#242424]",
           )}
         ></div>
       </div>
       <Link
-        href={disabled ? "#" : href}
+        href={disabled ? "#" : isBottomLink ? "#" : href}
         onClick={handleClick}
         className={cn("w-full py-0", {
           "pointer-events-none cursor-not-allowed opacity-50": disabled,
         })}
-        aria-disabled={disabled}
+        aria-disabled={disabled || isBottomLink}
       >
         <div className="flex items-center gap-0 pt-0 pb-0">
           <div
             className={cn(
               "w-[48px] h-[40px] flex items-center justify-center",
               !active && !isBottomLink && "!opacity-100 md:!opacity-0 md:group-hover:!opacity-100",
-              isBottomLink ? "" : "mt-[0px]",
+              isBottomLink ? "!opacity-100" : "mt-[0px]",
             )}
           >
             <div
@@ -197,7 +219,7 @@ export function NavLink(props: INavLinkProps) {
             className={cn(
               "ml-[-6px] text-sm font-normal md:text-[14px]",
               isBottomLink
-                ? "text-[#838383]"
+                ? "text-[#838383] group-hover:text-white"
                 : active
                   ? "text-white"
                   : disabled
@@ -221,7 +243,7 @@ export function NavLink(props: INavLinkProps) {
                       key={index}
                       className="flex justify-center items-center px-1 py-1 rounded-[6px] bg-[#161616] border-[1px] border-[#242424]"
                     >
-                      <Command />
+                      <CommandIcon fill="#A6AEB2" />
                     </div>
                   );
                 }
