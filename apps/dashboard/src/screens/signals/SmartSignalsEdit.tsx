@@ -6,10 +6,7 @@ import { Button } from "@/components/ui/button";
 import useUserData from "@/lib/hooks/use-user-data";
 import { SignalActions } from "@/lib/types/signal.types";
 import { extractTopicsFromJsonLogic } from "@/lib/utils/signal.utils";
-import {
-  useSmartSignalById,
-  useUpdateSmartSignal,
-} from "@/services/queries/signals";
+import { useSmartSignalById, useUpdateSmartSignal } from "@/services/queries/signals";
 import { LoaderCircle } from "lucide-react";
 import { redirect } from "next/navigation";
 import { useQueryState } from "nuqs";
@@ -19,7 +16,7 @@ const SmartSignalsEdit = () => {
   const [signalId] = useQueryState("id");
   const { data, isLoading } = useSmartSignalById(signalId);
   const { mutateAsync: updateSignal, isPending } = useUpdateSmartSignal();
-  const user = useUserData();
+  const { data: user, isLoading: isUserLoading, error: userError } = useUserData();
 
   const [signalName, setSignalName] = useState("");
   const [signalDescription, setSignalDescription] = useState("");
@@ -38,9 +35,7 @@ const SmartSignalsEdit = () => {
       setSignalDescription(data.description ?? "");
       setSignalActions({
         email: !!data.actions.find((action) => action.type === "email"),
-        notification: !!data.actions.find(
-          (action) => action.type === "notification",
-        ),
+        notification: !!data.actions.find((action) => action.type === "notification"),
       });
       console.log("🚀 ~ useEffect ~ condition:", JSON.parse(data.condition));
       console.log("🚀 ~ useEffect ~ signalName:", data.name);
@@ -100,12 +95,7 @@ const SmartSignalsEdit = () => {
     <div className="bg-black min-h-screen p-2 h-full ">
       <div className=" w-full max-w-7xl mx-auto">
         <div className="">
-          <Button
-            variant={"ghost"}
-            size={"sm"}
-            className="text-fomoed-red"
-            onClick={() => redirect("/signals")}
-          >
+          <Button variant={"ghost"} size={"sm"} className="text-fomoed-red" onClick={() => redirect("/signals")}>
             ← Back
           </Button>
           <h1 className="text-2xl text-white my-6">Edit Smart Signal</h1>
@@ -120,10 +110,7 @@ const SmartSignalsEdit = () => {
             />
           )} */}
 
-          <NotificationSettings
-            notifications={signalActions}
-            onUpdate={setSignalActions}
-          />
+          <NotificationSettings notifications={signalActions} onUpdate={setSignalActions} />
 
           <SignalDetails
             name={signalName}

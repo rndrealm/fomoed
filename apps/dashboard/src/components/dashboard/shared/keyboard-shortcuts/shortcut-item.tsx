@@ -5,6 +5,7 @@ import {
   SignOut,
   SpotlightAdd,
   SpotlightClear,
+  SpotlightPriceHistory,
   SpotlightRenameTab,
 } from "@/components/icons/icons";
 import { ShortcutKey } from "./shortcut-key";
@@ -29,6 +30,9 @@ const iconsMap = {
   signOut: {
     icon: SignOut,
   },
+  addPriceHistoryWidget: {
+    icon: SpotlightPriceHistory,
+  },
 };
 
 export type IShortcutIcon = keyof typeof iconsMap;
@@ -44,17 +48,28 @@ export const ShortcutItem = (props: IProps) => {
 
   return (
     <div className={cn("flex w-full rounded-sm")}>
-      <div className="flex flex-1 items-center justify-between px-4 py-3">
-        <div className="flex items-center gap-1">
+      <div className="flex flex-1 items-center justify-between px-2 py-3">
+        <div className="flex items-center gap-2">
           <div className="flex h-[20px] w-[20px] items-center justify-center">{iconsMap[icon].icon()}</div>
-          <p className="text-[13px] leading-[18px] font-semibold text-white">{label}</p>
+          <p className="text-[14px] leading-[18px] font-normal text-white">{label}</p>
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
           {shortcutKeys.map((item, index) => {
             return <ShortcutKey key={index} letter={item} isKey={item !== "then"} />;
           })}
         </div>
+      </div>
+
+      {/* border */}
+      <div className="absolute z-[0] left-0 px-0 top-0 h-full w-full">
+        <div
+          className={cn(
+            "hidden group-data-[selected=true]:block h-full w-full rounded-[8px] bg-transparent border-[#242424]",
+
+            "justify-between bg-transparent group-hover:border-[1px] group-hover:border-[#242424] border-[1px] border-[#242424]",
+          )}
+        ></div>
       </div>
     </div>
   );

@@ -199,7 +199,7 @@ export function NewTabs() {
       <div className="hidden max-w-fit flex-1 items-center justify-center gap-0 overflow-hidden md:flex">
         {/* <div className="h-[18px] w-[1px] bg-[#141414]"></div> */}
 
-        <div className="no-scrollbar flex items-center gap-0 overflow-x-auto border-l border-[#111111]">
+        <div className="no-scrollbar flex items-center gap-0 overflow-x-auto border-l border-[#222222]">
           {tabs?.map((item) => {
             const isActive = activeTab.id === item.id;
             const showCloseBtn = tabs.length > 1;

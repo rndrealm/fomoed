@@ -7,7 +7,7 @@ import axios from "axios";
 import { CreateSignalDTO, GetAiSignalResponseBody, UpdateSignalDTO } from "./types";
 
 export const useSmartSignalById = (signalId: string | null) => {
-  const userData = useUserData();
+  const { data: userData, isLoading, error } = useUserData();
 
   const hash = ["get-smart-signal", signalId];
 
@@ -31,7 +31,7 @@ export const useSmartSignalById = (signalId: string | null) => {
 };
 
 export const useSmartSignals = () => {
-  const userData = useUserData();
+  const { data: userData, isLoading, error } = useUserData();
   const hash = ["get-smart-signals", userData?.id];
 
   return useQuery<SmartSignalRow[]>({

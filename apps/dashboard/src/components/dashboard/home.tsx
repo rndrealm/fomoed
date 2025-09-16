@@ -1,9 +1,5 @@
 "use client";
-import {
-  DashboardContent,
-  FullscreenBtn,
-  Toolbar,
-} from "@/components/dashboard";
+import { DashboardContent, FullscreenBtn, Toolbar } from "@/components/dashboard";
 import { NextStepProvider, NextStep } from "nextstepjs";
 import { loadLayoutsFromApiAtom } from "@/lib/atoms/layoutAtom";
 import { loadSettingsFromApiAtom } from "@/lib/atoms/settingsAtom";
@@ -22,10 +18,7 @@ import { useAtom, useSetAtom } from "jotai";
 import { setGeoLocationAtom } from "@/lib/atoms/geoLocation";
 import { useFetchUserLocation } from "@/services/queries/geolocation";
 import { KeyboardShortcuts } from "./shared/keyboard-shortcuts";
-import {
-  useGetSupportedxchangePairs,
-  useReadCoinList,
-} from "@/services/queries/charts";
+import { useGetSupportedxchangePairs, useReadCoinList } from "@/services/queries/charts";
 import { Player } from "./shared/player";
 
 interface IProps {
@@ -94,10 +87,7 @@ export default function Home({ dashboardData }: IProps) {
 
     return () => {
       document.removeEventListener("fullscreenchange", onFullscreenChange);
-      document.removeEventListener(
-        "webkitfullscreenchange",
-        onFullscreenChange,
-      );
+      document.removeEventListener("webkitfullscreenchange", onFullscreenChange);
       document.removeEventListener("mozfullscreenchange", onFullscreenChange);
       document.removeEventListener("MSFullscreenChange", onFullscreenChange);
     };
@@ -120,19 +110,16 @@ export default function Home({ dashboardData }: IProps) {
         )}
       >
         <div className="relative flex h-full w-full flex-col gap-0">
-          <div className="px-4 md:px-4 bg-[#0A0A0A] border-b-[1px] border-[#111111]">
+          <div className="px-4 md:px-4 bg-[#0A0A0A] border-b-[1px] border-[#222222]">
             <Toolbar />
           </div>
           {/* <div className="relative w-full h-full"> */}
-          <div className="relative scrollbar sm:p4 flex-1 app_dashboard_content overflow-auto rounded-[0px] border-[#1111111] bg-[#000] p-2 md:border-0 md:p-0">
+          <div className="relative scrollbar sm:p4 flex-1 app_dashboard_content overflow-auto rounded-[0px] border-[#222222] bg-[#000] p-2 md:border-0 md:p-0">
             <DashboardContent />
           </div>
           {/* </div> */}
 
-          <FullscreenBtn
-            isFullscreen={utils.isFullScreen}
-            handleFullscreen={handleFullscreen}
-          />
+          <FullscreenBtn isFullscreen={utils.isFullScreen} handleFullscreen={handleFullscreen} />
         </div>
       </div>
       <KeyboardShortcuts />

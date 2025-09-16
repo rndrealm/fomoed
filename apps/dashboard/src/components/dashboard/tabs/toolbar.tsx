@@ -12,6 +12,7 @@ import { activeTabAtom, loadTabsFromApiAtom } from "@/lib/atoms/tabsAtom";
 import { toast } from "sonner";
 import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
 
+import { profilePopoverAtom } from "@/lib/atoms/profilePopover";
 import { settingAtom } from "@/lib/atoms/settingsAtom";
 import { NameLayout, Upgrade } from "@/components/modals";
 import { useGetUserPlans } from "@/services/queries/subscriptions";
@@ -53,6 +54,9 @@ export function Toolbar() {
   const [showNameModal, setShowNameModal] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [newLayoutName, setNewLayoutName] = useState("");
+
+  const profilePopover = useAtomValue(profilePopoverAtom);
+  const setProfilePopoverAtom = useSetAtom(profilePopoverAtom);
 
   const { mutate, isPending, isError, isSuccess } = useSyncLayouts();
   const { data } = useGetUserPlans();
@@ -173,7 +177,10 @@ export function Toolbar() {
 
             <div className="h-10 w-10 flex items-center justify-center">
               {/* <NotiSvg /> */}
-              <BellIcon className="cursor-not-allowed scale-[0.5714]" />
+              <BellIcon
+                onClick={() => setProfilePopoverAtom({ open: true, activeTab: "Notifications" })}
+                className="cursor-pointer scale-[0.5714]"
+              />
             </div>
 
             {/* menu with popover */}

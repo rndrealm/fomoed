@@ -8,10 +8,11 @@ import { ProfileDropdown } from "../shared";
 import { User } from "@supabase/supabase-js";
 import { cn } from "@/lib/utils";
 import { UsersRow } from "@/lib/types/db.types";
+import { Database } from "@/lib/database/supabase";
 
 interface IProps {
   children?: ReactNode;
-  authUser: UsersRow | null;
+  authUser: Database["public"]["Tables"]["users"]["Row"] | null | undefined;
   menuClassName?: string;
   buttonClassName?: string;
 }

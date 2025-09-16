@@ -31,7 +31,7 @@ const links = [
 
 const NavBar = () => {
   const path = usePathname();
-  const authUser = useUserData();
+  const { data: authUser, isLoading, error } = useUserData();
   return (
     <div className="nav-bar-gradient fixed top-0 left-1/2 mx-auto mt-4 h-[60px] w-full max-w-[590px] -translate-x-1/2 rounded-[15px] p-[0.4px]">
       <div className="flex h-full w-full items-center rounded-[15px] bg-black px-6 py-3.5">
