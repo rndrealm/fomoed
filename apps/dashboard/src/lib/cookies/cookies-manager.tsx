@@ -20,7 +20,10 @@ export default function CookiesManager() {
     navigator.serviceWorker.addEventListener("message", handleMessage);
 
     return () => {
-      navigator.serviceWorker.removeEventListener("message", handleMessage);
+      // Only remove listener if service worker is still available
+      if ("serviceWorker" in navigator && navigator.serviceWorker) {
+        navigator.serviceWorker.removeEventListener("message", handleMessage);
+      }
     };
   }, []);
 
