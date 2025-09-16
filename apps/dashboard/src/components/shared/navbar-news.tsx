@@ -30,8 +30,6 @@ import SidebarShortcuts from "../dashboard/shared/keyboard-shortcuts/sidebar-sho
 import ProfilePopover from "./profilePopover";
 import { Database } from "@/lib/database/supabase";
 
-// const ComandSvg
-
 const navLinks: INavLink[] = [
   {
     label: "News",
@@ -88,13 +86,13 @@ const bottomLinks = [
     label: "Help & Support",
     icon: <HelpSupportIcon />,
     href: "/",
-    disabled: false,
+    disabled: true,
   },
   {
     label: "How to use Fomoed",
     icon: <HowToUseIcon />,
     href: "/",
-    disabled: false,
+    disabled: true,
   },
   {
     label: "Settings",

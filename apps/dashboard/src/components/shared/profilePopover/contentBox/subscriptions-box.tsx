@@ -46,7 +46,7 @@ const SubscriptionsBox = () => {
   }, [userSubscriptionQueryData]);
 
   return (
-    <div className="max-w-[400px] mx-auto scrollbar flex-1 w-full flex flex-col gap-8 bg-[#131313] pb-6 pt-13 overflow-y-auto">
+    <div className="max-w-[520px]  mx-auto scrollbar flex-1 w-full flex flex-col gap-8 bg-[#131313] px-6 md:px-10 pb-6 pt-13 overflow-y-auto">
       <div className="h-full flex flex-col items-start gap-6 text-white text-[13px] font-normal">
         <div className="w-full flex flex-col gap-2">
           <p className="text-xs text-[#a4a4a4]">Subscriptions and Plans</p>
@@ -68,7 +68,7 @@ const SubscriptionsBox = () => {
             <p className="text-xs text-[#a4a4a4]">{planSubtitle}</p>
           </div>
           <div className="flex flex-col items-start justify-start">
-            <button type="button" className="px-4 py-2 bg-[#FF8970] text-[#33120B] rounded-[8px]">
+            <button type="button" className="px-4 py-2 bg-[#FF8970] text-[#33120B] rounded-[8px] cursor-not-allowed">
               Cancel Subscription
             </button>
           </div>
@@ -92,7 +92,7 @@ const SubscriptionsBox = () => {
               </div>
               <div className="flex flex-col gap-1">
                 <p className="">Fomoed Tokens</p>
-                <span className="underline text-[#167AFD] text-xs cursor-pointer">How to earn more tokens</span>
+                <span className="underline text-[#167AFD] text-xs cursor-not-allowed">How to earn more tokens</span>
               </div>
             </div>
           </div>

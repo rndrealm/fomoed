@@ -10,6 +10,7 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { ModalContainer } from "../..";
 import Image from "next/image";
 import CloseIcon from "@/components/icons/CloseIcon";
+import useSubscription from "@/hooks/subscription";
 
 const ProfileBox = () => {
   const { data: authUser, isLoading, error } = useUserData();
@@ -28,6 +29,7 @@ const ProfileBox = () => {
   const setProfilePopoverAtom = useSetAtom(profilePopoverAtom);
 
   const router = useRouter();
+  const { userSubscriptionQueryData } = useSubscription();
 
   const { updateAvatar, isPending: isAvatarPending, isError: isAvatarError } = useUpdateAvatar();
 
@@ -84,7 +86,7 @@ const ProfileBox = () => {
           <label className="block text-xs text-white font-normal">Account Name</label>
           <input
             type="text"
-            placeholder="User1234"
+            placeholder="Username..."
             className="w-full mt-1 px-3 py-2 bg-[#1A1A1A] border-[1px] border-[#2A2A2A] rounded-[8px] focus:outline-none placeholder:text-[14px] text-[14px] text-white"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
@@ -153,7 +155,7 @@ const ProfileBox = () => {
           }}
           className="px-4 py-2 text-nowrap bg-[#db8844] rounded-[8px] text-[14px] text-black leading-[18px] font-medium"
         >
-          Upgrade to Premium
+          {userSubscriptionQueryData?.activePlan !== "basic" ? "Manage Subscription" : "Upgrade Now"}
         </button>
       </div>
     </div>

@@ -19,7 +19,7 @@ interface BadgeProps {
 function StatusBadge({ text, borderColor, backgroundColor, textColor, isSideMenuOpen }: BadgeProps) {
   return (
     <motion.div
-      className={`pointer-events-none mr-3 absolute top-1/2 right-0 hidden translate-y-[-50%] rounded-[8px] border-[1px] px-2 py-1 md:flex`}
+      className={`pointer-events-none mr-3 absolute top-1/2 right-0 flex translate-y-[-50%] rounded-[8px] border-[1px] px-2 py-1`}
       style={{ borderColor, backgroundColor }}
       initial="closed"
       variants={sideMenuVariants}
@@ -157,6 +157,9 @@ export function NavLink(props: INavLinkProps) {
     <motion.div
       className={cn(
         "group relative flex max-h-[40px] items-center rounded-[8px] px-0 py-0 bg-transparent",
+        {
+          "cursor-not-allowed": disabled,
+        },
         isBottomLink
           ? "justify-start gap-2 bg-transparent"
           : active
@@ -204,7 +207,7 @@ export function NavLink(props: INavLinkProps) {
               key={label}
               className={cn(
                 "h-[40px] w-[40px] flex items-center justify-center",
-                disabled && "opacity-100 md:opacity-0",
+                disabled && "opacity-100 md:opacity-100",
                 // "opacity-100",
               )}
             >
@@ -236,6 +239,9 @@ export function NavLink(props: INavLinkProps) {
           {/* keyboard boxes */}
           <div className="absolute flex flex-row gap-1 right-3 top-1/2 translate-y-[-50%]">
             {keyboardBoxes &&
+              !comingSoon &&
+              !beta &&
+              !alpha &&
               keyboardBoxes.map((box, index) => {
                 if (box === "command") {
                   return (

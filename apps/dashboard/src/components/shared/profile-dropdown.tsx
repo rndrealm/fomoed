@@ -97,8 +97,7 @@ export function ProfileDropdown(props: IProps) {
         <div className="flex flex-col">
           <div className="relative px-2 py-2 h-24">
             <div className="realtive z-10">
-              <a
-                href="/pricing"
+              <div
                 style={{ boxShadow: "0px 4px 4px 0px #00000040" }}
                 className={classNames(
                   "min-h-[48px] max-h-[52px] w-full bg-[#1A1A1A] flex cursor-default flex-row items-center justify-start gap-2.5 rounded-sm px-3 py-2 h-full",
@@ -115,7 +114,7 @@ export function ProfileDropdown(props: IProps) {
                     {planSubtitle && <div className="font-normal text-[#656565] text-xs">{planSubtitle}</div>}
                   </div>
                 </RenderIf>
-              </a>
+              </div>
             </div>
             {/* view plans thing */}
             <div className="pointer-events-auto z-[0] absolute bottom-[10px] left-1/2 translate-x-[-50%] w-full h-fit px-6 flex justify-center items-center">
