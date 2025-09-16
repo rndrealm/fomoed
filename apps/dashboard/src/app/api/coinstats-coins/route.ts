@@ -1,11 +1,6 @@
-// app/api/coinstats-coins/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { Redis } from "ioredis";
 import { CoinStatsTokenInfo } from "@/services/queries/charts/types";
-
-const redis = new Redis(process.env.REDIS_URL != "" ? (process.env.REDIS_URL as string) : "redis://localhost:6379", {
-  password: process.env.REDIS_PASSWORD || undefined,
-});
+import { getRedisInstance } from "@/lib/utils/server.utils";
 
 const COIN_KEY_PREFIX = "coin-v4-new-prefix:";
 const COIN_LIST_KEY = "coinstats_coinlist-v4";
@@ -14,6 +9,8 @@ const CACHE_TTL = 18000; // 5 hours in seconds (5 * 60 * 60)
 const API_KEY = "WvGNSh8jIvpDJ0hjsgNZu1MFMYeohhiYMqDuzcZplTk=";
 
 async function fetchSingleToken(token: string): Promise<CoinStatsTokenInfo | null> {
+  const redis = getRedisInstance();
+
   try {
     // Check cache first
     const cachedCoin = await redis.get(`${COIN_KEY_PREFIX}${token}`);
@@ -47,12 +44,13 @@ async function fetchSingleToken(token: string): Promise<CoinStatsTokenInfo | nul
 }
 
 async function fetchCoinList(): Promise<CoinStatsTokenInfo[]> {
+  const redis = getRedisInstance();
+
   try {
     // Check if we have a cached coin list
     const cachedCoinList = await redis.get(COIN_LIST_KEY);
 
     if (cachedCoinList) {
-      console.log("fetch fro cache");
       const coinSlugs: string[] = JSON.parse(cachedCoinList);
 
       // Use pipeline for efficient batch retrieval

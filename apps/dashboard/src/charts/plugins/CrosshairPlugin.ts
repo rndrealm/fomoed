@@ -5,6 +5,7 @@ interface LabelingOptions {
   scaleId: string;
   label: string;
   widthComputeString?: string;
+  drawPoint?: boolean;
 
   // Chart JS somehow automatically calls the function when the plugin option is a function,
   // That is why these are functions returning functions.
@@ -189,7 +190,7 @@ function drawIntersections(
       });
     }
 
-    if (drawPoints) {
+    if (drawPoints && datasetYScaleOpts.drawPoint !== false) {
       const yPixel = chart.scales[yAxisID].getPixelForValue(datapoint.y);
 
       ctx.fillStyle = color;

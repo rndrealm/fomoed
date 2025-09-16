@@ -141,15 +141,13 @@ export async function GET(): Promise<NextResponse<UserSubscriptionsResponse>> {
     isTrialing = true;
   }
 
-  const upcomingSubProId = upcomingSub?.items.data[0]?.plan?.product;
+  const upcomingSubProdId = upcomingSub?.items.data[0]?.plan?.product;
 
-  console.log({ upcomingSubProId });
-
-  if (plansIdMap.pro.includes(upcomingSubProId as string)) {
+  if (plansIdMap.pro.includes(upcomingSubProdId as string)) {
     upcomingPlan = "pro";
   }
 
-  if (plansIdMap.plus.includes(upcomingSubProId as string)) {
+  if (plansIdMap.plus.includes(upcomingSubProdId as string)) {
     upcomingPlan = "plus";
   }
 

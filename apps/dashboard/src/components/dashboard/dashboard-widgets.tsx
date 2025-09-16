@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { layoutAtom, LayoutType, syncOnLayoutChange } from "@/lib/atoms/layoutAtom";
@@ -7,6 +7,9 @@ import { chartsMap, widgetPropsDefaults } from "@/lib/static";
 import { splitWidgetSlug } from "@/lib/utils";
 import { settingAtom } from "@/lib/atoms/settingsAtom";
 import { gridColAtom } from "@/lib/atoms/utilsAtom";
+import { ErrorBoundary } from "react-error-boundary";
+import WidgetErrorOverlay from "./widget-error-overlay";
+import * as Sentry from "@sentry/nextjs";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 const availableHandles = ["s", "w", "e", "n", "sw", "nw", "se", "ne"];
@@ -26,6 +29,10 @@ export function DashboardWidgets(props: IProps) {
   const activeTab = useAtomValue(activeTabAtom);
   const currLayoutId = activeTab.layout_id;
   const currLayout = layouts.find((item) => item.id === currLayoutId);
+
+  function handleWgError(error: Error) {
+    Sentry.captureException(error);
+  }
 
   return (
     <>
@@ -88,7 +95,9 @@ export function DashboardWidgets(props: IProps) {
 
           return (
             <div key={layout.meta.i} data-grid={{ x, y, w, h, minW, minH, maxH, maxW }}>
-              {chartsMap[splitWidgetSlug(layout.meta.i).slug as keyof typeof chartsMap]?.component(layout)}
+              <ErrorBoundary FallbackComponent={WidgetErrorOverlay} onError={handleWgError}>
+                {chartsMap[splitWidgetSlug(layout.meta.i).slug as keyof typeof chartsMap]?.component(layout)}
+              </ErrorBoundary>
             </div>
           );
         })}

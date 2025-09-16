@@ -18,6 +18,7 @@ import {
   HowToUseIcon,
   SettingsIcon,
   ReferAndEarnIcon,
+  EducationIcon,
 } from "../icons/icons";
 import { AppRoutes } from "@/lib/routes";
 import SideNav, { INavLink } from "./sidebar";
@@ -65,6 +66,15 @@ const navLinks: INavLink[] = [
     label: "Community",
     icon: <CommunityIcon />,
     href: `${process.env.NEXT_PUBLIC_MARKETING_APP_URL}/kol/explore`,
+    disabled: false,
+    beta: false,
+    alpha: false,
+    comingSoon: false,
+  },
+  {
+    label: "Fomoed Education",
+    icon: <EducationIcon />,
+    href: `#`,
     disabled: false,
     beta: false,
     alpha: false,

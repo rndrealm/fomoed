@@ -23,7 +23,6 @@ async function fetchPairMarkets(symbol: string) {
   return data;
 }
 
-// Function to fetch the current price of an asset in USD
 async function fetchAssetPriceUsd(symbol: string): Promise<number> {
   const pairMarketsData = await fetchPairMarkets(symbol);
 
@@ -70,7 +69,6 @@ async function fetchCoinglassLiqMap(range: string, exchange: string, symbol: str
   return data;
 }
 
-//! REQUEST HANDLER FOR /api/ex-liq-map
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -125,12 +123,10 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Keep only instruments with requested asset
     for (const [exchange, instruments] of Object.entries(supportedFuturePairs)) {
       supportedFuturePairs[exchange] = instruments.filter((i) => i.base_asset === asset);
     }
 
-    // Replace the nested for loops with parallel requests
     const fetchPromises = [];
 
     for (const [exchange, instruments] of Object.entries(supportedFuturePairs)) {
@@ -150,19 +146,16 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Process all results at once
     const results = await Promise.all(fetchPromises);
 
-    // Process the results
     for (const result of results) {
       if (!result || !result.data) continue;
 
       const { exchange, data } = result;
 
       for (const [price, liquidations] of Object.entries(data)) {
-        const roundedPrice = parseInt(price);
+        const roundedPrice = parseFloat(price);
 
-        // Assert type of liquidations before iterating
         if (Array.isArray(liquidations)) {
           for (const liquidation of liquidations as [number, number, number, null][]) {
             const liqLevel = liquidation[1];
@@ -172,14 +165,12 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Cache retrieved data
     await supabaseServer.from("exchangeLiqMapCache").upsert({ asset: cacheAssetId, data: totalExLiq });
 
     return NextResponse.json({
       data: { currentPriceUsd, exLiqData: totalExLiq },
     });
   } catch (error) {
-    // Handle errors gracefully
     console.log("Error fetching liquidation data:", error);
     return NextResponse.json({ error: "Failed to fetch Liquidation data4" }, { status: 500 });
   }

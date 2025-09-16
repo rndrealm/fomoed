@@ -5,14 +5,7 @@ const ConnectButton = () => {
   return (
     <div className="flex  items-center gap-3 lg:gap-[0.625rem]">
       <RainbowConnectButton.Custom>
-        {({
-          account,
-          chain,
-          openAccountModal,
-          openChainModal,
-          openConnectModal,
-          mounted,
-        }) => {
+        {({ account, chain, openAccountModal, openChainModal, openConnectModal, mounted }) => {
           const ready = mounted;
           const connected = ready && account && chain;
           return (
@@ -48,6 +41,7 @@ const ConnectButton = () => {
                     </button>
                   );
                 }
+
                 return <AccountDropdown account={account} />;
               })()}
             </div>

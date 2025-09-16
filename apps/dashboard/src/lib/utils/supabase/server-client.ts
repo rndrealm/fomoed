@@ -28,7 +28,14 @@ export async function createSupabaseServerClient(component: boolean = false) {
   );
 }
 // server component can only get cookies and not set them, hence the "component" check
+/**
+ * @deprecated use createSupabaseServiceClient instead. This is deprecated because the name of the function is misleading.
+ */
 export async function createSupabaseServerWithAnonKey() {
+  return createClient<Database>(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.PRIVATE_SUPABASE_SECRET!);
+}
+
+export async function createSupabaseServiceClient() {
   return createClient<Database>(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.PRIVATE_SUPABASE_SECRET!);
 }
 

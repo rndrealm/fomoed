@@ -660,6 +660,30 @@ export type Database = {
         }
         Relationships: []
       }
+      gemach_session_key: {
+        Row: {
+          created_at: string
+          id: number
+          private_key: string
+          public_key: string
+          wallet: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          private_key: string
+          public_key: string
+          wallet: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          private_key?: string
+          public_key?: string
+          wallet?: string
+        }
+        Relationships: []
+      }
       in_app_notifications: {
         Row: {
           body: string
@@ -1678,7 +1702,7 @@ export type Database = {
           {
             foreignKeyName: "payouts_kol_clipfarm_payable_id_fkey"
             columns: ["kol_clipfarm_payable_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "kol_clipfarm_payable"
             referencedColumns: ["id"]
           },
@@ -1976,6 +2000,7 @@ export type Database = {
           is_kol_allowed: boolean
           is_marketing_allowed: boolean
           is_project_manager: boolean
+          onboarded: boolean | null
           updated_at: string | null
           user_id: string
           username: string | null
@@ -1990,6 +2015,7 @@ export type Database = {
           is_kol_allowed?: boolean
           is_marketing_allowed?: boolean
           is_project_manager?: boolean
+          onboarded?: boolean | null
           updated_at?: string | null
           user_id: string
           username?: string | null
@@ -2004,6 +2030,7 @@ export type Database = {
           is_kol_allowed?: boolean
           is_marketing_allowed?: boolean
           is_project_manager?: boolean
+          onboarded?: boolean | null
           updated_at?: string | null
           user_id?: string
           username?: string | null

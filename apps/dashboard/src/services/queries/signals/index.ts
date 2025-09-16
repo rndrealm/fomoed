@@ -186,7 +186,7 @@ export const useDuplicateSmartSignal = () => {
       };
 
       // Use the same backend endpoint as signal creation
-      await axios.post(process.env.NEXT_PUBLIC_BACKEND_BASE + "/api/v1/smart-signal/new", data);
+      await axios.post("/api/signals/new", data);
 
       client.invalidateQueries({
         queryKey: ["get-smart-signals"],
@@ -213,8 +213,7 @@ export const useCreateSignalMutation = () => {
 
   return useMutation({
     mutationFn: async (data: CreateSignalDTO) => {
-      // this will be replaced with an axios instance. leave it for now
-      await axios.post(process.env.NEXT_PUBLIC_BACKEND_BASE + "/api/v1/smart-signal/new", data);
+      await axios.post("/api/signals/new", data);
 
       client.invalidateQueries({
         queryKey: ["get-smart-signals"],

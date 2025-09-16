@@ -1,8 +1,12 @@
 import { geoLocationAtom } from "@/lib/atoms/geoLocation";
 import { formatPriceSignificant } from "@/lib/utils";
+import { getBinanceWsServerUrl, throwFailedToConnectBinanceWsError } from "@/lib/utils/binance-client.utils";
+import { safeJsonParse } from "@/lib/utils/common.utils";
 import { useFetchBinancePriceData, useFetchBinanceTokenPrice } from "@/services/queries/charts";
 import { useAtomValue } from "jotai";
 import { useEffect, useRef, useState, useMemo } from "react";
+
+const logKey = "[NewPriceChart]:";
 
 interface IProps {
   token?: string;
@@ -21,13 +25,13 @@ export function LivePrice(props: IProps) {
 
   // Fetch real-time price for current price display
   const { data: price } = useFetchBinanceTokenPrice(token, location?.country);
-  
+
   // Fetch historical data for percentage calculation
   const { data: historicalData = [] } = useFetchBinancePriceData(
-    `${token}USDT`, 
-    period?.binanceInterval, 
-    1000, 
-    location?.country
+    `${token}USDT`,
+    period?.binanceInterval,
+    1000,
+    location?.country,
   );
 
   const hasLivePrice = useRef(false);
@@ -35,7 +39,6 @@ export function LivePrice(props: IProps) {
   const [percentChange, setPercentChange] = useState(0);
 
   const wsRef = useRef<WebSocket | null>(null);
-  const eventSourceRef = useRef<EventSource | null>(null);
 
   // Filter historical data based on selected period
   const filteredHistoricalData = useMemo(() => {
@@ -45,10 +48,12 @@ export function LivePrice(props: IProps) {
     let cutoffDate: Date;
 
     switch (selectedPeriod) {
-      case "1D":
+      case "1D": {
+        // For daily timeframe, use today's start (00:00)
         cutoffDate = new Date(now);
-        cutoffDate.setDate(now.getDate() - 1);
+        cutoffDate.setHours(0, 0, 0, 0);
         break;
+      }
       case "1W":
         cutoffDate = new Date(now);
         cutoffDate.setDate(now.getDate() - 7);
@@ -77,7 +82,7 @@ export function LivePrice(props: IProps) {
     }
 
     const cutoff = cutoffDate.getTime();
-    return historicalData.filter(d => (d.time as number) * 1000 >= cutoff);
+    return historicalData.filter((d) => (d.time as number) * 1000 >= cutoff);
   }, [historicalData, selectedPeriod]);
 
   // Calculate percentage change based on filtered historical data
@@ -85,12 +90,33 @@ export function LivePrice(props: IProps) {
     if (!filteredHistoricalData.length || !tokenPrice) return 0;
 
     const currentPrice = parseFloat(tokenPrice);
+
+    // For daily timeframe, ensure we get the first price of the day (00:00)
+    if (selectedPeriod === "1D") {
+      const now = new Date();
+      const startOfDay = new Date(now);
+      startOfDay.setHours(0, 0, 0, 0);
+
+      // Find the closest data point to start of day
+      const startOfDayData = filteredHistoricalData.find((d) => {
+        const dataTime = new Date((d.time as number) * 1000);
+        return dataTime >= startOfDay;
+      });
+
+      if (startOfDayData) {
+        const startPrice = (startOfDayData as any)?.value || (startOfDayData as any)?.close;
+        if (startPrice && startPrice > 0) {
+          return ((currentPrice - startPrice) / startPrice) * 100;
+        }
+      }
+    }
+
+    // For other timeframes, use the first data point in the filtered data
     const startPrice = (filteredHistoricalData[0] as any)?.value || (filteredHistoricalData[0] as any)?.close;
-    
     if (!startPrice || startPrice <= 0) return 0;
-    
+
     return ((currentPrice - startPrice) / startPrice) * 100;
-  }, [filteredHistoricalData, tokenPrice]);
+  }, [filteredHistoricalData, tokenPrice, selectedPeriod]);
 
   // Update percentage change when calculated value changes
   useEffect(() => {
@@ -116,75 +142,56 @@ export function LivePrice(props: IProps) {
   };
 
   useEffect(() => {
-    if (!token || !location?.country) return;
+    if (!token) {
+      console.info(logKey, "token not set, not subscribing");
+      return;
+    }
+
+    if (!location?.country) {
+      console.info(logKey, "country not set, not subscribing");
+      return;
+    }
 
     setTokenPrice("");
     setPercentChange(0);
     hasLivePrice.current = false;
 
-    const connectEventSourceProxy = () => {
-      console.log("Primary Ticker WebSocket failed. Attempting fallback to EventSource proxy...");
-      const eventSource = new EventSource(`/api/websocket-proxy?token=${token}&streamType=ticker`);
-      eventSourceRef.current = eventSource;
-
-      eventSource.onmessage = (event) => {
-        try {
-          const message = JSON.parse(event.data);
-          if (message.type !== "heartbeat") {
-            handleTickerUpdate(message.stream, message.data);
-          }
-        } catch (error) {
-          console.error("Error parsing ticker fallback message:", error);
-        }
-      };
-
-      eventSource.onerror = (error) => {
-        eventSource.close();
-      };
-    };
-
-    const connectWebSocket = () => {
+    function connectWebsocket(wsServerUrl: string, onError: () => void) {
       const lowerToken = token.toLowerCase();
       const streams = `${lowerToken}usdt@trade/${lowerToken}usdt@miniTicker`;
-      const endpoint = location.country === "US"
-        ? `wss://stream.binance.us:9443/stream?streams=${streams}`
-        : `wss://stream.binance.com:9443/stream?streams=${streams}`;
+      const endpoint = wsServerUrl + `/stream?streams=${streams}`;
 
       const ws = new WebSocket(endpoint);
       wsRef.current = ws;
 
       ws.onopen = () => {
-        console.log(`Direct Ticker WebSocket connection established for ${token}. ✅`);
+        console.log(logKey, "Estabilished connection to ws:", wsServerUrl);
       };
 
       ws.onmessage = (event) => {
-        try {
-          const message = JSON.parse(event.data);
-          if (message.stream && message.data) {
-            handleTickerUpdate(message.stream, message.data);
-          }
-        } catch (error) {
-          console.error("Error parsing ticker WebSocket message:", error);
+        const msg = safeJsonParse<any>(event.data, null);
+
+        if (msg && msg.stream && msg.data) {
+          handleTickerUpdate(msg.stream, msg.data);
         }
       };
 
-      ws.onerror = (error) => {
+      ws.onerror = () => {
         ws.close();
-        connectEventSourceProxy();
+        onError();
       };
-    };
+    }
 
-    connectWebSocket();
+    connectWebsocket(getBinanceWsServerUrl("binance", location), () => {
+      connectWebsocket(getBinanceWsServerUrl("proxy", location), () => {
+        throwFailedToConnectBinanceWsError();
+      });
+    });
 
     return () => {
-      if (wsRef.current) {
-        wsRef.current.close();
-      }
-      if (eventSourceRef.current) {
-        eventSourceRef.current.close();
-      }
+      wsRef.current?.close();
     };
-  }, [token, location?.country]);
+  }, [token, location]);
 
   // Fallback to API data if no live price
   useEffect(() => {
@@ -201,13 +208,15 @@ export function LivePrice(props: IProps) {
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-center gap-2">
-        <h2 className="text-xl sm:text-2xl text-white leading-[1.35] font-bold">
+        <h2 className="text-lg sm:text-2xl text-white leading-[1.35] font-bold">
           <span className="text-[#AFAFAF] text-xl">$</span>
           {tokenPrice ? formatPriceSignificant(tokenPrice) : "..."}
         </h2>
-        <p className={`text-[13px] leading-[1.25] font-medium ${
-          percentChange >= 0 ? 'text-[#00AF58]' : 'text-[#FF8970]'
-        }`}>
+        <p
+          className={`text-[10px] sm:text-[13px] leading-[1.25] font-medium ${
+            percentChange >= 0 ? "text-[#00AF58]" : "text-[#FF8970]"
+          }`}
+        >
           {`${percentChange > 0 ? "+" : ""}` + percentChange.toFixed(2) + "%"}
         </p>
       </div>

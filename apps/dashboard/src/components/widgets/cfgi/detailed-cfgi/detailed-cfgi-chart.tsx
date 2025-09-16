@@ -10,7 +10,7 @@ import Chart from "chart.js/auto";
 import "chartjs-adapter-dayjs-4/dist/chartjs-adapter-dayjs-4.esm";
 import type { ZoomPluginOptions } from "chartjs-plugin-zoom/types/options";
 import dayjs from "dayjs";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, memo } from "react"; 
 
 import {
   CrosshairPlugin,
@@ -19,19 +19,24 @@ import {
 import { TabOptions } from "@/constant/cfgi-data";
 import { signalModalConfigAtom } from "@/lib/atoms/signalModalAtom";
 import { useAtom } from "jotai";
+import { FullscreenableContainer } from "../../shared";
+import { cn } from "@/lib/utils";
 
 Chart.register(CrosshairPlugin);
 
 interface ICfgiCard {
   cfgiData: CfgiDataResponse[];
   viewOption: string;
+  isFullscreen: boolean;
+  onAnimationComplete?: () => void;
 }
 
-const DetailedCfgiChart = (props: ICfgiCard) => {
+const DetailedCfgiChart = memo((props: ICfgiCard) => {
   useEffect(() => {
     registerChartPluginZoomInBrowser();
   }, []);
-  const { cfgiData, viewOption } = props;
+  
+  const { cfgiData, viewOption, isFullscreen, onAnimationComplete } = props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
   const [_, setSignalModalConfig] = useAtom(signalModalConfigAtom);
@@ -49,10 +54,8 @@ const DetailedCfgiChart = (props: ICfgiCard) => {
   const chart_init = useCallback(
     (ctx: CanvasRenderingContext2D) => {
       const data = cfgiData.filter((d) => d.price && d.cfgi);
-      console.log("cfgiData", cfgiData);
       const prices_data = data.map((d) => {
         return { x: d.date, y: d.price };
-        // return { x: d.date, y: Math.round(d.price) };
       });
       const cfgi_data = data.map((c) => {
         return { x: c.date, y: c.cfgi };
@@ -92,25 +95,15 @@ const DetailedCfgiChart = (props: ICfgiCard) => {
 
       const minDate = data[0].date;
       const maxDate = data[data.length - 1].date;
-
-      // On homepage, period of 24 hours is fetched
       const periodSeconds = 24 * 60 * 60;
 
       const zoomPluginOptions: ZoomPluginOptions = {
         zoom: {
-          wheel: {
-            enabled: true,
-          },
-          pinch: {
-            enabled: true,
-          },
+          wheel: { enabled: true },
+          pinch: { enabled: true },
           mode: "x",
         },
-        pan: {
-          enabled: true,
-          mode: "x",
-          threshold: 0,
-        },
+        pan: { enabled: true, mode: "x", threshold: 0 },
         limits: {
           x: {
             minRange: periodSeconds * 1000,
@@ -125,9 +118,7 @@ const DetailedCfgiChart = (props: ICfgiCard) => {
           {
             scaleId: "x",
             label: "Date & Time",
-            getText: () => (val) => {
-              return dayjs(val).format("DD MMM YYYY");
-            },
+            getText: () => (val) => dayjs(val).format("DD MMM YYYY"),
           },
           {
             scaleId: "indexY",
@@ -139,9 +130,7 @@ const DetailedCfgiChart = (props: ICfgiCard) => {
             scaleId: "priceY",
             label: "Price",
             getText: () => (val) => {
-              if (val < 1000) {
-                return "$" + commaFormatNumber(val);
-              }
+              if (val < 1000) return "$" + commaFormatNumber(val);
               return "$" + commaFormatNumber(Math.round(val));
             },
           },
@@ -151,10 +140,8 @@ const DetailedCfgiChart = (props: ICfgiCard) => {
       };
 
       const options = {
-        interaction: {
-          mode: "nearest",
-        },
-        responsive: false,
+        interaction: { mode: "nearest" },
+        responsive: true,
         maintainAspectRatio: false,
         animations: false,
         scales: {
@@ -165,14 +152,10 @@ const DetailedCfgiChart = (props: ICfgiCard) => {
               source: "data",
               stepSize: 5000,
               callback: (value: number) => {
-                // return `$${Math.round(value / 1000)}k`;
                 if (value < 1000) return `$${value.toFixed(2)}`;
                 return `$${Math.round(value / 1000)}k`;
               },
             },
-            // Uncomment this to make the price scale fixed
-            // min: minPrice,
-            // max: maxPrice,
             position: "left",
           },
           indexY: {
@@ -180,22 +163,16 @@ const DetailedCfgiChart = (props: ICfgiCard) => {
             grid: {
               display: true,
               drawOnChartArea: true,
-              color: function (value: any, data: any) {
-                return value.tick.value === 0
-                  ? "rgba(255, 255, 255, 0.3)"
-                  : get_data_color(value.tick.value);
-              },
+              color: (value: any) =>
+                value.tick.value === 0 ? "rgba(255, 255, 255, 0.3)" : get_data_color(value.tick.value),
               lineWidth: 0.1,
               drawTicks: true,
             },
             ticks: {
               font: { family: "sans-serif", size: 10 },
               stepSize: 25,
-              color: function (value: any, data: any) {
-                return value.tick.value === 0
-                  ? "rgba(255, 255, 255, 0.3)"
-                  : get_data_color(value.tick.value);
-              },
+              color: (value: any) =>
+                value.tick.value === 0 ? "rgba(255, 255, 255, 0.3)" : get_data_color(value.tick.value),
               display: true,
             },
             max: 100,
@@ -213,9 +190,7 @@ const DetailedCfgiChart = (props: ICfgiCard) => {
             },
             time: {
               unit: "month",
-              displayFormats: {
-                day: "DD MMM YY",
-              },
+              displayFormats: { day: "DD MMM YY" },
               min: minDate,
               max: maxDate,
             },
@@ -226,29 +201,16 @@ const DetailedCfgiChart = (props: ICfgiCard) => {
         onClick: (e: any) => {
           const chart = chartRef.current;
           if (!chart) return;
-
-          const rect = e.native
-            ? e.native.target.getBoundingClientRect()
-            : chart.canvas.getBoundingClientRect();
-
+          const rect = e.native ? e.native.target.getBoundingClientRect() : chart.canvas.getBoundingClientRect();
           const canvasPosition = {
             x: e.native ? e.native.clientX - rect.left : e.x,
             y: e.native ? e.native.clientY - rect.top : e.y,
           };
-
-          // Get the y-axis values at the click position for both datasets
-          const indexYValue = chart.scales.indexY.getValueForPixel(
-            canvasPosition.y,
-          );
+          const indexYValue = chart.scales.indexY.getValueForPixel(canvasPosition.y);
           let priceYValue = null;
-
-          // Only get price value if the price dataset is shown
           if (viewOption !== TabOptions[0].value) {
-            priceYValue = chart.scales.priceY.getValueForPixel(
-              canvasPosition.y,
-            );
+            priceYValue = chart.scales.priceY.getValueForPixel(canvasPosition.y);
           }
-
           setSignalModalConfig({
             isOpen: true,
             data: [
@@ -266,15 +228,9 @@ const DetailedCfgiChart = (props: ICfgiCard) => {
           });
         },
         plugins: {
-          legend: {
-            display: false,
-          },
+          legend: { display: false },
           zoom: zoomPluginOptions,
-          tooltip: {
-            enabled: false,
-            mode: "nearest",
-            intersect: false,
-          },
+          tooltip: { enabled: false, mode: "nearest", intersect: false },
           crosshair: crosshairPluginOptions,
           doubleTapResetZoom: true,
         },
@@ -282,16 +238,13 @@ const DetailedCfgiChart = (props: ICfgiCard) => {
 
       chartRef.current?.destroy();
       const chartType =
-        viewOption === TabOptions[0].value
-          ? [chart_bar_data]
-          : [chart_bar_data, chart_line_data];
+        viewOption === TabOptions[0].value ? [chart_bar_data] : [chart_bar_data, chart_line_data];
       if (canvasRef.current) {
         chartRef.current = new Chart(canvasRef.current, {
           data: { datasets: chartType as any },
           options: options as any,
         });
       }
-
       chartRef.current?.resize();
     },
     [cfgiData, viewOption, setSignalModalConfig],
@@ -305,13 +258,14 @@ const DetailedCfgiChart = (props: ICfgiCard) => {
   }, [cfgiData, viewOption, chart_init]);
 
   return (
-    <canvas
-      width="400"
-      height={0}
-      ref={canvasRef}
-      className="absolute top-0 left-0 right-0 bottom-0 !w-full !h-full"
-    ></canvas>
-  );
-};
+    <div className="relative h-full w-full">
+      <canvas
+        ref={canvasRef}
+        className="absolute top-0 left-0 right-0 bottom-0 !h-full !w-full"
+      ></canvas>
+    </div>
+  );
+});
 
+DetailedCfgiChart.displayName = "DetailedCfgiChart";
 export default DetailedCfgiChart;

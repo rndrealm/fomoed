@@ -1,14 +1,16 @@
 import { NextResponse } from "next/server";
+import { Redis } from "ioredis";
 
-export interface ErrorWrapper {
+export type ErrorWrapper = {
   message: string;
   status: number;
-}
+  detail?: any;
+};
 
-export type ErrorOrData<T> = { error: ErrorWrapper; data: undefined } | { data: T; error?: undefined };
+export type ErrorOrData<T> = { error: ErrorWrapper; data?: undefined } | { data: T; error?: undefined };
 
-export function makeErrorWrapper(message: string, status: number): ErrorWrapper {
-  return { message, status };
+export function makeErrorWrapper(message: string, status: number, detail?: any): ErrorWrapper {
+  return { message, status, detail };
 }
 
 export function makeErrorOrData(message: string, status: number): ErrorOrData<never> {
@@ -20,7 +22,10 @@ export function propagateErrorOrData(errorWrapper: ErrorWrapper): ErrorOrData<ne
 }
 
 export function asNextResponseError(errorW: ErrorWrapper): NextResponse {
-  return NextResponse.json({ message: errorW.message, success: false }, { status: errorW.status });
+  return NextResponse.json(
+    { message: errorW.message, success: false, detail: errorW.detail },
+    { status: errorW.status },
+  );
 }
 
 export function asNextResponseData<T>(data: T) {
@@ -29,4 +34,12 @@ export function asNextResponseData<T>(data: T) {
   }
 
   return NextResponse.json({ data, success: true });
+}
+
+export function getRedisInstance(): Redis {
+  const redis = new Redis(process.env.REDIS_URL != "" ? (process.env.REDIS_URL as string) : "redis://localhost:6379", {
+    password: process.env.REDIS_PASSWORD || undefined,
+  });
+
+  return redis;
 }

@@ -21,7 +21,7 @@ const content = {
     label: "Reload Dashboard",
 };
 
-export default function NotFound() {
+export default function GeneralErrorScreen() {
     // return <ErrorComponent content={content} />;
     return <Error3DComponent />
 }

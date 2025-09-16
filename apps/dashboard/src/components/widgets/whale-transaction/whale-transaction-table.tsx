@@ -110,7 +110,7 @@ const WhaleTransactionTable = memo((props: WhaleTransactionTableProps) => {
               const iconUrl = iconMap.get(item.token);
 
               const rowStyle = isHighValue
-                ? { backgroundColor: isLong ? "#00FF88" : "#FF3366" }
+                ? { backgroundColor: isLong ? "#00AF58" : "#DC2626" }
                 : {
                     background: isLong
                       ? "linear-gradient(90deg, #0C0C0C 6.18%, #171717 14.26%, #272B29 61.91%, rgba(72, 84, 79, 0.6) 86.62%, #7DC4A4 108.97%)"

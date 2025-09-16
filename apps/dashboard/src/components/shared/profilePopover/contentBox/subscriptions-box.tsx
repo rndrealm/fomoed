@@ -68,7 +68,11 @@ const SubscriptionsBox = () => {
             <p className="text-xs text-[#a4a4a4]">{planSubtitle}</p>
           </div>
           <div className="flex flex-col items-start justify-start">
-            <button type="button" className="px-4 py-2 bg-[#FF8970] text-[#33120B] rounded-[8px] cursor-not-allowed">
+            <button
+              type="button"
+              disabled
+              className="px-4 py-2 bg-[#FF8970] text-[#33120B] rounded-[8px] cursor-not-allowed"
+            >
               Cancel Subscription
             </button>
           </div>

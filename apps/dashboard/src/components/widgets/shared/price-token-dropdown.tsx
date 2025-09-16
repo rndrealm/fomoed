@@ -56,21 +56,21 @@ export default function PriceTokenDropdown(props: IProps) {
       <DropdownMenuTrigger>
         <div className="flex items-center gap-1 cursor-pointer whitespace-nowrap">
           <div className="flex-shrink-0">
-            <div className="w-[40px] h-[40px]">
+            <div className="h-[30px] w-[30px] sm:w-[40px] sm:h-[40px]">
               <RenderIf condition={!!activeCoin?.icon}>
                 <Image
                   width={40}
                   height={40}
                   src={activeCoin?.icon || ""}
                   alt="Coin Icon"
-                  className="w-[40px] h-[40px]"
+                  className="h-[30px] w-[30px] sm:w-[40px] sm:h-[40px]"
                 />
               </RenderIf>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <p className="text-2xl font-bold text-left text-white">
+            <p className="text-xl sm:text-2xl font-bold text-left text-white">
               {activeCoin?.symbol}
             </p>
             <ChevronDown color="white" className="w-4 h-4" />

@@ -12,6 +12,7 @@ import { AppRoutes } from "@/lib/routes";
 import { useRouter, useSearchParams } from "next/navigation";
 import { loginUser } from "@/services/queries/auth/server-actions";
 import { toast } from "sonner";
+import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().email("Please enter a valid email address").required("Please enter your email address"),
@@ -38,13 +39,17 @@ export function LoginForm() {
     try {
       setIsLoading(true);
       const retUser = await loginUser(_values);
+
+      const supabase = createSupabaseBrowserClient();
+      await supabase.auth.refreshSession();
+
       if (retUser.success) {
         // Redirect to next URL if available, otherwise to dashboard
         if (fromUrl === "marketing") {
           const marketingUrl = process.env.NEXT_PUBLIC_MARKETING_APP_URL;
           window.location.href = marketingUrl || "https://marketing.fomoed.io";
         } else {
-          const redirectUrl = nextUrl && nextUrl !== "/auth/login" ? nextUrl : AppRoutes.news.path;
+          const redirectUrl = nextUrl && nextUrl !== "/auth/login" ? nextUrl : AppRoutes.dashboard.path;
           router.push(redirectUrl);
         }
       } else {
