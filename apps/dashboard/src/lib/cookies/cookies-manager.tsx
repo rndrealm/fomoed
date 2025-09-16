@@ -4,6 +4,12 @@ import { useEffect } from "react";
 
 export default function CookiesManager() {
   useEffect(() => {
+    // Check if service worker is available
+    if (!("serviceWorker" in navigator && navigator.serviceWorker)) {
+      console.warn("Service Worker not available in this browser");
+      return;
+    }
+
     // Listen for messages from the service worker
     const handleMessage = (event: MessageEvent) => {
       if (event.data === "please-clear-cookies") {
