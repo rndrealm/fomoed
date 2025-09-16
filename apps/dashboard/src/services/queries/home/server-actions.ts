@@ -131,19 +131,12 @@ export const getDashboardDataClient = async (userId: string) => {
     returnSettings = settingsData[0];
   }
 
-  console.log("ONBOARDED KAH MAIIEESS " + user.onboarded);
-  console.log("USER MANIEZ" + user);
-  console.log("DATA LENGTH MANIEZ " + layoutData);
-  console.log("DATA LENGTH MANIMANIEZ " + layoutData.length);
-
   if (user && !user.onboarded && layoutData && layoutData.length===0) {
     const { data: newLayout, error: newLayoutError } = await supabase
       .from("layouts")
       .insert({ user_id: userId, name: "Default Dashboard" })
       .select("id, name, draft")
       .single();
-    
-    console.log("MAAAAAAAAAASSSSSSSSUUUUUUUUUUUUUUUUUUUUKKKKKKKKKKKKKKKKkkkk")
 
     if (newLayoutError) {
       console.error("Error creating default layout:", newLayoutError);
