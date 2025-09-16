@@ -590,7 +590,7 @@ export class CignalsChart {
     );
 
     const minCandleTimestamp = this?._visibleCandles?.[0]?.timestamp;
-    const maxCandleTimestamp = this._visibleCandles[this._visibleCandles.length - 1].timestamp;
+    const maxCandleTimestamp = this?._visibleCandles?.[this?._visibleCandles?.length - 1]?.timestamp;
 
     this._filteredFootprints = this.#footprintData.filter(
       (fp) => fp.timestamp >= minCandleTimestamp && fp.timestamp <= maxCandleTimestamp,
@@ -1721,7 +1721,7 @@ export class CignalsChart {
     this._ctx.textBaseline = "hanging";
 
     const lastTs = this._data[this._data.length - 1].candle.timestamp;
-    const mostRecentVisibleTs = this._visibleCandles[this._visibleCandles.length - 1].timestamp;
+    const mostRecentVisibleTs = this._visibleCandles?.[this?._visibleCandles?.length - 1]?.timestamp;
 
     for (const pocHelper of this._pocHelpers) {
       const y = this.#getPriceTickY(pocHelper.price) - this._priceStepPx / 2;
