@@ -81,7 +81,7 @@ Run playwright test suite:
 
 ```bash
 cd apps/dashboard
-pnpm test:ee
+npx playwright test --ui
 ```
 
 ## Manual Dev Env CRON job triggers
