@@ -94,6 +94,7 @@ export function LoginForm() {
                     <form onSubmit={handleSubmit} className="">
                       <div className="flex flex-col gap-4">
                         <TextInput
+                          aria-label="Email address"
                           name="email"
                           id="email"
                           placeholder="you@email.com"
@@ -103,6 +104,7 @@ export function LoginForm() {
                         />
 
                         <TextInput
+                          aria-label="Password"
                           name="password"
                           id="password"
                           placeholder="password"

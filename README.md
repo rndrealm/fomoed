@@ -59,6 +59,31 @@ To start the app in dev mode, run:
 pnpm dev
 ```
 
+### Test
+
+**Before first run setup**
+
+Before running the test pipeline locally, it's needed to perform a few steps.
+
+1. Clone the `supabase-db` repository.
+2. Run `./scripts/setup_tests.sh`
+3. Create `apps/dashboard/.env.test` file.
+
+**Running e2e test suite locally**
+
+Start the dev server connected to the local environemnt. This will spin up a local supabase instance, apply all migrations from your cloned `fomoed-db` repo.
+
+```bash
+pnpm dev:local
+```
+
+Run playwright test suite:
+
+```bash
+cd apps/dashboard
+pnpm test:ee
+```
+
 ## Manual Dev Env CRON job triggers
 
 Because of rate limits on the various APIs, CRON jobs, which are enabled
