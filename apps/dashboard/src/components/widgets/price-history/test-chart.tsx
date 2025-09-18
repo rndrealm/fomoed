@@ -67,11 +67,18 @@ interface IProps {
   showTokenStats: boolean;
   setShowTokenStats: Dispatch<SetStateAction<boolean>>;
   className?: string;
+  onDimensionChange?: (dimension: { width: number; height: number }) => void;
 }
 
 const toolTipWidth = 320;
 const toolTipHeight = 80;
 const toolTipMargin = 25;
+
+// Responsive tooltip sizing
+const getResponsiveTooltipWidth = (containerWidth: number) => {
+  if (containerWidth < 400) return Math.min(280, containerWidth - 40); // Leave 20px margin on each side
+  return toolTipWidth;
+};
 
 function TestChart(props: IProps) {
   const {
@@ -82,6 +89,7 @@ function TestChart(props: IProps) {
     setShowTokenStats,
     token = "BTC",
     className = "",
+    onDimensionChange,
   } = props;
 
   const location = useAtomValue(geoLocationAtom);
@@ -116,6 +124,7 @@ function TestChart(props: IProps) {
 
   // Refs
   const chartContainerRef = useRef<HTMLDivElement>(null);
+  const widgetContainerRef = useRef<HTMLDivElement>(null);
   // const volumeContainerRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
   const lineSeriesRef = useRef<SeriesApiRef<"Area">>(null);
@@ -747,14 +756,47 @@ function TestChart(props: IProps) {
 
       if (!coordinate) return;
 
-      let shiftedCoordinate = param.point.x - toolTipWidth / 2;
-      shiftedCoordinate = Math.max(0, Math.min(container.clientWidth - toolTipWidth, shiftedCoordinate));
+      // Use responsive tooltip width based on container size
+      const responsiveTooltipWidth = getResponsiveTooltipWidth(container.clientWidth);
 
-      const coordinateY =
+      let shiftedCoordinate = param.point.x - responsiveTooltipWidth / 2;
+      shiftedCoordinate = Math.max(0, Math.min(container.clientWidth - responsiveTooltipWidth, shiftedCoordinate));
+
+      // Token stats button collision detection
+      // Button is at left: 9px, bottom: 60px, approximate width: 200px, height: 28px
+      const tokenStatsButtonLeft = 9;
+      const tokenStatsButtonWidth = 200; // Approximate width of "| Click to View Token Stats"
+      const tokenStatsButtonBottom = 60;
+      const tokenStatsButtonHeight = 28;
+
+      let coordinateY =
         coordinate - toolTipHeight - toolTipMargin > 0
           ? coordinate - toolTipHeight - toolTipMargin
           : coordinate + toolTipMargin;
 
+      // Check if tooltip would overlap with token stats button horizontally
+      const tooltipLeft = shiftedCoordinate;
+      const tooltipRight = shiftedCoordinate + responsiveTooltipWidth;
+      const buttonLeft = tokenStatsButtonLeft;
+      const buttonRight = tokenStatsButtonLeft + tokenStatsButtonWidth;
+
+      // Detect horizontal overlap with button
+      const horizontalOverlap = tooltipLeft < buttonRight && tooltipRight > buttonLeft;
+
+      // Check if tooltip would be in the button area vertically (bottom area of chart)
+      const buttonAreaTop = container.clientHeight - (tokenStatsButtonBottom + tokenStatsButtonHeight + 20); // 20px buffer above button
+      const tooltipWouldBeInButtonArea = coordinateY + toolTipHeight > buttonAreaTop;
+
+      if (horizontalOverlap && tooltipWouldBeInButtonArea) {
+        // Force tooltip above the button area, regardless of data point location
+        coordinateY = Math.max(
+          10, // Minimum top margin
+          buttonAreaTop - toolTipHeight - 10 // Position tooltip above button area with 10px margin
+        );
+      }
+
+      // Apply responsive width and position
+      tooltip.style.width = `${responsiveTooltipWidth}px`;
       tooltip.style.left = `${shiftedCoordinate}px`;
       tooltip.style.top = `${coordinateY}px`;
     },
@@ -928,32 +970,42 @@ function TestChart(props: IProps) {
   ]);
 
   useEffect(() => {
-    if (!chartContainerRef.current) return;
+    if (!widgetContainerRef.current) return;
+
+    // Get initial dimensions synchronously
+    const initialWidth = widgetContainerRef.current.clientWidth;
+    const initialHeight = widgetContainerRef.current.clientHeight;
+    const initialDimension = { width: initialWidth, height: initialHeight };
+    setDimension(initialDimension);
+    onDimensionChange?.(initialDimension);
+
     const observer = new ResizeObserver(() => {
-      if (chartContainerRef.current) {
-        const width = chartContainerRef.current.clientWidth;
-        const height = chartContainerRef.current.clientHeight;
-        setDimension({ width, height });
+      if (widgetContainerRef.current) {
+        const width = widgetContainerRef.current.clientWidth;
+        const height = widgetContainerRef.current.clientHeight;
+        const newDimension = { width, height };
+        setDimension(newDimension);
+        onDimensionChange?.(newDimension);
       }
     });
 
-    observer.observe(chartContainerRef.current);
+    observer.observe(widgetContainerRef.current);
     return () => observer.disconnect();
-  }, []);
+  }, [onDimensionChange]);
 
   return (
     <Fragment>
       {/* Chart Container */}
       {isLoading ? (
-        <div className="flex items-center h-[345px] justify-center bg-[#0C0C0C] rounded-xl px-4 ">
+        <div className="flex items-center h-full justify-center bg-[#0C0C0C] rounded-xl px-4 no-scrollbar">
           <Spinner size={60} variant="circle" color="#272727" />
         </div>
       ) : (
-      <div className={`bg-[#0C0C0C] rounded-xl px-4 ${className} overflow-auto`}>
+      <div ref={widgetContainerRef} className={`bg-[#0C0C0C] rounded-xl px-4 h-full flex flex-col min-h-0 min-w-0 no-scrollbar ${className}`}>
         <div
           ref={chartContainerRef}
-          style={{ width: "100%", height: "320px" }}
-          className="app_line_chart_component relative flex flex-1 mb-6"
+          style={{ width: "100%", height: "100%", minHeight: 0, maxHeight: "100%" }}
+          className="app_line_chart_component relative flex-1 mb-6 overflow-hidden min-h-0 no-scrollbar"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
@@ -1005,7 +1057,11 @@ function TestChart(props: IProps) {
               style: {
                 width: '100%',
                 height: '100%',
-                flexGrow: 1,
+                minHeight: 0,
+                minWidth: 0,
+                maxHeight: '100%',
+                maxWidth: '100%',
+                flexShrink: 1,
               },
             }}
             onCrosshairMove={onCrosshairMove}
@@ -1106,6 +1162,7 @@ function TestChart(props: IProps) {
                 selectedPeriod={selectedPeriod}
                 setShowTokenStats={setShowTokenStats}
                 token={token}
+                containerWidth={dimension.width}
               />
             )}
           </AnimatePresence>

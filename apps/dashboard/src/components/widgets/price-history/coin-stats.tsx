@@ -6,7 +6,7 @@ import { BinanceKlineFormatted } from '@/services/queries/charts/types';
 import { useReadSantimentMarketCap, useReadSantimentVolume } from '@/services/queries/santiment';
 import { motion } from 'motion/react';
 import { useRouter } from 'next/navigation';
-import React, { Dispatch, SetStateAction, useCallback, useMemo } from 'react'
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
 
 interface IProps {
   setShowTokenStats: Dispatch<SetStateAction<boolean>>
@@ -25,7 +25,8 @@ interface IProps {
   };
   selectedPeriod: string;
   filteredData: BinanceKlineFormatted[];
-  token: string
+  token: string;
+  containerWidth?: number; // Add container width prop
 }
 
 const tokenMapping: Record<string, string> = {
@@ -34,10 +35,58 @@ const tokenMapping: Record<string, string> = {
 };
 
 export default function PriceChartCoinStats(props: IProps) {
-  const { setShowTokenStats, performanceMetrics, oneYearMetrics, selectedPeriod, filteredData, token } = props;
+  const { setShowTokenStats, performanceMetrics, oneYearMetrics, selectedPeriod, filteredData, token, containerWidth = 500 } = props;
 
   const router = useRouter();
   const { session } = useSupabaseAuth();
+
+  // Determine container size based on width prop
+  const containerSize = useMemo(() => {
+    if (containerWidth < 600) return 'small';
+    if (containerWidth < 800) return 'medium'; 
+    return 'large';
+  }, [containerWidth]);
+
+  // Responsive styling based on container size
+  const getResponsiveClasses = () => {
+    switch (containerSize) {
+      case 'small':
+        return {
+          modal: 'px-2 py-2',
+          title: 'text-sm pl-2',
+          content: 'gap-2',
+          grid: 'text-xs gap-1 px-2',
+          gridItem: 'space-y-1.5 pr-1',
+          spacing: 'pb-2',
+          button: 'h-[22px] text-xs',
+          newsButton: 'text-xs ml-2'
+        };
+      case 'medium':
+        return {
+          modal: 'px-4 py-3',
+          title: 'text-base pl-3',
+          content: 'gap-3',
+          grid: 'text-sm gap-2 px-3',
+          gridItem: 'space-y-2.5 pr-2',
+          spacing: 'pb-2',
+          button: 'h-[24px] text-sm',
+          newsButton: 'text-sm ml-3'
+        };
+      default:
+        return {
+          modal: 'px-5 py-4',
+          title: 'text-base pl-4',
+          content: 'gap-4',
+          grid: 'text-sm gap-2.5 px-4',
+          gridItem: 'space-y-3 pr-1 md:pr-2.5',
+          spacing: 'pb-4',
+          button: 'h-[26px] text-sm',
+          newsButton: 'text-sm ml-4'
+        };
+    }
+  };
+
+  const classes = getResponsiveClasses();
 
   const formatPrice = (price?: number) => {
     if(price === undefined) return
@@ -151,20 +200,20 @@ export default function PriceChartCoinStats(props: IProps) {
   return (
     <div className="absolute top-0 right-[10px] bottom-0 -left-2 z-99 flex items-end">
       <motion.div
-        className="scrollbar max-h-full w-full md:w-9/10 overflow-auto rounded-[22px] bg-[#141414] px-5 py-4"
+        className={`scrollbar max-h-full w-full md:w-9/10 overflow-auto rounded-[22px] bg-[#141414] ${classes.modal}`}
         variants={modalSlide}
         initial="hidden"
         animate="visible"
         exit="hidden"
       >
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-3">
-            <div className="flex justify-between items-center pb-4.5">
-              <h3 className="text-base leading-[1.35] font-semibold text-white">View Coin Stats</h3>
+        <div className={`flex flex-col ${classes.content}`}>
+          <div className={`flex flex-col ${classes.content}`}>
+            <div className={`flex justify-between items-center ${classes.spacing}`}>
+              <h3 className={`${classes.title} leading-[1.35] font-semibold text-white`}>View Coin Stats</h3>
               <div className="flex justify-end">
                 <button
                   type="button"
-                  className="flex h-[26px] items-center justify-center gap-1 rounded-[40px]"
+                  className={`flex ${classes.button} items-center justify-center gap-1 rounded-[40px]`}
                   onClick={() => {
                     setShowTokenStats(false);
                   }}
@@ -176,12 +225,12 @@ export default function PriceChartCoinStats(props: IProps) {
               </div>
             </div>
             {/* Statistics Grid */}
-            <div className="grid grid-cols-3 text-xxs md:text-base gap-2.5 border-b border-[#242424] text-sm">
-              <div className="space-y-3 pr-1 md:pr-2.5 border-r border-[#242424]">
+            <div className={`grid grid-cols-3 ${classes.grid} border-b border-[#242424]`}>
+              <div className={`${classes.gridItem} border-r border-[#242424]`}>
                 <div className="flex justify-between">
                   <span className="text-gray-400">Open</span>
                   {!performanceMetrics.startPrice ? (
-                      <Skeleton className="mb-2 w-16 h-4" />
+                      <Skeleton className={`mb-1 ${containerSize === 'small' ? 'w-10 h-3' : containerSize === 'medium' ? 'w-14 h-4' : 'w-16 h-4'}`} />
                     ) : (
                       <span className="text-white">{formatPrice(performanceMetrics.startPrice)}</span>
                     )
@@ -190,7 +239,7 @@ export default function PriceChartCoinStats(props: IProps) {
                 <div className="flex justify-between">
                   <span className="text-gray-400">High</span>
                   {!performanceMetrics.high ? (
-                      <Skeleton className="mb-2 w-16 h-4" />
+                      <Skeleton className={`mb-1 ${containerSize === 'small' ? 'w-10 h-3' : containerSize === 'medium' ? 'w-14 h-4' : 'w-16 h-4'}`} />
                     ) : (
                       <span className="text-white">{formatPrice(performanceMetrics.high)}</span>
                     )
@@ -199,7 +248,7 @@ export default function PriceChartCoinStats(props: IProps) {
                 <div className="flex justify-between">
                   <span className="text-gray-400">Low</span>
                   {!performanceMetrics.low ? (
-                      <Skeleton className="mb-2 w-16 h-4" />
+                      <Skeleton className={`mb-1 ${containerSize === 'small' ? 'w-10 h-3' : containerSize === 'medium' ? 'w-14 h-4' : 'w-16 h-4'}`} />
                     ) : (
                       <span className="text-white">{formatPrice(performanceMetrics.low)}</span>
                     )
@@ -207,11 +256,11 @@ export default function PriceChartCoinStats(props: IProps) {
                 </div>
               </div>
               
-              <div className="space-y-3 pr-1 md:pr-2.5 border-r border-[#242424]">
+              <div className={`${classes.gridItem} border-r border-[#242424]`}>
                 <div className="flex justify-between">
                   <span className="text-gray-400">Vol</span>
                   {!volumeMetrics.totalVolume ? (
-                      <Skeleton className="mb-2 w-16 h-4" />
+                      <Skeleton className={`mb-1 ${containerSize === 'small' ? 'w-10 h-3' : containerSize === 'medium' ? 'w-14 h-4' : 'w-16 h-4'}`} />
                     ) : (
                       <span className="text-white">{formatLargeNumber(volumeMetrics.totalVolume)}</span>
                     )
@@ -220,7 +269,7 @@ export default function PriceChartCoinStats(props: IProps) {
                 <div className="flex justify-between">
                   <span className="text-gray-400">Avg Vol</span>
                   {!volumeMetrics.avgVolume ? (
-                      <Skeleton className="mb-2 w-16 h-4" />
+                      <Skeleton className={`mb-1 ${containerSize === 'small' ? 'w-10 h-3' : containerSize === 'medium' ? 'w-14 h-4' : 'w-16 h-4'}`} />
                     ) : (
                       <span className="text-white">{formatLargeNumber(volumeMetrics.avgVolume)}</span>
                     )
@@ -229,7 +278,7 @@ export default function PriceChartCoinStats(props: IProps) {
                 <div className="flex justify-between">
                   <span className="text-gray-400">Mkt Cap</span>
                   {!santimentMarketcap ? (
-                      <Skeleton className="mb-2 w-16 h-4" />
+                      <Skeleton className={`mb-1 ${containerSize === 'small' ? 'w-10 h-3' : containerSize === 'medium' ? 'w-14 h-4' : 'w-16 h-4'}`} />
                     ) : (
                       <span className="text-white">{formatMarketCapNumber(santimentMarketcap || "")}</span>
                     )
@@ -237,11 +286,11 @@ export default function PriceChartCoinStats(props: IProps) {
                 </div>
               </div>
               
-              <div className="space-y-3 pr-1 md:pr-2.5">
+              <div className={`${classes.gridItem}`}>
                 <div className="flex justify-between">
                   <span className="text-gray-400">52W H</span>
                   {!oneYearMetrics.high ? (
-                      <Skeleton className="mb-2 w-16 h-4" />
+                      <Skeleton className={`mb-1 ${containerSize === 'small' ? 'w-10 h-3' : containerSize === 'medium' ? 'w-14 h-4' : 'w-16 h-4'}`} />
                     ) : (
                       <span className="text-white">{formatPrice(oneYearMetrics.high)}</span>
                     )
@@ -250,7 +299,7 @@ export default function PriceChartCoinStats(props: IProps) {
                 <div className="flex justify-between">
                   <span className="text-gray-400">52W L</span>
                   {!oneYearMetrics.low ? (
-                      <Skeleton className="mb-2 w-16 h-4" />
+                      <Skeleton className={`mb-1 ${containerSize === 'small' ? 'w-10 h-3' : containerSize === 'medium' ? 'w-14 h-4' : 'w-16 h-4'}`} />
                     ) : (
                       <span className="text-white">{formatPrice(oneYearMetrics.low)}</span>
                     )
@@ -258,9 +307,9 @@ export default function PriceChartCoinStats(props: IProps) {
                 </div>
               </div>
             </div>
-            <div className="py-3">
+            <div className={`${containerSize === 'small' ? 'py-1' : containerSize === 'medium' ? 'py-2' : 'py-3'}`}>
               <button
-                className="text-[#167AFD] text-sm"
+                className={`text-[#167AFD] ${classes.newsButton}`}
                 onClick={() => {
                   router.push("/news")
                 }}
