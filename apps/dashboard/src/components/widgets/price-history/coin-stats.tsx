@@ -6,7 +6,7 @@ import { BinanceKlineFormatted } from '@/services/queries/charts/types';
 import { useReadSantimentMarketCap, useReadSantimentVolume } from '@/services/queries/santiment';
 import { motion } from 'motion/react';
 import { useRouter } from 'next/navigation';
-import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { Dispatch, SetStateAction, useCallback, useMemo } from 'react'
 
 interface IProps {
   setShowTokenStats: Dispatch<SetStateAction<boolean>>
