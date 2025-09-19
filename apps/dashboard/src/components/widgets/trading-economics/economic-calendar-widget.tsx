@@ -75,7 +75,7 @@ const TradingEconomicsWidget = (props: IProps) => {
       title={"US Economic Calendar"}
       widget={widget}
       handleLearnMore={() => setShowInfo(true)}
-      className="bg-neutral-900 text-white"
+      className="text-white"
     >
       {/* Date and Time Controls */}
       <div className="bg-neutral-800/70 rounded-lg py-2 px-6 flex justify-between items-center mb-1">
@@ -122,23 +122,37 @@ const TradingEconomicsWidget = (props: IProps) => {
               exit="hidden"
             >
               <div className="flex flex-col gap-4 overflow-auto">
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-3">
                   <div className="flex flex-col">
                     <h3 className="text-base leading-[1.35] font-semibold">Economic Calendar</h3>
                     <p className="text-[13px] leading-[1.25] font-light text-neutral-400">
-                      Learn about the Economic Calendar
+                      Tracking High-Impact US Data
                     </p>
                   </div>
-                  <p className="text-[13px] leading-[1.35] font-medium">
-                    The economic calendar displays key economic events and indicators. It helps traders stay informed
-                    about market-moving news, showing actual, forecast, and previous data for important releases.
+                  <p className="text-[13px] leading-[1.4] font-medium">
+                    This calendar tracks key <strong>high-impact US economic events</strong> known to cause market
+                    volatility. For each event, you will see three key figures:
                   </p>
-
-                  <p className="text-[13px] leading-[1.35] font-medium">
-                    This widget only supports data for next 15 days and previous 15 days{" "}
+                  <ul className="list-disc pl-5 text-[13px] leading-[1.5] font-medium flex flex-col gap-1">
+                    <li>
+                      <strong>Forecast:</strong> The market&apos;s consensus prediction for the data.
+                    </li>
+                    <li>
+                      <strong>Prior:</strong> The result from the previous reporting period.
+                    </li>
+                    <li>
+                      <strong>Actual:</strong> The official number released at the time of the event.
+                    </li>
+                  </ul>
+                  <p className="text-[13px] leading-[1.4] font-medium">
+                    Traders closely watch for any major difference between the <strong>Actual</strong> and{" "}
+                    <strong>Forecast</strong> numbers, as this surprise factor is what typically drives the strongest
+                    market reactions.
+                  </p>
+                  <p className="text-[13px] leading-[1.4] font-medium text-neutral-400">
+                    Please note: This widget only supports data for the previous 15 days and the next 15 days.
                   </p>
                 </div>
-
                 <p className="text-xs font-semibold text-neutral-400 text-[1.25]">
                   We use data from{" "}
                   <a href="https://www.coinglass.com/" target="_blank" className="underline">

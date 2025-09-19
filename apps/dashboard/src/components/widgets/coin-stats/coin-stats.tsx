@@ -173,68 +173,90 @@ export default function CoinStats(props: IProps) {
       </div>
 
       <AnimatePresence>
-        {showInfo && (
-          <div className="absolute top-[10px] right-[10px] bottom-[10px] left-[10px] z-9 flex items-end">
-            <motion.div
-              className="scrollbar max-h-full overflow-auto rounded-[22px] bg-[#111] px-5 py-4"
-              variants={modalSlide}
-              initial="hidden"
-              animate="visible"
-              exit="hidden"
-            >
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-col gap-4">
-                  <div className="flex flex-col">
-                    <h3 className="text-base leading-[1.35] font-semibold text-white">MARKET CAP</h3>
-                    <p className="text-[13px] leading-[1.25] font-light text-[#878787]">Learn about the Marketcap</p>
-                  </div>
-                  <p className="text-[13px] leading-[1.35] font-medium text-white">
-                    Market capitalization (market cap) is the total value of a cryptocurrency. It’s calculated by
-                    multiplying the current price by the total circulating supply. It gives an idea of a coin&apos;s
-                    overall size and importance in the market.
-                  </p>
-                </div>
-
-                <div className="flex flex-col gap-4">
-                  <div className="flex flex-col">
-                    <h3 className="text-base leading-[1.35] font-semibold text-white">Volume</h3>
-                    <p className="text-[13px] leading-[1.25] font-light text-[#878787]">Learn about the Volume</p>
-                  </div>
-                  <p className="text-[13px] leading-[1.35] font-medium text-white">
-                    Volume measures how much of a cryptocurrency has been traded over a specific period, usually 24
-                    hours. It shows how active and liquid a market is — higher volume often means more interest and
-                    easier buying or selling.
-                  </p>
-                </div>
-
-                <p className="text-xs font-semibold text-[#696969] text-[1.25]">
-                  We use data from{" "}
-                  <a href="https://coinstats.app/" target="_blank">
-                    coinstats.app
-                  </a>
-                </p>
-
-                <div className="flex justify-center">
-                  <button
-                    type="button"
-                    className="app_widget_button flex h-[26px] items-center justify-center gap-1 rounded-[40px] bg-[#272727]"
-                    onClick={() => {
-                      setShowInfo(false);
-                    }}
-                  >
-                    <p className="app_widget_button__text text-[13px] font-medium whitespace-nowrap text-white">
-                      Close
-                    </p>
-                    <div className="app_widget_button__icon">
-                      <Close fill="#878787" />
-                    </div>
-                  </button>
-                </div>
-              </div>
-            </motion.div>
+  {showInfo && (
+    <div className="absolute top-[10px] right-[10px] bottom-[10px] left-[10px] z-9 flex items-end">
+      <motion.div
+        className="scrollbar max-h-full overflow-auto rounded-[22px] bg-[#111] px-5 py-4 text-white"
+        variants={modalSlide}
+        initial="hidden"
+        animate="visible"
+        exit="hidden"
+      >
+        <div className="flex flex-col gap-4">
+          {/* --- NEW CONTENT START --- */}
+          <div className="flex flex-col gap-2">
+            <h3 className="text-base leading-[1.35] font-semibold">Understanding Coin Stats</h3>
+            <p className="text-[13px] leading-[1.25] font-light text-[#878787]">
+              Key metrics for analyzing a cryptocurrency.
+            </p>
           </div>
-        )}
-      </AnimatePresence>
+
+          <div className="flex flex-col gap-4 text-[13px]">
+            <div>
+              <h4 className="font-semibold text-white mb-1">Rank</h4>
+              <p className="font-medium text-white/80">
+                The cryptocurrency&apos;s rank is based on market cap. Rank #1 has the highest
+                market cap.
+              </p>
+            </div>
+
+            <div>
+              <h4 className="font-semibold text-white mb-1">Market Cap</h4>
+              <p className="font-medium text-white/80">
+                The total current market value of a coin&apos;s circulating supply. 
+              </p>
+            </div>
+
+            <div>
+              <h4 className="font-semibold text-white mb-1">Fully Diluted Value (FDV)</h4>
+              <p className="font-medium text-white/80">
+                The theoretical market cap if the total supply of a coin were in circulation.
+              </p>
+            </div>
+
+            <div>
+              <h4 className="font-semibold text-white mb-1">Volume (24h)</h4>
+              <p className="font-medium text-white/80">
+                The total value of a cryptocurrency traded in the last 24 hours. 
+              </p>
+            </div>
+
+            <div>
+              <h4 className="font-semibold text-white mb-1">Circulating vs. Total Supply</h4>
+              <p className="font-medium text-white/80">
+                <strong>Circulating Supply</strong> is the number of coins available in the market.
+                <strong> Total Supply</strong> is the total number of coins that exist now, including locked ones. 
+              </p>
+            </div>
+          </div>
+          {/* --- NEW CONTENT END --- */}
+
+          <p className="text-xs font-semibold text-[#696969] text-[1.25] pt-2">
+            We use data from{" "}
+            <a href="https://coinstats.app/" target="_blank" className="underline">
+              coinstats.app
+            </a>
+          </p>
+
+          <div className="flex justify-center">
+            <button
+              type="button"
+              className="app_widget_button flex h-[26px] items-center justify-center gap-1 rounded-[40px] bg-[#272727]"
+              onClick={() => {
+                setShowInfo(false);
+              }}
+            >
+              <p className="app_widget_button__text text-[13px] font-medium whitespace-nowrap text-white">Close</p>
+              <div className="app_widget_button__icon">
+                <Close fill="#878787" />
+              </div>
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  )}
+</AnimatePresence>
     </WidgetWrapper>
   );
 }
