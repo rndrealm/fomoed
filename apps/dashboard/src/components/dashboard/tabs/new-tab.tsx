@@ -45,37 +45,60 @@ interface ITabButton {
 export function TabButton(props: ITabButton) {
   const { handleClick, handleClose, isActive, name, showCloseBtn, handleNameChange } = props;
   const [hover, setHover] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.value = name;
     }
   }, [name]);
+
+  const handleDoubleClick = () => {
+    setIsEditing(true);
+    setTimeout(() => {
+      inputRef.current?.focus();
+      inputRef.current?.select();
+    }, 0);
+  };
+
+  const handleInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const value = e.target.value.trim();
+    if (value === "") {
+      e.target.value = name;
+    } else {
+      handleNameChange(value);
+    }
+    setIsEditing(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      (e.target as HTMLInputElement).blur();
+    }
+    if (e.key === "Escape") {
+      (e.target as HTMLInputElement).value = name;
+      (e.target as HTMLInputElement).blur();
+    }
+  };
+
   return (
-    <div
-      className="relative"
-      onMouseEnter={() => {
-        setHover(true);
-      }}
-      onMouseLeave={() => {
-        setHover(false);
-      }}
-    >
+    <div className="relative" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
       <button
         type="button"
         onClick={handleClick}
-        onDoubleClick={() => {
-          inputRef.current?.focus();
-          inputRef.current?.select();
-        }}
+        onDoubleClick={handleDoubleClick}
+        title={hover && !isEditing && isActive ? "Double-click to rename" : ""}
+        className={cn("group transition-all duration-200", hover && !isEditing && "cursor-text")}
       >
         <motion.div
           animate={{ width: isActive ? "200px" : "126px" }}
           transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
           className={cn(
-            "flex h-[64px] max-h-[63px] w-[200px] max-w-[200px] items-center justify-between gap-2 rounded-none bordets border-r-[1px] border-[#181818] px-5",
+            "flex h-[64px] max-h-[63px] w-[200px] max-w-[200px] items-center justify-between gap-2 rounded-none border-r-[1px] border-[#181818] px-5 transition-all duration-200",
             isActive ? "bg-[#171717]" : "bg-[#0A0A0A]",
+            !isActive && "group-hover:bg-[#0F0F0F]",
           )}
         >
           <div className="flex w-full flex-1 items-center justify-center gap-2">
@@ -84,60 +107,51 @@ export function TabButton(props: ITabButton) {
             </div>
 
             <div className="relative flex flex-1 pb-[1px]">
-              {/* linear bg for non-active tabs */}
               <motion.div
                 animate={{ opacity: isActive ? 0 : 1 }}
                 className="pointer-events-none absolute z-[0] bg-gradient-to-r from-transparent to-[#0a0a0a] inset-0 w-full h-full"
-              ></motion.div>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                }}
-              >
+              />
+
+              <form onSubmit={(e) => e.preventDefault()}>
                 <input
                   ref={inputRef}
                   type="text"
                   name="name"
                   className={cn(
-                    " pointer-events-none h-full w-full flex-1 truncate text-[14px] font-medium focus:shadow-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 [&:focus]:outline-none [&:focus-visible]:outline-none",
+                    "h-full w-full flex-1 truncate text-[14px] font-medium transition-all duration-200",
+                    !isActive && "pointer-events-none",
+                    !isEditing && "pointer-events-none",
+                    isEditing && [
+                      "pointer-events-auto",
+                      "bg-[#2a2a2a]",
+                      "border border-blue-500/50",
+                      "px-1 py-1",
+                      "rounded",
+                      "shadow-sm shadow-blue-500/20",
+                      "z-100",
+                    ],
+                    "focus:shadow-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 outline-none",
                     isActive ? "text-[#D1D1D1]" : "text-[#919191]",
                   )}
                   defaultValue={name}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      (e.target as HTMLInputElement).blur();
-                    }
-                  }}
-                  onBlur={(e) => {
-                    const value = e.target.value.trim();
-                    if (value === "") {
-                      e.target.value = name;
-                      return;
-                    }
-                    handleNameChange(e.target.value);
-                  }}
+                  onKeyDown={handleKeyDown}
+                  onBlur={handleInputBlur}
                 />
               </form>
             </div>
-            {/* <p
-              className={cn(
-                "text-xs font-medium flex-1 truncate",
-                isActive ? "text-white" : "text-[#7a7a7a]"
-              )}
-            >
-              {name}
-            </p> */}
           </div>
         </motion.div>
       </button>
 
-      <div className="absolute right-4 top-1/2 translate-y-[-50%] flex h-[16px] w-[16px] items-center justify-center">
-        <RenderIf condition={showCloseBtn && (isActive || hover)}>
-          <button type="button" className="scale-[0.825]" onClick={handleClose}>
-            <CloseTab fill="#BFBFBF" />
-          </button>
-        </RenderIf>
-      </div>
+      {!isEditing && (
+        <div className="absolute right-4 top-1/2 translate-y-[-50%] flex h-[16px] w-[16px] items-center justify-center">
+          <RenderIf condition={showCloseBtn && (isActive || hover)}>
+            <button type="button" className="scale-[0.825]" onClick={handleClose}>
+              <CloseTab fill="#BFBFBF" />
+            </button>
+          </RenderIf>
+        </div>
+      )}
     </div>
   );
 }
