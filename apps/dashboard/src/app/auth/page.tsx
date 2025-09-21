@@ -75,7 +75,7 @@ const SignupForm = () => {
           </div>
           <div className="relative rounded-2xl">
             <div className="auth_border"></div>
-            <div className="relative flex w-full flex-col gap-12 rounded-2xl bg-[#080808] px-6 py-[48px]">
+            <div className="relative flex w-full flex-col gap-8 rounded-2xl bg-[#080808] px-6 py-[48px]">
               <div className="mx-auto flex max-w-[313px] flex-col gap-2">
                 <h3 className="text-center text-xl leading-[1.35] font-medium text-white">
                   Create an Account on Fomoed
@@ -83,6 +83,18 @@ const SignupForm = () => {
                 <p className="text-center text-base leading-[1.35] font-medium text-[#5f5f5f]">
                   Create an account and never miss out on anything again.
                 </p>
+                <div className="mt-4 rounded-lg border border-gray-600/30 bg-gray-800/30 p-3">
+                  <div className="flex items-center justify-center gap-2">
+                    <svg className="h-4 w-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <span className="text-sm font-medium text-gray-300">No Credit Card Required</span>
+                  </div>
+                </div>
               </div>
               <Formik
                 initialValues={initialValues}

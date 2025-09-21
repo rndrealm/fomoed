@@ -84,10 +84,10 @@ const navLinks: INavLink[] = [
     label: "Refer and Earn",
     icon: <ReferAndEarnIcon />,
     href: `/`,
-    disabled: false,
+    disabled: true,
     beta: false,
     alpha: false,
-    comingSoon: false,
+    comingSoon: true,
   },
 ];
 
