@@ -63,7 +63,7 @@ const navLinks: INavLink[] = [
     keyboardBoxes: ["command", "K"],
   },
   {
-    label: "Community",
+    label: "Marketing Campaign Dashboard",
     icon: <CommunityIcon />,
     href: `${process.env.NEXT_PUBLIC_MARKETING_APP_URL}/kol/explore`,
     disabled: false,
