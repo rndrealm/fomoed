@@ -175,11 +175,13 @@ export function Toolbar() {
               <AddTab fill="#000" />
             </button>
 
-            <div className="h-10 w-10 flex items-center justify-center">
+            <div className="h-10 w-10 flex items-center justify-center ">
               {/* <NotiSvg /> */}
               <BellIcon
-                onClick={() => setProfilePopoverAtom({ open: true, activeTab: "Notifications" })}
-                className="cursor-pointer scale-[0.5714]"
+                onClick={() => {
+                  // setProfilePopoverAtom({ open: true, activeTab: "Notifications" })
+                }}
+                className="cursor-not-allowed scale-[0.5714]"
               />
             </div>
 
