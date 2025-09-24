@@ -131,7 +131,16 @@ export const getDashboardDataClient = async (userId: string) => {
     returnSettings = settingsData[0];
   }
 
-  if (user && !user.onboarded && layoutData && layoutData.length===0) {
+  const { data: existingTabs, error: tabsError } = await supabase
+    .from("tabs")
+    .select("id, name, layout_id, layouts (id, name, draft, widgets (id, meta, props, layout_id))")
+    .eq("user_id", userId);
+
+  if (tabsError) {
+    throw new Error(tabsError.message);
+  }
+
+  if (user && !user.onboarded && layoutData && layoutData.length===0 && existingTabs.length === 0) {
     const { data: newLayout, error: newLayoutError } = await supabase
       .from("layouts")
       .insert({ user_id: userId, name: "Default Dashboard" })
@@ -195,15 +204,6 @@ export const getDashboardDataClient = async (userId: string) => {
       layouts: [finalLayout],
       settings: returnSettings,
     };
-  }
-
-  const { data: existingTabs, error: tabsError } = await supabase
-    .from("tabs")
-    .select("id, name, layout_id, layouts (id, name, draft, widgets (id, meta, props, layout_id))")
-    .eq("user_id", userId);
-
-  if (tabsError) {
-    throw new Error(tabsError.message);
   }
 
   if (existingTabs && existingTabs.length > 0) {
