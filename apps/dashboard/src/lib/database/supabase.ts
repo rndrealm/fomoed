@@ -55,19 +55,25 @@ export type Database = {
           assigned_at: string
           campaign_id: number
           kol_id: number
+          request_meta: Json | null
           role: string | null
+          status: Database["public"]["Enums"]["campaign_kol_status"]
         }
         Insert: {
           assigned_at?: string
           campaign_id: number
           kol_id: number
+          request_meta?: Json | null
           role?: string | null
+          status?: Database["public"]["Enums"]["campaign_kol_status"]
         }
         Update: {
           assigned_at?: string
           campaign_id?: number
           kol_id?: number
+          request_meta?: Json | null
           role?: string | null
+          status?: Database["public"]["Enums"]["campaign_kol_status"]
         }
         Relationships: [
           {
@@ -171,6 +177,8 @@ export type Database = {
           content_types: string[] | null
           created_at: string
           description: string | null
+          donts: string[]
+          dos: string[]
           end_date: string | null
           external_links: Json | null
           faqs: Json | null
@@ -210,6 +218,8 @@ export type Database = {
           content_types?: string[] | null
           created_at?: string
           description?: string | null
+          donts?: string[]
+          dos?: string[]
           end_date?: string | null
           external_links?: Json | null
           faqs?: Json | null
@@ -249,6 +259,8 @@ export type Database = {
           content_types?: string[] | null
           created_at?: string
           description?: string | null
+          donts?: string[]
+          dos?: string[]
           end_date?: string | null
           external_links?: Json | null
           faqs?: Json | null
@@ -1152,6 +1164,7 @@ export type Database = {
           updated_at: string
           user_id: string | null
           wallet_address: string | null
+          wallet_chain: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -1170,6 +1183,7 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
           wallet_address?: string | null
+          wallet_chain?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -1188,6 +1202,7 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
           wallet_address?: string | null
+          wallet_chain?: string | null
         }
         Relationships: [
           {
@@ -1830,6 +1845,95 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_commissions: {
+        Row: {
+          amount: number | null
+          created_at: string
+          id: number
+          payment_link: string | null
+          payout_date: string | null
+          referral_id: string
+          status: string
+          stripe_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string
+          id?: number
+          payment_link?: string | null
+          payout_date?: string | null
+          referral_id: string
+          status?: string
+          stripe_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string
+          id?: number
+          payment_link?: string | null
+          payout_date?: string | null
+          referral_id?: string
+          status?: string
+          stripe_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_commissions_referral_id_fkey"
+            columns: ["referral_id"]
+            isOneToOne: false
+            referencedRelation: "referrals"
+            referencedColumns: ["referral_id"]
+          },
+        ]
+      }
+      referrals: {
+        Row: {
+          created_at: string
+          id: number
+          referral_id: string
+          referred_user_id: string | null
+          referrer_user_id: string | null
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          referral_id: string
+          referred_user_id?: string | null
+          referrer_user_id?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          referral_id?: string
+          referred_user_id?: string | null
+          referrer_user_id?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_referrer_user_id_fkey"
+            columns: ["referrer_user_id"]
+            isOneToOne: false
+            referencedRelation: "signals_users"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "referrals_referrer_user_id_fkey"
+            columns: ["referrer_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       sentiment: {
         Row: {
           device_id: string
@@ -1994,13 +2098,16 @@ export type Database = {
           avatar_url: string | null
           created_at: string
           email: string
+          first_name: string | null
           has_had_free_trial: boolean
           id: number
           is_kol: boolean
           is_kol_allowed: boolean
           is_marketing_allowed: boolean
           is_project_manager: boolean
+          last_name: string | null
           onboarded: boolean | null
+          referral_code: string | null
           updated_at: string | null
           user_id: string
           username: string | null
@@ -2009,13 +2116,16 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           email: string
+          first_name?: string | null
           has_had_free_trial?: boolean
           id?: number
           is_kol?: boolean
           is_kol_allowed?: boolean
           is_marketing_allowed?: boolean
           is_project_manager?: boolean
+          last_name?: string | null
           onboarded?: boolean | null
+          referral_code?: string | null
           updated_at?: string | null
           user_id: string
           username?: string | null
@@ -2024,13 +2134,16 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           email?: string
+          first_name?: string | null
           has_had_free_trial?: boolean
           id?: number
           is_kol?: boolean
           is_kol_allowed?: boolean
           is_marketing_allowed?: boolean
           is_project_manager?: boolean
+          last_name?: string | null
           onboarded?: boolean | null
+          referral_code?: string | null
           updated_at?: string | null
           user_id?: string
           username?: string | null
@@ -2271,7 +2384,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      campaign_kol_status: "pending" | "active" | "banned" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2398,6 +2511,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      campaign_kol_status: ["pending", "active", "banned", "rejected"],
+    },
   },
 } as const
