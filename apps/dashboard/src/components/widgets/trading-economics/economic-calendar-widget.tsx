@@ -101,7 +101,7 @@ const TradingEconomicsWidget = (props: IProps) => {
       </div>
 
       {/* Content Area */}
-      <div className="flex-grow overflow-auto py-1">
+      <div className="flex-grow overflow-auto py-1 no-scrollbar overflow-auto">
         {isPending ? (
           <Skeleton className="h-full w-full bg-neutral-800" />
         ) : error ? (
