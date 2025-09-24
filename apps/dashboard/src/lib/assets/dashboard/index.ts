@@ -76,6 +76,7 @@ import summaryV2 from "../../../../public/media/images/dashboard/summary-v2.png"
 import orderBookV2 from "../../../../public/media/images/dashboard/order-book-v2.png";
 import usaIcon from "../../../../public/media/images/dashboard/usa-icon.png";
 import tradingCalendar from "../../../../public/media/images/dashboard/trading-calendar.png";
+import referralHero from "../../../../public/media/images/referrals/referrals-hero.png";
 
 const dashboard = {
   layoutPlaceholder,
@@ -155,6 +156,7 @@ const dashboard = {
   screenerV2,
   summaryV2,
   orderBookV2,
+  referralHero,
 };
 
 export default dashboard;

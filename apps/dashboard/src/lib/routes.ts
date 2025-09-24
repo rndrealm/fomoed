@@ -63,4 +63,8 @@ export const AppRoutes = {
     name: "Logout",
     path: "/logout",
   },
+  referrals: {
+    name: "Referrals",
+    path: "/referrals"
+  }
 };
