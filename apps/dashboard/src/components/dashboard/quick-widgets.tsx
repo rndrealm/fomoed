@@ -182,11 +182,15 @@ export function QuickWidgets(props: IProps) {
               </button> */}
             </div>
 
-            <div className="h-[32px] bg-gradient-widget-preview-button aspect-square border-[1px] border-[#353535] rounded-[8px] absolute top-0 right-18 translate-x-1/2 flex items-center justify-center">
-              <button type="button" className="scale-[0.675]" onClick={handleBack}>
+            <button
+              type="button"
+              onClick={handleBack}
+              className="h-[32px] bg-gradient-widget-preview-button aspect-square border-[1px] border-[#353535] rounded-[8px] absolute top-0 right-18 translate-x-1/2 flex items-center justify-center"
+            >
+              <div className="scale-100">
                 <CloseIcon color="#fff" />
-              </button>
-            </div>
+              </div>
+            </button>
           </div>
 
           {/* Category buttons */}

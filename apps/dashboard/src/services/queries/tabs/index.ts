@@ -3,6 +3,8 @@ import {
   addTabAction,
   deleteTabAction,
   getUserTabsAction,
+  replaceUserAvatar,
+  replaceUsername,
   replaceUserTabsAction,
 } from "./actions";
 import { AddTabPayload, SyncTabsPayload } from "./types";
@@ -85,6 +87,58 @@ export const useSyncTabs = () => {
   });
   return {
     mutate,
+    isPending,
+    isError,
+  };
+};
+
+export const useUpdateUsername = () => {
+  const queryClient = useQueryClient();
+  const { mutate, isPending, isError } = useMutation({
+    mutationFn: async (body: { username: string }): Promise<any> => {
+      return await replaceUsername(body);
+    },
+
+    onSuccess: async (data) => {
+      console.log("data:", data);
+
+      // refetches user data after successful username update
+      await queryClient.invalidateQueries({
+        queryKey: ["userData"],
+      });
+    },
+    onError: (error, newTab, context) => {
+      console.log("error:", error.message);
+    },
+  });
+  return {
+    updateUsername: mutate,
+    isPending,
+    isError,
+  };
+};
+
+export const useUpdateAvatar = () => {
+  const queryClient = useQueryClient();
+  const { mutate, isPending, isError } = useMutation({
+    mutationFn: async (body: { avatar_url: string }): Promise<any> => {
+      return await replaceUserAvatar(body);
+    },
+
+    onSuccess: async (data) => {
+      console.log("data:", data);
+
+      // refetches user data after successful username update
+      await queryClient.invalidateQueries({
+        queryKey: ["userData"],
+      });
+    },
+    onError: (error, newTab, context) => {
+      console.log("error:", error.message);
+    },
+  });
+  return {
+    updateAvatar: mutate,
     isPending,
     isError,
   };

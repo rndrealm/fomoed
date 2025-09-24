@@ -12,10 +12,7 @@ import {
   useGenerateSignalDetails,
   useSmartSignals,
 } from "@/services/queries/signals";
-import {
-  CreateSignalDTO,
-  GetAiSignalResponseBody,
-} from "@/services/queries/signals/types";
+import { CreateSignalDTO, GetAiSignalResponseBody } from "@/services/queries/signals/types";
 import ManualSignalBuilder from "./manual-signal-builder";
 import NotificationSettings from "./notification-settings";
 import { useAtom } from "jotai";
@@ -26,11 +23,7 @@ import { Upgrade } from "../modals";
 import SignalTitle from "./signal-title";
 import AutoGenerateButton from "./auto-generate-btn";
 import { Group, defaultGroup } from "./condition-group";
-import {
-  isConditionGroupValid,
-  jsonLogicToGroup,
-  toJsonLogic,
-} from "@/lib/utils/signal.utils";
+import { isConditionGroupValid, jsonLogicToGroup, toJsonLogic } from "@/lib/utils/signal.utils";
 import { SignalGenErrorBox } from "./signal-gen-error-box";
 import { useMutation } from "@tanstack/react-query";
 import { useCall } from "wagmi";
@@ -53,7 +46,7 @@ const SignalBuilder = ({}) => {
   const [updateCount, setUpdateCount] = useState(0);
   const [_, setActiveSignalTab] = useAtom(activeSignalTabAtom);
 
-  const user = useUserData();
+  const { data: user, isLoading, error } = useUserData();
   const { data: userPlanData } = useGetUserPlans();
   const { activePlan } = useSubscription();
 
@@ -115,9 +108,7 @@ const SignalBuilder = ({}) => {
       return;
     }
 
-    const newRootGroup = data.signal.condition
-      ? jsonLogicToGroup(data.signal.condition)
-      : defaultGroup(0);
+    const newRootGroup = data.signal.condition ? jsonLogicToGroup(data.signal.condition) : defaultGroup(0);
 
     setSignalPrompt(data.signal.name);
     setSignalDescription(data.signal.description);
@@ -173,10 +164,7 @@ const SignalBuilder = ({}) => {
     return (currentLogic: any) => {
       clearTimeout(timeoutId);
       if (isRootGroupValid) {
-        timeoutId = setTimeout(
-          () => generateSignalDetails(currentLogic),
-          generateDelay,
-        );
+        timeoutId = setTimeout(() => generateSignalDetails(currentLogic), generateDelay);
       }
     };
   }, [generateSignalDetails, generateDelay, isRootGroupValid]);
@@ -222,11 +210,7 @@ const SignalBuilder = ({}) => {
           ></SignalTitle>
         </div>
 
-        <AutoGenerateButton
-          onClick={mutateGenerateSignal}
-          isPending={isPendingAutoGenerate}
-          tall={!isLongPrompt}
-        />
+        <AutoGenerateButton onClick={mutateGenerateSignal} isPending={isPendingAutoGenerate} tall={!isLongPrompt} />
       </div>
 
       <RenderIf condition={isAutoGenerateError}>
@@ -237,16 +221,9 @@ const SignalBuilder = ({}) => {
         />
       </RenderIf>
 
-      <ManualSignalBuilder
-        key={updateCount}
-        rootGroup={rootGroup}
-        onRootGroupChange={onRootGroupChange}
-      />
+      <ManualSignalBuilder key={updateCount} rootGroup={rootGroup} onRootGroupChange={onRootGroupChange} />
 
-      <NotificationSettings
-        notifications={signalActions}
-        onUpdate={setSignalActions}
-      />
+      <NotificationSettings notifications={signalActions} onUpdate={setSignalActions} />
 
       <div className="flex justify-end gap-3">
         <Button
@@ -255,9 +232,7 @@ const SignalBuilder = ({}) => {
           onClick={handleSave}
         >
           Save
-          {(isPending && <LoaderCircle className="animate-spin" />) || (
-            <Check className="w-4" />
-          )}
+          {(isPending && <LoaderCircle className="animate-spin" />) || <Check className="w-4" />}
         </Button>
       </div>
 

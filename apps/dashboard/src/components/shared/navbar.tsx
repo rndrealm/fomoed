@@ -5,15 +5,7 @@ import Image from "next/image";
 import { motion } from "motion/react";
 import NavbarProfileButton from "../ui/NavbarProfileButton";
 import dashboard from "@/lib/assets/dashboard";
-import {
-  Close,
-  Dashboard,
-  Hamburger,
-  Misc,
-  News,
-  Notification,
-  Signals,
-} from "../icons/icons";
+import { Close, Dashboard, Hamburger, Misc, News, Notification, Signals } from "../icons/icons";
 import { AppRoutes } from "@/lib/routes";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -72,7 +64,7 @@ export const Navbar = (props: IProps) => {
   const { isNews = false, isPricing = false } = props;
   const pathName = usePathname();
   const utils = useAtomValue(utilsAtom);
-  const authUser = useUserData();
+  const { data: authUser, isLoading, error } = useUserData();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 

@@ -412,6 +412,11 @@ html {
   display: none;
 }
 
+.no-scrollbar {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+
 .scrollbar::-webkit-scrollbar {
   width: 3px;
   height: 3px;

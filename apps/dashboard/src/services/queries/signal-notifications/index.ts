@@ -14,7 +14,7 @@ export interface NotificationRow {
 }
 
 export const useSignalNotifications = () => {
-  const userData = useUserData();
+  const { data: userData, isLoading, error } = useUserData();
   const queryClient = useQueryClient();
 
   const query = useQuery<NotificationRow[]>({

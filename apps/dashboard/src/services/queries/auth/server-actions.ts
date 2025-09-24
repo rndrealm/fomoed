@@ -1,15 +1,13 @@
 "use server";
-// import { createUserRow, userWithEmailExists } from "./helpers";
 import { LoginUserFunctionResponse, RegisterUserPayload } from "./types";
-import { createUserRow, userWithEmailExists } from "./helpers";
-import { createSupabaseServerClient, createSupabaseServerWithAnonKey } from "@/lib/utils/supabase/server-client";
+import { createSupabaseServerClient, createSupabaseServiceClient } from "@/lib/utils/supabase/server-client";
 import { headers } from "next/headers";
 
 export async function signUpNewUser(
   body: RegisterUserPayload,
   fromUrl?: string | null,
 ): Promise<LoginUserFunctionResponse> {
-  const supabase = await createSupabaseServerWithAnonKey();
+  const supabase = await createSupabaseServiceClient();
 
   const headersList = await headers();
   const protocol = headersList.get("x-forwarded-proto") || "http";
@@ -40,47 +38,7 @@ export async function signUpNewUser(
     };
   }
 
-  const supabaseUserId = authRes.data.user?.id;
-
-  if (!supabaseUserId) {
-    return {
-      success: false,
-      message: "Failed to create user account",
-    };
-  }
-
-  const isUserExists = await userWithEmailExists(email, supabase);
-
-  if (isUserExists) {
-    console.info(`Linking supabase id ${supabaseUserId} to email ${email}`);
-
-    const updateRes = await supabase
-      .from("users")
-      .update({
-        user_id: supabaseUserId,
-        username,
-      })
-      .ilike("email", email.toLowerCase());
-
-    if (updateRes.error) {
-      console.error("Failed to link new supabase user to existing user!", updateRes.error);
-      return {
-        success: false,
-        message: updateRes.error.message || "Failed to link user",
-      };
-    }
-
-    console.info("Linked new auth login to existing user. Email: ", email);
-  } else {
-    await createUserRow(
-      {
-        email,
-        username,
-        user_id: supabaseUserId,
-      },
-      supabase,
-    );
-  }
+  // TODO update username in the users table
 
   return {
     success: true,
@@ -197,7 +155,7 @@ export async function setNewPassword(body: { password: string }): Promise<LoginU
 }
 
 export async function deleteUser(user_id: string): Promise<LoginUserFunctionResponse> {
-  const supabase = await createSupabaseServerWithAnonKey();
+  const supabase = await createSupabaseServiceClient();
 
   try {
     const response = await supabase.from("users").delete().eq("user_id", user_id);

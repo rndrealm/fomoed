@@ -6,10 +6,7 @@ import React, { useMemo } from "react";
 import IntroSection from "@/components/pricing/intro-section";
 import { DynamicPlanDataMap } from "@/lib/plans/plans.types";
 import { usePlans } from "@/hooks/usePlans";
-import useSubscription, {
-  getSubscriptionState,
-  subscriptionStateToConfig,
-} from "@/hooks/subscription";
+import useSubscription, { getSubscriptionState, subscriptionStateToConfig } from "@/hooks/subscription";
 import type { PriceLookupKey } from "@/lib/plans/plans.types";
 import type { UserSubscriptionsResponseData } from "../../api/subscriptions/route";
 import { BellIcon, Grid2X2Icon } from "lucide-react";
@@ -138,7 +135,7 @@ const Pricing = () => {
     return getPricingCardsContent(plans?.data || null, userSubscriptionQueryData);
   }, [plans?.data, userSubscriptionQueryData]);
 
-  console.log("Plans data:", plans);
+  // console.log("Plans data:", plans);
   console.log({ userSubscriptionQueryData });
 
   return (

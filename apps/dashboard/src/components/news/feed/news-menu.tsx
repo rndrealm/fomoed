@@ -29,7 +29,8 @@ const NewsMenu = ({
 }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const tagRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
-  const authUser = useUserData();
+  const { data: authUser, isLoading, error } = useUserData();
+  console.log("Auth User in NewsMenu:", authUser);
 
   // Create dynamic tags array based on login status
   const getAvailableTags = () => {
@@ -51,9 +52,7 @@ const NewsMenu = ({
       const tagRect = activeTagElement.getBoundingClientRect();
 
       // Calculate if the tag is visible in the container
-      const isVisible =
-        tagRect.left >= containerRect.left &&
-        tagRect.right <= containerRect.right;
+      const isVisible = tagRect.left >= containerRect.left && tagRect.right <= containerRect.right;
 
       if (!isVisible) {
         // Calculate scroll position to center the active tag
@@ -84,9 +83,7 @@ const NewsMenu = ({
       </div> */}
 
       <div className="flex w-full items-center justify-between">
-        <h2 className="text-[2.25rem] leading-[1.25] font-bold text-white">
-          Popular
-        </h2>
+        <h2 className="text-[2.25rem] leading-[1.25] font-bold text-white">Popular</h2>
         <button className="block lg:hidden">
           <div
             onClick={() => setIsSearching(true)}
@@ -109,10 +106,7 @@ const NewsMenu = ({
         </button>
 
         {/* Tag filters */}
-        <div
-          ref={scrollContainerRef}
-          className="no-scrollbar flex w-full flex-row gap-3 overflow-x-auto py-2"
-        >
+        <div ref={scrollContainerRef} className="no-scrollbar flex w-full flex-row gap-3 overflow-x-auto py-2">
           {availableTags.map((tag) => {
             const stringTag = tagDisplayMap[tag] || tag;
 
@@ -123,12 +117,7 @@ const NewsMenu = ({
                   tagRefs.current[tag] = el;
                 }}
               >
-                <NewsTags
-                  tag={tag}
-                  stringTag={stringTag}
-                  selectedTag={selectedTag}
-                  setSelectedTag={setSelectedTag}
-                />
+                <NewsTags tag={tag} stringTag={stringTag} selectedTag={selectedTag} setSelectedTag={setSelectedTag} />
               </div>
             );
           })}

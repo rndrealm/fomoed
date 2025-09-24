@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { Redis } from "ioredis";
 import { getRedisInstance } from "@/lib/utils/server.utils";
 
 const TOP_COINS_KEY = "coinglass_top_10_coins_by_marketcap";

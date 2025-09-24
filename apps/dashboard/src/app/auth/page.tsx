@@ -75,7 +75,7 @@ const SignupForm = () => {
           </div>
           <div className="relative rounded-2xl">
             <div className="auth_border"></div>
-            <div className="relative flex w-full flex-col gap-12 rounded-2xl bg-[#080808] px-6 py-[48px]">
+            <div className="relative flex w-full flex-col gap-8 rounded-2xl bg-[#080808] px-6 py-[48px]">
               <div className="mx-auto flex max-w-[313px] flex-col gap-2">
                 <h3 className="text-center text-xl leading-[1.35] font-medium text-white">
                   Create an Account on Fomoed
@@ -83,6 +83,16 @@ const SignupForm = () => {
                 <p className="text-center text-base leading-[1.35] font-medium text-[#5f5f5f]">
                   Create an account and never miss out on anything again.
                 </p>
+                <div 
+                  className="mx-auto mt-4 flex w-max items-center gap-2 overflow-hidden rounded-[22px] border border-[#ef630c] bg-[#0d050166] px-3 py-2 shadow-[inset_0.15873px_0.793651px_0.31746px_#f5e2c340,inset_-0.396825px_-0.555556px_0.793651px_#f5e2c340]"
+                >
+                  <svg className="h-4 w-4 text-orange-400 flex-shrink-0" fill="rgb(255, 240, 211)" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="whitespace-nowrap text-xs font-medium" style={{color: 'rgb(255, 240, 211)'}}>
+                    No Credit Card Required
+                  </span>
+                </div>
               </div>
               <Formik
                 initialValues={initialValues}
