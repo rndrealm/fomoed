@@ -1730,6 +1730,82 @@ export type Database = {
           },
         ]
       }
+      post_submissions: {
+        Row: {
+          campaign_id: number
+          created_at: string | null
+          end_date: string
+          engagement: number | null
+          handle: string
+          id: number
+          impressions: number | null
+          kol: number
+          last_update: string | null
+          platform: Database["public"]["Enums"]["platform_type"]
+          post_id: string
+          raw_post: Json | null
+          status: Database["public"]["Enums"]["submission_status"]
+          submitted_on: string
+          updated_at: string | null
+        }
+        Insert: {
+          campaign_id: number
+          created_at?: string | null
+          end_date: string
+          engagement?: number | null
+          handle: string
+          id?: number
+          impressions?: number | null
+          kol: number
+          last_update?: string | null
+          platform: Database["public"]["Enums"]["platform_type"]
+          post_id: string
+          raw_post?: Json | null
+          status?: Database["public"]["Enums"]["submission_status"]
+          submitted_on?: string
+          updated_at?: string | null
+        }
+        Update: {
+          campaign_id?: number
+          created_at?: string | null
+          end_date?: string
+          engagement?: number | null
+          handle?: string
+          id?: number
+          impressions?: number | null
+          kol?: number
+          last_update?: string | null
+          platform?: Database["public"]["Enums"]["platform_type"]
+          post_id?: string
+          raw_post?: Json | null
+          status?: Database["public"]["Enums"]["submission_status"]
+          submitted_on?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_submissions_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_with_meta"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_submissions_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_submissions_kol_fkey"
+            columns: ["kol"]
+            isOneToOne: false
+            referencedRelation: "kols"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_members: {
         Row: {
           project_id: number
@@ -2385,6 +2461,13 @@ export type Database = {
     }
     Enums: {
       campaign_kol_status: "pending" | "active" | "banned" | "rejected"
+      platform_type: "twitter" | "tiktok" | "instagram" | "youtube"
+      submission_status:
+        | "pending"
+        | "approved"
+        | "rejected"
+        | "flagged"
+        | "completed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2513,6 +2596,14 @@ export const Constants = {
   public: {
     Enums: {
       campaign_kol_status: ["pending", "active", "banned", "rejected"],
+      platform_type: ["twitter", "tiktok", "instagram", "youtube"],
+      submission_status: [
+        "pending",
+        "approved",
+        "rejected",
+        "flagged",
+        "completed",
+      ],
     },
   },
 } as const
