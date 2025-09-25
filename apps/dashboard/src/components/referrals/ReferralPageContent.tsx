@@ -23,12 +23,12 @@ const dummyStats: StatsData = {
   inactiveSubscribers: 0,
 };
 
-const ReferralPageContent: FC<{ referralLink: string }> = ({ referralLink }) => {
+const ReferralPageContent: FC<{ referralCode: string }> = ({ referralCode }) => {
   const [copied, setCopied] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<TabName>("All Referrals");
 
-  const handleCopy = (): void => {
-    navigator.clipboard.writeText(referralLink);
+  const handleCopy = (link: string): void => {
+    navigator.clipboard.writeText(link);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -43,7 +43,7 @@ const ReferralPageContent: FC<{ referralLink: string }> = ({ referralLink }) => 
       </div>
 
       <HeroCard
-        referralLink={referralLink}
+        referralCode={referralCode}
         copied={copied}
         handleCopy={handleCopy}
       />

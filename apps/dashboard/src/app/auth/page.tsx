@@ -172,7 +172,7 @@ const SignupForm = () => {
           </div>
 
           <div className="relative mt-3 flex justify-center">
-            <GoogleLogin fromUrl={fromUrl || undefined} />
+            <GoogleLogin fromUrl={fromUrl || undefined} referralCode={referralCodeFromUrl} />
           </div>
         </div>
       </div>

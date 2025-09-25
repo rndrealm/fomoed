@@ -7,11 +7,14 @@ import {
 import { SupabaseClient, User } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { track } from "@vercel/analytics/server";
+import { customAlphabet } from "nanoid";
+import { v4 as uuidv4 } from "uuid";
 
 interface IUserInsert {
   email: string;
   username: string;
   user_id: string;
+  referral_code: string;
 }
 
 interface IUser extends IUserInsert {
@@ -44,38 +47,98 @@ async function getUserByEmail(email: string) {
   return user.data;
 }
 
-async function createOrLinkUserFromOAuth(user: User): Promise<void> {
+async function createOrLinkUserFromOAuth(user: User, referralCode: string | null): Promise<void> {
+  console.log("createOrLinkUserFromOAuth called with:", {
+    userEmail: user.email,
+    userId: user.id,
+    referralCode
+  });
+
   const supabase = await createSupabaseServerWithAnonKey();
   if (!user.email) {
     throw new Error("User does not have an email address");
   }
 
   const existingUser = await getUserByEmail(user.email);
+  console.log("Existing user check:", { existingUser: !!existingUser });
 
   // If the user exists, link the ID from oauth to the existing user
   if (existingUser) {
-    linkAuthIdToEmail(user.email, user.id);
-    console.info(`Linked email ${user.email} to auth id ${user.id} when loggin in with OAuth.`);
+    await linkAuthIdToEmail(user.email, user.id); // Added missing await
+    console.info(`Linked email ${user.email} to auth id ${user.id} when logging in with OAuth.`);
     return;
   }
+
+  const ALPHANUMERIC_CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const generateRandomPart = customAlphabet(ALPHANUMERIC_CHARS, 10);
+  const newUserReferralCode = `U${generateRandomPart()}`; // Added missing semicolon
+
+  console.log("Creating new user with referral code:", newUserReferralCode);
 
   // Otherwise insert a new user
   const newUserData: IUserInsert = {
     email: user.email.toLowerCase(),
     username: user.email?.split("@")[0],
     user_id: user.id,
+    referral_code: newUserReferralCode
   };
 
-  const insertRes = await supabase.from("users").insert(newUserData);
+  console.log("Inserting new user data:", newUserData);
 
-  if (insertRes.error) {
-    console.error(insertRes.error);
-    throw new Error(insertRes.error.message);
+  const { data: newUser, error: insertError } = await supabase
+    .from("users")
+    .insert(newUserData)
+    .select("user_id") 
+    .single();
+
+  if (insertError) {
+    console.error("OAuth profile creation failed:", insertError);
+    throw new Error(insertError.message);
   }
+
+  console.log("New user created:", newUser);
+
   await track("signup", {
     username: newUserData.username,
     email: newUserData.email,
   });
+
+  if (referralCode && newUser) {
+    console.log("Processing referral code:", referralCode);
+    
+    const { data: referrer, error: referrerError } = await supabase
+      .from("users")
+      .select("user_id")
+      .eq("referral_code", referralCode)
+      .single();
+    
+    console.log("Referrer lookup result:", { referrer, referrerError });
+    
+    if (referrer) {
+      const referralData = {
+        referral_id: uuidv4(),
+        referrer_user_id: referrer.user_id,
+        referred_user_id: newUser.user_id,
+        status: 'Pending'
+      };
+      
+      console.log("Inserting referral:", referralData);
+      
+      const { error: referralError } = await supabase
+        .from("referrals")
+        .insert(referralData);
+      
+      if (referralError) {
+        console.error("Failed to create referral:", referralError);
+      } else {
+        console.log("Referral created successfully");
+      }
+    } else {
+      console.warn(`OAuth Callback: Invalid referral code was used: ${referralCode}`);
+    }
+  } else {
+    console.log("No referral processing needed:", { referralCode, newUser: !!newUser });
+  }
 }
 
 export async function GET(request: Request) {
@@ -86,6 +149,7 @@ export async function GET(request: Request) {
   // if "next" is in param, use it in the redirect URL
   const next = searchParams.get("next") ?? "/";
   const from = searchParams.get("from") ?? "/";
+  const referralCode = searchParams.get("referral")
 
   if (code) {
     const supabase = await createSupabaseServerClient();
@@ -99,7 +163,7 @@ export async function GET(request: Request) {
       );
     }
 
-    await createOrLinkUserFromOAuth(data.user);
+    await createOrLinkUserFromOAuth(data.user, referralCode);
 
     if (!error) {
       if (from === "marketing") {

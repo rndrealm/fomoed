@@ -22,11 +22,10 @@ export default async function Page() {
     return <GenerateCodeComponent />;
   }
 
-  const referralLink = `https://dashboard.fomoed.io/auth?referral=${userProfile.referral_code}`;
-
+  // const referralLink = `${window.location.origin}/auth?referral=${userProfile.referral_code}`;
   return (
     <Suspense fallback={<div className="text-center text-white">Loading...</div>}>
-      <ReferralPageContent referralLink={referralLink} />
+      <ReferralPageContent referralCode={userProfile.referral_code} />
     </Suspense>
   );
 }

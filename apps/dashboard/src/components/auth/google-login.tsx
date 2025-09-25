@@ -13,20 +13,32 @@ interface GoogleLoginButtonProps {
   className?: string;
   nextUrl?: string;
   fromUrl?: string;
+  referralCode?: string | null;
 }
 
-export function GoogleLogin({ className, nextUrl, fromUrl }: GoogleLoginButtonProps) {
+export function GoogleLogin({ className, nextUrl, fromUrl, referralCode }: GoogleLoginButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSignIn = async () => {
     const supabase = createSupabaseBrowserClient();
 
     // Build callback URL with next parameter if provided
-    const callbackUrl = fromUrl
-      ? `${window.location.origin}/auth/callback?from=${encodeURIComponent(fromUrl)}`
-      : nextUrl
-        ? `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextUrl)}`
-        : `${window.location.origin}/auth/callback`;
+    const baseCallbackUrl = `${window.location.origin}/auth/callback`;
+    const urlParams = new URLSearchParams();
+
+    if (fromUrl) {
+      urlParams.append('from', fromUrl);
+    }
+    if (nextUrl) {
+      urlParams.append('next', nextUrl);
+    }
+    if (referralCode) {
+      urlParams.append('referral', referralCode);
+    }
+
+    const callbackUrl = urlParams.toString() 
+      ? `${baseCallbackUrl}?${urlParams.toString()}`
+      : baseCallbackUrl;
 
     await supabase.auth.signInWithOAuth({
       provider: "google",

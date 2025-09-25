@@ -3,14 +3,17 @@ import Image from "next/image";
 import dashboard from "@/lib/assets/dashboard";
 
 interface HeroCardProps {
-  referralLink: string;
+  referralCode: string;
   copied: boolean;
-  handleCopy: () => void;
+  handleCopy: (arg0: string) => void;
 }
 
-const HeroCard: FC<HeroCardProps> = ({ referralLink, copied, handleCopy }) => {
+const HeroCard: FC<HeroCardProps> = ({ referralCode, copied, handleCopy }) => {
+  const referralLink = `${window.location.origin}/auth?referral=${referralCode}`;
+
   return (
     <div className="bg-[#0A0A0A]  border-[#0A0A0A] rounded-xl p-8 flex justify-between items-center mb-16">
+        
       
       {/* --- Left Content --- */}
       <div className="flex-1">
@@ -33,7 +36,7 @@ const HeroCard: FC<HeroCardProps> = ({ referralLink, copied, handleCopy }) => {
               className="bg-[#161616] border border-zinc-700 rounded-l-md text-white px-4 py-2 flex-grow focus:outline-none text-[#e6e6e6]"
             />
             <button
-              onClick={handleCopy}
+              onClick={() => handleCopy(referralLink)}
               className="bg-white text-black font-bold px-6 py-2 rounded-r-md whitespace-nowrap hover:bg-zinc-200 transition-colors"
             >
               {copied ? "Copied!" : "Copy Link"}
