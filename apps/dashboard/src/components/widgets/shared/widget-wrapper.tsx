@@ -1,9 +1,4 @@
-import {
-  CoinStats,
-  ExchangeIcon,
-  Question,
-  Summary,
-} from "@/components/icons/icons";
+import { CoinStats, ExchangeIcon, Question, Summary } from "@/components/icons/icons";
 import { cn, splitWidgetSlug } from "@/lib/utils";
 import React, { ReactNode } from "react";
 import { OptionsDropdown } from "./options-dropwdown";
@@ -26,6 +21,7 @@ interface IProps {
   title: string;
   titleIcon?: "coinstats" | "summary" | "exchange" | "none";
   isDuckGame?: boolean;
+  isGemachCopyTrading?: boolean;
 }
 
 export function WidgetWrapper(props: IProps) {
@@ -38,6 +34,7 @@ export function WidgetWrapper(props: IProps) {
     title,
     titleIcon = "coinstats",
     isDuckGame = false,
+    isGemachCopyTrading = false,
   } = props;
 
   const settings = useAtomValue(settingAtom);
@@ -60,11 +57,10 @@ export function WidgetWrapper(props: IProps) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <RenderIf condition={isDuckGame}>
-              <Image
-                src={dashboard.duckGameIcon}
-                alt="duck game"
-                className="w-[32px] h-[32px] rounded-full"
-              />
+              <Image src={dashboard.duckGameIcon} alt="duck game" className="w-[32px] h-[32px] rounded-full" />
+            </RenderIf>
+            <RenderIf condition={isGemachCopyTrading}>
+              <Image src={dashboard.gemachLogo} alt="duck game" className="w-[32px] h-[32px] rounded-sm" />
             </RenderIf>
             <RenderIf condition={titleIcon === "coinstats"}>
               <CoinStats />
@@ -76,23 +72,32 @@ export function WidgetWrapper(props: IProps) {
             <RenderIf condition={titleIcon === "exchange"}>
               <ExchangeIcon />
             </RenderIf>
-            <h4 className="text-base leading-[1.35] font-semibold text-[#878787] select-none">
-              {title}
-            </h4>
+            <div className="flex flex-col gap-[2px]">
+              <h4 className="text-base leading-[1.35] font-semibold text-[#878787] select-none">{title}</h4>
+              <RenderIf condition={isGemachCopyTrading}>
+                <div className="flex items-center gap-1">
+                  <div className="bg-[#2C233A] border border-[#3A2C4F] rounded-sm px-1 py-[2px]">
+                    <p className="text-[#C1A8FF] leading-[12px] tracking-[-0.4%] text-[8px]">
+                      HYPERLIQUID PERP TRADING
+                    </p>
+                  </div>
+                  <div className="">
+                    <Image src={dashboard.hyperliquidLogo} alt="hyperliquid logo" className="w-[14px] h-[14px]" />
+                  </div>
+                </div>
+              </RenderIf>
+            </div>
           </div>
 
           <div className="flex items-center gap-2">
             <button
               onClick={() => {
-                const isFavorite =
-                  settings.favorite_widgets.includes(widgetSlug);
+                const isFavorite = settings.favorite_widgets.includes(widgetSlug);
 
                 let newWidgetArray: string[] = [];
 
                 if (isFavorite) {
-                  newWidgetArray = settings.favorite_widgets.filter(
-                    (item) => item !== widgetSlug,
-                  );
+                  newWidgetArray = settings.favorite_widgets.filter((item) => item !== widgetSlug);
                 } else {
                   newWidgetArray = [...settings.favorite_widgets, widgetSlug];
                 }

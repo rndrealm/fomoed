@@ -1,2 +1,7 @@
 export const DEX_FEE = 10;
 export const DEX_FEE_PERCENTAGE = DEX_FEE / 100;
+
+export const LOCAL_STORAGE_KEYS = {
+  GEMACH_NONCE: "GEMACH_NONCE",
+  GEMACH_USER_DATA: "GEMACH_USER_DATA",
+};

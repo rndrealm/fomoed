@@ -46,6 +46,7 @@ import DuckGame from "@/components/widgets/duck-game";
 import OrderbookDeltaWidget from "@/components/widgets/delta/delta-widget";
 import WhaleTransactionWidget from "@/components/widgets/whale-transaction/whale-transaction-widget";
 import TradingEconomicsWidget from "@/components/widgets/trading-economics/economic-calendar-widget";
+import GemachCopyTrading from "@/components/widgets/gemach/gemach-copy-trading";
 
 export const layoutClassMap = {
   SinglePane: "grid-rows-1 grid-cols-1",
@@ -328,6 +329,14 @@ export const layoutOptionsMap = [
     category: "charts",
     tags: ["charts", "new", "events"],
   },
+  {
+    id: 215,
+    name: "Gemach Copy Trading",
+    slug: "gemach-copy-trading",
+    image: dashboard.tradingCalendar,
+    category: "charts",
+    tags: ["new"],
+  },
 
   // {
   //   id: 10,
@@ -470,6 +479,11 @@ export const chartsMap = {
     name: "Trading Economics",
     extra: [],
     component: (widget: LayoutType["widgets"][0]) => <TradingEconomicsWidget widget={widget} />,
+  },
+  "gemach-copy-trading": {
+    name: "Gemach Copy Trading",
+    extra: [],
+    component: (widget: LayoutType["widgets"][0]) => <GemachCopyTrading widget={widget} />,
   },
 };
 
@@ -776,6 +790,16 @@ export const widgetPropsDefaults = {
       w: 8,
       h: 4,
       minW: 6,
+      minH: 4,
+      maxW: Infinity,
+      maxH: Infinity,
+    },
+  },
+  "gemach-copy-trading": {
+    meta: {
+      w: 8,
+      h: 4,
+      minW: 8,
       minH: 4,
       maxW: Infinity,
       maxH: Infinity,
