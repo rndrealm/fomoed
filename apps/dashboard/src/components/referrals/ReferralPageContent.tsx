@@ -1,9 +1,11 @@
-"use client"
+"use client";
+
 import HeroCard from "@/components/referrals/HeroCard";
 import ReferralStats from "@/components/referrals/ReferralStats";
 import React, { useState, FC } from "react";
 
 // --- Type Definitions ---
+// (These can stay as they are)
 interface StatsData {
   estimatedTotalCommission: number;
   activeSubscribers: number;
@@ -12,34 +14,28 @@ interface StatsData {
   acceptedReferrals: number;
   inactiveSubscribers: number;
 }
-
-interface ReferralData {
-  referralLink: string;
-  stats: StatsData;
-}
-
-// A specific type for our tab names to prevent typos
 export type TabName = 'All Referrals' | 'Subscribers' | 'Invitation History';
 
-// --- Dummy Data ---
-const referralData: ReferralData = {
-  referralLink: "https://dashboard.fomoed.io/referral/noah-shiffman",
-  stats: {
-    estimatedTotalCommission: 0,
-    activeSubscribers: 0,
-    pending: 0,
-    numberOfReferrals: 0,
-    acceptedReferrals: 0,
-    inactiveSubscribers: 0,
-  },
+
+// --- Dummy Data (FOR STATS ONLY) ---
+const dummyStats: StatsData = {
+  estimatedTotalCommission: 0,
+  activeSubscribers: 0,
+  pending: 0,
+  numberOfReferrals: 0,
+  acceptedReferrals: 0,
+  inactiveSubscribers: 0,
 };
 
-const ReferralPage: FC = () => {
+// --- Component Definition ---
+// It now accepts the `referralLink` prop
+const ReferralPageContent: FC<{ referralLink: string }> = ({ referralLink }) => {
   const [copied, setCopied] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<TabName>("All Referrals");
 
   const handleCopy = (): void => {
-    navigator.clipboard.writeText(referralData.referralLink);
+    // Use the referralLink from the props
+    navigator.clipboard.writeText(referralLink);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -54,22 +50,24 @@ const ReferralPage: FC = () => {
       </div>
 
       <HeroCard
-        referralLink={referralData.referralLink}
+        // Use the real link from props
+        referralLink={referralLink}
         copied={copied}
         handleCopy={handleCopy}
       />
 
       <ReferralStats
-        stats={referralData.stats}
+        // Use dummy stats for now
+        stats={dummyStats}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
       />
       
-       <p className="text-center text-zinc-400 text-sm mt-6">
-          Please note, <a href="#" className="text-[#F7984B] underline">Terms, conditions and limits</a> may apply
-       </p>
+      <p className="text-center text-zinc-400 text-sm mt-6">
+        Please note, <a href="#" className="text-[#F7984B] underline">Terms, conditions and limits</a> may apply
+      </p>
     </div>
   );
 };
 
-export default ReferralPage;
+export default ReferralPageContent;
