@@ -22,12 +22,14 @@ const validationSchema = Yup.object().shape({
     .matches(/[a-z]/, "Password must contain at least one lowercase letter")
     .matches(/[0-9]/, "Password must contain at least one number")
     .matches(/[^A-Za-z0-9]/, "Password must contain at least one special character"),
+  referralCode: Yup.string(),
 });
 
 const initialValues = {
   username: "",
   email: "",
   password: "",
+  referralCode: "",
 };
 
 type InitialValues = ReturnType<() => typeof initialValues>;
@@ -45,6 +47,8 @@ const SignupForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const searchParams = useSearchParams();
   const fromUrl = searchParams.get("from");
+  const referralCodeFromUrl = searchParams.get("referral");
+
   const onSubmit = async (_values: InitialValues) => {
     try {
       setIsLoading(true);
@@ -83,19 +87,21 @@ const SignupForm = () => {
                 <p className="text-center text-base leading-[1.35] font-medium text-[#5f5f5f]">
                   Create an account and never miss out on anything again.
                 </p>
-                <div 
-                  className="mx-auto mt-4 flex w-max items-center gap-2 overflow-hidden rounded-[22px] border border-[#ef630c] bg-[#0d050166] px-3 py-2 shadow-[inset_0.15873px_0.793651px_0.31746px_#f5e2c340,inset_-0.396825px_-0.555556px_0.793651px_#f5e2c340]"
-                >
+                <div className="mx-auto mt-4 flex w-max items-center gap-2 overflow-hidden rounded-[22px] border border-[#ef630c] bg-[#0d050166] px-3 py-2 shadow-[inset_0.15873px_0.793651px_0.31746px_#f5e2c340,inset_-0.396825px_-0.555556px_0.793651px_#f5e2c340]">
                   <svg className="h-4 w-4 text-orange-400 flex-shrink-0" fill="rgb(255, 240, 211)" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
                   </svg>
-                  <span className="whitespace-nowrap text-xs font-medium" style={{color: 'rgb(255, 240, 211)'}}>
+                  <span className="whitespace-nowrap text-xs font-medium" style={{ color: "rgb(255, 240, 211)" }}>
                     No Credit Card Required
                   </span>
                 </div>
               </div>
               <Formik
-                initialValues={initialValues}
+                initialValues={{ ...initialValues, referralCode: referralCodeFromUrl || "" }}
                 validationSchema={validationSchema}
                 onSubmit={onSubmit}
                 validateOnBlur={false}
@@ -103,7 +109,7 @@ const SignupForm = () => {
                 validateOnChange={false}
               >
                 {(props) => {
-                  const { values, handleChange, handleBlur, handleSubmit } = props;
+                  const { values, handleChange, handleBlur, handleSubmit, setFieldValue } = props;
 
                   return (
                     <form onSubmit={handleSubmit} className="">
@@ -136,6 +142,21 @@ const SignupForm = () => {
                           onChange={handleChange}
                           onBlur={handleBlur}
                         />
+
+                        <div className="flex flex-col gap-1">
+                          <label htmlFor="referralCode" className="text-sm font-medium text-[#acacac] px-1">
+                            Referral Code
+                          </label>
+                          <TextInput
+                            name="referralCode"
+                            id="referralCode"
+                            placeholder="Optional"
+                            value={values.referralCode}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            disabled={!!referralCodeFromUrl}
+                          />
+                        </div>
                         <div className="">
                           <SubmitButton isLoading={isLoading}>
                             Continue

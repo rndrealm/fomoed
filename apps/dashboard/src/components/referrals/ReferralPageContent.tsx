@@ -4,8 +4,6 @@ import HeroCard from "@/components/referrals/HeroCard";
 import ReferralStats from "@/components/referrals/ReferralStats";
 import React, { useState, FC } from "react";
 
-// --- Type Definitions ---
-// (These can stay as they are)
 interface StatsData {
   estimatedTotalCommission: number;
   activeSubscribers: number;
@@ -16,8 +14,6 @@ interface StatsData {
 }
 export type TabName = 'All Referrals' | 'Subscribers' | 'Invitation History';
 
-
-// --- Dummy Data (FOR STATS ONLY) ---
 const dummyStats: StatsData = {
   estimatedTotalCommission: 0,
   activeSubscribers: 0,
@@ -27,14 +23,11 @@ const dummyStats: StatsData = {
   inactiveSubscribers: 0,
 };
 
-// --- Component Definition ---
-// It now accepts the `referralLink` prop
 const ReferralPageContent: FC<{ referralLink: string }> = ({ referralLink }) => {
   const [copied, setCopied] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<TabName>("All Referrals");
 
   const handleCopy = (): void => {
-    // Use the referralLink from the props
     navigator.clipboard.writeText(referralLink);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -50,14 +43,12 @@ const ReferralPageContent: FC<{ referralLink: string }> = ({ referralLink }) => 
       </div>
 
       <HeroCard
-        // Use the real link from props
         referralLink={referralLink}
         copied={copied}
         handleCopy={handleCopy}
       />
 
       <ReferralStats
-        // Use dummy stats for now
         stats={dummyStats}
         activeTab={activeTab}
         setActiveTab={setActiveTab}

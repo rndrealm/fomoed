@@ -1,7 +1,9 @@
 "use server";
 import { LoginUserFunctionResponse, RegisterUserPayload } from "./types";
 import { createSupabaseServerClient, createSupabaseServiceClient } from "@/lib/utils/supabase/server-client";
+import { customAlphabet } from "nanoid";
 import { headers } from "next/headers";
+import { v4 as uuidv4 } from "uuid";
 
 export async function signUpNewUser(
   body: RegisterUserPayload,
@@ -15,7 +17,7 @@ export async function signUpNewUser(
 
   const origin = `${protocol}://${host}/auth/confirm?type=email`;
 
-  const { email, password, username } = body;
+  const { email, password, username, referralCode } = body;
   const authRes = await supabase.auth.signUp({
     email,
     password,
@@ -38,7 +40,61 @@ export async function signUpNewUser(
     };
   }
 
-  // TODO update username in the users table
+  if (!authRes.data.user) {
+    return {
+      success: false,
+      message: "User creation failed unexpectedly. Please try again.",
+    };
+  }
+
+  const newUserId = authRes.data.user.id;
+
+  const ALPHANUMERIC_CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const generateRandomPart = customAlphabet(ALPHANUMERIC_CHARS, 10);
+  const newUserReferralCode = `U${generateRandomPart()}`;
+
+  const { error: profileError } = await supabase
+    .from("users")
+    .update({
+      referral_code: newUserReferralCode,
+    })
+    .eq("user_id", newUserId);
+
+  if (profileError) {
+    console.error("Failed to create user profile:", profileError);
+    return {
+      success: false,
+      message: "Your account was created, but your profile could not be set up. Please contact support.",
+    };
+  }
+
+  if (referralCode) {
+    const { data: referrer, error: referrerError } = await supabase
+      .from("users")
+      .select("user_id")
+      .eq("referral_code", referralCode)
+      .single();
+
+    if (referrer && !referrerError) {
+
+      const newReferralId = uuidv4();
+      const { error: referralInsertError } = await supabase
+        .from("referrals")
+         .insert({
+          referral_id: newReferralId, 
+          referrer_user_id: referrer.user_id,
+          referred_user_id: newUserId,
+          status: 'Pending',
+        });
+      
+      if (referralInsertError) {
+        console.error("Failed to create referral link:", referralInsertError);
+      }
+
+    } else {
+      console.warn(`Invalid referral code used during sign-up: ${referralCode}`);
+    }
+  }
 
   return {
     success: true,
