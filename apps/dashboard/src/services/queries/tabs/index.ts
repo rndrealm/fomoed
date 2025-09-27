@@ -126,7 +126,7 @@ export const useUpdateAvatar = () => {
     },
 
     onSuccess: async (data) => {
-      console.log("data:", data);
+      // console.log("data:", data);
 
       // refetches user data after successful username update
       await queryClient.invalidateQueries({

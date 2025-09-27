@@ -13,7 +13,8 @@ export type ActiveTabType =
   | "Billing"
   | "Notifications"
   | "Keyboard Shortcuts"
-  | "Whats New";
+  | "Whats New"
+  | "Plans";
 
 export type popoverOptionsType = {
   label: string;
@@ -55,85 +56,96 @@ const SidebarTabs = ({ popoverOptions, activeTab, setActiveTab }: SidebarTabsPro
   };
 
   return (
-    <Command className="rounded-[0px] w-[160px] md:w-[234px] max-w-[234px] h-full border-r-[1px] border-[#242424] bg-[#111111]">
-      <CommandList className="scrollbar px-2 max-h-full w-full outline-none">
-        {popoverOptions?.map((item, index) => {
-          return (
-            <CommandGroup
-              key={index}
-              className="flex flex-col gap-0 px-0 pb-0 pt-2 [&_[cmdk-group-heading]]:px-[18px] [&_[cmdk-group-heading]]:py-3 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:leading-[16px] [&_[cmdk-group-heading]]:text-[#A4A4A4]"
-              heading={item.label}
-            >
-              {/* tab item */}
+    <>
+      {/* for plans tab no sidebar */}
+      {activeTab !== "Plans" && (
+        <Command className="rounded-[0px] w-[160px] md:w-[234px] max-w-[234px] h-full border-r-[1px] border-[#242424] bg-[#111111]">
+          <CommandList className="scrollbar px-2 max-h-full w-full outline-none">
+            {popoverOptions?.map((item, index) => {
+              return (
+                <CommandGroup
+                  key={index}
+                  className="flex flex-col gap-0 px-0 pb-0 pt-2 [&_[cmdk-group-heading]]:px-[18px] [&_[cmdk-group-heading]]:py-3 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:leading-[16px] [&_[cmdk-group-heading]]:text-[#A4A4A4]"
+                  heading={item.label}
+                >
+                  {/* tab item */}
 
-              <div className="flex flex-col gap-2 w-full">
-                {item.tabs.map((tab, index) => {
-                  const isActive = activeTab === tab.name;
+                  <div className="flex flex-col gap-2 w-full">
+                    {item.tabs.map((tab, index) => {
+                      let isActive = activeTab === tab.name;
 
-                  return (
-                    <CommandItem
-                      key={index}
-                      aria-disabled={tab.disabled}
-                      className={cn(
-                        "group cursor-pointer w-full h-[38px] px-4 flex flex-row items-center justify-start gap-2 max-h-[40px] rounded-[8px] bg-transparent data-[selected=true]:bg-[#151515]",
-                        isActive && "!bg-[#1A1A1A]",
-                        tab.disabled && "cursor-not-allowed opacity-[50%] data-[selected=true]:bg-[#1A1A1A]",
-                      )}
-                      onSelect={(e) => {
-                        // stops selection if disabled
-                        if (tab.disabled) {
-                          return;
+                      if (activeTab === "Plans") {
+                        if (tab.name === "Profile") {
+                          isActive = true;
                         }
-                        // setActiveTab({ open: true, activeTab: tab.name });
+                      }
 
-                        tab.onClick();
-                      }}
-                    >
-                      <div className="h-5 aspect-square flex items-center justify-center">
-                        {React.cloneElement(tab.icon, { fill: isActive ? "#fff" : "#A6AEB2" })}
-                      </div>
-                      <h2 className="text-[14px] leading-[18px] font-normal text-white">{tab.name}</h2>
-                    </CommandItem>
-                  );
-                })}
-              </div>
-            </CommandGroup>
-          );
-        })}
+                      return (
+                        <CommandItem
+                          key={index}
+                          aria-disabled={tab.disabled}
+                          className={cn(
+                            "group cursor-pointer w-full h-[38px] px-4 flex flex-row items-center justify-start gap-2 max-h-[40px] rounded-[8px] bg-transparent data-[selected=true]:bg-[#151515]",
+                            isActive && "!bg-[#1A1A1A]",
+                            tab.disabled && "cursor-not-allowed opacity-[50%] data-[selected=true]:bg-[#1A1A1A]",
+                          )}
+                          onSelect={(e) => {
+                            // stops selection if disabled
+                            if (tab.disabled) {
+                              return;
+                            }
+                            // setActiveTab({ open: true, activeTab: tab.name });
 
-        {/* last items */}
-        <div className="mt-3 px-1 flex flex-col gap-0 items-start justify-between">
-          <CommandItem
-            className={cn(
-              "group px-3 cursor-pointer w-full h-[52px] border-t-[1px] rounded-[0px] border-[#242424] flex flex-row items-center justify-start gap-2 bg-transparent data-[selected=true]:bg-[#1A1A1A] hover:opacity-80",
-            )}
-            onSelect={() => {
-              handleGoToNews();
-              setActiveTab({ open: false, activeTab: "Whats New" });
-            }}
-          >
-            <div className="h-5 aspect-square flex items-center justify-center">
-              {React.cloneElement(<WhattsNewIcon />, { fill: "#fff" })}
+                            tab.onClick();
+                          }}
+                        >
+                          <div className="h-5 aspect-square flex items-center justify-center">
+                            {React.cloneElement(tab.icon, { fill: isActive ? "#fff" : "#A6AEB2" })}
+                          </div>
+                          <h2 className="text-[14px] leading-[18px] font-normal text-white">{tab.name}</h2>
+                        </CommandItem>
+                      );
+                    })}
+                  </div>
+                </CommandGroup>
+              );
+            })}
+
+            {/* last items */}
+            <div className="mt-3 px-1 flex flex-col gap-0 items-start justify-between">
+              <CommandItem
+                className={cn(
+                  "group px-3 cursor-pointer w-full h-[52px] border-t-[1px] rounded-[0px] border-[#242424] flex flex-row items-center justify-start gap-2 bg-transparent data-[selected=true]:bg-[#1A1A1A] hover:opacity-80",
+                )}
+                onSelect={() => {
+                  handleGoToNews();
+                  setActiveTab({ open: false, activeTab: "Whats New" });
+                }}
+              >
+                <div className="h-5 aspect-square flex items-center justify-center">
+                  {React.cloneElement(<WhattsNewIcon />, { fill: "#fff" })}
+                </div>
+                <h2 className="text-[14px] leading-[18px] font-normal text-white">Whats New</h2>
+              </CommandItem>
+              <CommandItem
+                onSelect={() => {
+                  handleLogout();
+                  setActiveTab({ open: false, activeTab: "Profile" });
+                }}
+                className={cn(
+                  "group px-3 cursor-pointer w-full h-[52px] border-t-[1px] rounded-[0px] border-[#242424] flex flex-row items-center justify-start gap-2 bg-transparent data-[selected=true]:bg-[#1A1A1A] hover:opacity-80",
+                )}
+              >
+                <div className="h-5 aspect-square flex items-center justify-center">
+                  {React.cloneElement(<Logout />, { fill: "#FF8970" })}
+                </div>
+                <h2 className="text-[14px] leading-[18px] font-normal text-[#FF8970]">Logout</h2>
+              </CommandItem>
             </div>
-            <h2 className="text-[14px] leading-[18px] font-normal text-white">Whats New</h2>
-          </CommandItem>
-          <CommandItem
-            onSelect={() => {
-              handleLogout();
-              setActiveTab({ open: false, activeTab: "Profile" });
-            }}
-            className={cn(
-              "group px-3 cursor-pointer w-full h-[52px] border-t-[1px] rounded-[0px] border-[#242424] flex flex-row items-center justify-start gap-2 bg-transparent data-[selected=true]:bg-[#1A1A1A] hover:opacity-80",
-            )}
-          >
-            <div className="h-5 aspect-square flex items-center justify-center">
-              {React.cloneElement(<Logout />, { fill: "#FF8970" })}
-            </div>
-            <h2 className="text-[14px] leading-[18px] font-normal text-[#FF8970]">Logout</h2>
-          </CommandItem>
-        </div>
-      </CommandList>
-    </Command>
+          </CommandList>
+        </Command>
+      )}
+    </>
   );
 };
 

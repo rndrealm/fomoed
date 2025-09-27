@@ -21,6 +21,7 @@ import LiquidationHeatmapChart from "./liquidation-heatmap-chart";
 import { AnimatePresence, motion } from "motion/react";
 import { Close } from "@/components/icons/icons";
 import { modalSlide } from "@/lib/utils";
+import FullScreenButtonV2 from "../../shared/fullscreen-buttonv2";
 
 const colorToCfgi = [
   {
@@ -71,6 +72,8 @@ export default function LiquidationHeatmapWidget(props: IProps) {
     isFetching,
     refetch,
   } = useFetchLiquidHeatMapData(widget.props?.period, selectedPair?.value.exchange, selectedPair?.value.symbol);
+
+  const toggleFullscreen = () => setIsFullscreen(!isFullscreen);
 
   return (
     <WidgetModalWrapper widget={widget} isFullscreen={isFullscreen} setIsFullscreen={setIsFullscreen}>
@@ -222,18 +225,7 @@ export default function LiquidationHeatmapWidget(props: IProps) {
         </AnimatePresence>
 
         {/* Fullscreen button */}
-        <div
-          className="absolute right-[9px] bottom-[16px] z-[9] h-[28px] w-[28px] rounded-md border border-[#1c1c1c]"
-          style={{
-            background: "linear-gradient(180deg, #1b1b1b 0%, rgba(0, 0, 0, 0.38) 72.15%)",
-            backdropFilter: "blur(7px)",
-            opacity: isFullscreen ? 0 : 1,
-          }}
-        >
-          <button className="flex h-full w-full items-center justify-center" onClick={() => setIsFullscreen(true)}>
-            <FullScreen />
-          </button>
-        </div>
+        <FullScreenButtonV2 toggleFullscreen={toggleFullscreen} />
       </WidgetWrapper>
     </WidgetModalWrapper>
   );

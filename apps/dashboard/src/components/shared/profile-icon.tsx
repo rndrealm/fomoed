@@ -26,7 +26,14 @@ export function ProfileIcon(props: IProps) {
           fill
         />
       ) : (
-        <UserIcon className="text-white/70" />
+        <div className="relative flex h-full w-full items-center justify-center">
+          <RemoteImage
+            src="/media/images/auth/avatar1.png"
+            alt="User avatar"
+            className={cn("w-full h-full object-cover", className)}
+            fill
+          />
+        </div>
       )}
     </div>
   );
