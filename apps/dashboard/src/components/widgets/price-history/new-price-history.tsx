@@ -147,6 +147,8 @@ export default function NewPriceHistory(props: IProps) {
   const [showInfo, setShowInfo] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState("1D");
   const [showTokenStats, setShowTokenStats] = useState(false);
+  const [containerWidth, setContainerWidth] = useState(0);
+
   const [dailyBinanceInterval, setDailyBinanceInterval] = useState(() => {
     if (selectedPeriod === "1D") {
       const isValidBinanceInterval =
@@ -216,8 +218,8 @@ export default function NewPriceHistory(props: IProps) {
 
   return (
     <Fragment>
-      <div className="relative flex h-full flex-col gap-0 rounded-2xl bg-[#000] pt-0 pb-2">
-        <div className="flex flex-col gap-1">
+      <div className="relative flex h-full flex-col gap-0 rounded-2xl bg-[#000] pt-0 pb-2 min-h-0 no-scrollbar">
+        <div className="flex flex-col gap-1 min-h-0 flex-shrink-0">
           <div className="flex cursor-grab justify-center pt-4 pb-1">
             <div className="h-[5px] w-[36px] rounded-[2px] bg-[#444]"></div>
           </div>
@@ -241,8 +243,10 @@ export default function NewPriceHistory(props: IProps) {
               />
               <LivePrice token={widget?.props?.token} period={currentPeriodConfig} selectedPeriod={selectedPeriod} />
             </div>
-            <div className="flex items-center gap-2 w-full sm:w-auto justify-between mt-2 sm:mt-0">
-              <div className="flex items-center justify-end gap-2">
+            <div
+              className={`flex items-center gap-2 mt-2 sm:mt-0  ${containerWidth < 600 ? "w-full pt-3 justify-between" : "w-auto justify-end"}`}
+            >
+              <div className={`flex items-center gap-2 ${containerWidth < 600 ? "justify-start" : "justify-end"}`}>
                 <div className="flex items-center gap-[2px] rounded-[5px] bg-[#161616] p-[1px]">
                   <button
                     type="button"
@@ -292,7 +296,9 @@ export default function NewPriceHistory(props: IProps) {
                   />
                 )}
               </div>
-              <div className="flex items-center gap-2 justify-end w-full sm:w-auto">
+              <div
+                className={`flex items-center gap-2 w-full sm:w-auto ${containerWidth < 600 ? "justify-end" : "justify-end"}`}
+              >
                 <button
                   onClick={() => {
                     const isFavorite = settings.favorite_widgets.includes(widgetSlug);
@@ -338,47 +344,47 @@ export default function NewPriceHistory(props: IProps) {
             </div>
           </div>
         </div>
-        <div className="relative flex flex-1">
-          <div className="absolute top-0 right-0 bottom-0 left-0">
-            {/* Time Period Selector */}
-            <div className="flex gap-1 bg-[#0C0C0C] justify-around my-3 rounded-lg overflow-x-auto">
-              {timePeriods.map((period) => (
-                <button
-                  key={period.label}
-                  onClick={() => {
-                    setSelectedPeriod(period.label);
-                    if (period.label === "1D") {
-                      const defaultInterval = "15m";
-                      setDailyBinanceInterval(defaultInterval);
-                      updateWidgetPropsFromAtom({
-                        tabId: activeLayout.id,
-                        widgetId: widget.id,
-                        widgetProps: {
-                          ...widget.props,
-                          period: defaultInterval,
-                        },
-                      });
-                    } else {
-                      updateWidgetPropsFromAtom({
-                        tabId: activeLayout.id,
-                        widgetId: widget.id,
-                        widgetProps: {
-                          ...widget.props,
-                          period: undefined, // Clear period for non-1D
-                        },
-                      });
-                    }
-                  }}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                    selectedPeriod === period.label
-                      ? "bg-[#272727] text-white"
-                      : "text-gray-400 hover:text-white hover:bg-[#1B1B1B]"
-                  }`}
-                >
-                  {period.label}
-                </button>
-              ))}
-            </div>
+        <div className="flex flex-col flex-1 min-h-0">
+          {/* Time Period Selector */}
+          <div className="flex gap-1 bg-[#0C0C0C] justify-around my-3 rounded-lg overflow-x-auto flex-shrink-0 no-scrollbar">
+            {timePeriods.map((period) => (
+              <button
+                key={period.label}
+                onClick={() => {
+                  setSelectedPeriod(period.label);
+                  if (period.label === "1D") {
+                    const defaultInterval = "15m";
+                    setDailyBinanceInterval(defaultInterval);
+                    updateWidgetPropsFromAtom({
+                      tabId: activeLayout.id,
+                      widgetId: widget.id,
+                      widgetProps: {
+                        ...widget.props,
+                        period: defaultInterval,
+                      },
+                    });
+                  } else {
+                    updateWidgetPropsFromAtom({
+                      tabId: activeLayout.id,
+                      widgetId: widget.id,
+                      widgetProps: {
+                        ...widget.props,
+                        period: undefined, // Clear period for non-1D
+                      },
+                    });
+                  }
+                }}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                  selectedPeriod === period.label
+                    ? "bg-[#272727] text-white"
+                    : "text-gray-400 hover:text-white hover:bg-[#1B1B1B]"
+                }`}
+              >
+                {period.label}
+              </button>
+            ))}
+          </div>
+          <div className="flex-1 min-h-0 min-w-0 relative overflow-hidden no-scrollbar">
             <TestChart
               isCandleStick={isCandleStick}
               token={widget?.props?.token}
@@ -386,9 +392,9 @@ export default function NewPriceHistory(props: IProps) {
               selectedPeriod={selectedPeriod}
               showTokenStats={showTokenStats}
               setShowTokenStats={setShowTokenStats}
+              onDimensionChange={(dimension) => setContainerWidth(dimension.width)}
             />
           </div>
-          {/* <div className=""></div> */}
 
           {/* <ChartComponent
             data={data}
@@ -403,7 +409,7 @@ export default function NewPriceHistory(props: IProps) {
           /> */}
         </div>
 
-        <div className="absolute left-[9px] bottom-[50px] z-[9] h-[28px] py-1 pl-1 pr-2.5 rounded-full border border-[#393939] bg-[#2B2C2E]">
+        <div className="absolute left-[9px] bottom-[60px] z-[9] h-[28px] py-1 pl-1 pr-2.5 rounded-full border border-[#393939] bg-[#2B2C2E]">
           <button
             className="flex h-full w-full items-center justify-center text-xs text-neutral-50"
             onClick={() => {

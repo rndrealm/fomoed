@@ -53,6 +53,7 @@ export function GoogleLogin({ className, nextUrl, fromUrl }: GoogleLoginButtonPr
       onClick={handleLogin}
       disabled={isLoading}
       className={cn("bg-transparent p-0 hover:bg-transparent", className)}
+      aria-label="Sign in with Google"
     >
       <RenderIf condition={isLoading}>
         <Loader2 className="animate-spin text-[#b1b1b1]" />

@@ -63,7 +63,7 @@ const navLinks: INavLink[] = [
     keyboardBoxes: ["command", "K"],
   },
   {
-    label: "Community",
+    label: "Marketing Campaign Dashboard",
     icon: <CommunityIcon />,
     href: `${process.env.NEXT_PUBLIC_MARKETING_APP_URL}/kol/explore`,
     disabled: false,
@@ -80,15 +80,15 @@ const navLinks: INavLink[] = [
     alpha: false,
     comingSoon: true,
   },
-  // {
-  //   label: "Refer and Earn",
-  //   icon: <ReferAndEarnIcon />,
-  //   href: `/`,
-  //   disabled: false,
-  //   beta: false,
-  //   alpha: false,
-  //   comingSoon: false,
-  // },
+  {
+    label: "Refer and Earn",
+    icon: <ReferAndEarnIcon />,
+    href: `/`,
+    disabled: true,
+    beta: false,
+    alpha: false,
+    comingSoon: true,
+  },
 ];
 
 const bottomLinks = [

@@ -1,13 +1,12 @@
 "use client";
 import dashboard from "@/lib/assets/dashboard";
-import Image from "next/image";
 import { useFetchSupportedChains, useGetQuote, useTokenBalanceRead } from "@/services/queries/dex";
 import { useEffect, useState } from "react";
 import { ChainType, SingleTokenType } from "@/services/queries/dex/types";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import ConnectButton from "./connect-button";
 import { useAccount, useBalance, useEstimateGas } from "wagmi";
-import { appendDecimal, formatNumber, removeDecimal } from "@/lib/utils";
+import { appendDecimal, formatNumber, modalSlide, removeDecimal } from "@/lib/utils";
 import PriceSummary from "./shared/price-summary";
 import ReviewModal from "./review/review-modal";
 import SettingsModal from "./settings-modal";
@@ -18,12 +17,13 @@ import NumberFlow from "@number-flow/react";
 import AmountInput from "./amount-input";
 import { parseEther } from "viem";
 import { ChevronDown } from "lucide-react";
-import { Favourite } from "@/components/icons/icons";
+import { Favourite, Close } from "@/components/icons/icons";
 import DexHeader from "./dex-header";
 import { SettingsDropdown } from "./settings-dropdown";
 import SuccessContent from "./review/success-content";
 import { WidgetWrapper } from "../shared";
 import { LayoutType } from "@/lib/atoms/layoutAtom";
+import { AnimatePresence, motion } from "motion/react";
 
 interface SwapData {
   from: {
@@ -59,6 +59,8 @@ const DexWidget = (props: IProps) => {
   const updateSuccess = (success: boolean) => {
     setIsSuccessState(success);
   };
+
+  const [showInfo, setShowInfo] = useState(false);
 
   const [hash, setHash] = useState<string | null>(null);
   const updateHash = (newHash: string) => {
@@ -166,6 +168,7 @@ const DexWidget = (props: IProps) => {
       className="relative justify-between gap-3 px-0 sm:px-0 sm:pb-1"
       headerClassName="px-4"
       titleIcon="exchange"
+      handleLearnMore={() => setShowInfo(true)}
     >
       <div className="font-inter flex h-full flex-col rounded-2xl bg-[#000] px-1 pt-1 font-semibold text-white">
         {data && data.manualRoutes && data.manualRoutes.length > 0 ? (
@@ -347,6 +350,57 @@ const DexWidget = (props: IProps) => {
           </>
         )}
       </div>
+      <AnimatePresence>
+        {showInfo && (
+          <div className="absolute top-[10px] right-[10px] bottom-[10px] left-[10px] z-[19] flex items-end">
+            <motion.div
+              className="scrollbar h-full overflow-auto rounded-[22px] bg-[#111] px-5 py-4 flex-1 text-white"
+              variants={modalSlide}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+            >
+              <div className="flex flex-col gap-4 justify-between flex-1 h-full">
+                <div className="flex flex-col gap-3">
+                  <div className="flex flex-col">
+                    <h3 className="text-base leading-[1.35] font-semibold">About the DEX</h3>
+                    <p className="text-[13px] leading-[1.25] font-light text-[#878787]">
+                      Learn about Decentralized Exchanges
+                    </p>
+                  </div>
+                  <p className="text-[13px] leading-[1.35] font-medium">
+                    A Decentralized Exchange (DEX) allows you to trade cryptocurrency directly with other users
+                    (peer-to-peer) without needing a central company to hold your funds. This widget finds the best
+                    exchange rates from various DEX aggregators.
+                  </p>
+                  <p className="text-[13px] leading-[1.35] font-medium">
+                    <strong>Slippage:</strong> This is the expected percentage difference between the price you see and
+                    the price at which the trade is executed. A small amount of slippage is normal in fast-moving
+                    markets.
+                  </p>
+                </div>
+
+                <div className="flex justify-center mt-4">
+                  <button
+                    type="button"
+                    className="app_widget_button flex h-[26px] items-center justify-center gap-1 rounded-[40px] bg-[#272727]"
+                    onClick={() => {
+                      setShowInfo(false);
+                    }}
+                  >
+                    <p className="app_widget_button__text text-[13px] font-medium whitespace-nowrap text-white">
+                      Close
+                    </p>
+                    <div className="app_widget_button__icon">
+                      <Close fill="#878787" />
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </WidgetWrapper>
   );
 };

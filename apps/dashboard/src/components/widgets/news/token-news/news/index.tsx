@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { LayoutType, updateWidgetPropsAtom } from "@/lib/atoms/layoutAtom";
-import { CoinStats, Play, Sound } from "@/components/icons/icons";
+import { CoinStats, Play, Sound, Question, Close } from "@/components/icons/icons";
 import NewsItem from "./news-item";
 import Player from "./player";
 import { AnimatePresence, motion } from "motion/react";
@@ -15,7 +15,7 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 import { RenderIf } from "@/components/shared";
 import { settingAtom, updateSettingAtom } from "@/lib/atoms/settingsAtom";
-import { splitWidgetSlug } from "@/lib/utils";
+import { splitWidgetSlug, modalSlide } from "@/lib/utils";
 import StarFilled from "@/components/icons/StarFilled";
 import { audioRefAtom, setPlaylistAtom } from "@/lib/atoms/audio";
 
@@ -89,6 +89,8 @@ export default function NewsWidget(props: IProps) {
   const { data: news = [] } = useReadNewsFeed(widget?.props?.token, 1, 20);
   const { data: coinData = [] } = useReadCoinList();
 
+  const [showInfo, setShowInfo] = useState(false);
+
   const activeLayout = useAtomValue(activeTabAtom);
   const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
   const settings = useAtomValue(settingAtom);
@@ -137,9 +139,9 @@ export default function NewsWidget(props: IProps) {
                 <Star />
               </RenderIf>
             </button>
-            {/* <button type="button" onClick={() => {}}>
+            <button type="button" onClick={() => setShowInfo(true)}>
               <Question />
-            </button> */}
+            </button>
             <OptionsDropdown widget={widget} />
           </div>
         </div>
@@ -225,6 +227,61 @@ export default function NewsWidget(props: IProps) {
               }}
             />
           </motion.div>
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {showInfo && (
+          <div className="absolute top-[10px] right-[10px] bottom-[10px] left-[10px] z-[19] flex items-end">
+            <motion.div
+              className="scrollbar max-h-full overflow-auto rounded-[22px] bg-[#111] px-5 py-4 flex-1 text-white"
+              variants={modalSlide}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+            >
+              <div className="flex flex-col gap-4 justify-between flex-1 h-full">
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col">
+                    <h3 className="text-base leading-[1.35] font-semibold">About the News Widget</h3>
+                    <p className="text-[13px] leading-[1.25] font-light text-[#878787]">
+                      Stay ahead of the market with real-time information.
+                    </p>
+                  </div>
+                  <div className="text-[13px] leading-[1.4] font-medium flex flex-col gap-3">
+                    <p>
+                      This widget delivers a live feed of cryptocurrency news, allowing you to filter by specific coins
+                      to see only the information that matters to you.
+                    </p>
+                    <p>
+                      <strong>Sentiment Analysis:</strong> Each article is analyzed for sentiment (Bullish/Bearish) to
+                      give you a quick glance at the market&apos;s mood.
+                    </p>
+                    <p>
+                      <strong>Audio Player:</strong> Don&apos;t have time to read? Press the play icon to listen to the
+                      latest headlines on the go, turning your news feed into a personalized podcast.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex justify-center mt-4">
+                  <button
+                    type="button"
+                    className="app_widget_button flex h-[26px] items-center justify-center gap-1 rounded-[40px] bg-[#272727]"
+                    onClick={() => {
+                      setShowInfo(false);
+                    }}
+                  >
+                    <p className="app_widget_button__text text-[13px] font-medium whitespace-nowrap text-white">
+                      Close
+                    </p>
+                    <div className="app_widget_button__icon">
+                      <Close fill="#878787" />
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </div>
