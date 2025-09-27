@@ -18,6 +18,7 @@ import { cn, modalSlide } from "@/lib/utils";
 import { FullScreen, Close } from "@/components/icons/icons";
 import CameraAndRefresh from "../../shared/camera-and-refresh";
 import WidgetModalWrapper from "@/components/modals/widget-modal";
+import FullScreenButtonV2 from "../../shared/fullscreen-buttonv2";
 
 const colorToCfgi = [
   {
@@ -66,11 +67,13 @@ export default function LiquidationExchangeWidget(props: IProps) {
 
   const [chartViewOptions] = useState(LiquidTabOptions[1].value);
 
+  const toggleFullscreen = () => setIsFullscreen((prev) => !prev);
+
   return (
     <WidgetModalWrapper widget={widget} isFullscreen={isFullscreen} setIsFullscreen={setIsFullscreen}>
       <WidgetWrapper widget={widget} title="Exchange Liquidation Map" handleLearnMore={() => setShowInfo(true)}>
         <div className={cn("relative flex h-full w-full flex-col")} ref={chartRef}>
-          {  coinData && (
+          {coinData && (
             <div className="py-2">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <CoinDropdown
@@ -159,9 +162,9 @@ export default function LiquidationExchangeWidget(props: IProps) {
                       </p>
                     </div>
                     <p className="text-[13px] leading-[1.35] font-medium">
-                      An Exchange liquidation map is a visual chart that predicts at which price levels a large number of
-                      cryptocurrency futures positions will be forcibly closed. Its horizontal axis (X-axis) shows the
-                      price, while its vertical axis (Y-axis) represents the relative intensity of potential
+                      An Exchange liquidation map is a visual chart that predicts at which price levels a large number
+                      of cryptocurrency futures positions will be forcibly closed. Its horizontal axis (X-axis) shows
+                      the price, while its vertical axis (Y-axis) represents the relative intensity of potential
                       liquidations, highlighting areas of high financial risk.
                     </p>
                     <p className="text-[13px] leading-[1.35] font-medium">
@@ -203,18 +206,7 @@ export default function LiquidationExchangeWidget(props: IProps) {
         </AnimatePresence>
 
         {/* Fullscreen button */}
-        <div
-          className="absolute right-[9px] bottom-[16px] z-[9] h-[28px] w-[28px] rounded-md border border-[#1c1c1c]"
-          style={{
-            background: "linear-gradient(180deg, #1b1b1b 0%, rgba(0, 0, 0, 0.38) 72.15%)",
-            backdropFilter: "blur(7px)",
-            opacity: isFullscreen ? 0 : 1,
-          }}
-        >
-          <button className="flex h-full w-full items-center justify-center" onClick={() => setIsFullscreen(true)}>
-            <FullScreen />
-          </button>
-        </div>
+        <FullScreenButtonV2 toggleFullscreen={toggleFullscreen} />
       </WidgetWrapper>
     </WidgetModalWrapper>
   );

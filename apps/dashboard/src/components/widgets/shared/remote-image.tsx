@@ -15,7 +15,7 @@ const RemoteImage = (props: RemoteImageProps) => {
   const { src, alt, width, height, fallback, className = "", ...rest } = props;
 
   const fill = width === undefined && height === undefined;
-  console.log("fill:", fill);
+  // console.log("fill:", fill);
 
   const [imageError, setImageError] = useState(false);
   const fallbackUrl = fallback || dashboard.token;

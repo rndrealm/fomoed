@@ -2,21 +2,12 @@ import { RenderIf } from "@/components/shared";
 import React, { Fragment } from "react";
 import { SettingsDropdown } from "../settings-dropdown";
 import { LayoutDropdown } from "../layout-dropdown";
-import {
-  TooltipProvider,
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-} from "@/components/ui/tooltip";
+import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { settingAtom, updateSettingAtom } from "@/lib/atoms/settingsAtom";
 import { useSyncLayouts } from "@/services/queries/widgets";
-import {
-  layoutAtom,
-  layoutChangedAtom,
-  setLayoutDraftFalseAtom,
-} from "@/lib/atoms/layoutAtom";
+import { layoutAtom, layoutChangedAtom, setLayoutDraftFalseAtom } from "@/lib/atoms/layoutAtom";
 import { toast } from "sonner";
 import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
@@ -37,24 +28,14 @@ function ToolbarItem(props: IToolbarItem) {
   return (
     <TooltipProvider>
       <Tooltip>
-        <TooltipTrigger
-          className="w-full"
-          onClick={onClick}
-          disabled={disabled}
-        >
+        <TooltipTrigger className="w-full" onClick={onClick} disabled={disabled}>
           <div className="group w-full flex flex-row justify-start gap-3 items-center">
-            <div
-              className={cn("group h-5 w-5 flex justify-center items-center")}
-            >
-              {icon}
-            </div>
+            <div className={cn("group h-5 w-5 flex justify-center items-center")}>{icon}</div>
             {content}
           </div>
         </TooltipTrigger>
         <TooltipContent side="left" className="bg-[#101010] mr-1">
-          <p className="text-xs leading-[1.25] font-semibold text-[#afafaf]">
-            {label}
-          </p>
+          <p className="text-xs leading-[1.25] font-semibold text-[#afafaf]">{label}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
@@ -76,9 +57,7 @@ const PopoverContent = () => {
 
   const handleSaveLayout = async () => {
     if (isPending) return;
-    const currentLayout = layouts.find(
-      (layout) => layout.id === activeTab.layout_id,
-    );
+    const currentLayout = layouts.find((layout) => layout.id === activeTab.layout_id);
     if (!currentLayout) {
       toast("You don't have any changes to save!", {});
       return;
@@ -122,9 +101,7 @@ const PopoverContent = () => {
       <>
         <RenderIf condition={!!currLayout && currLayout?.draft}>
           <ToolbarItem
-            content={
-              <h3 className="text-[14px] text-[#c3c3c3]">Saved Drafts</h3>
-            }
+            content={<h3 className="text-[14px] text-[#c3c3c3]">Save Draft</h3>}
             icon={isPending ? <Loader /> : <SaveDraft />}
             label="Save Draft"
             onClick={() => {
@@ -137,9 +114,7 @@ const PopoverContent = () => {
 
         <RenderIf condition={!!currLayout && !currLayout?.draft}>
           <Fragment>
-            <RenderIf
-              condition={!settings.auto_save && !isError && !layoutChange}
-            >
+            <RenderIf condition={!settings.auto_save && !isError && !layoutChange}>
               <ToolbarItem
                 disabled={true}
                 icon={isPending ? <Loader /> : <Unsaved />}
@@ -148,9 +123,7 @@ const PopoverContent = () => {
               />
             </RenderIf>
 
-            <RenderIf
-              condition={isError || (layoutChange && !settings.auto_save)}
-            >
+            <RenderIf condition={isError || (layoutChange && !settings.auto_save)}>
               <ToolbarItem
                 icon={isPending ? <Loader /> : <ErrorSave />}
                 label="Save layout changes"

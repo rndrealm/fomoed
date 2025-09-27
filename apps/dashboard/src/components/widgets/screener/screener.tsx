@@ -6,18 +6,8 @@ import { LayoutType } from "@/lib/atoms/layoutAtom";
 import { WidgetWrapper } from "../shared";
 import ScreenerTable from "./screener-table";
 import { useFetchCoinStatsToken } from "@/services/queries/charts";
-import {
-  cn,
-  formatMarketCapNumber,
-  formatPriceSignificant,
-  modalSlide,
-} from "@/lib/utils";
-import {
-  ArrowUp,
-  Close,
-  FullScreen,
-  TableHeaderArrow,
-} from "@/components/icons/icons";
+import { cn, formatMarketCapNumber, formatPriceSignificant, modalSlide } from "@/lib/utils";
+import { ArrowUp, Close, FullScreen, FullScreenV2, TableHeaderArrow } from "@/components/icons/icons";
 import { RenderIf } from "@/components/shared";
 import { CoinStatsTokenInfo } from "@/services/queries/charts/types";
 import StarFilled from "@/components/icons/StarFilled";
@@ -26,6 +16,7 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { settingAtom, updateSettingAtom } from "@/lib/atoms/settingsAtom";
 import { FullscreenControls } from "./fullscreen-controls";
 import { set } from "lodash-es";
+import FullScreenButtonV2 from "../shared/fullscreen-buttonv2";
 
 const tableHeaderOptions = [
   {
@@ -99,9 +90,7 @@ export default function Screener(props: IProps) {
     let result = [...data];
 
     if (showFavorites && Array.isArray(settings.favorite_tokens)) {
-      result = result.filter((item) =>
-        settings.favorite_tokens.includes(item.id),
-      );
+      result = result.filter((item) => settings.favorite_tokens.includes(item.id));
     }
     if (!dataKey) return result;
 
@@ -114,9 +103,7 @@ export default function Screener(props: IProps) {
       if (bValue == null) return -1;
 
       if (typeof aValue === "string" && typeof bValue === "string") {
-        return direction === "asc"
-          ? aValue.localeCompare(bValue)
-          : bValue.localeCompare(aValue);
+        return direction === "asc" ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
       }
 
       if (typeof aValue === "number" && typeof bValue === "number") {
@@ -139,9 +126,7 @@ export default function Screener(props: IProps) {
       let newFavoriteArray: string[] = [];
 
       if (isFavorite) {
-        newFavoriteArray = settings?.favorite_tokens?.filter(
-          (item) => item !== id,
-        );
+        newFavoriteArray = settings?.favorite_tokens?.filter((item) => item !== id);
       } else {
         newFavoriteArray = [...settings?.favorite_tokens, id];
       }
@@ -181,12 +166,7 @@ export default function Screener(props: IProps) {
       titleIcon="none"
       // className="px-0 sm:px-0"
     >
-      <div
-        className={cn(
-          "flex h-full w-full flex-1 flex-col overflow-hidden",
-          isFullscreen && "py-[60px]",
-        )}
-      >
+      <div className={cn("flex h-full w-full flex-1 flex-col overflow-hidden", isFullscreen && "py-[60px]")}>
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -242,7 +222,9 @@ export default function Screener(props: IProps) {
         showFavorites={showFavorites}
       />
 
-      <div
+      <FullScreenButtonV2 isControlsVisible={isControlsVisible} toggleFullscreen={toggleFullscreen} />
+
+      {/* <div
         className={cn(
           "absolute right-[9px] bottom-[16px] z-[9] h-[28px] w-[28px] rounded-md border border-[#1c1c1c]",
           {
@@ -263,7 +245,7 @@ export default function Screener(props: IProps) {
         >
           <FullScreen />
         </button>
-      </div>
+      </div> */}
 
       <AnimatePresence>
         {showInfo && (
@@ -278,21 +260,14 @@ export default function Screener(props: IProps) {
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-col">
-                    <h3 className="text-base leading-[1.35] font-semibold text-white">
-                      SCREENER
-                    </h3>
-                    <p className="text-[13px] leading-[1.25] font-light text-[#878787]">
-                      Learn about the Screener
-                    </p>
+                    <h3 className="text-base leading-[1.35] font-semibold text-white">SCREENER</h3>
+                    <p className="text-[13px] leading-[1.25] font-light text-[#878787]">Learn about the Screener</p>
                   </div>
                   <p className="text-[13px] leading-[1.35] font-medium text-white">
-                    The Screener provides a quick snapshot of major
-                    cryptocurrencies using recent market data. It helps you
-                    compare key metrics like price, 24-hour change, volume,
-                    market cap, all in one view. <br /> <br /> It gives a
-                    helpful overview of the market’s current state, making it
-                    easier to spot top assets, analyze trends, and make informed
-                    decisions at a glance.
+                    The Screener provides a quick snapshot of major cryptocurrencies using recent market data. It helps
+                    you compare key metrics like price, 24-hour change, volume, market cap, all in one view. <br />{" "}
+                    <br /> It gives a helpful overview of the market’s current state, making it easier to spot top
+                    assets, analyze trends, and make informed decisions at a glance.
                   </p>
                 </div>
 

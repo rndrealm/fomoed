@@ -1,7 +1,17 @@
 "use client";
 import React, { Fragment, useEffect, useMemo, useState } from "react";
 
-import { CandleStick, Close, Delete, Ellipsis, FullScreen, Learn, LineChart, Question, TokenStats } from "@/components/icons/icons";
+import {
+  CandleStick,
+  Close,
+  Delete,
+  Ellipsis,
+  FullScreen,
+  Learn,
+  LineChart,
+  Question,
+  TokenStats,
+} from "@/components/icons/icons";
 import { cn, modalSlide, splitWidgetSlug } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -27,6 +37,7 @@ import { AnimatePresence, motion } from "motion/react";
 import Star from "@/components/icons/Star";
 import { settingAtom, updateSettingAtom } from "@/lib/atoms/settingsAtom";
 import StarFilled from "@/components/icons/StarFilled";
+import FullScreenButtonV2 from "../shared/fullscreen-buttonv2";
 
 interface IOptionsDropdown {
   widget: LayoutType["widgets"][0];
@@ -48,14 +59,14 @@ export const dailyPricePeriodOptions = [
 
 // Time periods configuration
 const timePeriods = [
-  { label: '1D', value: '1d', binanceInterval: '5m' },
-  { label: '1W', value: '1w', binanceInterval: '1h' },
-  { label: '1M', value: '1m', binanceInterval: '4h' },
-  { label: '3M', value: '3m', binanceInterval: '1d' },
-  { label: '6M', value: '6m', binanceInterval: '1d' },
-  { label: 'YTD', value: 'ytd', binanceInterval: '1d' },
-  { label: '1Y', value: '1y', binanceInterval: '1d' },
-  { label: 'ALL', value: 'all', binanceInterval: '1w' },
+  { label: "1D", value: "1d", binanceInterval: "5m" },
+  { label: "1W", value: "1w", binanceInterval: "1h" },
+  { label: "1M", value: "1m", binanceInterval: "4h" },
+  { label: "3M", value: "3m", binanceInterval: "1d" },
+  { label: "6M", value: "6m", binanceInterval: "1d" },
+  { label: "YTD", value: "ytd", binanceInterval: "1d" },
+  { label: "1Y", value: "1y", binanceInterval: "1d" },
+  { label: "ALL", value: "all", binanceInterval: "1w" },
 ];
 
 function OptionsDropdown(props: IOptionsDropdown) {
@@ -134,18 +145,18 @@ export default function NewPriceHistory(props: IProps) {
   const [isCandleStick, setIsCandleStick] = useState(false);
   const [isFullScreen, setIsFullscreen] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
-  const [selectedPeriod, setSelectedPeriod] = useState('1D');
+  const [selectedPeriod, setSelectedPeriod] = useState("1D");
   const [showTokenStats, setShowTokenStats] = useState(false);
   const [dailyBinanceInterval, setDailyBinanceInterval] = useState(() => {
-    if (selectedPeriod === '1D') {
-      const isValidBinanceInterval = widget.props?.period && 
-        dailyPricePeriodOptions.some(opt => opt.value === widget.props.period);
-      
+    if (selectedPeriod === "1D") {
+      const isValidBinanceInterval =
+        widget.props?.period && dailyPricePeriodOptions.some((opt) => opt.value === widget.props.period);
+
       if (isValidBinanceInterval) {
         return widget.props.period;
       }
     }
-    return '15m'; // Default fallback
+    return "15m"; // Default fallback
   });
 
   const location = useAtomValue(geoLocationAtom);
@@ -162,30 +173,30 @@ export default function NewPriceHistory(props: IProps) {
 
   // Get current period configuration
   const currentPeriodConfig = useMemo(() => {
-    const basePeriod = timePeriods.find(p => p.label === selectedPeriod) || timePeriods[0];
-    
-    if (selectedPeriod === '1D') {
+    const basePeriod = timePeriods.find((p) => p.label === selectedPeriod) || timePeriods[0];
+
+    if (selectedPeriod === "1D") {
       return {
         ...basePeriod,
-        binanceInterval: widget.props?.period || dailyBinanceInterval || '15m',
+        binanceInterval: widget.props?.period || dailyBinanceInterval || "15m",
       };
     }
-    
+
     return basePeriod;
   }, [selectedPeriod, dailyBinanceInterval, widget.props?.period]);
 
   useEffect(() => {
-    if (selectedPeriod === '1D') {
+    if (selectedPeriod === "1D") {
       const currentPeriod = widget.props?.period;
-      const isValidBinanceInterval = dailyPricePeriodOptions.some(opt => opt.value === currentPeriod);
-      
+      const isValidBinanceInterval = dailyPricePeriodOptions.some((opt) => opt.value === currentPeriod);
+
       if (!currentPeriod || !isValidBinanceInterval) {
         updateWidgetPropsFromAtom({
           tabId: activeLayout.id,
           widgetId: widget.id,
-          widgetProps: { 
-            ...widget.props, 
-            period: '15m'
+          widgetProps: {
+            ...widget.props,
+            period: "15m",
           },
         });
       }
@@ -193,13 +204,15 @@ export default function NewPriceHistory(props: IProps) {
   }, [activeLayout.id, selectedPeriod, updateWidgetPropsFromAtom, widget.id, widget.props]);
 
   useEffect(() => {
-    if (selectedPeriod === '1D' && widget.props?.period) {
-      const isValidBinanceInterval = dailyPricePeriodOptions.some(opt => opt.value === widget.props.period);
+    if (selectedPeriod === "1D" && widget.props?.period) {
+      const isValidBinanceInterval = dailyPricePeriodOptions.some((opt) => opt.value === widget.props.period);
       if (isValidBinanceInterval) {
         setDailyBinanceInterval(widget.props.period);
       }
     }
   }, [selectedPeriod, widget.props?.period]);
+
+  const toggleFullscreen = () => setIsFullscreen((prev) => !prev);
 
   return (
     <Fragment>
@@ -235,7 +248,7 @@ export default function NewPriceHistory(props: IProps) {
                     type="button"
                     className={cn(
                       "flex h-[22px] w-[32px] items-center justify-center rounded-sm",
-                      isCandleStick ? "bg-[#434343]" : ""
+                      isCandleStick ? "bg-[#434343]" : "",
                     )}
                     onClick={() => {
                       setIsCandleStick(true);
@@ -247,7 +260,7 @@ export default function NewPriceHistory(props: IProps) {
                     type="button"
                     className={cn(
                       "flex h-[22px] w-[32px] items-center justify-center rounded-sm",
-                      !isCandleStick ? "bg-[#434343]" : ""
+                      !isCandleStick ? "bg-[#434343]" : "",
                     )}
                     onClick={() => {
                       setIsCandleStick(false);
@@ -256,23 +269,22 @@ export default function NewPriceHistory(props: IProps) {
                     <LineChart active={!isCandleStick} />
                   </button>
                 </div>
-                {selectedPeriod === '1D' && (
+                {selectedPeriod === "1D" && (
                   <PeriodDropdown
                     options={dailyPricePeriodOptions}
                     value={
-                      widget.props?.period && 
-                      dailyPricePeriodOptions.some(opt => opt.value === widget.props.period)
+                      widget.props?.period && dailyPricePeriodOptions.some((opt) => opt.value === widget.props.period)
                         ? widget.props.period
-                        : dailyBinanceInterval || '15m'
+                        : dailyBinanceInterval || "15m"
                     }
                     setValue={(value: string) => {
                       setDailyBinanceInterval(value);
                       updateWidgetPropsFromAtom({
                         tabId: activeLayout.id,
                         widgetId: widget.id,
-                        widgetProps: { 
-                          ...widget.props, 
-                          period: value
+                        widgetProps: {
+                          ...widget.props,
+                          period: value,
                         },
                       });
                     }}
@@ -328,21 +340,21 @@ export default function NewPriceHistory(props: IProps) {
         </div>
         <div className="relative flex flex-1">
           <div className="absolute top-0 right-0 bottom-0 left-0">
-          {/* Time Period Selector */}
+            {/* Time Period Selector */}
             <div className="flex gap-1 bg-[#0C0C0C] justify-around my-3 rounded-lg overflow-x-auto">
               {timePeriods.map((period) => (
                 <button
                   key={period.label}
                   onClick={() => {
                     setSelectedPeriod(period.label);
-                    if (period.label === '1D') {
-                      const defaultInterval = '15m';
+                    if (period.label === "1D") {
+                      const defaultInterval = "15m";
                       setDailyBinanceInterval(defaultInterval);
                       updateWidgetPropsFromAtom({
                         tabId: activeLayout.id,
                         widgetId: widget.id,
-                        widgetProps: { 
-                          ...widget.props, 
+                        widgetProps: {
+                          ...widget.props,
                           period: defaultInterval,
                         },
                       });
@@ -350,8 +362,8 @@ export default function NewPriceHistory(props: IProps) {
                       updateWidgetPropsFromAtom({
                         tabId: activeLayout.id,
                         widgetId: widget.id,
-                        widgetProps: { 
-                          ...widget.props, 
+                        widgetProps: {
+                          ...widget.props,
                           period: undefined, // Clear period for non-1D
                         },
                       });
@@ -359,8 +371,8 @@ export default function NewPriceHistory(props: IProps) {
                   }}
                   className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
                     selectedPeriod === period.label
-                      ? 'bg-[#272727] text-white'
-                      : 'text-gray-400 hover:text-white hover:bg-[#1B1B1B]'
+                      ? "bg-[#272727] text-white"
+                      : "text-gray-400 hover:text-white hover:bg-[#1B1B1B]"
                   }`}
                 >
                   {period.label}
@@ -391,9 +403,7 @@ export default function NewPriceHistory(props: IProps) {
           /> */}
         </div>
 
-        <div
-          className="absolute left-[9px] bottom-[50px] z-[9] h-[28px] py-1 pl-1 pr-2.5 rounded-full border border-[#393939] bg-[#2B2C2E]"
-        >
+        <div className="absolute left-[9px] bottom-[50px] z-[9] h-[28px] py-1 pl-1 pr-2.5 rounded-full border border-[#393939] bg-[#2B2C2E]">
           <button
             className="flex h-full w-full items-center justify-center text-xs text-neutral-50"
             onClick={() => {
@@ -404,22 +414,7 @@ export default function NewPriceHistory(props: IProps) {
           </button>
         </div>
 
-        <div
-          className="absolute right-[9px] bottom-[16px] z-[9] h-[28px] w-[28px] rounded-md border border-[#1c1c1c]"
-          style={{
-            background: "linear-gradient(180deg, #1b1b1b 0%, rgba(0, 0, 0, 0.38) 72.15%)",
-            backdropFilter: "blur(7px)",
-          }}
-        >
-          <button
-            className="flex h-full w-full items-center justify-center"
-            onClick={() => {
-              setIsFullscreen(true);
-            }}
-          >
-            <FullScreen />
-          </button>
-        </div>
+        <FullScreenButtonV2 toggleFullscreen={toggleFullscreen} />
       </div>
       {/* <div className="fixed top-[0] bottom-[0] left-[0] right-[0] bg-[blue] z-[999]"></div> */}
 

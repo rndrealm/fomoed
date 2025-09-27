@@ -3,12 +3,13 @@ import React, { useCallback, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { LayoutType } from "@/lib/atoms/layoutAtom";
 import { WidgetWrapper } from "../shared";
-import { useFetchWhaleTransactions, useReadCoinList } from "@/services/queries/charts"; 
+import { useFetchWhaleTransactions, useReadCoinList } from "@/services/queries/charts";
 import { cn, modalSlide } from "@/lib/utils";
 import { Close, FullScreen } from "@/components/icons/icons";
 import { Skeleton } from "@/components/ui/skeleton";
 import WhaleTransactionTable from "./whale-transaction-table";
 import { FullscreenControls } from "./fullscreen-controls";
+import FullScreenButtonV2 from "../shared/fullscreen-buttonv2";
 
 interface IProps {
   widget: LayoutType["widgets"][0];
@@ -47,9 +48,7 @@ export default function WhaleTransactionWidget(props: IProps) {
         {isPending ? (
           <Skeleton className="h-full w-full bg-neutral-800" />
         ) : error ? (
-          <div className="flex h-full w-full items-center justify-center text-red-500">
-            Error: {error.message}
-          </div>
+          <div className="flex h-full w-full items-center justify-center text-red-500">Error: {error.message}</div>
         ) : (
           <WhaleTransactionTable
             isFullscreen={isFullscreen}
@@ -60,29 +59,9 @@ export default function WhaleTransactionWidget(props: IProps) {
         )}
       </div>
 
-      <FullscreenControls
-        isFullscreen={isFullscreen}
-        toggleFullscreen={toggleFullscreen}
-      />
+      <FullscreenControls isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />
 
-      <div
-        className={cn(
-          "absolute right-[9px] bottom-[16px] z-[9] h-[28px] w-[28px] rounded-md border border-[#1c1c1c]",
-           { "opacity-0": !isControlsVisible, "opacity-100": isControlsVisible }
-        )}
-        style={{
-          background: "linear-gradient(180deg, #1b1b1b 0%, rgba(0, 0, 0, 0.38) 72.15%)",
-          backdropFilter: "blur(7px)",
-          transition: "opacity 0.3s ease-in-out",
-        }}
-      >
-        <button
-          className="flex h-full w-full items-center justify-center"
-          onClick={toggleFullscreen}
-        >
-          <FullScreen />
-        </button>
-      </div>
+      <FullScreenButtonV2 isControlsVisible={isControlsVisible} toggleFullscreen={toggleFullscreen} />
 
       <AnimatePresence>
         {showInfo && (
@@ -97,10 +76,14 @@ export default function WhaleTransactionWidget(props: IProps) {
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col">
                   <h3 className="text-base leading-[1.35] font-semibold text-white">Whale Transaction Tracker</h3>
-                  <p className="text-[13px] leading-[1.25] font-light text-[#878787]">Learn about the Whale Transaction Tracker</p>
+                  <p className="text-[13px] leading-[1.25] font-light text-[#878787]">
+                    Learn about the Whale Transaction Tracker
+                  </p>
                 </div>
                 <p className="text-[13px] leading-[1.35] font-medium text-white">
-                  The Whale Transaction Tracker monitors large transactions for top assets in real-time. It provides insights into significant market movements by showing the token, time, direction (Long/Short), and value of each major transaction, helping you spot potential trading opportunities.
+                  The Whale Transaction Tracker monitors large transactions for top assets in real-time. It provides
+                  insights into significant market movements by showing the token, time, direction (Long/Short), and
+                  value of each major transaction, helping you spot potential trading opportunities.
                 </p>
                 <p className="text-xs font-semibold text-[#696969] text-[1.25]">
                   We use data from{" "}
@@ -114,7 +97,9 @@ export default function WhaleTransactionWidget(props: IProps) {
                     className="app_widget_button flex h-[26px] items-center justify-center gap-1 rounded-[40px] bg-[#272727]"
                     onClick={() => setShowInfo(false)}
                   >
-                    <p className="app_widget_button__text text-[13px] font-medium whitespace-nowrap text-white">Close</p>
+                    <p className="app_widget_button__text text-[13px] font-medium whitespace-nowrap text-white">
+                      Close
+                    </p>
                     <div className="app_widget_button__icon">
                       <Close fill="#878787" />
                     </div>

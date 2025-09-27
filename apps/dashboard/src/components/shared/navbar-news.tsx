@@ -80,15 +80,15 @@ const navLinks: INavLink[] = [
     alpha: false,
     comingSoon: true,
   },
-  {
-    label: "Refer and Earn",
-    icon: <ReferAndEarnIcon />,
-    href: `/`,
-    disabled: false,
-    beta: false,
-    alpha: false,
-    comingSoon: false,
-  },
+  // {
+  //   label: "Refer and Earn",
+  //   icon: <ReferAndEarnIcon />,
+  //   href: `/`,
+  //   disabled: false,
+  //   beta: false,
+  //   alpha: false,
+  //   comingSoon: false,
+  // },
 ];
 
 const bottomLinks = [
