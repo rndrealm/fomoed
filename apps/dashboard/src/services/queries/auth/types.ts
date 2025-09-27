@@ -2,7 +2,7 @@ export interface RegisterUserPayload {
   email: string;
   password: string;
   username: string;
-  referralCode: string;
+  referralCode?: string;
 }
 
 export interface CreateUserRowPayload {

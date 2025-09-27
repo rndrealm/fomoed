@@ -3,7 +3,7 @@ import { type NextRequest } from "next/server";
 
 import { redirect } from "next/navigation";
 import { NextResponse } from "next/server";
-import { createSupabaseServiceClient } from "@/lib/utils/supabase/server-client";
+import { createSupabaseServiceClient, createSupabaseServerClient } from "@/lib/utils/supabase/server-client";
 import { AppRoutes } from "@/lib/routes";
 import { v4 as uuidv4 } from "uuid";
 
@@ -15,29 +15,10 @@ export async function GET(request: NextRequest) {
   const fromUrl = searchParams.get("fromUrl");
   const referralCode = searchParams.get("referralCode");
 
-  console.log("type:", type);
-  console.log("token:", token_hash);
-  console.log("fromurl:", fromUrl);
-  console.log("referralCode:", referralCode);
-
   if (token_hash && type) {
-    const supabase = await createSupabaseServiceClient();
-    console.log("PRIVATE_SUPABASE_SECRET available?", !!process.env.PRIVATE_SUPABASE_SECRET);
-
-    const { data: debugUsers, error: debugError } = await supabase
-      .from("users")
-      .select("user_id, referral_code")
-      .not("referral_code", "is", null)
-      .limit(5);
-
-    console.log("DEBUG: non-null referral_code users", { debugUsers, debugError });
-
-    const { data: debugExact, error: debugExactError } = await supabase
-      .from("users")
-      .select("user_id, referral_code")
-      .eq("referral_code", "U50PBRQ9WTO");
-
-    console.log("DEBUG: lookup for U50PBRQ9WTO", { debugExact, debugExactError });
+    const supabase = await createSupabaseServerClient();
+    const serverClient = await createSupabaseServiceClient();
+    
     const { error } = await supabase.auth.verifyOtp({
       type,
       token_hash,
@@ -47,18 +28,33 @@ export async function GET(request: NextRequest) {
         data: { user },
       } = await supabase.auth.getUser();
 
+    // const { data: debugUsers, error: debugError } = await serverClient
+    //   .from("users")
+    //   .select("user_id, referral_code")
+    //   .not("referral_code", "is", null)
+    //   .limit(5);
+
+    // console.log("DEBUG: non-null referral_code users", { debugUsers, debugError });
+
+    // const { data: debugExact, error: debugExactError } = await serverClient
+    //   .from("users")
+    //   .select("user_id, referral_code")
+    //   .eq("referral_code", "U50PBRQ9WTO");
+
+    // console.log("DEBUG: lookup for U50PBRQ9WTO", { debugExact, debugExactError });
+
       if (user && referralCode) {
-        const { data: referrer, error: referrerError } = await supabase
+        const { data: referrer, error: referrerError } = await serverClient
           .from("users")
           .select("user_id")
           .eq("referral_code", referralCode)
           .maybeSingle();
 
-        console.log("Referral lookup debug:", { referrer, referrerError, referralCode });
+        // console.log("Referral lookup debug:", { referrer, referrerError, referralCode });
 
         if (referrer && !referrerError) {
           const newReferralId = uuidv4();
-          const { error: referralInsertError } = await supabase.from("referrals").insert({
+          const { error: referralInsertError } = await serverClient.from("referrals").insert({
             referral_id: newReferralId,
             referrer_user_id: referrer.user_id,
             referred_user_id: user.id,
