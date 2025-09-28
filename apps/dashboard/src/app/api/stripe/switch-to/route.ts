@@ -109,28 +109,63 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       cancel_at_period_end: false,
     });
   } else {
-    // Switching from higher tier to lower tier
+    // Switching from higher tier to lower tier using a Subscription Schedule
 
-    // When downgrading, we first change the higher tier subscription to end
-    // after current period end
-    updatedSubscription = await stripe.subscriptions.update(subToEdit.id, {
-      cancel_at_period_end: true,
-    });
+    // Find the subscription's current schedule, or create one if it doesn't exist
+    // Fix 1: Check if subscription already has a schedule
+    let schedule: Stripe.SubscriptionSchedule | null = null;
+    
+    if (subToEdit.schedule) {
+      // If the subscription has a schedule ID, retrieve it
+      schedule = await stripe.subscriptionSchedules.retrieve(subToEdit.schedule as string);
+    }
 
-    // Then we create a new subscription, which's trial will end on the current period end
-    // effectively delaying the invoice
-    if (!nextPeriodLowerTierSubExists) {
-      const newSubscription = await stripe.subscriptions.create({
-        customer: customer.id,
-        items: [
-          {
-            price: priceId,
-          },
-        ],
-        trial_end: subToEdit.current_period_end,
+    if (!schedule) {
+      schedule = await stripe.subscriptionSchedules.create({
+        from_subscription: subToEdit.id,
       });
     }
-  }
 
+    // Get the current and next phases of the schedule
+    const currentPhase = schedule.phases[0];
+    const nextPhase = schedule.phases.length > 1 ? schedule.phases[1] : null;
+
+    // Fix 2: Transform the current phase items to match the expected type
+    const transformedCurrentPhaseItems: Stripe.SubscriptionScheduleUpdateParams.Phase.Item[] = 
+      currentPhase.items.map(item => ({
+        price: typeof item.price === 'string' ? item.price : item.price.id,
+        quantity: item.quantity,
+        ...(item.tax_rates && { 
+          tax_rates: item.tax_rates.map(rate => typeof rate === 'string' ? rate : rate.id)
+        }),
+        ...(item.billing_thresholds && item.billing_thresholds.usage_gte !== null && {
+          billing_thresholds: {
+            usage_gte: item.billing_thresholds.usage_gte
+          }
+        })
+      }));
+
+    // Update the schedule to change the plan at the end of the current period
+    await stripe.subscriptionSchedules.update(schedule.id, {
+      end_behavior: "release",
+      phases: [
+        {
+          // This is the current phase; it remains unchanged
+          items: transformedCurrentPhaseItems,
+          start_date: currentPhase.start_date,
+          end_date: currentPhase.end_date,
+        },
+        {
+          // This is the new, downgraded phase that starts after the current one ends
+          items: [{ price: priceId }],
+          start_date: currentPhase.end_date,
+        },
+      ],
+    });
+
+    // The 'updatedSubscription' is still the original subscription.
+    // Its future downgrade is now scheduled.
+    updatedSubscription = subToEdit;
+  }
   return asNextResponseData({ subscription: updatedSubscription });
 }
