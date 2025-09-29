@@ -90,6 +90,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       cancel_at_period_end: false,
     });
   } else if (switchingToPro) {
+    // if (subToEdit.schedule) {
+    //   console.log("Canceling schedule:", subToEdit.schedule);
+    //   await stripe.subscriptionSchedules.cancel(subToEdit.schedule as string);
+
+    //   // Re-fetch the subscription
+    //   subToEdit = await stripe.subscriptions.retrieve(subToEdit.id);
+    // }
     // If a trialing subscription which exists in order to downgrade to a lower tier
     // next period exists, then we need to delete it, because the user has decided
     // to switch back from lower to higher tier even before the lower tier was activated.
@@ -108,64 +115,38 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       proration_behavior: "always_invoice",
       cancel_at_period_end: false,
     });
-  } else {
-    // Switching from higher tier to lower tier using a Subscription Schedule
-
-    // Find the subscription's current schedule, or create one if it doesn't exist
-    // Fix 1: Check if subscription already has a schedule
-    let schedule: Stripe.SubscriptionSchedule | null = null;
     
-    if (subToEdit.schedule) {
-      // If the subscription has a schedule ID, retrieve it
-      schedule = await stripe.subscriptionSchedules.retrieve(subToEdit.schedule as string);
-    }
+  } else {
+    // Switching from higher tier to lower tier
 
-    if (!schedule) {
-      schedule = await stripe.subscriptionSchedules.create({
-        from_subscription: subToEdit.id,
-      });
-    }
+    // if (subToEdit.schedule) {
+    //   console.log("Releasing subscription from schedule:", subToEdit.schedule);
+    //   await stripe.subscriptionSchedules.release(subToEdit.schedule as string);
 
-    // Get the current and next phases of the schedule
-    const currentPhase = schedule.phases[0];
-    const nextPhase = schedule.phases.length > 1 ? schedule.phases[1] : null;
+    //   // Re-fetch the subscription to get the updated state without the schedule
+    //   subToEdit = await stripe.subscriptions.retrieve(subToEdit.id);
+    // }
 
-    // Fix 2: Transform the current phase items to match the expected type
-    const transformedCurrentPhaseItems: Stripe.SubscriptionScheduleUpdateParams.Phase.Item[] = 
-      currentPhase.items.map(item => ({
-        price: typeof item.price === 'string' ? item.price : item.price.id,
-        quantity: item.quantity,
-        ...(item.tax_rates && { 
-          tax_rates: item.tax_rates.map(rate => typeof rate === 'string' ? rate : rate.id)
-        }),
-        ...(item.billing_thresholds && item.billing_thresholds.usage_gte !== null && {
-          billing_thresholds: {
-            usage_gte: item.billing_thresholds.usage_gte
-          }
-        })
-      }));
-
-    // Update the schedule to change the plan at the end of the current period
-    await stripe.subscriptionSchedules.update(schedule.id, {
-      end_behavior: "release",
-      phases: [
-        {
-          // This is the current phase; it remains unchanged
-          items: transformedCurrentPhaseItems,
-          start_date: currentPhase.start_date,
-          end_date: currentPhase.end_date,
-        },
-        {
-          // This is the new, downgraded phase that starts after the current one ends
-          items: [{ price: priceId }],
-          start_date: currentPhase.end_date,
-        },
-      ],
+    // When downgrading, we first change the higher tier subscription to end
+    // after current period end
+    updatedSubscription = await stripe.subscriptions.update(subToEdit.id, {
+      cancel_at_period_end: true,
     });
 
-    // The 'updatedSubscription' is still the original subscription.
-    // Its future downgrade is now scheduled.
-    updatedSubscription = subToEdit;
+    // Then we create a new subscription, which's trial will end on the current period end
+    // effectively delaying the invoice
+    if (!nextPeriodLowerTierSubExists) {
+      const newSubscription = await stripe.subscriptions.create({
+        customer: customer.id,
+        items: [
+          {
+            price: priceId,
+          },
+        ],
+        trial_end: subToEdit.items.data[0].current_period_end,
+      });
+    }
   }
+
   return asNextResponseData({ subscription: updatedSubscription });
 }

@@ -107,3 +107,36 @@ export async function generateUserReferralCode(): Promise<GenerateReferralCodeRe
     };
   }
 }
+
+export async function getReferralIdForUser(referredUserId: string): Promise<string | null> {
+  const supabase = await createSupabaseServerClient();
+
+  try {
+    console.log("REFERRED USER ID: " + referredUserId)
+    const { data, error } = await supabase
+      .from("referrals")
+      .select("referral_id")
+      .eq("referred_user_id", referredUserId)
+      .order("created_at", { ascending: false }) // In case of duplicates, get the most recent one
+      .limit(1)
+      .maybeSingle();
+
+    console.log("KETEMUUUUUUU: " + data?.referral_id)
+    console.log("FULL DATA: ", data);
+
+    // If no record is found, Supabase returns an error. 
+    // The code 'PGRST116' specifically means "No rows found", which is an expected outcome, not a server error.
+    if (error && error.code !== 'PGRST116') {
+      console.error("Database error fetching referral ID:", error.message);
+      console.error("Database error:", error);
+      return null;
+    }
+
+    // If data exists, return the ID. Otherwise, it will be null.
+    return data ? data.referral_id : null;
+
+  } catch (err) {
+    console.error("An unexpected error occurred in getReferralIdForUser:", err);
+    return null;
+  }
+}
