@@ -8,6 +8,7 @@ import { getCustomerByEmail, getPriceIdByLookupKey, validatePriceLookupKey } fro
 import { getUsersTableRowUsingAuth } from "@/lib/users/users.utils.server";
 import { asNextResponseData, asNextResponseError } from "@/lib/utils/server.utils";
 import stripe from "@/lib/utils/stripe";
+import { getReferralIdForUser } from "@/services/queries/referral/server-actions";
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
@@ -26,6 +27,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   const customer = await getCustomerByEmail(user.email);
+  const referralId = await getReferralIdForUser(user.user_id);
 
   if (!customer) {
     return newCannotFindCustomerError();
@@ -88,6 +90,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         },
       ],
       cancel_at_period_end: false,
+      metadata: {
+        user_id: user.user_id,
+        referral_id: referralId || '',
+        price_lookup_key: priceLookupKey
+      }
     });
   } else if (switchingToPro) {
     // if (subToEdit.schedule) {
@@ -114,6 +121,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       ],
       proration_behavior: "always_invoice",
       cancel_at_period_end: false,
+      metadata: {
+        user_id: user.user_id,
+        referral_id: referralId || '',
+        price_lookup_key: priceLookupKey
+      }
     });
     
   } else {
@@ -131,6 +143,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // after current period end
     updatedSubscription = await stripe.subscriptions.update(subToEdit.id, {
       cancel_at_period_end: true,
+      metadata: {
+        user_id: user.user_id,
+        referral_id: referralId || '',
+        price_lookup_key: priceLookupKey
+      }
     });
 
     // Then we create a new subscription, which's trial will end on the current period end
@@ -144,6 +161,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           },
         ],
         trial_end: subToEdit.items.data[0].current_period_end,
+        metadata: {
+        user_id: user.user_id,
+        referral_id: referralId || '',
+        price_lookup_key: priceLookupKey
+      }
       });
     }
   }

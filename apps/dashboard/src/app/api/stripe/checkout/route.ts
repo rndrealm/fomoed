@@ -51,6 +51,7 @@ export async function POST(request: NextRequest) {
   const referralId = await getReferralIdForUser(user.user_id);
 
   console.log('Referral ID for user:', referralId);
+  console.log("LOOKUP KEY: " + priceLookupKey)
 
   const { data: session, error } = await createCheckoutSession({
     customerId: customer.id,
@@ -59,7 +60,8 @@ export async function POST(request: NextRequest) {
     canHaveFreeTrial: !user.has_had_free_trial,
     metadata: {
       user_id: user.user_id,
-      referral_id: referralId
+      referral_id: referralId,
+      price_lookup_key: priceLookupKey
     }
   });
 
