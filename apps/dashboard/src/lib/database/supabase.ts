@@ -924,6 +924,13 @@ export type Database = {
             referencedRelation: "kols"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "kol_clipfarm_payable_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "post_submissions"
+            referencedColumns: ["id"]
+          },
         ]
       }
       kol_deliverables: {
@@ -1741,6 +1748,7 @@ export type Database = {
           impressions: number | null
           kol: number
           last_update: string | null
+          meta: Json | null
           platform: Database["public"]["Enums"]["platform_type"]
           post_id: string
           raw_post: Json | null
@@ -1758,6 +1766,7 @@ export type Database = {
           impressions?: number | null
           kol: number
           last_update?: string | null
+          meta?: Json | null
           platform: Database["public"]["Enums"]["platform_type"]
           post_id: string
           raw_post?: Json | null
@@ -1775,6 +1784,7 @@ export type Database = {
           impressions?: number | null
           kol?: number
           last_update?: string | null
+          meta?: Json | null
           platform?: Database["public"]["Enums"]["platform_type"]
           post_id?: string
           raw_post?: Json | null
@@ -1924,35 +1934,44 @@ export type Database = {
       referral_commissions: {
         Row: {
           amount: number | null
+          billing_period_end: string | null
+          billing_period_start: string | null
           created_at: string
           id: number
           payment_link: string | null
           payout_date: string | null
+          payout_eligible_date: string | null
           referral_id: string
           status: string
-          stripe_id: string | null
+          stripe_invoice_id: string | null
           updated_at: string | null
         }
         Insert: {
           amount?: number | null
+          billing_period_end?: string | null
+          billing_period_start?: string | null
           created_at?: string
           id?: number
           payment_link?: string | null
           payout_date?: string | null
+          payout_eligible_date?: string | null
           referral_id: string
           status?: string
-          stripe_id?: string | null
+          stripe_invoice_id?: string | null
           updated_at?: string | null
         }
         Update: {
           amount?: number | null
+          billing_period_end?: string | null
+          billing_period_start?: string | null
           created_at?: string
           id?: number
           payment_link?: string | null
           payout_date?: string | null
+          payout_eligible_date?: string | null
           referral_id?: string
           status?: string
-          stripe_id?: string | null
+          stripe_invoice_id?: string | null
           updated_at?: string | null
         }
         Relationships: [
