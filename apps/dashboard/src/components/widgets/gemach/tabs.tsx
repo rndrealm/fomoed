@@ -3,6 +3,7 @@ import { Activity, Copy, DollarSign, Leaderboard } from "@/components/icons/icon
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { TimeWindow } from "@/services/queries/gemach/types";
+import { RenderIf } from "@/components/shared";
 
 const options = [
   {
@@ -142,7 +143,12 @@ export function Tabs(props: IProps) {
         ))}
       </div>
 
-      <div className="flex items-center gap-[2px] border border-[#181818] rounded-sm p-[2px]">
+      <div
+        className={cn(
+          "flex items-center gap-[2px] border border-[#181818] rounded-sm p-[2px]",
+          activeTab === "leaderboard" ? "visible opacity-100" : "invisible opacity-0",
+        )}
+      >
         {leaderboardTimeOptions.map((option) => (
           <LeaderboardTabItem
             key={option.id}

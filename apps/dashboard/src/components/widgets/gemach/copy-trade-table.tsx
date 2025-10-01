@@ -104,6 +104,17 @@ export function CopyTradeTable() {
             </tr>
           </RenderIf>
 
+          <RenderIf condition={!isLoading && data?.length === 0}>
+            <tr>
+              <td
+                className="py-4 px-1 text-xs tracking-[-0.4%] leading-[16px] whitespace-nowrap font-medium text-[#FAFAFA] text-center"
+                colSpan={7}
+              >
+                No copy trades found.
+              </td>
+            </tr>
+          </RenderIf>
+
           {data.map((item, index) => (
             <tr
               key={index}

@@ -13,18 +13,21 @@ import {
   showCreateCopyTradeAtom,
   showEditCopyTradeAtom,
   showFundGdexAtom,
+  showStatsAtom,
   showWithdrawAtom,
   singleCopyTradeAtom,
   toggleCreateCopyTradeAtom,
   toggleEditCopyTradeAtom,
   toggleGemachUserLoggedInAtom,
   toggleShowFundGdexAtom,
+  toggleShowStatsAtom,
   toggleWithdrawAtom,
 } from "@/lib/atoms/gemach";
 import { useSupabaseAuth } from "@/components/providers";
 import { Withdraw } from "./withdraw";
 import { CreateCopyTrade } from "./create-copy-trade";
 import { CopyTradeDetails } from "./copy-trade-details";
+import { Stats } from "./stats";
 
 const sheetVariants = {
   hidden: {
@@ -53,6 +56,7 @@ export function Modals() {
   const showWithdraw = useAtomValue(showWithdrawAtom);
   const showCreateCopyTrade = useAtomValue(showCreateCopyTradeAtom);
   const showEditCopyTrade = useAtomValue(showEditCopyTradeAtom);
+  const showStats = useAtomValue(showStatsAtom);
 
   const gemachUserLoggedIn = useAtomValue(gemachUserLoggedInAtom);
 
@@ -61,13 +65,12 @@ export function Modals() {
   const toggleShowWithdraw = useSetAtom(toggleWithdrawAtom);
   const toggleShowCreateCopyTrade = useSetAtom(toggleCreateCopyTradeAtom);
   const toggleShowEditCopyTrade = useSetAtom(toggleEditCopyTradeAtom);
+  const toggleShowStats = useSetAtom(toggleShowStatsAtom);
 
   const [singleCopyTrade, setSingleCopyTrade] = useAtom(singleCopyTradeAtom);
 
   const gemachLogin = useGemachLogin(session?.access_token);
   const gemachNonce = useGemachNonce(session?.access_token);
-
-  const { error, isError } = useReadGemachUser(address || "", true, session?.access_token);
 
   useEffect(() => {
     let isCancelled = false;
@@ -80,7 +83,7 @@ export function Modals() {
         const isExpired = isTokenExpired(savedNonceData?.expiresAt);
 
         if (!isExpired) {
-          // toggleGemachUserLoggedIn(true);
+          toggleGemachUserLoggedIn(true);
           return;
         }
 
@@ -255,6 +258,34 @@ export function Modals() {
               <CopyTradeDetails
                 handleClose={() => {
                   setSingleCopyTrade(null);
+                }}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showStats && (
+          <motion.div
+            className="absolute top-0 left-0 right-0 bottom-0 bg-[rgba(0,0,0,0.5)] z-[9] p-4"
+            initial="hidden"
+            animate="visible"
+            exit="hidden"
+            variants={sheetVariants}
+            onClick={() => {
+              toggleShowStats(false);
+            }}
+          >
+            <div
+              className="h-full w-full"
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+            >
+              <Stats
+                handleClose={() => {
+                  toggleShowStats(false);
                 }}
               />
             </div>

@@ -13,7 +13,7 @@ import { I } from "vitest/dist/chunks/reporters.nr4dxCkA.js";
 import { shortenAddress } from "@/lib/utils";
 import { Copy, Send } from "lucide-react";
 import { toast } from "sonner";
-import { toggleShowFundGdexAtom, toggleWithdrawAtom } from "@/lib/atoms/gemach";
+import { toggleShowFundGdexAtom, toggleShowStatsAtom, toggleWithdrawAtom } from "@/lib/atoms/gemach";
 import { useSetAtom } from "jotai";
 
 interface IConnectedWalletBtnProps {
@@ -35,6 +35,7 @@ function ConnectedWalletBtn(props: IConnectedWalletBtnProps) {
 
   const toggleWithdraw = useSetAtom(toggleWithdrawAtom);
   const toggleShowFundex = useSetAtom(toggleShowFundGdexAtom);
+  const toggleShowStats = useSetAtom(toggleShowStatsAtom);
 
   const connections = useConnections();
   const { disconnect } = useDisconnect();
@@ -103,7 +104,9 @@ function ConnectedWalletBtn(props: IConnectedWalletBtnProps) {
 
         <DropdownMenuItem
           className="p-2 cursor-pointer flex items-center gap-2 bg-white focus:bg-[#E3E3E3]"
-          onSelect={() => {}}
+          onSelect={() => {
+            toggleShowStats(true);
+          }}
         >
           <div className="w-[14px] h-[14px] flex justify-center items-center">
             <DollarSign fill="#A6AEB2" />

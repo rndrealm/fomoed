@@ -10,6 +10,8 @@ import { useAccount } from "wagmi";
 import { TimeWindow } from "@/services/queries/gemach/types";
 import { gemachUserLoggedInAtom } from "@/lib/atoms/gemach";
 import { useAtomValue } from "jotai";
+import { Activity } from "./activity";
+import { OpenPositions } from "./open-positions";
 
 export default function Content() {
   const { session } = useSupabaseAuth();
@@ -47,6 +49,14 @@ export default function Content() {
 
       <RenderIf condition={activeTab === "copy_trade"}>
         <CopyTradeTable />
+      </RenderIf>
+
+      <RenderIf condition={activeTab === "open_positions"}>
+        <OpenPositions />
+      </RenderIf>
+
+      <RenderIf condition={activeTab === "activity"}>
+        <Activity />
       </RenderIf>
     </div>
   );

@@ -1,6 +1,15 @@
 import api from "@/services/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CopyTrade, GemachUserBalance, GemachUserData, HyperLiquidLeaderboard, TimeWindow } from "./types";
+import {
+  CopyTrade,
+  GemachOpenPositions,
+  GemachUserBalance,
+  GemachUserData,
+  HyperLiquidLeaderboard,
+  TimeWindow,
+  TradeHistoryData,
+  UserStats,
+} from "./types";
 import { getFromLocalStorage, saveToLocalStorage } from "@/lib/utils";
 import { LOCAL_STORAGE_KEYS } from "@/lib/constants";
 
@@ -360,7 +369,7 @@ export const useReadGemachTradeHistory = (
   address = "",
   authToken?: string,
   page = 1,
-  limit = 50,
+  limit = 100,
   filterByTrader?: string,
 ) => {
   const publicKey = getFromLocalStorage(LOCAL_STORAGE_KEYS.GEMACH_NONCE)?.publicKeyCompressed || "";
@@ -384,6 +393,60 @@ export const useReadGemachTradeHistory = (
 
   return {
     ...res,
-    data: (res?.data as CopyTrade[]) || [],
+    data: res?.data as TradeHistoryData | null,
+  };
+};
+
+export const useReadUserStats = (authToken?: string) => {
+  const address = getFromLocalStorage(LOCAL_STORAGE_KEYS.GEMACH_USER_DATA)?.address || "";
+
+  const hash = ["read-user-stats", address];
+
+  const res = useQuery({
+    queryKey: hash,
+    queryFn: async () => {
+      const response = await api.get({
+        url: `${BASE_URL}/gemach/user/stats?address=${address}`,
+        auth: false,
+        headers: getAuthHeaders(authToken),
+      });
+      return response?.data?.data;
+    },
+    enabled: !!address,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+  });
+
+  return {
+    ...res,
+    data: res?.data?.userStats as UserStats | null,
+  };
+};
+
+export const useReadGemachOpenPositions = (authToken?: string) => {
+  const address = getFromLocalStorage(LOCAL_STORAGE_KEYS.GEMACH_USER_DATA)?.address || "";
+  const hash = ["read-open-positions", address];
+
+  const res = useQuery({
+    queryKey: hash,
+    queryFn: async () => {
+      const response = await api.get({
+        url: `${BASE_URL}/gemach/hyperliquid/open-orders?address=${address}`,
+        auth: false,
+        headers: getAuthHeaders(authToken),
+      });
+      return response?.data?.data;
+    },
+    enabled: !!address,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+    refetchInterval: 5000,
+  });
+
+  return {
+    ...res,
+    data: res?.data as GemachOpenPositions | null,
   };
 };

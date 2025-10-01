@@ -6,6 +6,7 @@ export const showFundGdexAtom = atom(false);
 export const showWithdrawAtom = atom(false);
 export const showCreateCopyTradeAtom = atom(false);
 export const showEditCopyTradeAtom = atom(false);
+export const showStatsAtom = atom(false);
 
 export const copyTradeTraderWalletAtom = atom("");
 
@@ -58,5 +59,13 @@ export const toggleEditCopyTradeAtom = atom(null, (get, set, value?: boolean) =>
     set(showEditCopyTradeAtom, value);
   } else {
     set(showEditCopyTradeAtom, (prev) => !prev);
+  }
+});
+
+export const toggleShowStatsAtom = atom(null, (get, set, value?: boolean) => {
+  if (typeof value === "boolean") {
+    set(showStatsAtom, value);
+  } else {
+    set(showStatsAtom, (prev) => !prev);
   }
 });

@@ -1,13 +1,18 @@
 import React, { ReactNode, useEffect } from "react";
-import { cn, shortenAddress } from "@/lib/utils";
+import { cn, CryptoUtils, shortenAddress } from "@/lib/utils";
 import Image from "next/image";
 import dashboard from "@/lib/assets/dashboard";
 import { Activity, Arbitrum, DollarSign, Followers, Wallet } from "@/components/icons/icons";
 import { RenderIf } from "@/components/shared";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { useReadGemachBalance, useReadGemachCopyTrades, useReadGemachUser } from "@/services/queries/gemach";
+import {
+  useReadGemachBalance,
+  useReadGemachCopyTrades,
+  useReadGemachTradeHistory,
+  useReadGemachUser,
+} from "@/services/queries/gemach";
 import { useSupabaseAuth } from "@/components/providers";
-import { useAccount } from "wagmi";
+import { useAccount, useDisconnect } from "wagmi";
 import { useAtomValue } from "jotai";
 import { gemachUserLoggedInAtom } from "@/lib/atoms/gemach";
 import { toast } from "sonner";
@@ -34,10 +39,10 @@ function AccountInfoItem(props: IAccountInfoItem) {
       </div>
 
       <div className="flex flex-col justify-between">
-        <p className="text-xs font-medium text-[#A4A4A4] leading-[16px] tracking-[-0.4%]">{label}</p>
+        <p className="text-xs font-medium text-[#A4A4A4] leading-[16px] tracking-[-0.4%] line-clamp-1">{label}</p>
 
         <div className="flex gap-1 items-center">
-          <p className="text-xs font-semibold text-white leading-[16px] tracking-[-0.4%]">{value}</p>
+          <p className="text-xs font-semibold text-white leading-[16px] tracking-[-0.4%] line-clamp-1">{value}</p>
 
           <RenderIf condition={isBalance}>
             <div className="w-[16px] h-[16px]">
@@ -52,15 +57,22 @@ function AccountInfoItem(props: IAccountInfoItem) {
 
 function Balance() {
   const { address, isConnected } = useAccount();
+  const { disconnect } = useDisconnect();
   const { session } = useSupabaseAuth();
 
   const gemachUserLoggedIn = useAtomValue(gemachUserLoggedInAtom);
 
   const { data: balanceData } = useReadGemachBalance(session?.access_token);
-  const { data: userData } = useReadGemachUser(address || "", gemachUserLoggedIn, session?.access_token);
+  const { data: userData, isError } = useReadGemachUser(address || "", gemachUserLoggedIn, session?.access_token);
 
   const dgexBalance = balanceData?.gdexBalance || 0.0;
   const hyperliquidBalance = balanceData?.hyperliquidBalance || 0.0;
+
+  useEffect(() => {
+    if (isError) {
+      disconnect();
+    }
+  }, [isError, disconnect]);
 
   return (
     <div className={cn("flex gap-2 p-4 flex-1 items-center border-l border-[#262626]")}>
@@ -138,14 +150,23 @@ export function AccountInfo() {
   const { address } = useAccount();
 
   const gemachUserLoggedIn = useAtomValue(gemachUserLoggedInAtom);
+
   const { data } = useReadGemachCopyTrades(address, gemachUserLoggedIn, session?.access_token);
+  const { data: activityData } = useReadGemachTradeHistory(address, session?.access_token);
+
+  const activityCount = activityData?.pagination?.totalRecords || 0;
 
   return (
     <div className="flex items-center border border-[#262626] rounded-md bg-[#1C1C1C]">
       <Balance />
       <AccountInfoItem iconBg="#EDF3FF" icon={<Followers />} label="Following" value={data?.length.toString()} />
       <AccountInfoItem iconBg="#FFEDE3" icon={<DollarSign />} label="Open Positions" value="3" />
-      <AccountInfoItem iconBg="#EBFAF3" icon={<Activity />} label="Activity" value="4" />
+      <AccountInfoItem
+        iconBg="#EBFAF3"
+        icon={<Activity />}
+        label="Activity"
+        value={CryptoUtils.formatLargeNumber(activityCount || 0, activityCount > 1000 ? 2 : 0)}
+      />
     </div>
   );
 }
