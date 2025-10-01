@@ -26,21 +26,14 @@ export function supportedExchangePairsToOptions(
 
   const options: ExchangePairOption[] = [];
 
-  for (const [exchangeName, instruments] of Object.entries(
-    supportedExchangePairs,
-  )) {
+  for (const [exchangeName, instruments] of Object.entries(supportedExchangePairs)) {
     for (const instrument of instruments) {
       if (excludeOptions && isInstrumentIdAnOption(instrument.instrument_id)) {
         continue;
       }
 
       options.push({
-        label:
-          exchangeName +
-          " " +
-          instrument.base_asset +
-          "/" +
-          instrument.quote_asset,
+        label: exchangeName + " " + instrument.base_asset + "/" + instrument.quote_asset,
         value: {
           ...instrument,
           exchange: exchangeName,
@@ -157,8 +150,7 @@ export function calculateReadingTime(htmlContent: string) {
   const text = normalizedContent.replace(/<[^>]+>/g, " "); // Strip HTML tags
   wordCount = text.split(/\s+/).filter((word) => word.length > 0).length;
   imageCount = (normalizedContent.match(/<img[^>]+>/gi) || []).length;
-  imageCount += (normalizedContent.match(/<img-placeholder[^>]+>/gi) || [])
-    .length;
+  imageCount += (normalizedContent.match(/<img-placeholder[^>]+>/gi) || []).length;
 
   // Calculate reading time: words / WPM + image adjustments
   let readingTime = wordCount / wordsPerMinute;
@@ -180,20 +172,7 @@ export function formatDate(isoDateString?: string): string {
   const date = new Date(isoDateString);
 
   // Get month name and convert to uppercase
-  const months = [
-    "JAN",
-    "FEB",
-    "MAR",
-    "APR",
-    "MAY",
-    "JUN",
-    "JUL",
-    "AUG",
-    "SEP",
-    "OCT",
-    "NOV",
-    "DEC",
-  ];
+  const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
   const month = months[date.getMonth()];
 
   // Get day and year
@@ -221,8 +200,7 @@ export function extractNewsContent(htmlString: string): {
   const title = h1Match ? h1Match[1] : null;
 
   // Try to find a proper img tag first
-  const imgRegex =
-    /<img[\s\S]*?src=["'](.*?)["'][\s\S]*?(?:alt=["'](.*?)["'])?[\s\S]*?>/;
+  const imgRegex = /<img[\s\S]*?src=["'](.*?)["'][\s\S]*?(?:alt=["'](.*?)["'])?[\s\S]*?>/;
   const imgMatch = htmlString.match(imgRegex);
 
   // If no img tag found, look for [IMAGE: ...] pattern
@@ -233,12 +211,7 @@ export function extractNewsContent(htmlString: string): {
     title,
     image: {
       src: imgMatch ? imgMatch[1] : null,
-      alt:
-        imgMatch && imgMatch[2]
-          ? imgMatch[2]
-          : imageBracketMatch
-            ? imageBracketMatch[1]
-            : null,
+      alt: imgMatch && imgMatch[2] ? imgMatch[2] : imageBracketMatch ? imageBracketMatch[1] : null,
     },
   };
 }
@@ -250,11 +223,7 @@ export function extractNewsContent(htmlString: string): {
  * @param endChars Number of characters to keep at the end
  * @returns The shortened address string
  */
-export const shortenAddress = (
-  address: string,
-  startChars = 6,
-  endChars = 4,
-): string => {
+export const shortenAddress = (address: string, startChars = 6, endChars = 4): string => {
   if (!address) return "";
   if (address.length <= startChars + endChars) return address;
 
@@ -267,10 +236,7 @@ export const shortenAddress = (
  * @param maxLength defaults to 100
  * @returns
  */
-export const truncateText = (
-  text: string | null,
-  maxLength: number = 100,
-): string => {
+export const truncateText = (text: string | null, maxLength: number = 100): string => {
   if (!text || text.length <= maxLength) return text || "";
   return text.substring(0, maxLength).trim() + "...";
 };
@@ -311,8 +277,7 @@ export function formatSummaryDate(date = new Date()) {
     weekday: "long",
   });
 
-  const [{ value: month }, , { value: day }] =
-    monthDayFormatter.formatToParts(date);
+  const [{ value: month }, , { value: day }] = monthDayFormatter.formatToParts(date);
   const weekday = weekdayFormatter.format(date);
 
   return {
@@ -332,9 +297,7 @@ export const formatNumber = (value: string) => {
   const [integerPart, decimalPart] = cleanValue.split(".");
 
   const formattedInteger = integerPart || "";
-  return decimalPart !== undefined
-    ? `${formattedInteger}.${decimalPart}`
-    : formattedInteger;
+  return decimalPart !== undefined ? `${formattedInteger}.${decimalPart}` : formattedInteger;
 };
 
 /**
@@ -351,10 +314,7 @@ export const appendDecimal = (amount?: string, decimal?: number): string => {
   return fixed.toLocaleString("fullwide", { useGrouping: false });
 };
 
-export function formatNewsDate(
-  date: Date = new Date(),
-  timeZone?: string,
-): string {
+export function formatNewsDate(date: Date = new Date(), timeZone?: string): string {
   const formatter = new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
@@ -371,9 +331,7 @@ export function formatNewsDate(
   return `${month} ${day}, ${year}`;
 }
 
-export function formatChartTooltipDate(
-  dateInput: Date | string | number,
-): string {
+export function formatChartTooltipDate(dateInput: Date | string | number): string {
   const date = new Date(dateInput);
 
   const optionsDate: Intl.DateTimeFormatOptions = {
@@ -397,10 +355,7 @@ export function formatChartTooltipDate(
  * @param amount amount to be operated on
  * @returns
  */
-export const removeDecimal = (
-  amount: string | number,
-  decimal: number,
-): string => {
+export const removeDecimal = (amount: string | number, decimal: number): string => {
   if (!amount || amount === "0") return "0.0";
   if (isNaN(Number(amount))) return "0.0";
   const strAmount = amount.toString();
@@ -416,8 +371,7 @@ export const removeDecimal = (
   if (position <= 0) {
     retValue = "0." + "0".repeat(Math.abs(position)) + absStrAmount;
   } else {
-    retValue =
-      absStrAmount.slice(0, position) + "." + absStrAmount.slice(position);
+    retValue = absStrAmount.slice(0, position) + "." + absStrAmount.slice(position);
   }
   return isNegative ? "-" + retValue : retValue;
 };
@@ -462,10 +416,7 @@ function _formatMarketCapNumber(num: number) {
   }
 }
 
-export function formatMarketCapNumber(
-  value: number | string,
-  withCurrency = true,
-) {
+export function formatMarketCapNumber(value: number | string, withCurrency = true) {
   const num = typeof value === "string" ? parseFloat(value) : value;
 
   if (isNaN(num)) return "";
@@ -570,4 +521,184 @@ export function formatCountdown(timeSlot: Date | string | number) {
 
 export function getAvatarUrl(name: string) {
   return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`;
+}
+
+/**
+ * Save data to localStorage with JSON serialization
+ * @param key - The key to store the data under
+ * @param value - The value to store (will be JSON stringified)
+ * @returns boolean - true if successful, false if failed
+ */
+export function saveToLocalStorage<T>(key: string, value: T): boolean {
+  try {
+    if (typeof window === "undefined") {
+      console.warn("localStorage is not available in this environment");
+      return false;
+    }
+
+    const serializedValue = JSON.stringify(value);
+    localStorage.setItem(key, serializedValue);
+    return true;
+  } catch (error) {
+    console.error("Failed to save to localStorage:", error);
+    return false;
+  }
+}
+
+/**
+ * Retrieve data from localStorage with JSON deserialization
+ * @param key - The key to retrieve data for
+ * @param defaultValue - Default value to return if key doesn't exist or parsing fails
+ * @returns The parsed value or defaultValue
+ */
+export function getFromLocalStorage(key: string) {
+  try {
+    if (typeof window === "undefined") {
+      console.warn("localStorage is not available in this environment");
+      return null;
+    }
+
+    const item = localStorage.getItem(key);
+
+    if (!item) {
+      return null;
+    }
+
+    return JSON.parse(item);
+  } catch (error) {
+    console.error("Failed to retrieve from localStorage:", error);
+    return null;
+  }
+}
+
+/**
+ * Check if a token has expired based on its expiresAt timestamp
+ * @param expiresAt - ISO date string indicating when the token expires
+ * @param bufferMinutes - Optional buffer time in minutes to consider token expired before actual expiry (default: 0)
+ * @returns boolean - true if token is expired, false if still valid
+ */
+export function isTokenExpired(expiresAt: string, bufferMinutes: number = 0): boolean {
+  try {
+    if (!expiresAt) return true;
+
+    const expiryDate = new Date(expiresAt);
+    const now = new Date();
+
+    // Add buffer time if specified (convert minutes to milliseconds)
+    const bufferMs = bufferMinutes * 60 * 1000;
+    const effectiveExpiryTime = expiryDate.getTime() - bufferMs;
+
+    return now.getTime() >= effectiveExpiryTime;
+  } catch (error) {
+    console.error("Failed to parse expiry date:", error);
+    return true; // Consider expired if we can't parse the date
+  }
+}
+
+/**
+ * Remove data from localStorage
+ * @param key - The key to remove from localStorage
+ * @returns boolean - true if successful, false if failed
+ */
+export function removeFromLocalStorage(key: string): boolean {
+  try {
+    if (typeof window === "undefined") {
+      console.warn("localStorage is not available in this environment");
+      return false;
+    }
+
+    localStorage.removeItem(key);
+    return true;
+  } catch (error) {
+    console.error("Failed to remove from localStorage:", error);
+    return false;
+  }
+}
+
+/**
+ * CryptoUtils formatting functions for currency, percentage, and large numbers
+ */
+export class CryptoUtils {
+  /**
+   * Format a number as currency with commas and dollar sign
+   * @param value - The number or string to format
+   * @param currency - Currency symbol (default: '$')
+   * @param locale - Locale for formatting (default: 'en-US')
+   * @returns Formatted currency string
+   */
+  static formatCurrency(value: number | string, currency: string = "$", locale: string = "en-US"): string {
+    const numValue = typeof value === "string" ? parseFloat(value) : value;
+
+    if (typeof numValue !== "number" || isNaN(numValue)) {
+      return `${currency}0.00`;
+    }
+
+    const formatter = new Intl.NumberFormat(locale, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+
+    return `${currency}${formatter.format(numValue)}`;
+  }
+
+  /**
+   * Format a number as percentage
+   * @param value - The number or string to format (e.g., 25.5 for 25.5%)
+   * @param decimals - Number of decimal places (default: 2)
+   * @returns Formatted percentage string
+   */
+  static formatPercentage(value: number | string, decimals: number = 2): string {
+    const numValue = typeof value === "string" ? parseFloat(value) : value;
+
+    if (typeof numValue !== "number" || isNaN(numValue)) {
+      return "0.00";
+    }
+
+    return `${(numValue * 100).toFixed(decimals)}`;
+  }
+
+  /**
+   * Format large numbers with K, M, B, T suffixes
+   * @param value - The number or string to format
+   * @param decimals - Number of decimal places (default: 2)
+   * @returns Formatted large number string
+   */
+  static formatLargeNumber(value: number | string, decimals: number = 2): string {
+    const numValue = typeof value === "string" ? parseFloat(value) : value;
+
+    if (typeof numValue !== "number" || isNaN(numValue)) {
+      return "0";
+    }
+
+    const absValue = Math.abs(numValue);
+    const sign = numValue < 0 ? "-" : "";
+
+    if (absValue >= 1e12) {
+      return `${sign}${(absValue / 1e12).toFixed(decimals)}T`;
+    } else if (absValue >= 1e9) {
+      return `${sign}${(absValue / 1e9).toFixed(decimals)}B`;
+    } else if (absValue >= 1e6) {
+      return `${sign}${(absValue / 1e6).toFixed(decimals)}M`;
+    } else if (absValue >= 1e3) {
+      return `${sign}${(absValue / 1e3).toFixed(decimals)}K`;
+    } else {
+      return `${sign}${absValue.toFixed(decimals)}`;
+    }
+  }
+}
+
+export function formatDateMMDDYYFromUnix(unixSeconds: number) {
+  // convert seconds → milliseconds
+  const date = new Date(unixSeconds * 1000);
+
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  const yy = String(date.getFullYear()).slice(-2);
+
+  return `${mm}/${dd}/${yy}`;
+}
+
+export function shortenString(str: string, maxLength = 10): string {
+  if (str.length <= maxLength) return str;
+  return str.slice(0, maxLength) + "..";
 }

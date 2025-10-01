@@ -42,8 +42,6 @@ export const supportedChains = [
   aurora,
 ] as const;
 
-console.log("supported chains number", supportedChains.length);
-
 export const config = createConfig({
   chains: supportedChains,
   ssr: true,

@@ -13,9 +13,7 @@ export async function registerChartPluginZoomInBrowser() {
 }
 export async function registerCandleStickPluginBrowser() {
   // if (!window) return;
-  const { CandlestickController, CandlestickElement } = await import(
-    "chartjs-chart-financial"
-  );
+  const { CandlestickController, CandlestickElement } = await import("chartjs-chart-financial");
   Chart.register(CandlestickElement, CandlestickController);
 }
 
@@ -418,8 +416,7 @@ export function getOptimalGridPosition(
   }
 
   // Calculate the grid bounds we need to consider
-  const maxY =
-    Math.max(...existingWidgets.map((w) => w.meta.y + w.meta.h)) + newH + 2;
+  const maxY = Math.max(...existingWidgets.map((w) => w.meta.y + w.meta.h)) + newH + 2;
 
   // Create a 2D grid to track occupied spaces
   const grid: boolean[][] = Array(maxY)
@@ -445,14 +442,7 @@ export function getOptimalGridPosition(
     case "row-based":
       return findRowBasedPosition(existingWidgets, newW, newH, gridCols);
     default:
-      return findOptimalPosition(
-        grid,
-        existingWidgets,
-        newW,
-        newH,
-        gridCols,
-        maxY,
-      );
+      return findOptimalPosition(grid, existingWidgets, newW, newH, gridCols, maxY);
   }
 }
 
@@ -490,10 +480,7 @@ function findOptimalPosition(
   }
 
   // Fallback: place at the bottom
-  const bottomY =
-    existingWidgets.length > 0
-      ? Math.max(...existingWidgets.map((w) => w.meta.y + w.meta.h))
-      : 0;
+  const bottomY = existingWidgets.length > 0 ? Math.max(...existingWidgets.map((w) => w.meta.y + w.meta.h)) : 0;
 
   return { x: 0, y: bottomY };
 }
@@ -542,19 +529,14 @@ function findRowBasedPosition(
   });
 
   // Try to fit in existing rows first
-  for (const [row, usedWidth] of Array.from(rowUsage.entries()).sort(
-    (a, b) => a[0] - b[0],
-  )) {
+  for (const [row, usedWidth] of Array.from(rowUsage.entries()).sort((a, b) => a[0] - b[0])) {
     if (usedWidth + newW <= gridCols) {
       return { x: usedWidth, y: row };
     }
   }
 
   // Create a new row
-  const newRowY =
-    existingWidgets.length > 0
-      ? Math.max(...existingWidgets.map((w) => w.meta.y + w.meta.h))
-      : 0;
+  const newRowY = existingWidgets.length > 0 ? Math.max(...existingWidgets.map((w) => w.meta.y + w.meta.h)) : 0;
 
   return { x: 0, y: newRowY };
 }
@@ -562,13 +544,7 @@ function findRowBasedPosition(
 /**
  * Helper function to check if a widget can fit at a specific position
  */
-function canFitAt(
-  grid: boolean[][],
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-): boolean {
+function canFitAt(grid: boolean[][], x: number, y: number, w: number, h: number): boolean {
   if (x + w > grid[0].length || y + h > grid.length) {
     return false;
   }
@@ -663,11 +639,7 @@ export function getPointerEventDistance(p1: PointerEvent, p2: PointerEvent) {
  * @param color2 - The ending RGB color.
  * @returns The resulting RGB color.
  */
-export function mapValueToRgbColor(
-  value: number,
-  color1: RGB,
-  color2: RGB,
-): RGB {
+export function mapValueToRgbColor(value: number, color1: RGB, color2: RGB): RGB {
   // Ensure the value is clamped within the range
   // value = Math.max(min, Math.min(max, value));
 
@@ -739,11 +711,11 @@ export function rgbToString(rgb: RGB, alpha = 1) {
 import { RefObject, useCallback } from "react";
 import html2canvas from "html2canvas-pro";
 interface ScreenshotOptions {
-  watermarkImageSrc?: string; 
+  watermarkImageSrc?: string;
   watermarkWidth?: number;
   watermarkHeight?: number;
   watermarkOpacity?: number;
-  watermarkPosition?: 'center' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+  watermarkPosition?: "center" | "top-left" | "top-right" | "bottom-left" | "bottom-right";
   file?: string;
   elementRef: RefObject<HTMLElement | null>;
 }
@@ -751,22 +723,22 @@ interface ScreenshotOptions {
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    img.crossOrigin = 'anonymous'; 
-    
+    img.crossOrigin = "anonymous";
+
     const timeout = setTimeout(() => {
-      reject(new Error('Image loading timeout'));
-    }, 10000); 
-    
+      reject(new Error("Image loading timeout"));
+    }, 10000);
+
     img.onload = () => {
       clearTimeout(timeout);
       resolve(img);
     };
-    
+
     img.onerror = (error) => {
       clearTimeout(timeout);
       reject(error);
     };
-    
+
     img.src = src;
   });
 }
@@ -776,30 +748,30 @@ function getWatermarkPosition(
   canvasHeight: number,
   imgWidth: number,
   imgHeight: number,
-  position: string = 'center'
+  position: string = "center",
 ): { x: number; y: number } {
-  const padding = 20; 
-  
+  const padding = 20;
+
   switch (position) {
-    case 'top-left':
+    case "top-left":
       return { x: padding, y: padding };
-    case 'top-right':
+    case "top-right":
       return { x: canvasWidth - imgWidth - padding, y: padding };
-    case 'bottom-left':
+    case "bottom-left":
       return { x: padding, y: canvasHeight - imgHeight - padding };
-    case 'bottom-right':
+    case "bottom-right":
       return { x: canvasWidth - imgWidth - padding, y: canvasHeight - imgHeight - padding };
-    case 'center':
+    case "center":
     default:
-      return { 
-        x: (canvasWidth - imgWidth) / 2, 
-        y: (canvasHeight - imgHeight) / 2 
+      return {
+        x: (canvasWidth - imgWidth) / 2,
+        y: (canvasHeight - imgHeight) / 2,
       };
   }
 }
 
 export async function takeScreenshot({
-  watermarkImageSrc = "/branding/fomoed2.svg", 
+  watermarkImageSrc = "/branding/fomoed2.svg",
   watermarkWidth = 200,
   watermarkHeight = 60,
   watermarkOpacity = 0.5,
@@ -814,14 +786,14 @@ export async function takeScreenshot({
 
   try {
     let watermarkImage: HTMLImageElement | null = null;
-    
+
     if (watermarkImageSrc) {
       try {
         watermarkImage = await loadImage(watermarkImageSrc);
         console.log("Watermark image loaded successfully");
-        
-        if (watermarkImageSrc.toLowerCase().includes('.svg')) {
-          await new Promise(resolve => setTimeout(resolve, 100));
+
+        if (watermarkImageSrc.toLowerCase().includes(".svg")) {
+          await new Promise((resolve) => setTimeout(resolve, 100));
         }
       } catch (error) {
         console.warn("Failed to load watermark image:", error);
@@ -832,7 +804,7 @@ export async function takeScreenshot({
       backgroundColor: null,
       scale: 1,
       removeContainer: true,
-      useCORS: true, 
+      useCORS: true,
     });
 
     const ctx = canvas.getContext("2d");
@@ -843,28 +815,22 @@ export async function takeScreenshot({
 
     if (watermarkImage) {
       const originalAlpha = ctx.globalAlpha;
-      
+
       ctx.globalAlpha = watermarkOpacity;
-      
+
       const position = getWatermarkPosition(
         canvas.width,
         canvas.height,
         watermarkWidth,
         watermarkHeight,
-        watermarkPosition
+        watermarkPosition,
       );
-      
+
       ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = 'high';
-      
-      ctx.drawImage(
-        watermarkImage,
-        position.x,
-        position.y,
-        watermarkWidth,
-        watermarkHeight
-      );
-      
+      ctx.imageSmoothingQuality = "high";
+
+      ctx.drawImage(watermarkImage, position.x, position.y, watermarkWidth, watermarkHeight);
+
       ctx.globalAlpha = originalAlpha;
     }
 
@@ -872,7 +838,7 @@ export async function takeScreenshot({
     link.download = file;
     link.href = canvas.toDataURL("image/png");
     link.click();
-    
+
     console.log("Screenshot taken successfully");
   } catch (error) {
     console.error("Failed to take screenshot:", error);

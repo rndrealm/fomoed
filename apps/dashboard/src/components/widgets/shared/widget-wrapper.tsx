@@ -22,6 +22,7 @@ interface IProps {
   title: string;
   titleIcon?: "coinstats" | "summary" | "exchange" | "none";
   isDuckGame?: boolean;
+  isGemachCopyTrading?: boolean;
   isResizeIndicator?: boolean;
 }
 
@@ -35,6 +36,7 @@ export function WidgetWrapper(props: IProps) {
     title,
     titleIcon = "coinstats",
     isDuckGame = false,
+    isGemachCopyTrading = false,
     isResizeIndicator = true,
   } = props;
 
@@ -75,16 +77,28 @@ export function WidgetWrapper(props: IProps) {
               <RenderIf condition={titleIcon === "exchange"}>
                 <ExchangeIcon />
               </RenderIf>
+                  <div className="flex flex-col gap-[2px]">
               <h4 className="text-base leading-[1.35] font-semibold text-[#878787] select-none">{title}</h4>
+              <RenderIf condition={isGemachCopyTrading}>
+                <div className="flex items-center gap-1">
+                  <div className="bg-[#2C233A] border border-[#3A2C4F] rounded-sm px-1 py-[2px]">
+                    <p className="text-[#C1A8FF] leading-[12px] tracking-[-0.4%] text-[8px]">
+                      HYPERLIQUID PERP TRADING
+                    </p>
+                  </div>
+                  <div className="">
+                    <Image src={dashboard.hyperliquidLogo} alt="hyperliquid logo" className="w-[14px] h-[14px]" />
+                  </div>
+                </div>
+              </RenderIf>
+            </div>
             </div>
 
             <div className="flex items-center gap-2">
               <button
                 onClick={() => {
                   const isFavorite = settings.favorite_widgets.includes(widgetSlug);
-
                   let newWidgetArray: string[] = [];
-
                   if (isFavorite) {
                     newWidgetArray = settings.favorite_widgets.filter((item) => item !== widgetSlug);
                   } else {
