@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { Redis } from "ioredis";
 
 export type ErrorWrapper = {
   message: string;
@@ -33,4 +34,12 @@ export function asNextResponseData<T>(data: T) {
   }
 
   return NextResponse.json({ data, success: true });
+}
+
+export function getRedisInstance(): Redis {
+  const redis = new Redis(process.env.REDIS_URL != "" ? (process.env.REDIS_URL as string) : "redis://localhost:6379", {
+    password: process.env.REDIS_PASSWORD || undefined,
+  });
+
+  return redis;
 }

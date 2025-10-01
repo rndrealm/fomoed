@@ -12,7 +12,7 @@ export function ImageWithFallback(props: IProps) {
   const [error, setError] = React.useState(false);
 
   return (
-    <div className="relative w-full h-full" key={src.toString()}>
+    <div className="relative w-full h-full" key={src?.toString()}>
       <Image
         src={error ? news.fallback : src || news.fallback}
         alt={alt || "Image description"}
@@ -26,9 +26,7 @@ export function ImageWithFallback(props: IProps) {
       />
       <RenderIf condition={error && !!text}>
         <div className="absolute top-26 left-1/2 -translate-x-1/2 flex items-center justify-center">
-          <p className="-translate-y-1/2 text-white text-center uppercase font-semibold text-xl">
-            {text}
-          </p>
+          <p className="-translate-y-1/2 text-white text-center uppercase font-semibold text-xl">{text}</p>
         </div>
       </RenderIf>
     </div>

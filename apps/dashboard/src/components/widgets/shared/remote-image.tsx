@@ -4,8 +4,8 @@ import React, { useEffect, useState } from "react";
 
 interface RemoteImageProps extends Omit<ImageProps, "src"> {
   src: string | null | undefined;
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
   className?: string;
   alt: string;
   fallback?: any;
@@ -13,6 +13,10 @@ interface RemoteImageProps extends Omit<ImageProps, "src"> {
 
 const RemoteImage = (props: RemoteImageProps) => {
   const { src, alt, width, height, fallback, className = "", ...rest } = props;
+
+  const fill = width === undefined && height === undefined;
+  // console.log("fill:", fill);
+
   const [imageError, setImageError] = useState(false);
   const fallbackUrl = fallback || dashboard.token;
   useEffect(() => {
@@ -23,6 +27,7 @@ const RemoteImage = (props: RemoteImageProps) => {
     <Image
       src={imageError || !src ? fallbackUrl : src}
       alt={alt || "Chain Image"}
+      fill={fill}
       width={width}
       height={height}
       className={className}

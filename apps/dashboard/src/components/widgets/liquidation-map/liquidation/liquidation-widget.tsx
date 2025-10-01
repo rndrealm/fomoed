@@ -1,7 +1,7 @@
 "use client";
 import { useFetchLiquidMapData, useGetSupportedxchangePairs, useReadCoinList } from "@/services/queries/charts";
 import CoinDropdown from "../../shared/coin-dropdown";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import PeriodDropdown from "../../shared/period-dropdown";
 import { LiquidTabOptions, liquidTimeframeOptions } from "@/constant/cfgi-data";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -13,12 +13,12 @@ import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 import { useAtomValue, useSetAtom } from "jotai";
 import { exchangePairDefault } from "@/lib/static";
 import { WidgetWrapper } from "../../shared";
-import { AnimatePresence, motion } from "motion/react";
 import { cn, modalSlide } from "@/lib/utils";
 import { Close, FullScreen } from "@/components/icons/icons";
 import CameraAndRefresh from "../../shared/camera-and-refresh";
-import { LiquidationFullscreenControls } from "./liquidation-fullscreen-controls";
 import PremiumOverlay from "../../shared/premium-overlay";
+import WidgetModalWrapper from "@/components/modals/widget-modal";
+import { AnimatePresence, motion } from "motion/react";
 
 const colorToCfgi = [
   {
@@ -34,6 +34,10 @@ const colorToCfgi = [
     color: "#73D8DA",
   },
   {
+    label: "10x leverage",
+    color: "#6EC2F0",
+  },
+  {
     label: "Cumulative Short Liquidation Leverage",
     color: "#22AB94",
   },
@@ -45,32 +49,19 @@ const colorToCfgi = [
 
 interface IProps {
   widget: LayoutType["widgets"][0];
+  fullScreenButton?: boolean;
 }
 
 export default function LiquidationWidget(props: IProps) {
   const { widget } = props;
   const [showInfo, setShowInfo] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isControlsVisible, setIsControlsVisible] = useState(true);
   const chartRef = useRef<HTMLDivElement>(null);
 
   const { data: coinData } = useReadCoinList();
   const { data: pairsData } = useGetSupportedxchangePairs();
   const activeLayout = useAtomValue(activeTabAtom);
   const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
-
-  const toggleFullscreen = () => {
-    setIsFullscreen((prev) => !prev);
-    if (!isFullscreen) {
-      setIsControlsVisible(false);
-    }
-  };
-
-  const onAnimationComplete = useCallback(() => {
-    if (!isFullscreen) {
-      setIsControlsVisible(true);
-    }
-  }, [isFullscreen]);
 
   const selectedPair = useMemo(() => {
     return pairsData?.find((pr) => pr.label === widget.props?.exchange_token);
@@ -108,10 +99,10 @@ export default function LiquidationWidget(props: IProps) {
   const [chartViewOptions] = useState(LiquidTabOptions[1].value);
 
   return (
-    <>
+    <WidgetModalWrapper widget={widget} isFullscreen={isFullscreen} setIsFullscreen={setIsFullscreen}>
       <WidgetWrapper widget={widget} title="Liquidation Map" handleLearnMore={() => setShowInfo(true)}>
-        <div className={cn("relative flex h-full w-full flex-col", isFullscreen && "py-[60px]")} ref={chartRef}>
-          {!isFullscreen && coinData && filteredData?.length > 0 && (
+        <div className="relative flex h-full w-full flex-col" ref={chartRef}>
+          {coinData && filteredData?.length > 0 && (
             <div className="py-2">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <CoinDropdown
@@ -172,7 +163,7 @@ export default function LiquidationWidget(props: IProps) {
           )}
 
           <div className="flex h-full w-full flex-col">
-            <div className={cn(isFullscreen && "pt-[60px]")}>
+            <div>
               <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 pt-1">
                 <ChartLegend colorOptions={colorToCfgi} />
               </div>
@@ -185,7 +176,6 @@ export default function LiquidationWidget(props: IProps) {
                     viewOption={chartViewOptions}
                     token={widget.props?.token}
                     isFullscreen={isFullscreen}
-                    onAnimationComplete={onAnimationComplete}
                   />
                 ) : (
                   <Skeleton className="bg-widget-background-200 h-full w-full" />
@@ -209,7 +199,7 @@ export default function LiquidationWidget(props: IProps) {
                 <div className="flex flex-col gap-4 overflow-auto">
                   <div className="flex flex-col gap-4">
                     <div className="flex flex-col">
-                      <h3 className="text-base leading-[1.35] font-semibold">Economic Calendar</h3>
+                      <h3 className="text-base leading-[1.35] font-semibold">Liquidation Map</h3>
                       <p className="text-[13px] leading-[1.25] font-light text-neutral-400">
                         Learn about the Liquidation Map
                       </p>
@@ -257,36 +247,20 @@ export default function LiquidationWidget(props: IProps) {
             </div>
           )}
         </AnimatePresence>
+
+        <div
+          className="absolute right-[9px] bottom-[16px] z-[9] h-[28px] w-[28px] rounded-md border border-[#1c1c1c]"
+          style={{
+            background: "linear-gradient(180deg, #1b1b1b 0%, rgba(0, 0, 0, 0.38) 72.15%)",
+            backdropFilter: "blur(7px)",
+            opacity: isFullscreen ? 0 : 1,
+          }}
+        >
+          <button className="flex h-full w-full items-center justify-center" onClick={() => setIsFullscreen(true)}>
+            <FullScreen />
+          </button>
+        </div>
       </WidgetWrapper>
-
-      <LiquidationFullscreenControls
-        isFullscreen={isFullscreen}
-        toggleFullscreen={toggleFullscreen}
-        widget={widget}
-        coinData={coinData || []}
-        filteredData={filteredData}
-        selectedPair={selectedPair}
-        pairsData={pairsData || []}
-        isFetching={isFetching}
-        chartRef={chartRef}
-        refetch={refetch}
-      />
-
-      <div
-        className={cn("absolute right-[9px] bottom-[16px] z-[9] h-[28px] w-[28px] rounded-md border border-[#1c1c1c]", {
-          "opacity-0": !isControlsVisible,
-          "opacity-100": isControlsVisible,
-        })}
-        style={{
-          background: "linear-gradient(180deg, #1b1b1b 0%, rgba(0, 0, 0, 0.38) 72.15%)",
-          backdropFilter: "blur(7px)",
-          transition: "opacity 0.3s ease-in-out",
-        }}
-      >
-        <button className="flex h-full w-full items-center justify-center" onClick={toggleFullscreen}>
-          <FullScreen />
-        </button>
-      </div>
-    </>
+    </WidgetModalWrapper>
   );
 }

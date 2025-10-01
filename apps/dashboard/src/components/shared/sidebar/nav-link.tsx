@@ -4,6 +4,9 @@ import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import LinkPopup from "./nav-link-popup";
 import { sideMenuVariants } from "./animations";
+import { CommandIcon } from "@/components/icons/icons";
+import { useSetAtom } from "jotai";
+import { profilePopoverAtom } from "@/lib/atoms/profilePopover";
 
 interface BadgeProps {
   text: string;
@@ -13,25 +16,16 @@ interface BadgeProps {
   isSideMenuOpen: boolean;
 }
 
-function StatusBadge({
-  text,
-  borderColor,
-  backgroundColor,
-  textColor,
-  isSideMenuOpen,
-}: BadgeProps) {
+function StatusBadge({ text, borderColor, backgroundColor, textColor, isSideMenuOpen }: BadgeProps) {
   return (
     <motion.div
-      className={`mr-3 absolute top-1/2 right-0 hidden translate-y-[-50%] rounded-[8px] border-[1px] px-2 py-1 md:flex`}
+      className={`pointer-events-none mr-3 absolute top-1/2 right-0 flex translate-y-[-50%] rounded-[8px] border-[1px] px-2 py-1`}
       style={{ borderColor, backgroundColor }}
       initial="closed"
       variants={sideMenuVariants}
       animate={isSideMenuOpen ? "open" : "closed"}
     >
-      <h3
-        className="text-xs font-normal text-nowrap"
-        style={{ color: textColor }}
-      >
+      <h3 className="text-xs font-normal text-nowrap" style={{ color: textColor }}>
         {text}
       </h3>
     </motion.div>
@@ -48,12 +42,14 @@ export interface INavLink {
   comingSoon?: boolean;
   beta?: boolean;
   alpha?: boolean;
+  keyboardBoxes?: string[];
 }
 
 interface INavLinkProps extends INavLink {
   variant: "passive" | "active";
   isSideMenuOpen?: boolean;
   isBottomLink?: boolean;
+  setIsSideMenuOpen?: (value: boolean) => void;
 }
 
 export function NavLink(props: INavLinkProps) {
@@ -67,18 +63,38 @@ export function NavLink(props: INavLinkProps) {
     comingSoon,
     beta,
     alpha,
+    keyboardBoxes,
     variant,
     isSideMenuOpen,
     isBottomLink,
+    setIsSideMenuOpen,
   } = props;
+
+  const setProfilePopoverAtom = useSetAtom(profilePopoverAtom);
 
   const [isHovered, setIsHovered] = useState(false);
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // have the sidebar still hidden
+    const sidebar = document.getElementById("sidebar");
+    if (sidebar) {
+      sidebar.style.overflow = "hidden";
+    }
+
     if (disabled) {
       e.preventDefault();
       return;
     }
+
+    if (isBottomLink) {
+      setIsSideMenuOpen?.(false);
+    }
+
+    // settings popover
+    if (label === "Settings") {
+      setProfilePopoverAtom({ open: true, activeTab: "Subscriptions" });
+    }
+
     onClick?.();
   };
 
@@ -112,11 +128,9 @@ export function NavLink(props: INavLinkProps) {
           }}
           id="popup-trigger-div"
           className={cn(
-            "pointer-events-auto relative flex h-[40px] w-[40px] max-h-[40px] items-center justify-center rounded-[10px] px-0 py-2",
+            "pointer-events-auto relative flex h-[40px] w-[40px] max-h-[40px] items-center justify-center rounded-[8px] px-0 py-2",
             isHovered && !disabled ? "bg-[#161616]" : "bg-[#0a0a0a]",
-            active
-              ? "bg-[#161616] border-[1px] border-[#242424]"
-              : "border-none",
+            active ? "bg-[#161616] border-[1px] border-[#242424]" : "border-none",
           )}
         >
           {/* icon can be hovered */}
@@ -124,24 +138,14 @@ export function NavLink(props: INavLinkProps) {
             {/* make the active icon white */}
             <div key={label}>
               {React.cloneElement(icon, {
-                ...(active
-                  ? { fill: "#ffff" }
-                  : disabled
-                    ? { fill: "#838383" }
-                    : {}),
+                ...(active ? { fill: "#ffff" } : disabled ? { fill: "#838383" } : {}),
               })}
             </div>
           </div>
 
           {/* hover popup */}
           {isHovered && (
-            <LinkPopup
-              label={label}
-              className="left-[48px]"
-              beta={beta}
-              alpha={alpha}
-              comingSoon={comingSoon}
-            />
+            <LinkPopup label={label} className="left-[48px]" beta={beta} alpha={alpha} comingSoon={comingSoon} />
           )}
         </div>
       </Link>
@@ -152,9 +156,12 @@ export function NavLink(props: INavLinkProps) {
   return (
     <motion.div
       className={cn(
-        "group relative flex max-h-[40px] items-center rounded-[10px] px-0 py-0 bg-transparent",
+        "group relative flex max-h-[40px] items-center rounded-[8px] px-0 py-0 bg-transparent",
+        {
+          "cursor-not-allowed": disabled,
+        },
         isBottomLink
-          ? "justify-start gap-2  bg-transparent"
+          ? "justify-start gap-2 bg-transparent"
           : active
             ? "justify-between bg-transparent"
             : disabled
@@ -169,40 +176,38 @@ export function NavLink(props: INavLinkProps) {
       <div className="absolute z-[-1] left-0 px-1 top-0 h-full w-full">
         <div
           className={cn(
-            "h-full w-full rounded-[10px] bg-transparent border-[#242424]",
+            "h-full w-full rounded-[8px] bg-transparent border-[#242424]",
             isBottomLink
-              ? "justify-start gap-2 bg-[#000] border-[0px] border-[#242424]"
+              ? "justify-start gap-2 bg-transparent border-[0px] border-[#242424] group-hover:bg-[#131313] group-hover:border-[0px] group-hover:border-[#242424]"
               : active
                 ? "justify-between bg-[#161616] border-[1px] border-[#242424]"
                 : disabled
                   ? "justify-between bg-transparent border-[0px] border-[#242424]"
-                  : "justify-between bg-transparent group-hover:border-[1px] group-hover:border-[#242424] group-hover:bg-[#161616] border-[0px] border-[#242424]",
+                  : "justify-between bg-transparent group-hover:bg-[#131313] group-hover:border-[0px] group-hover:border-[#242424] border-[0px] border-[#242424]",
           )}
         ></div>
       </div>
       <Link
-        href={disabled ? "#" : href}
+        href={disabled ? "#" : isBottomLink ? "#" : href}
         onClick={handleClick}
         className={cn("w-full py-0", {
           "pointer-events-none cursor-not-allowed opacity-50": disabled,
         })}
-        aria-disabled={disabled}
+        aria-disabled={disabled || isBottomLink}
       >
         <div className="flex items-center gap-0 pt-0 pb-0">
           <div
             className={cn(
               "w-[48px] h-[40px] flex items-center justify-center",
-              !active &&
-                !isBottomLink &&
-                "!opacity-100 md:!opacity-0 md:group-hover:!opacity-100",
-              isBottomLink ? "" : "mt-[0px]",
+              !active && !isBottomLink && "!opacity-100 md:!opacity-0 md:group-hover:!opacity-100",
+              isBottomLink ? "!opacity-100" : "mt-[0px]",
             )}
           >
             <div
               key={label}
               className={cn(
                 "h-[40px] w-[40px] flex items-center justify-center",
-                disabled && "opacity-100 md:opacity-0",
+                disabled && "opacity-100 md:opacity-100",
                 // "opacity-100",
               )}
             >
@@ -211,11 +216,13 @@ export function NavLink(props: INavLinkProps) {
               })}
             </div>
           </div>
+
+          {/* link label */}
           <motion.p
             className={cn(
-              "text-sm font-normal md:text-[14px]",
+              "ml-[-6px] text-sm font-normal md:text-[14px]",
               isBottomLink
-                ? "text-[#838383]"
+                ? "text-[#838383] group-hover:text-white"
                 : active
                   ? "text-white"
                   : disabled
@@ -228,6 +235,35 @@ export function NavLink(props: INavLinkProps) {
           >
             {label}
           </motion.p>
+
+          {/* keyboard boxes */}
+          <div className="absolute flex flex-row gap-1 right-3 top-1/2 translate-y-[-50%]">
+            {keyboardBoxes &&
+              !comingSoon &&
+              !beta &&
+              !alpha &&
+              keyboardBoxes.map((box, index) => {
+                if (box === "command") {
+                  return (
+                    <div
+                      key={index}
+                      className="flex justify-center items-center px-1 py-1 rounded-[6px] bg-[#161616] border-[1px] border-[#242424]"
+                    >
+                      <CommandIcon fill="#A6AEB2" />
+                    </div>
+                  );
+                }
+
+                return (
+                  <div
+                    key={index}
+                    className="flex justify-center items-center px-2 py-1 rounded-[6px] bg-[#161616] border-[1px] border-[#242424]"
+                  >
+                    <span className="text-xs text-[#A6AEB2] font-normal">{box}</span>
+                  </div>
+                );
+              })}
+          </div>
         </div>
       </Link>
 

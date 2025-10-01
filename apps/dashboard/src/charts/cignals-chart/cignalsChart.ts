@@ -586,14 +586,14 @@ export class CignalsChart {
 
     this._visibleCandles = candleData.slice(
       -nSelectCandles - offsetCandlesFromNow - 1,
-      candleData.length - offsetCandlesFromNow
+      candleData.length - offsetCandlesFromNow,
     );
 
-    const minCandleTimestamp = this._visibleCandles[0].timestamp;
-    const maxCandleTimestamp = this._visibleCandles[this._visibleCandles.length - 1].timestamp;
+    const minCandleTimestamp = this?._visibleCandles?.[0]?.timestamp;
+    const maxCandleTimestamp = this?._visibleCandles?.[this?._visibleCandles?.length - 1]?.timestamp;
 
     this._filteredFootprints = this.#footprintData.filter(
-      (fp) => fp.timestamp >= minCandleTimestamp && fp.timestamp <= maxCandleTimestamp
+      (fp) => fp.timestamp >= minCandleTimestamp && fp.timestamp <= maxCandleTimestamp,
     );
   }
 
@@ -796,7 +796,7 @@ export class CignalsChart {
     // This needs to be moved outside the draw loop, preferably move this into _cacheData
     for (const footprint of footprints) {
       let priceTsFootprint = parsedFootprints.find(
-        (i) => i.price === footprint.price && i.timestamp === footprint.timestamp
+        (i) => i.price === footprint.price && i.timestamp === footprint.timestamp,
       );
 
       if (!priceTsFootprint) {
@@ -905,7 +905,7 @@ export class CignalsChart {
       footprint.buySize,
       "buy",
       this._lowestBuyFootprintSize,
-      this._highestBuyFootprintSize
+      this._highestBuyFootprintSize,
     );
     ctx.fillRect(left, top, halfWidth - 1, height);
 
@@ -913,7 +913,7 @@ export class CignalsChart {
       footprint.sellSize,
       "sell",
       this._lowestSellFootprintSize,
-      this._highestSellFootprintSize
+      this._highestSellFootprintSize,
     );
     ctx.fillRect(left + halfWidth + 1, top, halfWidth - 1, height);
 
@@ -938,7 +938,7 @@ export class CignalsChart {
     height: number,
     footprint: DrawReadyFootprintData,
     minDelta: number,
-    maxDelta: number
+    maxDelta: number,
   ) {
     const delta = footprint.buySize - footprint.sellSize;
 
@@ -946,7 +946,7 @@ export class CignalsChart {
       delta,
       delta > 0 ? "buy" : "sell",
       0,
-      delta > 0 ? maxDelta : minDelta
+      delta > 0 ? maxDelta : minDelta,
     );
     this._ctx.fillRect(left, top, width, height);
     this._ctx.fillStyle = this._footprintTextColor;
@@ -963,7 +963,7 @@ export class CignalsChart {
     height: number,
     footprint: DrawReadyFootprintData,
     minVol: number,
-    maxVol: number
+    maxVol: number,
   ) {
     this._ctx.fillStyle = this.#mapVolumeToColor(footprint.totalVol, minVol, maxVol);
     this._ctx.fillRect(left, top, width, height);
@@ -1102,7 +1102,7 @@ export class CignalsChart {
     this._ctx.fillText(
       `Min: ${commaFormatNumber(minPrice)}`,
       this.canvas.clientWidth - 100,
-      this.canvas.clientHeight - 10
+      this.canvas.clientHeight - 10,
     );
     this._ctx.fillText(`Max: ${commaFormatNumber(maxPrice)}`, this.canvas.clientWidth - 100, 20);
   }
@@ -1424,7 +1424,7 @@ export class CignalsChart {
         xPos + barOffsetX,
         ~~(height - (a.relativeBuyHeight + a.relativeSellHeight) * barAreaHeight) + 1 - barAreaBottomOffset,
         barWidth,
-        ~~(a.relativeSellHeight * barAreaHeight)
+        ~~(a.relativeSellHeight * barAreaHeight),
       );
 
       ctx.fillStyle = buyColor;
@@ -1432,7 +1432,7 @@ export class CignalsChart {
         xPos + barOffsetX,
         ~~(height - a.relativeBuyHeight * barAreaHeight) - barAreaBottomOffset,
         barWidth,
-        ~~(a.relativeBuyHeight * barAreaHeight)
+        ~~(a.relativeBuyHeight * barAreaHeight),
       );
     }
 
@@ -1612,7 +1612,7 @@ export class CignalsChart {
         left + restingOrdersCellWidth + ofiAndActivityWidth + 2 * squareSpacing,
         top,
         ofiAndActivityWidth,
-        binHeight
+        binHeight,
       );
 
       // this._ctx.fillStyle = 'red';
@@ -1721,7 +1721,7 @@ export class CignalsChart {
     this._ctx.textBaseline = "hanging";
 
     const lastTs = this._data[this._data.length - 1].candle.timestamp;
-    const mostRecentVisibleTs = this._visibleCandles[this._visibleCandles.length - 1].timestamp;
+    const mostRecentVisibleTs = this._visibleCandles?.[this?._visibleCandles?.length - 1]?.timestamp;
 
     for (const pocHelper of this._pocHelpers) {
       const y = this.#getPriceTickY(pocHelper.price) - this._priceStepPx / 2;

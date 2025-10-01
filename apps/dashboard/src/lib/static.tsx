@@ -245,7 +245,7 @@ export const layoutOptionsMap = [
   },
   {
     id: 5,
-    name: "Aggregated Exchange Liquidation Map",
+    name: "Exchange Liquidation Map",
     slug: "exchange-liquidation-map",
     image: dashboard.cfgi2,
     category: "charts",
@@ -355,130 +355,154 @@ export const chartsMap = {
   "detailed-cfgi": {
     name: "Crypto Fear and Greed Map",
     extra: ["period", "token", "chart-tab", "exchange-token"],
-    component: (widget: LayoutType["widgets"][0]) => <DetailedCfgiWidget widget={widget} fullScreenButton />,
+    component: (widget: LayoutType["widgets"][0]) => <DetailedCfgiWidget widget={widget} />,
+    isResizable: true,
   },
   "simple-cfgi": {
     name: "Simplified Crypto Fear and Greed Map",
     extra: ["period", "token"],
-    component: (widget: LayoutType["widgets"][0]) => <SimpleCfgiWidget widget={widget} fullScreenButton />,
+    component: (widget: LayoutType["widgets"][0]) => <SimpleCfgiWidget widget={widget} />,
+    isResizable: true,
   },
   "liquidation-map": {
     name: "Liquidation Map",
     extra: ["period", "token", "exchange-token"],
-    component: (widget: LayoutType["widgets"][0]) => <LiquidationWidget widget={widget} />,
+    component: (widget: LayoutType["widgets"][0]) => <LiquidationWidget widget={widget} fullScreenButton />,
+    isResizable: true,
   },
   "liquidation-heat-map": {
     name: "Liquidation Heat Map",
     extra: ["period", "token", "exchange-token"],
     component: (widget: LayoutType["widgets"][0]) => <LiquidationHeatmapWidget widget={widget} fullScreenButton />,
+    isResizable: true,
   },
   "exchange-liquidation-map": {
-    name: "Aggregated Exchange Liquidation Map",
+    name: "Exchange Liquidation Map",
     extra: ["period", "token", "exchange-token"],
-    component: (widget: LayoutType["widgets"][0]) => <LiquidationExchangeWidget widget={widget} />,
+    component: (widget: LayoutType["widgets"][0]) => <LiquidationExchangeWidget widget={widget} fullScreenButton />,
+    isResizable: true,
   },
   "token-news": {
     name: "Token News",
     extra: ["token"],
     component: (widget: LayoutType["widgets"][0]) => <NewsWidget widget={widget} />,
+    isResizable: true,
   },
   dex: {
     name: "Dex",
     extra: [""],
     component: (widget: LayoutType["widgets"][0]) => <DexWidget widget={widget} />,
+    isResizable: true,
   },
   "footprint-chart": {
     name: "Cignals Chart",
     extra: [""],
     component: (widget: LayoutType["widgets"][0]) => <CignalsWidget widget={widget} />,
+    isResizable: true,
   },
   "cryptocurrency-market": {
     name: "Cryptocurrency Market",
     extra: [""],
     component: (widget: LayoutType["widgets"][0]) => <CryptocurrencyMarket widget={widget} />,
+    isResizable: true,
   },
   "token-price-history": {
     name: "Token Price History",
     extra: [""],
     component: (widget: LayoutType["widgets"][0]) => <PriceHistory widget={widget} />,
+    isResizable: true,
   },
   heatmap: {
     name: "Token Price History",
     extra: [""],
     component: (widget: LayoutType["widgets"][0]) => <Heatmap widget={widget} />,
+    isResizable: true,
   },
   "new-price-history": {
     name: "New Price History",
     extra: ["period", "token"],
     component: (widget: LayoutType["widgets"][0]) => <NewPriceHistory widget={widget} />,
+    isResizable: true,
   },
   "btc-dominance": {
     name: "BTC Dominance",
     extra: [""],
     component: (widget: LayoutType["widgets"][0]) => <Dominance widget={widget} />,
+    isResizable: true,
   },
 
   "order-book": {
     name: "Order Book",
     extra: ["token"],
     component: (widget: LayoutType["widgets"][0]) => <OrderBook widget={widget} />,
+    isResizable: true,
   },
 
   "coin-stats": {
     name: "Coin Stats",
     extra: [""],
     component: (widget: LayoutType["widgets"][0]) => <CoinStats widget={widget} />,
+    isResizable: true,
   },
 
   summary: {
     name: "Summary",
     extra: [""],
     component: (widget: LayoutType["widgets"][0]) => <SummaryWidget widget={widget} />,
+    isResizable: true,
   },
 
   cfgi: {
     name: "CFGI",
     extra: ["token"],
     component: (widget: LayoutType["widgets"][0]) => <CFGI widget={widget} />,
+    isResizable: true,
   },
 
   screener: {
     name: "Screener",
     extra: [""],
     component: (widget: LayoutType["widgets"][0]) => <Screener widget={widget} />,
+    isResizable: true,
   },
 
   "weighted-sentiment": {
     name: "Weighted Sentiment",
     extra: ["period", "token"],
     component: (widget: LayoutType["widgets"][0]) => <WeightedSentiment widget={widget} />,
+    isResizable: true,
   },
 
   "weighted-price-sentiment": {
     name: "Weighted Price Sentiment",
     extra: ["period", "token"],
     component: (widget: LayoutType["widgets"][0]) => <WeightedPriceSentiment widget={widget} />,
+    isResizable: true,
   },
 
   "duck-game": {
     name: "Duck Game",
     extra: [""],
     component: (widget: LayoutType["widgets"][0]) => <DuckGame widget={widget} />,
+    isResizable: true,
   },
   "orderbook-delta": {
     name: "Delta Spread",
     extra: ["interval", "range", "token", "exchange_token"],
     component: (widget: LayoutType["widgets"][0]) => <OrderbookDeltaWidget widget={widget} />,
+    isResizable: true,
   },
   "whale-transaction-tracker": {
     name: "Whale Transaction Tracker",
     extra: [],
     component: (widget: LayoutType["widgets"][0]) => <WhaleTransactionWidget widget={widget} />,
+    isResizable: true,
   },
   "trading-economics": {
     name: "Trading Economics",
     extra: [],
     component: (widget: LayoutType["widgets"][0]) => <TradingEconomicsWidget widget={widget} />,
+    isResizable: true,
   },
   "gemach-copy-trading": {
     name: "Gemach Copy Trading",

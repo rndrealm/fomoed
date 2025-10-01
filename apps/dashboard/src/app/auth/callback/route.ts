@@ -106,7 +106,7 @@ export async function GET(request: Request) {
         const marketingUrl = process.env.NEXT_PUBLIC_MARKETING_APP_URL;
         return NextResponse.redirect(marketingUrl || "https://marketing.fomoed.io");
       } else {
-        return NextResponse.redirect(`${origin}/news`);
+        return NextResponse.redirect(`${origin}/dashboard`);
         // return NextResponse.redirect(`${origin}${next}`);
       }
     }

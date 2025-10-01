@@ -1,9 +1,10 @@
+import { Database } from "@/lib/database/supabase";
 import { UsersRow } from "@/lib/types/db.types";
 import { User } from "@supabase/supabase-js";
 import { User as UserIcon } from "lucide-react";
 
 interface IProps {
-  user: UsersRow | null;
+  user: Database["public"]["Tables"]["users"]["Row"] | null | undefined;
 }
 
 const NavbarProfileButton = (props: IProps) => {
@@ -20,13 +21,11 @@ const NavbarProfileButton = (props: IProps) => {
       <div className="grid size-full place-items-center rounded-full border border-[#2B2B2B] bg-[#110F0E]">
         {hasUser && user?.avatar_url ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={user.avatar_url}
-            alt="User avatar"
-            className="rounded-full object-cover"
-          />
+          <img src={user.avatar_url} alt="User avatar" className="rounded-full object-cover" />
         ) : (
-          <UserIcon className="text-white/70" />
+          <div className="relative flex h-full w-full items-center justify-center">
+            <UserIcon className="text-white/70" />
+          </div>
         )}
       </div>
     </button>

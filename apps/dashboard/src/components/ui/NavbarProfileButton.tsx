@@ -8,10 +8,11 @@ import { ProfileDropdown } from "../shared";
 import { User } from "@supabase/supabase-js";
 import { cn } from "@/lib/utils";
 import { UsersRow } from "@/lib/types/db.types";
+import { Database } from "@/lib/database/supabase";
 
 interface IProps {
   children?: ReactNode;
-  authUser: UsersRow | null;
+  authUser: Database["public"]["Tables"]["users"]["Row"] | null | undefined;
   menuClassName?: string;
   buttonClassName?: string;
 }
@@ -21,16 +22,18 @@ const NavbarProfileButton = (props: IProps) => {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <DropdownMenu open={expanded} onOpenChange={setExpanded}>
-      <DropdownMenuTrigger asChild className={buttonClassName}>
-        <div>{children ? children : <NavbarProfileButtonTrigger user={authUser} />}</div>
-      </DropdownMenuTrigger>
+    <div aria-label="user-menu-toggle">
+      <DropdownMenu open={expanded} onOpenChange={setExpanded}>
+        <DropdownMenuTrigger asChild className={buttonClassName}>
+          <div>{children ? children : <NavbarProfileButtonTrigger user={authUser} />}</div>
+        </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className={cn("border-0 bg-transparent px-0", menuClassName)}>
-        {/* <ProfileDropdown /> */}
-        <ProfileDropdown authUser={authUser} />
-      </DropdownMenuContent>
-    </DropdownMenu>
+        <DropdownMenuContent align="end" className={cn("border-0 bg-transparent px-0", menuClassName)}>
+          {/* <ProfileDropdown /> */}
+          <ProfileDropdown authUser={authUser} />
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 };
 

@@ -49,7 +49,7 @@ export function LoginForm() {
           const marketingUrl = process.env.NEXT_PUBLIC_MARKETING_APP_URL;
           window.location.href = marketingUrl || "https://marketing.fomoed.io";
         } else {
-          const redirectUrl = nextUrl && nextUrl !== "/auth/login" ? nextUrl : AppRoutes.news.path;
+          const redirectUrl = nextUrl && nextUrl !== "/auth/login" ? nextUrl : AppRoutes.dashboard.path;
           router.push(redirectUrl);
         }
       } else {
@@ -94,6 +94,7 @@ export function LoginForm() {
                     <form onSubmit={handleSubmit} className="">
                       <div className="flex flex-col gap-4">
                         <TextInput
+                          aria-label="Email address"
                           name="email"
                           id="email"
                           placeholder="you@email.com"
@@ -103,6 +104,7 @@ export function LoginForm() {
                         />
 
                         <TextInput
+                          aria-label="Password"
                           name="password"
                           id="password"
                           placeholder="password"

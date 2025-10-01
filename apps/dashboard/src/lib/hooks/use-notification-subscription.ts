@@ -5,7 +5,7 @@ import useUserData from "./use-user-data";
 import React from "react";
 
 export const useNotificationSubscription = () => {
-  const userData = useUserData();
+  const { data: userData, isLoading, error } = useUserData();
   const supabase = createSupabaseBrowserClient();
 
   useEffect(() => {
@@ -51,7 +51,7 @@ export const useNotificationSubscription = () => {
           } catch (error) {
             console.error("Error processing notification:", error);
           }
-        }
+        },
       )
       .subscribe((status) => {
         if (status === "SUBSCRIBED") {

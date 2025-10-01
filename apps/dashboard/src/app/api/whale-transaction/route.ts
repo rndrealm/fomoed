@@ -1,14 +1,12 @@
 import { NextResponse } from "next/server";
-import { Redis } from "ioredis";
-
-const redis = new Redis(process.env.REDIS_URL || "redis://localhost:6379", {
-  password: process.env.REDIS_PASSWORD || undefined,
-});
+import { getRedisInstance } from "@/lib/utils/server.utils";
 
 const TOP_COINS_KEY = "coinglass_top_10_coins_by_marketcap";
 const CACHE_TTL = 3600; // Cache for 1 hour (in seconds)
 
 async function fetchTopCoins(): Promise<Set<string>> {
+  const redis = getRedisInstance();
+
   try {
     const cachedCoins = await redis.get(TOP_COINS_KEY);
     if (cachedCoins) {
@@ -42,7 +40,7 @@ async function fetchTopCoins(): Promise<Set<string>> {
     return new Set(top10);
   } catch (error) {
     console.error("Error in fetchTopCoins:", error);
-    return new Set(['BTC', 'ETH', 'SOL', 'XRP', 'DOGE', 'ADA', 'SHIB', 'AVAX', 'LINK', 'TRX']);
+    return new Set(["BTC", "ETH", "SOL", "XRP", "DOGE", "ADA", "SHIB", "AVAX", "LINK", "TRX"]);
   }
 }
 
@@ -77,7 +75,7 @@ export async function GET() {
       .map((transaction: any) => {
         const action = transaction.position_action === 1 ? "Open" : "Close";
         const position = transaction.position_size > 0 ? "Long" : "Short";
-        
+
         return {
           user: transaction.user,
           token: transaction.symbol,
@@ -89,7 +87,6 @@ export async function GET() {
       });
 
     return NextResponse.json({ data: filteredAndFormattedData });
-
   } catch (error: any) {
     console.error("Error fetching whale transaction data:", error);
     return NextResponse.json({ error: error.message || "Failed to fetch whale transaction data" }, { status: 500 });
