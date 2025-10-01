@@ -9,11 +9,14 @@ const WEBHOOK_SECRET = process.env.PRIVATE_STRIPE_WEBHOOK_SECRET! as string;
 // Get Pro plan product IDs from environment
 const PRO_PRODUCT_IDS = process.env.STRIPE_PRODUCT_IDS_PRO_PLAN?.split(",").map((id) => id.trim()) || [];
 
-// Commission calculation based on billing interval
+// Commission calculation - Fixed $9.99/month for Pro plan only
 const COMMISSION_RATES = {
   monthly: 9.99,
   yearly: 119.88, // 12 * 9.99
 } as const;
+
+// 30-day payout delay in milliseconds
+const PAYOUT_DELAY_MS = 30 * 24 * 60 * 60 * 1000;
 
 export async function POST(request: NextRequest) {
   try {
@@ -75,7 +78,7 @@ async function getReferralByUserId(userId: string) {
 
   const { data: referral, error } = await supabase
     .from("referrals")
-    .select("referral_id, status")
+    .select("referral_id, referrer_user_id, status")
     .eq("referred_user_id", userId)
     .order("created_at", { ascending: false })
     .limit(1)
@@ -97,6 +100,34 @@ function isProPlan(productId: string): boolean {
 // Helper function to calculate commission
 function calculateCommission(billingInterval: string | null | undefined): number {
   return billingInterval === "year" ? COMMISSION_RATES.yearly : COMMISSION_RATES.monthly;
+}
+
+// Helper function to send email notification to referrer
+async function sendReferralNotificationEmail(
+  referrerUserId: string,
+  type: "subscription" | "unsubscribe",
+  details: {
+    subscriberEmail?: string;
+    commissionAmount?: number;
+    plan?: string;
+  }
+) {
+  const supabase = await createSupabaseServerClient();
+
+  const { data: referrerUser } = await supabase
+    .from("users")
+    .select("email")
+    .eq("user_id", referrerUserId)
+    .single();
+
+  if (!referrerUser?.email) {
+    console.log("No referrer email found");
+    return;
+  }
+
+  // TODO: Implement your email sending logic here
+  // Example: await sendEmail({ to: referrerUser.email, ... })
+  console.log(`Email notification (${type}) to:`, referrerUser.email, details);
 }
 
 async function handleCheckoutSessionCompleted(session: any) {
@@ -142,11 +173,11 @@ async function handleCheckoutSessionCompleted(session: any) {
       .eq("referral_id", referralId)
       .single();
 
-    // Check if user already had Pro before (no new commission)
+    // Check if user already had Pro before
     if (currentReferral?.status === "Active" || currentReferral?.status === "Cancelled") {
-      console.log(`Referral already had Pro subscription (status: ${currentReferral.status}), no new commission`);
+      console.log(`Referral already had Pro subscription (status: ${currentReferral.status})`);
 
-      // Reactivate if they're resubscribing
+      // Reactivate if they're resubscribing (and not on trial)
       if (currentReferral.status === "Cancelled" && !isTrialing) {
         await supabase
           .from("referrals")
@@ -157,6 +188,9 @@ async function handleCheckoutSessionCompleted(session: any) {
           .eq("referral_id", referralId);
 
         console.log(`Reactivated referral from Cancelled to Active: ${referralId}`);
+        
+        // Note: No new commission created on resubscribe
+        // New commissions will be created on recurring payments
       }
 
       return;
@@ -179,8 +213,10 @@ async function handleCheckoutSessionCompleted(session: any) {
       return; // Don't activate referral or create commission yet
     }
 
-    // User is paying immediately (no trial) - activate and create commission
+    // User is paying immediately (no trial) - activate and create first commission
     const commissionAmount = calculateCommission(billingInterval);
+    const periodStart = subscription.items.data[0].current_period_start;
+    const periodEnd = subscription.items.data[0].current_period_start;
 
     // Update referral status to 'Active'
     const { error: updateError } = await supabase
@@ -196,11 +232,14 @@ async function handleCheckoutSessionCompleted(session: any) {
       return;
     }
 
-    // Insert commission record (only for paying customers)
+    // Insert first commission record
     const { error: insertError } = await supabase.from("referral_commissions").insert({
       referral_id: referralId,
       amount: commissionAmount,
       status: "Pending",
+      billing_period_start: new Date(periodStart * 1000).toISOString(),
+      billing_period_end: new Date(periodEnd * 1000).toISOString(),
+      payout_eligible_date: new Date(Date.now() + PAYOUT_DELAY_MS).toISOString(),
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     });
@@ -210,7 +249,21 @@ async function handleCheckoutSessionCompleted(session: any) {
       return;
     }
 
-    console.log(`Successfully processed referral commission: ${referralId} -> ${commissionAmount}`);
+    console.log(`Successfully processed first referral commission: ${referralId} -> $${commissionAmount}`);
+
+    // Email notification disabled
+    // const { data: referral } = await supabase
+    //   .from("referrals")
+    //   .select("referrer_user_id")
+    //   .eq("referral_id", referralId)
+    //   .single();
+    // if (referral) {
+    //   await sendReferralNotificationEmail(referral.referrer_user_id, "subscription", {
+    //     subscriberEmail: session.customer_email,
+    //     commissionAmount,
+    //     plan: billingInterval === "year" ? "Pro Yearly" : "Pro Monthly",
+    //   });
+    // }
   } catch (error) {
     console.error("Error handling checkout session:", error);
   }
@@ -251,7 +304,7 @@ async function handleSubscriptionDeleted(subscription: any) {
 
     // If referral is Pending and user cancels trial, just log it (no status change needed)
     if (wasTrialing && referral.status === "Pending") {
-      console.log("User cancelled during trial, referral stays Pending (no commission was created)");
+      console.log("User cancelled during trial, referral stays Pending (no commissions were created)");
       return;
     }
 
@@ -262,6 +315,7 @@ async function handleSubscriptionDeleted(subscription: any) {
     }
 
     // Update referral status to 'Cancelled'
+    // This indicates the user is no longer on Pro plan
     const { error: updateError } = await supabase
       .from("referrals")
       .update({
@@ -275,10 +329,18 @@ async function handleSubscriptionDeleted(subscription: any) {
       return;
     }
 
-    // Commission should stay Pending (user paid for at least one period)
-    // We don't cancel commissions here because user already used the service
+    // IMPORTANT: Commission records stay "Pending" (not cancelled)
+    // Rationale: User already paid for Pro service, referrer earned those commissions
+    // Commissions will be marked as "Paid" during payout process after 30-day delay
+    // Future recurring commissions will not be created since referral is now Cancelled
+
     console.log(`Pro subscription cancelled, referral marked as Cancelled: ${referral.referral_id}`);
-    console.log(`Commission stays Pending - user paid for service`);
+    console.log(`All earned commissions stay Pending - user paid for service, referrer earned them`);
+
+    // Email notification disabled
+    // await sendReferralNotificationEmail(referral.referrer_user_id, "unsubscribe", {
+    //   subscriberEmail: userId,
+    // });
   } catch (error) {
     console.error("Error handling subscription deletion:", error);
   }
@@ -309,14 +371,20 @@ async function handleSubscriptionUpdated(subscription: any) {
     const currentPrice = subscription.items.data[0]?.price;
     const currentProductId = currentPrice?.product as string;
     const currentBillingInterval = currentPrice?.recurring?.interval;
-
-    const isCurrentlyProPlan = isProPlan(currentProductId);
     const isTrialing = subscription.status === "trialing";
 
+    const isCurrentlyProPlan = isProPlan(currentProductId);
+
     // Scenario: User upgrades from Plus to Pro (or reactivates Pro)
-    // Only create commission if they've never had Pro before
-    if (isCurrentlyProPlan && referral.status !== "Active" && referral.status !== "Cancelled" && !isTrialing) {
+    // Only create commission if they've never had Pro before AND they're not on trial
+    if (isCurrentlyProPlan && 
+        referral.status !== "Active" && 
+        referral.status !== "Cancelled" &&
+        !isTrialing) {
+      
       const commissionAmount = calculateCommission(currentBillingInterval);
+      const periodStart = subscription.current_period_start;
+      const periodEnd = subscription.current_period_end;
 
       // Activate referral
       const { error: updateError } = await supabase
@@ -332,11 +400,14 @@ async function handleSubscriptionUpdated(subscription: any) {
         return;
       }
 
-      // Create new commission (only for first-time Pro subscribers)
+      // Create first commission for this billing period (first-time Pro subscribers)
       const { error: insertError } = await supabase.from("referral_commissions").insert({
         referral_id: referral.referral_id,
         amount: commissionAmount,
         status: "Pending",
+        billing_period_start: new Date(periodStart * 1000).toISOString(),
+        billing_period_end: new Date(periodEnd * 1000).toISOString(),
+        payout_eligible_date: new Date(Date.now() + PAYOUT_DELAY_MS).toISOString(),
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       });
@@ -346,13 +417,20 @@ async function handleSubscriptionUpdated(subscription: any) {
         return;
       }
 
-      console.log(`User upgraded to Pro plan (first time), referral activated: ${referral.referral_id} -> $${commissionAmount}`);
+      console.log(`User upgraded to Pro plan (first time), referral activated: ${referral.referral_id} -> ${commissionAmount}`);
+      
+      // Email notification disabled
+      // await sendReferralNotificationEmail(referral.referrer_user_id, "subscription", {
+      //   commissionAmount,
+      //   plan: currentBillingInterval === "year" ? "Pro Yearly" : "Pro Monthly",
+      // });
+
       return;
     }
 
     // Scenario: User who previously had Pro (Cancelled status) upgrades back to Pro
     if (isCurrentlyProPlan && referral.status === "Cancelled" && !isTrialing) {
-      // Just reactivate, no new commission
+      // Just reactivate, new commissions will be created on recurring payments
       const { error: updateError } = await supabase
         .from("referrals")
         .update({
@@ -366,18 +444,17 @@ async function handleSubscriptionUpdated(subscription: any) {
         return;
       }
 
-      console.log(`User resubscribed to Pro (no new commission): ${referral.referral_id}`);
+      console.log(`User resubscribed to Pro, referral reactivated: ${referral.referral_id}`);
+      console.log(`New recurring commissions will be created on future payments`);
       return;
     }
 
     // Scenario: User downgrades from Pro to Plus
     // When user clicks downgrade, cancel_at_period_end is set to true on Pro subscription
-    // We don't change referral status here because:
-    // 1. User might change their mind and upgrade back (which charges them)
-    // 2. We only mark as cancelled when Pro subscription actually ends
-    // The actual status change happens in subscription.deleted
-
+    // We don't change referral status here because user might change their mind
+    // The actual status change happens in subscription.deleted when Pro ends
     // No action needed for downgrades during subscription.updated
+
   } catch (error) {
     console.error("Error handling subscription update:", error);
   }
@@ -411,7 +488,7 @@ async function handlePaymentFailed(invoice: any) {
     const { error: updateError } = await supabase
       .from("referrals")
       .update({
-        status: "PaymentFailed",
+        status: "Cancelled",
         updated_at: new Date().toISOString(),
       })
       .eq("referral_id", referral.referral_id);
@@ -429,12 +506,10 @@ async function handlePaymentFailed(invoice: any) {
 
 async function handlePaymentSucceeded(invoice: any) {
   try {
-
     if (!invoice.subscription) {
       console.log(`Invoice ${invoice.id} is not related to a subscription. Skipping referral logic.`);
       return;
     }
-    
     const supabase = await createSupabaseServerClient();
     const subscription = await stripe.subscriptions.retrieve(invoice.subscription);
     const userId = subscription.metadata?.user_id;
@@ -460,10 +535,17 @@ async function handlePaymentSucceeded(invoice: any) {
     const currentBillingInterval = currentPrice?.recurring?.interval;
     const isCurrentlyProPlan = isProPlan(currentProductId);
 
-    // Case 1: First payment after trial ends (most important!)
-    if (billingReason === "subscription_cycle" && referral.status === "Pending" && isCurrentlyProPlan) {
-      const commissionAmount = calculateCommission(currentBillingInterval);
+    if (!isCurrentlyProPlan) {
+      console.log("User not on Pro plan, no commission created");
+      return;
+    }
 
+    const commissionAmount = calculateCommission(currentBillingInterval);
+    const periodStart = invoice.period_start;
+    const periodEnd = invoice.period_end;
+
+    // Case 1: First payment after trial ends (most important!)
+    if (billingReason === "subscription_cycle" && referral.status === "Pending") {
       console.log("First payment after trial - activating referral and creating commission");
 
       // Activate referral
@@ -480,11 +562,28 @@ async function handlePaymentSucceeded(invoice: any) {
         return;
       }
 
-      // Create commission (first payment after trial!)
+      // Check if commission already exists (idempotency)
+      const { data: existingCommission } = await supabase
+        .from("referral_commissions")
+        .select("id")
+        .eq("referral_id", referral.referral_id)
+        .eq("stripe_invoice_id", invoice.id)
+        .single();
+
+      if (existingCommission) {
+        console.log("Commission already exists for this invoice");
+        return;
+      }
+
+      // Create first commission after trial
       const { error: insertError } = await supabase.from("referral_commissions").insert({
         referral_id: referral.referral_id,
         amount: commissionAmount,
         status: "Pending",
+        billing_period_start: new Date(periodStart * 1000).toISOString(),
+        billing_period_end: new Date(periodEnd * 1000).toISOString(),
+        stripe_invoice_id: invoice.id,
+        payout_eligible_date: new Date(Date.now() + PAYOUT_DELAY_MS).toISOString(),
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       });
@@ -495,29 +594,103 @@ async function handlePaymentSucceeded(invoice: any) {
       }
 
       console.log(`Trial ended, first payment succeeded - referral activated: ${referral.referral_id} -> ${commissionAmount}`);
+      
+      // Email notification disabled
+      // await sendReferralNotificationEmail(referral.referrer_user_id, "subscription", {
+      //   commissionAmount,
+      //   plan: currentBillingInterval === "year" ? "Pro Yearly" : "Pro Monthly",
+      // });
+
       return;
     }
 
-    // Case 2: Payment recovered after failure
-    if (referral.status === "PaymentFailed") {
-      const { error: updateError } = await supabase
-        .from("referrals")
-        .update({
-          status: "Active",
-          updated_at: new Date().toISOString(),
-        })
-        .eq("referral_id", referral.referral_id);
+    // Case 2: Monthly/Yearly renewal - CREATE RECURRING COMMISSION
+    if (billingReason === "subscription_cycle" && referral.status === "Active") {
+      console.log("Recurring payment - creating new commission for this billing period");
 
-      if (updateError) {
-        console.error("Failed to update referral status:", updateError);
+      // Check if commission already exists for this period (idempotency)
+      const { data: existingCommission } = await supabase
+        .from("referral_commissions")
+        .select("id")
+        .eq("referral_id", referral.referral_id)
+        .eq("stripe_invoice_id", invoice.id)
+        .single();
+
+      if (existingCommission) {
+        console.log("Commission already exists for this invoice, skipping");
         return;
       }
 
-      console.log(`Payment recovered for referral: ${referral.referral_id}`);
+      // Create new commission for this billing period
+      const { error: insertError } = await supabase.from("referral_commissions").insert({
+        referral_id: referral.referral_id,
+        amount: commissionAmount,
+        status: "Pending",
+        billing_period_start: new Date(periodStart * 1000).toISOString(),
+        billing_period_end: new Date(periodEnd * 1000).toISOString(),
+        stripe_invoice_id: invoice.id,
+        payout_eligible_date: new Date(Date.now() + PAYOUT_DELAY_MS).toISOString(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      });
+
+      if (insertError) {
+        console.error("Failed to create recurring commission:", insertError);
+        return;
+      }
+
+      console.log(`Recurring commission created: $${commissionAmount} for period ${new Date(periodStart * 1000).toISOString()}`);
+
+      // Note: You might not want to send email on every renewal
+      // Consider sending monthly summary emails instead
+      return;
     }
 
-    // Case 3: Regular renewal - no action needed
-    console.log("Regular payment, no referral action needed");
+    // Case 3: Payment recovered after failure
+    // if (referral.status === "Cancelled") {
+    //   const { error: updateError } = await supabase
+    //     .from("referrals")
+    //     .update({
+    //       status: "Active",
+    //       updated_at: new Date().toISOString(),
+    //     })
+    //     .eq("referral_id", referral.referral_id);
+
+    //   if (updateError) {
+    //     console.error("Failed to update referral status:", updateError);
+    //     return;
+    //   }
+
+    //   console.log(`Payment recovered for referral: ${referral.referral_id}`);
+      
+    //   // If this is a subscription_cycle payment after recovery, create commission
+    //   if (billingReason === "subscription_cycle") {
+    //     // Check for existing commission
+    //     const { data: existingCommission } = await supabase
+    //       .from("referral_commissions")
+    //       .select("id")
+    //       .eq("referral_id", referral.referral_id)
+    //       .eq("stripe_invoice_id", invoice.id)
+    //       .single();
+
+    //     if (!existingCommission) {
+    //       await supabase.from("referral_commissions").insert({
+    //         referral_id: referral.referral_id,
+    //         amount: commissionAmount,
+    //         status: "Pending",
+    //         billing_period_start: new Date(periodStart * 1000).toISOString(),
+    //         billing_period_end: new Date(periodEnd * 1000).toISOString(),
+    //         stripe_invoice_id: invoice.id,
+    //         payout_eligible_date: new Date(Date.now() + PAYOUT_DELAY_MS).toISOString(),
+    //         created_at: new Date().toISOString(),
+    //         updated_at: new Date().toISOString(),
+    //       });
+
+    //       console.log(`Commission created after payment recovery: $${commissionAmount}`);
+    //     }
+    //   }
+    // }
+
   } catch (error) {
     console.error("Error handling payment success:", error);
   }

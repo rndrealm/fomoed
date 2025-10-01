@@ -508,6 +508,7 @@ export const chartsMap = {
     name: "Gemach Copy Trading",
     extra: [],
     component: (widget: LayoutType["widgets"][0]) => <GemachCopyTrading widget={widget} />,
+    isResizable:false
   },
 };
 
