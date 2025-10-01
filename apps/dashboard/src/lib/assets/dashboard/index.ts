@@ -77,6 +77,14 @@ import orderBookV2 from "../../../../public/media/images/dashboard/order-book-v2
 import usaIcon from "../../../../public/media/images/dashboard/usa-icon.png";
 import tradingCalendar from "../../../../public/media/images/dashboard/trading-calendar.png";
 import referralHero from "../../../../public/media/images/referrals/referrals-hero.png";
+import gemachLogo from "../../../../public/media/images/dashboard/gemach-logo.png";
+import hyperliquidLogo from "../../../../public/media/images/dashboard/hyperliquid.png";
+import usdc from "../../../../public/media/images/dashboard/usdc.png";
+import gemachCopyInfo1 from "../../../../public/media/images/dashboard/gemach-copy-info-1.png";
+import gemachCopyInfo2 from "../../../../public/media/images/dashboard/gemach-copy-info-2.png";
+import gemachCopyInfo3 from "../../../../public/media/images/dashboard/gemach-copy-info-3.png";
+import gemachCopyInfo4 from "../../../../public/media/images/dashboard/gemach-copy-info-4.png";
+import gemachCopyInfo5 from "../../../../public/media/images/dashboard/gemach-copy-info-5.png";
 
 const dashboard = {
   layoutPlaceholder,
@@ -157,6 +165,14 @@ const dashboard = {
   summaryV2,
   orderBookV2,
   referralHero,
+  gemachLogo,
+  hyperliquidLogo,
+  usdc,
+  gemachCopyInfo1,
+  gemachCopyInfo2,
+  gemachCopyInfo3,
+  gemachCopyInfo4,
+  gemachCopyInfo5,
 };
 
 export default dashboard;
