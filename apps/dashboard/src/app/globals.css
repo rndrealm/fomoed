@@ -413,8 +413,8 @@ html {
 }
 
 .no-scrollbar {
-  -ms-overflow-style: none;  /* Internet Explorer 10+ */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+  scrollbar-width: none; /* Firefox */
 }
 
 .scrollbar::-webkit-scrollbar {
@@ -828,4 +828,44 @@ input[type="number"] {
   background-position: center center;
   background-repeat: no-repeat;
   background-size: cover;
+}
+
+.app_coming_soon_gemach {
+  background-image: url(../../public/media/images/coming-soon/gemach.png);
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.app_coming_soon_gemach.ascendex {
+  background-image: url(../../public/media/images/coming-soon/ascendex.png);
+}
+
+.app_coming_soon_gemach_close {
+  background-image: url(../../public/media/images/coming-soon/close-glass.png);
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.app_coming_soon_gemach_button {
+  background-image: url(../../public/media/images/coming-soon/gemach-coming-soon.png);
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.app_coming_soon_gemach_button.ascendex {
+  background-image: url(../../public/media/images/coming-soon/ascendex-coming-soon.png);
+}
+
+.app_coming_soon_gemach_logo {
+  background-image: url(../../public/media/images/coming-soon/gemach-logo.png);
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.app_coming_soon_gemach_logo.ascendex {
+  background-image: url(../../public/media/images/coming-soon/ascendex-logo.png);
 }
