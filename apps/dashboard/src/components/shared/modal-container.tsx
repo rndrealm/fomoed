@@ -13,6 +13,7 @@ interface IProps {
   title?: string;
   noHeader?: boolean;
   bgBlur?: boolean;
+  dialogOverlayClassName?: string;
 }
 
 const sizeClassMap: Record<NonNullable<IProps["size"]>, string> = {
@@ -29,6 +30,7 @@ export function ModalContainer(props: IProps) {
     title,
     noHeader = false,
     bgBlur = true,
+    dialogOverlayClassName = "",
   } = props;
 
   const contentClasses = cn(
@@ -46,9 +48,7 @@ export function ModalContainer(props: IProps) {
     >
       <DialogContent
         className={contentClasses}
-        dialogOverlayClassName={
-          !bgBlur ? "backdrop-blur-[0px] bg-[transparent]" : ""
-        }
+        dialogOverlayClassName={cn(!bgBlur ? "backdrop-blur-[0px] bg-[transparent]" : "", dialogOverlayClassName)}
       >
         <DialogTitle className={cn(noHeader ? "hidden" : "")}>
           <div className="flex items-center justify-between">
