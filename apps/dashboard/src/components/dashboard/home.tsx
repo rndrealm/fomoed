@@ -20,6 +20,7 @@ import { useFetchUserLocation } from "@/services/queries/geolocation";
 import { KeyboardShortcuts } from "./shared/keyboard-shortcuts";
 import { useGetSupportedxchangePairs, useReadCoinList } from "@/services/queries/charts";
 import { Player } from "./shared/player";
+import { ComingSoon } from "../modals/coming-soon";
 
 interface IProps {
   dashboardData: IDashboardData;
@@ -124,6 +125,7 @@ export default function Home({ dashboardData }: IProps) {
       </div>
       <KeyboardShortcuts />
       <Player />
+      <ComingSoon />
     </Fragment>
   );
 }
