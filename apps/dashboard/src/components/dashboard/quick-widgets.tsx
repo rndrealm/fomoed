@@ -257,7 +257,6 @@ export function QuickWidgets(props: IProps) {
                         key={widget.name}
                         className="min-h-fit aspect-square bg-[#28282866] data-[selected=true]:bg-[#27292E] rounded-[24px] p-0 overflow-hidden cursor-pointer"
                         onSelect={(e) => {
-                          // console.log("gggg", e);
                           handleWidgetClick(widget);
                         }}
                       >
