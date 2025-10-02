@@ -138,7 +138,7 @@ export function Modals() {
       <AnimatePresence>
         {!isConnected && (
           <motion.div
-            className="absolute top-[30px] left-0 right-0 bottom-0 bg-[rgba(0,0,0,0.5)] z-[10] pt-[40px] px-4 pb-3"
+            className="absolute top-[60px] left-0 right-0 bottom-0 bg-[rgba(0,0,0,0.5)] z-[10] pt-[10px] px-4 pb-3"
             initial="hidden"
             animate="visible"
             exit="hidden"
