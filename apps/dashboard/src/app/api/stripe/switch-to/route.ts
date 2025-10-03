@@ -33,8 +33,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return newCannotFindCustomerError();
   }
 
-  console.log("TRALALERO TRALALA");
-
   const subscriptions = await stripe.subscriptions.list({ customer: customer.id });
   const activeOrTrialingSubscriptions = subscriptions.data.filter(
     (sub) => sub.status === "active" || sub.status === "trialing",

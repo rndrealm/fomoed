@@ -50,9 +50,6 @@ export async function POST(request: NextRequest) {
 
   const referralId = await getReferralIdForUser(user.user_id);
 
-  console.log('Referral ID for user:', referralId);
-  console.log("LOOKUP KEY: " + priceLookupKey)
-
   const { data: session, error } = await createCheckoutSession({
     customerId: customer.id,
     priceLookupKey,

@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, useEffect, useState } from "react";
 import Image from "next/image";
 import dashboard from "@/lib/assets/dashboard";
 
@@ -9,25 +9,20 @@ interface HeroCardProps {
 }
 
 const HeroCard: FC<HeroCardProps> = ({ referralCode, copied, handleCopy }) => {
-  const referralLink = `${window.location.origin}/auth?referral=${referralCode}`;
+  const [referralLink, setReferralLink] = useState("");
+
+  useEffect(() => {
+    setReferralLink(`${window.location.origin}/auth?referral=${referralCode}`);
+  }, [referralCode]);
 
   return (
     <div className="bg-[#0A0A0A]  border-[#0A0A0A] rounded-xl p-8 flex justify-between items-center mb-16">
-        
-      
       {/* --- Left Content --- */}
       <div className="flex-1">
-        <h2 className="text-4xl font-bold leading-tight max-w-md mb-4">
-          Receive a $9.99 per month on every referral
-        </h2>
-        <p className="text-zinc-400 mb-16 max-w-md">
-          Know someone who could benefit from Fomoed? Send them an Invite
-        </p>
-        {/* We add max-w-md to this container to match the title's width */}
+        <h2 className="text-4xl font-bold leading-tight max-w-md mb-4">Receive a $9.99 per month on every referral</h2>
+        <p className="text-zinc-400 mb-16 max-w-md">Know someone who could benefit from Fomoed? Send them an Invite</p>
         <div className="max-w-md">
-          <label className="block text-sm mb-2 text-zinc-400">
-            Share Referral Link
-          </label>
+          <label className="block text-sm mb-2 text-zinc-400">Share Referral Link</label>
           <div className="flex">
             <input
               type="text"
@@ -44,8 +39,7 @@ const HeroCard: FC<HeroCardProps> = ({ referralCode, copied, handleCopy }) => {
           </div>
         </div>
       </div>
-      
-      {/* --- Right Side: Logo --- */}
+
       <div className="hidden md:block ml-8">
         <Image
           src={dashboard.referralHero}
@@ -55,10 +49,8 @@ const HeroCard: FC<HeroCardProps> = ({ referralCode, copied, handleCopy }) => {
           className="object-contain"
         />
       </div>
-
     </div>
   );
 };
 
 export default HeroCard;
-

@@ -3,14 +3,19 @@ import ReferralPageContent from "@/components/referrals/ReferralPageContent";
 import { createSupabaseServerClient } from "@/lib/utils/supabase/server-client";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
+import {
+  getReferralDashboardStats,
+  getUserSubscribers,
+  getReferralChartData,
+  getUserPayouts,
+} from "@/services/queries/referral/server-actions";
+import { StatsData, ChartData, SubscriberItem, PayoutItem } from "@/services/queries/referral/types";
 
 export default async function Page() {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  console.log(user?.id);
 
   if (!user) {
     redirect("/login");
@@ -22,10 +27,36 @@ export default async function Page() {
     return <GenerateCodeComponent />;
   }
 
-  // const referralLink = `${window.location.origin}/auth?referral=${userProfile.referral_code}`;
+  let stats = null;
+  let subscribers: SubscriberItem[] = [];
+  let payouts: PayoutItem[] = [];
+  let chartData = null;
+
+  try {
+    const [statsData, subscribersData, payoutsData, chartDataResult] = await Promise.all([
+      getReferralDashboardStats(),
+      getUserSubscribers(),
+      getUserPayouts(),
+      getReferralChartData("7D"),
+    ]);
+
+    stats = statsData;
+    subscribers = subscribersData || [];
+    payouts = payoutsData || [];
+    chartData = chartDataResult;
+  } catch (error) {
+    console.error("Failed to fetch referral dashboard data:", error);
+  }
+
   return (
     <Suspense fallback={<div className="text-center text-white">Loading...</div>}>
-      <ReferralPageContent referralCode={userProfile.referral_code} />
+      <ReferralPageContent
+        referralCode={userProfile.referral_code}
+        stats={stats}
+        subscribers={subscribers}
+        payouts={payouts}
+        initialChartData={chartData}
+      />
     </Suspense>
   );
 }
