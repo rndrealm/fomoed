@@ -1164,9 +1164,11 @@ export type Database = {
           expertise: string | null
           full_name: string
           id: number
+          instagram_handle: string | null
           location: string | null
           onboarding: boolean | null
           profile_url: string | null
+          tiktok_handle: string | null
           twitter_handle: string | null
           updated_at: string
           user_id: string | null
@@ -1183,9 +1185,11 @@ export type Database = {
           expertise?: string | null
           full_name: string
           id?: number
+          instagram_handle?: string | null
           location?: string | null
           onboarding?: boolean | null
           profile_url?: string | null
+          tiktok_handle?: string | null
           twitter_handle?: string | null
           updated_at?: string
           user_id?: string | null
@@ -1202,9 +1206,11 @@ export type Database = {
           expertise?: string | null
           full_name?: string
           id?: number
+          instagram_handle?: string | null
           location?: string | null
           onboarding?: boolean | null
           profile_url?: string | null
+          tiktok_handle?: string | null
           twitter_handle?: string | null
           updated_at?: string
           user_id?: string | null
@@ -1937,6 +1943,7 @@ export type Database = {
           billing_period_end: string | null
           billing_period_start: string | null
           created_at: string
+          error_message: string | null
           id: number
           payment_link: string | null
           payout_date: string | null
@@ -1944,6 +1951,7 @@ export type Database = {
           referral_id: string
           status: string
           stripe_invoice_id: string | null
+          stripe_transfer_id: string | null
           updated_at: string | null
         }
         Insert: {
@@ -1951,6 +1959,7 @@ export type Database = {
           billing_period_end?: string | null
           billing_period_start?: string | null
           created_at?: string
+          error_message?: string | null
           id?: number
           payment_link?: string | null
           payout_date?: string | null
@@ -1958,6 +1967,7 @@ export type Database = {
           referral_id: string
           status?: string
           stripe_invoice_id?: string | null
+          stripe_transfer_id?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -1965,6 +1975,7 @@ export type Database = {
           billing_period_end?: string | null
           billing_period_start?: string | null
           created_at?: string
+          error_message?: string | null
           id?: number
           payment_link?: string | null
           payout_date?: string | null
@@ -1972,6 +1983,7 @@ export type Database = {
           referral_id?: string
           status?: string
           stripe_invoice_id?: string | null
+          stripe_transfer_id?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -2094,6 +2106,60 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      stripe_connect_accounts: {
+        Row: {
+          connected_at: string | null
+          created_at: string
+          id: number
+          onboarding_completed: boolean | null
+          payouts_enabled: boolean | null
+          status: string | null
+          stripe_account_id: string | null
+          stripe_connect_id: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          connected_at?: string | null
+          created_at?: string
+          id?: number
+          onboarding_completed?: boolean | null
+          payouts_enabled?: boolean | null
+          status?: string | null
+          stripe_account_id?: string | null
+          stripe_connect_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          connected_at?: string | null
+          created_at?: string
+          id?: number
+          onboarding_completed?: boolean | null
+          payouts_enabled?: boolean | null
+          status?: string | null
+          stripe_account_id?: string | null
+          stripe_connect_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stripe_connect_accounts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "signals_users"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "stripe_connect_accounts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["user_id"]
           },
         ]
       }
