@@ -329,14 +329,14 @@ export const layoutOptionsMap = [
     category: "charts",
     tags: ["charts", "new", "events"],
   },
-  {
-    id: 215,
-    name: "Gemach Copy Trading",
-    slug: "gemach-copy-trading",
-    image: dashboard.tradingCalendar,
-    category: "charts",
-    tags: ["new"],
-  },
+  // {
+  //   id: 215,
+  //   name: "Gemach Copy Trading",
+  //   slug: "gemach-copy-trading",
+  //   image: dashboard.tradingCalendar,
+  //   category: "charts",
+  //   tags: ["new"],
+  // },
 
   // {
   //   id: 10,
@@ -508,7 +508,7 @@ export const chartsMap = {
     name: "Gemach Copy Trading",
     extra: [],
     component: (widget: LayoutType["widgets"][0]) => <GemachCopyTrading widget={widget} />,
-    isResizable:false
+    isResizable: true,
   },
 };
 

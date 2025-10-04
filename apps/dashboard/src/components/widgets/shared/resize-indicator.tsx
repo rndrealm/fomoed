@@ -7,7 +7,7 @@ const ResizeIndicator = () => {
   useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
       const el = document.elementFromPoint(event.clientX, event.clientY);
-      if (el?.className.includes("resizable-handle")) {
+      if (el?.className?.includes("resizable-handle")) {
         setIsActive(true);
       } else {
         setIsActive(false);
@@ -108,7 +108,7 @@ const ResizeIndicatorIcon = () => {
           y2="127.89"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#7F7F7F" />
+          <stop stopColor="#7F7F7F" />
           <stop offset="1" />
         </linearGradient>
         <linearGradient
