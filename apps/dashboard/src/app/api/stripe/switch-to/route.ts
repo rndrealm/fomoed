@@ -7,12 +7,13 @@ import { PriceLookupKey } from "@/lib/plans";
 import { getCustomerByEmail, getPriceIdByLookupKey, validatePriceLookupKey } from "@/lib/stripe/stripe.utils.server";
 import { getUsersTableRowUsingAuth } from "@/lib/users/users.utils.server";
 import { asNextResponseData, asNextResponseError } from "@/lib/utils/server.utils";
-import stripe from "@/lib/utils/stripe";
+import getStripe from "@/lib/utils/stripe";
 import { getReferralIdForUser } from "@/services/queries/referral/server-actions";
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  const stripe = getStripe()
   const payload = await request.json();
   const priceLookupKey = payload.priceLookupKey as PriceLookupKey;
 

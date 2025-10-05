@@ -1,5 +1,5 @@
 import { AppRoutes } from "@/lib/routes";
-import stripe from "@/lib/utils/stripe";
+import getStripe from "@/lib/utils/stripe";
 import { createSupabaseServerClient } from "@/lib/utils/supabase/server-client";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
@@ -29,12 +29,12 @@ export type UserSubscriptionsResponse = {
   message?: string;
 };
 
-const plansIdMap = {
-  pro: process.env.STRIPE_PRODUCT_IDS_PRO_PLAN?.split(",").map((id) => id.trim()) || [],
-  plus: process.env.STRIPE_PRODUCT_IDS_PLUS_PLAN?.split(",").map((id) => id.trim()) || [],
-};
-
 export async function GET(): Promise<NextResponse<UserSubscriptionsResponse>> {
+  const plansIdMap = {
+    pro: process.env.STRIPE_PRODUCT_IDS_PRO_PLAN?.split(",").map((id) => id.trim()) || [],
+    plus: process.env.STRIPE_PRODUCT_IDS_PLUS_PLAN?.split(",").map((id) => id.trim()) || [],
+  };
+  const stripe = getStripe();
   const supabase = await createSupabaseServerClient();
 
   const {
@@ -87,7 +87,7 @@ export async function GET(): Promise<NextResponse<UserSubscriptionsResponse>> {
   // Fix: Remove product expansion to stay within Stripe's 4-level limit
   const customerSubs = await stripe.subscriptions.list({
     customer: customer.id,
-    expand: ['data.items.data.price'],
+    expand: ["data.items.data.price"],
   });
   const activeAndTrialingSubs = customerSubs.data.filter((sub) => sub.status === "active" || sub.status === "trialing");
 

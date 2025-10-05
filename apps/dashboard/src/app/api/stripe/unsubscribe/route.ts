@@ -1,4 +1,4 @@
-import stripe from "@/lib/utils/stripe";
+import getStripe from "@/lib/utils/stripe";
 import { createSupabaseServerClient } from "@/lib/utils/supabase/server-client";
 import { NextResponse, NextRequest } from "next/server";
 import type Stripe from "stripe";
@@ -12,6 +12,7 @@ export type UnsubscribeResponseBody = {
 };
 
 export async function POST(request: NextRequest) {
+  const stripe = getStripe()
   const supabase = await createSupabaseServerClient();
 
   const {

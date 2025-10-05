@@ -1,4 +1,4 @@
-import stripe from "../utils/stripe";
+import getStripe from "../utils/stripe";
 import {
   DynamicPlanData,
   DynamicPlanDataMap,
@@ -8,6 +8,7 @@ import {
 } from "./plans.types";
 
 export async function getDynamicPlanDataMap(): Promise<DynamicPlanDataMap> {
+  const stripe = getStripe()
   const prices = await stripe.prices.list({ active: true });
 
   const dynamicPlanDatas: Record<PriceLookupKey, DynamicPlanData> = {} as any;
