@@ -10,6 +10,8 @@ import {
   getUserPayouts,
 } from "@/services/queries/referral/server-actions";
 import { StatsData, ChartData, SubscriberItem, PayoutItem } from "@/services/queries/referral/types";
+import { getStripeConnectStatus } from "@/services/queries/stripe-connect/server-action"; // Add this
+
 
 export default async function Page() {
   const supabase = await createSupabaseServerClient();
@@ -31,19 +33,28 @@ export default async function Page() {
   let subscribers: SubscriberItem[] = [];
   let payouts: PayoutItem[] = [];
   let chartData = null;
+  let stripeStatus = null;
 
   try {
-    const [statsData, subscribersData, payoutsData, chartDataResult] = await Promise.all([
+    const [statsData, subscribersData, payoutsData, chartDataResult, stripeStatusResult] = await Promise.all([
       getReferralDashboardStats(),
       getUserSubscribers(),
       getUserPayouts(),
       getReferralChartData("7D"),
+      getStripeConnectStatus()
     ]);
 
     stats = statsData;
     subscribers = subscribersData || [];
     payouts = payoutsData || [];
     chartData = chartDataResult;
+    stripeStatus = stripeStatusResult?.success && stripeStatusResult.data 
+  ? {
+      status: stripeStatusResult.data.status ?? "not_connected",
+      onboarding_completed: stripeStatusResult.data.onboarding_completed ?? false,
+      payouts_enabled: stripeStatusResult.data.payouts_enabled ?? false,
+    }
+  : null;
   } catch (error) {
     console.error("Failed to fetch referral dashboard data:", error);
   }
@@ -56,6 +67,7 @@ export default async function Page() {
         subscribers={subscribers}
         payouts={payouts}
         initialChartData={chartData}
+        stripeStatus = {stripeStatus}
       />
     </Suspense>
   );

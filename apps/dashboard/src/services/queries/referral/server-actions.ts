@@ -157,7 +157,7 @@ export async function getReferralDashboardStats() {
   const referralIds = userReferrals.map((r) => r.referral_id);
 
   let totalCommission = 0;
-  let paidOutCount = 0;
+  let paidOutAmount = 0; // Changed from paidOutCount
 
   if (referralIds.length > 0) {
     const { data: commissions, error: commissionsError } = await supabase
@@ -169,7 +169,9 @@ export async function getReferralDashboardStats() {
       console.error("Error fetching commissions:", commissionsError);
     } else if (commissions) {
       totalCommission = commissions.reduce((sum, item) => sum + (item.amount || 0), 0);
-      paidOutCount = commissions.filter((c) => c.status === "Paid").length;
+      paidOutAmount = commissions
+        .filter((c) => c.status === "Paid")
+        .reduce((sum, item) => sum + (item.amount || 0), 0); // Sum paid amounts
     }
   }
 
@@ -182,7 +184,7 @@ export async function getReferralDashboardStats() {
     activeSubscribers: activeSubscribers,
     inactiveSubscribers: inactiveSubscribers,
     numberOfReferrals: numberOfReferrals,
-    paidOut: paidOutCount,
+    paidOut: paidOutAmount, // Now returns dollar amount instead of count
   };
 }
 

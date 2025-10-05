@@ -4,6 +4,7 @@ import SubscribersList from "./SubscribersList";
 import PayoutsList from "./PayoutsList";
 import AnalyticsChart from "./AnalyticsChart";
 import { StatsData, ChartData, SubscriberItem, PayoutItem } from "@/services/queries/referral/types";
+import StripeConnectBanner from "./StripeConnectBanner";
 
 interface ReferralStatsProps {
   stats: StatsData;
@@ -12,6 +13,12 @@ interface ReferralStatsProps {
   subscribers: SubscriberItem[];
   payouts: PayoutItem[];
   initialChartData: ChartData | null;
+  stripeStatus: {
+    // Add this
+    status: string;
+    onboarding_completed: boolean;
+    payouts_enabled: boolean;
+  } | null;
 }
 
 const AllReferralsStats: FC<{ stats: StatsData }> = ({ stats }) => (
@@ -46,6 +53,7 @@ const ReferralStats: FC<ReferralStatsProps> = ({
   subscribers,
   payouts,
   initialChartData,
+  stripeStatus
 }) => {
   const tabs: TabName[] = ["All Referrals", "Subscribers", "Payouts"];
 
@@ -71,7 +79,13 @@ const ReferralStats: FC<ReferralStatsProps> = ({
       <div>
         {activeTab === "All Referrals" && <AllReferralsStats stats={stats} />}
         {activeTab === "Subscribers" && <SubscribersList subscribers={subscribers} />}
-        {activeTab === "Payouts" && <PayoutsList payouts={payouts} />}
+        {activeTab === "Payouts" && (
+          <>
+            {" "}
+            <StripeConnectBanner initialStatus={stripeStatus} />
+            <PayoutsList payouts={payouts} />
+          </>
+        )}
       </div>
 
       {/* --- Analytics Section --- */}

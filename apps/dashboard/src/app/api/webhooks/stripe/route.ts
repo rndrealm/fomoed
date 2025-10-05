@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import stripe from "@/lib/utils/stripe";
 import { createSupabaseServerClient } from "@/lib/utils/supabase/server-client";
 import { headers } from "next/headers";
+import { handleStripeAccountUpdated, handleStripeTransferEvent } from "@/services/queries/stripe-connect/server-action";
 
 const WEBHOOK_SECRET = process.env.PRIVATE_STRIPE_WEBHOOK_SECRET! as string;
 
@@ -55,6 +56,62 @@ export async function POST(request: NextRequest) {
       case "invoice.payment_succeeded":
         await handlePaymentSucceeded(event.data.object);
         break;
+
+      case "account.updated": {
+        const account = event.data.object as any;
+        console.log("Processing Stripe Connect account.updated:", account.id);
+
+        await handleStripeAccountUpdated(account.id, {
+          details_submitted: account.details_submitted,
+          payouts_enabled: account.payouts_enabled,
+          charges_enabled: account.charges_enabled,
+          requirements: account.requirements,
+        });
+        break;
+      }
+
+      // case "transfer.created": {
+      //   const transfer = event.data.object as any;
+      //   if (transfer.metadata?.commission_id) {
+      //     console.log("Processing transfer.created for commission:", transfer.metadata.commission_id);
+      //     await handleStripeTransferEvent(transfer.id, transfer.metadata.commission_id, "processing");
+      //   }
+      //   break;
+      // }
+
+      case "transfer.updated": {
+        const transfer = event.data.object as any;
+        if (transfer.metadata?.commission_id) {
+          console.log("Processing transfer.updated for commission:", transfer.metadata.commission_id);
+
+          // Check transfer status and update accordingly
+          if (transfer.status === "paid") {
+            await handleStripeTransferEvent(transfer.id, transfer.metadata.commission_id, "paid");
+          } else if (transfer.status === "failed") {
+            await handleStripeTransferEvent(
+              transfer.id,
+              transfer.metadata.commission_id,
+              "failed",
+              transfer.failure_message || "Transfer failed",
+            );
+          }
+        }
+        break;
+      }
+
+      case "transfer.reversed": {
+        const transfer = event.data.object as any;
+        if (transfer.metadata?.commission_id) {
+          console.log("Processing transfer.reversed for commission:", transfer.metadata.commission_id);
+          await handleStripeTransferEvent(
+            transfer.id,
+            transfer.metadata.commission_id,
+            "failed",
+            "Transfer was reversed",
+          );
+        }
+        break;
+      }
 
       default:
         console.log(`Unhandled event type: ${event.type}`);
@@ -673,7 +730,6 @@ async function handlePaymentSucceeded(invoice: any) {
       console.log(`Reactivation commission created: $${commissionAmount}`);
       return;
     }
-
   } catch (error) {
     console.error("Error handling payment success:", error);
   }

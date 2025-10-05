@@ -12,6 +12,11 @@ interface ReferralPageContentProps {
   subscribers: SubscriberItem[];
   payouts: PayoutItem[];
   initialChartData: ChartData | null;
+  stripeStatus: { // Add this
+    status: string ; 
+    onboarding_completed: boolean;
+    payouts_enabled: boolean;
+  } | null;
 }
 
 export type TabName = "All Referrals" | "Subscribers" | "Payouts";
@@ -22,6 +27,7 @@ const ReferralPageContent: FC<ReferralPageContentProps> = ({
   subscribers,
   payouts,
   initialChartData,
+  stripeStatus
 }) => {
   const [copied, setCopied] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<TabName>("All Referrals");
@@ -69,6 +75,7 @@ const ReferralPageContent: FC<ReferralPageContentProps> = ({
           subscribers={subscribers}
           payouts={payouts}
           initialChartData={initialChartData}
+          stripeStatus = {stripeStatus}
         />
 
         <p className="text-center text-zinc-400 text-sm mt-6">
