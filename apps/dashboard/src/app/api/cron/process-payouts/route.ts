@@ -1,8 +1,10 @@
+// app/api/cron/process-payouts/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { processEligiblePayouts } from '@/services/payouts/processEligiblePayouts';
 
 export const maxDuration = 60;
-export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs'; 
+export const dynamic = 'force-dynamic'; 
 
 export async function GET(request: NextRequest) {
   try {
