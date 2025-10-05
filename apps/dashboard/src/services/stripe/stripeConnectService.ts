@@ -1,9 +1,6 @@
 // services/stripe/stripeConnectService.ts
-import Stripe from 'stripe';
-
-const stripe = new Stripe(process.env.PRIVATE_STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-08-27.basil',
-});
+import stripe from "@/lib/utils/stripe";
+import Stripe from "stripe"
 
 export class StripeConnectService {
   /**
