@@ -5,10 +5,6 @@ import {
   updateCommissionStatus,
 } from "@/services/queries/stripe-connect/server-action";
 
-const stripe = new Stripe(process.env.PRIVATE_STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-08-27.basil",
-});
-
 interface ProcessResult {
   success: string[];
   failed: Array<{ id: number; error: string }>;
@@ -23,6 +19,9 @@ export async function processEligiblePayouts(): Promise<ProcessResult> {
   };
 
   try {
+    const stripe = new Stripe(process.env.PRIVATE_STRIPE_SECRET_KEY!, {
+      apiVersion: "2025-08-27.basil",
+    });
     // 1. Fetch eligible commissions from database
     const eligibleCommissions = await getEligibleCommissionsForPayout();
 
@@ -97,7 +96,6 @@ export async function processEligiblePayouts(): Promise<ProcessResult> {
 
         results.success.push(commission.id.toString());
         console.log(`✓ Commission ${commission.id} paid (${transfer.id})`);
-
       } catch (error: any) {
         // Handle individual commission failure
         await updateCommissionStatus(commission.id, {
