@@ -4,10 +4,6 @@ import { createSupabaseServerClient } from "@/lib/utils/supabase/server-client";
 import { headers } from "next/headers";
 import { handleStripeAccountUpdated, handleStripeTransferEvent } from "@/services/queries/stripe-connect/server-action";
 
-const WEBHOOK_SECRET = process.env.PRIVATE_STRIPE_WEBHOOK_SECRET! as string;
-
-const PRO_PRODUCT_IDS = process.env.STRIPE_PRODUCT_IDS_PRO_PLAN?.split(",").map((id) => id.trim()) || [];
-
 const COMMISSION_RATES = {
   monthly: 9.99,
   yearly: 119.88, // 12 * 9.99
@@ -16,6 +12,8 @@ const COMMISSION_RATES = {
 const PAYOUT_DELAY_MS = 30 * 24 * 60 * 60 * 1000;
 
 export async function POST(request: NextRequest) {
+  const WEBHOOK_SECRET = process.env.PRIVATE_STRIPE_WEBHOOK_SECRET! as string;
+
   try {
     const body = await request.text();
     const headersList = await headers();
@@ -144,6 +142,7 @@ async function getReferralByUserId(userId: string) {
 }
 
 function isProPlan(productId: string): boolean {
+  const PRO_PRODUCT_IDS = process.env.STRIPE_PRODUCT_IDS_PRO_PLAN?.split(",").map((id) => id.trim()) || [];
   return PRO_PRODUCT_IDS.includes(productId);
 }
 
