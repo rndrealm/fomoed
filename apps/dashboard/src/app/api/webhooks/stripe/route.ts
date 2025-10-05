@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import stripe from "@/lib/utils/stripe";
+import getStripe from "@/lib/utils/stripe";
 import { createSupabaseServerClient } from "@/lib/utils/supabase/server-client";
 import { headers } from "next/headers";
 import { handleStripeAccountUpdated, handleStripeTransferEvent } from "@/services/queries/stripe-connect/server-action";
@@ -12,6 +12,7 @@ const COMMISSION_RATES = {
 const PAYOUT_DELAY_MS = 30 * 24 * 60 * 60 * 1000;
 
 export async function POST(request: NextRequest) {
+  const stripe = getStripe();
   const WEBHOOK_SECRET = process.env.PRIVATE_STRIPE_WEBHOOK_SECRET! as string;
 
   try {
@@ -175,6 +176,7 @@ async function sendReferralNotificationEmail(
 }
 
 async function handleCheckoutSessionCompleted(session: any) {
+  const stripe = getStripe()
   try {
     const supabase = await createSupabaseServerClient();
 
@@ -453,6 +455,7 @@ async function handleSubscriptionUpdated(subscription: any) {
 }
 
 async function handlePaymentFailed(invoice: any) {
+  const stripe = getStripe()
   try {
     const supabase = await createSupabaseServerClient();
     const subscription = await stripe.subscriptions.retrieve(invoice.subscription);
@@ -497,6 +500,7 @@ async function handlePaymentFailed(invoice: any) {
 }
 
 async function handlePaymentSucceeded(invoice: any) {
+  const stripe = getStripe()
   try {
     const supabase = await createSupabaseServerClient();
     const subscription = await stripe.subscriptions.retrieve(invoice.parent.subscription_details.subscription);

@@ -1,4 +1,4 @@
-import stripe from "@/lib/utils/stripe";
+import getStripe from "@/lib/utils/stripe";
 import { getDynamicPlanDataMap, PriceLookupKey, priceLookupKeys } from "@/lib/plans";
 import { TRIAL_PERIOD_DAYS } from "@/lib/plans/plans.utils";
 import Stripe from "stripe";
@@ -15,6 +15,7 @@ export function validatePriceLookupKey(priceLookupKey: string): boolean {
 }
 
 export async function getStripeSubscriptionsByEmail(email: string) {
+  const stripe = getStripe();
   const customers = await stripe.customers.search({
     query: `email:"${email}"`,
   });
@@ -33,6 +34,7 @@ export async function getStripeSubscriptionsByEmail(email: string) {
 }
 
 export async function getCustomerByEmail(email: string) {
+  const stripe = getStripe();
   const customers = await stripe.customers.search({
     query: `email:"${email}"`,
   });
@@ -71,8 +73,9 @@ export async function createCheckoutSession({
   if (priceError) {
     return propagateErrorOrData(priceError);
   }
+  const stripe = getStripe();
 
- const subscriptionData: Stripe.Checkout.SessionCreateParams.SubscriptionData = {
+  const subscriptionData: Stripe.Checkout.SessionCreateParams.SubscriptionData = {
     metadata: metadata,
   };
 
@@ -85,7 +88,6 @@ export async function createCheckoutSession({
     };
   }
 
-
   const session = await stripe.checkout.sessions.create({
     customer: customerId,
     mode: "subscription",
@@ -93,7 +95,7 @@ export async function createCheckoutSession({
     line_items: [{ price: priceId, quantity: 1 }],
     success_url: returnUrl,
     cancel_url: returnUrl,
-    
+
     // Pass the metadata to the top-level Checkout Session
     metadata: metadata,
 

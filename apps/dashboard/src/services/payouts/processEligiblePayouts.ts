@@ -1,5 +1,5 @@
 // services/payouts/processEligiblePayouts.ts
-import stripe from "@/lib/utils/stripe";
+import getStripe from "@/lib/utils/stripe";
 import {
   getEligibleCommissionsForPayout,
   updateCommissionStatus,
@@ -17,6 +17,8 @@ export async function processEligiblePayouts(): Promise<ProcessResult> {
     failed: [],
     skipped: [],
   };
+
+  const stripe = getStripe()
 
   try {
     // 1. Fetch eligible commissions from database
