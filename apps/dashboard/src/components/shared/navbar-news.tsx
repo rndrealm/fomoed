@@ -81,12 +81,12 @@ const navLinks: INavLink[] = [
     comingSoon: true,
   },
   {
-    label: "Refer and Earn",
+    label: "Referrals",
     icon: <ReferAndEarnIcon />,
-    href: `/`,
-    disabled: true,
+    href: AppRoutes.referrals.path,
+    disabled: false,
     beta: false,
-    alpha: false,
+    alpha:false,
     comingSoon: true,
   },
 ];

@@ -84,8 +84,10 @@ export async function GET(): Promise<NextResponse<UserSubscriptionsResponse>> {
     return noSubResponse;
   }
 
+  // Fix: Remove product expansion to stay within Stripe's 4-level limit
   const customerSubs = await stripe.subscriptions.list({
     customer: customer.id,
+    expand: ['data.items.data.price'],
   });
   const activeAndTrialingSubs = customerSubs.data.filter((sub) => sub.status === "active" || sub.status === "trialing");
 
@@ -151,10 +153,11 @@ export async function GET(): Promise<NextResponse<UserSubscriptionsResponse>> {
     upcomingPlan = "plus";
   }
 
-  const renewsIn = !activeSub || !upcomingSub ? null : unixToRenewsIn(upcomingSub.current_period_end);
-  const cancelsIn = activeSub?.cancel_at_period_end ? unixToRenewsIn(activeSub.current_period_end) : null;
+  // Fix: current_period_end is on the subscription items, not the subscription itself
+  const renewsIn = !activeSub || !upcomingSub ? null : unixToRenewsIn(upcomingSub.items.data[0].current_period_end);
+  const cancelsIn = activeSub?.cancel_at_period_end ? unixToRenewsIn(activeSub.items.data[0].current_period_end) : null;
   const renewsForUsd = upcomingSub?.items.data[0].price.unit_amount || null;
-  const trialEndsIn = isTrialing ? unixToRenewsIn(activeSub.current_period_end) : null;
+  const trialEndsIn = isTrialing ? unixToRenewsIn(activeSub.items.data[0].current_period_end) : null;
 
   // This should be done via webhook, but for now we do it like this
   // theoretically if the user never opens the page after subscribing,

@@ -3,8 +3,9 @@ import { type NextRequest } from "next/server";
 
 import { redirect } from "next/navigation";
 import { NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/utils/supabase/server-client";
+import { createSupabaseServiceClient, createSupabaseServerClient } from "@/lib/utils/supabase/server-client";
 import { AppRoutes } from "@/lib/routes";
+import { v4 as uuidv4 } from "uuid";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -12,19 +13,61 @@ export async function GET(request: NextRequest) {
   const type = searchParams.get("type") as EmailOtpType | null;
   const next = searchParams.get("next") ?? "/";
   const fromUrl = searchParams.get("fromUrl");
-
-  console.log("type:", type);
-  console.log("token:", token_hash);
-  console.log("fromurl:", fromUrl);
+  const referralCode = searchParams.get("referralCode");
 
   if (token_hash && type) {
     const supabase = await createSupabaseServerClient();
-
+    const serverClient = await createSupabaseServiceClient();
+    
     const { error } = await supabase.auth.verifyOtp({
       type,
       token_hash,
     });
     if (!error) {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+    // const { data: debugUsers, error: debugError } = await serverClient
+    //   .from("users")
+    //   .select("user_id, referral_code")
+    //   .not("referral_code", "is", null)
+    //   .limit(5);
+
+    // console.log("DEBUG: non-null referral_code users", { debugUsers, debugError });
+
+    // const { data: debugExact, error: debugExactError } = await serverClient
+    //   .from("users")
+    //   .select("user_id, referral_code")
+    //   .eq("referral_code", "U50PBRQ9WTO");
+
+    // console.log("DEBUG: lookup for U50PBRQ9WTO", { debugExact, debugExactError });
+
+      if (user && referralCode) {
+        const { data: referrer, error: referrerError } = await serverClient
+          .from("users")
+          .select("user_id")
+          .eq("referral_code", referralCode)
+          .maybeSingle();
+
+        // console.log("Referral lookup debug:", { referrer, referrerError, referralCode });
+
+        if (referrer && !referrerError) {
+          const newReferralId = uuidv4();
+          const { error: referralInsertError } = await serverClient.from("referrals").insert({
+            referral_id: newReferralId,
+            referrer_user_id: referrer.user_id,
+            referred_user_id: user.id,
+            status: "Pending",
+          });
+
+          if (referralInsertError) {
+            console.error("Failed to create referral link:", referralInsertError);
+          }
+        } else {
+          console.warn(`Invalid referral code used during confirmation: ${referralCode}`);
+        }
+      }
       // redirect user to specified redirect URL or root of app
       if (fromUrl === "marketing") {
         const marketingUrl = process.env.NEXT_PUBLIC_MARKETING_APP_URL;

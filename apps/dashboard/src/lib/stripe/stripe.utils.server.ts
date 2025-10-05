@@ -45,6 +45,7 @@ interface CreateCheckoutSessionOpts {
   priceLookupKey: PriceLookupKey;
   returnUrl: string;
   canHaveFreeTrial: boolean;
+  metadata?: { [key: string]: any };
 }
 
 export async function getPriceIdByLookupKey(priceLookupKey: PriceLookupKey): Promise<ErrorOrData<string>> {
@@ -63,12 +64,27 @@ export async function createCheckoutSession({
   canHaveFreeTrial,
   priceLookupKey,
   returnUrl,
+  metadata,
 }: CreateCheckoutSessionOpts): Promise<ErrorOrData<Stripe.Checkout.Session>> {
   const { data: priceId, error: priceError } = await getPriceIdByLookupKey(priceLookupKey);
 
   if (priceError) {
     return propagateErrorOrData(priceError);
   }
+
+ const subscriptionData: Stripe.Checkout.SessionCreateParams.SubscriptionData = {
+    metadata: metadata,
+  };
+
+  if (canHaveFreeTrial) {
+    subscriptionData.trial_period_days = TRIAL_PERIOD_DAYS;
+    subscriptionData.trial_settings = {
+      end_behavior: {
+        missing_payment_method: "cancel",
+      },
+    };
+  }
+
 
   const session = await stripe.checkout.sessions.create({
     customer: customerId,
@@ -77,16 +93,12 @@ export async function createCheckoutSession({
     line_items: [{ price: priceId, quantity: 1 }],
     success_url: returnUrl,
     cancel_url: returnUrl,
-    subscription_data: canHaveFreeTrial
-      ? {
-          trial_settings: {
-            end_behavior: {
-              missing_payment_method: "cancel",
-            },
-          },
-          trial_period_days: TRIAL_PERIOD_DAYS,
-        }
-      : undefined,
+    
+    // Pass the metadata to the top-level Checkout Session
+    metadata: metadata,
+
+    // Pass our constructed subscriptionData object here
+    subscription_data: subscriptionData,
   });
 
   return { data: session };
