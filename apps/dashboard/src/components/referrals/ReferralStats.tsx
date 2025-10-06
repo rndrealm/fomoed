@@ -46,7 +46,7 @@ const AllReferralsStats: FC<{ stats: StatsData }> = ({ stats }) => (
       <span className="w-1/5">{stats.inactiveSubscribers}</span>
       <span className="w-1/5">{stats.numberOfReferrals}</span>
       <div className="w-1/5 flex items-baseline gap-1">
-        <span>{stats.paidOut}</span>
+        <span>{stats.paidOut.toFixed(2)}</span>
         <span className="text-xs font-medium text-zinc-400">USD</span>
       </div>
     </div>
