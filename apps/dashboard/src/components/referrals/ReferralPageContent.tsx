@@ -4,31 +4,40 @@ import HeroCard from "@/components/referrals/HeroCard";
 import ReferralStats from "@/components/referrals/ReferralStats";
 import HowReferralsWorkModal from "@/components/referrals/HowReferralsWorkModal";
 import React, { useState, FC } from "react";
-import { StatsData, ChartData, SubscriberItem, PayoutItem } from "@/services/queries/referral/types";
+import { 
+  StatsData, 
+  ChartData, 
+  SubscriberItem, 
+  PayoutItem,
+  FreeUserItem 
+} from "@/services/queries/referral/types";
 
 interface ReferralPageContentProps {
   referralCode: string;
   stats: StatsData | null;
   subscribers: SubscriberItem[];
+  freeUsers: FreeUserItem[];
   payouts: PayoutItem[];
   initialChartData: ChartData | null;
-  stripeStatus: { // Add this
-    status: string ; 
+  stripeStatus: {
+    status: string;
     onboarding_completed: boolean;
     payouts_enabled: boolean;
   } | null;
 }
 
-export type TabName = "All Referrals" | "Subscribers" | "Payouts";
+export type TabName = "All Referrals" | "Subscribers" | "Free Users" | "Payouts";
 
 const ReferralPageContent: FC<ReferralPageContentProps> = ({
-  referralCode,
+  referralCode: initialReferralCode,
   stats,
   subscribers,
+  freeUsers,
   payouts,
   initialChartData,
-  stripeStatus
+  stripeStatus,
 }) => {
+  const [referralCode, setReferralCode] = useState<string>(initialReferralCode);
   const [copied, setCopied] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<TabName>("All Referrals");
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -37,6 +46,26 @@ const ReferralPageContent: FC<ReferralPageContentProps> = ({
     navigator.clipboard.writeText(link);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleReferralCodeChange = async (newCode: string): Promise<void> => {
+    const response = await fetch('/api/referrals/change-referral-code', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ referral_code: newCode }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to update referral code');
+    }
+
+    const data = await response.json();
+    
+    // Update local state with new referral code
+    setReferralCode(data.referral_code);
   };
 
   const displayStats = stats || {
@@ -53,7 +82,9 @@ const ReferralPageContent: FC<ReferralPageContentProps> = ({
         <div className="mb-8 flex items-start justify-between">
           <div>
             <h1 className="text-2xl font-semibold mb-1">Referrals</h1>
-            <p className="text-zinc-400 text-sm">Know someone who could benefit from Fomoed? send them an invite</p>
+            <p className="text-zinc-400 text-sm">
+              Know someone who could benefit from Fomoed? send them an invite
+            </p>
           </div>
           <button
             onClick={() => setShowModal(true)}
@@ -66,16 +97,22 @@ const ReferralPageContent: FC<ReferralPageContentProps> = ({
           </button>
         </div>
 
-        <HeroCard referralCode={referralCode} copied={copied} handleCopy={handleCopy} />
+        <HeroCard 
+          referralCode={referralCode} 
+          copied={copied} 
+          handleCopy={handleCopy}
+          onReferralCodeChange={handleReferralCodeChange}
+        />
 
         <ReferralStats
           stats={displayStats}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           subscribers={subscribers}
+          freeUsers={freeUsers}
           payouts={payouts}
           initialChartData={initialChartData}
-          stripeStatus = {stripeStatus}
+          stripeStatus={stripeStatus}
         />
 
         <p className="text-center text-zinc-400 text-sm mt-6">

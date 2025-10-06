@@ -1,21 +1,19 @@
-
-// SubscribersList.tsx
 import React, { FC, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { SubscriberItem } from "@/services/queries/referral/types";
+import { FreeUserItem } from "@/services/queries/referral/types";
 
-interface SubscribersListProps {
-  subscribers: SubscriberItem[];
+interface FreeUsersListProps {
+  freeUsers: FreeUserItem[];
 }
 
-const SubscribersList: FC<SubscribersListProps> = ({ subscribers }) => {
+const FreeUsersList: FC<FreeUsersListProps> = ({ freeUsers }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const totalPages = Math.ceil(subscribers.length / rowsPerPage);
+  const totalPages = Math.ceil(freeUsers.length / rowsPerPage);
   const startIndex = (currentPage - 1) * rowsPerPage;
   const endIndex = startIndex + rowsPerPage;
-  const currentSubscribers = subscribers.slice(startIndex, endIndex);
+  const currentFreeUsers = freeUsers.slice(startIndex, endIndex);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -26,59 +24,39 @@ const SubscribersList: FC<SubscribersListProps> = ({ subscribers }) => {
     setCurrentPage(1);
   };
 
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return "N/A";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
   return (
     <div>
       <div className="bg-[#121212] border border-[#1a1a1a] rounded-xl overflow-hidden">
         {/* Table Header */}
-        <div className="grid grid-cols-4 gap-4 px-6 py-4 border-b border-zinc-800 text-sm text-zinc-400 font-medium">
-          <div className="col-span-1">USER ID</div>
-          <div className="col-span-1">JOINED DATE</div>
+        <div className="grid grid-cols-2 gap-4 px-6 py-4 border-b border-zinc-800 text-sm text-zinc-400 font-medium">
+          <div className="col-span-1">EMAIL</div>
           <div className="col-span-1">STATUS</div>
-          <div className="col-span-1 text-right">EARNINGS</div>
         </div>
 
         {/* Table Body */}
         <div className="divide-y divide-zinc-800">
-          {subscribers && subscribers.length > 0 ? (
-            currentSubscribers.map((subscriber, index) => (
+          {freeUsers && freeUsers.length > 0 ? (
+            currentFreeUsers.map((user, index) => (
               <div
-                key={subscriber.referred_user_id || index}
-                className="grid grid-cols-4 gap-4 px-6 py-4 items-center hover:bg-zinc-900/50 transition-colors"
+                key={user.email + index}
+                className="grid grid-cols-2 gap-4 px-6 py-4 items-center hover:bg-zinc-900/50 transition-colors"
               >
-                <div className="col-span-1 text-zinc-200 font-mono text-sm truncate">
-                  {subscriber.referred_user_id || "N/A"}
-                </div>
-                <div className="col-span-1 text-zinc-300">{formatDate(subscriber.joined_date)}</div>
+                <div className="col-span-1 text-zinc-200">{user.email}</div>
                 <div className="col-span-1">
-                  <span className="underline text-zinc-300">{subscriber.status} Subscriber</span>
-                </div>
-                <div
-                  className={`col-span-1 text-right font-medium ${
-                    subscriber.total_earnings > 0 ? "text-green-400" : "text-zinc-400"
-                  }`}
-                >
-                  ${subscriber.total_earnings.toFixed(2)}
+                  <span className="underline text-zinc-300">{user.status} Subscriber</span>
                 </div>
               </div>
             ))
           ) : (
-            <div className="p-8 text-center text-zinc-400">You have no active subscribers yet.</div>
+            <div className="p-8 text-center text-zinc-400">
+              No pending or cancelled users. Great job converting your referrals!
+            </div>
           )}
         </div>
       </div>
 
       {/* Pagination Controls */}
-      {subscribers && subscribers.length > 0 && (
+      {freeUsers && freeUsers.length > 0 && (
         <div className="mt-6 flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm text-zinc-400">
             <span>Rows per page:</span>
@@ -98,7 +76,7 @@ const SubscribersList: FC<SubscribersListProps> = ({ subscribers }) => {
           {/* Page info and navigation */}
           <div className="flex items-center gap-4">
             <span className="text-sm text-zinc-400">
-              {startIndex + 1}-{Math.min(endIndex, subscribers.length)} of {subscribers.length}
+              {startIndex + 1}-{Math.min(endIndex, freeUsers.length)} of {freeUsers.length}
             </span>
 
             <div className="flex items-center gap-1">
@@ -153,4 +131,4 @@ const SubscribersList: FC<SubscribersListProps> = ({ subscribers }) => {
   );
 };
 
-export default SubscribersList;
+export default FreeUsersList;

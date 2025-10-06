@@ -199,10 +199,12 @@ export async function getUserSubscribers() {
     throw new Error("User not authenticated");
   }
 
+  // Only fetch active referrals
   const { data: referrals, error: referralsError } = await query
     .from("referrals")
-    .select("referred_user_id, status, referral_id")
+    .select("referred_user_id, status, referral_id, created_at")
     .eq("referrer_user_id", user.id)
+    .eq("status", "Active")
     .order("updated_at", { ascending: false });
 
   if (referralsError) {
@@ -214,30 +216,18 @@ export async function getUserSubscribers() {
     return [];
   }
 
-  const referredUserIds = referrals.map((r) => r.referred_user_id).filter((id): id is string => id !== null);
-
-  const { data: users, error: usersError } = await query
-    .from("users")
-    .select("user_id, email")
-    .in("user_id", referredUserIds);
-
-  if (usersError) {
-    console.error("Error fetching user emails:", usersError);
-  }
-
-  const userEmailMap = new Map((users || []).map((u) => [u.user_id, u.email]));
-
   const referralIds = referrals.map((r) => r.referral_id);
 
   let commissions: {
     referral_id: string;
     amount: number | null;
+    billing_period_start: string | null;
   }[] = [];
 
   if (referralIds.length > 0) {
     const { data: commData, error: commError } = await query
       .from("referral_commissions")
-      .select("referral_id, amount")
+      .select("referral_id, amount, billing_period_start")
       .in("referral_id", referralIds);
     if (commError) {
       console.error("Error fetching subscriber commissions:", commError);
@@ -251,17 +241,84 @@ export async function getUserSubscribers() {
       .filter((c) => c.referral_id === referral.referral_id)
       .reduce((sum, item) => sum + (item.amount || 0), 0);
 
-    const referredUserEmail = referral.referred_user_id ? userEmailMap.get(referral.referred_user_id) : undefined;
+    // Get the earliest billing_period_start as joined date
+    const referralCommissions = commissions.filter(
+      (c) => c.referral_id === referral.referral_id
+    );
+    const joinedDate =
+      referralCommissions.length > 0
+        ? referralCommissions.reduce((earliest, c) =>
+            c.billing_period_start &&
+            (!earliest || c.billing_period_start < earliest)
+              ? c.billing_period_start
+              : earliest,
+          null as string | null
+        )
+        : referral.created_at;
 
     return {
       referred_user_id: referral.referred_user_id,
-      referred_user_email: referredUserEmail || "N/A",
-      referral_status: referral.status,
+      joined_date: joinedDate,
+      status: referral.status,
       total_earnings: totalEarnings,
     };
   });
 
   return subscribers;
+}
+
+export async function getFreeUsers() {
+  const supabase = await createSupabaseServerClient();
+  const query = await createSupabaseServiceClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error("User not authenticated");
+  }
+
+  // Fetch referrals with Pending or Cancelled status
+  const { data: referrals, error: referralsError } = await query
+    .from("referrals")
+    .select("referred_user_id, status")
+    .eq("referrer_user_id", user.id)
+    .in("status", ["Pending", "Cancelled"])
+    .order("updated_at", { ascending: false });
+
+  if (referralsError) {
+    console.error("Error fetching free users:", referralsError);
+    return [];
+  }
+
+  if (!referrals || referrals.length === 0) {
+    return [];
+  }
+
+  const referredUserIds = referrals
+    .map((r) => r.referred_user_id)
+    .filter((id): id is string => id !== null);
+
+  const { data: users, error: usersError } = await query
+    .from("users")
+    .select("user_id, email")
+    .in("user_id", referredUserIds);
+
+  if (usersError) {
+    console.error("Error fetching user emails:", usersError);
+    return [];
+  }
+
+  const userEmailMap = new Map((users || []).map((u) => [u.user_id, u.email]));
+
+  const freeUsers = referrals.map((referral) => ({
+    email: referral.referred_user_id
+      ? userEmailMap.get(referral.referred_user_id) || "N/A"
+      : "N/A",
+    status: referral.status,
+  }));
+
+  return freeUsers;
 }
 
 export async function getReferralChartData(timeRange: "7D" | "4W" | "6M" | "YTD" | "1Y") {
