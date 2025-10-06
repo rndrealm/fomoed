@@ -11,6 +11,11 @@ export interface Subscriber {
   total_earnings: number;
 }
 
+export interface FreeUserItem {
+  email: string;
+  status: string;
+}
+
 export interface StatsData {
   estimatedTotalCommission: number;
   activeSubscribers: number;
@@ -28,8 +33,8 @@ export interface ChartData {
 
 export interface SubscriberItem {
   referred_user_id: string | null;
-  referred_user_email: string;
-  referral_status: string;
+  joined_date: string | null;
+  status: string;
   total_earnings: number;
 }
 

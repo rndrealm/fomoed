@@ -3,18 +3,25 @@ import type { TabName } from "./ReferralPageContent";
 import SubscribersList from "./SubscribersList";
 import PayoutsList from "./PayoutsList";
 import AnalyticsChart from "./AnalyticsChart";
-import { StatsData, ChartData, SubscriberItem, PayoutItem } from "@/services/queries/referral/types";
+import { 
+  StatsData, 
+  ChartData, 
+  SubscriberItem, 
+  PayoutItem,
+  FreeUserItem 
+} from "@/services/queries/referral/types";
 import StripeConnectBanner from "./StripeConnectBanner";
+import FreeUsersList from "./FreeUsersList";
 
 interface ReferralStatsProps {
   stats: StatsData;
   activeTab: TabName;
   setActiveTab: React.Dispatch<React.SetStateAction<TabName>>;
   subscribers: SubscriberItem[];
+  freeUsers: FreeUserItem[];
   payouts: PayoutItem[];
   initialChartData: ChartData | null;
   stripeStatus: {
-    // Add this
     status: string;
     onboarding_completed: boolean;
     payouts_enabled: boolean;
@@ -51,11 +58,12 @@ const ReferralStats: FC<ReferralStatsProps> = ({
   activeTab,
   setActiveTab,
   subscribers,
+  freeUsers,
   payouts,
   initialChartData,
-  stripeStatus
+  stripeStatus,
 }) => {
-  const tabs: TabName[] = ["All Referrals", "Subscribers", "Payouts"];
+  const tabs: TabName[] = ["All Referrals", "Subscribers", "Free Users", "Payouts"];
 
   return (
     <div className="bg-[#0A0A0A] border-[#0A0A0A] rounded-xl p-8">
@@ -79,9 +87,9 @@ const ReferralStats: FC<ReferralStatsProps> = ({
       <div>
         {activeTab === "All Referrals" && <AllReferralsStats stats={stats} />}
         {activeTab === "Subscribers" && <SubscribersList subscribers={subscribers} />}
+        {activeTab === "Free Users" && <FreeUsersList freeUsers={freeUsers} />}
         {activeTab === "Payouts" && (
           <>
-            {" "}
             <StripeConnectBanner initialStatus={stripeStatus} />
             <PayoutsList payouts={payouts} />
           </>
