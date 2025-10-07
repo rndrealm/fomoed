@@ -12,7 +12,7 @@ import { LayoutType, updateWidgetPropsAtom } from "@/lib/atoms/layoutAtom";
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 import { useAtomValue, useSetAtom } from "jotai";
 import { exchangePairDefault } from "@/lib/static";
-import PremiumOverlay from "../../shared/premium-overlay";
+// import PremiumOverlay from "../../shared/premium-overlay";
 import CameraAndRefresh from "../../shared/camera-and-refresh";
 import { FullScreen } from "@/components/icons/icons";
 import WidgetModalWrapper from "@/components/modals/widget-modal";
@@ -143,7 +143,7 @@ export default function LiquidationHeatmapWidget(props: IProps) {
                 <ChartLegend colorOptions={colorToCfgi} />
               </div>
             </div>
-            <PremiumOverlay>
+            {/* <PremiumOverlay> */}
               <div className="mx-3 flex-grow min-h-[250px]">
                 {liquidationData && !isFetching ? (
                   <LiquidationHeatmapChart liquidationData={liquidationData} />
@@ -151,7 +151,7 @@ export default function LiquidationHeatmapWidget(props: IProps) {
                   <Skeleton className="bg-widget-background-200 h-full w-full" />
                 )}
               </div>
-            </PremiumOverlay>
+            {/* </PremiumOverlay> */}
           </div>
         </div>
 
