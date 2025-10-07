@@ -1,6 +1,7 @@
 import React, { FC, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download } from "lucide-react";
 import { FreeUserItem } from "@/services/queries/referral/types";
+import ExcelJS from "exceljs";
 
 interface FreeUsersListProps {
   freeUsers: FreeUserItem[];
@@ -24,8 +25,101 @@ const FreeUsersList: FC<FreeUsersListProps> = ({ freeUsers }) => {
     setCurrentPage(1);
   };
 
+  const handleExportToExcel = async () => {
+    // Create a new workbook and worksheet
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Free Users");
+
+    // Define columns
+    worksheet.columns = [
+      { header: "Email", key: "email", width: 35 },
+      { header: "Status", key: "status", width: 15 },
+    ];
+
+    // Style the header row
+    const headerRow = worksheet.getRow(1);
+    headerRow.height = 20;
+
+    for (let colNum = 1; colNum <= 2; colNum++) {
+      const cell = headerRow.getCell(colNum);
+      cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FF4472C4" },
+      };
+      cell.alignment = { vertical: "middle", horizontal: "center" };
+      cell.border = {
+        top: { style: "thin", color: { argb: "FFD3D3D3" } },
+        left: { style: "thin", color: { argb: "FFD3D3D3" } },
+        bottom: { style: "thin", color: { argb: "FFD3D3D3" } },
+        right: { style: "thin", color: { argb: "FFD3D3D3" } },
+      };
+    }
+
+    // Add data rows
+    freeUsers.forEach((user, index) => {
+      const row = worksheet.addRow({
+        email: user.email,
+        status: user.status,
+      });
+
+      // Only apply styling to columns A–B
+      const dataColumns = [1, 2];
+      dataColumns.forEach((colNum) => {
+        const cell = row.getCell(colNum);
+
+        // Gray background for odd rows
+        if (index % 2 === 0) {
+          cell.fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "FFF2F2F2" },
+          };
+        }
+
+        // Apply borders
+        cell.border = {
+          top: { style: "thin", color: { argb: "FFD3D3D3" } },
+          left: { style: "thin", color: { argb: "FFD3D3D3" } },
+          bottom: { style: "thin", color: { argb: "FFD3D3D3" } },
+          right: { style: "thin", color: { argb: "FFD3D3D3" } },
+        };
+
+        cell.alignment = { vertical: "middle" };
+      });
+    });
+
+    // Generate file name with current date
+    const date = new Date().toISOString().split("T")[0];
+    const fileName = `free_users_${date}.xlsx`;
+
+    // Write to buffer and download
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    window.URL.revokeObjectURL(url);
+  };
+
   return (
     <div>
+      <div className="flex justify-end mb-4">
+        <button
+          onClick={handleExportToExcel}
+          disabled={freeUsers.length === 0}
+          className="flex items-center gap-2 px-4 py-2 bg-white text-black rounded-lg hover:bg-zinc-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Download className="w-4 h-4" />
+          Export to Excel
+        </button>
+      </div>
+
       <div className="bg-[#121212] border border-[#1a1a1a] rounded-xl overflow-hidden">
         {/* Table Header */}
         <div className="grid grid-cols-2 gap-4 px-6 py-4 border-b border-zinc-800 text-sm text-zinc-400 font-medium">
