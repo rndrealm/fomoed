@@ -145,7 +145,7 @@ export default function NewPriceHistory(props: IProps) {
   const [isCandleStick, setIsCandleStick] = useState(false);
   const [isFullScreen, setIsFullscreen] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
-  const [selectedPeriod, setSelectedPeriod] = useState("1D");
+  const [selectedPeriod, setSelectedPeriod] = useState("1W");
   const [showTokenStats, setShowTokenStats] = useState(false);
   const [containerWidth, setContainerWidth] = useState(0);
 
