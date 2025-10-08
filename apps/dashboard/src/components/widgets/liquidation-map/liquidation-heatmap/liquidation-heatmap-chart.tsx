@@ -19,6 +19,7 @@ Chart.register(LiqHeatmapController);
 
 interface ICfgiCard {
   liquidationData: LiquidHeatmapResponse;
+  isFullscreen?: boolean;
 }
 
 registerCandleStickPluginBrowser();
@@ -27,7 +28,7 @@ const LiquidationHeatmapChart = (props: ICfgiCard) => {
   useEffect(() => {
     registerChartPluginZoomInBrowser();
   }, []);
-  const { liquidationData } = props;
+  const { liquidationData, isFullscreen } = props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
   const [maxValue, setMaxValue] = React.useState(0);
@@ -242,47 +243,48 @@ const LiquidationHeatmapChart = (props: ICfgiCard) => {
     chart_init(ctx);
   }, [liquidationData, chart_init]);
 
+  useEffect(() => {
+    if (!isFullscreen && chartRef.current) {
+      const timeoutId = setTimeout(() => {
+        chartRef.current?.resize();
+      }, 100);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isFullscreen]);
+
   const humanizedMaxLiqValue = humanizeNumber(maxValue);
-  
+
   return (
-    <div className="relative h-full w-full pb-1">
+    <div className="relative h-full w-full pb-1 flex">
+      {" "}
       {chartArea && (
         <div
           className={cn(
-            "font-paralucent absolute flex flex-col gap-y-[5px] text-xs font-medium text-[#FFFFFF66] opacity-100 duration-500 z-10",
+            "font-paralucent flex flex-col gap-y-[5px] text-xs font-medium text-[#FFFFFF66] opacity-100 duration-500 z-10 shrink-0",
             {
               "opacity-0": !humanizedMaxLiqValue,
             },
           )}
           style={{
-            top: `${chartArea.top}px`,
-            left: `${chartArea.left - 25}px`,
-            height: `${chartArea.height}px`,
-            width: '40px',
+            width: "30px",
+            alignItems: "center",
           }}
         >
-          <div className="whitespace-nowrap" style={{ marginLeft: 'auto', marginRight: '8px', textAlign: 'center' }}>{humanizedMaxLiqValue}</div>
-
+          <div>{humanizedMaxLiqValue}</div>
           <div
             className="w-2 flex-grow rounded"
             style={{
-              marginLeft: 'auto',
-              marginRight: '8px',
-              background:
-                "linear-gradient(180deg, #E7E60B 0%, #63C752 22.5%, #27A77D 47%, #2F5C86 75%, #44095F 100%)",
+              background: "linear-gradient(180deg, #E7E60B 0%, #63C752 22.5%, #27A77D 47%, #2F5C86 75%, #44095F 100%)",
             }}
-          ></div>
-
-          <div style={{ marginLeft: 'auto', marginRight: '8px', textAlign: 'center' }}>0</div>
+          />
+          <div>0</div>
         </div>
       )}
-
-      <canvas
-        width="400"
-        height={0}
-        ref={canvasRef}
-        className="ml-6"
-      ></canvas>
+      {/* Chart canvas */}
+      <div className="relative flex-grow">
+        <canvas ref={canvasRef} className="absolute inset-0 !h-full !w-full"></canvas>
+      </div>
     </div>
   );
 };

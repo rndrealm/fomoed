@@ -373,7 +373,7 @@ export const chartsMap = {
   "liquidation-heat-map": {
     name: "Liquidation Heat Map",
     extra: ["period", "token", "exchange-token"],
-    component: (widget: LayoutType["widgets"][0]) => <LiquidationHeatmapWidget widget={widget} fullScreenButton />,
+    component: (widget: LayoutType["widgets"][0]) => <LiquidationHeatmapWidget widget={widget} />,
     isResizable: true,
   },
   "exchange-liquidation-map": {

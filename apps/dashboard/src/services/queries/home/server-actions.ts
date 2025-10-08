@@ -40,7 +40,7 @@ const createDefaultWidgets = () => {
       props: tradingEconomicDefaults,
       meta: {
         i: `${tradingEconomicId}${widgetIdJoin}${tradingEconomicSlug}`,
-        x: 8, y: 0, 
+        x: 0, y: 4, 
         ...tradingEconomicDefaults.meta,
       },
     },
@@ -50,7 +50,7 @@ const createDefaultWidgets = () => {
       props: liquidationHeatMapDefaults,
       meta: {
         i: `${liquidationHeatMapId}${widgetIdJoin}${liquidationHeatMapSlug}`,
-        x: 0, y: 4,
+        x: 8, y: 0,
         ...liquidationHeatMapDefaults.meta,
       },
     },
