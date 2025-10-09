@@ -287,7 +287,7 @@ export async function getFreeUsers() {
     .order("updated_at", { ascending: false });
 
   if (referralsError) {
-    console.error("Error fetching free users:", referralsError);
+    console.error("Error fetching referrals:", referralsError);
     return [];
   }
 
@@ -295,31 +295,17 @@ export async function getFreeUsers() {
     return [];
   }
 
-  const referredUserIds = referrals
-    .map((r) => r.referred_user_id)
-    .filter((id): id is string => id !== null);
-
-  const { data: users, error: usersError } = await query
-    .from("users")
-    .select("user_id, email")
-    .in("user_id", referredUserIds);
-
-  if (usersError) {
-    console.error("Error fetching user emails:", usersError);
-    return [];
-  }
-
-  const userEmailMap = new Map((users || []).map((u) => [u.user_id, u.email]));
-
-  const freeUsers = referrals.map((referral) => ({
-    email: referral.referred_user_id
-      ? userEmailMap.get(referral.referred_user_id) || "N/A"
-      : "N/A",
-    status: referral.status,
-  }));
+  // Filter out null referred_user_id
+  const freeUsers = referrals
+    .filter((r) => r.referred_user_id !== null)
+    .map((referral) => ({
+      user_id: referral.referred_user_id!,
+      status: referral.status,
+    }));
 
   return freeUsers;
 }
+
 
 export async function getReferralChartData(timeRange: "7D" | "4W" | "6M" | "YTD" | "1Y") {
   const supabase = await createSupabaseServerClient();

@@ -12,7 +12,7 @@ export interface Subscriber {
 }
 
 export interface FreeUserItem {
-  email: string;
+  user_id: string;
   status: string;
 }
 
