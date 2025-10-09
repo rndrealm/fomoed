@@ -1,4 +1,3 @@
-// services/payouts/processEligiblePayouts.ts
 import getStripe from "@/lib/utils/stripe";
 import {
   getEligibleCommissionsForPayout,
@@ -17,16 +16,10 @@ async function checkUserHasActiveProPlan(userId: string): Promise<boolean> {
   const supabase = await createSupabaseServiceClient();
 
   try {
-    // Get user email
-    const { data: user } = await supabase
-      .from("users")
-      .select("email")
-      .eq("user_id", userId)
-      .single();
+    const { data: user } = await supabase.from("users").select("email").eq("user_id", userId).single();
 
     if (!user?.email) return false;
 
-    // Search Stripe customers
     const customers = await stripe.customers.search({
       query: `email:"${user.email}"`,
     });
@@ -35,26 +28,19 @@ async function checkUserHasActiveProPlan(userId: string): Promise<boolean> {
 
     const customer = customers.data[0];
 
-    // Get active subscriptions - only expand to 3 levels
     const subscriptions = await stripe.subscriptions.list({
       customer: customer.id,
       status: "active",
-      expand: ["data.items.data.price"], // Only 3 levels, not 4
+      expand: ["data.items.data.price"], 
     });
 
-    // Check for Pro or Plus plan
     const plansIdMap = {
       pro: process.env.STRIPE_PRODUCT_IDS_PRO_PLAN?.split(",").map((id) => id.trim()) || [],
-      plus: process.env.STRIPE_PRODUCT_IDS_PLUS_PLAN?.split(",").map((id) => id.trim()) || [],
     };
 
     return subscriptions.data.some((sub) => {
-      // prodId is a string (not expanded object)
       const prodId = sub.items.data?.[0]?.price?.product;
-      return (
-        plansIdMap.pro.includes(prodId as string) ||
-        plansIdMap.plus.includes(prodId as string)
-      );
+      return plansIdMap.pro.includes(prodId as string);
     });
   } catch (error) {
     console.error(`Error checking subscription for user ${userId}:`, error);
@@ -72,7 +58,6 @@ export async function processEligiblePayouts(): Promise<ProcessResult> {
   const stripe = getStripe();
 
   try {
-    // 1. Fetch eligible commissions from database
     const eligibleCommissions = await getEligibleCommissionsForPayout();
 
     console.log(`Found ${eligibleCommissions.length} eligible commissions to process`);
@@ -81,7 +66,6 @@ export async function processEligiblePayouts(): Promise<ProcessResult> {
       return results;
     }
 
-    // 2. Process each commission
     for (const commission of eligibleCommissions) {
       try {
         const stripeAccount = commission.referrer?.stripeAccount;
@@ -90,7 +74,6 @@ export async function processEligiblePayouts(): Promise<ProcessResult> {
         const accountStatus = stripeAccount?.status;
         const referrerUserId = commission.referrer?.user_id;
 
-        // Double-check: Verify referrer still has active Pro/Plus subscription
         const hasActivePlan = await checkUserHasActiveProPlan(referrerUserId);
 
         if (!hasActivePlan) {
@@ -98,16 +81,15 @@ export async function processEligiblePayouts(): Promise<ProcessResult> {
             id: commission.id,
             reason: "Referrer no longer has active Pro/Plus subscription",
           });
-          
+
           await updateCommissionStatus(commission.id, {
             status: "Pending",
             error_message: "Referrer subscription expired",
           });
-          
+
           continue;
         }
 
-        // Skip if no Stripe account
         if (!stripeAccountId) {
           results.skipped.push({
             id: commission.id,
@@ -116,7 +98,6 @@ export async function processEligiblePayouts(): Promise<ProcessResult> {
           continue;
         }
 
-        // Skip if payouts not enabled
         if (!payoutsEnabled) {
           results.skipped.push({
             id: commission.id,
@@ -125,7 +106,6 @@ export async function processEligiblePayouts(): Promise<ProcessResult> {
           continue;
         }
 
-        // Skip if account not in connected status
         if (accountStatus !== "connected") {
           results.skipped.push({
             id: commission.id,
@@ -134,12 +114,10 @@ export async function processEligiblePayouts(): Promise<ProcessResult> {
           continue;
         }
 
-        // Update status to processing
         await updateCommissionStatus(commission.id, {
           status: "Processing",
         });
 
-        // Create Stripe transfer
         const transfer = await stripe.transfers.create({
           amount: Math.round(commission.amount * 100),
           currency: "usd",
@@ -154,7 +132,6 @@ export async function processEligiblePayouts(): Promise<ProcessResult> {
           },
         });
 
-        // Mark as paid
         await updateCommissionStatus(commission.id, {
           status: "Paid",
           stripe_transfer_id: transfer.id,
