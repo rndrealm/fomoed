@@ -4,11 +4,61 @@ import {
   getEligibleCommissionsForPayout,
   updateCommissionStatus,
 } from "@/services/queries/stripe-connect/server-action";
+import { createSupabaseServiceClient } from "@/lib/utils/supabase/server-client";
 
 interface ProcessResult {
   success: string[];
   failed: Array<{ id: number; error: string }>;
   skipped: Array<{ id: number; reason: string }>;
+}
+
+async function checkUserHasActiveProPlan(userId: string): Promise<boolean> {
+  const stripe = getStripe();
+  const supabase = await createSupabaseServiceClient();
+
+  try {
+    // Get user email
+    const { data: user } = await supabase
+      .from("users")
+      .select("email")
+      .eq("user_id", userId)
+      .single();
+
+    if (!user?.email) return false;
+
+    // Search Stripe customers
+    const customers = await stripe.customers.search({
+      query: `email:"${user.email}"`,
+    });
+
+    if (customers.data.length === 0) return false;
+
+    const customer = customers.data[0];
+
+    // Get active subscriptions
+    const subscriptions = await stripe.subscriptions.list({
+      customer: customer.id,
+      status: "active",
+      expand: ["data.items.data.price.product"],
+    });
+
+    // Check for Pro or Plus plan
+    const plansIdMap = {
+      pro: process.env.STRIPE_PRODUCT_IDS_PRO_PLAN?.split(",").map((id) => id.trim()) || [],
+      plus: process.env.STRIPE_PRODUCT_IDS_PLUS_PLAN?.split(",").map((id) => id.trim()) || [],
+    };
+
+    return subscriptions.data.some((sub) => {
+      const prodId = sub.items.data?.[0]?.plan?.product;
+      return (
+        plansIdMap.pro.includes(prodId as string) ||
+        plansIdMap.plus.includes(prodId as string)
+      );
+    });
+  } catch (error) {
+    console.error(`Error checking subscription for user ${userId}:`, error);
+    return false;
+  }
 }
 
 export async function processEligiblePayouts(): Promise<ProcessResult> {
@@ -18,7 +68,7 @@ export async function processEligiblePayouts(): Promise<ProcessResult> {
     skipped: [],
   };
 
-  const stripe = getStripe()
+  const stripe = getStripe();
 
   try {
     // 1. Fetch eligible commissions from database
@@ -37,6 +87,24 @@ export async function processEligiblePayouts(): Promise<ProcessResult> {
         const stripeAccountId = stripeAccount?.stripe_account_id;
         const payoutsEnabled = stripeAccount?.payouts_enabled;
         const accountStatus = stripeAccount?.status;
+        const referrerUserId = commission.referrer?.user_id;
+
+        // Double-check: Verify referrer still has active Pro/Plus subscription
+        const hasActivePlan = await checkUserHasActiveProPlan(referrerUserId);
+
+        if (!hasActivePlan) {
+          results.skipped.push({
+            id: commission.id,
+            reason: "Referrer no longer has active Pro/Plus subscription",
+          });
+          
+          await updateCommissionStatus(commission.id, {
+            status: "Pending",
+            error_message: "Referrer subscription expired",
+          });
+          
+          continue;
+        }
 
         // Skip if no Stripe account
         if (!stripeAccountId) {
@@ -70,9 +138,9 @@ export async function processEligiblePayouts(): Promise<ProcessResult> {
           status: "Processing",
         });
 
-        // Create Stripe transfer - if this succeeds, transfer is complete
+        // Create Stripe transfer
         const transfer = await stripe.transfers.create({
-          amount: Math.round(commission.amount * 100), // Convert to cents
+          amount: Math.round(commission.amount * 100),
           currency: "usd",
           destination: stripeAccountId,
           description: `Referral commission for ${commission.referrer.email}`,
@@ -85,7 +153,7 @@ export async function processEligiblePayouts(): Promise<ProcessResult> {
           },
         });
 
-        // If we reach here, transfer succeeded
+        // Mark as paid
         await updateCommissionStatus(commission.id, {
           status: "Paid",
           stripe_transfer_id: transfer.id,
@@ -96,7 +164,6 @@ export async function processEligiblePayouts(): Promise<ProcessResult> {
         results.success.push(commission.id.toString());
         console.log(`✓ Commission ${commission.id} paid (${transfer.id})`);
       } catch (error: any) {
-        // Handle individual commission failure
         await updateCommissionStatus(commission.id, {
           status: "Failed",
           error_message: error.message,
