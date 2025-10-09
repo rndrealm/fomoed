@@ -35,11 +35,11 @@ async function checkUserHasActiveProPlan(userId: string): Promise<boolean> {
 
     const customer = customers.data[0];
 
-    // Get active subscriptions
+    // Get active subscriptions - only expand to 3 levels
     const subscriptions = await stripe.subscriptions.list({
       customer: customer.id,
       status: "active",
-      expand: ["data.items.data.price.product"],
+      expand: ["data.items.data.price"], // Only 3 levels, not 4
     });
 
     // Check for Pro or Plus plan
@@ -49,7 +49,8 @@ async function checkUserHasActiveProPlan(userId: string): Promise<boolean> {
     };
 
     return subscriptions.data.some((sub) => {
-      const prodId = sub.items.data?.[0]?.plan?.product;
+      // prodId is a string (not expanded object)
+      const prodId = sub.items.data?.[0]?.price?.product;
       return (
         plansIdMap.pro.includes(prodId as string) ||
         plansIdMap.plus.includes(prodId as string)

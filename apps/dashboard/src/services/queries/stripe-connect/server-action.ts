@@ -437,14 +437,15 @@ export async function getEligibleCommissionsForPayout() {
     const stripe = getStripe();
     const activeProUserIds = new Set<string>();
 
+    const plansIdMap = {
+      pro: process.env.STRIPE_PRODUCT_IDS_PRO_PLAN?.split(",").map((id) => id.trim()) || [],
+      plus: process.env.STRIPE_PRODUCT_IDS_PLUS_PLAN?.split(",").map((id) => id.trim()) || [],
+    };
+
     for (const userId of referrerUserIds) {
       try {
         // Get user email to search Stripe customers
-        const { data: user } = await query
-          .from("users")
-          .select("email")
-          .eq("user_id", userId)
-          .single();
+        const { data: user } = await query.from("users").select("email").eq("user_id", userId).single();
 
         if (!user?.email) continue;
 
@@ -457,25 +458,18 @@ export async function getEligibleCommissionsForPayout() {
 
         const customer = customers.data[0];
 
-        // Get active subscriptions
+        // Get active subscriptions - only expand to 3 levels
         const subscriptions = await stripe.subscriptions.list({
           customer: customer.id,
           status: "active",
-          expand: ["data.items.data.price.product"],
+          expand: ["data.items.data.price"], // Only 3 levels
         });
 
         // Check if user has active Pro or Plus subscription
-        const plansIdMap = {
-          pro: process.env.STRIPE_PRODUCT_IDS_PRO_PLAN?.split(",").map((id) => id.trim()) || [],
-          plus: process.env.STRIPE_PRODUCT_IDS_PLUS_PLAN?.split(",").map((id) => id.trim()) || [],
-        };
-
         const hasProOrPlus = subscriptions.data.some((sub) => {
-          const prodId = sub.items.data?.[0]?.plan?.product;
-          return (
-            plansIdMap.pro.includes(prodId as string) ||
-            plansIdMap.plus.includes(prodId as string)
-          );
+          const prodId = sub.items.data?.[0]?.price?.product;
+          // prodId is just a string ID, not expanded
+          return plansIdMap.pro.includes(prodId as string) || plansIdMap.plus.includes(prodId as string);
         });
 
         if (hasProOrPlus) {
@@ -527,10 +521,12 @@ export async function getEligibleCommissionsForPayout() {
     const enrichedCommissions = commissions
       .map((commission: any) => {
         const referrerUserId = commission.referral?.referrer_user_id;
-        
+
         // Check if referrer has active Pro/Plus subscription
         if (!activeProUserIds.has(referrerUserId)) {
-          console.log(`Skipping commission ${commission.id}: Referrer ${referrerUserId} does not have active Pro/Plus subscription`);
+          console.log(
+            `Skipping commission ${commission.id}: Referrer ${referrerUserId} does not have active Pro/Plus subscription`,
+          );
           return null;
         }
 
@@ -557,8 +553,10 @@ export async function getEligibleCommissionsForPayout() {
       })
       .filter(Boolean);
 
-    console.log(`Filtered to ${enrichedCommissions.length} eligible commissions from ${commissions.length} total pending`);
-    
+    console.log(
+      `Filtered to ${enrichedCommissions.length} eligible commissions from ${commissions.length} total pending`,
+    );
+
     return enrichedCommissions;
   } catch (error: any) {
     console.error("Error in getEligibleCommissionsForPayout:", error);
