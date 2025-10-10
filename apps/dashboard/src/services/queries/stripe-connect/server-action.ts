@@ -1,5 +1,6 @@
 "use server";
 
+import getStripe from "@/lib/utils/stripe";
 import { createSupabaseServerClient, createSupabaseServiceClient } from "@/lib/utils/supabase/server-client";
 import { StripeConnectService } from "@/services/stripe/stripeConnectService";
 import { revalidatePath } from "next/cache";
@@ -427,16 +428,63 @@ export async function getEligibleCommissionsForPayout() {
       return [];
     }
 
-    // Get unique referrer user IDs
     const referrerUserIds = Array.from(
       new Set(commissions.map((c: any) => c.referral?.referrer_user_id).filter(Boolean)),
     );
 
-    // Get Stripe account info for all referrers
+    const stripe = getStripe();
+    const activeProUserIds = new Set<string>();
+
+    const plansIdMap = {
+      pro: process.env.STRIPE_PRODUCT_IDS_PRO_PLAN?.split(",").map((id) => id.trim()) || [],
+    };
+
+    for (const userId of referrerUserIds) {
+      try {
+        const { data: user } = await query.from("users").select("email").eq("user_id", userId).single();
+
+        if (!user?.email) continue;
+
+        const customers = await stripe.customers.search({
+          query: `email:"${user.email}"`,
+        });
+
+        if (customers.data.length === 0) continue;
+
+        const customer = customers.data[0];
+
+        const subscriptions = await stripe.subscriptions.list({
+          customer: customer.id,
+          status: "active",
+          expand: ["data.items.data.price"], 
+        });
+
+        const hasProOrPlus = subscriptions.data.some((sub) => {
+          const prodId = sub.items.data?.[0]?.price?.product;
+          return plansIdMap.pro.includes(prodId as string);
+        });
+
+        if (hasProOrPlus) {
+          activeProUserIds.add(userId);
+        }
+      } catch (error) {
+        console.error(`Error checking subscription for user ${userId}:`, error);
+      }
+    }
+
+    console.log(`Found ${activeProUserIds.size} referrers with active Pro/Plus subscriptions`);
+
+    const eligibleReferrerIds = Array.from(activeProUserIds);
+
+    if (eligibleReferrerIds.length === 0) {
+      console.log("No referrers with active Pro/Plus subscriptions found");
+      return [];
+    }
+
     const { data: stripeAccounts, error: stripeError } = await query
       .from("stripe_connect_accounts")
       .select("stripe_connect_id, user_id, stripe_account_id, payouts_enabled, status")
-      .in("user_id", referrerUserIds)
+      .in("user_id", eligibleReferrerIds)
       .eq("status", "connected")
       .eq("payouts_enabled", true);
 
@@ -445,29 +493,35 @@ export async function getEligibleCommissionsForPayout() {
       return [];
     }
 
-    // Get user emails
     const { data: users, error: usersError } = await query
       .from("users")
       .select("user_id, email")
-      .in("user_id", referrerUserIds);
+      .in("user_id", eligibleReferrerIds);
 
     if (usersError) {
       console.error("Error fetching users:", usersError);
     }
 
-    // Create maps for quick lookup
     const stripeAccountMap = new Map((stripeAccounts || []).map((sa: any) => [sa.user_id, sa]));
     const userEmailMap = new Map((users || []).map((u: any) => [u.user_id, u.email]));
 
-    // Filter and enrich commissions with Stripe account info
     const enrichedCommissions = commissions
       .map((commission: any) => {
         const referrerUserId = commission.referral?.referrer_user_id;
+
+        if (!activeProUserIds.has(referrerUserId)) {
+          console.log(
+            `Skipping commission ${commission.id}: Referrer ${referrerUserId} does not have active Pro/Plus subscription`,
+          );
+          return null;
+        }
+
         const stripeAccount = referrerUserId ? stripeAccountMap.get(referrerUserId) : null;
         const email = referrerUserId ? userEmailMap.get(referrerUserId) : null;
 
         if (!stripeAccount) {
-          return null; // Skip if no valid Stripe account
+          console.log(`Skipping commission ${commission.id}: No Stripe account for referrer ${referrerUserId}`);
+          return null;
         }
 
         return {
@@ -484,6 +538,10 @@ export async function getEligibleCommissionsForPayout() {
         };
       })
       .filter(Boolean);
+
+    console.log(
+      `Filtered to ${enrichedCommissions.length} eligible commissions from ${commissions.length} total pending`,
+    );
 
     return enrichedCommissions;
   } catch (error: any) {
