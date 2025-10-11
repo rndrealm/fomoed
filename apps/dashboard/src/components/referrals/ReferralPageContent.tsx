@@ -28,7 +28,7 @@ interface ReferralPageContentProps {
   } | null;
 }
 
-export type TabName = "All Referrals" | "Subscribers" | "Free Users" | "Payouts";
+export type TabName = "All Referrals" | "Paid Subscribers" | "Free Users" | "Payouts";
 
 const ReferralPageContent: FC<ReferralPageContentProps> = ({
   referralCode: initialReferralCode,
