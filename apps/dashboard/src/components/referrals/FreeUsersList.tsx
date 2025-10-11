@@ -32,7 +32,7 @@ const FreeUsersList: FC<FreeUsersListProps> = ({ freeUsers }) => {
 
     // Define columns
     worksheet.columns = [
-      { header: "User ID", key: "user_id", width: 35 },
+      { header: "Email", key: "email", width: 35 },
       { header: "Status", key: "status", width: 15 },
     ];
 
@@ -60,8 +60,8 @@ const FreeUsersList: FC<FreeUsersListProps> = ({ freeUsers }) => {
     // Add data rows
     freeUsers.forEach((user, index) => {
       const row = worksheet.addRow({
-        user_id: user.user_id,
-        status: user.status,
+        email: user.email,
+        status:  user.status === "Pending" ? "Free User" : `${user.status}`,
       });
 
       // Only apply styling to columns A–B
@@ -123,7 +123,7 @@ const FreeUsersList: FC<FreeUsersListProps> = ({ freeUsers }) => {
       <div className="bg-[#121212] border border-[#1a1a1a] rounded-xl overflow-hidden">
         {/* Table Header */}
         <div className="grid grid-cols-2 gap-4 px-6 py-4 border-b border-zinc-800 text-sm text-zinc-400 font-medium">
-          <div className="col-span-1">USER ID</div>
+          <div className="col-span-1">Email</div>
           <div className="col-span-1">STATUS</div>
         </div>
 
@@ -132,12 +132,14 @@ const FreeUsersList: FC<FreeUsersListProps> = ({ freeUsers }) => {
           {freeUsers && freeUsers.length > 0 ? (
             currentFreeUsers.map((user, index) => (
               <div
-                key={user.user_id + index}
+                key={user.email + index}
                 className="grid grid-cols-2 gap-4 px-6 py-4 items-center hover:bg-zinc-900/50 transition-colors"
               >
-                <div className="col-span-1 text-zinc-200">{user.user_id}</div>
+                <div className="col-span-1 text-zinc-200">{user.email}</div>
                 <div className="col-span-1">
-                  <span className="underline text-zinc-300">{user.status} Subscriber</span>
+                  <span className="underline text-zinc-300">
+                    {user.status === "Pending" ? "Free User" : `${user.status} Subscriber`}
+                  </span>
                 </div>
               </div>
             ))
