@@ -12,7 +12,7 @@ export interface Subscriber {
 }
 
 export interface FreeUserItem {
-  user_id: string;
+  email: string;
   status: string;
 }
 
@@ -32,7 +32,7 @@ export interface ChartData {
 }
 
 export interface SubscriberItem {
-  referred_user_id: string | null;
+  email: string | null;
   joined_date: string | null;
   status: string;
   total_earnings: number;
