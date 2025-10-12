@@ -16,6 +16,7 @@ import SanitmentTokenDropdown from "../shared/santiment-token-dropdown";
 import { FullscreenableChart } from "./fullscreenable-chart";
 import { FullscreenControls } from "./fullscreen-controls";
 import { useSupabaseAuth } from "@/components/providers";
+import FullScreenButtonV2 from "../shared/fullscreen-buttonv2";
 
 const pricePeriodOptions = [
   { value: "5m", label: "5M" },
@@ -182,21 +183,7 @@ export default function WeightedSentiment(props: IProps) {
         </div>
       </div>
 
-      <div
-        className={cn("absolute right-[9px] bottom-[16px] z-[9] h-[28px] w-[28px] rounded-md border border-[#1c1c1c]", {
-          "opacity-0": !isControlsVisible,
-          "opacity-100": isControlsVisible,
-        })}
-        style={{
-          background: "linear-gradient(180deg, #1b1b1b 0%, rgba(0, 0, 0, 0.38) 72.15%)",
-          backdropFilter: "blur(7px)",
-          transition: "opacity 0.3s ease-in-out",
-        }}
-      >
-        <button className="flex h-full w-full items-center justify-center" onClick={toggleFullscreen}>
-          <FullScreen />
-        </button>
-      </div>
+      <FullScreenButtonV2 isControlsVisible={isControlsVisible} toggleFullscreen={toggleFullscreen} />
 
       <AnimatePresence>
         {showInfo && (

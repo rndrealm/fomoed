@@ -17,7 +17,7 @@ import { cn, modalSlide } from "@/lib/utils";
 import { Close, FullScreen } from "@/components/icons/icons";
 import CameraAndRefresh from "../../shared/camera-and-refresh";
 import PremiumOverlay from "../../shared/premium-overlay";
-import WidgetModalWrapper from "@/components/modals/widget-modal"; 
+import WidgetModalWrapper from "@/components/modals/widget-modal";
 import { AnimatePresence, motion } from "motion/react";
 
 const colorToCfgi = [
@@ -55,7 +55,7 @@ interface IProps {
 export default function LiquidationWidget(props: IProps) {
   const { widget } = props;
   const [showInfo, setShowInfo] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false); 
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const chartRef = useRef<HTMLDivElement>(null);
 
   const { data: coinData } = useReadCoinList();

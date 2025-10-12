@@ -23,7 +23,9 @@ const NavbarProfileButton = (props: IProps) => {
           // eslint-disable-next-line @next/next/no-img-element
           <img src={user.avatar_url} alt="User avatar" className="rounded-full object-cover" />
         ) : (
-          <UserIcon className="text-white/70" />
+          <div className="relative flex h-full w-full items-center justify-center">
+            <UserIcon className="text-white/70" />
+          </div>
         )}
       </div>
     </button>

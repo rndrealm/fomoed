@@ -111,7 +111,11 @@ export function ProfileDropdown(props: IProps) {
 
                   <div className="flex flex-col">
                     <div className="text-[13px] leading-[1.35] font-normal text-white">{planLabel}</div>
-                    {planSubtitle && <div className="font-normal text-[#656565] text-xs">{planSubtitle}</div>}
+                    {planSubtitle ? (
+                      <div className="font-normal text-[#656565] text-xs">{planSubtitle}</div>
+                    ) : (
+                      <div className="font-normal text-[#656565] text-xs">Explore other plans</div>
+                    )}
                   </div>
                 </RenderIf>
               </div>

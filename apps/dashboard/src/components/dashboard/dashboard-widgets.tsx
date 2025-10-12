@@ -10,6 +10,7 @@ import { gridColAtom } from "@/lib/atoms/utilsAtom";
 import { ErrorBoundary } from "react-error-boundary";
 import WidgetErrorOverlay from "./widget-error-overlay";
 import * as Sentry from "@sentry/nextjs";
+import ResizeIndicator from "../widgets/shared/resize-indicator";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 const availableHandles = ["s", "w", "e", "n", "sw", "nw", "se", "ne"];
@@ -50,7 +51,7 @@ export function DashboardWidgets(props: IProps) {
         }}
         cols={{ xxl: 32, xl: 24, lg: 16, md: 12, sm: 12, xs: 4, xxs: 4 }}
         draggableHandle=".cursor-grab"
-        resizeHandles={["sw", "se"]}
+        resizeHandles={["se"]}
         // resizeHandles={availableHandles}
         rowHeight={110}
         // isResizable={false}
@@ -93,10 +94,22 @@ export function DashboardWidgets(props: IProps) {
 
           if (!h || !w) return null;
 
+          // console.log("layout", w, maxW, h, maxH);
+
+          let isResizable = chartsMap[splitWidgetSlug(layout.meta.i).slug as keyof typeof chartsMap]?.isResizable;
+
+          // Check if the widget is not resizable by its res props
+          if (w === maxW && h === maxH) {
+            isResizable = false;
+          }
+
           return (
-            <div key={layout.meta.i} data-grid={{ x, y, w, h, minW, minH, maxH, maxW }}>
+            <div key={layout.meta.i} data-grid={{ x, y, w, h, minW, minH, maxH, maxW, isResizable }}>
               <ErrorBoundary FallbackComponent={WidgetErrorOverlay} onError={handleWgError}>
                 {chartsMap[splitWidgetSlug(layout.meta.i).slug as keyof typeof chartsMap]?.component(layout)}
+
+                {/* resize handler */}
+                {isResizable && <ResizeIndicator />}
               </ErrorBoundary>
             </div>
           );

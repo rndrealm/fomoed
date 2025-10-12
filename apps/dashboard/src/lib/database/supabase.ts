@@ -55,19 +55,25 @@ export type Database = {
           assigned_at: string
           campaign_id: number
           kol_id: number
+          request_meta: Json | null
           role: string | null
+          status: Database["public"]["Enums"]["campaign_kol_status"]
         }
         Insert: {
           assigned_at?: string
           campaign_id: number
           kol_id: number
+          request_meta?: Json | null
           role?: string | null
+          status?: Database["public"]["Enums"]["campaign_kol_status"]
         }
         Update: {
           assigned_at?: string
           campaign_id?: number
           kol_id?: number
+          request_meta?: Json | null
           role?: string | null
+          status?: Database["public"]["Enums"]["campaign_kol_status"]
         }
         Relationships: [
           {
@@ -171,6 +177,8 @@ export type Database = {
           content_types: string[] | null
           created_at: string
           description: string | null
+          donts: string[]
+          dos: string[]
           end_date: string | null
           external_links: Json | null
           faqs: Json | null
@@ -210,6 +218,8 @@ export type Database = {
           content_types?: string[] | null
           created_at?: string
           description?: string | null
+          donts?: string[]
+          dos?: string[]
           end_date?: string | null
           external_links?: Json | null
           faqs?: Json | null
@@ -249,6 +259,8 @@ export type Database = {
           content_types?: string[] | null
           created_at?: string
           description?: string | null
+          donts?: string[]
+          dos?: string[]
           end_date?: string | null
           external_links?: Json | null
           faqs?: Json | null
@@ -912,6 +924,13 @@ export type Database = {
             referencedRelation: "kols"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "kol_clipfarm_payable_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "post_submissions"
+            referencedColumns: ["id"]
+          },
         ]
       }
       kol_deliverables: {
@@ -1145,13 +1164,16 @@ export type Database = {
           expertise: string | null
           full_name: string
           id: number
+          instagram_handle: string | null
           location: string | null
           onboarding: boolean | null
           profile_url: string | null
+          tiktok_handle: string | null
           twitter_handle: string | null
           updated_at: string
           user_id: string | null
           wallet_address: string | null
+          wallet_chain: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -1163,13 +1185,16 @@ export type Database = {
           expertise?: string | null
           full_name: string
           id?: number
+          instagram_handle?: string | null
           location?: string | null
           onboarding?: boolean | null
           profile_url?: string | null
+          tiktok_handle?: string | null
           twitter_handle?: string | null
           updated_at?: string
           user_id?: string | null
           wallet_address?: string | null
+          wallet_chain?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -1181,13 +1206,16 @@ export type Database = {
           expertise?: string | null
           full_name?: string
           id?: number
+          instagram_handle?: string | null
           location?: string | null
           onboarding?: boolean | null
           profile_url?: string | null
+          tiktok_handle?: string | null
           twitter_handle?: string | null
           updated_at?: string
           user_id?: string | null
           wallet_address?: string | null
+          wallet_chain?: string | null
         }
         Relationships: [
           {
@@ -1715,6 +1743,85 @@ export type Database = {
           },
         ]
       }
+      post_submissions: {
+        Row: {
+          campaign_id: number
+          created_at: string | null
+          end_date: string
+          engagement: number | null
+          handle: string
+          id: number
+          impressions: number | null
+          kol: number
+          last_update: string | null
+          meta: Json | null
+          platform: Database["public"]["Enums"]["platform_type"]
+          post_id: string
+          raw_post: Json | null
+          status: Database["public"]["Enums"]["submission_status"]
+          submitted_on: string
+          updated_at: string | null
+        }
+        Insert: {
+          campaign_id: number
+          created_at?: string | null
+          end_date: string
+          engagement?: number | null
+          handle: string
+          id?: number
+          impressions?: number | null
+          kol: number
+          last_update?: string | null
+          meta?: Json | null
+          platform: Database["public"]["Enums"]["platform_type"]
+          post_id: string
+          raw_post?: Json | null
+          status?: Database["public"]["Enums"]["submission_status"]
+          submitted_on?: string
+          updated_at?: string | null
+        }
+        Update: {
+          campaign_id?: number
+          created_at?: string | null
+          end_date?: string
+          engagement?: number | null
+          handle?: string
+          id?: number
+          impressions?: number | null
+          kol?: number
+          last_update?: string | null
+          meta?: Json | null
+          platform?: Database["public"]["Enums"]["platform_type"]
+          post_id?: string
+          raw_post?: Json | null
+          status?: Database["public"]["Enums"]["submission_status"]
+          submitted_on?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_submissions_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_with_meta"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_submissions_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_submissions_kol_fkey"
+            columns: ["kol"]
+            isOneToOne: false
+            referencedRelation: "kols"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_members: {
         Row: {
           project_id: number
@@ -1830,6 +1937,110 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_commissions: {
+        Row: {
+          amount: number | null
+          billing_period_end: string | null
+          billing_period_start: string | null
+          created_at: string
+          error_message: string | null
+          id: number
+          payment_link: string | null
+          payout_date: string | null
+          payout_eligible_date: string | null
+          referral_id: string
+          status: string
+          stripe_invoice_id: string | null
+          stripe_transfer_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          amount?: number | null
+          billing_period_end?: string | null
+          billing_period_start?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: number
+          payment_link?: string | null
+          payout_date?: string | null
+          payout_eligible_date?: string | null
+          referral_id: string
+          status?: string
+          stripe_invoice_id?: string | null
+          stripe_transfer_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number | null
+          billing_period_end?: string | null
+          billing_period_start?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: number
+          payment_link?: string | null
+          payout_date?: string | null
+          payout_eligible_date?: string | null
+          referral_id?: string
+          status?: string
+          stripe_invoice_id?: string | null
+          stripe_transfer_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_commissions_referral_id_fkey"
+            columns: ["referral_id"]
+            isOneToOne: false
+            referencedRelation: "referrals"
+            referencedColumns: ["referral_id"]
+          },
+        ]
+      }
+      referrals: {
+        Row: {
+          created_at: string
+          id: number
+          referral_id: string
+          referred_user_id: string | null
+          referrer_user_id: string | null
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          referral_id: string
+          referred_user_id?: string | null
+          referrer_user_id?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          referral_id?: string
+          referred_user_id?: string | null
+          referrer_user_id?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_referrer_user_id_fkey"
+            columns: ["referrer_user_id"]
+            isOneToOne: false
+            referencedRelation: "signals_users"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "referrals_referrer_user_id_fkey"
+            columns: ["referrer_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       sentiment: {
         Row: {
           device_id: string
@@ -1895,6 +2106,60 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      stripe_connect_accounts: {
+        Row: {
+          connected_at: string | null
+          created_at: string
+          id: number
+          onboarding_completed: boolean | null
+          payouts_enabled: boolean | null
+          status: string | null
+          stripe_account_id: string | null
+          stripe_connect_id: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          connected_at?: string | null
+          created_at?: string
+          id?: number
+          onboarding_completed?: boolean | null
+          payouts_enabled?: boolean | null
+          status?: string | null
+          stripe_account_id?: string | null
+          stripe_connect_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          connected_at?: string | null
+          created_at?: string
+          id?: number
+          onboarding_completed?: boolean | null
+          payouts_enabled?: boolean | null
+          status?: string | null
+          stripe_account_id?: string | null
+          stripe_connect_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stripe_connect_accounts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "signals_users"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "stripe_connect_accounts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -1994,13 +2259,16 @@ export type Database = {
           avatar_url: string | null
           created_at: string
           email: string
+          first_name: string | null
           has_had_free_trial: boolean
           id: number
           is_kol: boolean
           is_kol_allowed: boolean
           is_marketing_allowed: boolean
           is_project_manager: boolean
+          last_name: string | null
           onboarded: boolean | null
+          referral_code: string | null
           updated_at: string | null
           user_id: string
           username: string | null
@@ -2009,13 +2277,16 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           email: string
+          first_name?: string | null
           has_had_free_trial?: boolean
           id?: number
           is_kol?: boolean
           is_kol_allowed?: boolean
           is_marketing_allowed?: boolean
           is_project_manager?: boolean
+          last_name?: string | null
           onboarded?: boolean | null
+          referral_code?: string | null
           updated_at?: string | null
           user_id: string
           username?: string | null
@@ -2024,13 +2295,16 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           email?: string
+          first_name?: string | null
           has_had_free_trial?: boolean
           id?: number
           is_kol?: boolean
           is_kol_allowed?: boolean
           is_marketing_allowed?: boolean
           is_project_manager?: boolean
+          last_name?: string | null
           onboarded?: boolean | null
+          referral_code?: string | null
           updated_at?: string | null
           user_id?: string
           username?: string | null
@@ -2271,7 +2545,14 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      campaign_kol_status: "pending" | "active" | "banned" | "rejected"
+      platform_type: "twitter" | "tiktok" | "instagram" | "youtube"
+      submission_status:
+        | "pending"
+        | "approved"
+        | "rejected"
+        | "flagged"
+        | "completed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2398,6 +2679,16 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      campaign_kol_status: ["pending", "active", "banned", "rejected"],
+      platform_type: ["twitter", "tiktok", "instagram", "youtube"],
+      submission_status: [
+        "pending",
+        "approved",
+        "rejected",
+        "flagged",
+        "completed",
+      ],
+    },
   },
 } as const

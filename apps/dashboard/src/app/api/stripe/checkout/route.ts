@@ -1,16 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import stripe from "@/lib/utils/stripe";
+import getStripe from "@/lib/utils/stripe";
 import { createCheckoutSession, getCustomerByEmail, validatePriceLookupKey } from "@/lib/stripe/stripe.utils.server";
 import { newUserAlreadyHasSubscriptionError, newInvalidPriceLookupKeyError } from "@/lib/api/api.errors";
 import { PriceLookupKey } from "@/lib/plans";
 import { asNextResponseError } from "@/lib/utils/server.utils";
 import { getUsersTableRowUsingAuth } from "@/lib/users/users.utils.server";
+import { getReferralIdForUser } from "@/services/queries/referral/server-actions";
 
 export interface CheckoutResponse {
   redirectTo: string;
 }
 
 export async function POST(request: NextRequest) {
+  const stripe = getStripe()
   const payload = await request.json();
   const priceLookupKey = payload.priceLookupKey as PriceLookupKey;
 
@@ -47,11 +49,18 @@ export async function POST(request: NextRequest) {
 
   const returnUrl = `${protocol}//${host}/pricing`;
 
+  const referralId = await getReferralIdForUser(user.user_id);
+
   const { data: session, error } = await createCheckoutSession({
     customerId: customer.id,
     priceLookupKey,
     returnUrl,
     canHaveFreeTrial: !user.has_had_free_trial,
+    metadata: {
+      user_id: user.user_id,
+      referral_id: referralId,
+      price_lookup_key: priceLookupKey
+    }
   });
 
   if (error) {

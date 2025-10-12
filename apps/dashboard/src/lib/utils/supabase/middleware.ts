@@ -47,6 +47,8 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.includes("/scrape-cfgi") ||
     request.nextUrl.pathname.includes("/newslab") ||
     request.nextUrl.pathname.includes("/coinstats") ||
+    request.nextUrl.pathname.includes("/cron") ||
+    request.nextUrl.pathname.includes("/webhooks") ||
     isMonitorRequest ||
     process.env.NODE_ENV === "development";
 

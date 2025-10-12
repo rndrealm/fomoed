@@ -1,4 +1,4 @@
-import stripe from "@/lib/utils/stripe";
+import getStripe from "@/lib/utils/stripe";
 import { getDynamicPlanDataMap, PriceLookupKey, priceLookupKeys } from "@/lib/plans";
 import { TRIAL_PERIOD_DAYS } from "@/lib/plans/plans.utils";
 import Stripe from "stripe";
@@ -15,6 +15,7 @@ export function validatePriceLookupKey(priceLookupKey: string): boolean {
 }
 
 export async function getStripeSubscriptionsByEmail(email: string) {
+  const stripe = getStripe();
   const customers = await stripe.customers.search({
     query: `email:"${email}"`,
   });
@@ -33,6 +34,7 @@ export async function getStripeSubscriptionsByEmail(email: string) {
 }
 
 export async function getCustomerByEmail(email: string) {
+  const stripe = getStripe();
   const customers = await stripe.customers.search({
     query: `email:"${email}"`,
   });
@@ -45,6 +47,7 @@ interface CreateCheckoutSessionOpts {
   priceLookupKey: PriceLookupKey;
   returnUrl: string;
   canHaveFreeTrial: boolean;
+  metadata?: { [key: string]: any };
 }
 
 export async function getPriceIdByLookupKey(priceLookupKey: PriceLookupKey): Promise<ErrorOrData<string>> {
@@ -63,11 +66,26 @@ export async function createCheckoutSession({
   canHaveFreeTrial,
   priceLookupKey,
   returnUrl,
+  metadata,
 }: CreateCheckoutSessionOpts): Promise<ErrorOrData<Stripe.Checkout.Session>> {
   const { data: priceId, error: priceError } = await getPriceIdByLookupKey(priceLookupKey);
 
   if (priceError) {
     return propagateErrorOrData(priceError);
+  }
+  const stripe = getStripe();
+
+  const subscriptionData: Stripe.Checkout.SessionCreateParams.SubscriptionData = {
+    metadata: metadata,
+  };
+
+  if (canHaveFreeTrial) {
+    subscriptionData.trial_period_days = TRIAL_PERIOD_DAYS;
+    subscriptionData.trial_settings = {
+      end_behavior: {
+        missing_payment_method: "cancel",
+      },
+    };
   }
 
   const session = await stripe.checkout.sessions.create({
@@ -77,16 +95,12 @@ export async function createCheckoutSession({
     line_items: [{ price: priceId, quantity: 1 }],
     success_url: returnUrl,
     cancel_url: returnUrl,
-    subscription_data: canHaveFreeTrial
-      ? {
-          trial_settings: {
-            end_behavior: {
-              missing_payment_method: "cancel",
-            },
-          },
-          trial_period_days: TRIAL_PERIOD_DAYS,
-        }
-      : undefined,
+
+    // Pass the metadata to the top-level Checkout Session
+    metadata: metadata,
+
+    // Pass our constructed subscriptionData object here
+    subscription_data: subscriptionData,
   });
 
   return { data: session };

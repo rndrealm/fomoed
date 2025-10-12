@@ -5,17 +5,21 @@ import { Input } from "../ui/input";
 import { animate, motion, useMotionValue, useTransform } from "motion/react";
 import { RenderIf } from "../shared";
 import { SetStateAction } from "jotai";
+import { cn } from "@/lib/utils";
 
 interface IErrorMsg {
   name: string;
+  className?: string;
 }
 
 type PasswordOption = "password" | "text";
 
-function ErrorMsg(props: IErrorMsg) {
-  const { name } = props;
+export function ErrorMsg(props: IErrorMsg) {
+  const { name, className = "" } = props;
 
-  return <ErrorMessage name={name}>{(msg) => <p className="text-xs text-[red]">{msg}</p>}</ErrorMessage>;
+  return (
+    <ErrorMessage name={name}>{(msg) => <p className={cn("text-xs text-[red]", className)}>{msg}</p>}</ErrorMessage>
+  );
 }
 
 export function TextInput(props: React.HTMLProps<HTMLInputElement>) {

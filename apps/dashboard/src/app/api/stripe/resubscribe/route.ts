@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import stripe from "@/lib/utils/stripe";
+import getStripe from "@/lib/utils/stripe";
 import { createSupabaseServerClient } from "@/lib/utils/supabase/server-client";
 import type Stripe from "stripe";
 import { getStripeSubscriptionsByEmail } from "@/lib/stripe";
@@ -12,6 +12,7 @@ export interface ResubscribeResponse {
 }
 
 export async function POST(request: NextRequest) {
+  const stripe = getStripe()
   const supabase = await createSupabaseServerClient();
 
   const {

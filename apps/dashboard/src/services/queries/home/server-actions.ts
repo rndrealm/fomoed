@@ -5,19 +5,19 @@ import { widgetPropsDefaults } from "@/lib/static";
 const createDefaultWidgets = () => {
   const priceChartSlug = "new-price-history";
   const tradingEconomicSlug = "trading-economics";
-  const whaleTransactionSlug = "whale-transaction-tracker";
+  const liquidationHeatMapSlug = "liquidation-heat-map";
   const cfgiSlug = "cfgi";
   const newsSlug = "token-news";
 
   const priceChartDefaults = widgetPropsDefaults[priceChartSlug];
   const tradingEconomicDefaults = widgetPropsDefaults[tradingEconomicSlug];
-  const whaleTransactionDefaults = widgetPropsDefaults[whaleTransactionSlug];
+  const liquidationHeatMapDefaults = widgetPropsDefaults[liquidationHeatMapSlug];
   const cfgiDefaults = widgetPropsDefaults[cfgiSlug];
   const newsDefaults = widgetPropsDefaults[newsSlug];
 
   const priceChartId = uuidv4();
   const tradingEconomicId = uuidv4();
-  const whaleTransactionId = uuidv4();
+  const liquidationHeatMapId = uuidv4();
   const cfgiId = uuidv4();
   const newsId = uuidv4();
 
@@ -40,18 +40,18 @@ const createDefaultWidgets = () => {
       props: tradingEconomicDefaults,
       meta: {
         i: `${tradingEconomicId}${widgetIdJoin}${tradingEconomicSlug}`,
-        x: 8, y: 0, 
+        x: 0, y: 4, 
         ...tradingEconomicDefaults.meta,
       },
     },
     {
-      id: whaleTransactionId,
-      token: whaleTransactionSlug,
-      props: whaleTransactionDefaults,
+      id: liquidationHeatMapId,
+      token: liquidationHeatMapSlug,
+      props: liquidationHeatMapDefaults,
       meta: {
-        i: `${whaleTransactionId}${widgetIdJoin}${whaleTransactionSlug}`,
-        x: 0, y: 4,
-        ...whaleTransactionDefaults.meta,
+        i: `${liquidationHeatMapId}${widgetIdJoin}${liquidationHeatMapSlug}`,
+        x: 8, y: 0,
+        ...liquidationHeatMapDefaults.meta,
       },
     },
     {

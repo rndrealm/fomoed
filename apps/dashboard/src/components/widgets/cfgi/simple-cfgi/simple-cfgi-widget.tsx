@@ -19,6 +19,7 @@ import { OptionsDropdown } from "../../shared/options-dropwdown";
 import { settingAtom, updateSettingAtom } from "@/lib/atoms/settingsAtom";
 import StarFilled from "@/components/icons/StarFilled";
 import Star from "@/components/icons/Star";
+import FullScreenButtonV2 from "../../shared/fullscreen-buttonv2";
 
 const colorToCfgi = [{ label: "Crypto Fear & Greed Index", color: "#47A663" }];
 
@@ -146,22 +147,8 @@ export default function SimpleCfgiWidget(props: IProps) {
       </div>
 
       {/* Fullscreen Button */}
-      <div
-        className={cn("absolute right-[9px] bottom-[16px] z-[9] h-[28px] w-[28px] rounded-md border border-[#1c1c1c]", {
-          "opacity-0": !isControlsVisible,
-          "opacity-100": isControlsVisible,
-        })}
-        style={{
-          background: "linear-gradient(180deg, #1b1b1b 0%, rgba(0, 0, 0, 0.38) 72.15%)",
-          backdropFilter: "blur(7px)",
-          transition: "opacity 0.3s ease-in-out",
-        }}
-      >
-        <button className="flex h-full w-full items-center justify-center" onClick={toggleFullscreen}>
-          <FullScreen />
-        </button>
-      </div>
-      
+      <FullScreenButtonV2 isControlsVisible={isControlsVisible} toggleFullscreen={toggleFullscreen} />
+
       {/* Info Modal */}
       <AnimatePresence>
         {showInfo && (
