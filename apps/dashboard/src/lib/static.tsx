@@ -47,6 +47,7 @@ import OrderbookDeltaWidget from "@/components/widgets/delta/delta-widget";
 import WhaleTransactionWidget from "@/components/widgets/whale-transaction/whale-transaction-widget";
 import TradingEconomicsWidget from "@/components/widgets/trading-economics/economic-calendar-widget";
 import GemachCopyTrading from "@/components/widgets/gemach/gemach-copy-trading";
+import Ascendex from "@/components/widgets/ascendex/ascendex";
 
 export const layoutClassMap = {
   SinglePane: "grid-rows-1 grid-cols-1",
@@ -346,6 +347,15 @@ export const layoutOptionsMap = [
   //   category: "charts",
   //   tags: ["charts"],
   // },
+
+  {
+    id: 217,
+    name: "Ascendex",
+    slug: "ascendex",
+    image: dashboard.cfgi,
+    category: "charts",
+    tags: ["charts"],
+  },
 ].filter((i) => !disabledWgSlugs.includes(i.slug));
 
 export type LayoutOptionType = typeof layoutOptionsMap;
@@ -508,6 +518,13 @@ export const chartsMap = {
     name: "Gemach Copy Trading",
     extra: [],
     component: (widget: LayoutType["widgets"][0]) => <GemachCopyTrading widget={widget} />,
+    isResizable: true,
+  },
+
+  ascendex: {
+    name: "Ascendex",
+    extra: [],
+    component: (widget: LayoutType["widgets"][0]) => <Ascendex widget={widget} />,
     isResizable: true,
   },
 };
@@ -826,6 +843,17 @@ export const widgetPropsDefaults = {
       h: 4,
       minW: 8,
       minH: 4,
+      maxW: Infinity,
+      maxH: Infinity,
+    },
+  },
+
+  ascendex: {
+    meta: {
+      w: 16,
+      h: 6,
+      minW: 8,
+      minH: 6,
       maxW: Infinity,
       maxH: Infinity,
     },
