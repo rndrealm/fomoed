@@ -7,19 +7,14 @@ import dashboard from "@/lib/assets/dashboard";
 import { OptionsDropdown } from "../../shared/options-dropwdown";
 
 const AscendexLogo = () => (
-  <Image
-    src={dashboard.ascendexLogo}
-    alt="AscendEX Logo"
-    width={108}
-    height={16}
-    className="object-contain"
-    priority
-  />
+  <Image src={dashboard.ascendexLogo} alt="AscendEX Logo" width={108} height={16} className="object-contain" priority />
 );
 
 interface AscendexHeaderProps {
   widget: LayoutType["widgets"][0];
 }
+
+const links = ["Futures", "Spot", "Lend"];
 
 export default function AscendexHeader({ widget }: AscendexHeaderProps) {
   return (
@@ -29,12 +24,8 @@ export default function AscendexHeader({ widget }: AscendexHeaderProps) {
         <div className="flex items-center gap-8">
           <AscendexLogo />
           <nav className="hidden sm:flex items-center text-sm text-[#9CA3AF]">
-            {["Futures", "Spot", "Lend"].map((label) => (
-              <a
-                key={label}
-                href="#"
-                className="px-[12px] py-[4px] rounded-[6px] hover:text-white transition-colors"
-              >
+            {links.map((label) => (
+              <a key={label} href="#" className="px-[12px] py-[4px] rounded-[6px] hover:text-white transition-colors">
                 {label}
               </a>
             ))}
