@@ -86,7 +86,10 @@ import gemachCopyInfo3 from "../../../../public/media/images/dashboard/gemach-co
 import gemachCopyInfo4 from "../../../../public/media/images/dashboard/gemach-copy-info-4.png";
 import gemachCopyInfo5 from "../../../../public/media/images/dashboard/gemach-copy-info-5.png";
 import referralAsset from "../../../../public/media/images/referrals/referral_asset.png"
-import ascendexLogo from "../../../../public/media/images/dashboard/ascendex-logo.png";
+import ascendexLogo from "../../../../public/media/images/dashboard/ascendex/ascendex-logo.png";
+import buyOrderbook from "../../../../public/media/images/dashboard/ascendex/buy-orderbook.png";
+import sellOrderbook from "../../../../public/media/images/dashboard/ascendex/sell-orderbook.png";
+import allOrderbook from "../../../../public/media/images/dashboard/ascendex/all-orderbook.png";
 
 const dashboard = {
   layoutPlaceholder,
@@ -176,7 +179,10 @@ const dashboard = {
   gemachCopyInfo4,
   gemachCopyInfo5,
   referralAsset,
-  ascendexLogo
+  ascendexLogo,
+  buyOrderbook,
+  sellOrderbook,
+  allOrderbook
 };
 
 export default dashboard;
