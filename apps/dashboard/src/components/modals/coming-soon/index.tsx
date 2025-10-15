@@ -5,7 +5,7 @@ import { Ascendex } from "./ascendex";
 import { cn } from "@/lib/utils";
 
 export function ComingSoon() {
-  const [showGemach, setShowGemach] = useState(true);
+  const [showGemach, setShowGemach] = useState(false);
   const [showAscendex, setShowAscendex] = useState(false);
 
   return (
