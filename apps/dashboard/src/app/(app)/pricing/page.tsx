@@ -135,8 +135,7 @@ const Pricing = () => {
     return getPricingCardsContent(plans?.data || null, userSubscriptionQueryData);
   }, [plans?.data, userSubscriptionQueryData]);
 
-  console.log("Plans data:", plans);
-  // console.log({ userSubscriptionQueryData });
+  console.log({ userSubscriptionQueryData });
 
   return (
     <main className="h-screen w-full relative bg-[#000] text-white grid place-items-center overflow-y-auto overflow-x-hidden">
