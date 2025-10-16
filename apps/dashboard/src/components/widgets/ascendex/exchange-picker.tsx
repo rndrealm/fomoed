@@ -11,10 +11,10 @@ interface ExchangePickerProps {
 
 const exchanges = [
   { id: "ascendex" as const, logoSrc: dashboard.ascendexLogo, alt: "AscendEX", width: 96, height: 14 },
+  { id: "bybit" as const, logoSrc: dashboard.bybitLogo, alt: "BYBIT", width: 41, height: 16 },
+  { id: "coinw" as const, logoSrc: dashboard.coinwLogo, alt: "CoinW", width: 60, height: 16 },
   { id: "backpack" as const, logoSrc: dashboard.backpackLogo, alt: "Backpack", width: 78, height: 16 },
   { id: "hyperliquid" as const, logoSrc: dashboard.hyperliquidLogo2, alt: "Hyperliquid", width: 102, height: 19 },
-  { id: "coinw" as const, logoSrc: dashboard.coinwLogo, alt: "CoinW", width: 60, height: 16 },
-  { id: "bybit" as const, logoSrc: dashboard.bybitLogo, alt: "BYBIT", width: 41, height: 16 },
   { id: "binance" as const, logoSrc: dashboard.binanceLogo, alt: "Binance", width: 80, height: 16 },
 ];
 
