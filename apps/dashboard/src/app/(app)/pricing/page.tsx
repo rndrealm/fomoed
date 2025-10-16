@@ -6,10 +6,7 @@ import React, { useMemo } from "react";
 import IntroSection from "@/components/pricing/intro-section";
 import { DynamicPlanDataMap } from "@/lib/plans/plans.types";
 import { usePlans } from "@/hooks/usePlans";
-import useSubscription, {
-  getSubscriptionState,
-  subscriptionStateToConfig,
-} from "@/hooks/subscription";
+import useSubscription, { getSubscriptionState, subscriptionStateToConfig } from "@/hooks/subscription";
 import type { PriceLookupKey } from "@/lib/plans/plans.types";
 import type { UserSubscriptionsResponseData } from "../../api/subscriptions/route";
 import { BellIcon, Grid2X2Icon } from "lucide-react";
@@ -139,7 +136,7 @@ const Pricing = () => {
   }, [plans?.data, userSubscriptionQueryData]);
 
   console.log("Plans data:", plans);
-  console.log({ userSubscriptionQueryData });
+  // console.log({ userSubscriptionQueryData });
 
   return (
     <main className="h-screen w-full relative bg-[#000] text-white grid place-items-center overflow-y-auto overflow-x-hidden">
