@@ -21,6 +21,22 @@ const AnalyticsChart: FC<AnalyticsChartProps> = ({ initialData }) => {
 
   const timeRanges: TimeRange[] = ["7D", "4W", "6M", "YTD", "1Y"];
 
+  // Helper function to format date labels based on time range
+  const formatDateLabel = (dateStr: string, range: TimeRange): string => {
+    const date = new Date(dateStr);
+    
+    if (range === "7D" || range === "4W") {
+      // Show month and day (e.g., "Oct 5")
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    } else if (range === "6M" || range === "1Y") {
+      // Show month and year (e.g., "Oct 2024")
+      return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    } else {
+      // YTD - show month (e.g., "Oct")
+      return date.toLocaleDateString('en-US', { month: 'short' });
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       if (timeRange === "7D" && initialData) {
@@ -66,8 +82,11 @@ const AnalyticsChart: FC<AnalyticsChartProps> = ({ initialData }) => {
     const ctx = chartRef.current.getContext("2d");
     if (!ctx) return;
 
+    // Format labels based on time range
+    const formattedLabels = chartData.labels.map(label => formatDateLabel(label, timeRange));
+
     const data = {
-      labels: chartData.labels,
+      labels: formattedLabels,
       datasets: [
         {
           label: "Active Subscribers",
@@ -79,16 +98,7 @@ const AnalyticsChart: FC<AnalyticsChartProps> = ({ initialData }) => {
           pointBackgroundColor: "#10b981",
         },
         {
-          label: "Inactive Subscribers",
-          data: chartData.inactiveData,
-          borderColor: "#ffffff",
-          backgroundColor: "rgba(255, 255, 255, 0.1)",
-          tension: 0.4,
-          pointRadius: 4,
-          pointBackgroundColor: "#ffffff",
-        },
-        {
-          label: "Pending Referrals",
+          label: "Free Users",
           data: chartData.pendingData,
           borderColor: "#f59e0b",
           backgroundColor: "rgba(245, 158, 11, 0.1)",
@@ -96,6 +106,15 @@ const AnalyticsChart: FC<AnalyticsChartProps> = ({ initialData }) => {
           pointRadius: 4,
           pointBackgroundColor: "#f59e0b",
         },
+        {
+          label: "Inactive Subscribers",
+          data: chartData.inactiveData,
+          borderColor: "#ffffff",
+          backgroundColor: "rgba(255, 255, 255, 0.1)",
+          tension: 0.4,
+          pointRadius: 4,
+          pointBackgroundColor: "#ffffff",
+        }, 
       ],
     };
 
@@ -137,6 +156,8 @@ const AnalyticsChart: FC<AnalyticsChartProps> = ({ initialData }) => {
               font: {
                 size: 12,
               },
+              maxRotation: 0,
+              minRotation: 0,
             },
           },
           y: {
@@ -151,7 +172,9 @@ const AnalyticsChart: FC<AnalyticsChartProps> = ({ initialData }) => {
               font: {
                 size: 12,
               },
+              stepSize: 1,
             },
+            beginAtZero: true,
           },
         },
       },
@@ -162,7 +185,7 @@ const AnalyticsChart: FC<AnalyticsChartProps> = ({ initialData }) => {
         chartInstanceRef.current.destroy();
       }
     };
-  }, [chartData]);
+  }, [chartData, timeRange]);
 
   return (
     <div className="bg-[#121212] border-[#121212] rounded-xl p-6">
@@ -199,7 +222,7 @@ const AnalyticsChart: FC<AnalyticsChartProps> = ({ initialData }) => {
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-amber-500"></div>
-            <span className="text-sm text-zinc-300">Pending Subscribers</span>
+            <span className="text-sm text-zinc-300">Free Users</span>
           </div>
         </div>
 

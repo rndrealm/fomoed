@@ -20,6 +20,7 @@ const HeroCard: FC<HeroCardProps> = ({
   const [newReferralCode, setNewReferralCode] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [showTooltip, setShowTooltip] = useState(false);
 
   useEffect(() => {
     setReferralLink(`${window.location.origin}/auth?referral=${referralCode}`);
@@ -77,8 +78,31 @@ const HeroCard: FC<HeroCardProps> = ({
         {/* --- Left Content --- */}
         <div className="flex-1">
           <h2 className="text-4xl font-bold leading-tight max-w-md mb-4">
-            Receive a $9.99 per month on every referral
+            For every Pro referral you receive $9.99/month.
           </h2>
+           <div className="flex items-center gap-2 mb-4">
+            <p className="text-zinc-400 text-sm">Restrictions Apply</p>
+            <div className="relative">
+              <button
+                onMouseEnter={() => setShowTooltip(true)}
+                onMouseLeave={() => setShowTooltip(false)}
+                className="w-4 h-4 rounded-full border border-zinc-400 flex items-center justify-center text-xs hover:border-white hover:text-white transition-colors"
+              >
+                ?
+              </button>
+              
+              {showTooltip && (
+                <div className="absolute left-6 top-0 w-72 bg-[#161616] border border-zinc-700 rounded-lg p-4 shadow-xl z-10">
+                  <p className="text-xs text-zinc-300 mb-2">
+                    <span className="font-semibold text-white">Promotion applies for pro plan users only.</span>
+                  </p>
+                  <p className="text-xs text-zinc-400">
+                    Payments are processed 30 days after the referral&apos;s payment, depending on their subscription type (monthly vs yearly).
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
           <p className="text-zinc-400 mb-16 max-w-md">
             Know someone who could benefit from Fomoed? Send them an Invite
           </p>

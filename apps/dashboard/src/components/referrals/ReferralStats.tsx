@@ -67,7 +67,7 @@ const ReferralStats: FC<ReferralStatsProps> = ({
   stripeStatus,
   isProUser,
 }) => {
-  const tabs: TabName[] = ["All Referrals", "Subscribers", "Free Users", "Payouts"];
+  const tabs: TabName[] = ["All Referrals", "Paid Subscribers", "Free Users", "Payouts"];
   const totalReferrals = subscribers.length + freeUsers.length;
 
   return (
@@ -97,7 +97,7 @@ const ReferralStats: FC<ReferralStatsProps> = ({
           {/* Tab Content - only for Pro users */}
           <div>
             {activeTab === "All Referrals" && <AllReferralsStats stats={stats} />}
-            {activeTab === "Subscribers" && <SubscribersList subscribers={subscribers} />}
+            {activeTab === "Paid Subscribers" && <SubscribersList subscribers={subscribers} />}
             {activeTab === "Free Users" && <FreeUsersList freeUsers={freeUsers} />}
             {activeTab === "Payouts" && (
               <>

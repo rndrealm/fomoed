@@ -43,7 +43,7 @@ const SubscribersList: FC<SubscribersListProps> = ({ subscribers }) => {
 
     // Define columns
     worksheet.columns = [
-      { header: "User ID", key: "userId", width: 40 },
+      { header: "Email", key: "email", width: 40 },
       { header: "Joined Date", key: "joinedDate", width: 15 },
       { header: "Status", key: "status", width: 12 },
       { header: "Total Earnings", key: "totalEarnings", width: 15 },
@@ -73,7 +73,7 @@ const SubscribersList: FC<SubscribersListProps> = ({ subscribers }) => {
     // Add data rows
     subscribers.forEach((subscriber, index) => {
       const row = worksheet.addRow({
-        userId: subscriber.referred_user_id || "N/A",
+        email: subscriber.email || "N/A",
         joinedDate: formatDate(subscriber.joined_date),
         status: subscriber.status,
         totalEarnings: subscriber.total_earnings,
@@ -142,7 +142,7 @@ const SubscribersList: FC<SubscribersListProps> = ({ subscribers }) => {
       <div className="bg-[#121212] border border-[#1a1a1a] rounded-xl overflow-hidden">
         {/* Table Header */}
         <div className="grid grid-cols-4 gap-4 px-6 py-4 border-b border-zinc-800 text-sm text-zinc-400 font-medium">
-          <div className="col-span-1">USER ID</div>
+          <div className="col-span-1">EMAIL</div>
           <div className="col-span-1">JOINED DATE</div>
           <div className="col-span-1">STATUS</div>
           <div className="col-span-1 text-right">EARNINGS</div>
@@ -153,11 +153,11 @@ const SubscribersList: FC<SubscribersListProps> = ({ subscribers }) => {
           {subscribers && subscribers.length > 0 ? (
             currentSubscribers.map((subscriber, index) => (
               <div
-                key={subscriber.referred_user_id || index}
+                key={subscriber.email || index}
                 className="grid grid-cols-4 gap-4 px-6 py-4 items-center hover:bg-zinc-900/50 transition-colors"
               >
                 <div className="col-span-1 text-zinc-200 font-mono text-sm truncate">
-                  {subscriber.referred_user_id || "N/A"}
+                  {subscriber.email || "N/A"}
                 </div>
                 <div className="col-span-1 text-zinc-300">{formatDate(subscriber.joined_date)}</div>
                 <div className="col-span-1">
