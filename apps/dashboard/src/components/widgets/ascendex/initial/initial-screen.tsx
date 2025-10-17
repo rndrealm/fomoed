@@ -6,7 +6,9 @@ interface InitialScreenProps {
   onTradeNowClick: () => void;
 }
 
-export default function InitialScreen({ onTradeNowClick }: InitialScreenProps) {
+export default function InitialScreen(props: InitialScreenProps) {
+  const { onTradeNowClick } = props;
+
   return (
     <div className="relative flex h-full w-full justify-center items-center bg-black rounded-2xl">
       {/* Grab handle at top center */}
@@ -26,7 +28,7 @@ export default function InitialScreen({ onTradeNowClick }: InitialScreenProps) {
                    bg-[#FF6600]
                    shadow-[inset_1.43px_1.43px_2.86px_rgba(255,182,80,0.85),inset_-1.43px_-1.43px_2.86px_rgba(255,182,80,0.85)]
                    transition-all duration-200 
-                   hover:brightness-110"
+                   hover:brightness-110 h-[40px]"
       >
         <Crown className="w-5 h-5" stroke="#FCBB0F" fill="#FCBB0F" />
         Trade Now
