@@ -18,7 +18,9 @@ const exchanges = [
   { id: "binance" as const, logoSrc: dashboard.binanceLogo, alt: "Binance", width: 80, height: 16 },
 ];
 
-export default function ExchangePicker({ onExchangeSelect }: ExchangePickerProps) {
+export default function ExchangePicker(props: ExchangePickerProps) {
+  const { onExchangeSelect } = props;
+
   return (
     <div className="relative flex h-full w-full justify-center items-center bg-[#121317] rounded-2xl p-8">
       {/* Grab handle at top center */}

@@ -11,14 +11,9 @@ interface ExchangeButtonProps {
   disabled?: boolean;
 }
 
-export default function ExchangeButton({
-  logoSrc,
-  alt,
-  imgWidth,
-  imgHeight,
-  onClick,
-  disabled = false,
-}: ExchangeButtonProps) {
+export default function ExchangeButton(props: ExchangeButtonProps) {
+  const { logoSrc, alt, imgWidth, imgHeight, onClick, disabled = false } = props;
+
   return (
     <button
       onClick={onClick}
@@ -30,16 +25,10 @@ export default function ExchangeButton({
                  disabled:cursor-not-allowed"
       style={{
         borderWidth: "1px",
-        pointerEvents: disabled ? "none" : "auto", 
+        pointerEvents: disabled ? "none" : "auto",
       }}
     >
-      <Image
-        src={logoSrc}
-        alt={alt}
-        width={imgWidth}
-        height={imgHeight}
-        className="object-contain"
-      />
+      <Image src={logoSrc} alt={alt} width={imgWidth} height={imgHeight} className="object-contain" />
     </button>
   );
 }
