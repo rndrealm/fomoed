@@ -90,6 +90,12 @@ import ascendexLogo from "../../../../public/media/images/dashboard/ascendex/asc
 import buyOrderbook from "../../../../public/media/images/dashboard/ascendex/buy-orderbook.png";
 import sellOrderbook from "../../../../public/media/images/dashboard/ascendex/sell-orderbook.png";
 import allOrderbook from "../../../../public/media/images/dashboard/ascendex/all-orderbook.png";
+import ascendexAnimation from "../../../../public/media/images/dashboard/ascendex/asxendex-animation.png";
+import backpackLogo from "../../../../public/media/images/dashboard/backpack-logo.png";
+import binanceLogo from "../../../../public/media/images/dashboard/binance-logo.png";
+import bybitLogo from "../../../../public/media/images/dashboard/bybit-logo.png";
+import coinwLogo from "../../../../public/media/images/dashboard/coinw-logo.png";
+import hyperliquidLogo2 from "../../../../public/media/images/dashboard/hyperliquid-logo.png";
 
 const dashboard = {
   layoutPlaceholder,
@@ -182,7 +188,13 @@ const dashboard = {
   ascendexLogo,
   buyOrderbook,
   sellOrderbook,
-  allOrderbook
+  allOrderbook,
+  backpackLogo,
+  binanceLogo,
+  bybitLogo,
+  coinwLogo,
+  hyperliquidLogo2,
+  ascendexAnimation
 };
 
 export default dashboard;
