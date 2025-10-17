@@ -51,7 +51,6 @@ export default function AscendexHeader({ widget }: AscendexHeaderProps) {
 
       {/* Right: Controls */}
       <div className="flex items-center gap-3 relative z-10 pointer-events-auto">
-        {/* Deposit button */}
         <button
           className="flex items-center justify-center bg-[rgba(118,55,186,0.2)] text-[#7637BA] 
           font-inter font-semibold text-[12px] leading-[14px] 
@@ -61,17 +60,14 @@ export default function AscendexHeader({ widget }: AscendexHeaderProps) {
           Deposit
         </button>
 
-        {/* Settings icon */}
         <button className="text-[#A6AEB2] hover:text-white transition-colors">
           <SettingsAscendexIcon />
         </button>
 
-        {/* 3 dots */}
         <div className="flex items-center justify-center">
           <OptionsDropdown widget={widget} />
         </div>
 
-        {/* Fullscreen icon */}
         <div className="flex items-center justify-center w-6 h-6 rounded-[4px] border border-[#2A2B2E] bg-[#1C1D21]">
           <button className="text-gray-400 hover:text-white transition-colors">
             <Maximize2 className="h-[16px] w-[16px] text-[#A6AEB2]" />
