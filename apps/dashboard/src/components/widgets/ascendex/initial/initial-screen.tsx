@@ -11,14 +11,12 @@ export default function InitialScreen(props: InitialScreenProps) {
 
   return (
     <div className="relative flex h-full w-full justify-center items-center bg-black rounded-2xl">
-      {/* Grab handle at top center */}
       <div className="absolute h-[50px] top-[-20px] bottom-0 left-0 right-0 cursor-grab" />
 
       <div className="absolute top-[10px] left-1/2 -translate-x-1/2 flex justify-center cursor-grab z-20">
         <div className="h-[5px] w-[36px] rounded-[2px] bg-[#444]" />
       </div>
 
-      {/* Main content */}
       <button
         onClick={onTradeNowClick}
         className="flex items-center justify-center gap-[5.71px] 

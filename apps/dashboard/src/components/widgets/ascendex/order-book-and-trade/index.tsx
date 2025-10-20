@@ -52,13 +52,11 @@ export default function OrderBookAndTrade() {
           <TabButton isActive={activeTab === "trades"} label="Trades" onClick={() => setActiveTab("trades")} />
         </div>
 
-        {/* Three dot menu - absolute positioned on right */}
         <button className="absolute right-3 text-white hover:text-gray-300 transition-colors">
           <EllipsisVertical className="w-4 h-4" />
         </button>
       </div>
 
-      {/* Content */}
       <div className="flex-1 overflow-hidden">{activeTab === "orderbook" ? <OrderBooks /> : <Trades />}</div>
     </div>
   );
