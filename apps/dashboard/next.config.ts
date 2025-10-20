@@ -90,6 +90,15 @@ const sentryConfig: SentryBuildOptions = {
 
   project: "fomoed-dashboard-fe",
 
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+
+  sourcemaps: {
+    disable: false, // Source maps are enabled by default
+    assets: ["**/*.js", "**/*.js.map"], // Specify which files to upload
+    ignore: ["**/node_modules/**"], // Files to exclude
+    deleteSourcemapsAfterUpload: true, // Security: delete after upload
+  },
+
   // Only print logs for uploading source maps in CI
   silent: !process.env.CI,
 
