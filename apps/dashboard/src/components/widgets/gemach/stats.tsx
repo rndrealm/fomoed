@@ -25,10 +25,16 @@ function StatsItem(props: IStatsItemProps) {
       <p className="text-white text-sm tracking-[-0.4%] leading-[24px]">
         {value >= 0 ? "+" : "-"}${CryptoUtils.formatLargeNumber(Math.abs(value))}
       </p>
-      {/* <p className={cn("text-xs tracking-[-0.4%] leading-[16px]", isPositive ? "text-[#00AF58]" : "text-[#dc2626]")}>
+      <p
+        className={cn(
+          "text-xs tracking-[-0.4%] leading-[16px]",
+          isPositive ? "text-[#00AF58]" : "text-[#dc2626]",
+          value === 0 && "text-white",
+        )}
+      >
         {isPositive ? "+" : ""}
         {CryptoUtils.formatPercentage(change)}%
-      </p> */}
+      </p>
     </div>
   );
 }
@@ -54,6 +60,8 @@ export function Stats(props: IProps) {
 
   const { data } = useReadUserStats(session?.access_token);
 
+  console.log(data);
+
   return (
     <div className="w-full h-full bg-[rgb(26,26,26,0.5)] backdrop-blur-2xl border border-[#222222] rounded-[20px]">
       <div className="flex flex-col gap-9 pt-6 px-4 pb-4 h-full w-full items-center">
@@ -67,9 +75,10 @@ export function Stats(props: IProps) {
 
         <div className="flex flex-col gap-6 w-full">
           <div className="rounded-2xl px-4 py-6 bg-[#0C0C0C] flex justify-between">
-            <StatsItem title="Todays PnL" value={data?.["24h"]} change={-12} />
-            <StatsItem title="7 Day PnL" value={data?.["7d"]} />
-            <StatsItem title="30 Day PnL" value={data?.["30d"]} change={34} />
+            <StatsItem title="Todays PnL" value={data?.["24h"]} change={data?.percentagePnl?.["24h"]} />
+            <StatsItem title="7 Day PnL" value={data?.["7d"]} change={data?.percentagePnl?.["7d"]} />
+            <StatsItem title="30 Day PnL" value={data?.["30d"]} change={data?.percentagePnl?.["30d"]} />
+            <StatsItem title="All time PnL" value={data?.allTime?.pnl} change={data?.allTime?.pnlPercentage} />
             {/* <StatsItem title="All time PnL" value={9999} change={-100} /> */}
           </div>
         </div>
@@ -81,10 +90,9 @@ export function Stats(props: IProps) {
           </div>
           <div className="h-full w-[1px] bg-[#373737]"></div>
           <div className="flex flex-col gap-4 py-2">
-            <StatsItemMute title="30 Day PnL" value={data?.["30d"]} change={34} />
-            <div className="invisible">
-              <StatsItemMute title="7 Day PnL" value={data?.["7d"]} />
-            </div>
+            <StatsItemMute title="30 Day PnL" value={data?.["30d"]} />
+
+            <StatsItemMute title="All time PnL" value={data?.allTime?.pnl} />
           </div>
         </div>
       </div>

@@ -8,6 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import {
   useReadGemachBalance,
   useReadGemachCopyTrades,
+  useReadGemachOpenPositions,
   useReadGemachTradeHistory,
   useReadGemachUser,
 } from "@/services/queries/gemach";
@@ -154,13 +155,20 @@ export function AccountInfo() {
   const { data } = useReadGemachCopyTrades(address, gemachUserLoggedIn, session?.access_token);
   const { data: activityData } = useReadGemachTradeHistory(address, session?.access_token);
 
+  const { data: openPositions } = useReadGemachOpenPositions(session?.access_token);
+
   const activityCount = activityData?.pagination?.totalRecords || 0;
 
   return (
     <div className="flex items-center border border-[#262626] rounded-md bg-[#1C1C1C]">
       <Balance />
       <AccountInfoItem iconBg="#EDF3FF" icon={<Followers />} label="Following" value={data?.length.toString()} />
-      <AccountInfoItem iconBg="#FFEDE3" icon={<DollarSign />} label="Open Positions" value="3" />
+      <AccountInfoItem
+        iconBg="#FFEDE3"
+        icon={<DollarSign />}
+        label="Open Positions"
+        value={openPositions?.assetPositions?.length.toString()}
+      />
       <AccountInfoItem
         iconBg="#EBFAF3"
         icon={<Activity />}
