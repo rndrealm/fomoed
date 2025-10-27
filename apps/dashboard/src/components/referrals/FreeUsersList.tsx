@@ -61,7 +61,7 @@ const FreeUsersList: FC<FreeUsersListProps> = ({ freeUsers }) => {
     freeUsers.forEach((user, index) => {
       const row = worksheet.addRow({
         email: user.email,
-        status: user.status,
+        status:  user.status === "Pending" ? "Free User" : `${user.status}`,
       });
 
       // Only apply styling to columns A–B
@@ -123,7 +123,7 @@ const FreeUsersList: FC<FreeUsersListProps> = ({ freeUsers }) => {
       <div className="bg-[#121212] border border-[#1a1a1a] rounded-xl overflow-hidden">
         {/* Table Header */}
         <div className="grid grid-cols-2 gap-4 px-6 py-4 border-b border-zinc-800 text-sm text-zinc-400 font-medium">
-          <div className="col-span-1">EMAIL</div>
+          <div className="col-span-1">Email</div>
           <div className="col-span-1">STATUS</div>
         </div>
 
@@ -137,7 +137,9 @@ const FreeUsersList: FC<FreeUsersListProps> = ({ freeUsers }) => {
               >
                 <div className="col-span-1 text-zinc-200">{user.email}</div>
                 <div className="col-span-1">
-                  <span className="underline text-zinc-300">{user.status} Subscriber</span>
+                  <span className="underline text-zinc-300">
+                    {user.status === "Pending" ? "Free User" : `${user.status} Subscriber`}
+                  </span>
                 </div>
               </div>
             ))

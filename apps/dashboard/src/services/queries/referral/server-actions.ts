@@ -194,11 +194,9 @@ export async function getUserSubscribers() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
   if (!user) {
     throw new Error("User not authenticated");
   }
-
   // Only fetch active referrals
   const { data: referrals, error: referralsError } = await query
     .from("referrals")
@@ -206,24 +204,19 @@ export async function getUserSubscribers() {
     .eq("referrer_user_id", user.id)
     .eq("status", "Active")
     .order("updated_at", { ascending: false });
-
   if (referralsError) {
     console.error("Error fetching subscribers:", referralsError);
     return [];
   }
-
   if (!referrals || referrals.length === 0) {
     return [];
   }
-
   const referralIds = referrals.map((r) => r.referral_id);
-
   let commissions: {
     referral_id: string;
     amount: number | null;
     billing_period_start: string | null;
   }[] = [];
-
   if (referralIds.length > 0) {
     const { data: commData, error: commError } = await query
       .from("referral_commissions")
@@ -236,11 +229,35 @@ export async function getUserSubscribers() {
     }
   }
 
+  // Fetch user emails
+  const referredUserIds = referrals
+    .map((r) => r.referred_user_id)
+    .filter((id): id is string => id !== null);
+
+  const { data: users, error: usersError } = await query
+    .from("users")
+    .select("user_id, email")
+    .in("user_id", referredUserIds);
+
+  if (usersError) {
+    console.error("Error fetching user emails:", usersError);
+  }
+
+  const userEmailMap = new Map((users || []).map((u) => [u.user_id, u.email]));
+
+  // Helper function to mask email
+  const maskEmail = (email: string | null | undefined): string => {
+    if (!email) return "N/A";
+    const [localPart, domain] = email.split("@");
+    if (!domain) return "N/A";
+    const prefix = localPart.substring(0, 3);
+    return `${prefix}***@${domain}`;
+  };
+
   const subscribers = referrals.map((referral) => {
     const totalEarnings = commissions
       .filter((c) => c.referral_id === referral.referral_id)
       .reduce((sum, item) => sum + (item.amount || 0), 0);
-
     // Get the earliest billing_period_start as joined date
     const referralCommissions = commissions.filter(
       (c) => c.referral_id === referral.referral_id
@@ -256,14 +273,17 @@ export async function getUserSubscribers() {
         )
         : referral.created_at;
 
+    const email = referral.referred_user_id
+      ? userEmailMap.get(referral.referred_user_id)
+      : null;
+
     return {
-      referred_user_id: referral.referred_user_id,
+      email: maskEmail(email),
       joined_date: joinedDate,
       status: referral.status,
       total_earnings: totalEarnings,
     };
   });
-
   return subscribers;
 }
 
@@ -273,11 +293,9 @@ export async function getFreeUsers() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
   if (!user) {
     throw new Error("User not authenticated");
   }
-
   // Fetch referrals with Pending or Cancelled status
   const { data: referrals, error: referralsError } = await query
     .from("referrals")
@@ -285,16 +303,13 @@ export async function getFreeUsers() {
     .eq("referrer_user_id", user.id)
     .in("status", ["Pending", "Cancelled"])
     .order("updated_at", { ascending: false });
-
   if (referralsError) {
     console.error("Error fetching free users:", referralsError);
     return [];
   }
-
   if (!referrals || referrals.length === 0) {
     return [];
   }
-
   const referredUserIds = referrals
     .map((r) => r.referred_user_id)
     .filter((id): id is string => id !== null);
@@ -311,15 +326,24 @@ export async function getFreeUsers() {
 
   const userEmailMap = new Map((users || []).map((u) => [u.user_id, u.email]));
 
+  // Helper function to mask email
+  const maskEmail = (email: string | null | undefined): string => {
+    if (!email) return "N/A";
+    const [localPart, domain] = email.split("@");
+    if (!domain) return "N/A";
+    const prefix = localPart.substring(0, 3);
+    return `${prefix}***@${domain}`;
+  };
+
   const freeUsers = referrals.map((referral) => ({
     email: referral.referred_user_id
-      ? userEmailMap.get(referral.referred_user_id) || "N/A"
+      ? maskEmail(userEmailMap.get(referral.referred_user_id))
       : "N/A",
     status: referral.status,
   }));
-
   return freeUsers;
 }
+
 
 export async function getReferralChartData(timeRange: "7D" | "4W" | "6M" | "YTD" | "1Y") {
   const supabase = await createSupabaseServerClient();
@@ -334,14 +358,16 @@ export async function getReferralChartData(timeRange: "7D" | "4W" | "6M" | "YTD"
   }
 
   const now = new Date();
+  now.setHours(0, 0, 0, 0);
   let startDate = new Date();
+  startDate.setHours(0, 0, 0, 0);
 
   switch (timeRange) {
     case "7D":
-      startDate.setDate(now.getDate() - 7);
+      startDate.setDate(now.getDate() - 6); // 7 days including today
       break;
     case "4W":
-      startDate.setDate(now.getDate() - 28);
+      startDate.setDate(now.getDate() - 27); // 28 days including today
       break;
     case "6M":
       startDate.setMonth(now.getMonth() - 6);
@@ -358,7 +384,6 @@ export async function getReferralChartData(timeRange: "7D" | "4W" | "6M" | "YTD"
     .from("referrals")
     .select("referral_id, status, created_at, updated_at")
     .eq("referrer_user_id", user.id)
-    .gte("created_at", startDate.toISOString())
     .order("created_at", { ascending: true });
 
   if (referralsError) {
@@ -366,56 +391,57 @@ export async function getReferralChartData(timeRange: "7D" | "4W" | "6M" | "YTD"
     return { labels: [], activeData: [], inactiveData: [], pendingData: [] };
   }
 
-  const groupedData = new Map<string, { active: number; inactive: number; pending: number }>();
+  // Initialize all dates in the range with zero counts
+  const dateMap = new Map<string, { active: Set<string>; inactive: Set<string>; pending: Set<string> }>();
+  
+  const currentDate = new Date(startDate);
+  while (currentDate <= now) {
+    const dateKey = currentDate.toISOString().split('T')[0];
+    dateMap.set(dateKey, { 
+      active: new Set(), 
+      inactive: new Set(), 
+      pending: new Set() 
+    });
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
 
+  // Process each referral and add to appropriate dates
   referrals?.forEach((referral) => {
-    const date = new Date(referral.created_at);
-    let key: string;
+    const createdDate = new Date(referral.created_at);
+    createdDate.setHours(0, 0, 0, 0);
 
-    if (timeRange === "7D") {
-      key = date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-    } else if (timeRange === "4W") {
-      const weekStart = new Date(date);
-      weekStart.setDate(date.getDate() - date.getDay());
-      key = weekStart.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-    } else {
-      key = date.toLocaleDateString("en-US", { month: "short", year: timeRange === "1Y" ? "2-digit" : "numeric" });
-    }
-
-    if (!groupedData.has(key)) {
-      groupedData.set(key, { active: 0, inactive: 0, pending: 0 });
-    }
-
-    const counts = groupedData.get(key)!;
-
-    if (referral.status === "Active") {
-      counts.active++;
-    } else if (referral.status === "Pending") {
-      counts.pending++;
-      counts.inactive++;
-    } else if (referral.status === "Cancelled") {
-      counts.inactive++;
+    // Add this referral to all dates from creation date onwards (within our range)
+    const refDate = new Date(Math.max(createdDate.getTime(), startDate.getTime()));
+    
+    while (refDate <= now) {
+      const dateKey = refDate.toISOString().split('T')[0];
+      const counts = dateMap.get(dateKey);
+      
+      if (counts) {
+        if (referral.status === "Active") {
+          counts.active.add(referral.referral_id);
+        } else if (referral.status === "Pending") {
+          counts.pending.add(referral.referral_id);
+        } else if (referral.status === "Cancelled") {
+          counts.inactive.add(referral.referral_id);
+        }
+      }
+      
+      refDate.setDate(refDate.getDate() + 1);
     }
   });
 
-  // Convert to cumulative counts
-  const labels = Array.from(groupedData.keys());
+  // Convert to arrays
+  const labels: string[] = [];
   const activeData: number[] = [];
   const inactiveData: number[] = [];
   const pendingData: number[] = [];
 
-  let cumulativeActive = 0;
-  let cumulativeInactive = 0;
-  let cumulativePending = 0;
-
-  Array.from(groupedData.values()).forEach((v) => {
-    cumulativeActive += v.active;
-    cumulativeInactive += v.inactive;
-    cumulativePending += v.pending;
-
-    activeData.push(cumulativeActive);
-    inactiveData.push(cumulativeInactive);
-    pendingData.push(cumulativePending);
+  dateMap.forEach((counts, dateKey) => {
+    labels.push(dateKey);
+    activeData.push(counts.active.size);
+    inactiveData.push(counts.inactive.size);
+    pendingData.push(counts.pending.size);
   });
 
   return {

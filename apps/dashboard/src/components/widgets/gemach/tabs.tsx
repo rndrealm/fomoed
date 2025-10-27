@@ -4,6 +4,11 @@ import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { TimeWindow } from "@/services/queries/gemach/types";
 import { RenderIf } from "@/components/shared";
+import { Button } from "@/components/ui/button";
+import { useGemachCloseAllPositions, useReadGemachOpenPositions } from "@/services/queries/gemach";
+import { useSupabaseAuth } from "@/components/providers";
+import { useAccount } from "wagmi";
+import { toast } from "sonner";
 
 const options = [
   {
@@ -127,6 +132,27 @@ interface IProps {
 
 export function Tabs(props: IProps) {
   const { activeTab, setActiveTab, timeWindow, setTimeWindow } = props;
+  const { session } = useSupabaseAuth();
+
+  const { address } = useAccount();
+
+  const closeAllPositions = useGemachCloseAllPositions(session?.access_token);
+
+  const { data: openPositions, isLoading: openPositionsLoading } = useReadGemachOpenPositions(session?.access_token);
+
+  function handleCloseAllPositions() {
+    const body = {
+      address: address || "",
+    };
+    closeAllPositions.mutate(body, {
+      onSuccess: () => {
+        toast.success("Successfully initiated closing all positions.");
+      },
+      onError: () => {
+        toast.error("Failed to initiate closing all positions. Please try again.");
+      },
+    });
+  }
 
   return (
     <div className="flex items-center justify-between">
@@ -160,6 +186,20 @@ export function Tabs(props: IProps) {
           />
         ))}
       </div>
+
+      <RenderIf condition={activeTab === "open_positions"}>
+        <div className={activeTab === "open_positions" ? "visible opacity-100" : "invisible opacity-0"}>
+          <Button
+            onClick={handleCloseAllPositions}
+            type="button"
+            className="text-xs h-[unset] text-[#FAFAFA] tracking-[-0.4%] leading-[16px] px-2 py-[6px] bg-[#101010] rounded-sm border border-[#181818]"
+            isLoading={closeAllPositions.isPending}
+            disabled={openPositionsLoading || (openPositions?.assetPositions?.length || 0) === 0}
+          >
+            Close All
+          </Button>
+        </div>
+      </RenderIf>
     </div>
   );
 }

@@ -11,6 +11,8 @@ import {
   PayoutItem,
   FreeUserItem 
 } from "@/services/queries/referral/types";
+import useSubscription from "@/hooks/subscription";
+import { LoaderCircle } from "lucide-react";
 
 interface ReferralPageContentProps {
   referralCode: string;
@@ -26,7 +28,7 @@ interface ReferralPageContentProps {
   } | null;
 }
 
-export type TabName = "All Referrals" | "Subscribers" | "Free Users" | "Payouts";
+export type TabName = "All Referrals" | "Paid Subscribers" | "Free Users" | "Payouts";
 
 const ReferralPageContent: FC<ReferralPageContentProps> = ({
   referralCode: initialReferralCode,
@@ -41,6 +43,12 @@ const ReferralPageContent: FC<ReferralPageContentProps> = ({
   const [copied, setCopied] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<TabName>("All Referrals");
   const [showModal, setShowModal] = useState<boolean>(false);
+
+  // Use the same hook as AutoShowUpgradePopup
+  const { activePlan } = useSubscription();
+  
+  const isProUser = activePlan === "pro" || activePlan === "plus";
+  const planLoaded = activePlan !== undefined;
 
   const handleCopy = (link: string): void => {
     navigator.clipboard.writeText(link);
@@ -63,8 +71,6 @@ const ReferralPageContent: FC<ReferralPageContentProps> = ({
     }
 
     const data = await response.json();
-    
-    // Update local state with new referral code
     setReferralCode(data.referral_code);
   };
 
@@ -75,6 +81,15 @@ const ReferralPageContent: FC<ReferralPageContentProps> = ({
     numberOfReferrals: 0,
     paidOut: 0,
   };
+
+  // Show loading state while plan is loading (same as your Layout component)
+  if (!planLoaded) {
+    return (
+      <div className="w-full h-full grid place-items-center pb-64">
+        <LoaderCircle className="w-10 h-10 animate-spin text-[#838383] duration-1000" />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -113,6 +128,7 @@ const ReferralPageContent: FC<ReferralPageContentProps> = ({
           payouts={payouts}
           initialChartData={initialChartData}
           stripeStatus={stripeStatus}
+          isProUser={isProUser}
         />
 
         <p className="text-center text-zinc-400 text-sm mt-6">

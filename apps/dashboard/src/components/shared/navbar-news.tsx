@@ -87,7 +87,6 @@ const navLinks: INavLink[] = [
     disabled: false,
     beta: false,
     alpha:false,
-    comingSoon: true,
   },
 ];
 
