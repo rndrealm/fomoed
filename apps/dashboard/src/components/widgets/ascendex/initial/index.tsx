@@ -18,7 +18,7 @@ export function LandingScreen(props: IProps) {
     if (state === "loading") {
       const timer = setTimeout(() => {
         handleIsLoaded();
-      }, 4000);
+      }, 3000);
       return () => clearTimeout(timer);
     }
   }, [state, handleIsLoaded]);
