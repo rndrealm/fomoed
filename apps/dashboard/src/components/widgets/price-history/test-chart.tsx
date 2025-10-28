@@ -393,7 +393,6 @@ function TestChart(props: IProps) {
         const effectiveInterval = intervalMin * thinningFactor;
         const totalPoints = Math.ceil(1440 / effectiveInterval);
 
-        // Always show full 24 hours
         return {
           from: 0,
           to: totalPoints
@@ -436,7 +435,6 @@ function TestChart(props: IProps) {
       const totalPoints = Math.ceil(1440 / effectiveInterval);
 
       const defaultFrom = 0;
-      // Always show full 24 hours
       const defaultTo = totalPoints;
 
       defaultZoomRangeRef.current = { from: defaultFrom, to: defaultTo };
