@@ -6,7 +6,6 @@ import { commaFormatNumber, registerChartPluginZoomInBrowser } from "@/charts/he
 import { FormatLiquidationDataResult } from "@/services/queries/charts/types";
 import { CrosshairPluginConfig, CrosshairPlugin } from "@/charts/plugins/CrosshairPlugin";
 import { humanizeNumber, cn } from "@/lib/utils";
-import { FullscreenableContainer } from "../../shared";
 
 Chart.register(CrosshairPlugin);
 
@@ -15,7 +14,6 @@ interface ICfgiCard {
   viewOption?: string;
   token?: string;
   isFullscreen: boolean;
-  onAnimationComplete?: () => void;
 }
 
 const getScaleFormatter = (maxValue: number) => {
@@ -67,7 +65,7 @@ const getDecimalPlaces = (bucketSize: number): number => {
 };
 
 const LiquidationChart = memo((props: ICfgiCard) => {
-  const { liquidationData, viewOption, token, isFullscreen, onAnimationComplete } = props;
+  const { liquidationData, viewOption, token, isFullscreen } = props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
   const zoomStateRef = useRef<{ min?: number; max?: number } | null>(null);
@@ -151,8 +149,6 @@ const LiquidationChart = memo((props: ICfgiCard) => {
         labelStackDirection: "vertical",
       };
 
-      const isAltcoin = token && token !== "BTC" && token !== "ETH";
-
       const customPriceIndicatorPlugin = {
         id: "customPriceIndicator",
         afterDraw: (chart: Chart) => {
@@ -164,7 +160,7 @@ const LiquidationChart = memo((props: ICfgiCard) => {
             } = chart;
             const xCoord = x.getPixelForValue(liquidationData.currentPrice);
 
-            // --- Draw Dashed Line ---
+            // Draw Dashed Line
             ctx.save();
             ctx.beginPath();
             ctx.setLineDash([6, 6]);
@@ -175,7 +171,7 @@ const LiquidationChart = memo((props: ICfgiCard) => {
             ctx.stroke();
             ctx.restore();
 
-            // --- Draw Arrowhead ---
+            // Draw Arrowhead
             ctx.beginPath();
             ctx.moveTo(xCoord, top);
             ctx.lineTo(xCoord - 5, top + 8);
@@ -184,25 +180,22 @@ const LiquidationChart = memo((props: ICfgiCard) => {
             ctx.fillStyle = "red";
             ctx.fill();
 
-            // --- Draw Label ---
+            // Draw Label
             const labelText = `Current Price: $${commaFormatNumber(liquidationData.currentPrice)}`;
             ctx.font = "bold 12px sans-serif";
             const textMetrics = ctx.measureText(labelText);
             const textWidth = textMetrics.width;
             const textHeight = 12;
 
-            // Label box properties
             const padding = { x: 5, y: 4 };
             const boxWidth = textWidth + padding.x * 2;
             const boxHeight = textHeight + padding.y * 0;
             const boxY = top - boxHeight - 10;
             const boxX = xCoord - boxWidth / 2;
 
-            // Draw label background
             ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
             ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
 
-            // Draw label text
             ctx.fillStyle = "white";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
@@ -273,14 +266,14 @@ const LiquidationChart = memo((props: ICfgiCard) => {
               {
                 type: "bar",
                 data: liquidationData.liqBars.filter((bar) => bar.color === "#6EC2F0"),
-                order: 20, 
+                order: 20,
                 backgroundColor: "#6EC2F0",
                 xAxisID: "x",
                 yAxisID: "y",
                 barPercentage: 1.0,
                 categoryPercentage: 0.9,
                 stack: "liquidation-bars",
-                label: "10x Liquidations", 
+                label: "10x Liquidations",
                 parsing: false,
               },
               {
@@ -323,7 +316,6 @@ const LiquidationChart = memo((props: ICfgiCard) => {
             animation: false,
             responsive: true,
             maintainAspectRatio: false,
-            onResize: (chart) => {},
             scales: {
               x: {
                 type: "linear",
@@ -420,7 +412,7 @@ const LiquidationChart = memo((props: ICfgiCard) => {
 
       chartRef.current?.resize();
     },
-    [liquidationData, token],
+    [liquidationData],
   );
 
   useEffect(() => {
@@ -466,12 +458,20 @@ const LiquidationChart = memo((props: ICfgiCard) => {
     initChart();
   }, [liquidationData, viewOption, chart_init, token]);
 
+  useEffect(() => {
+    if (!isFullscreen && chartRef.current) {
+      const timeoutId = setTimeout(() => {
+        chartRef.current?.resize();
+      }, 100);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isFullscreen]);
+
   return (
-    //<FullscreenableContainer isFullscreen={isFullscreen} onAnimationComplete={onAnimationComplete}>
-      <div className={cn("relative h-full w-full pb-1", isFullscreen && "pt-[50px]")}>
-        <canvas width="400" height={0} ref={canvasRef}></canvas>
-      </div>
-    //</FullscreenableContainer>
+    <div className={cn("relative h-full w-full pb-1")}>
+      <canvas width="400" height={0} ref={canvasRef}></canvas>
+    </div>
   );
 });
 
