@@ -166,8 +166,6 @@ const CoinModel = () => {
   });
 
   useEffect(() => {
-    // console.log(gltf);
-
     gltf.scene.traverse((child: any) => {
       if (child.isMesh) {
         if (child.name.includes("Ridges")) {
