@@ -93,7 +93,7 @@ const ReferralPageContent: FC<ReferralPageContentProps> = ({
 
   return (
     <>
-      <div className="max-w-6xl mx-auto my-2 p-5 text-white text-inter">
+      <div className="max-w-6xl mx-auto my-2 p-5 text-white font-inter">
         <div className="mb-8 flex items-start justify-between">
           <div>
             <h1 className="text-2xl font-semibold mb-1">Referrals</h1>
