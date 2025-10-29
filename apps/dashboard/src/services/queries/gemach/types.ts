@@ -147,13 +147,46 @@ export interface UserStats {
   "30d": number;
   week: number;
   dailyPnls: DailyPnl[];
+  volumes: CapitalDeployed;
+  tradesCount: TradesCount;
+  percentagePnl: CapitalDeployed;
+  capitalDeployed: CapitalDeployed;
+  allTime: AllTime;
   lastUpdated: number;
+}
+
+interface AllTime {
+  pnl: number;
+  pnlPercentage: number;
+  capitalDeployed: number;
+}
+
+interface CapitalDeployed {
+  "24h": number;
+  "7d": number;
+  "30d": number;
+  week: number;
 }
 
 interface DailyPnl {
   timeMs: number;
   date: Date;
   pnl: number;
+  pnlPercentage: number;
+  capitalDeployed: number;
+}
+
+interface TradesCount {
+  "24h": The24_H;
+  "7d": The24_H;
+  "30d": The24_H;
+  week: The24_H;
+}
+
+interface The24_H {
+  win: number;
+  lose: number;
+  total: number;
 }
 
 export interface GemachOpenPositions {
