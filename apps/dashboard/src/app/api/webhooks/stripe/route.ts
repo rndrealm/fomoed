@@ -458,7 +458,7 @@ async function handlePaymentFailed(invoice: any) {
   const stripe = getStripe()
   try {
     const supabase = await createSupabaseServerClient();
-    const subscription = await stripe.subscriptions.retrieve(invoice.subscription);
+    const subscription = await stripe.subscriptions.retrieve(invoice.parent.subscription_details.subscription);
     const userId = subscription.metadata?.user_id;
 
     console.log("Payment failed for user:", userId);
