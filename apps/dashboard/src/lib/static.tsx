@@ -820,16 +820,16 @@ export const widgetPropsDefaults = {
       maxH: Infinity,
     },
   },
-  "gemach-copy-trading": {
-    meta: {
-      w: 8,
-      h: 4,
-      minW: 8,
-      minH: 4,
-      maxW: Infinity,
-      maxH: Infinity,
-    },
-  },
+  // "gemach-copy-trading": {
+  //   meta: {
+  //     w: 8,
+  //     h: 4,
+  //     minW: 8,
+  //     minH: 4,
+  //     maxW: Infinity,
+  //     maxH: Infinity,
+  //   },
+  // },
 };
 
 export const tourSteps = [
