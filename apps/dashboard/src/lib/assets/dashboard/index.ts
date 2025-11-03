@@ -91,6 +91,9 @@ import buyOrderbook from "../../../../public/media/images/dashboard/ascendex/buy
 import sellOrderbook from "../../../../public/media/images/dashboard/ascendex/sell-orderbook.png";
 import allOrderbook from "../../../../public/media/images/dashboard/ascendex/all-orderbook.png";
 import ascendexAnimation from "../../../../public/media/images/dashboard/ascendex/asxendex-animation.png";
+import noDeposits from "../../../../public/media/images/dashboard/ascendex/no-deposits.png";
+import noOpenOrders from "../../../../public/media/images/dashboard/ascendex/no-open-orders.png";
+// import shieldAnimation from "../../../../public/media/images/dashboard/ascendex/shield-animation.riv";
 import backpackLogo from "../../../../public/media/images/dashboard/backpack-logo.png";
 import binanceLogo from "../../../../public/media/images/dashboard/binance-logo.png";
 import bybitLogo from "../../../../public/media/images/dashboard/bybit-logo.png";
@@ -194,7 +197,9 @@ const dashboard = {
   bybitLogo,
   coinwLogo,
   hyperliquidLogo2,
-  ascendexAnimation
+  ascendexAnimation,
+  noDeposits,
+  noOpenOrders
 };
 
 export default dashboard;
