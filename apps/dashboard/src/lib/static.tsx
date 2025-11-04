@@ -379,7 +379,7 @@ export const chartsMap = {
   "exchange-liquidation-map": {
     name: "Exchange Liquidation Map",
     extra: ["period", "token", "exchange-token"],
-    component: (widget: LayoutType["widgets"][0]) => <LiquidationExchangeWidget widget={widget} fullScreenButton />,
+    component: (widget: LayoutType["widgets"][0]) => <LiquidationExchangeWidget widget={widget} />,
     isResizable: true,
   },
   "token-news": {

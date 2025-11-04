@@ -37,11 +37,9 @@ const SubscribersList: FC<SubscribersListProps> = ({ subscribers }) => {
   };
 
   const handleExportToExcel = async () => {
-    // Create a new workbook and worksheet
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Active Subscribers");
 
-    // Define columns
     worksheet.columns = [
       { header: "Email", key: "email", width: 40 },
       { header: "Joined Date", key: "joinedDate", width: 15 },
@@ -49,7 +47,6 @@ const SubscribersList: FC<SubscribersListProps> = ({ subscribers }) => {
       { header: "Total Earnings", key: "totalEarnings", width: 15 },
     ];
 
-    // Style the header row
     const headerRow = worksheet.getRow(1);
     headerRow.height = 20;
 
@@ -59,7 +56,7 @@ const SubscribersList: FC<SubscribersListProps> = ({ subscribers }) => {
       cell.fill = {
         type: "pattern",
         pattern: "solid",
-        fgColor: { argb: "FF4472C4" }, // Blue header background
+        fgColor: { argb: "FF4472C4" }, 
       };
       cell.alignment = { vertical: "middle", horizontal: "center" };
       cell.border = {
@@ -70,7 +67,6 @@ const SubscribersList: FC<SubscribersListProps> = ({ subscribers }) => {
       };
     }
 
-    // Add data rows
     subscribers.forEach((subscriber, index) => {
       const row = worksheet.addRow({
         email: subscriber.email || "N/A",
@@ -79,12 +75,10 @@ const SubscribersList: FC<SubscribersListProps> = ({ subscribers }) => {
         totalEarnings: subscriber.total_earnings,
       });
 
-      // Only apply styling to columns A–D
       const dataColumns = [1, 2, 3, 4];
       dataColumns.forEach((colNum) => {
         const cell = row.getCell(colNum);
 
-        // Gray background for odd rows
         if (index % 2 === 0) {
           cell.fill = {
             type: "pattern",
@@ -93,7 +87,6 @@ const SubscribersList: FC<SubscribersListProps> = ({ subscribers }) => {
           };
         }
 
-        // Apply borders
         cell.border = {
           top: { style: "thin", color: { argb: "FFD3D3D3" } },
           left: { style: "thin", color: { argb: "FFD3D3D3" } },
@@ -104,17 +97,14 @@ const SubscribersList: FC<SubscribersListProps> = ({ subscribers }) => {
         cell.alignment = { vertical: "middle" };
       });
 
-      // Format Total Earnings (D column)
       const earningsCell = row.getCell(4);
       earningsCell.numFmt = "$#,##0.00";
       earningsCell.alignment = { vertical: "middle", horizontal: "right" };
     });
 
-    // Generate file name with current date
     const date = new Date().toISOString().split("T")[0];
     const fileName = `active_subscribers_${date}.xlsx`;
 
-    // Write to buffer and download
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -156,7 +146,7 @@ const SubscribersList: FC<SubscribersListProps> = ({ subscribers }) => {
                 key={subscriber.email || index}
                 className="grid grid-cols-4 gap-4 px-6 py-4 items-center hover:bg-zinc-900/50 transition-colors"
               >
-                <div className="col-span-1 text-zinc-200 font-mono text-sm truncate">
+                <div className="col-span-1 text-zinc-200 font-inter text-sm truncate">
                   {subscriber.email || "N/A"}
                 </div>
                 <div className="col-span-1 text-zinc-300">{formatDate(subscriber.joined_date)}</div>

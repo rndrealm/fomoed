@@ -77,7 +77,6 @@ export default function StripeConnectBanner({ initialStatus }: StripeConnectBann
     }
   };
 
-  // Don't show banner if fully connected
   if (status.status === "connected" && status.payouts_enabled) {
     return (
       <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4 mb-4 flex items-center gap-3">
