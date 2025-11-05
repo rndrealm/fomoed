@@ -15,7 +15,7 @@ export default function GemachCopyTrading(props: IProps) {
 
   return (
     <WidgetWrapper
-      title="Gemach Copy Trading"
+      title="Hyperliquid Copy Trading by Gemach"
       widget={widget}
       isGemachCopyTrading
       titleIcon="none"

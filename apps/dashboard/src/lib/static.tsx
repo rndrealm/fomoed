@@ -331,7 +331,7 @@ export const layoutOptionsMap = [
   },
   {
     id: 215,
-    name: "Gemach Copy Trading",
+    name: "Hyperliquid Copy Trading",
     slug: "gemach-copy-trading",
     image: dashboard.tradingCalendar,
     category: "charts",
@@ -505,7 +505,7 @@ export const chartsMap = {
     isResizable: true,
   },
   "gemach-copy-trading": {
-    name: "Gemach Copy Trading",
+    name: "Hyperliquid Copy Trading",
     extra: [],
     component: (widget: LayoutType["widgets"][0]) => <GemachCopyTrading widget={widget} />,
     isResizable: true,
