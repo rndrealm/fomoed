@@ -6,7 +6,6 @@ import { commaFormatNumber, registerChartPluginZoomInBrowser } from "@/charts/he
 import { FormatExcLiquidationDataResult } from "@/services/queries/charts/types";
 import { CrosshairPluginConfig, CrosshairPlugin } from "@/charts/plugins/CrosshairPlugin";
 import { humanizeNumber, cn } from "@/lib/utils";
-import { FullscreenableContainer } from "../../shared";
 
 Chart.register(CrosshairPlugin);
 
@@ -68,11 +67,11 @@ const getDecimalPlaces = (bucketSize: number): number => {
     decimals = 1;
   }
 
-  return decimals - 1; 
+  return decimals - 1;
 };
 
 const LiquidationChart = memo((props: ICfgiCard) => {
-  const { liquidationData, viewOption, token, isFullscreen, onAnimationComplete } = props;
+  const { liquidationData, viewOption, token, isFullscreen } = props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
   const zoomStateRef = useRef<{ min?: number; max?: number } | null>(null);
@@ -183,7 +182,7 @@ const LiquidationChart = memo((props: ICfgiCard) => {
 
             if (xCoord < left || xCoord > right) return;
 
-            // --- Draw Dashed Line ---
+            // Draw Dashed Line
             ctx.save();
             ctx.beginPath();
             ctx.setLineDash([6, 6]);
@@ -194,7 +193,7 @@ const LiquidationChart = memo((props: ICfgiCard) => {
             ctx.stroke();
             ctx.restore();
 
-            // --- Draw Arrowhead ---
+            // Draw Arrowhead
             ctx.beginPath();
             ctx.moveTo(xCoord, top);
             ctx.lineTo(xCoord - 5, top + 8);
@@ -203,14 +202,13 @@ const LiquidationChart = memo((props: ICfgiCard) => {
             ctx.fillStyle = "red";
             ctx.fill();
 
-            // --- Draw Label ---
+            // Draw Label
             const labelText = `Current Price: $${commaFormatNumber(liquidationData.currentPrice)}`;
             ctx.font = "bold 12px sans-serif";
             const textMetrics = ctx.measureText(labelText);
             const textWidth = textMetrics.width;
             const textHeight = 12;
 
-            // Label box properties
             const padding = { x: 5, y: 4 };
             const boxWidth = textWidth + padding.x * 2;
             const boxHeight = textHeight + padding.y * 2;
@@ -221,11 +219,9 @@ const LiquidationChart = memo((props: ICfgiCard) => {
             if (boxX < left) boxX = left;
             if (boxX + boxWidth > right) boxX = right - boxWidth;
 
-            // Draw label background
             ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
             ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
 
-            // Draw label text
             ctx.fillStyle = "white";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
@@ -250,7 +246,7 @@ const LiquidationChart = memo((props: ICfgiCard) => {
                 barPercentage: 0.85,
                 categoryPercentage: 1.0,
                 stack: "liquidation-stack",
-                order: 23, 
+                order: 23,
               },
               {
                 type: "bar",
@@ -274,7 +270,7 @@ const LiquidationChart = memo((props: ICfgiCard) => {
                 barPercentage: 0.85,
                 categoryPercentage: 1.0,
                 stack: "liquidation-stack",
-                order: 21, 
+                order: 21,
               },
               {
                 type: "line",
@@ -316,7 +312,6 @@ const LiquidationChart = memo((props: ICfgiCard) => {
             animation: false,
             responsive: true,
             maintainAspectRatio: false,
-            onResize: (chart) => {},
             scales: {
               x: {
                 type: "linear",
@@ -463,12 +458,20 @@ const LiquidationChart = memo((props: ICfgiCard) => {
     initChart();
   }, [liquidationData, viewOption, chart_init, token]);
 
+  useEffect(() => {
+    if (!isFullscreen && chartRef.current) {
+      const timeoutId = setTimeout(() => {
+        chartRef.current?.resize();
+      }, 100);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isFullscreen]);
+
   return (
-    //<FullscreenableContainer isFullscreen={isFullscreen} onAnimationComplete={onAnimationComplete}>
-      <div className={cn("relative h-full w-full pb-1", isFullscreen && "pt-[50px]")}>
-        <canvas width="400" height={0} ref={canvasRef}></canvas>
-      </div>
-    //</FullscreenableContainer>
+    <div className={cn("relative h-full w-full pb-1")}>
+      <canvas width="400" height={0} ref={canvasRef}></canvas>
+    </div>
   );
 });
 

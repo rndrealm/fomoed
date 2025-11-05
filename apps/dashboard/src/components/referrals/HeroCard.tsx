@@ -51,7 +51,6 @@ const HeroCard: FC<HeroCardProps> = ({
       return;
     }
 
-    // Validate format (alphanumeric, 3-20 chars)
     if (!/^[a-zA-Z0-9_-]{3,20}$/.test(newReferralCode)) {
       setError("Code must be 3-20 characters (letters, numbers, dash, underscore only)");
       return;

@@ -28,7 +28,7 @@ interface ReferralStatsProps {
     onboarding_completed: boolean;
     payouts_enabled: boolean;
   } | null;
-  isProUser: boolean; // Add this prop
+  isProUser: boolean; 
 }
 
 const AllReferralsStats: FC<{ stats: StatsData }> = ({ stats }) => (
@@ -74,12 +74,11 @@ const ReferralStats: FC<ReferralStatsProps> = ({
     <div className="bg-[#0A0A0A] border-[#0A0A0A] rounded-xl p-8">
       <h3 className="text-2xl font-bold mb-6">Referral Data</h3>
 
-      {/* Show upgrade prompt for free users instead of tabs */}
       {!isProUser ? (
         <ProUpgradePrompt referralCount={totalReferrals} />
       ) : (
         <>
-          {/* Tabs - only for Pro users */}
+          {/* Tabs  */}
           <div className="flex mb-3">
             {tabs.map((tab) => (
               <button
@@ -94,7 +93,7 @@ const ReferralStats: FC<ReferralStatsProps> = ({
             ))}
           </div>
 
-          {/* Tab Content - only for Pro users */}
+          {/* Tab Content  */}
           <div>
             {activeTab === "All Referrals" && <AllReferralsStats stats={stats} />}
             {activeTab === "Paid Subscribers" && <SubscribersList subscribers={subscribers} />}
@@ -109,7 +108,7 @@ const ReferralStats: FC<ReferralStatsProps> = ({
         </>
       )}
 
-      {/* Analytics Section - show for everyone but blur for free users */}
+      {/* Analytics Section  */}
       <div className="mt-8">
         <h3 className="text-2xl font-bold mb-6">Analytics</h3>
         <div className={!isProUser ? "relative" : ""}>

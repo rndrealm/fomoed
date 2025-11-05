@@ -21,18 +21,14 @@ const AnalyticsChart: FC<AnalyticsChartProps> = ({ initialData }) => {
 
   const timeRanges: TimeRange[] = ["7D", "4W", "6M", "YTD", "1Y"];
 
-  // Helper function to format date labels based on time range
   const formatDateLabel = (dateStr: string, range: TimeRange): string => {
     const date = new Date(dateStr);
     
     if (range === "7D" || range === "4W") {
-      // Show month and day (e.g., "Oct 5")
       return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     } else if (range === "6M" || range === "1Y") {
-      // Show month and year (e.g., "Oct 2024")
       return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
     } else {
-      // YTD - show month (e.g., "Oct")
       return date.toLocaleDateString('en-US', { month: 'short' });
     }
   };
@@ -82,7 +78,6 @@ const AnalyticsChart: FC<AnalyticsChartProps> = ({ initialData }) => {
     const ctx = chartRef.current.getContext("2d");
     if (!ctx) return;
 
-    // Format labels based on time range
     const formattedLabels = chartData.labels.map(label => formatDateLabel(label, timeRange));
 
     const data = {
@@ -189,7 +184,7 @@ const AnalyticsChart: FC<AnalyticsChartProps> = ({ initialData }) => {
 
   return (
     <div className="bg-[#121212] border-[#121212] rounded-xl p-6">
-      {/* Header Section - Timeframe Picker */}
+      {/* Header Section */}
       <div className="flex justify-end items-center mb-6">
         <div className="flex items-center gap-4">
           <div className="flex gap-2">

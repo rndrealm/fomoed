@@ -367,7 +367,7 @@ export const chartsMap = {
   "liquidation-map": {
     name: "Liquidation Map",
     extra: ["period", "token", "exchange-token"],
-    component: (widget: LayoutType["widgets"][0]) => <LiquidationWidget widget={widget} fullScreenButton />,
+    component: (widget: LayoutType["widgets"][0]) => <LiquidationWidget widget={widget} />,
     isResizable: true,
   },
   "liquidation-heat-map": {
@@ -379,7 +379,7 @@ export const chartsMap = {
   "exchange-liquidation-map": {
     name: "Exchange Liquidation Map",
     extra: ["period", "token", "exchange-token"],
-    component: (widget: LayoutType["widgets"][0]) => <LiquidationExchangeWidget widget={widget} fullScreenButton />,
+    component: (widget: LayoutType["widgets"][0]) => <LiquidationExchangeWidget widget={widget} />,
     isResizable: true,
   },
   "token-news": {
@@ -820,16 +820,16 @@ export const widgetPropsDefaults = {
       maxH: Infinity,
     },
   },
-  "gemach-copy-trading": {
-    meta: {
-      w: 8,
-      h: 4,
-      minW: 8,
-      minH: 4,
-      maxW: Infinity,
-      maxH: Infinity,
-    },
-  },
+  // "gemach-copy-trading": {
+  //   meta: {
+  //     w: 8,
+  //     h: 4,
+  //     minW: 8,
+  //     minH: 4,
+  //     maxW: Infinity,
+  //     maxH: Infinity,
+  //   },
+  // },
 };
 
 export const tourSteps = [

@@ -66,5 +66,9 @@ export const AppRoutes = {
   referrals: {
     name: "Referrals",
     path: "/referrals"
+  },
+  termsOfService: {
+    name: "Terms of Service",
+    path: "/terms-of-service"
   }
 };

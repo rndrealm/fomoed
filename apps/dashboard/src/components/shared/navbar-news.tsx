@@ -19,6 +19,8 @@ import {
   SettingsIcon,
   ReferAndEarnIcon,
   EducationIcon,
+  NewsPaper,
+  Article,
 } from "../icons/icons";
 import { AppRoutes } from "@/lib/routes";
 import SideNav, { INavLink } from "./sidebar";
@@ -87,6 +89,14 @@ const navLinks: INavLink[] = [
     disabled: false,
     beta: false,
     alpha:false,
+  },
+  {
+    label: "Terms of Service",
+    icon: <Article />,
+    href: AppRoutes.termsOfService.path,
+    disabled: false,
+    beta: false,
+    alpha: false
   },
 ];
 

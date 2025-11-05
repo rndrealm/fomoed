@@ -26,17 +26,14 @@ const FreeUsersList: FC<FreeUsersListProps> = ({ freeUsers }) => {
   };
 
   const handleExportToExcel = async () => {
-    // Create a new workbook and worksheet
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Free Users");
 
-    // Define columns
     worksheet.columns = [
       { header: "Email", key: "email", width: 35 },
       { header: "Status", key: "status", width: 15 },
     ];
 
-    // Style the header row
     const headerRow = worksheet.getRow(1);
     headerRow.height = 20;
 
@@ -57,19 +54,16 @@ const FreeUsersList: FC<FreeUsersListProps> = ({ freeUsers }) => {
       };
     }
 
-    // Add data rows
     freeUsers.forEach((user, index) => {
       const row = worksheet.addRow({
         email: user.email,
         status:  user.status === "Pending" ? "Free User" : `${user.status}`,
       });
 
-      // Only apply styling to columns A–B
       const dataColumns = [1, 2];
       dataColumns.forEach((colNum) => {
         const cell = row.getCell(colNum);
 
-        // Gray background for odd rows
         if (index % 2 === 0) {
           cell.fill = {
             type: "pattern",
@@ -78,7 +72,6 @@ const FreeUsersList: FC<FreeUsersListProps> = ({ freeUsers }) => {
           };
         }
 
-        // Apply borders
         cell.border = {
           top: { style: "thin", color: { argb: "FFD3D3D3" } },
           left: { style: "thin", color: { argb: "FFD3D3D3" } },
@@ -90,11 +83,9 @@ const FreeUsersList: FC<FreeUsersListProps> = ({ freeUsers }) => {
       });
     });
 
-    // Generate file name with current date
     const date = new Date().toISOString().split("T")[0];
     const fileName = `free_users_${date}.xlsx`;
 
-    // Write to buffer and download
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -133,7 +124,7 @@ const FreeUsersList: FC<FreeUsersListProps> = ({ freeUsers }) => {
             currentFreeUsers.map((user, index) => (
               <div
                 key={user.email + index}
-                className="grid grid-cols-2 gap-4 px-6 py-4 items-center hover:bg-zinc-900/50 transition-colors"
+                className="grid grid-cols-2 text-sm gap-4 px-6 py-4 items-center hover:bg-zinc-900/50 transition-colors"
               >
                 <div className="col-span-1 text-zinc-200">{user.email}</div>
                 <div className="col-span-1">

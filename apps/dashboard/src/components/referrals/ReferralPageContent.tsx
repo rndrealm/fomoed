@@ -44,7 +44,6 @@ const ReferralPageContent: FC<ReferralPageContentProps> = ({
   const [activeTab, setActiveTab] = useState<TabName>("All Referrals");
   const [showModal, setShowModal] = useState<boolean>(false);
 
-  // Use the same hook as AutoShowUpgradePopup
   const { activePlan } = useSubscription();
   
   const isProUser = activePlan === "pro" || activePlan === "plus";
@@ -82,7 +81,6 @@ const ReferralPageContent: FC<ReferralPageContentProps> = ({
     paidOut: 0,
   };
 
-  // Show loading state while plan is loading (same as your Layout component)
   if (!planLoaded) {
     return (
       <div className="w-full h-full grid place-items-center pb-64">
@@ -93,7 +91,7 @@ const ReferralPageContent: FC<ReferralPageContentProps> = ({
 
   return (
     <>
-      <div className="max-w-6xl mx-auto my-2 p-5 text-white text-inter">
+      <div className="max-w-6xl mx-auto my-2 p-5 text-white font-inter">
         <div className="mb-8 flex items-start justify-between">
           <div>
             <h1 className="text-2xl font-semibold mb-1">Referrals</h1>
