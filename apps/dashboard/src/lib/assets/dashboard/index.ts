@@ -85,6 +85,7 @@ import gemachCopyInfo2 from "../../../../public/media/images/dashboard/gemach-co
 import gemachCopyInfo3 from "../../../../public/media/images/dashboard/gemach-copy-info-3.png";
 import gemachCopyInfo4 from "../../../../public/media/images/dashboard/gemach-copy-info-4.png";
 import gemachCopyInfo5 from "../../../../public/media/images/dashboard/gemach-copy-info-5.png";
+import gemachPreview from "../../../../public/media/images/dashboard/gemach-preview.png";
 import referralAsset from "../../../../public/media/images/referrals/referral_asset.png"
 
 const dashboard = {
@@ -174,7 +175,8 @@ const dashboard = {
   gemachCopyInfo3,
   gemachCopyInfo4,
   gemachCopyInfo5,
-  referralAsset
+  referralAsset,
+  gemachPreview
 };
 
 export default dashboard;

@@ -333,7 +333,7 @@ export const layoutOptionsMap = [
     id: 215,
     name: "Hyperliquid Copy Trading",
     slug: "gemach-copy-trading",
-    image: dashboard.tradingCalendar,
+    image: dashboard.gemachPreview,
     category: "charts",
     tags: ["new"],
   },
