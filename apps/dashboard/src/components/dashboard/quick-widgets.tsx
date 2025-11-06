@@ -240,7 +240,7 @@ export function QuickWidgets(props: IProps) {
             </RenderIf>
 
             <div className="grid min-w-full min-h-0 grid-cols-1 overflow-auto md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-8">
-              {filteredWidget.map((widget, index) => {
+              {filteredWidget.sort((a, b) => a.id - b.id).map((widget, index) => {
                 const widgetSlug = widget.slug;
 
                 //every index of element that comes after third element
@@ -251,7 +251,7 @@ export function QuickWidgets(props: IProps) {
 
                 // only for the default state of the widgets when the modal is opened - (no search no tags selected)
                 const defaultSettings = !searchValue && selectedTag === "all";
-                // console.log("defaultSettings", selectedTag, searchValue);
+                // console.log("defaultSettings", selectedTag, searchView);
 
                 const textCondition = indexTarget && defaultSettings;
 
