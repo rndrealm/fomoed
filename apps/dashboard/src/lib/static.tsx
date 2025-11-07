@@ -47,6 +47,7 @@ import OrderbookDeltaWidget from "@/components/widgets/delta/delta-widget";
 import WhaleTransactionWidget from "@/components/widgets/whale-transaction/whale-transaction-widget";
 import TradingEconomicsWidget from "@/components/widgets/trading-economics/economic-calendar-widget";
 import GemachCopyTrading from "@/components/widgets/gemach/gemach-copy-trading";
+import YoutubeWidget from "@/components/widgets/youtube/youtube-widget";
 
 export const layoutClassMap = {
   SinglePane: "grid-rows-1 grid-cols-1",
@@ -155,7 +156,8 @@ export const layoutOptionsMap = [
     id: 5,
     name: "Exchange Liquidation Map",
     slug: "exchange-liquidation-map",
-    description: "Visualize liquidation activity across exchanges see how pressure shifts and liquidity reacts in real time.",
+    description:
+      "Visualize liquidation activity across exchanges see how pressure shifts and liquidity reacts in real time.",
     image: dashboard.cfgi2,
     category: "charts",
     tags: ["charts"],
@@ -298,7 +300,8 @@ export const layoutOptionsMap = [
     id: 20,
     name: "Weighted Sentiment",
     slug: "weighted-sentiment",
-    description: "Visualize market sentiment weighted by influence showing bullish and bearish conviction beyond raw counts.",
+    description:
+      "Visualize market sentiment weighted by influence showing bullish and bearish conviction beyond raw counts.",
     image: dashboard.weightedSentiment,
     category: "charts",
     tags: ["charts", "new"],
@@ -307,7 +310,8 @@ export const layoutOptionsMap = [
     id: 21,
     name: "Weighted Price Sentiment",
     slug: "weighted-price-sentiment",
-    description: "Compare weighted sentiment with price action highlighting relation between crowd conviction and market trends.",
+    description:
+      "Compare weighted sentiment with price action highlighting relation between crowd conviction and market trends.",
     image: dashboard.weightedPriceSentiment,
     category: "charts",
     tags: ["charts", "new"],
@@ -321,6 +325,15 @@ export const layoutOptionsMap = [
     image: dashboard.duckGame,
     category: "games",
     tags: ["new", "games"],
+  },
+  {
+    id: 23,
+    name: "YouTube",
+    slug: "youtube",
+    description: "Watch and discover YouTube content directly in your dashboard.",
+    image: dashboard.duckGame,
+    category: "news",
+    tags: ["news", "new"],
   },
   // {
   //   name: "Token Price History",
@@ -509,6 +522,12 @@ export const chartsMap = {
     name: "Hyperliquid Copy Trading",
     extra: [],
     component: (widget: LayoutType["widgets"][0]) => <GemachCopyTrading widget={widget} />,
+    isResizable: true,
+  },
+  youtube: {
+    name: "YouTube",
+    extra: [""],
+    component: (widget: LayoutType["widgets"][0]) => <YoutubeWidget widget={widget} />,
     isResizable: true,
   },
 };
@@ -821,16 +840,27 @@ export const widgetPropsDefaults = {
       maxH: Infinity,
     },
   },
-  // "gemach-copy-trading": {
-  //   meta: {
-  //     w: 8,
-  //     h: 4,
-  //     minW: 8,
-  //     minH: 4,
-  //     maxW: Infinity,
-  //     maxH: Infinity,
-  //   },
-  // },
+  "gemach-copy-trading": {
+    meta: {
+      w: 8,
+      h: 4,
+      minW: 8,
+      minH: 4,
+      maxW: Infinity,
+      maxH: Infinity,
+    },
+  },
+  youtube: {
+    videoId: "",
+    meta: {
+      w: 8,
+      h: 4,
+      minW: 4,
+      minH: 4,
+      maxW: Infinity,
+      maxH: Infinity,
+    },
+  },
 };
 
 export const tourSteps = [
