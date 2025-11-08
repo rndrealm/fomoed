@@ -331,7 +331,7 @@ export const layoutOptionsMap = [
     name: "YouTube",
     slug: "youtube",
     description: "Watch and discover YouTube content directly in your dashboard.",
-    image: dashboard.duckGame,
+    image: dashboard.youtube,
     category: "news",
     tags: ["news", "new"],
   },
