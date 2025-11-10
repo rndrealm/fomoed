@@ -329,14 +329,14 @@ export const layoutOptionsMap = [
     category: "charts",
     tags: ["charts", "new", "events"],
   },
-  {
-    id: 215,
-    name: "Gemach Copy Trading",
-    slug: "gemach-copy-trading",
-    image: dashboard.tradingCalendar,
-    category: "charts",
-    tags: ["new"],
-  },
+  // {
+  //   id: 215,
+  //   name: "Gemach Copy Trading",
+  //   slug: "gemach-copy-trading",
+  //   image: dashboard.tradingCalendar,
+  //   category: "charts",
+  //   tags: ["new"],
+  // },
 
   // {
   //   id: 10,
