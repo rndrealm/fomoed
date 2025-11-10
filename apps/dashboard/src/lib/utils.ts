@@ -801,3 +801,45 @@ export function hyperliquidFormatPriceChange(
     isPositive,
   };
 }
+
+type PositionSide = "long" | "short";
+
+export function calcMargin({ positionSize, leverage }: { positionSize: number; leverage: number }) {
+  const marginRequired = positionSize / leverage;
+
+  return marginRequired;
+}
+
+/**
+ * Returns estimated liquidation price (mark-based) for isolated margin positions.
+ * Returns `null` when calculation is not applicable (e.g., leverage <= 1).
+ */
+export function estimateLiqPrice({
+  entryPrice,
+  leverage,
+  maintenanceRate,
+  side,
+}: {
+  entryPrice: number; // E
+  leverage: number; // >= 1 (exchanges usually treat 1x as non-margin)
+  maintenanceRate: number; // mmr, e.g. 0.005
+  side: PositionSide;
+}): number | null {
+  if (!isFinite(entryPrice) || entryPrice <= 0) return null;
+  if (!isFinite(leverage) || leverage <= 1) return null; // treat 1x as NA
+  if (!isFinite(maintenanceRate) || maintenanceRate < 0 || maintenanceRate >= 1) return null;
+
+  const invLev = 1 / leverage;
+
+  if (side === "long") {
+    const denom = 1 - maintenanceRate;
+    if (denom <= 0) return null;
+    const numerator = 1 - invLev; // (1 - 1/lev)
+    return entryPrice * (numerator / denom);
+  } else {
+    // short
+    const denom = 1 + maintenanceRate;
+    const numerator = 1 + invLev; // (1 + 1/lev)
+    return entryPrice * (numerator / denom);
+  }
+}
