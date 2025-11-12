@@ -48,6 +48,7 @@ import WhaleTransactionWidget from "@/components/widgets/whale-transaction/whale
 import TradingEconomicsWidget from "@/components/widgets/trading-economics/economic-calendar-widget";
 import GemachCopyTrading from "@/components/widgets/gemach/gemach-copy-trading";
 import YoutubeWidget from "@/components/widgets/youtube/youtube-widget";
+import TelegramWidget from "@/components/widgets/telegram/telegram-widget";
 
 export const layoutClassMap = {
   SinglePane: "grid-rows-1 grid-cols-1",
@@ -335,6 +336,15 @@ export const layoutOptionsMap = [
     category: "news",
     tags: ["news", "new"],
   },
+    {
+    id: 24,
+    name: "Telegram",
+    slug: "telegram",
+    description: "Stay connected with Telegram, message friends and check groups right on your dashboard",
+    image: dashboard.telegramPreview,
+    category: "social",
+    tags: ["social", "new"],
+  },
   // {
   //   name: "Token Price History",
   //   slug: "token-price-history",
@@ -528,6 +538,12 @@ export const chartsMap = {
     name: "YouTube",
     extra: [""],
     component: (widget: LayoutType["widgets"][0]) => <YoutubeWidget widget={widget} />,
+    isResizable: true,
+  },
+  telegram: {
+    name: "Telegram",
+    extra: [],
+    component: (widget: LayoutType["widgets"][0]) => <TelegramWidget widget={widget} />,
     isResizable: true,
   },
 };
@@ -855,6 +871,16 @@ export const widgetPropsDefaults = {
     meta: {
       w: 8,
       h: 4,
+      minW: 4,
+      minH: 4,
+      maxW: Infinity,
+      maxH: Infinity,
+    },
+  },
+  telegram: {
+    meta: {
+      w: 8,
+      h: 6,
       minW: 4,
       minH: 4,
       maxW: Infinity,

@@ -88,6 +88,8 @@ import gemachCopyInfo5 from "../../../../public/media/images/dashboard/gemach-co
 import youtube from "../../../../public/media/images/dashboard/youtube.png";
 import gemachPreview from "../../../../public/media/images/dashboard/gemach-preview.png";
 import referralAsset from "../../../../public/media/images/referrals/referral_asset.png"
+import telegramPreview from "../../../../public/media/images/dashboard/telegram-preview.png";
+import telegramUserIcon from "../../../../public/media/images/dashboard/telegram-user-icon.png";
 
 const dashboard = {
   layoutPlaceholder,
@@ -178,7 +180,9 @@ const dashboard = {
   gemachCopyInfo5,
   referralAsset,
   gemachPreview,
-  youtube
+  youtube,
+  telegramPreview,
+  telegramUserIcon,
 };
 
 export default dashboard;
