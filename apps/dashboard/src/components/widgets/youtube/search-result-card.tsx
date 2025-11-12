@@ -44,16 +44,14 @@ export function SearchResultCard({ result, onSelect, compact = false }: SearchRe
       className="flex gap-3 p-2 bg-[#141414] hover:bg-[#1a1a1a] rounded-lg transition-colors text-left group"
     >
       <div className="relative w-48 h-28 flex-shrink-0 rounded overflow-hidden">
-        <Image src={result.thumbnail} alt={result.title} fill className="object-cover" />
+        <Image src={result.thumbnail} alt={result.title} fill sizes="96px" className="object-cover" />
         {result.isLive && (
           <div className="absolute top-1 left-1 bg-red-600 px-1.5 py-0.5 rounded text-xs font-bold text-white">
             LIVE
           </div>
         )}
-        {result.videoType === 'short' && (
-          <div className="absolute top-1 left-1 bg-white px-1.5 py-0.5 rounded text-xs font-bold text-black">
-            SHORT
-          </div>
+        {result.videoType === "short" && (
+          <div className="absolute top-1 left-1 bg-white px-1.5 py-0.5 rounded text-xs font-bold text-black">SHORT</div>
         )}
         {result.duration && !result.isLive && (
           <div className="absolute bottom-1 right-1 bg-black/80 px-1.5 py-0.5 rounded text-xs font-semibold text-white">

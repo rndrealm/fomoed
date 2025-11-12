@@ -29,28 +29,35 @@ export function InfoModal({ onClose }: InfoModalProps) {
             <div>
               <h4 className="font-semibold text-white mb-1">Multi-Tasking for Traders</h4>
               <p className="font-medium text-white/80">
-                This widget allows you to watch YouTube videos or live streams directly in your trading dashboard. Keep an eye on your charts, price indicators, and market data while watching trading analysis, market news, or other content—all without switching tabs.
+                This widget allows you to watch YouTube videos or live streams directly in your trading dashboard. Keep
+                an eye on your charts, price indicators, and market data while watching trading analysis, market news,
+                or other content—all without switching tabs.
               </p>
             </div>
 
             <div>
               <h4 className="font-semibold text-white mb-1">Live Stream Support</h4>
               <p className="font-medium text-white/80">
-                Watch live trading streams, market analysis sessions, and breaking financial news in real-time. The widget fully supports both pre-recorded videos and live broadcasts, so you can follow your favorite traders as they analyze markets live.
+                Watch live trading streams, market analysis sessions, and breaking financial news in real-time. The
+                widget fully supports both pre-recorded videos and live broadcasts, so you can follow your favorite
+                traders as they analyze markets live.
               </p>
             </div>
 
             <div>
               <h4 className="font-semibold text-white mb-1">Stay Informed</h4>
               <p className="font-medium text-white/80">
-                Follow market commentary from top analysts, watch technical analysis tutorials, or catch up on crypto market news—all while keeping your trading indicators visible. Perfect for staying informed during trading hours.
+                Follow market commentary from top analysts, watch technical analysis tutorials, or catch up on crypto
+                market news—all while keeping your trading indicators visible. Perfect for staying informed during
+                trading hours.
               </p>
             </div>
 
             <div>
               <h4 className="font-semibold text-white mb-1">Seamless Integration</h4>
               <p className="font-medium text-white/80">
-                Search for any trading-related content or paste YouTube URLs directly. The widget integrates perfectly with your other trading widgets, creating a unified workspace for analysis and education.
+                Search for any trading-related content or paste YouTube URLs directly. The widget integrates perfectly
+                with your other trading widgets, creating a unified workspace for analysis and education.
               </p>
             </div>
           </div>

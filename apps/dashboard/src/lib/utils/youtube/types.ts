@@ -8,15 +8,15 @@ export interface SearchResult {
   duration?: string;
   viewCount?: string;
   isLive?: boolean;
-  videoType?: 'video' | 'short' | 'live';
-  type?: 'video' | 'channel';
+  videoType?: "video" | "short" | "live";
+  type?: "video" | "channel";
   channelId?: string;
   subscriberCount?: string;
   videoCount?: string;
 }
 
-export type VideoFilter = 'all' | 'video' | 'short' | 'live';
-export type SearchFilter = 'all' | 'videos' | 'channels';
+export type VideoFilter = "all" | "video" | "short" | "live";
+export type SearchFilter = "all" | "video" | "short" | "live" | "channel";
 
 export interface ChannelDetails {
   id: string;

@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Search, X, Clock } from "lucide-react";
+import { Search, X } from "lucide-react";
 
 interface SearchBarProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
-  handleSearch: (e: React.FormEvent) => void;
+  handleSearch: (e: React.FormEvent, overrideQuery?: string) => void;
   isSearching: boolean;
   suggestions: string[];
   fetchSuggestions: (query: string) => void;
@@ -21,6 +21,7 @@ export function SearchBar({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const searchRef = useRef<HTMLDivElement>(null);
+  const isSelectingSuggestion = useRef(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -31,6 +32,10 @@ export function SearchBar({
   }, [searchQuery]);
 
   useEffect(() => {
+    if (isSelectingSuggestion.current) {
+      return;
+    }
+
     if (debouncedQuery.trim() && debouncedQuery.length > 2) {
       fetchSuggestions(debouncedQuery);
       setShowSuggestions(true);
@@ -51,24 +56,46 @@ export function SearchBar({
   }, []);
 
   const handleSelectSuggestion = (suggestion: string) => {
+    isSelectingSuggestion.current = true;
+
     setSearchQuery(suggestion);
     setShowSuggestions(false);
-    // Trigger search with the selected suggestion
+
     const fakeEvent = { preventDefault: () => {} } as React.FormEvent;
-    handleSearch(fakeEvent);
+    handleSearch(fakeEvent, suggestion);
+
+    setTimeout(() => {
+      isSelectingSuggestion.current = false;
+    }, 500);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    isSelectingSuggestion.current = false;
+    setSearchQuery(e.target.value);
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery("");
+    setShowSuggestions(false);
+    isSelectingSuggestion.current = false;
+  };
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    setShowSuggestions(false);
+    handleSearch(e);
   };
 
   return (
     <div ref={searchRef} className="relative">
-      <form onSubmit={handleSearch} className="flex gap-2">
+      <form onSubmit={handleFormSubmit} className="flex gap-2">
         <div className="flex-1 flex items-center gap-2 bg-[#141414] rounded-lg px-3 py-2">
           <Search className="w-4 h-4 text-[#878787]" />
           <input
             type="text"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={handleInputChange}
             onFocus={() => {
-              if (suggestions.length > 0 && searchQuery.length > 2) {
+              if (suggestions.length > 0 && searchQuery.length > 2 && !isSelectingSuggestion.current) {
                 setShowSuggestions(true);
               }
             }}
@@ -78,10 +105,7 @@ export function SearchBar({
           {searchQuery && (
             <button
               type="button"
-              onClick={() => {
-                setSearchQuery("");
-                setShowSuggestions(false);
-              }}
+              onClick={handleClearSearch}
               className="text-[#878787] hover:text-white transition-colors"
             >
               <X className="w-4 h-4" />
@@ -97,7 +121,7 @@ export function SearchBar({
         </button>
       </form>
 
-      {/* Text Suggestions Dropdown */}
+      {/* Text Suggestions */}
       {showSuggestions && suggestions.length > 0 && (
         <div className="absolute top-full left-0 right-0 mt-2 bg-[#1a1a1a] rounded-lg border border-[#272727] shadow-lg z-10 overflow-hidden">
           <div className="py-1">

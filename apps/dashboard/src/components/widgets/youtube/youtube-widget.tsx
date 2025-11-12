@@ -9,7 +9,6 @@ import { SearchBar } from "./search-bar";
 import { SearchResults } from "./search-result";
 import { VideoPlayer } from "./video-player";
 import { InfoModal } from "./info-modals";
-import { VideoFilters } from "./video-filters";
 import { SearchFilters } from "./search-filters";
 import { ChannelDetail } from "./channel-detail";
 import { useYoutubeSearch } from "@/lib/utils/youtube/use-youtube-search";
@@ -36,14 +35,9 @@ export default function YoutubeWidget(props: IProps) {
     setSearchResults,
     suggestions,
     isSearching,
-    isLoadingMore,
     error,
     setError,
     handleSearch,
-    loadMoreResults,
-    hasMore,
-    activeFilter,
-    handleFilterChange,
     searchFilter,
     handleSearchFilterChange,
     fetchSuggestions,
@@ -78,35 +72,20 @@ export default function YoutubeWidget(props: IProps) {
     setSelectedChannelId(null);
   };
 
-  // Show channel detail view
   if (selectedChannelId) {
     return (
-      <WidgetWrapper
-        title="YOUTUBE"
-        widget={widget}
-        handleLearnMore={() => setShowInfo(true)}
-      >
+      <WidgetWrapper title="YOUTUBE" widget={widget} handleLearnMore={() => setShowInfo(true)}>
         <div className="flex flex-col h-full">
-          <ChannelDetail
-            channelId={selectedChannelId}
-            onBack={handleBackFromChannel}
-            onSelectVideo={selectVideo}
-          />
+          <ChannelDetail channelId={selectedChannelId} onBack={handleBackFromChannel} onSelectVideo={selectVideo} />
         </div>
 
-        <AnimatePresence>
-          {showInfo && <InfoModal onClose={() => setShowInfo(false)} />}
-        </AnimatePresence>
+        <AnimatePresence>{showInfo && <InfoModal onClose={() => setShowInfo(false)} />}</AnimatePresence>
       </WidgetWrapper>
     );
   }
 
   return (
-    <WidgetWrapper
-      title="YOUTUBE"
-      widget={widget}
-      handleLearnMore={() => setShowInfo(true)}
-    >
+    <WidgetWrapper title="YOUTUBE" widget={widget} handleLearnMore={() => setShowInfo(true)}>
       <div className="flex flex-col gap-3 h-full">
         <SearchBar
           searchQuery={searchQuery}
@@ -117,22 +96,8 @@ export default function YoutubeWidget(props: IProps) {
           fetchSuggestions={fetchSuggestions}
         />
 
-        {/* Search Type Filters (All/Videos/Channels) - Show when there are results */}
         {showSearch && searchResults.length > 0 && (
-          <SearchFilters
-            activeFilter={searchFilter}
-            onFilterChange={handleSearchFilterChange}
-            disabled={isSearching}
-          />
-        )}
-
-        {/* Video Type Filters (All/Videos/Shorts/Live) - Only show for video results */}
-        {showSearch && searchResults.length > 0 && searchFilter !== 'channels' && (
-          <VideoFilters
-            activeFilter={activeFilter}
-            onFilterChange={handleFilterChange}
-            disabled={isSearching}
-          />
+          <SearchFilters activeFilter={searchFilter} onFilterChange={handleSearchFilterChange} disabled={isSearching} />
         )}
 
         {error && (
@@ -143,14 +108,7 @@ export default function YoutubeWidget(props: IProps) {
 
         <div className="flex-1 rounded-lg overflow-hidden bg-black">
           {showSearch && searchResults.length > 0 ? (
-            <SearchResults
-              searchResults={searchResults}
-              selectVideo={selectVideo}
-              selectChannel={selectChannel}
-              loadMoreResults={loadMoreResults}
-              isLoadingMore={isLoadingMore}
-              hasMore={hasMore}
-            />
+            <SearchResults searchResults={searchResults} selectVideo={selectVideo} selectChannel={selectChannel} />
           ) : videoId ? (
             <VideoPlayer videoId={videoId} />
           ) : (
@@ -161,9 +119,7 @@ export default function YoutubeWidget(props: IProps) {
         </div>
       </div>
 
-      <AnimatePresence>
-        {showInfo && <InfoModal onClose={() => setShowInfo(false)} />}
-      </AnimatePresence>
+      <AnimatePresence>{showInfo && <InfoModal onClose={() => setShowInfo(false)} />}</AnimatePresence>
     </WidgetWrapper>
   );
 }
