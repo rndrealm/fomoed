@@ -1,36 +1,35 @@
-'use client'
+"use client";
 
-import { useState } from "react"
-import { AnimatePresence, motion } from "motion/react"
-import { LayoutType } from "@/lib/atoms/layoutAtom"
-import { WidgetWrapper } from "../shared"
-import { Close, FomoedGreyIcon, Question } from "@/components/icons/icons"
-import { modalSlide } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import Image from "next/image"
-import dashboard from "@/lib/assets/dashboard"
-import { Loader2 } from "lucide-react"
+import { useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { LayoutType } from "@/lib/atoms/layoutAtom";
+import { WidgetWrapper } from "../shared";
+import { Close, FomoedGreyIcon, Question } from "@/components/icons/icons";
+import { modalSlide } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import Image from "next/image";
+import dashboard from "@/lib/assets/dashboard";
+import { Loader2 } from "lucide-react";
 
 interface IProps {
-  widget: LayoutType["widgets"][0]
+  widget: LayoutType["widgets"][0];
 }
 
 export default function TelegramWidget(props: IProps) {
-  const { widget } = props
-  const [showLanding, setShowLanding] = useState(true)
-  const [showInfo, setShowInfo] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const { widget } = props;
+  const [showLanding, setShowLanding] = useState(true);
+  const [showInfo, setShowInfo] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleConnect = () => {
-    setShowLanding(false)
-    setIsLoading(true)
-  }
+    setShowLanding(false);
+    setIsLoading(true);
+  };
 
   const handleIframeLoad = () => {
     // Hide the loading spinner since iframe has loaded
-    setIsLoading(false)
-  }
-
+    setIsLoading(false);
+  };
 
   return (
     <WidgetWrapper
@@ -44,9 +43,7 @@ export default function TelegramWidget(props: IProps) {
         {showLanding ? (
           // Landing Page
           <div className="w-full h-full flex flex-col items-center justify-between px-6 pt-6 pb-4">
-            <h3 className="text-white text-sm font-semibold">
-              Login To Telegram
-            </h3>
+            <h3 className="text-white text-sm font-semibold">Login To Telegram</h3>
             {/* Login Section */}
             <div className="flex flex-col items-center gap-4 w-full">
               {/* User Icon */}
@@ -83,7 +80,6 @@ export default function TelegramWidget(props: IProps) {
               </div>
             )}
 
-
             {/* Telegram iframe */}
             <iframe
               src="https://telegram.fomoed.app/"
@@ -111,15 +107,13 @@ export default function TelegramWidget(props: IProps) {
               <div className="flex flex-col gap-4 justify-between h-full">
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-col">
-                    <h3 className="font-semibold text-base leading-[1.35] text-white">
-                      Telegram Widget
-                    </h3>
-                    <p className="text-[13px] leading-[1.25] text-[#878787]">
-                      Learn about the Telegram Widget
-                    </p>
+                    <h3 className="font-semibold text-base leading-[1.35] text-white">Telegram Widget</h3>
+                    <p className="text-[13px] leading-[1.25] text-[#878787]">Learn about the Telegram Widget</p>
                   </div>
                   <p className="font-medium text-[13px] leading-[1.35] text-white">
-                    The Telegram widget lets you access your chats, channels, and groups directly from your trading dashboard. Stay connected with friends, discuss market moves, and follow community updates in real time all without switching tabs.
+                    The Telegram widget lets you access your chats, channels, and groups directly from your trading
+                    dashboard. Stay connected with friends, discuss market moves, and follow community updates in real
+                    time all without switching tabs.
                   </p>
                   <div className="flex flex-col gap-2">
                     <FomoedGreyIcon />
@@ -149,5 +143,5 @@ export default function TelegramWidget(props: IProps) {
         )}
       </AnimatePresence>
     </WidgetWrapper>
-  )
+  );
 }
