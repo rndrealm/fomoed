@@ -14,7 +14,12 @@ import { v4 as uuidv4 } from "uuid";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { CommunityIcon } from "../icons/icons";
 import CloseIcon from "../icons/CloseIcon";
-import { addWidgetToExistingLayoutAtom, addWidgetToNewLayoutAtom, layoutAtom } from "@/lib/atoms/layoutAtom";
+import {
+  addWidgetToExistingLayoutAtom,
+  addWidgetToNewLayoutAtom,
+  layoutAtom,
+  syncLayoutOnSelectAtom,
+} from "@/lib/atoms/layoutAtom";
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 import { useGetUserPlans } from "@/services/queries/subscriptions";
 import { getGridPosition } from "@/charts/helpers";
@@ -23,6 +28,7 @@ import PlusIcon from "../icons/PlusIcon";
 import Star from "../icons/Star";
 import StarFilled from "../icons/StarFilled";
 import { motion, useAnimate } from "motion/react";
+import { toast } from "sonner";
 
 const categoriesOptions = [
   { id: 1, label: "All", value: "all" },
@@ -87,6 +93,7 @@ export function QuickWidgets(props: IProps) {
   const addWidgetToNewLayout = useSetAtom(addWidgetToNewLayoutAtom);
   const dashboardSetting = useAtomValue(settingAtom);
   const addWidgetToExistingLayout = useSetAtom(addWidgetToExistingLayoutAtom);
+  const syncLayouts = useSetAtom(syncLayoutOnSelectAtom);
 
   const updateSettings = useSetAtom(updateSettingAtom);
 
@@ -129,6 +136,12 @@ export function QuickWidgets(props: IProps) {
       const planType = data?.planType || "FREE"; // Default to FREE if not set
       const maxTabs = maxTabsByPlan[planType] || 3;
       if (layouts.length >= maxTabs) {
+        syncLayouts(layouts[0]);
+        addWidgetToExistingLayout({
+          widget: newWidget,
+          layoutId: layouts[0].id,
+          sync: syncCondition,
+        });
         setShowUpgradeModal(true);
         return;
       }
