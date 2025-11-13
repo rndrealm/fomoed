@@ -65,10 +65,18 @@ export const AppRoutes = {
   },
   referrals: {
     name: "Referrals",
-    path: "/referrals"
+    path: "/referrals",
   },
   termsOfService: {
     name: "Terms of Service",
-    path: "/terms-of-service"
-  }
+    path: "/terms-of-service",
+  },
+  waitlist: {
+    name: "Waitlist",
+    path: "/waitlist",
+    success: {
+      name: "Waitlist Success",
+      path: "/waitlist/success",
+    },
+  },
 };
