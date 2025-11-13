@@ -9,6 +9,7 @@ import { RenderIf } from "@/components/shared";
 import { LandingScreen } from "./initial";
 import ChartHeader from "./chart/chart-header";
 import Balance from "./balance";
+import { TradingView } from "./chart/trading-view";
 
 interface IProps {
   widget: LayoutType["widgets"][0];
@@ -54,10 +55,8 @@ export default function Ascendex(props: IProps) {
                   <ChartHeader />
 
                   {/* Chart placeholder */}
-                  <div className="flex-1 bg-[#121317] rounded-[6px] flex items-center justify-center">
-                    <span className="text-[#9CA3AF] text-sm">
-                      {activeView.charAt(0).toUpperCase() + activeView.slice(1)} Trading View
-                    </span>
+                  <div className="flex-1 bg-[#121317] rounded-[6px] flex items-center justify-center relative overflow-hidden">
+                    <TradingView />
                   </div>
                 </div>
 

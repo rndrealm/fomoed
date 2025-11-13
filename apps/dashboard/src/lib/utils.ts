@@ -702,3 +702,102 @@ export function shortenString(str: string, maxLength = 10): string {
   if (str.length <= maxLength) return str;
   return str.slice(0, maxLength) + "..";
 }
+
+export function getNextBarTime(barTime: number, resolution: string) {
+  const date = new Date(barTime);
+
+  switch (resolution) {
+    case "1D":
+    case "1440":
+      date.setUTCDate(date.getUTCDate() + 1);
+      date.setUTCHours(0, 0, 0, 0);
+      break;
+
+    case "1W":
+    case "10080":
+      date.setUTCDate(date.getUTCDate() + 7);
+      date.setUTCHours(0, 0, 0, 0);
+      break;
+
+    case "1M":
+    case "43200":
+      date.setUTCMonth(date.getUTCMonth() + 1);
+      date.setUTCDate(1);
+      date.setUTCHours(0, 0, 0, 0);
+      break;
+
+    default:
+      const interval = parseInt(resolution);
+      if (!isNaN(interval)) {
+        date.setUTCMinutes(date.getUTCMinutes() + interval);
+      }
+      break;
+  }
+
+  return date.getTime();
+}
+
+export function hyperliquidFormatPriceChange(
+  current: number | string,
+  previous: number | string,
+  volume?: number | string,
+  openInterest?: number | string,
+) {
+  // Convert inputs to numbers
+  const currentNum = Number(current);
+  const previousNum = Number(previous);
+  const volumeNum = volume !== undefined ? Number(volume) : undefined;
+  const openInterestNum = openInterest !== undefined ? Number(openInterest) : undefined;
+
+  // Handle invalid inputs
+  if (isNaN(currentNum) || isNaN(previousNum)) {
+    return {
+      currentPrice: "0",
+      priceChange: "0",
+      priceChangePercent: "0.00%",
+      volume: volumeNum ? volumeNum.toLocaleString(undefined, { maximumFractionDigits: 0 }) : "0",
+      openInterest: openInterestNum ? openInterestNum.toLocaleString(undefined, { maximumFractionDigits: 0 }) : "0",
+      isPositive: false,
+    };
+  }
+
+  // Calculate price change and percent change
+  const priceChange = currentNum - previousNum;
+  const priceChangePercent = (priceChange / previousNum) * 100;
+  const isPositive = priceChange > 0;
+
+  // Determine decimal places based on current price
+  const currentDecimals = current.toString().split(".")[1]?.length || 0;
+
+  // Format numbers
+  const formattedCurrent = currentNum.toLocaleString(undefined, {
+    minimumFractionDigits: currentDecimals,
+    maximumFractionDigits: currentDecimals,
+  });
+
+  const formattedChange = priceChange.toLocaleString(undefined, {
+    minimumFractionDigits: currentDecimals,
+    maximumFractionDigits: currentDecimals,
+  });
+
+  const formattedPercent = `${priceChangePercent.toFixed(2)}%`;
+
+  const formattedVolume =
+    volumeNum !== undefined && !isNaN(volumeNum)
+      ? `$${volumeNum.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
+      : "-";
+
+  const formattedOpenInterest =
+    openInterestNum !== undefined && !isNaN(openInterestNum)
+      ? `$${openInterestNum.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
+      : "-";
+
+  return {
+    currentPrice: formattedCurrent,
+    priceChange: formattedChange,
+    priceChangePercent: formattedPercent,
+    volume: formattedVolume,
+    openInterest: formattedOpenInterest,
+    isPositive,
+  };
+}
