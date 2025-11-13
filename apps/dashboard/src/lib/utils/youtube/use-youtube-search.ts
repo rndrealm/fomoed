@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { SearchResult, VideoFilter, SearchFilter } from "./types";
+import { SearchResult, VideoFilter, SearchFilter, UploadDate, SortBy } from "./types";
 
 const cache = new Map<string, { data: any; expiry: number }>();
 
@@ -19,7 +19,11 @@ function setCache(key: string, data: any, ttlMinutes: number = 5) {
   });
 }
 
-export function useYoutubeSearch(widget: any, activeLayout: any, updateWidgetPropsFromAtom: any) {
+export function useYoutubeSearch(
+  widget: any,
+  activeLayout: any,
+  updateWidgetPropsFromAtom: any,
+) {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -27,6 +31,8 @@ export function useYoutubeSearch(widget: any, activeLayout: any, updateWidgetPro
   const [error, setError] = useState<string | null>(null);
   const [searchFilter, setSearchFilter] = useState<SearchFilter>("all");
   const [currentSearchQuery, setCurrentSearchQuery] = useState("");
+  const [uploadDate, setUploadDate] = useState<UploadDate>("all");
+  const [sortBy, setSortBy] = useState<SortBy>("relevance");
 
   function dedupe(results: SearchResult[]) {
     const map = new Map<string, SearchResult>();
@@ -48,7 +54,7 @@ export function useYoutubeSearch(widget: any, activeLayout: any, updateWidgetPro
     }
 
     const response = await fetch(
-      `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${encodeURIComponent(query)}&type=channel&key=${API_KEY}`,
+      `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=5&q=${encodeURIComponent(query)}&type=channel&key=${API_KEY}`,
     );
 
     if (!response.ok) {
@@ -88,117 +94,145 @@ export function useYoutubeSearch(widget: any, activeLayout: any, updateWidgetPro
     return results;
   }, []);
 
-  const fetchVideos = useCallback(async (query: string, filter: VideoFilter = "all"): Promise<SearchResult[]> => {
-    const cacheKey = `videos:${query}:${filter}`;
-    const cached = getCached(cacheKey);
-    if (cached) {
-      console.log("✅ Using cached video results");
-      return cached;
-    }
-
-    const API_KEY = process.env.NEXT_PUBLIC_YOUTUBE_API_KEY;
-    if (!API_KEY) {
-      throw new Error("YouTube API key is not configured.");
-    }
-
-    let videoDuration = "";
-    let eventType = "";
-
-    if (filter === "short") {
-      videoDuration = "&videoDuration=short";
-    } else if (filter === "live") {
-      eventType = "&eventType=live";
-    } else if (filter === "video") {
-      videoDuration = "&videoDuration=medium";
-    }
-
-    const response = await fetch(
-      `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&q=${encodeURIComponent(query)}&type=video${videoDuration}${eventType}&key=${API_KEY}`,
-    );
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error?.message || "Search failed");
-    }
-
-    const data = await response.json();
-
-    const videoIds = data.items.map((item: any) => item.id.videoId).join(",");
-
-    if (!videoIds) {
-      return [];
-    }
-
-    const detailsResponse = await fetch(
-      `https://www.googleapis.com/youtube/v3/videos?part=contentDetails,statistics,snippet&id=${videoIds}&fields=items(id,snippet(title,thumbnails,channelTitle,description,publishedAt,liveBroadcastContent),contentDetails/duration,statistics/viewCount)&key=${API_KEY}`,
-    );
-
-    const detailsData = await detailsResponse.json();
-    const videoDetails = new Map<
-      string,
-      {
-        duration?: string;
-        viewCount?: string;
-        isLive?: boolean;
-        videoType?: "video" | "short" | "live";
+  const fetchVideos = useCallback(
+    async (
+      query: string, 
+      filter: VideoFilter = "all",
+      dateFilter: UploadDate = "all",
+      sortFilter: SortBy = "relevance"
+    ): Promise<SearchResult[]> => {
+      const cacheKey = `videos:${query}:${filter}:${dateFilter}:${sortFilter}`;
+      const cached = getCached(cacheKey);
+      if (cached) {
+        console.log("✅ Using cached video results");
+        return cached;
       }
-    >(
-      detailsData.items?.map((item: any) => {
-        const duration = item.contentDetails?.duration;
-        const liveBroadcastContent = item.snippet?.liveBroadcastContent;
-        const isLive = liveBroadcastContent === "live" || liveBroadcastContent === "upcoming";
 
-        let videoType: "video" | "short" | "live" = "video";
-        if (isLive) {
-          videoType = "live";
-        } else if (duration) {
-          const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-          if (match) {
-            const hours = match[1] ? parseInt(match[1]) : 0;
-            const minutes = match[2] ? parseInt(match[2]) : 0;
-            const seconds = match[3] ? parseInt(match[3]) : 0;
-            const totalSeconds = hours * 3600 + minutes * 60 + seconds;
-            if (totalSeconds <= 60) {
-              videoType = "short";
+      const API_KEY = process.env.NEXT_PUBLIC_YOUTUBE_API_KEY;
+      if (!API_KEY) {
+        throw new Error("YouTube API key is not configured.");
+      }
+
+      let videoDuration = "";
+      let eventType = "";
+      let searchType = "";
+
+      if (filter === "short") {
+        videoDuration = "&videoDuration=short";
+      } else if (filter === "live") {
+        eventType = "&eventType=live";
+      } else if (filter === "video") {
+        videoDuration = "&videoDuration=medium";
+      } else if (filter === "all") {
+        searchType = "video";
+      }
+
+      let publishedAfter = "";
+      if (dateFilter === "hour") publishedAfter = `&publishedAfter=${new Date(Date.now() - 3600000).toISOString()}`;
+      else if (dateFilter === "today")
+        publishedAfter = `&publishedAfter=${new Date(Date.now() - 86400000).toISOString()}`;
+      else if (dateFilter === "week")
+        publishedAfter = `&publishedAfter=${new Date(Date.now() - 604800000).toISOString()}`;
+      else if (dateFilter === "month")
+        publishedAfter = `&publishedAfter=${new Date(Date.now() - 2592000000).toISOString()}`;
+      else if (dateFilter === "year")
+        publishedAfter = `&publishedAfter=${new Date(Date.now() - 31536000000).toISOString()}`;
+
+      const orderParam = sortFilter !== "relevance" ? `&order=${sortFilter}` : "";
+
+      const response = await fetch(
+        `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&q=${encodeURIComponent(
+          query,
+        )}&type=${searchType}${videoDuration}${eventType}${publishedAfter}${orderParam}&key=${API_KEY}`,
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || "Search failed");
+      }
+
+      const data = await response.json();
+
+      const videoIds = data.items.map((item: any) => item.id.videoId).join(",");
+
+      if (!videoIds) {
+        return [];
+      }
+
+      const detailsResponse = await fetch(
+        `https://www.googleapis.com/youtube/v3/videos?part=contentDetails,statistics,snippet&id=${videoIds}&fields=items(id,snippet(title,thumbnails,channelTitle,description,publishedAt,liveBroadcastContent),contentDetails/duration,statistics/viewCount)&key=${API_KEY}`,
+      );
+
+      const detailsData = await detailsResponse.json();
+      const videoDetails = new Map<
+        string,
+        {
+          duration?: string;
+          viewCount?: string;
+          isLive?: boolean;
+          videoType?: "video" | "short" | "live";
+        }
+      >(
+        detailsData.items?.map((item: any) => {
+          const duration = item.contentDetails?.duration;
+          const liveBroadcastContent = item.snippet?.liveBroadcastContent;
+          const isLive = liveBroadcastContent === "live" || liveBroadcastContent === "upcoming";
+
+          let videoType: "video" | "short" | "live" = "video";
+          if (isLive) {
+            videoType = "live";
+          } else if (duration) {
+            const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+            if (match) {
+              const hours = match[1] ? parseInt(match[1]) : 0;
+              const minutes = match[2] ? parseInt(match[2]) : 0;
+              const seconds = match[3] ? parseInt(match[3]) : 0;
+              const totalSeconds = hours * 3600 + minutes * 60 + seconds;
+              if (totalSeconds <= 60) {
+                videoType = "short";
+              }
             }
           }
-        }
 
-        return [
-          item.id,
-          {
-            duration: item.contentDetails?.duration,
-            viewCount: item.statistics?.viewCount,
-            isLive,
-            videoType,
-          },
-        ];
-      }) || [],
-    );
+          return [
+            item.id,
+            {
+              duration: item.contentDetails?.duration,
+              viewCount: item.statistics?.viewCount,
+              isLive,
+              videoType,
+            },
+          ];
+        }) || [],
+      );
 
-    let results: SearchResult[] = data.items.map((item: any) => {
-      const details = videoDetails.get(item.id.videoId);
-      return {
-        id: item.id.videoId,
-        title: item.snippet.title,
-        thumbnail: item.snippet.thumbnails.medium.url,
-        channelTitle: item.snippet.channelTitle,
-        description: item.snippet.description,
-        publishedAt: item.snippet.publishedAt,
-        duration: details?.duration,
-        viewCount: details?.viewCount,
-        isLive: details?.isLive || false,
-        videoType: details?.videoType || "video",
-      };
-    });
+      let results: SearchResult[] = data.items.map((item: any) => {
+        const details = videoDetails.get(item.id.videoId);
+        return {
+          id: item.id.videoId,
+          title: item.snippet.title,
+          thumbnail: item.snippet.thumbnails.medium.url,
+          channelTitle: item.snippet.channelTitle,
+          description: item.snippet.description,
+          publishedAt: item.snippet.publishedAt,
+          duration: details?.duration,
+          viewCount: details?.viewCount,
+          isLive: details?.isLive || false,
+          videoType: details?.videoType || "video",
+        };
+      });
 
-    if (filter !== "all") {
-      results = results.filter((result) => result.videoType === filter);
-    }
+      if (filter === "all") {
+        results = results.filter((result) => result.videoType === "video" || result.videoType === "live");
+      } else {
+        results = results.filter((result) => result.videoType === filter);
+      }
 
-    setCache(cacheKey, results, 5);
-    return results;
-  }, []);
+      setCache(cacheKey, results, 5);
+      return results;
+    }, 
+    []
+  );
 
   const fetchSuggestions = useCallback(async (query: string) => {
     if (!query.trim() || query.length < 3) {
@@ -260,8 +294,6 @@ export function useYoutubeSearch(widget: any, activeLayout: any, updateWidgetPro
     setSearchResults([]);
     setCurrentSearchQuery(queryToSearch);
 
-    console.log(`🔍 Searching for: "${queryToSearch}" with filter: ${searchFilter}`);
-
     try {
       let results: SearchResult[];
 
@@ -269,12 +301,12 @@ export function useYoutubeSearch(widget: any, activeLayout: any, updateWidgetPro
         results = await fetchChannels(queryToSearch);
       } else if (searchFilter === "all") {
         const [videoResults, channelResults] = await Promise.all([
-          fetchVideos(queryToSearch, "all"),
+          fetchVideos(queryToSearch, "all", uploadDate, sortBy),
           fetchChannels(queryToSearch),
         ]);
         results = [...videoResults, ...channelResults];
       } else {
-        results = await fetchVideos(queryToSearch, searchFilter as VideoFilter);
+        results = await fetchVideos(queryToSearch, searchFilter as VideoFilter, uploadDate, sortBy);
       }
 
       setSearchResults(dedupe(results));
@@ -296,8 +328,12 @@ export function useYoutubeSearch(widget: any, activeLayout: any, updateWidgetPro
   };
 
   const handleSearchFilterChange = useCallback(
-    async (filter: SearchFilter) => {
-      if (filter === searchFilter || !currentSearchQuery.trim()) return;
+    async (filter: SearchFilter, dateFilter?: UploadDate, sortFilter?: SortBy) => {
+      if (filter === searchFilter && !dateFilter && !sortFilter) return;
+      if (!currentSearchQuery.trim()) return;
+
+      const effectiveDateFilter = dateFilter ?? uploadDate;
+      const effectiveSortFilter = sortFilter ?? sortBy;
 
       setSearchFilter(filter);
       setIsSearching(true);
@@ -311,12 +347,12 @@ export function useYoutubeSearch(widget: any, activeLayout: any, updateWidgetPro
           results = await fetchChannels(currentSearchQuery);
         } else if (filter === "all") {
           const [videoResults, channelResults] = await Promise.all([
-            fetchVideos(currentSearchQuery, "all"),
+            fetchVideos(currentSearchQuery, "all", effectiveDateFilter, effectiveSortFilter),
             fetchChannels(currentSearchQuery),
           ]);
           results = [...videoResults, ...channelResults];
         } else {
-          results = await fetchVideos(currentSearchQuery, filter as VideoFilter);
+          results = await fetchVideos(currentSearchQuery, filter as VideoFilter, effectiveDateFilter, effectiveSortFilter);
         }
 
         setSearchResults(results);
@@ -327,7 +363,7 @@ export function useYoutubeSearch(widget: any, activeLayout: any, updateWidgetPro
         setIsSearching(false);
       }
     },
-    [searchFilter, currentSearchQuery, fetchVideos, fetchChannels],
+    [searchFilter, currentSearchQuery, uploadDate, sortBy, fetchVideos, fetchChannels],
   );
 
   return {
@@ -343,5 +379,9 @@ export function useYoutubeSearch(widget: any, activeLayout: any, updateWidgetPro
     searchFilter,
     handleSearchFilterChange,
     fetchSuggestions,
+    uploadDate,
+    setUploadDate,
+    sortBy,
+    setSortBy,
   };
 }

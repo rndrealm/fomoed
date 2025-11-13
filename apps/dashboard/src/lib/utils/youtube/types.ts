@@ -18,6 +18,9 @@ export interface SearchResult {
 export type VideoFilter = "all" | "video" | "short" | "live";
 export type SearchFilter = "all" | "video" | "short" | "live" | "channel";
 
+export type UploadDate = "all" | "hour" | "today" | "week" | "month" | "year";
+export type SortBy = "relevance" | "date" | "viewCount" | "rating";
+
 export interface ChannelDetails {
   id: string;
   title: string;

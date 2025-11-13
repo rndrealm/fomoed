@@ -44,6 +44,7 @@ export function useChannelVideos(channelId: string) {
       const response = await fetch(
         `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics,contentDetails&id=${channelId}&fields=items(id,snippet(title,description,thumbnails,customUrl),statistics(subscriberCount,videoCount,viewCount),contentDetails/relatedPlaylists/uploads)&key=${API_KEY}`,
       );
+      console.log(`📊 Quota used: channels.list = 1 unit`);
 
       if (!response.ok) throw new Error("Failed to fetch channel details");
 
@@ -51,13 +52,13 @@ export function useChannelVideos(channelId: string) {
       if (data.items && data.items.length > 0) {
         const channel = data.items[0];
         const uploadsId = channel.contentDetails.relatedPlaylists?.uploads ?? null;
-
+        
         const details = {
           id: channel.id,
           title: channel.snippet.title,
           description: channel.snippet.description,
           thumbnail: channel.snippet.thumbnails.high?.url || channel.snippet.thumbnails.default?.url,
-          bannerUrl: undefined,
+          bannerUrl: undefined, 
           subscriberCount: channel.statistics.subscriberCount,
           videoCount: channel.statistics.videoCount,
           viewCount: channel.statistics.viewCount,
@@ -77,7 +78,10 @@ export function useChannelVideos(channelId: string) {
   }, [channelId]);
 
   const fetchChannelVideos = useCallback(
-    async (uploadsPlaylistId: string | null, filter: VideoFilter = "all"): Promise<SearchResult[]> => {
+    async (
+      uploadsPlaylistId: string | null,
+      filter: VideoFilter = "all",
+    ): Promise<SearchResult[]> => {
       try {
         const cacheKey = `channel-videos:${uploadsPlaylistId}:${filter}`;
         const cached = getCached(cacheKey);
@@ -93,6 +97,7 @@ export function useChannelVideos(channelId: string) {
         const playlistResp = await fetch(
           `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${uploadsPlaylistId}&maxResults=25&fields=items/snippet/resourceId/videoId&key=${API_KEY}`,
         );
+        console.log(`📊 Quota used: playlistItems.list = 1 unit`);
 
         if (!playlistResp.ok) throw new Error("Failed to fetch playlist videos");
 
@@ -110,6 +115,7 @@ export function useChannelVideos(channelId: string) {
         const detailsResp = await fetch(
           `https://www.googleapis.com/youtube/v3/videos?part=contentDetails,statistics,snippet&id=${videoIds}&fields=items(id,snippet(title,thumbnails,channelTitle,description,publishedAt,liveBroadcastContent),contentDetails/duration,statistics/viewCount)&key=${API_KEY}`,
         );
+        console.log(`📊 Quota used: videos.list = 1 unit`);
 
         if (!detailsResp.ok) throw new Error("Failed to fetch video details");
 
@@ -152,11 +158,15 @@ export function useChannelVideos(channelId: string) {
             };
           }) ?? [];
 
-        if (filter !== "all") {
+        if (filter === "all") {
+          results = results.filter((v) => v.videoType === "video" || v.videoType === "live");
+        } else  {
           results = results.filter((v) => v.videoType === filter);
         }
 
         setCache(cacheKey, results, 10);
+        console.log(`💰 Total quota used: 3 units (1 + 1 + 1)`);
+
         return results;
       } catch (err) {
         console.error(err);
@@ -166,7 +176,6 @@ export function useChannelVideos(channelId: string) {
     [],
   );
 
-  // Initial load
   useEffect(() => {
     const loadInitialData = async () => {
       setIsLoading(true);

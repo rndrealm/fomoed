@@ -45,6 +45,12 @@ export function SearchBar({
   }, [debouncedQuery, fetchSuggestions]);
 
   useEffect(() => {
+    if (!searchQuery || searchQuery.trim() === "") {
+      setShowSuggestions(false);
+    }
+  }, [searchQuery]);
+
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
         setShowSuggestions(false);
@@ -121,7 +127,6 @@ export function SearchBar({
         </button>
       </form>
 
-      {/* Text Suggestions */}
       {showSuggestions && suggestions.length > 0 && (
         <div className="absolute top-full left-0 right-0 mt-2 bg-[#1a1a1a] rounded-lg border border-[#272727] shadow-lg z-10 overflow-hidden">
           <div className="py-1">
