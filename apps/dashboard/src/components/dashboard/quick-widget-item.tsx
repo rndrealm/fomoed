@@ -101,7 +101,7 @@ export function QuickWidgetItem(props: IProps) {
   };
 
   return (
-    <div className="cursor-pointer p-6 h-full w-full flex flex-col justify-start items-start">
+    <div className="relative cursor-pointer p-6 h-full w-full flex flex-col justify-start items-start">
       <div
         className="flex flex-col gap-x-[6px] gap-y-[6px]"
         // onClick={() => {
@@ -148,14 +148,14 @@ export function QuickWidgetItem(props: IProps) {
             </p>
           </div>
         </RenderIf> */}
-        <div className="select-none pointer-events-none absolute top-[35%] left-5.5 min-h-fit h-full min-w-fit w-full overflow-hidden rounded-[28px] border border-[#121212] bg-[#000]">
-          <div className="relative w-full h-full flex items-start justify-start">
+        <div className="select-none pointer-events-none absolute top-[35%] left-5.5 right-0 bottom-0 overflow-x-hidden overflow-y-hidden rounded-tl-[28px] border border-[#121212] bg-[#000]">
+          <div className="absolute right-0 w-full h-auto">
             <Image
               src={widget.image}
               alt={widget.name}
-              // width={400}
-              // height={400}
-              className="object-cover"
+              width={600}
+              height={600}
+              className="w-full h-auto object-contain ml-auto"
             />
           </div>
         </div>
