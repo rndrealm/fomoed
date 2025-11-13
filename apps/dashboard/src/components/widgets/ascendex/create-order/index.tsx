@@ -73,7 +73,8 @@ export default function CreateOrder() {
           type: orderType,
           asset: 3, //Todo: Update later when chart dropdown has been integrated
           side: isLong ? "buy" : "sell",
-          size: (Number(_values.quantity) / Number(converter)).toString(),
+          price: _values.price,
+          size: (Number(_values.quantity) / Number(converter)).toFixed(5),
           reduceOnly: _values.reduceOnly,
           timeInForce: orderType === "market" ? "Ioc" : _values.tif,
         },

@@ -20,7 +20,7 @@ export const useExecuteTrade = (authToken?: string) => {
   return useMutation({
     mutationFn: async (data: TradeExecutionPayload) => {
       const res = await api.gemachPost({
-        url: `${BASE_URL}/trading/olla`,
+        url: `${BASE_URL}/trading/execute`,
         body: data,
         auth: false,
         headers: getAuthHeaders(authToken),
