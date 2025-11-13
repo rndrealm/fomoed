@@ -140,3 +140,21 @@ export interface SpotsUniverse {
   isCanonical: boolean;
   maxLeverage?: number;
 }
+export interface PerpBalanceResponse {
+  marginSummary: {
+    accountValue: string;
+    totalNtlPos: string;
+    totalRawUsd: string;
+    totalMarginUsed: string;
+  };
+  crossMarginSummary: {
+    accountValue: string;
+    totalNtlPos: string;
+    totalRawUsd: string;
+    totalMarginUsed: string;
+  };
+  crossMaintenanceMarginUsed: string;
+  withdrawable: string;
+  assetPositions: Array<any>;
+  time: number;
+}

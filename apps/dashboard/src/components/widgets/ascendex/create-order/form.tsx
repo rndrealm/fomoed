@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { Dispatch, SetStateAction, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { calcMargin, cn, estimateLiqPrice } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useFormikContext } from "formik";
 import { TradingFormInitialValues } from ".";
 import { AppSelect } from "@/components/ui/app-select";
+import { OrderType } from "@/services/queries/trading/types";
 
 interface IOrderTypeButtonProps {
   isActive: boolean;
@@ -90,14 +91,21 @@ const MyComponent = () => {
   );
 };
 
-export function FormContent() {
-  const [isLong, setIsLong] = useState(true);
-  const [orderType, setOrderType] = useState<"limit" | "market" | "conditional">("limit");
+interface FormContentProps {
+  balance: number;
+  orderType: OrderType;
+  setOrderType: Dispatch<SetStateAction<OrderType>>;
+  isLong: boolean;
+  setIsLong: Dispatch<SetStateAction<boolean>>;
+  leverage: number;
+  toggleLeverageModal: () => void;
+  isPending: boolean;
+}
+
+export function FormContent(props: FormContentProps) {
+  const { balance, orderType, setOrderType, isLong, setIsLong, leverage, toggleLeverageModal, isPending } = props;
 
   const { values, handleChange, handleBlur, setFieldValue } = useFormikContext<TradingFormInitialValues>();
-
-  const balance = 988.32; // Todo: replace this with actual balance (in USDC)
-  const leverage = 10; // Todo: replace this with actual leverage selected
 
   const handleSliderChange = (value: number) => {
     const orderValue = ((balance * value) / 100) * leverage;
@@ -143,8 +151,35 @@ export function FormContent() {
           <div className="flex items-center justify-between">
             <p className="text-[#A6AEB2] text-[8px] font-medium leading-[10px] tracking-[-0.4%]">Available Equity</p>
 
-            <p className="text-white text-[8px] font-semibold leading-[10px] tracking-[-0.4%]">${balance}</p>
+            <p className="text-white text-[8px] font-semibold leading-[10px] tracking-[-0.4%]">${balance.toFixed(2)}</p>
           </div>
+
+          <button
+            type="button"
+            onClick={toggleLeverageModal}
+            className="flex items-center justify-between w-full py-1.5 px-2 bg-[#222329] rounded-sm hover:bg-[#2B2C32] transition-colors"
+          >
+            <p className="text-[#A6AEB2] text-[8px] font-medium leading-[10px] tracking-[-0.4%]">Leverage</p>
+            <div className="flex items-center gap-1">
+              <p className="text-white text-[8px] font-semibold leading-[10px] tracking-[-0.4%]">{leverage}x</p>
+              <svg
+                width="10"
+                height="10"
+                viewBox="0 0 10 10"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="text-[#A6AEB2]"
+              >
+                <path
+                  d="M2.5 3.75L5 6.25L7.5 3.75"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+          </button>
         </div>
 
         <div className="flex flex-col gap-2">
@@ -156,13 +191,14 @@ export function FormContent() {
             <p className="text-[#A6AEB2] text-[8px] font-medium leading-[10px] tracking-[-0.4%]">Price</p>
 
             <div className="flex flex-col">
-              <Input
+              <TextInput
                 className="h-[24px] w-full border-none outline-none text-[#D7D7D7] !text-[10px] tracking-[-0.4%] leading-[14px] px-1 rounded-sm focus-visible:ring-0 bg-[#222329]"
                 type="number"
                 value={values.price}
                 onChange={handleChange}
                 onBlur={handleBlur}
                 name="price"
+                rightPlaceholder="USDC"
                 placeholder="Price (USDC)"
               />
 
@@ -222,7 +258,7 @@ export function FormContent() {
               <p className="text-[#A6AEB2] text-[8px] font-medium leading-[10px] tracking-[-0.4%]">Margin Required</p>
 
               <p className="text-white text-[8px] font-semibold leading-[10px] tracking-[-0.4%]">
-                {marginRequired ? `${marginRequired.toFixed(2)}` : "N/A"}
+                {marginRequired ? `$${marginRequired.toFixed(2)}` : "N/A"}
               </p>
             </div>
 
@@ -232,22 +268,20 @@ export function FormContent() {
               </p>
 
               <p className="text-white text-[8px] font-semibold leading-[10px] tracking-[-0.4%]">
-                {liqPrice ? `$${liqPrice.toFixed(2)}` : "N/A"}
+                {liqPrice ? `${liqPrice.toFixed(2)}` : "N/A"}
               </p>
             </div>
           </div>
 
-          <Checkbox label="Post Only" />
           <div className="flex items-center justify-between">
+            <Checkbox label="Post Only" />
             {/* <Checkbox label="IOC" /> */}
             <Checkbox
               label="Reduce Only"
               checked={values.reduceOnly}
               onCheckedChange={(val) => setFieldValue("reduceOnly", val)}
             />
-            <div className="flex items-center text-[#626262] text-xxs hidden gap-1">
-              <p>TIF</p>
-
+            <div className="flex items-center text-[#626262] text-xxs gap-1">
               <AppSelect
                 name="TIF"
                 options={TifOptions}
@@ -265,7 +299,9 @@ export function FormContent() {
 
         <div className="">
           <Button
+            disabled={!values.quantity}
             type="submit"
+            isLoading={isPending}
             className="w-full bg-[#7637BA] hover:bg-[#7637BA] text-white font-medium text-[10px] leading-[14px] h-[28px]"
           >
             Create Order
