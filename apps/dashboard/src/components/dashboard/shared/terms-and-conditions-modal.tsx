@@ -1,17 +1,19 @@
 "use client";
 import React from "react";
 import { ModalContainer } from "../../shared";
+import { cn } from "@/lib/utils";
 
 interface TermsAndConditionsModalProps {
   isOpen: boolean;
   onContinue: () => void;
+  isLoading?: boolean;
 }
 
-export function TermsAndConditionsModal({ isOpen, onContinue }: TermsAndConditionsModalProps) {
+export function TermsAndConditionsModal({ isOpen, onContinue, isLoading = false }: TermsAndConditionsModalProps) {
   return (
     <ModalContainer
       open={isOpen}
-      handleClose={() => {}} 
+      handleClose={() => {}}
       className="!max-w-[528px] w-[90%] bg-[#FFFFFF] border border-[#DCDCDC] rounded-[20px] p-4 flex flex-col gap-5"
       title=""
       noHeader
@@ -33,9 +35,20 @@ export function TermsAndConditionsModal({ isOpen, onContinue }: TermsAndConditio
 
         <button
           onClick={onContinue}
-          className="w-[496px] h-[56px] rounded-[10px] bg-[#E7E7E7] text-[16px] font-medium text-[#000000] hover:bg-[#dcdcdc] transition"
+          disabled={isLoading}
+          className={cn(
+            "w-[496px] h-[56px] rounded-[10px] bg-[#E7E7E7] text-[16px] font-medium text-[#000000] transition",
+            isLoading ? "opacity-70 cursor-not-allowed" : "hover:bg-[#dcdcdc]",
+          )}
         >
-          Continue
+          {isLoading ? (
+            <div className="flex items-center justify-center gap-2">
+              <span className="h-4 w-4 border-2 border-black border-t-transparent rounded-full animate-spin"></span>
+              Processing...
+            </div>
+          ) : (
+            "Continue"
+          )}
         </button>
       </div>
     </ModalContainer>

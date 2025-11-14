@@ -102,7 +102,7 @@ export default function Home({ dashboardData, showTermsModal }: IProps) {
 
   const handleTermsContinue = async () => {
     if (isUpdating) return;
-    
+
     setIsUpdating(true);
     try {
       await updateUserOnboardingStatus();
@@ -110,7 +110,6 @@ export default function Home({ dashboardData, showTermsModal }: IProps) {
       router.refresh();
     } catch (error) {
       console.error("Error updating onboarding status:", error);
-      // Still close the modal even if there's an error
       setIsTermsModalOpen(false);
     } finally {
       setIsUpdating(false);
@@ -119,21 +118,14 @@ export default function Home({ dashboardData, showTermsModal }: IProps) {
 
   return (
     <Fragment>
-      <TermsAndConditionsModal
-        isOpen={isTermsModalOpen}
-        onContinue={handleTermsContinue}
-      />
-      
-      <div
-        className={cn(
-          "h-full overflow-hidden bg-[#000] pb-0 md:px-0 pt-0",
-        )}
-      >
+      <TermsAndConditionsModal isOpen={isTermsModalOpen} onContinue={handleTermsContinue} isLoading={isUpdating} />
+
+      <div className={cn("h-full overflow-hidden bg-[#000] pb-0 md:px-0 pt-0")}>
         <div className="relative flex h-full w-full flex-col gap-0">
           <div className="px-4 md:px-4 bg-[#0A0A0A] border-b-[1px] border-[#222222]">
             <Toolbar />
           </div>
-          
+
           <div className="relative scrollbar sm:p4 flex-1 app_dashboard_content overflow-auto rounded-[0px] border-[#222222] bg-[#000] p-2 md:border-0 md:p-0">
             <DashboardContent />
           </div>
