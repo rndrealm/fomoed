@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { SubmitButton } from "../auth";
-import { CrownWinnerKing } from "../icons/icons";
+import { CrownWinnerKing, Enter } from "../icons/icons";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import CaretDown from "../icons/CaretDown";
-import { ErrorMsg } from "../auth/text-input";
+import { ErrorMsg, TextInput } from "../auth/text-input";
 import { RenderIf } from "../shared";
 
 const validationSchema = Yup.object().shape({
@@ -42,12 +42,12 @@ export default function Step3(props: IProps) {
       // validateOnChange={false}
     >
       {(props) => {
-        const { values, handleSubmit, setFieldValue } = props;
+        const { values, handleSubmit, handleChange, handleBlur } = props;
 
         return (
           <form onSubmit={handleSubmit} className="">
             <div className="flex flex-col gap-9">
-              <div className="flex flex-col gap-4">
+              {/* <div className="flex flex-col gap-4">
                 <p className="text-white leading-[24px] text-base tracking-[-0.6%]">
                   What trading platforms do you trade on?
                 </p>
@@ -116,8 +116,30 @@ export default function Step3(props: IProps) {
                 </div>
 
                 <div className="flex items-center justify-center gap-1">
-                  {/* <p className="font-light text-xs leading-[20px] tracking-[-0.6%] text-white">press enter</p>
-                  <Enter /> */}
+                  <p className="font-light text-xs leading-[20px] tracking-[-0.6%] text-white">press enter</p>
+                  <Enter />
+                </div>
+              </div> */}
+
+              <div className="flex flex-col gap-4">
+                <p className="text-white leading-[24px] text-base tracking-[-0.6%]">
+                  {" "}
+                  What trading platforms do you trade on?
+                </p>
+                <TextInput
+                  aria-label="Platform"
+                  name="platform"
+                  id="platform"
+                  placeholder="Type your answer..."
+                  value={values.platform}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  className="rounded-xl h-[48px] p-3 text-sm"
+                />
+
+                <div className="flex items-center justify-center gap-1">
+                  <p className="font-light text-xs leading-[20px] tracking-[-0.6%] text-white">press enter</p>
+                  <Enter />
                 </div>
               </div>
 

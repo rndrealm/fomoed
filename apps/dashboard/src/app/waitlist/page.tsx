@@ -37,11 +37,12 @@ export default function Page() {
               fomeod e-sports trading
             </p>
             <h2 className="text-[#F2F2F2] tracking-[-4.5%] text-3xl sm:text-5xl leading-[40px] sm:leading-[56px] font-medium text-center">
-              Get Early access
+              Get Early Access
             </h2>
             <p className="text-center text-[#F2F2F2B2] opacity-[0.7] text-sm leading-[20px] tracking-[-0.6%]">
-              Be the first to experience the first E-sports trading platform. <br /> Submit the necessary information
-              and be the first to be notified.
+              Compete on the world’s first live e-sports trading platform. <br /> 1v1 battles. Real-time data. Perp
+              leverage. Cash prizes. <br />
+              Think you’re good enough to trade on stage? <br /> Join the waitlist.
             </p>
           </div>
         </div>
