@@ -28,7 +28,7 @@ async function fetchWithRetry(url: string, options: RequestInit, retries = 3, in
       }
 
       if (res.status >= 400 && res.status < 500) {
-        throw new Error(`Client error: ${res.status}`);
+        throw new Error(`Client error.: ${res.status}`);
       }
     } catch (error: any) {
       if (i === retries - 1) throw error;
