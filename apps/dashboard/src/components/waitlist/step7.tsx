@@ -7,6 +7,16 @@ import { RenderIf } from "../shared";
 import { File } from "lucide-react";
 import { ErrorMsg } from "../auth/text-input";
 
+const truncateFilename = (filename: string, maxLength: number = 30) => {
+  if (filename.length <= maxLength) return filename;
+
+  const extension = filename.split(".").pop();
+  const nameWithoutExt = filename.substring(0, filename.lastIndexOf("."));
+  const truncatedName = nameWithoutExt.substring(0, maxLength - extension!.length - 4);
+
+  return `${truncatedName}...${extension}`;
+};
+
 const validationSchema = Yup.object().shape({
   pnlProof: Yup.mixed()
     .required("Please upload a PNL proof")
@@ -100,8 +110,8 @@ export default function Step7(props: IProps) {
                             <File color="#fff" size={30} />
                           </div>
                           <div className="flex-1 flex flex-col gap-1">
-                            <p className="text-white text-sm leading-[20px] tracking-[-0.6%] line-clamp-1">
-                              {values?.pnlProof?.name}
+                            <p className="text-white text-sm leading-[20px] tracking-[-0.6%] truncate break-all">
+                              {truncateFilename(values?.pnlProof?.name || "", 30)}
                             </p>
                             <p className="text-[#99A0AE] text-xs leading-[16px]">
                               {((values?.pnlProof?.size || 0) / (1024 * 1024)).toFixed(2)} MB
