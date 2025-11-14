@@ -1,5 +1,34 @@
 import { NavbarNews } from "@/components/shared/navbar-news";
 import { Fragment } from "react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Crypto News | Fomoed",
+  description: "Stay updated with the latest cryptocurrency news, market insights, and blockchain developments. Real-time crypto news coverage across 44+ digital assets.",
+  keywords: [
+    "crypto news",
+    "cryptocurrency news",
+    "bitcoin news",
+    "ethereum news",
+    "blockchain news",
+    "altcoin news",
+    "defi news",
+    "web3 news",
+    "crypto market news",
+  ],
+  openGraph: {
+    title: "Crypto News | Fomoed",
+    description: "Stay updated with the latest cryptocurrency news, market insights, and blockchain developments.",
+    images: "/og3.png",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Crypto News | Fomoed",
+    description: "Stay updated with the latest cryptocurrency news and market insights.",
+    images: "/og3.png",
+  },
+};
 
 export default function RootLayout({
   children,
