@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { SearchResult, VideoFilter, SearchFilter, UploadDate, SortBy } from "./types";
 
+// Simple in-memory cache with TTL
 const cache = new Map<string, { data: any; expiry: number }>();
 
 function getCached(key: string) {
@@ -19,11 +20,7 @@ function setCache(key: string, data: any, ttlMinutes: number = 5) {
   });
 }
 
-export function useYoutubeSearch(
-  widget: any,
-  activeLayout: any,
-  updateWidgetPropsFromAtom: any,
-) {
+export function useYoutubeSearch(widget: any, activeLayout: any, updateWidgetPropsFromAtom: any) {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -54,7 +51,7 @@ export function useYoutubeSearch(
     }
 
     const response = await fetch(
-      `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=5&q=${encodeURIComponent(query)}&type=channel&key=${API_KEY}`,
+      `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${encodeURIComponent(query)}&type=channel&key=${API_KEY}`,
     );
 
     if (!response.ok) {
@@ -63,6 +60,7 @@ export function useYoutubeSearch(
     }
 
     const data = await response.json();
+    console.log(`📊 Quota used: search.list = 100 units`);
 
     const channelIds = data.items.map((item: any) => item.id.channelId).join(",");
 
@@ -73,6 +71,7 @@ export function useYoutubeSearch(
     const detailsResponse = await fetch(
       `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${channelIds}&fields=items(id,snippet(title,description,thumbnails,publishedAt,customUrl),statistics(subscriberCount,videoCount))&key=${API_KEY}`,
     );
+    console.log(`📊 Quota used: channels.list = 1 unit`);
 
     const detailsData = await detailsResponse.json();
 
@@ -96,10 +95,10 @@ export function useYoutubeSearch(
 
   const fetchVideos = useCallback(
     async (
-      query: string, 
+      query: string,
       filter: VideoFilter = "all",
       dateFilter: UploadDate = "all",
-      sortFilter: SortBy = "relevance"
+      sortFilter: SortBy = "relevance",
     ): Promise<SearchResult[]> => {
       const cacheKey = `videos:${query}:${filter}:${dateFilter}:${sortFilter}`;
       const cached = getCached(cacheKey);
@@ -115,7 +114,7 @@ export function useYoutubeSearch(
 
       let videoDuration = "";
       let eventType = "";
-      let searchType = "";
+      const searchType = "video";
 
       if (filter === "short") {
         videoDuration = "&videoDuration=short";
@@ -123,8 +122,6 @@ export function useYoutubeSearch(
         eventType = "&eventType=live";
       } else if (filter === "video") {
         videoDuration = "&videoDuration=medium";
-      } else if (filter === "all") {
-        searchType = "video";
       }
 
       let publishedAfter = "";
@@ -152,6 +149,7 @@ export function useYoutubeSearch(
       }
 
       const data = await response.json();
+      console.log(`📊 Quota used: search.list = 100 units`);
 
       const videoIds = data.items.map((item: any) => item.id.videoId).join(",");
 
@@ -162,6 +160,7 @@ export function useYoutubeSearch(
       const detailsResponse = await fetch(
         `https://www.googleapis.com/youtube/v3/videos?part=contentDetails,statistics,snippet&id=${videoIds}&fields=items(id,snippet(title,thumbnails,channelTitle,description,publishedAt,liveBroadcastContent),contentDetails/duration,statistics/viewCount)&key=${API_KEY}`,
       );
+      console.log(`📊 Quota used: videos.list = 1 unit`);
 
       const detailsData = await detailsResponse.json();
       const videoDetails = new Map<
@@ -230,8 +229,8 @@ export function useYoutubeSearch(
 
       setCache(cacheKey, results, 5);
       return results;
-    }, 
-    []
+    },
+    [],
   );
 
   const fetchSuggestions = useCallback(async (query: string) => {
@@ -294,19 +293,24 @@ export function useYoutubeSearch(
     setSearchResults([]);
     setCurrentSearchQuery(queryToSearch);
 
+    console.log(`🔍 Searching for: "${queryToSearch}" with filter: ${searchFilter}`);
+
     try {
       let results: SearchResult[];
 
       if (searchFilter === "channel") {
         results = await fetchChannels(queryToSearch);
+        console.log(`💰 Total quota used: ~101 units`);
       } else if (searchFilter === "all") {
         const [videoResults, channelResults] = await Promise.all([
           fetchVideos(queryToSearch, "all", uploadDate, sortBy),
           fetchChannels(queryToSearch),
         ]);
         results = [...videoResults, ...channelResults];
+        console.log(`💰 Total quota used: ~202 units (100+1 videos + 100+1 channels)`);
       } else {
         results = await fetchVideos(queryToSearch, searchFilter as VideoFilter, uploadDate, sortBy);
+        console.log(`💰 Total quota used: ~101 units`);
       }
 
       setSearchResults(dedupe(results));
@@ -332,6 +336,7 @@ export function useYoutubeSearch(
       if (filter === searchFilter && !dateFilter && !sortFilter) return;
       if (!currentSearchQuery.trim()) return;
 
+      // Use provided filters or fall back to state
       const effectiveDateFilter = dateFilter ?? uploadDate;
       const effectiveSortFilter = sortFilter ?? sortBy;
 
@@ -352,7 +357,12 @@ export function useYoutubeSearch(
           ]);
           results = [...videoResults, ...channelResults];
         } else {
-          results = await fetchVideos(currentSearchQuery, filter as VideoFilter, effectiveDateFilter, effectiveSortFilter);
+          results = await fetchVideos(
+            currentSearchQuery,
+            filter as VideoFilter,
+            effectiveDateFilter,
+            effectiveSortFilter,
+          );
         }
 
         setSearchResults(results);
