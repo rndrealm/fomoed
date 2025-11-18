@@ -1,7 +1,14 @@
 import api from "@/services/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { HyperliquidPerpListResponse, HyperliquidSpotListResponse, PerpUniverse, SpotsUniverse } from "./types";
+import {
+  HyperliquidPerpListResponse,
+  HyperliquidSpotListResponse,
+  PerpBalanceResponse,
+  PerpUniverse,
+  SpotsUniverse,
+} from "./types";
 import { AxiosResponse } from "axios";
+import { AssetDataResponse, HyperliquidMetaResponse } from "./types";
 
 const BASE_URL = "https://api.hyperliquid.xyz";
 
@@ -121,4 +128,75 @@ export const useReadHyperLiquidTest = () => {
   });
 
   return res;
+};
+
+export const useGetPerpBalance = (wallet_address: string) => {
+  const hash = ["hyper-liquid-balance", wallet_address];
+
+  const res = useQuery({
+    queryKey: hash,
+    queryFn: async () => {
+      const response = await api.post({
+        url: `${BASE_URL}/info`,
+        auth: true,
+        body: {
+          user: wallet_address,
+          type: "clearinghouseState",
+        },
+      });
+      return response;
+    },
+    enabled: !!wallet_address,
+  });
+  return {
+    ...res,
+    data: res?.data as PerpBalanceResponse,
+  };
+};
+
+export const useGetAssetData = (wallet_address: string, asset: string) => {
+  const hash = ["hyper-liquid-asset-data", wallet_address, asset];
+
+  const res = useQuery({
+    queryKey: hash,
+    queryFn: async () => {
+      const response = await api.post({
+        url: `${BASE_URL}/info`,
+        auth: true,
+        body: {
+          user: wallet_address,
+          type: "activeAssetData",
+          coin: asset,
+        },
+      });
+      return response;
+    },
+    enabled: !!wallet_address,
+  });
+  return {
+    ...res,
+    data: res?.data as AssetDataResponse,
+  };
+};
+
+export const useGetHyperliquidMetaData = () => {
+  const hash = ["hyper-liquid-meta-data"];
+
+  const res = useQuery({
+    queryKey: hash,
+    queryFn: async () => {
+      const response = await api.post({
+        url: `${BASE_URL}/info`,
+        auth: true,
+        body: {
+          type: "meta",
+        },
+      });
+      return response;
+    },
+  });
+  return {
+    ...res,
+    data: res?.data as HyperliquidMetaResponse,
+  };
 };

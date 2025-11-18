@@ -1,12 +1,12 @@
 const DEBUG = true;
 
 self.addEventListener("install", (event) => {
-  console.log("SW installed. Skipping waiting...");
+  // console.log("SW installed. Skipping waiting...");
   self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
-  console.log("SW activated");
+  // console.log("SW activated");
 });
 
 function sendClearCookies() {
@@ -15,7 +15,7 @@ function sendClearCookies() {
       client.postMessage("please-clear-cookies");
     });
   });
-  console.log("[SW] Sent message to client to clear cookies");
+  // console.log("[SW] Sent message to client to clear cookies");
 }
 
 const clearCookiesAfterErrorCodes = ["refresh_token_already_used", "refresh_token_not_found"];
@@ -26,7 +26,7 @@ function supabaseResponseHandler(response) {
       .clone()
       .text()
       .then((body) => {
-        console.log("[SW] Supabase response:", body);
+        // console.log("[SW] Supabase response:", body);
       });
   }
 
@@ -36,11 +36,11 @@ function supabaseResponseHandler(response) {
     .json()
     .then((json) => {
       if (DEBUG) {
-        console.log("[SW] Supabase JSON response:", json);
+        // console.log("[SW] Supabase JSON response:", json);
       }
 
       if (json?.code && clearCookiesAfterErrorCodes.includes(json.code)) {
-        console.log(`[SW] Detected ${json?.code} error`);
+        // console.log(`[SW] Detected ${json?.code} error`);
         sendClearCookies();
       }
     });

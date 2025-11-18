@@ -3,6 +3,7 @@ import { SupportedPairsData } from "@/services/queries/charts/types";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { widgetIdJoin } from "./static";
+import { HyperliquidMetaResponse, PerpBalanceResponse } from "@/services/queries/hyperliquid/types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -799,5 +800,131 @@ export function hyperliquidFormatPriceChange(
     volume: formattedVolume,
     openInterest: formattedOpenInterest,
     isPositive,
+  };
+}
+
+type PositionSide = "long" | "short";
+
+export function calcMargin({ positionSize, leverage }: { positionSize: number; leverage: number }) {
+  const marginRequired = positionSize / leverage;
+
+  return marginRequired;
+}
+
+/**
+ * Returns estimated liquidation price (mark-based) for isolated margin positions.
+ * Returns `null` when calculation is not applicable (e.g., leverage <= 1).
+ */
+export function estimateLiqPrice({
+  entryPrice,
+  leverage,
+  maintenanceRate,
+  side,
+}: {
+  entryPrice: number; // E
+  leverage: number; // >= 1 (exchanges usually treat 1x as non-margin)
+  maintenanceRate: number; // mmr, e.g. 0.005
+  side: PositionSide;
+}): number | null {
+  if (!isFinite(entryPrice) || entryPrice <= 0) return null;
+  if (!isFinite(leverage) || leverage <= 1) return null; // treat 1x as NA
+  if (!isFinite(maintenanceRate) || maintenanceRate < 0 || maintenanceRate >= 1) return null;
+
+  const invLev = 1 / leverage;
+
+  if (side === "long") {
+    const denom = 1 - maintenanceRate;
+    if (denom <= 0) return null;
+    const numerator = 1 - invLev; // (1 - 1/lev)
+    return entryPrice * (numerator / denom);
+  } else {
+    // short
+    const denom = 1 + maintenanceRate;
+    const numerator = 1 + invLev; // (1 + 1/lev)
+    return entryPrice * (numerator / denom);
+  }
+}
+
+type MetaResponse = {
+  universe: {
+    name: string;
+    maxLeverage: number;
+    marginTable: number; // table id
+  }[];
+  marginTables: [
+    number,
+    {
+      description: string;
+      marginTiers: {
+        lowerBound: string;
+        maxLeverage: number;
+      }[];
+    },
+  ][];
+};
+
+type ClearinghouseResponse = {
+  assetPositions: {
+    position: {
+      coin: string;
+      szi: string; // size in coin units
+      positionValue: string; // notional in USDC
+    };
+  }[];
+};
+
+export function getMaintenanceMargin(meta: HyperliquidMetaResponse, ch: PerpBalanceResponse, asset: string) {
+  if (!meta || !ch) return { maintenanceMargin: 0, reason: "No open position" };
+  // 1. Find the asset in the universe
+  const assetConfig = meta.universe.find((a) => a.name === asset);
+  if (!assetConfig) {
+    throw new Error(`Asset ${asset} not found in meta.universe`);
+  }
+
+  const marginTableId = assetConfig.marginTableId;
+
+  // 2. Get the corresponding margin table
+  const marginTableTuple = meta.marginTables.find(([id]) => id === marginTableId);
+  if (!marginTableTuple) {
+    throw new Error(`Margin table ${marginTableId} not found`);
+  }
+
+  const marginTable = marginTableTuple[1];
+
+  // 3. Find user's position for this asset
+  const pos = ch.assetPositions.find((p) => p.position.coin === asset);
+  if (!pos || Number(pos.position.szi) === 0) {
+    return { maintenanceMargin: 0, reason: "No open position" };
+  }
+
+  const notional = Number(pos.position.positionValue);
+
+  // 4. Pick the tier that matches this notional
+  const tiers = marginTable.marginTiers;
+
+  let tier = tiers[0];
+  for (const t of tiers) {
+    if (notional >= Number(t.lowerBound)) {
+      tier = t;
+    } else {
+      break;
+    }
+  }
+
+  // 5. Compute IMR + MMR
+  const maxLev = tier.maxLeverage;
+  const IMR = 1 / maxLev;
+  const MMR = IMR / 2;
+
+  // 6. Maintenance margin in USDC
+  const maintenanceMargin = notional * MMR;
+
+  return {
+    asset,
+    notional,
+    tier,
+    IMR,
+    MMR,
+    maintenanceMargin,
   };
 }

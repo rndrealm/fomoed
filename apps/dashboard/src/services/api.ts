@@ -3,7 +3,7 @@ import axiosInstance from "./axiosConfig";
 
 interface Request {
   url: string;
-  body?: Record<string, unknown>;
+  body?: Record<string, unknown> | unknown;
   auth?: boolean;
   headers?: any;
 }

@@ -7,7 +7,7 @@ const ResizeIndicator = () => {
   useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
       const el = document.elementFromPoint(event.clientX, event.clientY);
-      if (el?.className?.includes("resizable-handle")) {
+      if (el?.classList?.contains("resizable-handle")) {
         setIsActive(true);
       } else {
         setIsActive(false);

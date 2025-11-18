@@ -14,6 +14,8 @@ interface IProps {
   noHeader?: boolean;
   bgBlur?: boolean;
   dialogOverlayClassName?: string;
+  hideX?: boolean;
+  headerClassName?: string;
 }
 
 const sizeClassMap: Record<NonNullable<IProps["size"]>, string> = {
@@ -31,6 +33,8 @@ export function ModalContainer(props: IProps) {
     noHeader = false,
     bgBlur = true,
     dialogOverlayClassName = "",
+    headerClassName = "",
+    hideX,
   } = props;
 
   const contentClasses = cn(
@@ -52,11 +56,13 @@ export function ModalContainer(props: IProps) {
       >
         <DialogTitle className={cn(noHeader ? "hidden" : "")}>
           <div className="flex items-center justify-between">
-            <p className="text-base text-white">{title}</p>
+            <p className={cn("text-base text-white", headerClassName)}>{title}</p>
 
-            <button type="button" onClick={handleClose}>
-              <CloseIcon />
-            </button>
+            <RenderIf condition={!hideX}>
+              <button type="button" onClick={handleClose}>
+                <CloseIcon />
+              </button>
+            </RenderIf>
           </div>
         </DialogTitle>
 

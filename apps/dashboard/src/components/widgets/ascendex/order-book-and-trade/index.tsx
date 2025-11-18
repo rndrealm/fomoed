@@ -41,7 +41,7 @@ export default function OrderBookAndTrade() {
   const [activeTab, setActiveTab] = useState<"orderbook" | "trades">("orderbook");
 
   return (
-    <div className="w-[210px] h-[80%] flex flex-col bg-[#121317] rounded-[6px] overflow-hidden">
+    <div className="w-[210px] h-[80%] flex flex-col bg-[#121317] rounded-[10px] overflow-hidden">
       <div className="flex items-center justify-center px-3 py-2.5 relative">
         <div className="flex bg-[#222329] rounded-md items-center">
           <TabButton

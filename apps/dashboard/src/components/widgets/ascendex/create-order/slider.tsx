@@ -1,11 +1,30 @@
 import React, { useRef, useState, useEffect } from "react";
 import { motion } from "motion/react";
 
-export default function Slider() {
+interface SliderProps {
+  value?: number; // percentage value (0-100)
+  onChange?: (percentage: number) => void;
+}
+
+export default function Slider({ value = 0, onChange }: SliderProps) {
   const constraintsRef = useRef<HTMLDivElement>(null);
   const sliderRef = useRef<HTMLDivElement>(null);
-  const [percentage, setPercentage] = useState(0);
+  const [percentage, setPercentage] = useState(Math.round(value));
   const [sliderX, setSliderX] = useState(0);
+
+  // Sync internal percentage with external value
+  useEffect(() => {
+    const intValue = Math.round(value);
+    setPercentage(intValue);
+    // Calculate sliderX based on percentage
+    if (constraintsRef.current) {
+      const containerWidth = constraintsRef.current.offsetWidth;
+      const sliderWidth = 12;
+      const maxDragDistance = containerWidth - sliderWidth;
+      const newX = (intValue / 100) * maxDragDistance;
+      setSliderX(newX);
+    }
+  }, [value]);
 
   const calculatePosition = (clientX: number) => {
     if (!constraintsRef.current) return { percentage: 0, x: 0 };
@@ -25,15 +44,19 @@ export default function Slider() {
 
   const handleDrag = (_: any, info: any) => {
     const { percentage: newPercentage } = calculatePosition(info.point.x);
-    setPercentage(newPercentage);
+    const intPct = Math.round(newPercentage);
+    setPercentage(intPct);
+    onChange?.(intPct);
   };
 
   const handleClick = (event: React.MouseEvent) => {
     if (!constraintsRef.current || !sliderRef.current) return;
 
     const { percentage: newPercentage, x: newX } = calculatePosition(event.clientX);
-    setPercentage(newPercentage);
+    const intPct = Math.round(newPercentage);
+    setPercentage(intPct);
     setSliderX(newX);
+    onChange?.(intPct);
   };
 
   return (
