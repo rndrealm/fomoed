@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandItem, CommandList } from "@/components/ui/command";
 import Image from "next/image";
@@ -8,6 +8,9 @@ import { ChevronDown } from "lucide-react";
 import { RenderIf } from "@/components/shared";
 import SearchIcon from "@/components/icons/SearchIcon";
 import dashboard from "@/lib/assets/dashboard";
+import { useReadHyperLiquidTokens } from "@/services/queries/hyperliquid";
+import { useAtom } from "jotai";
+import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
 
 interface CoinOption {
   symbol: string;
@@ -52,29 +55,53 @@ const DUMMY_COINS: CoinOption[] = [
 const ChartCoinDropdown = (props: IChartCoinDropdownProps) => {
   const { value = "BTC", setValue } = props;
 
+  const [selectedToken, setSelectedToken] = useAtom(selectedTokenAtom);
+
   const [searchValue, setSearchValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const [open, setOpen] = React.useState(false);
 
-  const activeCoin = DUMMY_COINS.find((coin) => coin.symbol === value);
+  const { data: tokensData } = useReadHyperLiquidTokens();
+
+  const allTokens = useMemo(() => {
+    const perpTokens = tokensData?.perp || [];
+    const spotTokens = tokensData?.spot || [];
+
+    // if (!selectedToken && perpTokens.length > 0) {
+    //   setSelectedToken(perpTokens[0]);
+    // }
+
+    return [...perpTokens, ...spotTokens];
+  }, [tokensData]);
+
+  const activeCoin = allTokens.find((coin) => coin.name === selectedToken?.name);
 
   const filteredCoins = useMemo(() => {
-    if (!searchValue) return DUMMY_COINS;
+    if (!searchValue) return allTokens;
 
     const search = searchValue.toLowerCase();
 
-    return DUMMY_COINS.filter((coin) => {
-      const nameMatch = coin.name.toLowerCase().includes(search);
-      const symbolMatch = coin.symbol.toLowerCase().includes(search);
-      return nameMatch || symbolMatch;
+    return allTokens.filter((coin) => {
+      const nameMatch = coin?.name?.toLowerCase().includes(search);
+      const baseTokenMatch = coin?.baseTokenName?.toLowerCase().includes(search);
+
+      return nameMatch || baseTokenMatch;
     });
-  }, [searchValue]);
+  }, [searchValue, allTokens]);
+
+  const handleOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen);
+  };
+
+  useEffect(() => {
+    setSearchValue("");
+  }, [open]);
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
         <button className="flex items-center gap-2 hover:bg-[#1a1b1f] px-2 py-1.5 rounded transition-colors">
-          <RenderIf condition={!!activeCoin?.icon}>
+          {/* <RenderIf condition={!!activeCoin?.icon}>
             <div className="w-6 h-6 flex-shrink-0">
               <Image
                 width={24}
@@ -84,9 +111,9 @@ const ChartCoinDropdown = (props: IChartCoinDropdownProps) => {
                 className="w-full h-full rounded-full"
               />
             </div>
-          </RenderIf>
+          </RenderIf> */}
           <span className="text-white font-medium text-sm">
-            {activeCoin?.symbol} - {activeCoin?.type}
+            {activeCoin?.isSpot ? activeCoin?.symbol : activeCoin?.name}
           </span>
           <ChevronDown className="w-4 h-4 text-gray-400" />
         </button>
@@ -112,30 +139,36 @@ const ChartCoinDropdown = (props: IChartCoinDropdownProps) => {
           </div>
 
           <CommandList className="flex flex-col gap-2 overflow-auto no-scrollbar">
-            {filteredCoins.map((item, index) => (
-              <CommandItem
-                key={index}
-                className="flex cursor-pointer items-center justify-between rounded-[6px] px-[6px] py-[6px] hover:bg-[#1a1b1f] data-[selected=true]:bg-[#1a1b1f]"
-                onSelect={() => {
-                  setOpen(false);
-                  setValue(item.symbol);
-                }}
-              >
-                <div className="flex items-center gap-2">
-                  <Image
+            {filteredCoins.map((item, index) => {
+              return (
+                <CommandItem
+                  key={index}
+                  className="flex cursor-pointer items-center justify-between rounded-[6px] px-[6px] py-[6px] hover:bg-[#1a1b1f] data-[selected=true]:bg-[#1a1b1f]"
+                  onSelect={() => {
+                    setOpen(false);
+                    setValue(item.name);
+                    setSelectedToken(item);
+                    console.log(item);
+                  }}
+                >
+                  <div className="flex items-center gap-2">
+                    {/* <Image
                     width={20}
                     height={20}
                     src={item.icon || ""}
                     alt="Coin Icon"
                     className="h-[20px] w-[20px] rounded-full"
-                  />
-                  <p className="text-[12px] font-medium text-[#c3c3c3] leading-none">{item.name}</p>
-                </div>
-                {item.symbol === activeCoin?.symbol && (
-                  <Image src={dashboard.checkV2} alt="Selected icon" width={12} height={12} />
-                )}
-              </CommandItem>
-            ))}
+                  /> */}
+                    <p className="text-[12px] font-medium text-[#c3c3c3] leading-none">
+                      {!item?.isSpot ? item?.name : `${item?.symbol} SPOT`}
+                    </p>
+                  </div>
+                  {item.name === activeCoin?.symbol && (
+                    <Image src={dashboard.checkV2} alt="Selected icon" width={12} height={12} />
+                  )}
+                </CommandItem>
+              );
+            })}
           </CommandList>
         </Command>
       </PopoverContent>
