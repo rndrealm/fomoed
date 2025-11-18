@@ -29,16 +29,25 @@ interface TextInputProps extends React.HTMLProps<HTMLInputElement> {
 export function TextInput(props: TextInputProps) {
   const { name = "name", className, value, rightPlaceholder, ...rest } = props;
   const [showPassword, setShowPassword] = useState<PasswordOption>(props.type === "password" ? "password" : "text");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleClick = () => {
+    if (props.type === "number" && inputRef.current) {
+      inputRef.current.select();
+    }
+  };
 
   return (
     <div className="flex flex-col gap-1">
       <div className="relative">
         <Input
+          ref={inputRef}
           className={cn(
             "h-[50px] w-full rounded-2xl border border-transparent bg-[#151515] px-4 text-base leading-[1.35] font-medium text-white transition selection:bg-white/20 selection:text-white placeholder:text-[#5c5c5c] focus:!border-[#646464] focus:shadow-none focus:ring-0 focus:ring-offset-0 focus:outline-none focus-visible:!ring-0",
             className,
           )}
           value={value}
+          onClick={handleClick}
           {...rest}
           name={name}
           type={props.type === "password" ? showPassword : props.type}

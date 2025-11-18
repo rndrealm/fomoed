@@ -25,6 +25,8 @@ export interface AppSelectProps {
   required?: boolean;
   label?: string;
   labelClassName?: string;
+  itemClassName?: string;
+  hideIndicator?: boolean;
 }
 
 export function AppSelect({
@@ -37,11 +39,13 @@ export function AppSelect({
   className,
   triggerClassName,
   contentClassName,
+  itemClassName,
   size = "default",
   name,
   required,
   label,
   labelClassName,
+  hideIndicator = false,
 }: AppSelectProps) {
   return (
     <div className={cn("flex flex-col gap-2", className)}>
@@ -62,9 +66,15 @@ export function AppSelect({
         <SelectTrigger className={cn("w-full !text-white", triggerClassName)} size={size}>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
-        <SelectContent className={cn(contentClassName)}>
+        <SelectContent className={cn("", contentClassName)}>
           {options.map((option) => (
-            <SelectItem key={option.value} value={option.value} disabled={option.disabled}>
+            <SelectItem
+              key={option.value}
+              value={option.value}
+              disabled={option.disabled}
+              className={itemClassName}
+              hideIndicator={hideIndicator}
+            >
               {option.label}
             </SelectItem>
           ))}

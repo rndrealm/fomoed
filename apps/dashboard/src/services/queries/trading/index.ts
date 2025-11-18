@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { TradeExecutionPayload } from "./types";
+import { TradeExecutionPayload, UpdateLeveragePayload } from "./types";
 import api from "@/services/api";
 import { toast } from "sonner";
 
@@ -34,7 +34,31 @@ export const useExecuteTrade = (authToken?: string) => {
     },
     onError: (data) => {
       console.log("execute error: ", data);
-      toast.error("Order error");
+      toast.error("Order execution error");
+    },
+  });
+};
+
+export const useUpdateLeveraggeTrade = (onSuccessCallback: () => void, authToken?: string) => {
+  return useMutation({
+    mutationFn: async (data: UpdateLeveragePayload) => {
+      const res = await api.gemachPost({
+        url: `${BASE_URL}/trading/update-leverage`,
+        body: data,
+        auth: false,
+        headers: getAuthHeaders(authToken),
+      });
+
+      return res?.data?.data;
+    },
+    onSuccess: (data) => {
+      console.log("execute success: ", data);
+      onSuccessCallback();
+      toast.success("Leverage updated successfully");
+    },
+    onError: (data) => {
+      console.log("execute error: ", data);
+      toast.error("Leverage update error");
     },
   });
 };

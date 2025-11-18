@@ -1,9 +1,8 @@
 import React, { Dispatch, SetStateAction, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { calcMargin, cn, estimateLiqPrice } from "@/lib/utils";
-import { Input } from "@/components/ui/input";
 import { ErrorMsg, TextInput } from "@/components/auth/text-input";
-import Slider from "./slider";
+import { Slider } from "@/components/ui/slider";
 import Checkbox from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { useFormikContext } from "formik";
@@ -107,8 +106,9 @@ export function FormContent(props: FormContentProps) {
 
   const { values, handleChange, handleBlur, setFieldValue } = useFormikContext<TradingFormInitialValues>();
 
-  const handleSliderChange = (value: number) => {
-    const orderValue = ((balance * value) / 100) * leverage;
+  const handleSliderChange = (value: number[]) => {
+    const percentage = value[0];
+    const orderValue = ((balance * percentage) / 100) * leverage;
     setFieldValue("quantity", orderValue.toFixed(2));
   };
 
@@ -225,11 +225,19 @@ export function FormContent(props: FormContentProps) {
           </div>
 
           <div className="flex items-center gap-1.5">
-            <Slider value={sliderPercentage} onChange={handleSliderChange} />
+            <Slider
+              value={[sliderPercentage]}
+              onValueChange={handleSliderChange}
+              min={0}
+              max={100}
+              step={1}
+              showDots
+              dotPositions={[0, 25, 50, 75, 100]}
+            />
             <TextInput
               className="h-[1.5rem] !pr-4.5 w-[3rem] border-none outline-none text-[#D7D7D7] !text-[10px] tracking-[-0.4%] leading-[14px] px-1 rounded-sm focus-visible:ring-0 bg-[#222329]"
               value={sliderPercentage}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleSliderChange(Number(e.target.value))}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleSliderChange([Number(e.target.value)])}
               onBlur={handleBlur}
               name="percentage"
               rightPlaceholder="%"
@@ -281,13 +289,20 @@ export function FormContent(props: FormContentProps) {
               checked={values.reduceOnly}
               onCheckedChange={(val) => setFieldValue("reduceOnly", val)}
             />
-            <div className="flex items-center text-[#626262] text-xxs gap-1">
+            <div
+              className={cn("flex items-center text-[#626262] text-xxs gap-1", {
+                hidden: orderType === "market",
+              })}
+            >
               <AppSelect
                 name="TIF"
                 options={TifOptions}
                 value={values.tif}
                 onValueChange={(val) => setFieldValue("tif", val)}
-                triggerClassName="border-none w-[3rem] p-0 text-xxs gap-0"
+                triggerClassName="border-none w-9.5 p-0 text-xxs gap-0 !text-[#A6AEB2]"
+                contentClassName="min-w-0 !bg-[#141416] w-12"
+                itemClassName="font-medium !text-[#A6AEB2] text-xxs focus:bg-[#222329]"
+                hideIndicator
               />
             </div>
           </div>

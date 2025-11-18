@@ -4,10 +4,10 @@ import { Button } from "@/components/ui/button";
 import { TriangleDangerIcon } from "@/components/icons/icon2";
 
 interface IProps {
-  isOpen: boolean;
-  toggle: () => void;
   leverage: number;
   updateLeverage: (value: number) => void;
+  isLoading: boolean;
+  maxLeverage: number;
 }
 
 const presetLeverageOptions = [
@@ -20,7 +20,7 @@ const presetLeverageOptions = [
 ];
 
 const LeverageModal = (props: IProps) => {
-  const { toggle, leverage, updateLeverage } = props;
+  const { leverage, updateLeverage, isLoading, maxLeverage } = props;
   const [customLeverage, setCustomLeverage] = useState<string>(leverage.toString());
   const [errorText, setErrorText] = useState("");
 
@@ -36,7 +36,7 @@ const LeverageModal = (props: IProps) => {
 
     if (isNaN(numValue) || numValue <= 0) {
       setErrorText("Leverage must be greater than 0");
-    } else if (numValue > 100) {
+    } else if (numValue > maxLeverage) {
       setErrorText("Maximum leverage reached, there’s a high chance of liquidation if you proceed with it.");
     } else {
       setErrorText("");
@@ -48,10 +48,7 @@ const LeverageModal = (props: IProps) => {
       const numValue = parseFloat(customLeverage);
       if (!isNaN(numValue) && numValue > 0 && numValue <= 100) {
         updateLeverage(numValue);
-        toggle();
       }
-    } else if (leverage) {
-      toggle();
     }
   };
 
@@ -130,6 +127,7 @@ const LeverageModal = (props: IProps) => {
         <Button
           onClick={handleApply}
           disabled={!!errorText}
+          isLoading={isLoading}
           className="flex-1 bg-[#E7E7E7] hover:bg-[#E7E7E7]  text-[#010101] font-medium text-sm h-11"
         >
           Submit

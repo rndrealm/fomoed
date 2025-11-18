@@ -39,3 +39,10 @@ export interface TradeExecutionPayload {
   orders: (LimitOrderType | MarketOrderType | TriggerOrderType)[];
   grouping?: GroupingType;
 }
+
+export interface UpdateLeveragePayload {
+  provider: TradingProviderEnum;
+  wallet_address: string;
+  asset: number;
+  leverage: number;
+}

@@ -1,5 +1,6 @@
 import React, { forwardRef, useId } from "react";
 import { RenderIf } from "../shared";
+import { cn } from "@/lib/utils";
 
 interface CheckboxProps {
   label?: string;
@@ -12,6 +13,7 @@ interface CheckboxProps {
   value?: string;
   id?: string;
   className?: string;
+  labelClassName?: string;
 }
 
 const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>((props, ref) => {
@@ -26,6 +28,7 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>((props, ref) => {
     value,
     id: providedId,
     className = "",
+    labelClassName,
   } = props;
 
   const generatedId = useId();
@@ -73,7 +76,12 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>((props, ref) => {
       </div>
 
       <RenderIf condition={!!label}>
-        <p className="text-[#A6AEB2] text-[8px] font-medium leading-[10px] tracking-[-0.4%] select-none">
+        <p
+          className={cn(
+            "text-[#A6AEB2] text-[8px] font-medium leading-[10px] tracking-[-0.4%] select-none",
+            labelClassName,
+          )}
+        >
           {label}
           {required && <span className="text-red-500 ml-0.5">*</span>}
         </p>

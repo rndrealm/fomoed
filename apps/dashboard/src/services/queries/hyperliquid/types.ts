@@ -158,3 +158,41 @@ export interface PerpBalanceResponse {
   assetPositions: Array<any>;
   time: number;
 }
+
+export interface AssetDataResponse {
+  user: string;
+  coin: string;
+  leverage: {
+    type: string;
+    value: number;
+    rawUsd: string;
+  };
+  maxTradeSzs: Array<string>;
+  availableToTrade: Array<string>;
+  markPx: string;
+}
+
+export interface HyperliquidMetaResponse {
+  universe: Array<{
+    szDecimals: number;
+    name: string;
+    maxLeverage: number;
+    marginTableId: number;
+    isDelisted?: boolean;
+    onlyIsolated?: boolean;
+    marginMode?: string;
+  }>;
+  marginTables: Array<
+    [
+      number,
+      {
+        description: string;
+        marginTiers: Array<{
+          lowerBound: string;
+          maxLeverage: number;
+        }>;
+      },
+    ]
+  >;
+  collateralToken: number;
+}
