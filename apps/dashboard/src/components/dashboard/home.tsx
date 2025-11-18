@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import { DashboardContent, FullscreenBtn, Toolbar } from "@/components/dashboard";
 import { NextStepProvider, NextStep } from "nextstepjs";
@@ -48,15 +49,7 @@ export default function Home({ dashboardData, showTermsModal }: IProps) {
     loadTabsFromApi(dashboardData.tabs, dashboardData.settings.active_tab_id);
     loadLayoutsFromApi(dashboardData.layouts);
     loadSettingsFromApi(dashboardData.settings);
-  }, [
-    dashboardData.tabs,
-    dashboardData.layouts,
-    dashboardData.settings,
-    dashboardData.location,
-    loadTabsFromApi,
-    loadLayoutsFromApi,
-    loadSettingsFromApi,
-  ]);
+  }, []);
 
   useEffect(() => {
     if (geoLocation) {

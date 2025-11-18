@@ -26,7 +26,7 @@ function supabaseResponseHandler(response) {
       .clone()
       .text()
       .then((body) => {
-        console.log("[SW] Supabase response:", body);
+        // console.log("[SW] Supabase response:", body);
       });
   }
 
@@ -36,7 +36,7 @@ function supabaseResponseHandler(response) {
     .json()
     .then((json) => {
       if (DEBUG) {
-        console.log("[SW] Supabase JSON response:", json);
+        // console.log("[SW] Supabase JSON response:", json);
       }
 
       if (json?.code && clearCookiesAfterErrorCodes.includes(json.code)) {
