@@ -60,6 +60,7 @@ export const useReadHyperLiquidTokens = () => {
           priceVolume: priceVolume,
           tradingViewName,
           quoteTokenName: quoteToken?.name,
+          displayName: `${baseToken?.name}/${quoteToken?.name}`,
         };
       });
 
@@ -87,6 +88,7 @@ export const useReadHyperLiquidTokens = () => {
             quoteTokenName: "USDC",
             tradingViewName,
             priceVolume,
+            displayName: `${item?.name}-USDC`,
           });
         }
       });
@@ -94,6 +96,7 @@ export const useReadHyperLiquidTokens = () => {
       return {
         spot: formattedSpots,
         perp: formattedPerps,
+        allTokens: [...formattedPerps, ...formattedSpots],
       };
     },
   });

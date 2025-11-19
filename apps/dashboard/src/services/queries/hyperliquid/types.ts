@@ -32,6 +32,7 @@ export interface PerpUniverse {
   quoteTokenName: string;
   tradingViewName: string;
   priceVolume?: PerpPriceVolume;
+  displayName?: string;
 }
 
 enum MarginMode {
@@ -139,6 +140,7 @@ export interface SpotsUniverse {
   tokenId: string;
   isCanonical: boolean;
   maxLeverage?: number;
+  displayName?: string;
 }
 export interface PerpBalanceResponse {
   marginSummary: {

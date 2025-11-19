@@ -6,6 +6,8 @@ import { motion } from "motion/react";
 import { useReadHyperLiquidTokens } from "@/services/queries/hyperliquid";
 import Star from "@/components/icons/Star";
 import useOutsideClick from "@/hooks/useOutsideClick";
+import { useSetAtom } from "jotai";
+import { selectedTokenAtom, toggleSelectTokenModalAtom } from "@/lib/atoms/hyperliquid";
 
 const categories = [
   { id: 1, label: "All", value: "all" },
@@ -82,6 +84,9 @@ interface IProps {
 export function TokenSelect(props: IProps) {
   const { handleClose } = props;
 
+  const setSelectedToken = useSetAtom(selectedTokenAtom);
+  const toggleSelectTokenModal = useSetAtom(toggleSelectTokenModalAtom);
+
   const [searchValue, setSearchValue] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
 
@@ -89,17 +94,10 @@ export function TokenSelect(props: IProps) {
 
   const [ref] = useOutsideClick(handleClose);
 
-  const allTokens = useMemo(() => {
-    const perpTokens = tokensData?.perp || [];
-    const spotTokens = tokensData?.spot || [];
-
-    return [...perpTokens, ...spotTokens];
-  }, [tokensData]);
-
   // const activeCoin = allTokens.find((coin) => coin.name === selectedToken?.name);
 
   const filteredCoins = useMemo(() => {
-    let tokens = [...allTokens];
+    let tokens = [...(tokensData?.allTokens || [])];
 
     if (activeCategory !== "all") {
       tokens = tokens.filter((coin) => {
@@ -118,7 +116,7 @@ export function TokenSelect(props: IProps) {
 
       return nameMatch || baseTokenMatch;
     });
-  }, [searchValue, allTokens, activeCategory]);
+  }, [searchValue, activeCategory, tokensData]);
 
   return (
     <div className="absolute top-0 left-0 right-0 bottom-0 z-[99] bg-[re] bg-[rgba(0,0,0,0.5)] flex items-center justify-center overflow-hidden">
@@ -203,7 +201,8 @@ export function TokenSelect(props: IProps) {
                     key={item?.name}
                     className="hover:bg-[#1A1A1C] transition-colors"
                     onClick={() => {
-                      console.log(item?.name);
+                      setSelectedToken(item);
+                      toggleSelectTokenModal(false);
                     }}
                   >
                     <td className="py-3 px-1 text-xs tracking-[-0.4%] leading-[16px] whitespace-nowrap text-[#FAFAFA] bordr-r border-[#2D2D2D]">
