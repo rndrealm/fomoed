@@ -5,11 +5,11 @@ import { ChevronRight, ChevronLeft, ChevronDown } from "lucide-react";
 import { TokenSelect } from "../../modals/token-select";
 import { RenderIf } from "@/components/shared";
 import { useAtomValue, useSetAtom } from "jotai";
-import { showSelectTokenModalAtom, toggleSelectTokenModalAtom } from "@/lib/atoms/hyperliquid";
+import { selectedTokenAtom, showSelectTokenModalAtom, toggleSelectTokenModalAtom } from "@/lib/atoms/hyperliquid";
 import Image from "next/image";
 import { useReadHyperLiquidTokens } from "@/services/queries/hyperliquid";
 
-const getCoinIconUrl = (symbol: string) => {
+const getCoinIconUrl = (symbol = "BTC") => {
   return `https://app.hyperliquid.xyz/coins/${symbol}.svg`;
 };
 
@@ -34,6 +34,7 @@ export default function ChartHeader() {
 
   const showSelectTokenModal = useAtomValue(showSelectTokenModalAtom);
   const toggleSelectTokenModal = useSetAtom(toggleSelectTokenModalAtom);
+  const selectedToken = useAtomValue(selectedTokenAtom);
 
   // Dummy stats data
   const coinStats: CoinStats = {
@@ -87,16 +88,20 @@ export default function ChartHeader() {
             }}
           >
             <div className="w-6 h-6 flex-shrink-0">
-              <Image
-                width={24}
-                height={24}
-                src={getCoinIconUrl("BTC")}
-                alt="Coin Icon"
-                className="w-full h-full rounded-full"
-              />
+              <RenderIf condition={!selectedToken?.isSpot}>
+                <Image
+                  width={24}
+                  height={24}
+                  src={getCoinIconUrl(
+                    selectedToken?.isSpot ? `${selectedToken?.baseTokenName}_spot` : selectedToken?.baseTokenName,
+                  )}
+                  alt="Coin Icon"
+                  className="w-full h-full rounded-full"
+                />
+              </RenderIf>
             </div>
 
-            <span className="text-white font-medium text-sm">BTC-USDC</span>
+            <span className="text-white font-medium text-sm">{selectedToken?.displayName || "BTC-USDC"}</span>
             <ChevronDown className="w-4 h-4 text-gray-400" />
           </button>
 
