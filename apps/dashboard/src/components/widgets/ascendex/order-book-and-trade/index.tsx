@@ -6,6 +6,7 @@ import OrderBooks from "./orderbooks";
 import Trades from "./trades";
 import { ThreeDots } from "@/components/icons/icons";
 import { EllipsisVertical } from "lucide-react";
+import { ac } from "vitest/dist/chunks/reporters.nr4dxCkA.js";
 
 interface ITabButtonProps {
   isActive: boolean;
@@ -57,7 +58,17 @@ export default function OrderBookAndTrade() {
         </button>
       </div>
 
-      <div className="flex-1 overflow-hidden">{activeTab === "orderbook" ? <OrderBooks /> : <Trades />}</div>
+      {/* <div className="flex-1 overflow-hidden">{activeTab === "orderbook" ? <OrderBooks /> : <Trades />}</div> */}
+
+      <div className="flex-1 overflow-hidden flex">
+        <div className={cn("flex-1 overflow-hidden", activeTab === "orderbook" ? "block" : "hidden")}>
+          <OrderBooks />
+        </div>
+
+        <div className={cn("flex-1 overflow-hidden", activeTab === "trades" ? "block" : "hidden")}>
+          <Trades />
+        </div>
+      </div>
     </div>
   );
 }

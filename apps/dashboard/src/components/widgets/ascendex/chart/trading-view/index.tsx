@@ -1,8 +1,7 @@
 import React, { Fragment, useEffect, useState } from "react";
 import Script from "next/script";
-import { RenderIf } from "@/components/shared";
 import dynamic from "next/dynamic";
-import { HyperliquidAPI } from "./hyperliquid/api";
+import { RenderIf } from "@/components/shared";
 
 const TradingViewChart = dynamic(() => import("./trading-view").then((mod) => mod.TradingViewChart), {
   ssr: false,
@@ -11,12 +10,6 @@ const TradingViewChart = dynamic(() => import("./trading-view").then((mod) => mo
 
 export function TradingView() {
   const [isScriptReady, setIsScriptReady] = useState(false);
-
-  useEffect(() => {
-    const api = new HyperliquidAPI();
-
-    api.getKlines("ETH", "5m", 1762414608000, 1762513308000);
-  }, []);
 
   return (
     <Fragment>

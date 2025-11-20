@@ -33,6 +33,7 @@ export interface PerpUniverse {
   tradingViewName: string;
   priceVolume?: PerpPriceVolume;
   displayName?: string;
+  index: number;
 }
 
 enum MarginMode {

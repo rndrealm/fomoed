@@ -7,7 +7,6 @@ import { RenderIf } from "@/components/shared";
 import { useAtomValue, useSetAtom } from "jotai";
 import { selectedTokenAtom, showSelectTokenModalAtom, toggleSelectTokenModalAtom } from "@/lib/atoms/hyperliquid";
 import Image from "next/image";
-import { useReadHyperLiquidTokens } from "@/services/queries/hyperliquid";
 
 const getCoinIconUrl = (symbol = "BTC") => {
   return `https://app.hyperliquid.xyz/coins/${symbol}.svg`;
@@ -25,12 +24,9 @@ interface CoinStats {
 }
 
 export default function ChartHeader() {
-  const [selectedCoin, setSelectedCoin] = useState("BTC");
   const [showLeftChevron, setShowLeftChevron] = useState(false);
   const [showRightChevron, setShowRightChevron] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-
-  useReadHyperLiquidTokens();
 
   const showSelectTokenModal = useAtomValue(showSelectTokenModalAtom);
   const toggleSelectTokenModal = useSetAtom(toggleSelectTokenModalAtom);
@@ -38,7 +34,7 @@ export default function ChartHeader() {
 
   // Dummy stats data
   const coinStats: CoinStats = {
-    symbol: selectedCoin,
+    symbol: "BTC",
     price: "125,029.02",
     priceChange: "+4,201",
     priceChangePercent: "+3.47%",

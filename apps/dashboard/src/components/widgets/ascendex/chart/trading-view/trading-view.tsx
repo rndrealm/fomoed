@@ -10,12 +10,15 @@ import {
 import { widget } from "../../../../../../public/static/charting_library";
 import { Datafeed } from "./datafeed";
 import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
-import { useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
+import { useReadHyperLiquidTokens } from "@/services/queries/hyperliquid";
 
 const initialSymbol = '{"baseTokenName":"BTC","quoteTokenName":"USDC","price":"105200.0","isSpot":false,"name":"BTC"}';
 
 export function TradingViewChart() {
-  const selectedToken = useAtomValue(selectedTokenAtom);
+  const { data: tokensData } = useReadHyperLiquidTokens();
+
+  const [selectedToken, setSelectedToken] = useAtom(selectedTokenAtom);
 
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const tvWidgetRef = useRef<IChartingLibraryWidget>(null);
@@ -82,15 +85,24 @@ export function TradingViewChart() {
   }, []);
 
   useEffect(() => {
-    if (selectedToken && tvWidgetRef.current) {
+    if (!tvWidgetRef.current) return;
+
+    if (tokensData?.allTokens?.length && !selectedToken) {
+      setSelectedToken(tokensData.allTokens[0]);
+      return;
+    }
+
+    if (!selectedToken) return;
+
+    const currentSymbol = tvWidgetRef.current.activeChart().symbol();
+    if (currentSymbol !== selectedToken.name) {
       tvWidgetRef.current.setSymbol(
         selectedToken.tradingViewName,
         tvWidgetRef.current.activeChart().resolution(),
         () => {},
       );
     }
-  }, [selectedToken]);
-
+  }, [tokensData?.allTokens, selectedToken, setSelectedToken]);
   return (
     <div className="absolute top-0 right-0 bottom-0 left-0 flex">
       <div className="flex-1" ref={chartContainerRef}>
