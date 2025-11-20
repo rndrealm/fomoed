@@ -10,9 +10,6 @@ import { LandingScreen } from "./initial";
 import ChartHeader from "./chart/chart-header";
 import Balance from "./balance";
 import { TradingView } from "./chart/trading-view";
-import { useReadHyperLiquidTokens } from "@/services/queries/hyperliquid";
-import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
-import { useAtom } from "jotai";
 
 interface IProps {
   widget: LayoutType["widgets"][0];
@@ -23,24 +20,14 @@ type ViewType = "futures" | "spot" | "lend" | "conditional" | "balance" | "setti
 export default function Ascendex(props: IProps) {
   const { widget } = props;
 
-  const [selectedToken, setSelectedToken] = useAtom(selectedTokenAtom);
-
   const [isLoaded, setIsLoaded] = useState(true);
   const [activeView, setActiveView] = useState<ViewType>("futures");
-
-  const { data: tokensData } = useReadHyperLiquidTokens();
 
   const handleViewChange = (view: ViewType) => {
     setActiveView(view);
   };
 
   const showTradingInterface = ["futures", "spot", "lend", "conditional"].includes(activeView);
-
-  useEffect(() => {
-    if (tokensData?.allTokens?.length && selectedToken == null) {
-      setSelectedToken(tokensData?.allTokens[0]);
-    }
-  }, [tokensData?.allTokens, selectedToken, setSelectedToken]);
 
   return (
     <Fragment>

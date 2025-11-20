@@ -89,6 +89,7 @@ export const useReadHyperLiquidTokens = () => {
             tradingViewName,
             priceVolume,
             displayName: `${item?.name}-USDC`,
+            index,
           });
         }
       });
