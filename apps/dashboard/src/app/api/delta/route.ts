@@ -9,12 +9,7 @@ import { NextResponse } from "next/server";
 //   // ... implementation
 // }
 
-async function fetchOrderBookHistory(
-  exchange: string,
-  symbol: string,
-  interval: string,
-  range: string,
-) {
+async function fetchOrderBookHistory(exchange: string, symbol: string, interval: string, range: string) {
   const url = `https://open-api-v4.coinglass.com/api/futures/orderbook/ask-bids-history?exchange=${exchange}&symbol=${symbol}&interval=${interval}&range=${range}&limit=800`;
 
   const options = {
@@ -45,14 +40,11 @@ export async function GET(request: Request) {
     const range = searchParams.get("range");
 
     if (!exchange || !symbol || !interval || !range) {
-      return NextResponse.json(
-        { error: "Missing required query parameter" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Missing required query parameter" }, { status: 400 });
     }
 
     const orderData = await fetchOrderBookHistory(exchange, symbol, interval, range);
-    
+
     // --- Price data check is commented out ---
     // if (!priceData.data ) {
     //   return NextResponse.json(
@@ -60,23 +52,20 @@ export async function GET(request: Request) {
     //     { status: 500 },
     //   );
     // }
-    
-    if ( !orderData.data) {
-      return NextResponse.json(
-        { error: "Order sources returned no data" },
-        { status: 500 },
-      );
+
+    if (!orderData.data) {
+      return NextResponse.json({ error: "Order sources returned no data" }, { status: 500 });
     }
 
     return NextResponse.json({
-      // priceData: [], // Returning an empty array for priceData to maintain structure
+      // priceData: [], 
       orderBookData: orderData.data,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.log("Error fetching orderbook delta data: ", error);
-    return NextResponse.json(
-      { error: "Failed to fetch orderbook delta data" },
-      { status: 500 },
-    );
+
+    const message = typeof error === "string" ? error : error?.message || "Unknown server error";
+
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

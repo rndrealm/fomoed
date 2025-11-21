@@ -58,6 +58,11 @@ export default function DetailedCfgiWidget(props: IProps) {
     activeCoinSlug,
   );
 
+  if (error) {
+    const message = error.message || "Unexpected error occurred";
+    throw new Error(`CFGI data request failed - ${message}`);
+  }
+
   const toggleFullscreen = () => {
     setIsFullscreen((prev) => !prev);
     if (!isFullscreen) {

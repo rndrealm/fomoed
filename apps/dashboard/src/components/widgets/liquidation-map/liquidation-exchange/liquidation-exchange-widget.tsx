@@ -62,7 +62,13 @@ export default function LiquidationExchangeWidget(props: IProps) {
     data: liquidationData,
     isFetching,
     refetch,
+    error
   } = useFetchLiquidDataMerged(widget.props?.period, widget.props?.token);
+
+  if (error) {
+    const message = error.message || "Unexpected error occurred";
+    throw new Error(`Liquidation data request failed - ${message}`);
+  }
 
   const [chartViewOptions] = useState(LiquidTabOptions[1].value);
 

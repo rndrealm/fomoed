@@ -3,12 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Close } from "@/components/icons/icons";
 import { cn, formatSummaryDate, modalSlide } from "@/lib/utils";
 import { Mover } from "./mover";
-import {
-  Carousel,
-  CarouselApi,
-  CarouselContent,
-  CarouselItem,
-} from "@/components/ui/carousel";
+import { Carousel, CarouselApi, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import { Loser } from "./loser";
 import { useReadCoinList } from "@/services/queries/charts";
 import { News } from "./news";
@@ -27,7 +22,11 @@ export default function SummaryWidget(props: IProps) {
   const [count, setCount] = useState(0);
   const [showInfo, setShowInfo] = useState(false);
 
-  const { data: coinData = [] } = useReadCoinList(true);
+  const { data: coinData = [], error } = useReadCoinList(true);
+
+  if (error) {
+    throw new Error("Coin List Error: " + error.message);
+  }
 
   const { date, weekday } = formatSummaryDate();
 
@@ -56,12 +55,8 @@ export default function SummaryWidget(props: IProps) {
     >
       <div className="flex flex-col gap-[10px] flex-1">
         <div className="">
-          <p className="text-semibold text-[13px] leading-[1.25] text-[#878787] select-none">
-            {date}
-          </p>
-          <p className="text-semibold text-[13px] leading-[1.25] text-[#4B4B4B] select-none">
-            {weekday}
-          </p>
+          <p className="text-semibold text-[13px] leading-[1.25] text-[#878787] select-none">{date}</p>
+          <p className="text-semibold text-[13px] leading-[1.25] text-[#4B4B4B] select-none">{weekday}</p>
         </div>
 
         <Carousel setApi={setApi} className="select-none">
@@ -85,12 +80,7 @@ export default function SummaryWidget(props: IProps) {
           .map((_, index) => {
             const bg = index + 1 === current ? "bg-white" : "bg-[#373737]";
 
-            return (
-              <div
-                key={index}
-                className={cn("w-[6px] h-[6px] rounded-[50%]", bg)}
-              ></div>
-            );
+            return <div key={index} className={cn("w-[6px] h-[6px] rounded-[50%]", bg)}></div>;
           })}
       </div>
 
@@ -107,16 +97,13 @@ export default function SummaryWidget(props: IProps) {
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-3">
                   <div className="flex flex-col">
-                    <h3 className="font-semibold text-base leading-[1.35] text-white">
-                      Daily Summary
-                    </h3>
+                    <h3 className="font-semibold text-base leading-[1.35] text-white">Daily Summary</h3>
                     <p className="font-light text-[13px] leading-[1.25] text-[#878787]">
                       Learn about the Daily Summary
                     </p>
                   </div>
                   <p className="font-medium text-[13px] leading-[1.35] text-white">
-                    A crypto widget showing 24-hour top movers and losers, plus
-                    essential, breaking news summaries.
+                    A crypto widget showing 24-hour top movers and losers, plus essential, breaking news summaries.
                   </p>
 
                   <div className="flex flex-col">

@@ -126,21 +126,32 @@ export const useReadNewslabContent = (id: string = "") => {
 // Use page and limit to control how many items are fetched eg page = 1 and limit = 20 will fetch the first 20 items
 export const useReadNewsFeed = (token?: string, page?: number, limit?: number) => {
   const hash = ["news-feed", token, page, limit];
-  const { data, isPending, error, isSuccess } = useQuery({
+
+  const {
+    data,
+    isPending,
+    error,
+    isSuccess,
+  } = useQuery({
     queryKey: hash,
     queryFn: async () => {
       const response = await fetchNewsFeed(token, page, limit);
+
+      if (!response || (response as any)?.error) {
+        throw new Error((response as any)?.error || "Failed to fetch news feed");
+      }
+
       return response as NewsFeedItem[];
     },
-    refetchInterval: 1000 * 60 * 5, // Refetch every 5 minutes
-    staleTime: 1000 * 60 * 2, // Data is fresh for 2 minutes
+    refetchInterval: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 2,
   });
 
   return {
     data,
     isPending,
     isSuccess,
-    error,
+    error, 
   };
 };
 

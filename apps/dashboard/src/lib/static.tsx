@@ -867,7 +867,7 @@ export const widgetPropsDefaults = {
     },
   },
   youtube: {
-    videoId: "",
+    videoId: "zWWSL9Xs8vA",
     meta: {
       w: 8,
       h: 4,

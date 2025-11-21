@@ -40,9 +40,13 @@ export default function WeightedSentiment(props: IProps) {
   const { session } = useSupabaseAuth();
   const overlayRoot = getOverlayRoot();
 
-  const { data: tokenList = [] } = useReadSantimentTokenList({
+  const { data: tokenList = [], error } = useReadSantimentTokenList({
     auth_token: session?.access_token,
   });
+
+  if (error) {
+    throw new Error("Santiment Token List Error: " + error.message);
+  }
 
   const activeLayout = useAtomValue(activeTabAtom);
   const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);

@@ -22,13 +22,21 @@ export default function CFGI(props: IProps) {
   const { widget } = props;
   const [showInfo, setShowInfo] = useState(false);
 
-  const { data: coinData } = useReadCoinList();
+  const { data: coinData, error: coinListError } = useReadCoinList();
+
+  if (coinListError) {
+    throw new Error("CoinStats Error: " + coinListError.message);
+  }
 
   const activeCoinSlug = useMemo(() => {
     return coinData?.find((coin) => coin.symbol === widget.props?.token)?.slug;
   }, [widget.props?.token, coinData]);
 
-  const { data = [] } = useFetchFearAndGreed(widget?.props?.token, activeCoinSlug);
+  const { data = [], error: CFGIError } = useFetchFearAndGreed(widget?.props?.token, activeCoinSlug);
+
+  if (CFGIError) {
+    throw new Error("CoinStats Error: " + CFGIError.message);
+  }
 
   // const { data: testt } = useReadFearAndGridFromDb(widget?.props?.token);
 

@@ -22,6 +22,10 @@ export default function WhaleTransactionWidget(props: IProps) {
   const [isControlsVisible, setIsControlsVisible] = useState(true);
 
   const { data: transactions = [], isPending, error } = useFetchWhaleTransactions();
+  
+  if (error) {
+    throw new Error("Whale Transaction List Error: " + error.message);
+  }
   const { data: coinData } = useReadCoinList();
 
   const toggleFullscreen = () => {
@@ -47,8 +51,6 @@ export default function WhaleTransactionWidget(props: IProps) {
       <div className={cn("flex h-full w-full flex-1 flex-col overflow-hidden", isFullscreen && "py-[60px]")}>
         {isPending ? (
           <Skeleton className="h-full w-full bg-neutral-800" />
-        ) : error ? (
-          <div className="flex h-full w-full items-center justify-center text-red-500">Error: {error.message}</div>
         ) : (
           <WhaleTransactionTable
             isFullscreen={isFullscreen}

@@ -16,11 +16,15 @@ export default function WeightedChart(props: IProps) {
 
   const { session } = useSupabaseAuth();
 
-  const { data = [] } = useReadWeightedSentiment({
+  const { data = [] , error} = useReadWeightedSentiment({
     auth_token: session?.access_token,
     token,
     interval: period,
   });
+
+  if (error) {
+    throw new Error("Weightened Sentiment Error: " + error.message);
+  }
 
   const [dimension, setDimension] = useState({ width: 0, height: 0 });
 

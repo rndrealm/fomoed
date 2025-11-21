@@ -114,6 +114,10 @@ export default function OrderbookDeltaWidget(props: IProps) {
     widget.props?.range || "",
   );
 
+  if (error) {
+    throw new Error("Delta Spread Data Error: " + error.message);
+  }
+
   const toggleFullscreen = () => {
     setIsFullscreen((prev) => !prev);
     if (!isFullscreen) {

@@ -31,8 +31,17 @@ interface ReadWeightedSentimentProps {
 
 export const useReadWeightedSentiment = (props: ReadWeightedSentimentProps) => {
   const { auth_token, token = "bitcoin", interval = "1h" } = props;
+
   const hash = ["weighted-sentiment", token, interval];
-  const res = useQuery({
+
+  const {
+    data,
+    error,
+    isPending,
+    isFetching,
+    isSuccess,
+    refetch,
+  } = useQuery({
     queryKey: hash,
     queryFn: async () => {
       const response = await api.get({
@@ -40,16 +49,26 @@ export const useReadWeightedSentiment = (props: ReadWeightedSentimentProps) => {
         auth: false,
         headers: getAuthHeaders(auth_token),
       });
-      return response?.data as any;
+
+      if (!response || response.error) {
+        throw new Error(response?.error || "Failed to fetch weighted sentiment");
+      }
+
+      return response.data;
     },
     enabled: !!auth_token,
   });
 
   return {
-    ...res,
-    data: res?.data?.data as WeightedSentiment[],
+    data: data?.data as WeightedSentiment[], 
+    error,                          
+    isPending,
+    isFetching,
+    isSuccess,
+    refetch,
   };
 };
+
 
 export const useReadSantimentTokenPrice = (
   props: ReadWeightedSentimentProps,
@@ -83,25 +102,39 @@ export const useReadSantimentTokenList = (
   props: ReadSantimentTokenListProps,
 ) => {
   const { auth_token } = props;
-  const hash = ["santiment-token-list"];
+  const queryKey = ["santiment-token-list"];
+
   const res = useQuery({
-    queryKey: hash,
-    queryFn: async () => {
-      const response = await api.get({
-        url: `${BASE_URL}/santiment/token-list`,
-        auth: false,
-        headers: getAuthHeaders(auth_token),
-      });
-      return response?.data as any;
-    },
+    queryKey,
     enabled: !!auth_token,
+    queryFn: async () => {
+      try {
+        const response = await api.get({
+          url: `${BASE_URL}/santiment/token-list`,
+          auth: false,
+          headers: getAuthHeaders(auth_token),
+        });
+
+        return response?.data;
+      } catch (err: any) {
+        const message =
+          err?.response?.data?.error ||
+          err?.response?.data?.msg ||
+          err?.response?.data?.message ||
+          err?.message ||
+          "Failed to fetch Santiment token list";
+
+        throw new Error(message);
+      }
+    },
   });
 
   return {
     ...res,
-    data: res?.data?.data as WeightedSentimentToken[],
+    data: (res?.data?.data ?? []) as WeightedSentimentToken[],
   };
 };
+
 
 interface ReadSantimentVolumeProps {
   auth_token?: string;

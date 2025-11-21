@@ -86,7 +86,13 @@ export default function NewsWidget(props: IProps) {
   const [showPlayer, setShowPlayer] = useState(false);
   const [showDetails, setShowDetails] = useState("");
 
-  const { data: news = [] } = useReadNewsFeed(widget?.props?.token, 1, 20);
+  const { data: news = [], error } = useReadNewsFeed(widget?.props?.token, 1, 20);
+
+  if (error) {
+    const message = error.message || "Unexpected error occurred";
+    throw new Error(`News request failed - ${message}`);
+  }
+
   const { data: coinData = [] } = useReadCoinList();
 
   const [showInfo, setShowInfo] = useState(false);
