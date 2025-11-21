@@ -36,32 +36,12 @@ import { Database } from "@/lib/database/supabase";
 
 const navLinks: INavLink[] = [
   {
-    label: "News",
-    icon: <NewsIconV2 />,
-    href: AppRoutes.news.path,
-    disabled: false,
-    beta: false,
-    alpha: false,
-    comingSoon: false,
-    keyboardBoxes: ["command", "Enter"],
-  },
-  {
     label: "Widgets",
     icon: <WidgetDashboardIconV2 />,
     href: AppRoutes.dashboard.path,
     disabled: false,
     beta: false,
     alpha: false,
-    comingSoon: false,
-    keyboardBoxes: ["command", "K"],
-  },
-  {
-    label: "Smart Signals",
-    icon: <SmartSignalsIcon />,
-    href: AppRoutes.signals.path,
-    disabled: false,
-    beta: false,
-    alpha: true,
     comingSoon: false,
     keyboardBoxes: ["command", "K"],
   },
@@ -75,29 +55,14 @@ const navLinks: INavLink[] = [
     comingSoon: false,
   },
   {
-    label: "Fomoed Education",
-    icon: <EducationIcon />,
-    href: `#`,
+    label: "Smart Signals",
+    icon: <SmartSignalsIcon />,
+    href: AppRoutes.signals.path,
     disabled: false,
     beta: false,
-    alpha: false,
-    comingSoon: true,
-  },
-  {
-    label: "Referrals",
-    icon: <ReferAndEarnIcon />,
-    href: AppRoutes.referrals.path,
-    disabled: false,
-    beta: false,
-    alpha:false,
-  },
-  {
-    label: "Terms of Service",
-    icon: <Article />,
-    href: AppRoutes.termsOfService.path,
-    disabled: false,
-    beta: false,
-    alpha: false
+    alpha: true,
+    comingSoon: false,
+    keyboardBoxes: ["command", "K"],
   },
   {
     label: "Trading Competition Photos",
@@ -105,8 +70,44 @@ const navLinks: INavLink[] = [
     href: AppRoutes.eventPhotos.path,
     disabled: false,
     beta: false,
-    alpha: false
+    alpha: false,
   },
+  {
+    label: "News",
+    icon: <NewsIconV2 />,
+    href: AppRoutes.news.path,
+    disabled: false,
+    beta: false,
+    alpha: false,
+    comingSoon: false,
+    keyboardBoxes: ["command", "Enter"],
+  },
+
+  // {
+  //   label: "Fomoed Education",
+  //   icon: <EducationIcon />,
+  //   href: `#`,
+  //   disabled: false,
+  //   beta: false,
+  //   alpha: false,
+  //   comingSoon: true,
+  // },
+  {
+    label: "Referrals",
+    icon: <ReferAndEarnIcon />,
+    href: AppRoutes.referrals.path,
+    disabled: false,
+    beta: false,
+    alpha: false,
+  },
+  // {
+  //   label: "Terms of Service",
+  //   icon: <Article />,
+  //   href: AppRoutes.termsOfService.path,
+  //   disabled: false,
+  //   beta: false,
+  //   alpha: false
+  // },
 ];
 
 const bottomLinks = [
