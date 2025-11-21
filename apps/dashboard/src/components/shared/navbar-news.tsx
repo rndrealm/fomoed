@@ -108,6 +108,42 @@ const navLinks: INavLink[] = [
     beta: false,
     alpha: false,
   },
+  {
+    label: "News",
+    icon: <NewsIconV2 />,
+    href: AppRoutes.news.path,
+    disabled: false,
+    beta: false,
+    alpha: false,
+    comingSoon: false,
+    keyboardBoxes: ["command", "Enter"],
+  },
+
+  // {
+  //   label: "Fomoed Education",
+  //   icon: <EducationIcon />,
+  //   href: `#`,
+  //   disabled: false,
+  //   beta: false,
+  //   alpha: false,
+  //   comingSoon: true,
+  // },
+  {
+    label: "Referrals",
+    icon: <ReferAndEarnIcon />,
+    href: AppRoutes.referrals.path,
+    disabled: false,
+    beta: false,
+    alpha: false,
+  },
+  // {
+  //   label: "Terms of Service",
+  //   icon: <Article />,
+  //   href: AppRoutes.termsOfService.path,
+  //   disabled: false,
+  //   beta: false,
+  //   alpha: false
+  // },
 ];
 
 const bottomLinks = [
