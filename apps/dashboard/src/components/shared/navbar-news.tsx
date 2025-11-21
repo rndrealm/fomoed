@@ -21,6 +21,7 @@ import {
   EducationIcon,
   NewsPaper,
   Article,
+  Link as LinkIcon,
 } from "../icons/icons";
 import { AppRoutes } from "@/lib/routes";
 import SideNav, { INavLink } from "./sidebar";
@@ -98,15 +99,23 @@ const navLinks: INavLink[] = [
     beta: false,
     alpha: false
   },
+  {
+    label: "Trading Competition Photos",
+    icon: <LinkIcon />,
+    href: AppRoutes.eventPhotos.path,
+    disabled: false,
+    beta: false,
+    alpha: false
+  },
 ];
 
 const bottomLinks = [
-  {
-    label: "Help & Support",
-    icon: <HelpSupportIcon />,
-    href: "/",
-    disabled: true,
-  },
+  // {
+  //   label: "Help & Support",
+  //   icon: <HelpSupportIcon />,
+  //   href: "/",
+  //   disabled: true,
+  // },
   {
     label: "How to use Fomoed",
     icon: <HowToUseIcon />,

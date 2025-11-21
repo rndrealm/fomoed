@@ -71,6 +71,10 @@ export const AppRoutes = {
     name: "Terms of Service",
     path: "/terms-of-service",
   },
+  eventPhotos: {
+    name: "Event Photos",
+    path: "/event-photos",
+  },
   waitlist: {
     name: "Waitlist",
     path: "/waitlist",
