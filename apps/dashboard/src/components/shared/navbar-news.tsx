@@ -100,14 +100,14 @@ const navLinks: INavLink[] = [
     beta: false,
     alpha: false,
   },
-  // {
-  //   label: "Terms of Service",
-  //   icon: <Article />,
-  //   href: AppRoutes.termsOfService.path,
-  //   disabled: false,
-  //   beta: false,
-  //   alpha: false
-  // },
+  {
+    label: "Trading Competition Photos",
+    icon: <LinkIcon />,
+    href: AppRoutes.eventPhotos.path,
+    disabled: false,
+    beta: false,
+    alpha: false,
+  },
 ];
 
 const bottomLinks = [
