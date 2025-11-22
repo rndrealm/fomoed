@@ -82,7 +82,7 @@ export default function TelegramWidget(props: IProps) {
 
             {/* Telegram iframe */}
             <iframe
-              src="https://telegram.fomoed.app/"
+              src="https://messaging.fomoed.app/"
               className="w-full h-full border-0"
               allow="microphone; camera; geolocation; autoplay"
               sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals allow-downloads"
