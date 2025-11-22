@@ -10,7 +10,8 @@ import {
 import { AxiosResponse } from "axios";
 import { AssetDataResponse, HyperliquidMetaResponse } from "./types";
 
-const BASE_URL = "https://api.hyperliquid.xyz";
+// const BASE_URL = "https://api.hyperliquid.xyz";
+const BASE_URL = "https://api.hyperliquid-testnet.xyz";
 
 export const useReadHyperLiquidTokens = () => {
   const hash = ["hyperliquid-tokens"];

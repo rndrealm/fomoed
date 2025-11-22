@@ -1,6 +1,16 @@
-import React, { Dispatch, SetStateAction, useRef, useState } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
-import { calcMargin, cn, estimateLiqPrice } from "@/lib/utils";
+import {
+  calcMargin,
+  calculateLossPercent,
+  calculateSLFromLoss,
+  calculateTpGain,
+  cn,
+  estimateLiqPrice,
+  reverseCalculateTpGain,
+  validateReduceOnly,
+} from "@/lib/utils";
 import { ErrorMsg, TextInput } from "@/components/auth/text-input";
 import { Slider } from "@/components/ui/slider";
 import Checkbox from "@/components/ui/checkbox";
@@ -9,6 +19,7 @@ import { useFormikContext } from "formik";
 import { TradingFormInitialValues } from ".";
 import { AppSelect } from "@/components/ui/app-select";
 import { OrderType } from "@/services/queries/trading/types";
+import { RenderIf } from "@/components/shared";
 
 interface IOrderTypeButtonProps {
   isActive: boolean;
@@ -99,12 +110,26 @@ interface FormContentProps {
   leverage: number;
   toggleLeverageModal: () => void;
   isPending: boolean;
+  currentPosition: string;
+  marketPrice: string;
 }
 
 export function FormContent(props: FormContentProps) {
-  const { balance, orderType, setOrderType, isLong, setIsLong, leverage, toggleLeverageModal, isPending } = props;
+  const {
+    balance,
+    orderType,
+    setOrderType,
+    isLong,
+    setIsLong,
+    leverage,
+    toggleLeverageModal,
+    isPending,
+    currentPosition,
+    marketPrice,
+  } = props;
 
-  const { values, handleChange, handleBlur, setFieldValue } = useFormikContext<TradingFormInitialValues>();
+  const { values, handleChange, handleBlur, setFieldValue, errors, touched } =
+    useFormikContext<TradingFormInitialValues>();
 
   const handleSliderChange = (value: number[]) => {
     const percentage = value[0];
@@ -127,9 +152,39 @@ export function FormContent(props: FormContentProps) {
     side: isLong ? "long" : "short",
   });
 
+  const validateReduceOnlyResponse = validateReduceOnly(
+    Number(currentPosition),
+    isLong ? "buy" : "sell",
+    Number(values.quantity),
+  );
+
+  useEffect(() => {
+    // if (marketPrice && (!values.price || values.price === "0") && !touched.price) {
+    //   setFieldValue("price", marketPrice);
+    // }
+    if (marketPrice) {
+      setFieldValue("price", marketPrice);
+    }
+  }, [marketPrice]);
+
   return (
     <>
       <div className="flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <button type="button" className="bg-[#1E2025] text-white text-xxxs px-2 py-1 rounded-[4px]">
+            Isolated
+          </button>
+          <button
+            onClick={toggleLeverageModal}
+            type="button"
+            className="bg-[#1E2025] text-white text-xxxs px-2 py-1 rounded-[4px]"
+          >
+            {leverage}x
+          </button>
+          <button type="button" className="bg-[#1E2025] text-white text-xxxs px-2 py-1 rounded-[4px]">
+            One Way
+          </button>
+        </div>
         <div className="flex items-center justify-center">
           <div className="flex bg-[#222329] rounded-md items-center">
             <LongShortButton isActive={isLong} label="Buy / Long" onClick={() => setIsLong(true)} />
@@ -153,33 +208,19 @@ export function FormContent(props: FormContentProps) {
 
             <p className="text-white text-[8px] font-semibold leading-[10px] tracking-[-0.4%]">${balance.toFixed(2)}</p>
           </div>
+          <div className="flex items-center justify-between">
+            <p className="text-[#A6AEB2] text-[8px] font-medium leading-[10px] tracking-[-0.4%]">Current Position</p>
 
-          <button
-            type="button"
-            onClick={toggleLeverageModal}
-            className="flex items-center justify-between w-full py-1.5 px-2 bg-[#222329] rounded-sm hover:bg-[#2B2C32] transition-colors"
-          >
-            <p className="text-[#A6AEB2] text-[8px] font-medium leading-[10px] tracking-[-0.4%]">Leverage</p>
-            <div className="flex items-center gap-1">
-              <p className="text-white text-[8px] font-semibold leading-[10px] tracking-[-0.4%]">{leverage}x</p>
-              <svg
-                width="10"
-                height="10"
-                viewBox="0 0 10 10"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="text-[#A6AEB2]"
-              >
-                <path
-                  d="M2.5 3.75L5 6.25L7.5 3.75"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </div>
-          </button>
+            <p
+              className={cn("text-[8px] font-semibold leading-[10px] tracking-[-0.4%]", {
+                "text-red-500": Number(currentPosition) < 0,
+                "text-white": Number(currentPosition) === 0,
+                "text-[#00AF58]": Number(currentPosition) > 0,
+              })}
+            >
+              ${Math.abs(Number(currentPosition))}
+            </p>
+          </div>
         </div>
 
         <div className="flex flex-col gap-2">
@@ -308,18 +349,124 @@ export function FormContent(props: FormContentProps) {
           </div>
 
           <div className="flex items-center justify-between">
-            <Checkbox label="TP/SL" />
+            <Checkbox label="TP/SL" checked={values.tpSl} onCheckedChange={(val) => setFieldValue("tpSl", val)} />
           </div>
+          <RenderIf condition={values.tpSl}>
+            <div>
+              <div className="flex items-center gap-2">
+                <div className="flex-1">
+                  <label className="text-[#A6AEB2] text-xxxs font-medium" htmlFor="tp">
+                    TP Price
+                  </label>
+                  <TextInput
+                    value={values.tp}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      setFieldValue("tp", e.target.value);
+                      setFieldValue(
+                        "gain",
+                        e.target.value
+                          ? calculateTpGain(
+                              Number(values.tp),
+                              Number(marketPrice),
+                              leverage,
+                              isLong ? "long" : "short",
+                            ).toFixed(2)
+                          : "",
+                      );
+                    }}
+                    onBlur={handleChange}
+                    name="tp"
+                    type="number"
+                    className="h-[1.5rem] !pr-4.5 w-full border-[0.5px] border-[#384044] outline-none text-[#D7D7D7] !text-[10px] tracking-[-0.4%] leading-[14px] px-1 rounded-[4px] focus-visible:ring-0 bg-[#222329]"
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className="text-[#A6AEB2] text-xxxs font-medium" htmlFor="tpRoi">
+                    ROI
+                  </label>
+                  <TextInput
+                    value={values.gain}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      const tp = reverseCalculateTpGain(
+                        Number(e.target.value),
+                        Number(marketPrice),
+                        leverage,
+                        isLong ? "long" : "short",
+                      );
+                      setFieldValue("gain", e.target.value);
+                      setFieldValue("tp", e.target.value ? tp : "");
+                    }}
+                    rightPlaceholder="%"
+                    onBlur={handleChange}
+                    name="tpRoi"
+                    className="h-[1.5rem] !pr-4.5 w-full border-[0.5px] border-[#384044] outline-none text-[#D7D7D7] !text-[10px] tracking-[-0.4%] leading-[14px] px-1 rounded-[4px] focus-visible:ring-0 bg-[#222329]"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="flex-1">
+                  <label className="text-[#A6AEB2] text-xxxs font-medium" htmlFor="sl">
+                    SL Price
+                  </label>
+                  <TextInput
+                    value={values.sl}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      setFieldValue("sl", e.target.value);
+                      setFieldValue(
+                        "loss",
+                        e.target.value
+                          ? calculateLossPercent(
+                              Number(values.sl),
+                              Number(marketPrice),
+                              leverage,
+                              isLong ? "long" : "short",
+                            ).toFixed(2)
+                          : "",
+                      );
+                    }}
+                    onBlur={handleChange}
+                    name="sl"
+                    type="number"
+                    className="h-[1.5rem] !pr-4.5 w-full border-[0.5px] border-[#384044] outline-none text-[#D7D7D7] !text-[10px] tracking-[-0.4%] leading-[14px] px-1 rounded-[4px] focus-visible:ring-0 bg-[#222329]"
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className="text-[#A6AEB2] text-xxxs font-medium" htmlFor="slRoi">
+                    ROI
+                  </label>
+                  <TextInput
+                    value={values.loss}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      const sl = calculateSLFromLoss(
+                        Number(e.target.value),
+                        Number(marketPrice),
+                        leverage,
+                        isLong ? "long" : "short",
+                      );
+                      setFieldValue("loss", e.target.value);
+                      setFieldValue("sl", e.target.value ? sl.toFixed() : "");
+                    }}
+                    rightPlaceholder="%"
+                    onBlur={handleChange}
+                    name="slRoi"
+                    className="h-[1.5rem] !pr-4.5 w-full border-[0.5px] border-[#384044] outline-none text-[#D7D7D7] !text-[10px] tracking-[-0.4%] leading-[14px] px-1 rounded-[4px] focus-visible:ring-0 bg-[#222329]"
+                  />
+                </div>
+              </div>
+            </div>
+          </RenderIf>
         </div>
 
         <div className="">
           <Button
-            disabled={!values.quantity}
+            disabled={!values.quantity || (values.reduceOnly && !validateReduceOnlyResponse.ok)}
             type="submit"
             isLoading={isPending}
             className="w-full bg-[#7637BA] hover:bg-[#7637BA] text-white font-medium text-[10px] leading-[14px] h-[28px]"
           >
-            Create Order
+            {values.reduceOnly && validateReduceOnlyResponse.reason
+              ? validateReduceOnlyResponse.reason
+              : "Create Order"}
           </Button>
         </div>
       </div>

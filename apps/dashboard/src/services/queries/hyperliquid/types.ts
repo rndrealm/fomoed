@@ -158,7 +158,30 @@ export interface PerpBalanceResponse {
   };
   crossMaintenanceMarginUsed: string;
   withdrawable: string;
-  assetPositions: Array<any>;
+  assetPositions: Array<{
+    type: string;
+    position: {
+      coin: string;
+      szi: string;
+      leverage: {
+        type: string;
+        value: number;
+        rawUsd: string;
+      };
+      entryPx: string;
+      positionValue: string;
+      unrealizedPnl: string;
+      returnOnEquity: string;
+      liquidationPx: string;
+      marginUsed: string;
+      maxLeverage: number;
+      cumFunding: {
+        allTime: string;
+        sinceOpen: string;
+        sinceChange: string;
+      };
+    };
+  }>;
   time: number;
 }
 

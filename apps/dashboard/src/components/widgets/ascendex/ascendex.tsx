@@ -11,6 +11,10 @@ import ChartHeader from "./chart/chart-header";
 import Balance from "./balance";
 import { TradingView } from "./chart/trading-view";
 import TradingPanel from "./trading-panel";
+import { useReadHyperLiquidTokens } from "@/services/queries/hyperliquid";
+import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
+import { useAtom } from "jotai";
+import TradeResults from "./trade-results";
 
 interface IProps {
   widget: LayoutType["widgets"][0];
@@ -60,7 +64,10 @@ export default function Ascendex(props: IProps) {
                     <div className="flex-1 flex flex-col gap-2 min-w-0">
                       <ChartHeader />
                       {/* Chart placeholder */}
-                      <div className="bg-[#121317] rounded-[6px] flex items-center justify-center relative overflow-hidden" style={{ height: "500px" }}>
+                      <div
+                        className="bg-[#121317] rounded-[6px] flex items-center justify-center relative overflow-hidden"
+                        style={{ height: "500px" }}
+                      >
                         <TradingView />
                       </div>
                     </div>
@@ -99,6 +106,7 @@ export default function Ascendex(props: IProps) {
                 </div>
               </div>
             </RenderIf>
+            <TradeResults />
           </div>
         </div>
       </RenderIf>

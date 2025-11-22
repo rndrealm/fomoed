@@ -6,18 +6,29 @@ import * as Yup from "yup";
 import { useAccount } from "wagmi";
 import { useGetAssetData, useGetPerpBalance } from "@/services/queries/hyperliquid";
 import { useExecuteTrade, useUpdateLeveraggeTrade } from "@/services/queries/trading";
-import { TradeExecutionPayload } from "@/services/queries/trading/types";
+import { OrderEnum, TifEnum, TradeExecutionPayload } from "@/services/queries/trading/types";
 import LeverageModal from "./leverage-modal";
 import { ModalContainer } from "@/components/shared/modal-container";
 import { useSupabaseAuth } from "@/components/providers";
 import ConfirmModal from "./confirm-modal";
 import { estimateLiqPrice } from "@/lib/utils";
+import { toast } from "sonner";
+import { useAtomValue } from "jotai";
+import { tradingActiveSymbol } from "@/lib/atoms/tradingAtom";
+import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
+
+// const marketPrice = "91849";
 
 const initialValues = {
-  price: "106945",
+  price: "0",
   quantity: "",
+  tp: "",
+  sl: "",
+  gain: "",
+  loss: "",
   reduceOnly: false,
   tif: "Gtc",
+  tpSl: false,
 };
 
 export type TradingFormInitialValues = ReturnType<() => typeof initialValues>;
@@ -38,28 +49,44 @@ export type TradingFormInitialValues = ReturnType<() => typeof initialValues>;
 //   "grouping": "na"
 // }
 
-const currAsset = 3; // Todo: this is asset id for bitcoin, update later to match the trading view chart
-const maxLeverage = 40; // Todo: this is max leverage for btc, update later to trading view data
+// const currAsset = 3; // Todo: this is asset id for bitcoin, update later to match the trading view chart
+// const currAssetName = "BTC";
+// const maxLeverage = 40; // Todo: this is max leverage for btc, update later to trading view data
 export default function CreateOrder() {
   const validationSchema = Yup.object().shape({
     price: Yup.number().min(0.01, "Price must be greater than 0").required("Please enter price"),
     quantity: Yup.number().min(0, "Quantity must be a positive number").required("Please enter quantity"),
     reduceOnly: Yup.boolean(),
+    tpSl: Yup.boolean(),
+    tp: Yup.number().min(0, "Take Profit must be a positive number"),
+    sl: Yup.number().min(0, "Stop Loss must be a positive number"),
+    gain: Yup.number().min(0, "Gain must be a positive number"),
+    loss: Yup.number().min(0, "Loss must be a positive number"),
     tif: Yup.string().oneOf(["Gtc", "Ioc", "Alo"]).required("Please select Time in Force"),
   });
 
   const account = useAccount();
   const walletAddress = account?.address || "";
 
+  const selectedToken = useAtomValue(selectedTokenAtom);
+  const tradingSymbol = selectedToken?.baseTokenName || "";
+  const currAsset = selectedToken?.index || 0;
+  const maxLeverage = selectedToken?.maxLeverage || 0;
+  const marketPrice = selectedToken?.priceVolume?.markPx || "0";
+
   const { data: perpBalance } = useGetPerpBalance(walletAddress);
-  const { data: assetData } = useGetAssetData(walletAddress, "BTC");
+  const { data: assetData } = useGetAssetData(walletAddress, tradingSymbol);
 
   const availableBalance = perpBalance?.withdrawable;
+
+  const currentPosition =
+    perpBalance?.assetPositions?.find((fn) => fn.position.coin === tradingSymbol)?.position.szi || "0.00";
+
   const { session } = useSupabaseAuth();
 
   const { mutate, isPending } = useExecuteTrade(session?.access_token);
 
-  const [orderType, setOrderType] = useState<"limit" | "market" | "conditional">("limit");
+  const [orderType, setOrderType] = useState<"limit" | "market" | "trigger">("limit");
   const [isLong, setIsLong] = useState(true);
   const [leverage, setLeverage] = useState<null | number>(null);
   const [isLeverageModalOpen, setIsLeverageModalOpen] = useState(false);
@@ -84,23 +111,115 @@ export default function CreateOrder() {
     session?.access_token,
   );
 
+  function validateTpSl(values: TradingFormInitialValues, isLong: boolean): boolean {
+    if (!values.tpSl) return true;
+
+    const orderPrice = Number(values.price);
+    const tpPrice = Number(values.tp);
+    const slPrice = Number(values.sl);
+
+    // Check if TP and SL are greater than 0
+    if (tpPrice && tpPrice <= 0) {
+      toast.error("Take Profit price must be greater than 0");
+      return false;
+    }
+    if (slPrice && slPrice <= 0) {
+      toast.error("Stop Loss price must be greater than 0");
+      return false;
+    }
+
+    if (isLong) {
+      // For long positions: TP must be higher than order price, SL must be lower
+      if (tpPrice && tpPrice <= orderPrice) {
+        toast.error("Take Profit price must be greater than order price for long positions");
+        return false;
+      }
+      if (slPrice && slPrice >= orderPrice) {
+        toast.error("Stop Loss price must be lower than order price for long positions");
+        return false;
+      }
+    } else {
+      // For short positions: TP must be lower than order price, SL must be higher
+      if (tpPrice && tpPrice >= orderPrice) {
+        toast.error("Take Profit price must be lower than order price for short positions");
+        return false;
+      }
+      if (slPrice && slPrice <= orderPrice) {
+        toast.error("Stop Loss price must be greater than order price for short positions");
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   function onSubmit(_values: TradingFormInitialValues) {
+    // Validate trigger order TP/SL prices
+    if (!validateTpSl(_values, isLong)) {
+      return;
+    }
+
     const converter = _values.price; //Todo: make this dynamic based on market price
+    const orderSize = (Number(_values.quantity) / Number(converter)).toFixed(5);
+    const hasTP = _values.tpSl && _values.tp && Number(_values.tp) > 0;
+    const hasSL = _values.tpSl && _values.sl && Number(_values.sl) > 0;
+
+    // Create main order
+    const orders: OrderEnum[] = [];
+
+    if (orderType === "market") {
+      orders.push({
+        type: "market",
+        asset: currAsset,
+        side: isLong ? "buy" : "sell",
+        size: orderSize,
+        reduceOnly: _values.reduceOnly,
+      });
+    } else if (orderType === "limit") {
+      orders.push({
+        type: "limit",
+        asset: currAsset,
+        side: isLong ? "buy" : "sell",
+        price: String(_values.price),
+        size: orderSize,
+        reduceOnly: _values.reduceOnly,
+        timeInForce: _values.tif as TifEnum,
+      });
+    }
+
+    // Add TP order if exists
+    if (hasTP) {
+      orders.push({
+        type: "trigger",
+        asset: currAsset,
+        side: isLong ? "sell" : "buy", // Opposite side to close position
+        triggerPrice: _values.tp,
+        size: orderSize,
+        isMarket: true,
+        reduceOnly: true,
+        tpsl: "tp",
+      });
+    }
+
+    // Add SL order if exists
+    if (hasSL) {
+      orders.push({
+        type: "trigger",
+        asset: currAsset,
+        side: isLong ? "sell" : "buy", // Opposite side to close position
+        triggerPrice: _values.sl,
+        size: orderSize,
+        isMarket: true,
+        reduceOnly: true,
+        tpsl: "sl",
+      });
+    }
+
     const orderPayload = {
       provider: "hyperliquid",
       wallet_address: walletAddress,
-      grouping: "na",
-      orders: [
-        {
-          type: orderType,
-          asset: currAsset, //Todo: Update later when chart dropdown has been integrated
-          side: isLong ? "buy" : "sell",
-          price: _values.price,
-          size: (Number(_values.quantity) / Number(converter)).toFixed(5),
-          reduceOnly: _values.reduceOnly,
-          timeInForce: orderType === "market" ? "Ioc" : _values.tif,
-        },
-      ],
+      grouping: hasTP || hasSL ? "normalTpsl" : "na",
+      orders,
     } as TradeExecutionPayload;
 
     setPendingOrderPayload(orderPayload);
@@ -170,12 +289,14 @@ export default function CreateOrder() {
                   <FormContent
                     balance={Number(availableBalance) ? Number(availableBalance) : 0}
                     orderType={orderType}
+                    currentPosition={currentPosition}
                     setOrderType={setOrderType}
                     isLong={isLong}
                     setIsLong={setIsLong}
                     leverage={leverage || 1}
                     toggleLeverageModal={toggleLeverageModal}
                     isPending={isPending}
+                    marketPrice={marketPrice}
                   />
                 </div>
 
