@@ -8,6 +8,7 @@ import { useGetAssetData, useGetPerpBalance } from "@/services/queries/hyperliqu
 import { useExecuteTrade, useUpdateLeveraggeTrade } from "@/services/queries/trading";
 import { OrderEnum, TifEnum, TradeExecutionPayload } from "@/services/queries/trading/types";
 import LeverageModal from "./leverage-modal";
+import MarginModeModal from "./margin-mode-modal";
 import { ModalContainer } from "@/components/shared/modal-container";
 import { useSupabaseAuth } from "@/components/providers";
 import ConfirmModal from "./confirm-modal";
@@ -89,12 +90,21 @@ export default function CreateOrder() {
   const [orderType, setOrderType] = useState<"limit" | "market" | "trigger">("limit");
   const [isLong, setIsLong] = useState(true);
   const [leverage, setLeverage] = useState<null | number>(null);
+  const [isCross, setIsCross] = useState<boolean>(false);
   const [isLeverageModalOpen, setIsLeverageModalOpen] = useState(false);
   const toggleLeverageModal = () => setIsLeverageModalOpen(!isLeverageModalOpen);
+
+  const [isMarginModeModalOpen, setIsMarginModeModalOpen] = useState(false);
+  const toggleMarginModeModal = () => setIsMarginModeModalOpen(!isMarginModeModalOpen);
 
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const toggleConfirmModal = () => setIsConfirmModalOpen(!isConfirmModalOpen);
   const [pendingOrderPayload, setPendingOrderPayload] = useState<TradeExecutionPayload | null>(null);
+
+  const closeAllLeverageModals = () => {
+    setIsMarginModeModalOpen(false);
+    setIsConfirmModalOpen(false);
+  };
 
   const updateLeverage = (value: number) => {
     setLeverage(value);
@@ -103,11 +113,23 @@ export default function CreateOrder() {
       asset: currAsset,
       leverage: value,
       wallet_address: walletAddress,
+      isCross,
+    });
+  };
+
+  const updateMarginMode = (crossMode: boolean) => {
+    setIsCross(crossMode);
+    updateLeverageMutation({
+      provider: "hyperliquid",
+      asset: currAsset,
+      leverage: leverage || 1,
+      wallet_address: walletAddress,
+      isCross: crossMode,
     });
   };
 
   const { mutate: updateLeverageMutation, isPending: updateLeverageLoading } = useUpdateLeveraggeTrade(
-    toggleLeverageModal,
+    closeAllLeverageModals,
     session?.access_token,
   );
 
@@ -265,8 +287,13 @@ export default function CreateOrder() {
   };
 
   useEffect(() => {
-    if (assetData && !leverage) {
-      setLeverage(assetData.leverage.value);
+    if (assetData) {
+      if (!leverage) {
+        setLeverage(assetData.leverage.value);
+      }
+      if (assetData.leverage.type !== undefined) {
+        setIsCross(assetData.leverage.type === "cross");
+      }
     }
   }, [assetData, leverage]);
 
@@ -294,7 +321,9 @@ export default function CreateOrder() {
                     isLong={isLong}
                     setIsLong={setIsLong}
                     leverage={leverage || 1}
+                    isCross={isCross}
                     toggleLeverageModal={toggleLeverageModal}
+                    toggleMarginModeModal={toggleMarginModeModal}
                     isPending={isPending}
                     marketPrice={marketPrice}
                   />
@@ -322,6 +351,23 @@ export default function CreateOrder() {
           updateLeverage={updateLeverage}
           isLoading={updateLeverageLoading}
           maxLeverage={maxLeverage}
+          onClose={toggleLeverageModal}
+        />
+      </ModalContainer>
+
+      <ModalContainer
+        open={isMarginModeModalOpen}
+        handleClose={toggleMarginModeModal}
+        title="Margin Mode"
+        headerClassName="text-center w-full text-lg font-medium"
+        hideX
+        className="!max-w-[462px] px-6 py-8 bg-[#141416] gap-0"
+      >
+        <MarginModeModal
+          isCross={isCross}
+          updateMarginMode={updateMarginMode}
+          isLoading={updateLeverageLoading}
+          onClose={toggleMarginModeModal}
         />
       </ModalContainer>
 

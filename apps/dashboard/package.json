@@ -25,6 +25,7 @@
     "@extractus/feed-extractor": "^7.1.6",
     "@hookform/resolvers": "^5.0.1",
     "@kyberswap/widgets": "^2.1.0",
+    "@nktkas/hyperliquid": "^0.27.0",
     "@number-flow/react": "^0.5.10",
     "@openrouter/ai-sdk-provider": "^0.4.5",
     "@radix-ui/react-avatar": "^1.1.10",

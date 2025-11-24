@@ -49,4 +49,5 @@ export interface UpdateLeveragePayload {
   wallet_address: string;
   asset: number;
   leverage: number;
+  isCross?: boolean;
 }

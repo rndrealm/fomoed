@@ -176,7 +176,7 @@ export const useGetAssetData = (wallet_address: string, asset: string) => {
       });
       return response;
     },
-    enabled: !!wallet_address,
+    enabled: !!wallet_address && !!asset,
   });
   return {
     ...res,

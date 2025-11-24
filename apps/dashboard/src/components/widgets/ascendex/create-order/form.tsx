@@ -108,7 +108,9 @@ interface FormContentProps {
   isLong: boolean;
   setIsLong: Dispatch<SetStateAction<boolean>>;
   leverage: number;
+  isCross: boolean;
   toggleLeverageModal: () => void;
+  toggleMarginModeModal: () => void;
   isPending: boolean;
   currentPosition: string;
   marketPrice: string;
@@ -122,7 +124,9 @@ export function FormContent(props: FormContentProps) {
     isLong,
     setIsLong,
     leverage,
+    isCross,
     toggleLeverageModal,
+    toggleMarginModeModal,
     isPending,
     currentPosition,
     marketPrice,
@@ -171,8 +175,12 @@ export function FormContent(props: FormContentProps) {
     <>
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
-          <button type="button" className="bg-[#1E2025] text-white text-xxxs px-2 py-1 rounded-[4px]">
-            Isolated
+          <button
+            onClick={toggleMarginModeModal}
+            type="button"
+            className="bg-[#1E2025] text-white text-xxxs px-2 py-1 rounded-[4px]"
+          >
+            {isCross ? "Cross" : "Isolated"}
           </button>
           <button
             onClick={toggleLeverageModal}

@@ -8,6 +8,7 @@ interface IProps {
   updateLeverage: (value: number) => void;
   isLoading: boolean;
   maxLeverage: number;
+  onClose: () => void;
 }
 
 const presetLeverageOptions = [
@@ -20,7 +21,7 @@ const presetLeverageOptions = [
 ];
 
 const LeverageModal = (props: IProps) => {
-  const { leverage, updateLeverage, isLoading, maxLeverage } = props;
+  const { leverage, updateLeverage, isLoading, maxLeverage, onClose } = props;
   const [customLeverage, setCustomLeverage] = useState<string>(leverage.toString());
   const [errorText, setErrorText] = useState("");
 
@@ -118,7 +119,7 @@ const LeverageModal = (props: IProps) => {
       </div>
       <div className="flex items-center gap-2 pt-8">
         <Button
-          onClick={handleApply}
+          onClick={onClose}
           disabled={!!errorText}
           className="flex-1 bg-[#171717]  text-white font-medium text-sm h-11"
         >
