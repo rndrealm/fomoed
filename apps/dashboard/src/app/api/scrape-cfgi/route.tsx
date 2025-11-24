@@ -55,7 +55,7 @@ export async function GET(request: Request) {
     const period = "4";
 
     const response = await fetch(
-      `https://cfgi.io/api/api_request.php?api_key=${apiKey}&token=${token}&period=${period}&values=${values}`
+      `https://cfgi.io/api/api_request_v2.php?api_key=${apiKey}&token=${token}&period=${period}&values=${values}`,
       // {
       //   cache: "no-store",
       // }
@@ -69,9 +69,7 @@ export async function GET(request: Request) {
       // Organize the data
       const organizedData = organizeTokenData(data);
 
-      const upsertQuery = await supabase
-        .from("cfgi_data")
-        .upsert(organizedData, { onConflict: "token" });
+      const upsertQuery = await supabase.from("cfgi_data").upsert(organizedData, { onConflict: "token" });
 
       if (upsertQuery.error) {
         console.error("Error inserting data:", upsertQuery.error);
@@ -89,15 +87,12 @@ export async function GET(request: Request) {
       // );
       return NextResponse.json(
         { error: "Failed to fetch CFGI data" },
-        { status: response.status === 204 ? 400 : response.status }
+        { status: response.status === 204 ? 400 : response.status },
       );
     }
   } catch (error) {
     // Handle errors gracefully
     console.log("Error fetching CFGI data:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch CFGI data" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch CFGI data" }, { status: 500 });
   }
 }
