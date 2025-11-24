@@ -40,7 +40,7 @@ function supabaseResponseHandler(response) {
       }
 
       if (json?.code && clearCookiesAfterErrorCodes.includes(json.code)) {
-        console.log(`[SW] Detected ${json?.code} error`);
+        console.log(`[SW] Detected ${json?.code} error.`);
         sendClearCookies();
       }
     });
