@@ -5,6 +5,7 @@ import {
   HyperliquidSpotListResponse,
   PerpBalanceResponse,
   PerpUniverse,
+  SpotBalanceResponse,
   SpotsUniverse,
 } from "./types";
 import { AxiosResponse } from "axios";
@@ -156,6 +157,29 @@ export const useGetPerpBalance = (wallet_address: string) => {
   return {
     ...res,
     data: res?.data as PerpBalanceResponse,
+  };
+};
+export const useGetSpotBalance = (wallet_address: string) => {
+  const hash = ["hyper-liquid-balance-spot", wallet_address];
+
+  const res = useQuery({
+    queryKey: hash,
+    queryFn: async () => {
+      const response = await api.post({
+        url: `${BASE_URL}/info`,
+        auth: true,
+        body: {
+          user: wallet_address,
+          type: "spotClearinghouseState",
+        },
+      });
+      return response;
+    },
+    enabled: !!wallet_address,
+  });
+  return {
+    ...res,
+    data: res?.data as SpotBalanceResponse,
   };
 };
 

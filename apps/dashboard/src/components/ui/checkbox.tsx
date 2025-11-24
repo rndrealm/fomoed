@@ -63,7 +63,7 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>((props, ref) => {
           aria-label={label || "Checkbox"}
         />
         <div
-          className={`w-[16px] h-[16px] rounded-sm border transition-all ${
+          className={`size-4.5 rounded-[6px] border transition-all ${
             (isChecked ?? defaultChecked) ? "border-[#A6AEB2] bg-[#2563EB]" : "border-[#A6AEB2] opacity-[0.16]"
           }`}
         >

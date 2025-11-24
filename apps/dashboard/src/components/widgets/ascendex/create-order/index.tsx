@@ -4,7 +4,7 @@ import { Overview } from "./overview";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { useAccount } from "wagmi";
-import { useGetAssetData, useGetPerpBalance } from "@/services/queries/hyperliquid";
+import { useGetAssetData, useGetPerpBalance, useGetSpotBalance } from "@/services/queries/hyperliquid";
 import { useExecuteTrade, useUpdateLeveraggeTrade } from "@/services/queries/trading";
 import { OrderEnum, TifEnum, TradeExecutionPayload } from "@/services/queries/trading/types";
 import LeverageModal from "./leverage-modal";
@@ -70,6 +70,7 @@ export default function CreateOrder() {
   const walletAddress = account?.address || "";
 
   const selectedToken = useAtomValue(selectedTokenAtom);
+
   const tradingSymbol = selectedToken?.baseTokenName || "";
   const currAsset = selectedToken?.index || 0;
   const maxLeverage = selectedToken?.maxLeverage || 0;
@@ -358,7 +359,7 @@ export default function CreateOrder() {
       <ModalContainer
         open={isMarginModeModalOpen}
         handleClose={toggleMarginModeModal}
-        title="Margin Mode"
+        title={`${selectedToken?.displayName} Margin Mode`}
         headerClassName="text-center w-full text-lg font-medium"
         hideX
         className="!max-w-[462px] px-6 py-8 bg-[#141416] gap-0"

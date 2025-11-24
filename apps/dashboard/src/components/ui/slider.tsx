@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils";
 
 interface SliderProps extends React.ComponentProps<typeof SliderPrimitive.Root> {
   showDots?: boolean;
-  dotPositions?: number[];
 }
 
 function Slider({
@@ -17,7 +16,6 @@ function Slider({
   min = 0,
   max = 100,
   showDots = false,
-  dotPositions = [0, 25, 50, 75, 100],
   ...props
 }: SliderProps) {
   const _values = React.useMemo(
@@ -26,6 +24,12 @@ function Slider({
   );
 
   const orientation = props.orientation || "horizontal";
+
+  // Calculate dot positions as 0%, 25%, 50%, 75%, and 100% of max
+  const dotPositions = React.useMemo(() => {
+    const percentages = [0, 25, 50, 75, 100];
+    return percentages.map((percent) => min + ((max - min) * percent) / 100);
+  }, [min, max]);
 
   return (
     <SliderPrimitive.Root

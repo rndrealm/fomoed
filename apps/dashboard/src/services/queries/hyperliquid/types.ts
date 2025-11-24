@@ -185,6 +185,16 @@ export interface PerpBalanceResponse {
   time: number;
 }
 
+export interface SpotBalanceResponse {
+  balances: Array<{
+    coin: string;
+    token: number;
+    total: string;
+    hold: string;
+    entryNtl: string;
+  }>;
+}
+
 export interface AssetDataResponse {
   user: string;
   coin: string;

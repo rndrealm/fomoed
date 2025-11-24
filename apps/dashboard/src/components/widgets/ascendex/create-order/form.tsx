@@ -274,15 +274,7 @@ export function FormContent(props: FormContentProps) {
           </div>
 
           <div className="flex items-center gap-1.5">
-            <Slider
-              value={[sliderPercentage]}
-              onValueChange={handleSliderChange}
-              min={0}
-              max={100}
-              step={1}
-              showDots
-              dotPositions={[0, 25, 50, 75, 100]}
-            />
+            <Slider value={[sliderPercentage]} onValueChange={handleSliderChange} min={0} max={100} step={1} showDots />
             <TextInput
               className="h-[1.5rem] !pr-4.5 w-[3rem] border-none outline-none text-[#D7D7D7] !text-[10px] tracking-[-0.4%] leading-[14px] px-1 rounded-sm focus-visible:ring-0 bg-[#222329]"
               value={sliderPercentage}

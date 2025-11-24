@@ -38,7 +38,6 @@ export default function ComponentPlayground() {
                 max={100}
                 step={1}
                 showDots
-                dotPositions={[0, 25, 50, 75, 100]}
               />
             </div>
 
@@ -57,7 +56,6 @@ export default function ComponentPlayground() {
                 max={100}
                 step={1}
                 showDots
-                dotPositions={[0, 25, 50, 75, 100]}
               />
             </div>
 
@@ -94,7 +92,6 @@ export default function ComponentPlayground() {
                   step={1}
                   orientation="vertical"
                   showDots
-                  dotPositions={[0, 25, 50, 75, 100]}
                 />
               </div>
             </div>

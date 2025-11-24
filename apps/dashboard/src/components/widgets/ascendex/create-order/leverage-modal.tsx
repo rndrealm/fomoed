@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
+import { TextInput } from "@/components/auth/text-input";
 import { TriangleDangerIcon } from "@/components/icons/icon2";
 
 interface IProps {
@@ -26,6 +28,13 @@ const LeverageModal = (props: IProps) => {
   const [errorText, setErrorText] = useState("");
 
   const handleCustomLeverageChange = (value: string) => {
+    const numValue = parseFloat(value);
+
+    // Don't allow values greater than maxLeverage
+    if (!isNaN(numValue) && numValue > maxLeverage) {
+      return;
+    }
+
     setCustomLeverage(value);
 
     if (value === "") {
@@ -33,12 +42,10 @@ const LeverageModal = (props: IProps) => {
       return;
     }
 
-    const numValue = parseFloat(value);
-
     if (isNaN(numValue) || numValue <= 0) {
       setErrorText("Leverage must be greater than 0");
-    } else if (numValue > maxLeverage) {
-      setErrorText("Maximum leverage reached, there’s a high chance of liquidation if you proceed with it.");
+    } else if (numValue > maxLeverage / 2) {
+      setErrorText("Maximum leverage reached, there's a high chance of liquidation if you proceed with it.");
     } else {
       setErrorText("");
     }
@@ -84,44 +91,61 @@ const LeverageModal = (props: IProps) => {
 
         <div className="pb-4 pt-8">
           <p className="text-grey-300 font-medium text-xs">
-            Set the maximum leverage — the difference between expected and actual execution price — you&apos;re willing
-            to accept. If the slippage exceeds this limit, the trade will fail. This setting converts market orders into
-            limit IOC orders.
+            Pick how much you want to amplify your position. Higher leverage boosts your upside — and your downside. Set
+            the multiplier you’re comfortable with before you enter the trade.
           </p>
         </div>
 
         <div className="">
-          <div className="relative">
-            <input
-              type="number"
-              className={cn(
-                "h-12 w-full rounded-[8px] border border-[#1F1F1F] bg-[#202127] px-3 pr-8 text-sm text-white placeholder:text-[#5F5F5F] focus:outline-none focus:border-[#f4f4f4]",
-                {
-                  "border-[#FFC26D] focus:border-[#FFC26D]": errorText,
-                },
-              )}
-              placeholder="Enter custom leverage"
-              value={customLeverage}
-              onChange={(e) => handleCustomLeverageChange(e.target.value)}
-              min="1"
-              max="100"
-              step="0.1"
-            />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-white">%</span>
-          </div>
-          {errorText && (
-            <div className="flex items-start pt-4 gap-1">
-              <TriangleDangerIcon />
-              <p className="text-xs text-[#FFC26D] ">{errorText}</p>
+          <div className="flex items-center gap-4">
+            <div className="flex-1">
+              <Slider
+                value={[parseFloat(customLeverage) || 1]}
+                onValueChange={(values) => handleCustomLeverageChange(values[0].toString())}
+                min={1}
+                max={maxLeverage}
+                className="w-full"
+                step={1}
+                showDots
+              />
             </div>
-          )}
+            <div className="w-14">
+              <TextInput
+                type="number"
+                className={cn(
+                  "h-12 w-full rounded-[10px] border border-[#1F1F1F] bg-[#202127] px-2 pr-4 text-sm text-white placeholder:text-[#5F5F5F] focus:outline-none focus:border-[#f4f4f4]",
+                  {
+                    "border-[#FFC26D] focus:border-[#FFC26D]": errorText,
+                  },
+                )}
+                placeholder=""
+                value={customLeverage}
+                onChange={(e) => handleCustomLeverageChange((e.target as HTMLInputElement).value)}
+                min="1"
+                max={maxLeverage}
+                step="0.1"
+                rightPlaceholder="x"
+                rightPlaceholderClassName="text-sm top-[28%]"
+                disableFormikError
+              />
+            </div>
+          </div>
+
+          <div
+            className={cn("flex items-start pt-4 gap-1", {
+              invisible: !errorText,
+            })}
+          >
+            <TriangleDangerIcon />
+            <p className="text-xs text-[#FFC26D] ">{errorText || ""}</p>
+          </div>
         </div>
       </div>
       <div className="flex items-center gap-2 pt-8">
         <Button
           onClick={onClose}
           disabled={!!errorText}
-          className="flex-1 bg-[#171717]  text-white font-medium text-sm h-11"
+          className="flex-1 bg-[#171717] border border-[#1F1F1F] text-white font-medium text-sm h-11"
         >
           Cancel
         </Button>
@@ -129,7 +153,7 @@ const LeverageModal = (props: IProps) => {
           onClick={handleApply}
           disabled={!!errorText}
           isLoading={isLoading}
-          className="flex-1 bg-[#E7E7E7] hover:bg-[#E7E7E7]  text-[#010101] font-medium text-sm h-11"
+          className="flex-1 bg-[#E7E7E7]  hover:bg-[#E7E7E7]  text-[#010101] font-medium text-sm h-11"
         >
           Submit
         </Button>

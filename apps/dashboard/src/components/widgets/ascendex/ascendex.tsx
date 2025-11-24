@@ -13,8 +13,9 @@ import { TradingView } from "./chart/trading-view";
 import TradingPanel from "./trading-panel";
 import { useReadHyperLiquidTokens } from "@/services/queries/hyperliquid";
 import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
-import { useAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import TradeResults from "./trade-results";
+import CreateSpotOrder from "./create-order/spot";
 
 interface IProps {
   widget: LayoutType["widgets"][0];
@@ -27,6 +28,9 @@ export default function Ascendex(props: IProps) {
 
   const [isLoaded, setIsLoaded] = useState(true);
   const [activeView, setActiveView] = useState<ViewType>("futures");
+
+  const selectedToken = useAtomValue(selectedTokenAtom);
+  const isSpot = selectedToken?.isSpot;
 
   const handleViewChange = (view: ViewType) => {
     setActiveView(view);
@@ -81,8 +85,9 @@ export default function Ascendex(props: IProps) {
                   </div>
                 </div>
 
-                {/* Right section: CreateOrder */}
-                <CreateOrder />
+                <OrderBookAndTrade />
+
+                {isSpot ? <CreateSpotOrder /> : <CreateOrder />}
               </div>
             </RenderIf>
 
