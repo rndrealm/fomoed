@@ -17,6 +17,9 @@ import { toast } from "sonner";
 import { useAtomValue } from "jotai";
 import { tradingActiveSymbol } from "@/lib/atoms/tradingAtom";
 import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
+import { Button } from "@/components/ui/button";
+import { TransferIcon } from "@/components/icons/icon2";
+import TransferButtons from "./transfer-buttons";
 
 // const marketPrice = "91849";
 
@@ -74,7 +77,7 @@ export default function CreateOrder() {
   const tradingSymbol = selectedToken?.baseTokenName || "";
   const currAsset = selectedToken?.index || 0;
   const maxLeverage = selectedToken?.maxLeverage || 0;
-  const marketPrice = selectedToken?.priceVolume?.markPx || "0";
+  const marketPrice = selectedToken?.priceVolume?.midPx || "0";
 
   const { data: perpBalance } = useGetPerpBalance(walletAddress);
   const { data: assetData } = useGetAssetData(walletAddress, tradingSymbol);
@@ -175,7 +178,7 @@ export default function CreateOrder() {
 
     return true;
   }
-
+  console.log(selectedToken);
   function onSubmit(_values: TradingFormInitialValues) {
     // Validate trigger order TP/SL prices
     if (!validateTpSl(_values, isLong)) {
@@ -328,6 +331,8 @@ export default function CreateOrder() {
                     isPending={isPending}
                     marketPrice={marketPrice}
                   />
+
+                  <TransferButtons toPerp />
                 </div>
 
                 <div className="bg-[#121317] rounded-[10px] p-3 ">

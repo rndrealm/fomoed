@@ -102,7 +102,7 @@ export function SpotFormContent(props: FormContentProps) {
       setFieldValue("price", marketPrice);
     }
   }, [marketPrice]);
-
+  const insufficientBalanceCheck = !Number(balance) || Number(values.quantity) > Number(balance);
   return (
     <>
       <div className="flex flex-col gap-3">
@@ -203,12 +203,12 @@ export function SpotFormContent(props: FormContentProps) {
 
         <div className="">
           <Button
-            disabled={!values.quantity}
+            disabled={!Number(values.quantity) || insufficientBalanceCheck || isPending}
             type="submit"
             isLoading={isPending}
             className="w-full bg-[#7637BA] hover:bg-[#7637BA] text-white font-medium text-[10px] leading-[14px] h-[28px]"
           >
-            {"Create Order"}
+            {insufficientBalanceCheck ? "Insufficient Balance" : "Create Order"}
           </Button>
         </div>
       </div>

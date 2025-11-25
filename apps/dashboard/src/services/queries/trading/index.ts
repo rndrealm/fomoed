@@ -16,7 +16,7 @@ const getAuthHeaders = (auth_token?: string) => ({
   "x-db-origin": SUPABASE_URL,
 });
 
-export const useExecuteTrade = (authToken?: string) => {
+export const useExecuteTrade = (authToken?: string, onSuccess?: () => void) => {
   return useMutation({
     mutationFn: async (data: TradeExecutionPayload) => {
       const res = await api.gemachPost({
@@ -30,11 +30,12 @@ export const useExecuteTrade = (authToken?: string) => {
     },
     onSuccess: (data) => {
       console.log("execute success: ", data);
+      onSuccess?.();
       toast.success("Order placed successfully");
     },
-    onError: (data) => {
-      console.log("execute error: ", data);
-      toast.error("Order execution error");
+    onError: (data: any) => {
+      console.log("execute error: ", data.response.data.error.message);
+      toast.error(data?.response?.data?.error?.message || "Order execution error");
     },
   });
 };

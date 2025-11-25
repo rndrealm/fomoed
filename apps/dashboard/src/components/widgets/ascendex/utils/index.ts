@@ -27,7 +27,7 @@ export async function transferSpotPerp(
   walletClient: any | undefined,
   amount: string,
   toPerp: boolean,
-  isTestnet: boolean = true
+  isTestnet: boolean = true,
 ): Promise<hl.UsdClassTransferSuccessResponse> {
   if (!walletClient) {
     throw new Error("Wallet client is not available. Please connect your wallet first.");
@@ -77,7 +77,7 @@ export async function transferSpotPerp(
  */
 export async function getSpotPerpBalances(
   walletAddress: string | undefined,
-  isTestnet: boolean = true
+  isTestnet: boolean = true,
 ): Promise<{
   spot: hl.SpotClearinghouseStateResponse;
   perp: hl.ClearinghouseStateResponse;
@@ -104,3 +104,9 @@ export async function getSpotPerpBalances(
 
   return { spot, perp };
 }
+
+export const getFromAndToToken = (displayName?: string | null) => {
+  if (!displayName) return { from: "", to: "" };
+  const splitString = displayName.split("/");
+  return { from: splitString[0], to: splitString[1] };
+};

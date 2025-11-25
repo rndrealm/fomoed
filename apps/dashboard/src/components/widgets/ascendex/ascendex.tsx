@@ -16,6 +16,7 @@ import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
 import { useAtom, useAtomValue } from "jotai";
 import TradeResults from "./trade-results";
 import CreateSpotOrder from "./create-order/spot";
+import { Button } from "@/components/ui/button";
 
 interface IProps {
   widget: LayoutType["widgets"][0];
@@ -86,8 +87,7 @@ export default function Ascendex(props: IProps) {
                 </div>
 
                 <OrderBookAndTrade />
-
-                {isSpot ? <CreateSpotOrder /> : <CreateOrder />}
+                <div>{isSpot ? <CreateSpotOrder /> : <CreateOrder />}</div>
               </div>
             </RenderIf>
 
