@@ -55,7 +55,7 @@ export default function Page() {
               </div>
               <div className="flex flex-col gap-4">
                 <h2 className="text-[#F2F2F2] tracking-[-4.5%] text-3xl sm:text-5xl leading-[40px] sm:leading-[56px] font-medium text-center">
-                  You&apos;re <span className="text-[#F2F2F280]">#{(23000 + Number(entry)).toLocaleString()}</span> on
+                  You&apos;re <span className="text-[#F2F2F280]">#{(1000 + Number(entry)).toLocaleString()}</span> on
                   the waitlist
                 </h2>
 

@@ -59,7 +59,7 @@ export default function Page() {
               <Image src={waitlist.groupedAvatar} alt="grouped-avatar" className="h-full w-full" />
             </div>
             <p className="text-xs leading-[16px] tracking-[0.4%] text-[#F2F2F2B2] opacity-[0.7]">
-              Join 23,000+ Traders on the waitlist
+              Join 1,000+ Traders on the waitlist
             </p>
           </div>
         </div>
