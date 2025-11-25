@@ -15,7 +15,7 @@ export default function Page() {
 
   useEffect(() => {
     if (!entry || isNaN(Number(entry))) {
-      router.push(AppRoutes.dashboard.path);
+      router.push(AppRoutes.eventPhotos.path);
     }
   }, [entry, router]);
 
@@ -31,7 +31,7 @@ export default function Page() {
     <div className="bg-[#0C0C0C] flex flex-col py-8 h-full w-full min-h-[100vh] gap-9 sm:gap-12">
       <div className="flex justify-between items-center pb-4 px-4 sm:px-8 border-b border-[rgba(255,255,255,0.12)]">
         <Link
-          href={AppRoutes.dashboard.path}
+          href={AppRoutes.eventPhotos.path}
           className="text-sm leading-[20px] tracking-[-0.6%] font-medium text-white invisible"
         >
           Skip

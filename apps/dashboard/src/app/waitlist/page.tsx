@@ -19,7 +19,7 @@ export default function Page() {
         <FormStep />
 
         <Link
-          href={AppRoutes.dashboard.path}
+          href={AppRoutes.eventPhotos.path}
           className="text-sm leading-[20px] tracking-[-0.6%] font-medium text-white"
         >
           Skip
