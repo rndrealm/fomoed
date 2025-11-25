@@ -36,3 +36,30 @@ export interface WsTrade {
   tid: number;
   users: [string, string]; // [buyer, seller]
 }
+
+export interface WsActiveAssetCtx {
+  coin: string;
+  ctx: PerpsAssetCtx;
+}
+
+export interface WsActiveSpotAssetCtx {
+  coin: string;
+  ctx: SpotAssetCtx;
+}
+
+type SharedAssetCtx = {
+  dayNtlVlm: number;
+  prevDayPx: number;
+  markPx: number;
+  midPx?: number;
+};
+
+type PerpsAssetCtx = SharedAssetCtx & {
+  funding: number;
+  openInterest: number;
+  oraclePx: number;
+};
+
+type SpotAssetCtx = SharedAssetCtx & {
+  circulatingSupply: number;
+};

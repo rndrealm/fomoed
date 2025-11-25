@@ -6,10 +6,6 @@ import { useTrades } from "../chart/trading-view/hyperliquid/use-trades";
 import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
 import { useAtomValue } from "jotai";
 
-const formatNumber = (num: number) => {
-  return Math.floor(num).toLocaleString();
-};
-
 export default function Trades() {
   const selectedToken = useAtomValue(selectedTokenAtom);
   const { trades } = useTrades(selectedToken?.name);

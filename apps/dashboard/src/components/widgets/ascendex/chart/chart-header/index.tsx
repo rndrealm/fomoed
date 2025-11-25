@@ -7,6 +7,8 @@ import { RenderIf } from "@/components/shared";
 import { useAtomValue, useSetAtom } from "jotai";
 import { selectedTokenAtom, showSelectTokenModalAtom, toggleSelectTokenModalAtom } from "@/lib/atoms/hyperliquid";
 import Image from "next/image";
+import { useTicker } from "../trading-view/hyperliquid/use-ticker";
+import { Stats } from "./stats";
 
 const getCoinIconUrl = (symbol = "BTC") => {
   return `https://app.hyperliquid.xyz/coins/${symbol}.svg`;
@@ -31,6 +33,8 @@ export default function ChartHeader() {
   const showSelectTokenModal = useAtomValue(showSelectTokenModalAtom);
   const toggleSelectTokenModal = useSetAtom(toggleSelectTokenModalAtom);
   const selectedToken = useAtomValue(selectedTokenAtom);
+
+  // console.log("TICKER", ticker);
 
   // Dummy stats data
   const coinStats: CoinStats = {
@@ -107,7 +111,7 @@ export default function ChartHeader() {
         </div>
 
         {/* Stats */}
-        <div className="flex-1 relative overflow-hidden min-w-0 max-w-full">
+        {/* <div className="flex-1 relative overflow-hidden min-w-0 max-w-full">
           <div ref={scrollContainerRef} className="flex items-center gap-3 overflow-x-auto no-scrollbar">
             <div className="flex flex-col items-end py-[7.5px] px-1 flex-shrink-0">
               <span className="text-xs text-[#84858C] leading-tight mb-0.5">125,029.02</span>
@@ -178,7 +182,8 @@ export default function ChartHeader() {
               <ChevronRight className="w-4 h-4 text-[#84858C] opacity-60" />
             </div>
           )}
-        </div>
+        </div> */}
+        <Stats />
       </div>
 
       <RenderIf condition={showSelectTokenModal}>

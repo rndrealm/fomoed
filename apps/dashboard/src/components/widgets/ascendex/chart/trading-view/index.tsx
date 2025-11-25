@@ -1,11 +1,11 @@
 import React, { Fragment, useEffect, useState } from "react";
 import Script from "next/script";
 import dynamic from "next/dynamic";
-import { RenderIf } from "@/components/shared";
+import { RenderIf, SkeletonLoader } from "@/components/shared";
 
 const TradingViewChart = dynamic(() => import("./trading-view").then((mod) => mod.TradingViewChart), {
   ssr: false,
-  loading: () => <div className="flex items-center justify-center h-96 bg-gray-100 rounded-lg">Loading chart...</div>,
+  loading: () => <SkeletonLoader widthFull heightFull />,
 });
 
 export function TradingView() {
