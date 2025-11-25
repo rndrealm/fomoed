@@ -15,7 +15,7 @@ function sendClearCookies() {
       client.postMessage("please-clear-cookies");
     });
   });
-  console.log("[SW] Sent message to client to clear cookies.");
+  console.log("[SW] Sent message to client to clear cookies");
 }
 
 const clearCookiesAfterErrorCodes = ["refresh_token_already_used", "refresh_token_not_found"];
