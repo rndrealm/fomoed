@@ -68,7 +68,7 @@ export default function Page() {
         </div>
 
         <Link
-          href={AppRoutes.dashboard.path}
+          href={AppRoutes.eventPhotos.path}
           className="bg-white rounded-[12px] h-[40px] max-w-[372px] w-full flex items-center justify-center"
         >
           <p className="text-[#000] text-xs leading-[16px] tracking-[-0.4%] font-medium">Go to Dashboard</p>
