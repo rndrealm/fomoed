@@ -928,3 +928,74 @@ export function getMaintenanceMargin(meta: HyperliquidMetaResponse, ch: PerpBala
     maintenanceMargin,
   };
 }
+
+export function validateReduceOnly(positionSize: number, orderSide: string, orderSize: number) {
+  // 1. No position → can't reduce-only
+  if (positionSize === 0) {
+    return { ok: false, reason: "No position to reduce" };
+  }
+
+  const isLong = positionSize > 0;
+  const isShort = positionSize < 0;
+
+  // 2. Side must be opposite
+  if (isLong && orderSide !== "sell") {
+    return { ok: false, reason: "Must sell to reduce a long" };
+  }
+  if (isShort && orderSide !== "buy") {
+    return { ok: false, reason: "Must buy to reduce a short" };
+  }
+
+  // 3. Size cannot exceed current position
+  if (Math.abs(orderSize) > Math.abs(positionSize)) {
+    return { ok: false, reason: "Reduce-only too large" };
+  }
+
+  return { ok: true };
+}
+
+export function calculateTpGain(tp: number, entry: number, leverage: number, side: PositionSide): number {
+  if (side === "long") {
+    return ((tp - entry) / entry) * leverage * 100;
+  }
+
+  // short
+  return ((entry - tp) / entry) * leverage * 100;
+}
+export function reverseCalculateTpGain(
+  gainPercent: number,
+  entry: number,
+  leverage: number,
+  side: PositionSide,
+): number {
+  const factor = gainPercent / (100 * leverage);
+
+  if (side === "long") {
+    return entry * (1 + factor);
+  }
+
+  // short
+  return entry * (1 - factor);
+}
+
+export function calculateLossPercent(sl: number, entry: number, leverage: number, side: PositionSide): number {
+  if (side === "long") {
+    // entry > SL → negative change
+    return ((entry - sl) / entry) * leverage * 100;
+  }
+
+  // short: SL > entry → negative change
+  return ((sl - entry) / entry) * leverage * 100;
+}
+
+export function calculateSLFromLoss(lossPercent: number, entry: number, leverage: number, side: PositionSide): number {
+  const factor = lossPercent / (100 * leverage);
+
+  if (side === "long") {
+    // SL is below entry
+    return entry * (1 - factor);
+  }
+
+  // short: SL is above entry
+  return entry * (1 + factor);
+}

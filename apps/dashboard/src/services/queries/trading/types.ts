@@ -1,6 +1,8 @@
 type TradingProviderEnum = "hyperliquid";
 
-export type OrderType = "market" | "limit" | "conditional";
+export type OrderType = "market" | "limit" | "trigger";
+
+export type TifEnum = "Gtc" | "Ioc" | "Alo" | undefined;
 
 interface LimitOrderType {
   asset: number;
@@ -9,7 +11,7 @@ interface LimitOrderType {
   type: "limit";
   price: string;
   reduceOnly?: boolean | undefined;
-  timeInForce?: "Gtc" | "Ioc" | "Alo" | undefined;
+  timeInForce?: TifEnum;
 }
 
 interface MarketOrderType {
@@ -33,10 +35,12 @@ interface TriggerOrderType {
 
 type GroupingType = "na" | "normalTpsl" | "positionTpsl";
 
+export type OrderEnum = LimitOrderType | MarketOrderType | TriggerOrderType;
+
 export interface TradeExecutionPayload {
   provider: TradingProviderEnum;
   wallet_address: string;
-  orders: (LimitOrderType | MarketOrderType | TriggerOrderType)[];
+  orders: OrderEnum[];
   grouping?: GroupingType;
 }
 
@@ -45,4 +49,5 @@ export interface UpdateLeveragePayload {
   wallet_address: string;
   asset: number;
   leverage: number;
+  isCross?: boolean;
 }

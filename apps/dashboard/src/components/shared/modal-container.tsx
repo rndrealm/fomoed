@@ -3,6 +3,8 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import CloseIcon from "../icons/CloseIcon";
 import { cn } from "@/lib/utils";
 import { RenderIf } from "./render-if";
+import { DialogDescription } from "@radix-ui/react-dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 interface IProps {
   open: boolean;
@@ -11,6 +13,7 @@ interface IProps {
   size?: "lg";
   className?: string;
   title?: string;
+  description?: string;
   noHeader?: boolean;
   bgBlur?: boolean;
   dialogOverlayClassName?: string;
@@ -30,6 +33,7 @@ export function ModalContainer(props: IProps) {
     size = "lg",
     className = "",
     title,
+    description,
     noHeader = false,
     bgBlur = true,
     dialogOverlayClassName = "",
@@ -65,6 +69,9 @@ export function ModalContainer(props: IProps) {
             </RenderIf>
           </div>
         </DialogTitle>
+        <VisuallyHidden>
+          <DialogDescription>{description || title || "Dialog description"}</DialogDescription>
+        </VisuallyHidden>
 
         {children}
       </DialogContent>

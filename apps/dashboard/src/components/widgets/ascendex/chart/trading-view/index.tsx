@@ -21,9 +21,9 @@ export function TradingView() {
         }}
       />
 
-      <RenderIf condition={isScriptReady}>
-        <TradingViewChart />
-      </RenderIf>
+      {/* <RenderIf condition={isScriptReady}> */}
+      <TradingViewChart />
+      {/* </RenderIf> */}
     </Fragment>
   );
 }

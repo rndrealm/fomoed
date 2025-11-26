@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import Checkbox from "@/components/ui/checkbox";
+import { RenderIf } from "@/components/shared";
 
 interface IProps {
   toggle: () => void;
@@ -9,7 +10,7 @@ interface IProps {
     action: boolean;
     size: string;
     price: string;
-    liqPrice: string;
+    liqPrice?: string;
   };
   onConfirm: () => void;
   isLoading: boolean;
@@ -38,10 +39,12 @@ const ConfirmModal = (props: IProps) => {
             <p className="text-[#B0B0B0] ">Price</p>
             <p className={"text-white font-medium "}>{orderData.price}</p>
           </div>
-          <div className="text-ideal flex items-center justify-between py-0.5">
-            <p className="text-[#B0B0B0] ">Estimated Liquidation Price</p>
-            <p className={"text-white font-medium "}>{orderData.liqPrice}</p>
-          </div>
+          <RenderIf condition={!!orderData.liqPrice}>
+            <div className="text-ideal flex items-center justify-between py-0.5">
+              <p className="text-[#B0B0B0] ">Estimated Liquidation Price</p>
+              <p className={"text-white font-medium "}>{orderData.liqPrice}</p>
+            </div>
+          </RenderIf>
         </div>
         <p className="text-[#B0B0B0] text-ideal pt-4">
           You Pay no gas. The order will be confirmed within a few seconds.

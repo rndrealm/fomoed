@@ -5,12 +5,14 @@ import {
   HyperliquidSpotListResponse,
   PerpBalanceResponse,
   PerpUniverse,
+  SpotBalanceResponse,
   SpotsUniverse,
 } from "./types";
 import { AxiosResponse } from "axios";
 import { AssetDataResponse, HyperliquidMetaResponse } from "./types";
 
-const BASE_URL = "https://api.hyperliquid.xyz";
+// const BASE_URL = "https://api.hyperliquid.xyz";
+const BASE_URL = "https://api.hyperliquid-testnet.xyz";
 
 export const useReadHyperLiquidTokens = () => {
   const hash = ["hyperliquid-tokens"];
@@ -157,6 +159,29 @@ export const useGetPerpBalance = (wallet_address: string) => {
     data: res?.data as PerpBalanceResponse,
   };
 };
+export const useGetSpotBalance = (wallet_address: string) => {
+  const hash = ["hyper-liquid-balance-spot", wallet_address];
+
+  const res = useQuery({
+    queryKey: hash,
+    queryFn: async () => {
+      const response = await api.post({
+        url: `${BASE_URL}/info`,
+        auth: true,
+        body: {
+          user: wallet_address,
+          type: "spotClearinghouseState",
+        },
+      });
+      return response;
+    },
+    enabled: !!wallet_address,
+  });
+  return {
+    ...res,
+    data: res?.data as SpotBalanceResponse,
+  };
+};
 
 export const useGetAssetData = (wallet_address: string, asset: string) => {
   const hash = ["hyper-liquid-asset-data", wallet_address, asset];
@@ -175,7 +200,7 @@ export const useGetAssetData = (wallet_address: string, asset: string) => {
       });
       return response;
     },
-    enabled: !!wallet_address,
+    enabled: !!wallet_address && !!asset,
   });
   return {
     ...res,
