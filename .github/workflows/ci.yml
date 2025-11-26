@@ -22,8 +22,11 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: "pnpm"
-      - name: Install dependencies
-        run: pnpm install
+
+      - run: corepack enable
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@canary
 
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
