@@ -1,8 +1,8 @@
 "use client";
-import React, { Dispatch, useEffect, useRef, useState } from "react";
+import React, { Dispatch, useRef, useState } from "react";
 import { ErrorMessage } from "formik";
 import { Input } from "../ui/input";
-import { animate, motion, useMotionValue, useTransform } from "motion/react";
+import { motion } from "motion/react";
 import { RenderIf } from "../shared";
 import { SetStateAction } from "jotai";
 import { cn } from "@/lib/utils";
@@ -24,10 +24,20 @@ export function ErrorMsg(props: IErrorMsg) {
 
 interface TextInputProps extends React.HTMLProps<HTMLInputElement> {
   rightPlaceholder?: string;
+  rightPlaceholderClassName?: string;
+  disableFormikError?: boolean;
 }
 
 export function TextInput(props: TextInputProps) {
-  const { name = "name", className, value, rightPlaceholder, ...rest } = props;
+  const {
+    name = "name",
+    className,
+    value,
+    rightPlaceholder,
+    rightPlaceholderClassName,
+    disableFormikError = false,
+    ...rest
+  } = props;
   const [showPassword, setShowPassword] = useState<PasswordOption>(props.type === "password" ? "password" : "text");
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -56,12 +66,17 @@ export function TextInput(props: TextInputProps) {
           <PasswordText showPassword={showPassword} setShowPassword={setShowPassword} />
         </RenderIf>
         <RenderIf condition={!!rightPlaceholder}>
-          <span className="absolute top-[25%] right-2 text-xxxs font-medium text-white pointer-events-none">
+          <span
+            className={cn(
+              "absolute top-[25%] right-2 text-[0.5rem] font-medium text-white pointer-events-none",
+              rightPlaceholderClassName,
+            )}
+          >
             {rightPlaceholder}
           </span>
         </RenderIf>
       </div>
-      <ErrorMsg name={name} />
+      {!disableFormikError && <ErrorMsg name={name} />}
     </div>
   );
 }

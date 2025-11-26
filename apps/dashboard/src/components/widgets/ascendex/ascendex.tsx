@@ -10,6 +10,13 @@ import { LandingScreen } from "./initial";
 import ChartHeader from "./chart/chart-header";
 import Balance from "./balance";
 import { TradingView } from "./chart/trading-view";
+import TradingPanel from "./trading-panel";
+import { useReadHyperLiquidTokens } from "@/services/queries/hyperliquid";
+import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
+import { useAtom, useAtomValue } from "jotai";
+import TradeResults from "./trade-results";
+import CreateSpotOrder from "./create-order/spot";
+import { Button } from "@/components/ui/button";
 
 interface IProps {
   widget: LayoutType["widgets"][0];
@@ -22,6 +29,9 @@ export default function Ascendex(props: IProps) {
 
   const [isLoaded, setIsLoaded] = useState(true);
   const [activeView, setActiveView] = useState<ViewType>("futures");
+
+  const selectedToken = useAtomValue(selectedTokenAtom);
+  const isSpot = selectedToken?.isSpot;
 
   const handleViewChange = (view: ViewType) => {
     setActiveView(view);
@@ -44,26 +54,38 @@ export default function Ascendex(props: IProps) {
           <div
             className={cn(
               "relative flex h-full w-full flex-col gap-2 overflow-hidden rounded-2xl",
-              "px-0 pb-0 bg-[#000]",
+              "px-0 pb-2 bg-[#000]",
             )}
           >
             <AscendexHeader widget={widget} activeView={activeView} onViewChange={handleViewChange} />
 
             {/* Trading*/}
             <RenderIf condition={showTradingInterface}>
-              <div className="flex h-full w-full flex-1 overflow-hidden gap-3 px-2 pb-2">
-                <div className="flex-1 flex flex-col gap-2 min-w-0 overflow-hidden">
-                  <ChartHeader />
+              <div className="flex h-full w-full flex-1 overflow-y-auto gap-3 px-2 pb-2">
+                {/* Left + Middle section: Chart, OrderBook, and Trading Panel */}
+                <div className="flex-1 flex flex-col gap-3 min-w-0">
+                  {/* Top row: Chart and OrderBook */}
+                  <div className="flex gap-3">
+                    <div className="flex-1 flex flex-col gap-2 min-w-0">
+                      <ChartHeader />
+                      {/* Chart placeholder */}
+                      <div
+                        className="bg-[#121317] rounded-[6px] flex items-center justify-center relative overflow-hidden"
+                        style={{ height: "500px" }}
+                      >
+                        <TradingView />
+                      </div>
+                    </div>
+                  </div>
 
-                  {/* Chart placeholder */}
-                  <div className="flex-1 bg-[#121317] rounded-[6px] flex items-center justify-center relative overflow-hidden">
-                    <TradingView />
+                  {/* Trading Panel under Chart and OrderBook */}
+                  <div style={{ height: "280px" }}>
+                    <TradingPanel />
                   </div>
                 </div>
 
                 <OrderBookAndTrade />
-
-                <CreateOrder />
+                <div>{isSpot ? <CreateSpotOrder /> : <CreateOrder />}</div>
               </div>
             </RenderIf>
 
@@ -87,6 +109,7 @@ export default function Ascendex(props: IProps) {
                 </div>
               </div>
             </RenderIf>
+            <TradeResults />
           </div>
         </div>
       </RenderIf>

@@ -1,6 +1,6 @@
 import { getNextBarTime } from "@/lib/utils";
 import { LibrarySymbolInfo, SubscribeBarsCallback } from "../datafeed";
-import { WsTradeResponse } from "./types";
+import { WsActiveAssetCtx, WsActiveSpotAssetCtx, WsTradeResponse } from "./types";
 
 const resolutionToIntervalMap: { [key: string]: string } = {
   "1": "1m",
@@ -27,6 +27,7 @@ interface HyperliquidState {
   channelToSubscription: Map<string, any>;
   orderBookSubscriptions: Map<string, Set<(data: any) => void>>;
   tradesSubscriptions: Map<string, Set<(data: any) => void>>;
+  tickerSubscriptions: Map<string, Set<(data: any) => void>>;
   pendingSubscriptions: any[];
 }
 
@@ -40,6 +41,7 @@ const state = globalForWs.hyperliquidState || {
   channelToSubscription: new Map(),
   orderBookSubscriptions: new Map(),
   tradesSubscriptions: new Map(),
+  tickerSubscriptions: new Map(),
   pendingSubscriptions: [],
 };
 
@@ -122,6 +124,8 @@ function handleMessage(event: MessageEvent) {
     handleOrderBookData(data);
   } else if (data?.channel === "trades") {
     handleTradesData(data);
+  } else if (data?.channel === "activeAssetCtx" || data?.channel === "activeSpotAssetCtx") {
+    handleTickerData(data);
   }
 }
 
@@ -184,6 +188,15 @@ function handleTradesData(data: WsTradeResponse) {
 
   if (callbacks) {
     callbacks.forEach((callback) => callback(data.data));
+  }
+}
+
+function handleTickerData(data: any) {
+  const coin = data?.data?.coin;
+  const callbacks = state.tickerSubscriptions.get(coin);
+
+  if (callbacks) {
+    callbacks.forEach((callback) => callback(data?.data));
   }
 }
 
@@ -357,6 +370,53 @@ export function unsubscribeFromTrades(coin: string, callback: (data: any) => voi
         method: "unsubscribe",
         subscription: {
           type: "trades",
+          coin: coin,
+        },
+      };
+
+      if (state.socket?.readyState === WebSocket.OPEN) {
+        state.socket.send(JSON.stringify(subRequest));
+      }
+    }
+  }
+}
+
+export function subscribeToTicker(coin: string, callback: (data: any) => void) {
+  if (!state.tickerSubscriptions.has(coin)) {
+    state.tickerSubscriptions.set(coin, new Set());
+  }
+
+  const callbacks = state.tickerSubscriptions.get(coin)!;
+  callbacks.add(callback);
+
+  if (callbacks.size === 1) {
+    const subRequest = {
+      method: "subscribe",
+      subscription: {
+        type: "activeAssetCtx",
+        coin: coin,
+      },
+    };
+
+    createSocket();
+
+    sendMessage(subRequest);
+  }
+}
+
+export function unsubscribeFromTicker(coin: string, callback: (data: any) => void) {
+  const callbacks = state.tickerSubscriptions.get(coin);
+
+  if (callbacks) {
+    callbacks.delete(callback);
+
+    if (callbacks.size === 0) {
+      state.tickerSubscriptions.delete(coin);
+
+      const subRequest = {
+        method: "unsubscribe",
+        subscription: {
+          type: "activeAssetCtx",
           coin: coin,
         },
       };
