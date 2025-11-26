@@ -126,7 +126,7 @@ const TradesTab = ({ userAddress }: TradesTabProps) => {
 
       return (
         <div
-          key={order.oid}
+          key={`${order.oid}-${order.timestamp}`}
           className="grid grid-cols-[1fr_1fr_1fr_1fr_1fr_1fr_1fr] gap-4 hover:bg-[#1C1D21] transition-colors items-center"
           style={{
             height: "64px",
@@ -279,7 +279,7 @@ const TradesTab = ({ userAddress }: TradesTabProps) => {
 
       return (
         <div
-          key={order.oid}
+          key={`${order.oid}-${item.status}-${item.statusTimestamp}`}
           className="grid grid-cols-[1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr] gap-4 hover:bg-[#1C1D21] transition-colors items-center"
           style={{
             height: "64px",

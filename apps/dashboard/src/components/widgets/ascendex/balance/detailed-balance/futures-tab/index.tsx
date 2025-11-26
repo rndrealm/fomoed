@@ -259,7 +259,7 @@ const FuturesTab = ({ userAddress }: FuturesTabProps) => {
 
       return (
         <div
-          key={position.coin}
+          key={`${position.coin}-${position.entryPrice}-${position.size}`}
           className="grid grid-cols-[1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr] gap-4 hover:bg-[#1C1D21] transition-colors items-center"
           style={{
             height: "64px",
