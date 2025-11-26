@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import {
   ChartingLibraryFeatureset,
   ChartingLibraryWidgetOptions,
@@ -12,6 +12,8 @@ import { Datafeed } from "./datafeed";
 import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
 import { useAtom, useAtomValue } from "jotai";
 import { useReadHyperLiquidTokens } from "@/services/queries/hyperliquid";
+import { RenderIf, SkeletonLoader } from "@/components/shared";
+import { cn } from "@/lib/utils";
 
 const initialSymbol = '{"baseTokenName":"BTC","quoteTokenName":"USDC","price":"105200.0","isSpot":false,"name":"BTC"}';
 
@@ -22,6 +24,9 @@ export function TradingViewChart() {
 
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const tvWidgetRef = useRef<IChartingLibraryWidget>(null);
+  const [isChartReady, setIsChartReady] = useState(false);
+
+  const datafeed = useMemo(() => new Datafeed(), []);
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
@@ -38,7 +43,7 @@ export function TradingViewChart() {
       fullscreen: false,
       autosize: true,
       container: chartContainerRef.current,
-      datafeed: new Datafeed() as any,
+      datafeed: datafeed as any,
       theme: "dark",
       disabled_features: ["volume_force_overlay", "header_compare", "header_symbol_search", "symbol_search_hot_key"],
       enabled_features: [
@@ -47,29 +52,39 @@ export function TradingViewChart() {
         "use_localstorage_for_settings",
         "disable_legend_inplace_symbol_change" as ChartingLibraryFeatureset,
       ],
+      loading_screen: {
+        backgroundColor: "#121317",
+      },
+      overrides: {
+        "paneProperties.background": "#121317",
+        "paneProperties.backgroundType": "solid",
+      },
+      toolbar_bg: "#121317",
     };
     const tvWidget = new widget(defaultWidgetProps);
     tvWidgetRef.current = tvWidget;
 
     tvWidget.onChartReady(() => {
-      tvWidget.changeTheme("dark");
+      tvWidget.setCSSCustomProperty("--tv-color-pane-background", "#121317");
+      setIsChartReady(true);
+      // tvWidget.changeTheme("dark");
 
-      tvWidget.headerReady().then(() => {
-        const button = tvWidget.createButton();
-        button.setAttribute("title", "Click to show a notification popup");
-        button.classList.add("apply-common-tooltip");
-        button.addEventListener("click", () =>
-          tvWidget.showNoticeDialog({
-            title: "Notification",
-            body: "TradingView Charting Library API works correctly",
-            callback: () => {
-              console.log("Noticed!");
-            },
-          }),
-        );
+      // tvWidget.headerReady().then(() => {
+      //   const button = tvWidget.createButton();
+      //   button.setAttribute("title", "Click to show a notification popup");
+      //   button.classList.add("apply-common-tooltip");
+      //   button.addEventListener("click", () =>
+      //     tvWidget.showNoticeDialog({
+      //       title: "Notification",
+      //       body: "TradingView Charting Library API works correctly",
+      //       callback: () => {
+      //         console.log("Noticed!");
+      //       },
+      //     }),
+      //   );
 
-        button.innerHTML = "Check API";
-      });
+      //   button.innerHTML = "Check API";
+      // });
 
       const chart = tvWidget.activeChart();
       // Subscribe to interval changes and then clear cache
@@ -82,32 +97,37 @@ export function TradingViewChart() {
     return () => {
       tvWidget.remove();
     };
-  }, []);
+  }, [datafeed]);
 
   useEffect(() => {
-    if (!tvWidgetRef.current) return;
-
     if (tokensData?.allTokens?.length && !selectedToken) {
       setSelectedToken(tokensData.allTokens[0]);
-      return;
     }
+  }, [tokensData, selectedToken, setSelectedToken]);
 
-    if (!selectedToken) return;
+  useEffect(() => {
+    const widget = tvWidgetRef.current;
 
-    const currentSymbol = tvWidgetRef.current.activeChart().symbol();
-    if (currentSymbol !== selectedToken.name) {
-      tvWidgetRef.current.setSymbol(
-        selectedToken.tradingViewName,
-        tvWidgetRef.current.activeChart().resolution(),
-        () => {},
-      );
+    // Only proceed if widget exists, is confirmed ready, and we have a token
+    if (!widget || !isChartReady || !selectedToken) return;
+
+    const activeChart = widget.activeChart();
+
+    // Check if the symbol actually needs changing to prevent loops
+    // Note: activeChart.symbol() might return the full exchange:symbol pair
+    if (activeChart && activeChart.symbol() !== selectedToken.tradingViewName) {
+      widget.setSymbol(selectedToken.tradingViewName, activeChart.resolution(), () => {
+        console.log("Symbol changed to", selectedToken.tradingViewName);
+      });
     }
-  }, [tokensData?.allTokens, selectedToken, setSelectedToken]);
+  }, [selectedToken, isChartReady]);
+
   return (
     <div className="absolute top-0 right-0 bottom-0 left-0 flex">
-      <div className="flex-1" ref={chartContainerRef}>
-        <p className="text-white">TradingView</p>
-      </div>
+      <RenderIf condition={!isChartReady}>
+        <SkeletonLoader widthFull heightFull backgroundColor="#121317" borderRadius={0} />
+      </RenderIf>
+      <div className={cn("flex-1", !isChartReady && "invisible")} ref={chartContainerRef}></div>
     </div>
   );
 }

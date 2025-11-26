@@ -35,6 +35,7 @@ export function useOrderBook(coin?: string) {
       if (callbackRef.current && isSubscribedRef.current) {
         unsubscribeFromOrderBook(coin, callbackRef.current);
         isSubscribedRef.current = false;
+        setIsConnected(false);
       }
     };
   }, [coin]);
