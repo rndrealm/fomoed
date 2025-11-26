@@ -117,8 +117,8 @@ const TradesTab = ({ userAddress }: TradesTabProps) => {
     } else {
       return null;
     }
-    
-    if (!orders || orders.length === 0) return null;
+
+    if (!orders || orders.length === 0) return [];
 
     return orders.map((order) => {
       const coinInfo = getCoinInfo(order.coin);
@@ -163,7 +163,7 @@ const TradesTab = ({ userAddress }: TradesTabProps) => {
 
           {/* Type */}
           <div className="flex items-center h-[32px]">
-            <span className="text-white text-[12px]">{order.orderType}</span>
+            <span className="text-white text-[12px] block w-full text-right">{order.orderType}</span>
           </div>
 
           {/* Price */}
@@ -193,7 +193,7 @@ const TradesTab = ({ userAddress }: TradesTabProps) => {
   };
 
   const renderFills = () => {
-    if (!fills || fills.length === 0) return null;
+    if (!fills || fills.length === 0) return [];
 
     return fills.map((fill, index) => {
       const coinInfo = getCoinInfo(fill.coin);
@@ -270,7 +270,7 @@ const TradesTab = ({ userAddress }: TradesTabProps) => {
   };
 
   const renderOrderHistory = () => {
-    if (!historicalOrders || historicalOrders.length === 0) return null;
+    if (!historicalOrders || historicalOrders.length === 0) return [];
 
     return historicalOrders.map((item) => {
       const order = item.order;
@@ -316,7 +316,7 @@ const TradesTab = ({ userAddress }: TradesTabProps) => {
 
           {/* Type */}
           <div className="flex items-center h-[32px]">
-            <span className="text-white text-[12px]">{order.orderType}</span>
+            <span className="text-white text-[12px] block w-full text-right">{order.orderType}</span>
           </div>
 
           {/* Price */}
@@ -336,8 +336,8 @@ const TradesTab = ({ userAddress }: TradesTabProps) => {
                 item.status === "filled"
                   ? "bg-[#00AF58]/20 text-[#00AF58]"
                   : item.status === "canceled"
-                  ? "bg-[#DC2626]/20 text-[#DC2626]"
-                  : "bg-[#84858C]/20 text-[#84858C]"
+                    ? "bg-[#DC2626]/20 text-[#DC2626]"
+                    : "bg-[#84858C]/20 text-[#84858C]"
               }`}
             >
               {item.status}
@@ -359,7 +359,7 @@ const TradesTab = ({ userAddress }: TradesTabProps) => {
   };
 
   const renderTwapHistory = () => {
-    if (!twapFills || twapFills.length === 0) return null;
+    if (!twapFills || twapFills.length === 0) return [];
 
     return twapFills.map((twapFill, index) => {
       const fill = twapFill.fill;
@@ -507,7 +507,7 @@ const TradesTab = ({ userAddress }: TradesTabProps) => {
           {content.headers.map((header, index) => (
             <div
               key={header}
-              className={`text-[#84858C] text-[12px] font-medium ${index === 0 ? "text-left" : "text-right"}`}
+              className={`text-[#84858C] text-[12px] font-medium ${index === 0 || index === 1 ? "text-left" : "text-right"}`}
             >
               {header}
             </div>
@@ -516,7 +516,9 @@ const TradesTab = ({ userAddress }: TradesTabProps) => {
 
         {/* Content */}
         {hasData ? (
-          <div className="flex-1 overflow-auto no-scrollbar">{content.render()}</div>
+          <div className="flex-1 overflow-auto no-scrollbar" key={activeTab}>
+            {content.render()}
+          </div>
         ) : (
           <div className="flex flex-col h-full items-center justify-center bg-[#191B20] rounded-[20px] my-1">
             <Image src={dashboard.noOpenOrders} alt="No data" width={168} height={168} className="mb-4" />

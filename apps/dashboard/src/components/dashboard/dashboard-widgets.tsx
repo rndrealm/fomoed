@@ -105,12 +105,12 @@ export function DashboardWidgets(props: IProps) {
 
           return (
             <div key={layout.meta.i} data-grid={{ x, y, w, h, minW, minH, maxH, maxW, isResizable }}>
-              <ErrorBoundary FallbackComponent={WidgetErrorOverlay} onError={handleWgError}>
+              {/* <ErrorBoundary FallbackComponent={WidgetErrorOverlay} onError={handleWgError}> */}
                 {chartsMap[splitWidgetSlug(layout.meta.i).slug as keyof typeof chartsMap]?.component(layout)}
 
                 {/* resize handler */}
                 {isResizable && <ResizeIndicator />}
-              </ErrorBoundary>
+              {/* </ErrorBoundary> */}
             </div>
           );
         })}

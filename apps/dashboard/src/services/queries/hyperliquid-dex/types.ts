@@ -315,3 +315,55 @@ export interface HyperliquidAssetContext {
   premium: string;
   prevDayPx: string;
 }
+
+export interface PositionData {
+  coin: string;
+  name: string;
+  icon: string;
+  size: string;
+  side: "Long" | "Short";
+  positionValue: number;
+  entryPrice: number;
+  markPrice: number;
+  pnl: number;
+  roe: number;
+  liquidationPrice: string;
+  margin: number;
+  leverage: string;
+  fundingRate: string;
+}
+
+export interface PositionHistoryData {
+  coin: string;
+  name: string;
+  icon: string;
+  size: string;
+  side: "Long" | "Short";
+  entryPrice: number;
+  exitPrice: number;
+  pnl: number;
+  time: number;
+  hash: string;
+}
+
+export interface FundingData {
+  coin: string;
+  name: string;
+  icon: string;
+  fundingRate: string;
+  size: string;
+  usdc: string;
+  time: number;
+  hash: string;
+}
+
+export interface LiquidationData {
+  coin: string;
+  name: string;
+  icon: string;
+  size: string;
+  price: number;
+  pnl: number;
+  time: number;
+  hash: string;
+}
