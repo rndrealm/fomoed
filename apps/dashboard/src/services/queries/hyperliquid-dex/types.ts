@@ -1,5 +1,3 @@
-// ==================== CLEARINGHOUSE STATE ====================
-
 export interface HyperliquidClearinghouseState {
   marginSummary: {
     accountValue: string;
@@ -39,7 +37,6 @@ export interface HyperliquidAssetPosition {
   type: "oneWay";
 }
 
-// ==================== SPOT STATE ====================
 
 export interface HyperliquidSpotState {
   balances: HyperliquidSpotBalance[];
@@ -53,7 +50,6 @@ export interface HyperliquidSpotBalance {
   entryNtl: string;
 }
 
-// ==================== PORTFOLIO ====================
 
 export interface HyperliquidPortfolio {
   day: HyperliquidPortfolioPeriod;
@@ -67,12 +63,11 @@ export interface HyperliquidPortfolio {
 }
 
 export interface HyperliquidPortfolioPeriod {
-  accountValueHistory: [number, string][]; // [timestamp, value]
-  pnlHistory: [number, string][]; // [timestamp, pnl]
+  accountValueHistory: [number, string][]; 
+  pnlHistory: [number, string][]; 
   vlm: string;
 }
 
-// ==================== ORDERS ====================
 
 export interface HyperliquidOpenOrder {
   coin: string;
@@ -83,7 +78,7 @@ export interface HyperliquidOpenOrder {
   orderType: "Limit" | "Market" | "Stop" | "StopLimit" | "TakeProfit" | "TakeProfitLimit";
   origSz: string;
   reduceOnly: boolean;
-  side: "A" | "B"; // A = Ask (Sell), B = Bid (Buy)
+  side: "A" | "B";
   sz: string;
   timestamp: number;
   triggerCondition: string;
@@ -112,7 +107,6 @@ export interface HyperliquidHistoricalOrder {
   statusTimestamp: number;
 }
 
-// ==================== FILLS ====================
 
 export interface HyperliquidFill {
   coin: string;
@@ -137,10 +131,9 @@ export interface HyperliquidTwapSliceFill {
   twapId: number;
 }
 
-// ==================== MARKET DATA ====================
 
 export interface HyperliquidAllMids {
-  [coin: string]: string; // e.g., "BTC": "95000.5"
+  [coin: string]: string; 
 }
 
 export interface HyperliquidMeta {
@@ -161,7 +154,7 @@ export interface HyperliquidSpotMeta {
 
 export interface HyperliquidSpotAssetInfo {
   name: string;
-  tokens: [number, number]; // [base token index, quote token index]
+  tokens: [number, number]; 
   index: number;
   isCanonical: boolean;
 }
@@ -175,7 +168,6 @@ export interface HyperliquidTokenInfo {
   evmContract?: string;
 }
 
-// ==================== USER INFO ====================
 
 export interface HyperliquidUserFees {
   dailyUserVlm: {
@@ -238,32 +230,29 @@ export interface HyperliquidSubAccount {
   spotState: HyperliquidSpotState;
 }
 
-// ==================== CANDLES ====================
 
 export interface HyperliquidCandle {
-  T: number; // Close time
-  c: string; // Close price
-  h: string; // High price
-  i: string; // Interval
-  l: string; // Low price
-  n: number; // Number of trades
-  o: string; // Open price
-  s: string; // Symbol
-  t: number; // Open time
-  v: string; // Volume
+  T: number;
+  c: string; 
+  h: string; 
+  i: string; 
+  l: string; 
+  n: number; 
+  o: string; 
+  s: string; 
+  t: number; 
+  v: string; 
 }
 
-// ==================== ORDER BOOK ====================
 
 export interface HyperliquidL2Book {
   coin: string;
   time: number;
   levels: [
-    // [bids, asks]
     {
-      px: string; // Price
-      sz: string; // Size
-      n: number; // Number of orders
+      px: string; 
+      sz: string;
+      n: number; 
     }[],
     {
       px: string;
@@ -273,7 +262,6 @@ export interface HyperliquidL2Book {
   ];
 }
 
-// ==================== ORDER STATUS ====================
 
 export interface HyperliquidOrderStatus {
   status: "order" | "orderNotFound";
@@ -282,4 +270,48 @@ export interface HyperliquidOrderStatus {
     status: string;
     statusTimestamp: number;
   };
+}
+
+
+export interface HyperliquidFundingUpdate {
+  delta: {
+    coin: string;
+    fundingRate: string;
+    szi: string;
+    type: "funding";
+    usdc: string;
+  };
+  hash: string;
+  time: number;
+}
+
+export interface HyperliquidLedgerUpdate {
+  delta: {
+    type: "deposit" | "withdraw" | "internalTransfer" | "subAccountTransfer";
+    usdc?: string;
+    token?: number;
+    amount?: string;
+    [key: string]: any;
+  };
+  hash: string;
+  time: number;
+}
+
+export interface HyperliquidFundingHistoryEntry {
+  coin: string;
+  fundingRate: string;
+  premium: string;
+  time: number;
+}
+
+export interface HyperliquidAssetContext {
+  dayNtlVlm: string;
+  funding: string;
+  impactPxs: [string, string];
+  markPx: string;
+  midPx: string;
+  openInterest: string;
+  oraclePx: string;
+  premium: string;
+  prevDayPx: string;
 }

@@ -1,16 +1,34 @@
 "use client";
 import React from "react";
 import { ArrowLeftRight } from "lucide-react";
+import { useHyperliquidClearinghouseState } from "@/services/queries/hyperliquid-dex";
 
 interface BalanceAccountHeaderProps {
+  userAddress: string;
   accountName?: string;
-  balance?: string;
 }
 
 export default function BalanceAccountHeader({
+  userAddress,
   accountName = "Account 1",
-  balance = "$0.00",
 }: BalanceAccountHeaderProps) {
+  const { data: clearinghouse, isLoading } = useHyperliquidClearinghouseState(
+    userAddress,
+    !!userAddress
+  );
+
+  const formatBalance = (value: string | undefined) => {
+    if (!value) return "$0.00";
+    const numValue = parseFloat(value);
+    return `$${numValue.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
+  };
+
+  const accountValue = clearinghouse?.marginSummary?.accountValue;
+  const balance = formatBalance(accountValue);
+
   return (
     <div
       className="flex items-center justify-between w-full bg-[#121317] rounded-[10px] flex-shrink-0"
@@ -25,7 +43,9 @@ export default function BalanceAccountHeader({
         </div>
         <div className="flex flex-col">
           <span className="text-white font-semibold text-sm leading-tight">{accountName}</span>
-          <span className="text-[#9CA3AF] text-sm leading-tight">{balance}</span>
+          <span className="text-[#9CA3AF] text-sm leading-tight">
+            {isLoading ? "Loading..." : balance}
+          </span>
         </div>
       </div>
 

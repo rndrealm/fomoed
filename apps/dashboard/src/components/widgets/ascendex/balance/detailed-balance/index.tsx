@@ -13,58 +13,11 @@ export interface CoinOption {
   type: string;
 }
 
-const DUMMY_COINS: CoinOption[] = [
-  {
-    symbol: "BTC",
-    name: "Bitcoin",
-    icon: "https://static.coinstats.app/coins/1650455588819.png",
-    type: "Perp",
-  },
-  {
-    symbol: "ETH",
-    name: "Ethereum",
-    icon: "https://static.coinstats.app/coins/1650455629727.png",
-    type: "Perp",
-  },
-  {
-    symbol: "SOL",
-    name: "Solana",
-    icon: "https://static.coinstats.app/coins/1701234596791.png",
-    type: "Perp",
-  },
-  {
-    symbol: "ARB",
-    name: "Arbitrum",
-    icon: "https://static.coinstats.app/coins/1687522892460.png",
-    type: "Perp",
-  },
-  {
-    symbol: "XRP",
-    name: "XRP",
-    icon: "https://static.coinstats.app/coins/XRPdnqGJ.png",
-    type: "Perp",
-  },
-  {
-    symbol: "TRX",
-    name: "Tron",
-    icon: "https://static.coinstats.app/coins/TRONxJljY.png",
-    type: "Perp",
-  },
-  {
-    symbol: "DOGE",
-    name: "Dogecoin",
-    icon: "https://static.coinstats.app/coins/DogecoinIZai5.png",
-    type: "Perp",
-  },
-  {
-    symbol: "OP",
-    name: "Optimism",
-    icon: "https://static.coinstats.app/coins/1664959117211.png",
-    type: "Perp",
-  },
-];
+interface BalanceTabProps {
+  userAddress: string;
+}
 
-export default function DetailedBalance() {
+export default function DetailedBalance({userAddress} : BalanceTabProps) {
   const [activeTab, setActiveTab] = useState("Balances");
 
   const tabs = ["Balances", "Transfers", "Trades", "Futures", "Settings"];
@@ -72,17 +25,17 @@ export default function DetailedBalance() {
   const renderTabContent = () => {
     switch (activeTab) {
       case "Balances":
-        return <BalancesTab coins={DUMMY_COINS} />;
+        return <BalancesTab userAddress={userAddress} />;
       case "Transfers":
-        return <TransfersTab />;
+        return <TransfersTab userAddress={userAddress} />;
       case "Trades":
-        return <TradesTab  coins={DUMMY_COINS}/>;
+        return <TradesTab userAddress={userAddress} />;
       case "Futures":
-        return <FuturesTab  />;
+        return <FuturesTab userAddress={userAddress} />;
       case "Settings":
         return <SettingsTab  />;
       default:
-        return <BalancesTab coins={DUMMY_COINS}  />;
+        return <BalancesTab userAddress={userAddress}   />;
     }
   };
 
