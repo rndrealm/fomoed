@@ -1,13 +1,16 @@
 import { Button } from "@/components/ui/button";
 import { Drag } from "../icons/icons";
 import { motion } from "motion/react";
+import { LayoutType } from "@/lib/atoms/layoutAtom";
+import { OptionsDropdown } from "../widgets/shared/options-dropwdown";
 
 interface WidgetErrorOverlayProps {
   error: Error;
   resetErrorBoundary: () => void;
+  widget: LayoutType["widgets"][0];
 }
 
-function WidgetErrorOverlay({ error, resetErrorBoundary }: WidgetErrorOverlayProps) {
+function WidgetErrorOverlay({ error, resetErrorBoundary, widget }: WidgetErrorOverlayProps) {
   const isApiError =
     error.message?.includes("fetch") ||
     error.message?.includes("API") ||
@@ -33,6 +36,10 @@ function WidgetErrorOverlay({ error, resetErrorBoundary }: WidgetErrorOverlayPro
     >
       <div className="flex cursor-grab justify-center pt-4 pb-1">
         <div className="h-[5px] w-[36px] rounded-[2px] bg-[#444]"></div>
+      </div>
+
+      <div className="absolute top-4 right-4">
+        <OptionsDropdown widget={widget} />
       </div>
 
       <div className="font-medium font-inter text-2xl text-white h-full flex flex-col pb-8">
