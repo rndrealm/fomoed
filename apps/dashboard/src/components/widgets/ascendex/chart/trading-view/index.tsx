@@ -5,7 +5,7 @@ import { RenderIf, SkeletonLoader } from "@/components/shared";
 
 const TradingViewChart = dynamic(() => import("./trading-view").then((mod) => mod.TradingViewChart), {
   ssr: false,
-  loading: () => <SkeletonLoader widthFull heightFull />,
+  loading: () => <SkeletonLoader widthFull heightFull backgroundColor="#121317" borderRadius={0} />,
 });
 
 export function TradingView() {

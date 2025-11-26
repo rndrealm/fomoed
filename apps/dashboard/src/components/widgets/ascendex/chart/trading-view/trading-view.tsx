@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import {
   ChartingLibraryFeatureset,
   ChartingLibraryWidgetOptions,
@@ -12,6 +12,8 @@ import { Datafeed } from "./datafeed";
 import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
 import { useAtom, useAtomValue } from "jotai";
 import { useReadHyperLiquidTokens } from "@/services/queries/hyperliquid";
+import { RenderIf, SkeletonLoader } from "@/components/shared";
+import { cn } from "@/lib/utils";
 
 const initialSymbol = '{"baseTokenName":"BTC","quoteTokenName":"USDC","price":"105200.0","isSpot":false,"name":"BTC"}';
 
@@ -53,29 +55,36 @@ export function TradingViewChart() {
       loading_screen: {
         backgroundColor: "#121317",
       },
+      overrides: {
+        "paneProperties.background": "#121317",
+        "paneProperties.backgroundType": "solid",
+      },
+      toolbar_bg: "#121317",
     };
     const tvWidget = new widget(defaultWidgetProps);
     tvWidgetRef.current = tvWidget;
 
     tvWidget.onChartReady(() => {
-      tvWidget.changeTheme("dark");
+      tvWidget.setCSSCustomProperty("--tv-color-pane-background", "#121317");
+      setIsChartReady(true);
+      // tvWidget.changeTheme("dark");
 
-      tvWidget.headerReady().then(() => {
-        const button = tvWidget.createButton();
-        button.setAttribute("title", "Click to show a notification popup");
-        button.classList.add("apply-common-tooltip");
-        button.addEventListener("click", () =>
-          tvWidget.showNoticeDialog({
-            title: "Notification",
-            body: "TradingView Charting Library API works correctly",
-            callback: () => {
-              console.log("Noticed!");
-            },
-          }),
-        );
+      // tvWidget.headerReady().then(() => {
+      //   const button = tvWidget.createButton();
+      //   button.setAttribute("title", "Click to show a notification popup");
+      //   button.classList.add("apply-common-tooltip");
+      //   button.addEventListener("click", () =>
+      //     tvWidget.showNoticeDialog({
+      //       title: "Notification",
+      //       body: "TradingView Charting Library API works correctly",
+      //       callback: () => {
+      //         console.log("Noticed!");
+      //       },
+      //     }),
+      //   );
 
-        button.innerHTML = "Check API";
-      });
+      //   button.innerHTML = "Check API";
+      // });
 
       const chart = tvWidget.activeChart();
       // Subscribe to interval changes and then clear cache
@@ -115,9 +124,10 @@ export function TradingViewChart() {
 
   return (
     <div className="absolute top-0 right-0 bottom-0 left-0 flex">
-      <div className="flex-1" ref={chartContainerRef}>
-        <p className="text-white">TradingView</p>
-      </div>
+      <RenderIf condition={!isChartReady}>
+        <SkeletonLoader widthFull heightFull backgroundColor="#121317" borderRadius={0} />
+      </RenderIf>
+      <div className={cn("flex-1", !isChartReady && "invisible")} ref={chartContainerRef}></div>
     </div>
   );
 }

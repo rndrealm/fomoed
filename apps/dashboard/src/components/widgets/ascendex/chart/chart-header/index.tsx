@@ -79,7 +79,7 @@ export default function ChartHeader() {
   return (
     <Fragment>
       <div className="h-[72px] bg-[#121317] rounded-[6px] px-1 py-[7.5px] flex items-center gap-2 w-full">
-        <div className="flex items-center gap-2.5 px-[4px] flex-shrink-0">
+        <div className="flex items-center gap-3 px-[4px] flex-shrink-0">
           <button
             className="flex items-center gap-2 hover:bg-[#1a1b1f] px-2 py-1.5 rounded transition-colors"
             type="button"
@@ -110,79 +110,6 @@ export default function ChartHeader() {
           </div>
         </div>
 
-        {/* Stats */}
-        {/* <div className="flex-1 relative overflow-hidden min-w-0 max-w-full">
-          <div ref={scrollContainerRef} className="flex items-center gap-3 overflow-x-auto no-scrollbar">
-            <div className="flex flex-col items-end py-[7.5px] px-1 flex-shrink-0">
-              <span className="text-xs text-[#84858C] leading-tight mb-0.5">125,029.02</span>
-              <span className={cn("text-sm font-medium", coinStats.isPositive ? "text-[#00C087]" : "text-[#FF4976]")}>
-                {coinStats.priceChange}
-              </span>
-            </div>
-
-            <div className="flex flex-col items-end py-[7.5px] px-1 flex-shrink-0">
-              <span className="text-xs text-[#84858C] leading-tight mb-0.5">Index Price</span>
-              <span className="text-sm font-medium text-white">{coinStats.indexPrice}</span>
-            </div>
-
-            <div className="flex flex-col items-end py-[7.5px] px-1 flex-shrink-0">
-              <span className="text-xs text-[#84858C] leading-tight mb-0.5">24h Change</span>
-              <span className="text-sm font-medium text-white">{coinStats.indexPrice}</span>
-            </div>
-
-            <div className="flex flex-col items-end py-[7.5px] px-1 flex-shrink-0">
-              <span className="text-xs text-[#84858C] leading-tight mb-0.5">24H High</span>
-              <span className="text-sm font-medium text-white">{coinStats.high24h}</span>
-            </div>
-
-            <div className="flex flex-col items-end py-[7.5px] px-1 flex-shrink-0">
-              <span className="text-xs text-[#84858C] leading-tight mb-0.5">24h Low</span>
-              <span className="text-sm font-medium text-white">{coinStats.low24h}</span>
-            </div>
-
-            <div className="flex flex-col items-end py-[7.5px] px-1 flex-shrink-0">
-              <span className="text-xs text-[#84858C] leading-tight mb-0.5">24h Low</span>
-              <span className="text-sm font-medium text-white">{coinStats.low24h}</span>
-            </div>
-
-            <div className="flex flex-col items-end py-[7.5px] px-1 flex-shrink-0">
-              <span className="text-xs text-[#84858C] leading-tight mb-0.5">24h Low</span>
-              <span className="text-sm font-medium text-white">{coinStats.low24h}</span>
-            </div>
-
-            <div className="flex flex-col items-end py-[7.5px] px-1 flex-shrink-0">
-              <span className="text-xs text-[#84858C] leading-tight mb-0.5">24h Low</span>
-              <span className="text-sm font-medium text-white">{coinStats.low24h}</span>
-            </div>
-
-            <div className="flex flex-col items-end py-[7.5px] px-1 flex-shrink-0">
-              <span className="text-xs text-[#84858C] leading-tight mb-0.5">24h Low</span>
-              <span className="text-sm font-medium text-white">{coinStats.low24h}</span>
-            </div>
-
-            <div className="flex flex-col items-end py-[7.5px] px-1 flex-shrink-0">
-              <span className="text-xs text-[#84858C] leading-tight mb-0.5">24h Low</span>
-              <span className="text-sm font-medium text-white">{coinStats.low24h}</span>
-            </div>
-
-            <div className="flex flex-col items-end py-[7.5px] px-1 flex-shrink-0">
-              <span className="text-xs text-[#84858C] leading-tight mb-0.5">24h Low</span>
-              <span className="text-sm font-medium text-white">{coinStats.low24h}</span>
-            </div>
-          </div>
-
-          {showLeftChevron && (
-            <div className="absolute left-0 top-0 h-full w-16 bg-gradient-to-r from-[#121317] to-transparent pointer-events-none flex items-center justify-start pl-2">
-              <ChevronLeft className="w-4 h-4 text-[#84858C] opacity-60" />
-            </div>
-          )}
-
-          {showRightChevron && (
-            <div className="absolute right-0 top-0 h-full w-16 bg-gradient-to-l from-[#121317] to-transparent pointer-events-none flex items-center justify-end pr-2">
-              <ChevronRight className="w-4 h-4 text-[#84858C] opacity-60" />
-            </div>
-          )}
-        </div> */}
         <Stats />
       </div>
 

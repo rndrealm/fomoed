@@ -6,7 +6,7 @@ import dashboard from "@/lib/assets/dashboard";
 import { OrderBookLevel, useOrderBook } from "../chart/trading-view/hyperliquid/use-order-book";
 import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
 import { useAtomValue } from "jotai";
-import { RenderIf } from "@/components/shared";
+import { RenderIf, SkeletonLoader } from "@/components/shared";
 
 interface OrderItemProps {
   item: OrderBookLevel;
@@ -148,8 +148,11 @@ export default function OrderBooks() {
         <p className="text-center">Total (USDC)</p>
       </div>
 
-      <RenderIf condition={mode === "both" && isConnected}>
-        <div className="flex flex-col h-full overflow-hidden">
+      <div className="flex flex-col h-full overflow-hidden">
+        <RenderIf condition={!isConnected}>
+          <SkeletonLoader widthFull heightFull backgroundColor="#121317" borderRadius={0} />
+        </RenderIf>
+        <RenderIf condition={mode === "both" && isConnected}>
           <div className="flex-1 overflow-y-aut border-b border-[#1C1D22] no-scrollbar">
             {processedAsks?.slice(processedAsks.length - 11, processedAsks.length)?.map((item, index) => {
               const width = (parseFloat(item.sz || "0") / maxAskVolume) * 100;
@@ -188,8 +191,8 @@ export default function OrderBooks() {
               );
             })}
           </div>
-        </div>
-      </RenderIf>
+        </RenderIf>
+      </div>
     </div>
   );
 }

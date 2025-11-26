@@ -1,9 +1,11 @@
-import React from "react";
+import React, { Fragment } from "react";
 import { cn } from "@/lib/utils";
 import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
 import { useAtomValue } from "jotai";
 import { useTicker } from "../trading-view/hyperliquid/use-ticker";
 import { WsActiveAssetCtx, WsActiveSpotAssetCtx } from "../trading-view/hyperliquid/types";
+import { RenderIf, SkeletonLoader } from "@/components/shared";
+import { number } from "zod";
 
 const coinStats = {
   symbol: "BTC",
@@ -16,86 +18,147 @@ const coinStats = {
   isPositive: true,
 };
 
+function formatNumber(n: number, decimalPoint?: number, currency = false): string {
+  if (!n) return "";
+
+  // Count decimal places in the original number
+  const decimalPlaces = n.toString().includes(".") ? n.toString().split(".")[1].length : 0;
+
+  const formattedNum = new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: decimalPoint || decimalPlaces,
+    maximumFractionDigits: decimalPoint || decimalPlaces,
+  }).format(n);
+
+  return currency ? `$${formattedNum}` : formattedNum;
+}
+
+function calculate24hChange(current: number, previous: number) {
+  const _change = current - previous;
+  const _percentChange = (_change / previous) * 100;
+  const isPositive = _change >= 0;
+  const decimalPlaces = current.toString().includes(".") ? current.toString().split(".")[1].length : 0;
+  const change = formatNumber(_change, decimalPlaces);
+  const percentChange = formatNumber(_percentChange, 2);
+
+  return { change, percentChange, isPositive };
+}
+
 function isPerpsTicker(data: WsActiveAssetCtx | WsActiveSpotAssetCtx): data is WsActiveAssetCtx {
   return (data?.ctx as any)?.funding !== undefined;
 }
 
-export function Stats() {
-  const selectedToken = useAtomValue(selectedTokenAtom);
-  const { ticker } = useTicker(selectedToken?.name);
+interface IPerpStats {
+  data: WsActiveAssetCtx;
+}
+
+function PerpStats(props: IPerpStats) {
+  const { data } = props;
+
+  const { change, percentChange, isPositive } = calculate24hChange(data?.ctx?.markPx, data?.ctx?.prevDayPx);
+
+  const sign = isPositive ? "+" : "";
 
   return (
     <div className="flex-1 relative overflow-hidden min-w-0 max-w-full">
       <div className="flex items-center gap-3 overflow-x-auto no-scrollbar">
         <div className="flex flex-col items-end py-[7.5px] px-1 flex-shrink-0">
-          <span className="text-xs text-[#84858C] leading-tight mb-0.5">125,029.02</span>
+          <span className="text-xs text-[#84858C] leading-tight mb-0.5">Mark</span>
           <span className={cn("text-sm font-medium", coinStats.isPositive ? "text-[#00C087]" : "text-[#FF4976]")}>
-            {coinStats.priceChange}
+            {formatNumber(data?.ctx?.markPx)}
           </span>
         </div>
 
         <div className="flex flex-col items-end py-[7.5px] px-1 flex-shrink-0">
-          <span className="text-xs text-[#84858C] leading-tight mb-0.5">Index Price</span>
-          <span className="text-sm font-medium text-white">{coinStats.indexPrice}</span>
+          <span className="text-xs text-[#84858C] leading-tight mb-0.5">Oracle</span>
+          <span className="text-sm font-medium text-white">{formatNumber(data?.ctx?.oraclePx)}</span>
         </div>
 
         <div className="flex flex-col items-end py-[7.5px] px-1 flex-shrink-0">
           <span className="text-xs text-[#84858C] leading-tight mb-0.5">24h Change</span>
-          <span className="text-sm font-medium text-white">{coinStats.indexPrice}</span>
+          <span className={cn("text-sm font-medium", isPositive ? "text-[#00C087]" : "text-[#FF4976]")}>
+            {sign}
+            {change} / {sign}
+            {percentChange}%
+          </span>
         </div>
 
         <div className="flex flex-col items-end py-[7.5px] px-1 flex-shrink-0">
-          <span className="text-xs text-[#84858C] leading-tight mb-0.5">24H High</span>
-          <span className="text-sm font-medium text-white">{coinStats.high24h}</span>
+          <span className="text-xs text-[#84858C] leading-tight mb-0.5">24h Volume</span>
+          <span className="text-sm font-medium text-white">{formatNumber(data?.ctx?.dayNtlVlm, 2, true)}</span>
         </div>
 
         <div className="flex flex-col items-end py-[7.5px] px-1 flex-shrink-0">
-          <span className="text-xs text-[#84858C] leading-tight mb-0.5">24h Low</span>
-          <span className="text-sm font-medium text-white">{coinStats.low24h}</span>
-        </div>
-
-        <div className="flex flex-col items-end py-[7.5px] px-1 flex-shrink-0">
-          <span className="text-xs text-[#84858C] leading-tight mb-0.5">24h Low</span>
-          <span className="text-sm font-medium text-white">{coinStats.low24h}</span>
-        </div>
-
-        <div className="flex flex-col items-end py-[7.5px] px-1 flex-shrink-0">
-          <span className="text-xs text-[#84858C] leading-tight mb-0.5">24h Low</span>
-          <span className="text-sm font-medium text-white">{coinStats.low24h}</span>
-        </div>
-
-        <div className="flex flex-col items-end py-[7.5px] px-1 flex-shrink-0">
-          <span className="text-xs text-[#84858C] leading-tight mb-0.5">24h Low</span>
-          <span className="text-sm font-medium text-white">{coinStats.low24h}</span>
-        </div>
-
-        <div className="flex flex-col items-end py-[7.5px] px-1 flex-shrink-0">
-          <span className="text-xs text-[#84858C] leading-tight mb-0.5">24h Low</span>
-          <span className="text-sm font-medium text-white">{coinStats.low24h}</span>
-        </div>
-
-        <div className="flex flex-col items-end py-[7.5px] px-1 flex-shrink-0">
-          <span className="text-xs text-[#84858C] leading-tight mb-0.5">24h Low</span>
-          <span className="text-sm font-medium text-white">{coinStats.low24h}</span>
-        </div>
-
-        <div className="flex flex-col items-end py-[7.5px] px-1 flex-shrink-0">
-          <span className="text-xs text-[#84858C] leading-tight mb-0.5">24h Low</span>
-          <span className="text-sm font-medium text-white">{coinStats.low24h}</span>
+          <span className="text-xs text-[#84858C] leading-tight mb-0.5">Open Interest</span>
+          <span className="text-sm font-medium text-white">{formatNumber(data?.ctx?.openInterest, 2, true)}</span>
         </div>
       </div>
-
-      {/* {showLeftChevron && (
-            <div className="absolute left-0 top-0 h-full w-16 bg-gradient-to-r from-[#121317] to-transparent pointer-events-none flex items-center justify-start pl-2">
-              <ChevronLeft className="w-4 h-4 text-[#84858C] opacity-60" />
-            </div>
-          )}
-
-          {showRightChevron && (
-            <div className="absolute right-0 top-0 h-full w-16 bg-gradient-to-l from-[#121317] to-transparent pointer-events-none flex items-center justify-end pr-2">
-              <ChevronRight className="w-4 h-4 text-[#84858C] opacity-60" />
-            </div>
-          )} */}
     </div>
+  );
+}
+
+interface ISpotStats {
+  data: WsActiveSpotAssetCtx;
+}
+
+function SpotStats(props: ISpotStats) {
+  const { data } = props;
+
+  const { change, percentChange, isPositive } = calculate24hChange(data?.ctx?.markPx, data?.ctx?.prevDayPx);
+
+  const sign = isPositive ? "+" : "";
+
+  return (
+    <div className="flex-1 relative overflow-hidden min-w-0 max-w-full">
+      <div className="flex items-center gap-3 overflow-x-auto no-scrollbar">
+        <div className="flex flex-col items-end py-[7.5px] px-1 flex-shrink-0">
+          <span className="text-xs text-[#84858C] leading-tight mb-0.5">Price</span>
+          <span className={cn("text-sm font-medium", coinStats.isPositive ? "text-[#00C087]" : "text-[#FF4976]")}>
+            {formatNumber(data?.ctx?.markPx)}
+          </span>
+        </div>
+
+        <div className="flex flex-col items-end py-[7.5px] px-1 flex-shrink-0">
+          <span className="text-xs text-[#84858C] leading-tight mb-0.5">24h Change</span>
+          <span className={cn("text-sm font-medium", isPositive ? "text-[#00C087]" : "text-[#FF4976]")}>
+            {sign}
+            {change} / {sign}
+            {percentChange}%
+          </span>
+        </div>
+
+        <div className="flex flex-col items-end py-[7.5px] px-1 flex-shrink-0">
+          <span className="text-xs text-[#84858C] leading-tight mb-0.5">24h Volume</span>
+          <span className="text-sm font-medium text-white">{formatNumber(data?.ctx?.dayNtlVlm, 2)} USDC</span>
+        </div>
+
+        <div className="flex flex-col items-end py-[7.5px] px-1 flex-shrink-0">
+          <span className="text-xs text-[#84858C] leading-tight mb-0.5">Market Cap</span>
+          <span className="text-sm font-medium text-white">
+            {formatNumber(data?.ctx?.circulatingSupply * data?.ctx?.markPx, 2)} USDC
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function Stats() {
+  const selectedToken = useAtomValue(selectedTokenAtom);
+  const { ticker, isConnected } = useTicker(selectedToken?.name);
+
+  return (
+    <Fragment>
+      <RenderIf condition={isConnected && !selectedToken?.isSpot}>
+        <PerpStats data={ticker as WsActiveAssetCtx} />
+      </RenderIf>
+
+      <RenderIf condition={isConnected && !!selectedToken?.isSpot}>
+        <SpotStats data={ticker as WsActiveSpotAssetCtx} />
+      </RenderIf>
+
+      <RenderIf condition={!isConnected}>
+        <SkeletonLoader widthFull heightFull backgroundColor="#121317" borderRadius={0} />
+      </RenderIf>
+    </Fragment>
   );
 }
