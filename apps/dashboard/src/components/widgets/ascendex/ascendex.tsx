@@ -76,8 +76,6 @@ export default function Ascendex(props: IProps) {
                         <TradingView />
                       </div>
                     </div>
-
-                    <OrderBookAndTrade />
                   </div>
 
                   {/* Trading Panel under Chart and OrderBook */}
