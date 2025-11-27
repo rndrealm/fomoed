@@ -2,7 +2,7 @@ import { TransferIcon } from "@/components/icons/icon2";
 import { ModalContainer } from "@/components/shared";
 import { Button } from "@/components/ui/button";
 import React, { useState } from "react";
-import PerpSpotTransferModal from "./perp-spot-transfer-modal";
+import PerpSpotTransferModal from "../modals/perp-spot-transfer-modal";
 
 interface IProps {
   toPerp: boolean;

@@ -12,13 +12,13 @@ import { useAtomValue } from "jotai";
 import { tradingActiveSymbol } from "@/lib/atoms/tradingAtom";
 import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
 import { ModalContainer } from "@/components/shared";
-import ConfirmModal from "../confirm-modal";
+import ConfirmModal from "../../modals/confirm-modal";
 import { SpotFormContent } from "./form";
 import { Overview } from "../overview";
 import { getFromAndToToken } from "../../utils";
 import TransferButtons from "../transfer-buttons";
-
-// const marketPrice = "91849";
+import { PerpUniverse, SpotsUniverse } from "@/services/queries/hyperliquid/types";
+import { WsActiveAssetCtx, WsActiveSpotAssetCtx } from "../../chart/trading-view/hyperliquid/types";
 
 const initialValues = {
   price: "0",
@@ -28,7 +28,13 @@ const initialValues = {
 
 export type TradingFormInitialValues = ReturnType<() => typeof initialValues>;
 
-export default function CreateSpotOrder() {
+interface IProps {
+  selectedToken: PerpUniverse | SpotsUniverse;
+  ticker: WsActiveAssetCtx | WsActiveSpotAssetCtx;
+}
+
+export default function CreateSpotOrder(props: IProps) {
+  const { selectedToken, ticker } = props;
   const validationSchema = Yup.object().shape({
     price: Yup.number().min(0.01, "Price must be greater than 0").required("Please enter price"),
     quantity: Yup.number().min(0, "Quantity must be a positive number").required("Please enter quantity"),
@@ -38,21 +44,27 @@ export default function CreateSpotOrder() {
   const account = useAccount();
   const walletAddress = account?.address || "";
 
-  const selectedToken = useAtomValue(selectedTokenAtom);
-
-  const tradingSymbol = selectedToken?.baseTokenName || "";
   const displayName = selectedToken?.displayName || "";
   const { from, to } = getFromAndToToken(displayName);
   const currAsset = (selectedToken?.index || 0) + 10000;
-  const marketPrice = selectedToken?.priceVolume?.midPx || "0";
+  const marketPrice = ticker?.ctx?.midPx?.toString() || "0";
 
   const { data: spotBalance } = useGetSpotBalance(walletAddress);
-  const { data: assetData } = useGetAssetData(walletAddress, tradingSymbol);
 
   const fromBalance = spotBalance?.balances.find((spt) => spt.coin === from)?.total || "0";
   const toBalance = spotBalance?.balances.find((spt) => spt.coin === to)?.total || "0";
 
   const availableBalance = !isLong ? fromBalance : toBalance;
+
+  const selectOptions =
+    selectedToken?.displayName?.split("/").map((ed) => {
+      return {
+        label: ed,
+        value: ed,
+      };
+    }) || [];
+
+  const [orderBy, setOrderBy] = useState(selectOptions[1]?.value || "");
 
   const { session } = useSupabaseAuth();
 
@@ -163,6 +175,9 @@ export default function CreateSpotOrder() {
                     setIsLong={setIsLong}
                     isPending={isPending}
                     marketPrice={marketPrice}
+                    selectOptions={selectOptions}
+                    orderBy={orderBy}
+                    setOrderBy={setOrderBy}
                   />
                   <TransferButtons toPerp={false} />
                 </div>

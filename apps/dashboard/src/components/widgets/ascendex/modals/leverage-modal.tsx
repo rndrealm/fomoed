@@ -109,26 +109,6 @@ const LeverageModal = (props: IProps) => {
                 showDots
               />
             </div>
-            <div className="w-14">
-              <TextInput
-                type="number"
-                className={cn(
-                  "h-12 w-full rounded-[10px] border border-[#1F1F1F] bg-[#202127] px-2 pr-4 text-sm text-white placeholder:text-[#5F5F5F] focus:outline-none focus:border-[#f4f4f4]",
-                  {
-                    "border-[#FFC26D] focus:border-[#FFC26D]": errorText,
-                  },
-                )}
-                placeholder=""
-                value={customLeverage}
-                onChange={(e) => handleCustomLeverageChange((e.target as HTMLInputElement).value)}
-                min="1"
-                max={maxLeverage}
-                step="0.1"
-                rightPlaceholder="x"
-                rightPlaceholderClassName="text-sm top-[28%]"
-                disableFormikError
-              />
-            </div>
           </div>
 
           <div

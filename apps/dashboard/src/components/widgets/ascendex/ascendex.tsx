@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, Fragment, useEffect } from "react";
+import React, { useState, Fragment } from "react";
 import { LayoutType } from "@/lib/atoms/layoutAtom";
 import { cn } from "@/lib/utils";
 import AscendexHeader from "./header";
@@ -11,12 +11,10 @@ import ChartHeader from "./chart/chart-header";
 import Balance from "./balance";
 import { TradingView } from "./chart/trading-view";
 import TradingPanel from "./trading-panel";
-import { useReadHyperLiquidTokens } from "@/services/queries/hyperliquid";
 import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
-import { useAtom, useAtomValue } from "jotai";
-import TradeResults from "./trade-results";
+import { useAtomValue } from "jotai";
 import CreateSpotOrder from "./create-order/spot";
-import { Button } from "@/components/ui/button";
+import { useTicker } from "./chart/trading-view/hyperliquid/use-ticker";
 
 interface IProps {
   widget: LayoutType["widgets"][0];
@@ -27,10 +25,11 @@ type ViewType = "futures" | "spot" | "lend" | "conditional" | "balance" | "setti
 export default function Ascendex(props: IProps) {
   const { widget } = props;
 
-  const [isLoaded, setIsLoaded] = useState(true);
+  const [isLoaded, setIsLoaded] = useState(false);
   const [activeView, setActiveView] = useState<ViewType>("futures");
 
   const selectedToken = useAtomValue(selectedTokenAtom);
+  const { isConnected, ticker } = useTicker(selectedToken?.name);
   const isSpot = selectedToken?.isSpot;
 
   const handleViewChange = (view: ViewType) => {
@@ -43,6 +42,7 @@ export default function Ascendex(props: IProps) {
     <Fragment>
       <RenderIf condition={!isLoaded}>
         <LandingScreen
+          widget={widget}
           handleIsLoaded={() => {
             setIsLoaded(true);
           }}
@@ -85,7 +85,17 @@ export default function Ascendex(props: IProps) {
                 </div>
 
                 <OrderBookAndTrade />
-                <div>{isSpot ? <CreateSpotOrder /> : <CreateOrder />}</div>
+                {selectedToken && isConnected && ticker ? (
+                  <div>
+                    {isSpot ? (
+                      <CreateSpotOrder selectedToken={selectedToken} ticker={ticker} />
+                    ) : (
+                      <CreateOrder selectedToken={selectedToken} ticker={ticker} />
+                    )}
+                  </div>
+                ) : (
+                  <p>Loading...</p>
+                )}
               </div>
             </RenderIf>
 
@@ -109,7 +119,6 @@ export default function Ascendex(props: IProps) {
                 </div>
               </div>
             </RenderIf>
-            <TradeResults />
           </div>
         </div>
       </RenderIf>
