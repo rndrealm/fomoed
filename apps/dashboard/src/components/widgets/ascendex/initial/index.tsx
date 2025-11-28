@@ -6,12 +6,14 @@ import LoadingScreen from "./loading-screen";
 import { LayoutType } from "@/lib/atoms/layoutAtom";
 import { WidgetWrapper } from "../../shared";
 import HyperliquidAuth from "./hyperliquid-auth";
+import HyperliquidEnd from "./hyperliquid-end";
 
 type WidgetState =
   | "initial"
   | "exchange-picker"
-  | "hyperliquid"
   | "bybit"
+  | "hyperliquid"
+  | "hyperliquid-end"
   | "coinw"
   | "backpack"
   | "ascendex"
@@ -25,6 +27,7 @@ interface IProps {
 
 export function LandingScreen(props: IProps) {
   const { handleIsLoaded, widget } = props;
+  // const [state, setState] = useState<WidgetState>("hyperliquid-end");
   const [state, setState] = useState<WidgetState>("exchange-picker");
 
   // useEffect(() => {
@@ -66,8 +69,19 @@ export function LandingScreen(props: IProps) {
 
         <RenderIf condition={state === "hyperliquid"}>
           <HyperliquidAuth
-            onExchangeSelect={() => {
-              setState("loading");
+            onExchangeSelect={(exchange) => {
+              setState(exchange);
+            }}
+            onBack={() => {
+              setState("exchange-picker");
+            }}
+          />
+        </RenderIf>
+
+        <RenderIf condition={state === "hyperliquid-end"}>
+          <HyperliquidEnd
+            onStart={() => {
+              handleIsLoaded();
             }}
           />
         </RenderIf>

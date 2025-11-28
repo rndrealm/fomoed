@@ -3,13 +3,18 @@ import { Button } from "@/components/ui/button";
 import React, { useState } from "react";
 
 interface IProps {
-  updateStep: (step: number) => void;
   toggleModal: () => void;
+  onConfirm: () => void;
 }
 
 const DepositModal = (props: IProps) => {
-  const { updateStep, toggleModal } = props;
+  const { toggleModal, onConfirm } = props;
   const [value, setValue] = useState("");
+  const endAuth = () => {
+    toggleModal();
+    onConfirm();
+  };
+
   return (
     <div>
       <h1 className="text-center text-white font-medium text-lg pt-5 pb-9">Deposit USDC</h1>
@@ -46,13 +51,13 @@ const DepositModal = (props: IProps) => {
       <div className="flex items-center gap-2 pt-12">
         <Button
           className="flex-1 bg-[#171717] hover:opacity-90 border-[#1F1F1F] border  text-white font-medium text-sm h-11"
-          onClick={() => updateStep(3)}
+          onClick={endAuth}
         >
           Skip
         </Button>
         <Button
           className="flex-1 bg-[#51D2C1] hover:opacity-90 hover:bg-[#51D2C1]  text-[#010101] font-medium text-sm h-11"
-          onClick={() => updateStep(3)}
+          onClick={endAuth}
         >
           Deposit USDC
         </Button>

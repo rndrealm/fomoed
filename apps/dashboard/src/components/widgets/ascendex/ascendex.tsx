@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import AscendexHeader from "./header";
 import CreateOrder from "./create-order";
 import OrderBookAndTrade from "./order-book-and-trade";
-import { RenderIf } from "@/components/shared";
+import { RenderIf, SkeletonLoader } from "@/components/shared";
 import { LandingScreen } from "./initial";
 import ChartHeader from "./chart/chart-header";
 import Balance from "./balance";
@@ -15,6 +15,8 @@ import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
 import { useAtomValue } from "jotai";
 import CreateSpotOrder from "./create-order/spot";
 import { useTicker } from "./chart/trading-view/hyperliquid/use-ticker";
+import { useSupabaseAuth } from "@/components/providers";
+import { useGetAgentAddress } from "@/services/queries/hyperliquid";
 
 interface IProps {
   widget: LayoutType["widgets"][0];
@@ -25,7 +27,11 @@ type ViewType = "futures" | "spot" | "lend" | "conditional" | "balance" | "setti
 export default function Ascendex(props: IProps) {
   const { widget } = props;
 
-  const [isLoaded, setIsLoaded] = useState(false);
+  const { session } = useSupabaseAuth();
+
+  const { data, isPending: agentIsPending } = useGetAgentAddress(session?.user.id, session?.access_token);
+
+  const [isLoaded, setIsLoaded] = useState(true);
   const [activeView, setActiveView] = useState<ViewType>("futures");
 
   const selectedToken = useAtomValue(selectedTokenAtom);
@@ -37,7 +43,7 @@ export default function Ascendex(props: IProps) {
   };
 
   const showTradingInterface = ["futures", "spot", "lend", "conditional"].includes(activeView);
-
+  console.log("ivan tu");
   return (
     <Fragment>
       <RenderIf condition={!isLoaded}>
@@ -85,7 +91,7 @@ export default function Ascendex(props: IProps) {
                 </div>
 
                 <OrderBookAndTrade />
-                {selectedToken && isConnected && ticker ? (
+                {/* {selectedToken && isConnected && ticker ? (
                   <div>
                     {isSpot ? (
                       <CreateSpotOrder selectedToken={selectedToken} ticker={ticker} />
@@ -94,8 +100,8 @@ export default function Ascendex(props: IProps) {
                     )}
                   </div>
                 ) : (
-                  <p>Loading...</p>
-                )}
+                  <SkeletonLoader width={210} heightFull backgroundColor="#121317" borderRadius={10} />
+                )} */}
               </div>
             </RenderIf>
 

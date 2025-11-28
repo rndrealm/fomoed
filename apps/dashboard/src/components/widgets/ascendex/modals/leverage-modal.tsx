@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { TextInput } from "@/components/auth/text-input";
 import { TriangleDangerIcon } from "@/components/icons/icon2";
+import OrderCheckLayout from "../create-order/order-check-layout";
 
 interface IProps {
   leverage: number;
@@ -129,14 +129,19 @@ const LeverageModal = (props: IProps) => {
         >
           Cancel
         </Button>
-        <Button
-          onClick={handleApply}
-          disabled={!!errorText}
-          isLoading={isLoading}
-          className="flex-1 bg-[#E7E7E7]  hover:bg-[#E7E7E7]  text-[#010101] font-medium text-sm h-11"
+        <OrderCheckLayout
+          buttonClassName="flex-1 bg-[#E7E7E7]  hover:bg-[#E7E7E7]  text-[#010101] font-medium text-sm h-11 "
+          buttonContainerClassName="flex-1"
         >
-          Submit
-        </Button>
+          <Button
+            onClick={handleApply}
+            disabled={!!errorText}
+            isLoading={isLoading}
+            className="flex-1 bg-[#E7E7E7]  hover:bg-[#E7E7E7]  text-[#010101] font-medium text-sm h-11"
+          >
+            Submit
+          </Button>
+        </OrderCheckLayout>
       </div>
     </div>
   );

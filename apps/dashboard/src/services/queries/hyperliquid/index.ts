@@ -1,7 +1,9 @@
 import api from "@/services/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  HyperliquidAgentResponse,
   HyperliquidPerpListResponse,
+  HyperliquidRoleResponse,
   HyperliquidSpotListResponse,
   PerpBalanceResponse,
   PerpUniverse,
@@ -10,9 +12,14 @@ import {
 } from "./types";
 import { AxiosResponse } from "axios";
 import { AssetDataResponse, HyperliquidMetaResponse } from "./types";
+import { getAuthHeaders } from "@/services/utils";
+import { toast } from "sonner";
 
 // const BASE_URL = "https://api.hyperliquid.xyz";
 const BASE_URL = "https://api.hyperliquid-testnet.xyz";
+
+// const FOMOED_INGESTION_BASE_URL = "https://fomoed-data-ingestion-509111531565.us-central1.run.app/api/v1";
+const FOMOED_INGESTION_BASE_URL = "http://localhost:3000/api/v1";
 
 export const useReadHyperLiquidTokens = () => {
   const hash = ["hyperliquid-tokens"];
@@ -227,5 +234,89 @@ export const useGetHyperliquidMetaData = () => {
   return {
     ...res,
     data: res?.data as HyperliquidMetaResponse,
+  };
+};
+
+export const useCreateApiAgent = (authToken?: string, onSuccess?: () => void) => {
+  return useMutation({
+    mutationFn: async (data: { wallet_address: string }) => {
+      const res = await api.gemachPost({
+        url: `${FOMOED_INGESTION_BASE_URL}/hyperliquid/create-agent`,
+        body: data,
+        auth: false,
+        headers: getAuthHeaders(authToken),
+      });
+
+      return res?.data?.data;
+    },
+    onSuccess: (data) => {
+      onSuccess?.();
+    },
+    onError: (data: any) => {
+      console.log("agent error: ", data.response.data.error.message);
+      toast.error(data?.response?.data?.error?.message || "Agent creation error");
+    },
+  });
+};
+
+export const useApproveApiAgent = (authToken?: string, onSuccess?: () => void) => {
+  return useMutation({
+    mutationFn: async (data: { wallet_address: string }) => {
+      const res = await api.gemachPost({
+        url: `${FOMOED_INGESTION_BASE_URL}/hyperliquid/approve-agent`,
+        body: data,
+        auth: false,
+        headers: getAuthHeaders(authToken),
+      });
+
+      return res?.data?.data;
+    },
+    onSuccess: (data) => {
+      onSuccess?.();
+    },
+    onError: (data: any) => {
+      console.log("agent error: ", data.response.data.error.message);
+      toast.error(data?.response?.data?.error?.message || "Agent creation error");
+    },
+  });
+};
+
+export const useGetAgentAddress = (user_id?: string, authToken?: string) => {
+  const hash = ["agent-address", user_id];
+
+  const res = useQuery({
+    queryKey: hash,
+    queryFn: async () => {
+      const response = await api.get({
+        url: `${FOMOED_INGESTION_BASE_URL}/hyperliquid/get-agent`,
+        auth: false,
+        headers: getAuthHeaders(authToken),
+      });
+      return response;
+    },
+  });
+  return { ...res, data: res?.data?.data?.data as HyperliquidAgentResponse };
+};
+
+export const useGetHyperliquidAgentRole = (wallet_address?: string) => {
+  const hash = ["hyper-liquid-agent-role", wallet_address];
+
+  const res = useQuery({
+    queryKey: hash,
+    queryFn: async () => {
+      const response = await api.post({
+        url: `${BASE_URL}/info`,
+        auth: true,
+        body: {
+          type: "userRole",
+        },
+      });
+      return response;
+    },
+    enabled: !!wallet_address,
+  });
+  return {
+    ...res,
+    data: res?.data as HyperliquidRoleResponse,
   };
 };

@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect } from "react";
 import { motion } from "motion/react";
 import {
   calcMargin,
@@ -21,8 +21,8 @@ import { AppSelect, SelectOption } from "@/components/ui/app-select";
 import { OrderType } from "@/services/queries/trading/types";
 import { RenderIf } from "@/components/shared";
 import { InputWithSelect } from "@/components/shared/input-with-select";
-import { useAtomValue } from "jotai";
-import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
+import OrderCheckLayout from "./order-check-layout";
+import { useCheckAccess } from "../chart/trading-view/hyperliquid/use-check-access";
 
 interface IOrderTypeButtonProps {
   isActive: boolean;
@@ -162,6 +162,9 @@ export function FormContent(props: FormContentProps) {
     }
   }, []);
 
+  // const tradeAccess = useCheckAccess();
+  // console.log("trade access:");
+
   return (
     <>
       <div className="flex flex-col gap-3">
@@ -169,18 +172,18 @@ export function FormContent(props: FormContentProps) {
           <button
             onClick={toggleMarginModeModal}
             type="button"
-            className="bg-[#1E2025] text-white text-xxxs px-2 py-1 rounded-[4px]"
+            className="bg-[#1E2025] text-white text-xxxs px-2 py-1 rounded-[4px] w-13"
           >
             {isCross ? "Cross" : "Isolated"}
           </button>
           <button
             onClick={toggleLeverageModal}
             type="button"
-            className="bg-[#1E2025] text-white text-xxxs px-2 py-1 rounded-[4px]"
+            className="bg-[#1E2025] text-white text-xxxs px-2 py-1 rounded-[4px] w-13"
           >
             {leverage}x
           </button>
-          <button type="button" className="bg-[#1E2025] text-white text-xxxs px-2 py-1 rounded-[4px]">
+          <button type="button" className="bg-[#1E2025] text-white text-xxxs px-2 py-1 rounded-[4px] w-13">
             One Way
           </button>
         </div>

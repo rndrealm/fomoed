@@ -132,7 +132,10 @@ export default function CreateOrder(props: IProps) {
   function validateTpSl(values: TradingFormInitialValues, isLong: boolean): boolean {
     if (!values.tpSl) return true;
 
-    const orderPrice = Number(values.price);
+    // const orderPrice = Number(values.price);
+
+    const orderPrice = orderType === "market" ? Number(marketPrice) : Number(values.price);
+
     const tpPrice = Number(values.tp);
     const slPrice = Number(values.sl);
 
@@ -330,9 +333,9 @@ export default function CreateOrder(props: IProps) {
                   <TransferButtons toPerp />
                 </div>
 
-                <div className="bg-[#121317] rounded-[10px] p-3 ">
+                {/* <div className="bg-[#121317] rounded-[10px] p-3 ">
                   <Overview />
-                </div>
+                </div> */}
               </div>
             </form>
           );

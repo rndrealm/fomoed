@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { Dispatch, SetStateAction, useEffect, useRef } from "react";
+import React, { Dispatch, SetStateAction, useEffect } from "react";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { ErrorMsg, TextInput } from "@/components/auth/text-input";
@@ -10,6 +10,7 @@ import { TradingFormInitialValues } from ".";
 import { OrderType } from "@/services/queries/trading/types";
 import { AppSelect, SelectOption } from "@/components/ui/app-select";
 import { InputWithSelect } from "@/components/shared/input-with-select";
+import OrderCheckLayout from "../order-check-layout";
 
 interface IOrderTypeButtonProps {
   isActive: boolean;
@@ -231,14 +232,16 @@ export function SpotFormContent(props: FormContentProps) {
         </div>
 
         <div className="">
-          <Button
-            disabled={!Number(values.quantity) || insufficientBalanceCheck || isPending}
-            type="submit"
-            isLoading={isPending}
-            className="w-full bg-[#7637BA] hover:bg-[#7637BA] text-white font-medium text-[10px] leading-[14px] h-[28px]"
-          >
-            {insufficientBalanceCheck ? "Insufficient Balance" : "Create Order"}
-          </Button>
+          <OrderCheckLayout>
+            <Button
+              disabled={!Number(values.quantity) || insufficientBalanceCheck || isPending}
+              type="submit"
+              isLoading={isPending}
+              className="w-full bg-[#7637BA] hover:bg-[#7637BA] text-white font-medium text-[10px] leading-[14px] h-[28px]"
+            >
+              {insufficientBalanceCheck ? "Insufficient Balance" : "Create Order"}
+            </Button>
+          </OrderCheckLayout>
         </div>
       </div>
     </>

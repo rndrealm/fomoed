@@ -1,20 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { useAccount } from "wagmi";
-import { useGetAssetData, useGetPerpBalance, useGetSpotBalance } from "@/services/queries/hyperliquid";
-import { useExecuteTrade, useUpdateLeveraggeTrade } from "@/services/queries/trading";
+import { useGetSpotBalance } from "@/services/queries/hyperliquid";
+import { useExecuteTrade } from "@/services/queries/trading";
 import { OrderEnum, TifEnum, TradeExecutionPayload } from "@/services/queries/trading/types";
 import { useSupabaseAuth } from "@/components/providers";
-import { estimateLiqPrice } from "@/lib/utils";
 import { toast } from "sonner";
-import { useAtomValue } from "jotai";
-import { tradingActiveSymbol } from "@/lib/atoms/tradingAtom";
-import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
 import { ModalContainer } from "@/components/shared";
 import ConfirmModal from "../../modals/confirm-modal";
 import { SpotFormContent } from "./form";
-import { Overview } from "../overview";
 import { getFromAndToToken } from "../../utils";
 import TransferButtons from "../transfer-buttons";
 import { PerpUniverse, SpotsUniverse } from "@/services/queries/hyperliquid/types";
@@ -85,7 +80,7 @@ export default function CreateSpotOrder(props: IProps) {
       toast.error("Quantity must be greater than 10");
       return;
     }
-    const converter = _values.price; //Todo: make this dynamic based on market price
+    const converter = marketPrice;
     const orderSize = (Number(_values.quantity) / Number(converter)).toFixed(2);
 
     // Create main order
@@ -182,9 +177,9 @@ export default function CreateSpotOrder(props: IProps) {
                   <TransferButtons toPerp={false} />
                 </div>
 
-                <div className="bg-[#121317] rounded-[10px] p-3 ">
+                {/* <div className="bg-[#121317] rounded-[10px] p-3 ">
                   <Overview />
-                </div>
+                </div> */}
               </div>
             </form>
           );

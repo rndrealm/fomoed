@@ -15,6 +15,7 @@ import AnalyticsProvider from "@/components/providers/AnalyticsProvider";
 import ServiceWorkerRegister from "@/lib/sw/ServiceWorkerRegister";
 import CookiesManager from "@/lib/cookies/cookies-manager";
 import GeneralProvider from "@/components/providers/GeneralProvider";
+import { ReactScan } from "@/components/shared/ReactScan";
 // import { ReactScan } from "@/components/shared/ReactScan";
 
 const geistSans = Geist({
