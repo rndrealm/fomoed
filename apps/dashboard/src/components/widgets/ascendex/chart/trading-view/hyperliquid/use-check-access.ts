@@ -1,6 +1,7 @@
 import { useMemo, useRef } from "react";
-import { useGetHyperliquidAgentRole } from "@/services/queries/hyperliquid";
+import { useGetAgentAddress, useGetHyperliquidAgentRole } from "@/services/queries/hyperliquid";
 import { useAccount } from "wagmi";
+import { useSupabaseAuth } from "@/components/providers";
 
 type CheckAccessResult = {
   connected: boolean;
@@ -15,8 +16,10 @@ type CheckAccessResult = {
  * If all pass you're good to go
  */
 export const useCheckAccess = (): CheckAccessResult => {
-  const { address, isConnected, isConnecting, isReconnecting } = useAccount();
-  const { data, isPending } = useGetHyperliquidAgentRole(address);
+  const { isConnected, isConnecting, isReconnecting } = useAccount();
+  const { session } = useSupabaseAuth();
+  const { data: agentAddress } = useGetAgentAddress(session?.user.id, session?.access_token);
+  const { data, isPending } = useGetHyperliquidAgentRole(agentAddress?.agent_wallet);
 
   const role = data?.role;
   const resultRef = useRef<CheckAccessResult>({

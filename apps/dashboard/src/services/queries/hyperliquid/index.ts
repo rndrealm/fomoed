@@ -309,11 +309,16 @@ export const useGetHyperliquidAgentRole = (wallet_address?: string) => {
         auth: true,
         body: {
           type: "userRole",
+          user: wallet_address,
         },
       });
       return response;
     },
     enabled: !!wallet_address,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+    refetchInterval: 10000,
   });
   return {
     ...res,

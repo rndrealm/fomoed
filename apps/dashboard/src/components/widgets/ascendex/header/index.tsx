@@ -6,6 +6,7 @@ import { LayoutType } from "@/lib/atoms/layoutAtom";
 import dashboard from "@/lib/assets/dashboard";
 import { OptionsDropdown } from "../../shared/options-dropwdown";
 import { SettingsAscendexIcon } from "@/components/icons/icons";
+import ConnectButton from "../../dex/connect-button";
 
 const AscendexLogo = () => (
   <Image src={dashboard.ascendexLogo} alt="AscendEX Logo" width={108} height={16} className="object-contain" priority />
@@ -65,6 +66,7 @@ export default function AscendexHeader({ widget, activeView, onViewChange }: Asc
 
       {/* Controls */}
       <div className="flex items-center gap-3 relative z-10 pointer-events-auto">
+        <ConnectButton buttonClassName="bg-[#51D2C1] w-full cursor-pointer py-0 px-3.5 rounded-md text-[#010101] font-medium text-xxs h-8" />
         {activeView !== "balance" && (
           <button
             className="flex items-center justify-center bg-[rgba(118,55,186,0.2)] text-[#7637BA] 

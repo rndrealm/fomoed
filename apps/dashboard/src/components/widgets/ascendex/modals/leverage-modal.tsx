@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { TriangleDangerIcon } from "@/components/icons/icon2";
 import OrderCheckLayout from "../create-order/order-check-layout";
+import { useCheckAccess } from "../chart/trading-view/hyperliquid/use-check-access";
 
 interface IProps {
   leverage: number;
@@ -59,6 +60,8 @@ const LeverageModal = (props: IProps) => {
       }
     }
   };
+
+  const tradeAccess = useCheckAccess();
 
   return (
     <div className="flex flex-col">
@@ -132,6 +135,8 @@ const LeverageModal = (props: IProps) => {
         <OrderCheckLayout
           buttonClassName="flex-1 bg-[#E7E7E7]  hover:bg-[#E7E7E7]  text-[#010101] font-medium text-sm h-11 "
           buttonContainerClassName="flex-1"
+          buttonWrapperClassName="w-6/12"
+          approveClassName="h-11 !text-[0.875rem]"
         >
           <Button
             onClick={handleApply}

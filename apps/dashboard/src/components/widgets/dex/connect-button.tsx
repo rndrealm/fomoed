@@ -5,14 +5,21 @@ import { cn } from "@/lib/utils";
 interface IProps {
   buttonClassName?: string;
   buttonContainerClassName?: string;
+  buttonWrapperClassName?: string;
   dropdownClassName?: string;
   dropdownTextClassName?: string;
 }
 
 const ConnectButton = (props: IProps) => {
-  const { buttonClassName, buttonContainerClassName, dropdownClassName, dropdownTextClassName } = props;
+  const {
+    buttonClassName,
+    buttonContainerClassName,
+    buttonWrapperClassName,
+    dropdownClassName,
+    dropdownTextClassName,
+  } = props;
   return (
-    <div className={cn("flex  items-center gap-3 lg:gap-[0.625rem]")}>
+    <div className={cn("flex  items-center gap-3 lg:gap-[0.625rem]", buttonWrapperClassName)}>
       <RainbowConnectButton.Custom>
         {({ account, chain, openAccountModal, openChainModal, openConnectModal, mounted }) => {
           const ready = mounted;
@@ -33,6 +40,7 @@ const ConnectButton = (props: IProps) => {
                 if (!connected) {
                   return (
                     <button
+                      type="button"
                       className={cn(
                         "text-[#A6A6A6] text-xxs border border-[#202020] px-2 h-8 rounded-[6px]",
                         buttonClassName,
@@ -46,6 +54,7 @@ const ConnectButton = (props: IProps) => {
                 if (chain.unsupported) {
                   return (
                     <button
+                      type="button"
                       className={cn(
                         "text-[#A6A6A6] text-xxs border border-[#202020] px-2 h-8 rounded-[6px]",
                         buttonClassName,

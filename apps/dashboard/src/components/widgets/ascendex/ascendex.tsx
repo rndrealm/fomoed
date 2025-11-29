@@ -29,7 +29,7 @@ export default function Ascendex(props: IProps) {
 
   const { session } = useSupabaseAuth();
 
-  const { data, isPending: agentIsPending } = useGetAgentAddress(session?.user.id, session?.access_token);
+  // const { data, isPending: agentIsPending } = useGetAgentAddress(session?.user.id, session?.access_token);
 
   const [isLoaded, setIsLoaded] = useState(true);
   const [activeView, setActiveView] = useState<ViewType>("futures");
@@ -43,7 +43,7 @@ export default function Ascendex(props: IProps) {
   };
 
   const showTradingInterface = ["futures", "spot", "lend", "conditional"].includes(activeView);
-  console.log("ivan tu");
+
   return (
     <Fragment>
       <RenderIf condition={!isLoaded}>
@@ -91,7 +91,7 @@ export default function Ascendex(props: IProps) {
                 </div>
 
                 <OrderBookAndTrade />
-                {/* {selectedToken && isConnected && ticker ? (
+                {selectedToken && isConnected && ticker ? (
                   <div>
                     {isSpot ? (
                       <CreateSpotOrder selectedToken={selectedToken} ticker={ticker} />
@@ -101,7 +101,7 @@ export default function Ascendex(props: IProps) {
                   </div>
                 ) : (
                   <SkeletonLoader width={210} heightFull backgroundColor="#121317" borderRadius={10} />
-                )} */}
+                )}
               </div>
             </RenderIf>
 

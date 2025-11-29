@@ -21,8 +21,10 @@ import { AppSelect, SelectOption } from "@/components/ui/app-select";
 import { OrderType } from "@/services/queries/trading/types";
 import { RenderIf } from "@/components/shared";
 import { InputWithSelect } from "@/components/shared/input-with-select";
-import OrderCheckLayout from "./order-check-layout";
 import { useCheckAccess } from "../chart/trading-view/hyperliquid/use-check-access";
+import ConnectButton from "../../dex/connect-button";
+import ApproveAgentButton from "./approve-agent-button";
+import OrderCheckLayout from "./order-check-layout";
 
 interface IOrderTypeButtonProps {
   isActive: boolean;
@@ -161,9 +163,6 @@ export function FormContent(props: FormContentProps) {
       setFieldValue("price", marketPrice);
     }
   }, []);
-
-  // const tradeAccess = useCheckAccess();
-  // console.log("trade access:");
 
   return (
     <>
@@ -463,16 +462,18 @@ export function FormContent(props: FormContentProps) {
         </div>
 
         <div className="">
-          <Button
-            disabled={!values.quantity || (values.reduceOnly && !validateReduceOnlyResponse.ok)}
-            type="submit"
-            isLoading={isPending}
-            className="w-full bg-[#7637BA] hover:bg-[#7637BA] text-white font-medium text-[10px] leading-[14px] h-[28px]"
-          >
-            {values.reduceOnly && validateReduceOnlyResponse.reason
-              ? validateReduceOnlyResponse.reason
-              : "Create Order"}
-          </Button>
+          <OrderCheckLayout>
+            <Button
+              disabled={!values.quantity || (values.reduceOnly && !validateReduceOnlyResponse.ok)}
+              type="submit"
+              isLoading={isPending}
+              className="w-full bg-[#7637BA] hover:bg-[#7637BA] text-white font-medium text-[10px] leading-[14px] h-[28px]"
+            >
+              {values.reduceOnly && validateReduceOnlyResponse.reason
+                ? validateReduceOnlyResponse.reason
+                : "Create Order"}
+            </Button>
+          </OrderCheckLayout>
         </div>
       </div>
     </>
