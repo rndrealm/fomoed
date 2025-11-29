@@ -1,22 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { FormContent } from "./form";
-import { Overview } from "./overview";
+import { Overview } from "../overview";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { useAccount } from "wagmi";
 import { useGetAssetData, useGetPerpBalance, useGetSpotBalance } from "@/services/queries/hyperliquid";
 import { useExecuteTrade, useUpdateLeveraggeTrade } from "@/services/queries/trading";
 import { OrderEnum, TifEnum, TradeExecutionPayload } from "@/services/queries/trading/types";
-import LeverageModal from "../modals/leverage-modal";
-import MarginModeModal from "../modals/margin-mode-modal";
+
 import { ModalContainer } from "@/components/shared/modal-container";
 import { useSupabaseAuth } from "@/components/providers";
-import ConfirmModal from "../modals/confirm-modal";
 import { estimateLiqPrice } from "@/lib/utils";
 import { toast } from "sonner";
-import TransferButtons from "./transfer-buttons";
+import TransferButtons from "../transfer-buttons";
 import { PerpUniverse, SpotsUniverse } from "@/services/queries/hyperliquid/types";
-import { WsActiveAssetCtx, WsActiveSpotAssetCtx } from "../chart/trading-view/hyperliquid/types";
+import LeverageModal from "../../modals/leverage-modal";
+import ConfirmModal from "../../modals/confirm-modal";
+import MarginModeModal from "../../modals/margin-mode-modal";
+import { WsActiveAssetCtx, WsActiveSpotAssetCtx } from "../../../chart/trading-view/hyperliquid/types";
 
 const initialValues = {
   price: "0",

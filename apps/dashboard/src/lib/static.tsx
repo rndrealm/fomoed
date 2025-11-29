@@ -47,9 +47,9 @@ import OrderbookDeltaWidget from "@/components/widgets/delta/delta-widget";
 import WhaleTransactionWidget from "@/components/widgets/whale-transaction/whale-transaction-widget";
 import TradingEconomicsWidget from "@/components/widgets/trading-economics/economic-calendar-widget";
 import GemachCopyTrading from "@/components/widgets/gemach/gemach-copy-trading";
-import Ascendex from "@/components/widgets/ascendex/ascendex";
 import YoutubeWidget from "@/components/widgets/youtube/youtube-widget";
 import TelegramWidget from "@/components/widgets/telegram/telegram-widget";
+import Trading from "@/components/widgets/trading";
 
 export const layoutClassMap = {
   SinglePane: "grid-rows-1 grid-cols-1",
@@ -554,9 +554,9 @@ export const chartsMap = {
   },
 
   ascendex: {
-    name: "Ascendex",
+    name: "Trading",
     extra: [],
-    component: (widget: LayoutType["widgets"][0]) => <Ascendex widget={widget} />,
+    component: (widget: LayoutType["widgets"][0]) => <Trading widget={widget} />,
     isResizable: false,
   },
   youtube: {

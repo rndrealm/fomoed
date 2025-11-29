@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { toast } from "sonner";
-import CreateOrder from "@/components/widgets/ascendex/create-order";
+import CreateOrder from "@/components/widgets/trading/create-order";
 import { useAccount } from "wagmi";
 import { useGetPerpBalance, useGetAssetData } from "@/services/queries/hyperliquid";
 import { useExecuteTrade, useUpdateLeveraggeTrade } from "@/services/queries/trading";
@@ -202,7 +202,7 @@ describe("CreateOrder Component", () => {
 
       await waitFor(() => {
         expect(toast.error).toHaveBeenCalledWith(
-          "Take Profit price must be greater than order price for long positions"
+          "Take Profit price must be greater than order price for long positions",
         );
       });
     });
@@ -227,9 +227,7 @@ describe("CreateOrder Component", () => {
       await userEvent.click(submitButton);
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith(
-          "Stop Loss price must be lower than order price for long positions"
-        );
+        expect(toast.error).toHaveBeenCalledWith("Stop Loss price must be lower than order price for long positions");
       });
     });
 
@@ -260,7 +258,7 @@ describe("CreateOrder Component", () => {
 
       await waitFor(() => {
         expect(toast.error).toHaveBeenCalledWith(
-          "Take Profit price must be lower than order price for short positions"
+          "Take Profit price must be lower than order price for short positions",
         );
       });
     });
@@ -503,7 +501,7 @@ describe("CreateOrder Component", () => {
                   reduceOnly: true,
                 }),
               ],
-            })
+            }),
           );
         });
       });

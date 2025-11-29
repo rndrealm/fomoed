@@ -4,7 +4,7 @@ import { useApproveApiAgent, useGetAgentAddress } from "@/services/queries/hyper
 import React, { useState } from "react";
 import { toast } from "sonner";
 import { useAccount, useWalletClient } from "wagmi";
-import { approveApiWallet } from "../utils";
+import { approveApiWallet } from "../../utils";
 import { cn } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
 

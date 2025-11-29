@@ -21,10 +21,7 @@ import { AppSelect, SelectOption } from "@/components/ui/app-select";
 import { OrderType } from "@/services/queries/trading/types";
 import { RenderIf } from "@/components/shared";
 import { InputWithSelect } from "@/components/shared/input-with-select";
-import { useCheckAccess } from "../chart/trading-view/hyperliquid/use-check-access";
-import ConnectButton from "../../dex/connect-button";
-import ApproveAgentButton from "./approve-agent-button";
-import OrderCheckLayout from "./order-check-layout";
+import OrderCheckLayout from "../order-check-layout";
 
 interface IOrderTypeButtonProps {
   isActive: boolean;

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { TriangleDangerIcon } from "@/components/icons/icon2";
 import OrderCheckLayout from "../create-order/order-check-layout";
-import { useCheckAccess } from "../chart/trading-view/hyperliquid/use-check-access";
+import { useCheckAccess } from "../../chart/trading-view/hyperliquid/use-check-access";
 
 interface IProps {
   leverage: number;

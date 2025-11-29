@@ -1,8 +1,8 @@
 import React, { Fragment, ReactNode } from "react";
 import { useAccount } from "wagmi";
-import ConnectButton from "../../dex/connect-button";
+import ConnectButton from "../../../dex/connect-button";
 import { cn } from "@/lib/utils";
-import { useCheckAccess } from "../chart/trading-view/hyperliquid/use-check-access";
+import { useCheckAccess } from "../../chart/trading-view/hyperliquid/use-check-access";
 import ApproveAgentButton from "./approve-agent-button";
 
 interface IProps {

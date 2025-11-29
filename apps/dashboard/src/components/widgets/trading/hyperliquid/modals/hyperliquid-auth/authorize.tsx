@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button";
 import React, { useState } from "react";
 import { useAccount, useWalletClient } from "wagmi";
-import { approveApiWallet } from "../../utils";
 import { toast } from "sonner";
 import { useApproveApiAgent, useGetAgentAddress } from "@/services/queries/hyperliquid";
 import { useSupabaseAuth } from "@/components/providers";
+import { approveApiWallet } from "../../../utils";
 
 interface IProps {
   updateStep: (step: number) => void;
