@@ -22,7 +22,7 @@ import {
   EconomicCalendarResponse,
   FormatLeverageLiquidationDataResult,
   LeverageLiquidationResponse,
-  FormatExcLiquidationDataResult
+  FormatExcLiquidationDataResult,
 } from "./types";
 import { supportedExchangePairsToOptions } from "@/lib/utils";
 import { ExchangePairOption } from "@/charts/types";
@@ -54,41 +54,53 @@ export const useReadCfgiData = (token?: string, period?: string, token_slug?: st
 };
 
 export const useReadCoinList = (summary = false) => {
-  const hash = ["coin-list"];
+  const queryKey = ["coin-list"];
+
   const { data, isPending, error, isSuccess } = useQuery<CoinStatsTokenInfo[]>({
-    queryKey: hash,
+    queryKey,
     queryFn: async () => {
-      const response = await axios.get("/api/coinstats-coins");
-      return response.data;
+      try {
+        const response = await axios.get("/api/coinstats-coins");
+        return response.data;
+      } catch (err: any) {
+        const message =
+          err?.response?.data?.error ||
+          err?.response?.data?.msg ||
+          err?.response?.data?.message ||
+          err?.message ||
+          "Failed to fetch coin list";
+
+        throw new Error(message);
+      }
     },
     refetchOnMount: summary ? "always" : false,
     refetchOnReconnect: summary ? "always" : false,
     refetchOnWindowFocus: summary ? "always" : false,
   });
 
-  let returnData = data
-    ?.filter((coin) => !coin.symbol.startsWith("USD")) // Filter out stablecoins
-    .map((coin) => {
-      return {
-        price: coin.price,
-        priceChange: coin.priceChange1d,
-        marketCap: coin.marketCap,
-        volume: coin.volume,
-        icon: coin.icon,
-        symbol: coin.symbol,
-        name: coin.name,
-        color: undefined, // CoinStatsTokenInfo does not include a color field
-        slug: coin.id,
-        is_free: coin.id === "bitcoin" || coin.id === "ethereum",
-        explorer: coin.explorers,
-      };
-    });
+  // Transform data
+  let formatted = data
+    ?.filter((coin) => !coin.symbol.startsWith("USD"))
+    .map((coin) => ({
+      price: coin.price,
+      priceChange: coin.priceChange1d,
+      marketCap: coin.marketCap,
+      volume: coin.volume,
+      icon: coin.icon,
+      symbol: coin.symbol,
+      name: coin.name,
+      color: undefined,
+      slug: coin.id,
+      is_free: coin.id === "bitcoin" || coin.id === "ethereum",
+      explorer: coin.explorers,
+    }));
 
   if (summary) {
-    returnData = returnData?.sort((a, b) => b.priceChange - a.priceChange);
+    formatted = formatted?.sort((a, b) => b.priceChange - a.priceChange);
   }
+
   return {
-    data: returnData,
+    data: formatted,
     isPending,
     isSuccess,
     error,
@@ -169,20 +181,28 @@ export const useFetchLiquidMapData = (
   quoteAsset?: string,
 ) => {
   const hash = ["get-liquid-map", timeframe, exchange, instrumentId, baseAsset, quoteAsset];
+
   const { data, isPending, error, isSuccess, refetch, isFetching } = useQuery<LiquidMapDataResponse>({
     queryKey: hash,
     queryFn: async () => {
       const response = await api.get({
         url: `/api/liq-map?timeframe=${timeframe}&exchange=${exchange}&instrumentId=${instrumentId}&baseAsset=${baseAsset}&quoteAsset=${quoteAsset}`,
       });
+
+      if (!response || response.error) {
+        throw new Error(response?.error || "Failed to fetch liquidation map data");
+      }
+
       return response.data;
     },
     enabled: !!timeframe && !!exchange && !!instrumentId && !!baseAsset && !!quoteAsset,
   });
+
   let returnData: FormatLiquidationDataResult | undefined = undefined;
   if (data) {
     returnData = formatLiquidationData(data);
   }
+
   return {
     data: returnData,
     isPending,
@@ -195,13 +215,18 @@ export const useFetchLiquidMapData = (
 
 export const useFetchLiquidHeatMapData = (timeframe?: string, exchange?: string, symbol?: string) => {
   const hash = ["get-liquid-heat-map", timeframe, exchange, symbol];
+
   const { data, isPending, error, isSuccess, isFetching, refetch } = useQuery<LiquidHeatmapResponse>({
     queryKey: hash,
     queryFn: async () => {
       const response = await api.get({
         url: `/api/liq-heatmap?timeframe=${timeframe}&exchange=${exchange}&symbol=${symbol}`,
       });
-      console.log("response", response);
+
+      if (!response || response.error) {
+        throw new Error(response?.error || "Failed to fetch liquidation heatmap data");
+      }
+
       return response.data;
     },
     enabled: !!timeframe && !!exchange && !!symbol,
@@ -214,25 +239,37 @@ export const useFetchLiquidHeatMapData = (timeframe?: string, exchange?: string,
     error,
     isFetching,
     refetch,
-  }
-}
-export const useFetchLiquidDataMerged = (
-  timeframe?: string,
-  asset?: string,
-) => {
+  };
+};
+
+export const useFetchLiquidDataMerged = (timeframe?: string, asset?: string) => {
   const hash = ["get-liquid-exchange-map", timeframe, asset];
-  const { data, isPending, error, isSuccess, isFetching, refetch } =
-    useQuery<LiquidExchangeResponse>({
-      queryKey: hash,
-      queryFn: async () => {
-        const response = await api.get({
-          url: `/api/ex-liq-map?timeframe=${timeframe}&asset=${asset}`,
-        });
-        return response.data;
-      },
-      enabled: !!timeframe && !!asset,
-    });
+
+  const {
+    data,
+    isPending,
+    error,
+    isSuccess,
+    isFetching,
+    refetch,
+  } = useQuery<LiquidExchangeResponse>({
+    queryKey: hash,
+    queryFn: async () => {
+      const response = await api.get({
+        url: `/api/ex-liq-map?timeframe=${timeframe}&asset=${asset}`,
+      });
+
+      if (!response || response.error) {
+        throw new Error(response?.error || "Failed to fetch liquid exchange map data");
+      }
+
+      return response.data;
+    },
+    enabled: !!timeframe && !!asset,
+  });
+
   let resData: FormatExcLiquidationDataResult | null = null;
+
   if (data) {
     resData = formatMergetLiquidMapData(data);
   }
@@ -241,7 +278,7 @@ export const useFetchLiquidDataMerged = (
     data: resData,
     isPending,
     isSuccess,
-    error,
+    error, 
     isFetching,
     refetch,
   };
@@ -312,15 +349,25 @@ export const useFetchTopGainerLoser = (country = "") => {
 };
 
 export const useFetchMarkeData = () => {
-  const hash = ["get-market-data"];
+  const queryKey = ["get-market-data"];
+
   const response = useQuery<BtcDominanceResponse>({
-    queryKey: hash,
+    queryKey,
     queryFn: async () => {
       const res = await api.get({
         url: "https://api.coingecko.com/api/v3/global",
       });
-      console.log("response", res);
-      return res?.data;
+
+      if (!res || !res.data) {
+        const message =
+          typeof res?.error === "string"
+            ? res.error
+            : res?.error?.message || res?.error?.msg || "Failed to fetch market data";
+
+        throw new Error(message);
+      }
+
+      return res.data;
     },
   });
 
@@ -391,8 +438,19 @@ export const useFetchCoinStatsToken = () => {
   const res = useQuery<CoinStatsTokenInfo[]>({
     queryKey,
     queryFn: async () => {
-      const response = await axios.get("/api/coinstats-coins");
-      return response.data;
+      try {
+        const response = await axios.get("/api/coinstats-coins");
+        return response.data;
+      } catch (err: any) {
+        const message =
+          err?.response?.data?.error ||
+          err?.response?.data?.msg ||
+          err?.response?.data?.message ||
+          err?.message ||
+          "Failed to fetch token list";
+
+        throw new Error(message);
+      }
     },
   });
 
@@ -404,11 +462,22 @@ export const useFetchCoinStatsSingleToken = (token = "") => {
 
   const res = useQuery<CoinStatsTokenInfo>({
     queryKey,
-    queryFn: async () => {
-      const response = await axios.get(`/api/coinstats-coins?token=${token}`);
-      return response.data;
-    },
     enabled: !!token,
+    queryFn: async () => {
+      try {
+        const response = await axios.get(`/api/coinstats-coins?token=${token}`);
+        return response.data;
+      } catch (err: any) {
+        const message =
+          err?.response?.data?.error ||
+          err?.response?.data?.msg ||
+          err?.response?.data?.message ||
+          err?.message ||
+          "Failed to fetch token info";
+
+        throw new Error(message);
+      }
+    },
   });
 
   return res;
@@ -416,21 +485,34 @@ export const useFetchCoinStatsSingleToken = (token = "") => {
 
 export const useFetchFearAndGreed = (token: string, token_slug?: string) => {
   const hash = ["fetch-fear-and-greed", token];
-  const response = useQuery<CfgiDataResponse[]>({
+
+  const { data, isPending, error, isSuccess, isFetching, refetch } = useQuery<CfgiDataResponse[]>({
     queryKey: hash,
     queryFn: async () => {
       const response = await api.get({
         url: `/api/cfgi?token=${token}&period=4&values=1&token_slug=${token_slug}`,
       });
+
+      const message =
+        response?.error || response?.message || response?.data?.error || "Failed to fetch fear & greed data";
+
+      if (!response || response.error) {
+        throw new Error(message);
+      }
+
       return response.data;
     },
     enabled: !!token && !!token_slug,
-    // refetchOnMount: "always",
-    // refetchOnWindowFocus: "always",
-    // refetchOnReconnect: "always",
   });
 
-  return response;
+  return {
+    data,
+    isPending,
+    error,
+    isSuccess,
+    isFetching,
+    refetch,
+  };
 };
 
 export const useReadFearAndGridFromDb = (token: string) => {
@@ -466,20 +548,29 @@ export const useFetchCoinStatsScreener = () => {
 
 export const useFetchOrderbookDelta = (exchange: string, symbol: string, interval: string, range: string) => {
   const queryKey = ["get-orderbook-delta", exchange, symbol, interval, range];
+
   const { data, isPending, error, isSuccess, isFetching, refetch } = useQuery<OrderBookDeltaResponse>({
-    queryKey: queryKey,
+    queryKey,
     queryFn: async () => {
       const url = `/api/delta?exchange=${exchange}&symbol=${symbol}&interval=${interval}&range=${range}`;
 
-      const response = await fetch(url);
+      let response: Response;
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to fetch orderbook delta data");
+      try {
+        response = await fetch(url);
+      } catch (networkError: any) {
+        throw new Error(networkError?.message || "Network error fetching orderbook delta");
       }
 
-      const responseData = await response.json();
-      return responseData;
+      const json = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        const message = json?.error || json?.message || "Failed to fetch orderbook delta data";
+
+        throw new Error(message);
+      }
+
+      return json;
     },
     enabled: !!exchange && !!symbol && !!interval && !!range,
   });
@@ -498,14 +589,12 @@ export const useFetchWhaleTransactions = () => {
   const queryKey = ["get-whale-transactions"];
 
   const { data, isPending, error, isSuccess, isFetching, refetch } = useQuery<WhaleTransactionResponse>({
-    queryKey: queryKey,
+    queryKey,
     queryFn: async () => {
-      const url = `/api/whale-transaction`;
+      const response = await api.get({ url: `/api/whale-transaction` });
 
-      const response = await api.get({ url });
-
-      if (!response.data) {
-        throw new Error(response.error || "Failed to fetch whale transaction data");
+      if (!response?.data) {
+        throw new Error(response?.error || "Failed to fetch whale transaction data");
       }
 
       return response;
@@ -514,7 +603,7 @@ export const useFetchWhaleTransactions = () => {
   });
 
   return {
-    data: data?.data,
+    data: data?.data, 
     isPending,
     isSuccess,
     error,
@@ -534,7 +623,12 @@ export const useFetchEconomicCalendar = () => {
       const response = await api.get({ url });
 
       if (!response.data) {
-        throw new Error(response.error || "Failed to fetch economic calendar data");
+        const errorMessage =
+          typeof response.error === "string"
+            ? response.error
+            : response.error?.message || "Failed to fetch economic calendar data";
+
+        throw new Error(errorMessage);
       }
 
       return response;
@@ -542,11 +636,15 @@ export const useFetchEconomicCalendar = () => {
     refetchInterval: 300000,
   });
 
+  const normalizedError = error
+    ? new Error((error as any)?.message || (error as any)?.msg || (error as any)?.error || JSON.stringify(error))
+    : null;
+
   return {
     data: data?.data,
     isPending,
     isSuccess,
-    error,
+    error: normalizedError,
     isFetching,
     refetch,
   };

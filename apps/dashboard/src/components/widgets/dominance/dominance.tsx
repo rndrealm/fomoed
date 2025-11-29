@@ -30,14 +30,7 @@ const transition = (duration: number, delay: number) => ({
 });
 
 function DominanceItem(props: IDominanceItem) {
-  const {
-    variant,
-    value,
-    change,
-    alternate = false,
-    delay = 0,
-    duration = 0.5,
-  } = props;
+  const { variant, value, change, alternate = false, delay = 0, duration = 0.5 } = props;
 
   const hasMounted = useRef(false);
   const effectiveDelay = hasMounted.current ? 0 : delay;
@@ -57,25 +50,13 @@ function DominanceItem(props: IDominanceItem) {
     >
       <motion.div className="" style={{ height: "content-fit" }}>
         <motion.div
-          className={cn(
-            "flex flex-col overflow-visible",
-            alternate ? "visible" : "invisible"
-          )}
+          className={cn("flex flex-col overflow-visible", alternate ? "visible" : "invisible")}
           initial={{ y: 55 }}
           animate={{ y: 0 }}
           transition={transition(duration, effectiveDelay)}
         >
-          <p
-            className={cn(
-              "text-xs font-medium leading-[1.35]",
-              `text-[${color}]`
-            )}
-          >
-            {variant}
-          </p>
-          <p className="text-white text-xs font-bold leading-[1.35] overflow-visible">
-            {value}%
-          </p>
+          <p className={cn("text-xs font-medium leading-[1.35]", `text-[${color}]`)}>{variant}</p>
+          <p className="text-white text-xs font-bold leading-[1.35] overflow-visible">{value}%</p>
           {/* <div className="flex items-center gap-1">
             <ArrowUp small negative={isNegative} />
             <p
@@ -98,23 +79,15 @@ function DominanceItem(props: IDominanceItem) {
 
       <div className="overflow-hidden" style={{ height: "content-fit" }}>
         <motion.div
-          className={cn(
-            "flex flex-col overflow-hidden",
-            !alternate ? "visible" : "invisible"
-          )}
+          className={cn("flex flex-col overflow-hidden", !alternate ? "visible" : "invisible")}
           initial={{ y: 55 }}
           animate={{ y: 0 }}
           transition={transition(duration, effectiveDelay + 0.2)}
         >
-          <p
-            className={cn("text-xs font-medium leading-[1.35]")}
-            style={{ color }}
-          >
+          <p className={cn("text-xs font-medium leading-[1.35]")} style={{ color }}>
             {variant}
           </p>
-          <p className="text-white text-xs font-bold leading-[1.35]">
-            {value}%
-          </p>
+          <p className="text-white text-xs font-bold leading-[1.35]">{value}%</p>
           {/* <div className="flex items-center gap-1">
             <ArrowUp small negative={isNegative} />
             <p
@@ -138,20 +111,18 @@ interface IProps {
 
 export default function Dominance(props: IProps) {
   const { widget } = props;
-  const { data, isSuccess } = useFetchMarkeData();
+  const { data, isSuccess, error } = useFetchMarkeData();
+
+  if (error) {
+    throw new Error(`Market Data Error: ${error.message}`);
+  }
 
   const [showInfo, setShowInfo] = useState(false);
 
-  const btcDominance = formatPriceSignificant(
-    data?.market_cap_percentage?.btc || 0
-  );
+  const btcDominance = formatPriceSignificant(data?.market_cap_percentage?.btc || 0);
 
-  const ethDominance = formatPriceSignificant(
-    data?.market_cap_percentage?.eth || 0
-  );
-  const othersDominance = formatPriceSignificant(
-    100 - (Number(btcDominance) + Number(ethDominance))
-  );
+  const ethDominance = formatPriceSignificant(data?.market_cap_percentage?.eth || 0);
+  const othersDominance = formatPriceSignificant(100 - (Number(btcDominance) + Number(ethDominance)));
 
   return (
     <WidgetWrapper
@@ -165,9 +136,7 @@ export default function Dominance(props: IProps) {
     >
       <div className="flex flex-col">
         <div className="flex flex-col">
-          <h4 className="font-medium text-sm text-[#878787] leading-[1.35] select-none">
-            Bitcoin Dominance
-          </h4>
+          <h4 className="font-medium text-sm text-[#878787] leading-[1.35] select-none">Bitcoin Dominance</h4>
           <div className="flex items-center gap-1">
             <p className="text-xl font-bold text-white">{btcDominance}%</p>
             {/* <div className="flex items-center">
@@ -182,19 +151,8 @@ export default function Dominance(props: IProps) {
         <div className="flex items-center gap-[6px]">
           <RenderIf condition={isSuccess}>
             <DominanceItem variant="BTC" value={btcDominance} change={2.98} />
-            <DominanceItem
-              variant="ETH"
-              value={ethDominance}
-              change={-0.2}
-              alternate
-              delay={0.5}
-            />
-            <DominanceItem
-              variant="Others"
-              value={othersDominance}
-              change={-0.2}
-              delay={1}
-            />
+            <DominanceItem variant="ETH" value={ethDominance} change={-0.2} alternate delay={0.5} />
+            <DominanceItem variant="Others" value={othersDominance} change={-0.2} delay={1} />
           </RenderIf>
         </div>
       </div>
@@ -212,17 +170,14 @@ export default function Dominance(props: IProps) {
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-3">
                   <div className="flex flex-col">
-                    <h3 className="font-semibold text-base leading-[1.35] text-white">
-                      BTC Dominance
-                    </h3>
+                    <h3 className="font-semibold text-base leading-[1.35] text-white">BTC Dominance</h3>
                     <p className="font-light text-[13px] leading-[1.25] text-[#878787]">
                       Learn about the BTC Dominance
                     </p>
                   </div>
                   <p className="font-medium text-[13px] leading-[1.35] text-white">
-                    Bitcoin (BTC) dominance is the percentage of the total
-                    cryptocurrency market&apos;s value that Bitcoin accounts
-                    for.
+                    Bitcoin (BTC) dominance is the percentage of the total cryptocurrency market&apos;s value that
+                    Bitcoin accounts for.
                   </p>
 
                   <div className="flex flex-col">

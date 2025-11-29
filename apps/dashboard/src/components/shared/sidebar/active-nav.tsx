@@ -108,7 +108,7 @@ const ActiveNav = (props: IActiveNavProps) => {
         </div>
 
         {/* bottom links */}
-        <div className="flex w-full flex-col gap-0">
+        <div className="w-full flex-col hidden gap-0">
           {bottomLinks.map((item, index) => {
             return (
               <NavLink

@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     "news",
   ],
   creator: "IDS",
-  metadataBase: new URL("https://dashboard-dev.fomoed.io"),
+  metadataBase: new URL("https://dashboard.fomoed.io"),
   openGraph: {
     images: "/og2.png",
   },

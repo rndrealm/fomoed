@@ -3,6 +3,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production",
+  },
   images: {
     remotePatterns: [
       {
@@ -89,6 +92,14 @@ const sentryConfig: SentryBuildOptions = {
   org: "fomoed",
 
   project: "fomoed-dashboard-fe",
+
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+
+  sourcemaps: {
+    disable: false, // Source maps are enabled by default
+    ignore: ["**/node_modules/**"], // Files to exclude
+    deleteSourcemapsAfterUpload: true, // Security: delete after upload
+  },
 
   // Only print logs for uploading source maps in CI
   silent: !process.env.CI,

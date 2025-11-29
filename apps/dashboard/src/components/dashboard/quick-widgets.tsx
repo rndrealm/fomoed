@@ -14,7 +14,12 @@ import { v4 as uuidv4 } from "uuid";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { CommunityIcon } from "../icons/icons";
 import CloseIcon from "../icons/CloseIcon";
-import { addWidgetToExistingLayoutAtom, addWidgetToNewLayoutAtom, layoutAtom } from "@/lib/atoms/layoutAtom";
+import {
+  addWidgetToExistingLayoutAtom,
+  addWidgetToNewLayoutAtom,
+  layoutAtom,
+  syncLayoutOnSelectAtom,
+} from "@/lib/atoms/layoutAtom";
 import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 import { useGetUserPlans } from "@/services/queries/subscriptions";
 import { getGridPosition } from "@/charts/helpers";
@@ -23,6 +28,7 @@ import PlusIcon from "../icons/PlusIcon";
 import Star from "../icons/Star";
 import StarFilled from "../icons/StarFilled";
 import { motion, useAnimate } from "motion/react";
+import { toast } from "sonner";
 
 const categoriesOptions = [
   { id: 1, label: "All", value: "all" },
@@ -87,6 +93,7 @@ export function QuickWidgets(props: IProps) {
   const addWidgetToNewLayout = useSetAtom(addWidgetToNewLayoutAtom);
   const dashboardSetting = useAtomValue(settingAtom);
   const addWidgetToExistingLayout = useSetAtom(addWidgetToExistingLayoutAtom);
+  const syncLayouts = useSetAtom(syncLayoutOnSelectAtom);
 
   const updateSettings = useSetAtom(updateSettingAtom);
 
@@ -129,6 +136,12 @@ export function QuickWidgets(props: IProps) {
       const planType = data?.planType || "FREE"; // Default to FREE if not set
       const maxTabs = maxTabsByPlan[planType] || 3;
       if (layouts.length >= maxTabs) {
+        syncLayouts(layouts[0]);
+        addWidgetToExistingLayout({
+          widget: newWidget,
+          layoutId: layouts[0].id,
+          sync: syncCondition,
+        });
         setShowUpgradeModal(true);
         return;
       }
@@ -227,7 +240,7 @@ export function QuickWidgets(props: IProps) {
             </RenderIf>
 
             <div className="grid min-w-full min-h-0 grid-cols-1 overflow-auto md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-8">
-              {filteredWidget.map((widget, index) => {
+              {filteredWidget.sort((a, b) => a.id - b.id).map((widget, index) => {
                 const widgetSlug = widget.slug;
 
                 //every index of element that comes after third element
@@ -238,7 +251,7 @@ export function QuickWidgets(props: IProps) {
 
                 // only for the default state of the widgets when the modal is opened - (no search no tags selected)
                 const defaultSettings = !searchValue && selectedTag === "all";
-                // console.log("defaultSettings", selectedTag, searchValue);
+                // console.log("defaultSettings", selectedTag, searchView);
 
                 const textCondition = indexTarget && defaultSettings;
 
@@ -257,7 +270,6 @@ export function QuickWidgets(props: IProps) {
                         key={widget.name}
                         className="min-h-fit aspect-square bg-[#28282866] data-[selected=true]:bg-[#27292E] rounded-[24px] p-0 overflow-hidden cursor-pointer"
                         onSelect={(e) => {
-                          // console.log("gggg", e);
                           handleWidgetClick(widget);
                         }}
                       >

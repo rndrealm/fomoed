@@ -9,7 +9,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   return {
     title: "Fomoed News",
     description: article.title,
-    metadataBase: new URL("https://dashboard-dev.fomoed.io"),
+    metadataBase: new URL("https://dashboard.fomoed.io"),
     openGraph: {
       images: "/og3.png",
     },

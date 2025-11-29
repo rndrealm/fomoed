@@ -20,6 +20,8 @@ interface IProps {
 }
 
 const CignalsChartComp = ({ widget }: IProps) => {
+  const [fatalError, setFatalError] = useState<Error | null>(null);
+
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isConnectionStatusVisible, setIsConnectionStatusVisible] = useState(true);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -56,19 +58,27 @@ const CignalsChartComp = ({ widget }: IProps) => {
   useEffect(() => {
     if (!canvasRef.current || chartRef.current) return;
 
-    console.debug("Initializing CignalsChart from within CignalsChartComp");
-
     const provider = new CignalsChartDataProviderAPI();
 
     chartRef.current = new CignalsChart({
       canvas: canvasRef.current,
       dataProvider: provider,
-      onSocketConnecting: onSocketConnecting,
-      onSocketDisconnected: onSocketDisconnected,
-      onSocketConnected: onSocketConnected,
+      onSocketConnecting,
+      onSocketDisconnected,
+      onSocketConnected,
     });
+
     chartRef.current.autoAdjustDatapointWidth();
-    chartRef.current.refreshData();
+
+    const load = async () => {
+      try {
+        await chartRef.current!.refreshData();
+      } catch (err) {
+        setFatalError(err as Error);
+      }
+    };
+
+    load();
   }, []);
 
   const handleSave = (newOptions: CignalsChartOptions) => {
@@ -101,6 +111,10 @@ const CignalsChartComp = ({ widget }: IProps) => {
       setIsConnectionStatusVisible(true);
     }
   }, [isFullscreen]);
+
+  if (fatalError) {
+    throw fatalError;
+  }
 
   return (
     <>
@@ -161,7 +175,7 @@ const CignalsChartComp = ({ widget }: IProps) => {
             <div className="flex-grow"></div>
             <CignalControls onSave={handleSave} chartOptions={chartOptions} toggleFullscreen={toggleFullscreen} />
           </motion.div>,
-          overlayRoot
+          overlayRoot,
         )}
     </>
   );

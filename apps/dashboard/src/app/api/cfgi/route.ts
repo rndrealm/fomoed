@@ -14,30 +14,22 @@ const parseCfgiData = (data: CfgiDataResponse[], token: string) =>
     .filter((d) => d.date && d.price && d.cfgi && !isNaN(d.cfgi));
 
 // Helper function to fetch and format fallback data
-const fetchFallbackData = async (
-  token_slug: string,
-  token: string,
-  period: string
-) => {
+const fetchFallbackData = async (token_slug: string, token: string, period: string) => {
   // Fallback to Coin Stats API if CFGI API fails
   const token_historical_price = uniqBy(
-    await fetch(
-      `https://api.coin-stats.com/v2/coin_chart/${token_slug}?type=all`
-    )
+    await fetch(`https://api.coin-stats.com/v2/coin_chart/${token_slug}?type=all`)
       .then((res) => res.json())
       .then(
         (res) =>
           (res?.data?.map((d: number[]) => {
             return {
-              date: new Date(
-                new Date(d[0] * 1000).setHours(0, 0, 0, 0)
-              ).getTime(),
+              date: new Date(new Date(d[0] * 1000).setHours(0, 0, 0, 0)).getTime(),
               price: d[1],
             };
-          }) || []) as { date: number; price: number }[]
+          }) || []) as { date: number; price: number }[],
       )
       .catch(() => []),
-    "date"
+    "date",
   );
 
   // Summarize history by the day
@@ -54,20 +46,13 @@ const fetchFallbackData = async (
           }[]) || [];
 
         return data.map((d) => {
-          d.timestamp = new Date(
-            new Date(parseInt(d.timestamp.toString()) * 1000).setHours(
-              0,
-              0,
-              0,
-              0
-            )
-          ).getTime();
+          d.timestamp = new Date(new Date(parseInt(d.timestamp.toString()) * 1000).setHours(0, 0, 0, 0)).getTime();
 
           return d;
         });
       })
       .catch(() => []),
-    "timestamp"
+    "timestamp",
   );
 
   // History of Tether isn't accurate
@@ -77,26 +62,18 @@ const fetchFallbackData = async (
     data: sortBy(
       cfgi_data
         .map((d) => {
-          const h_price = token_historical_price.find(
-            (p) => p.date === d.timestamp
-          );
+          const h_price = token_historical_price.find((p) => p.date === d.timestamp);
 
           return {
             cfgi: parseInt(d.value.toString()),
-            price:
-              d.timestamp && !isNaN(d.timestamp)
-                ? h_price?.price || null
-                : null,
-            date:
-              d.timestamp && !isNaN(d.timestamp)
-                ? new Date(d.timestamp).getTime()
-                : 0,
+            price: d.timestamp && !isNaN(d.timestamp) ? h_price?.price || null : null,
+            date: d.timestamp && !isNaN(d.timestamp) ? new Date(d.timestamp).getTime() : 0,
             symbol: token,
             period,
           };
         })
         .filter((d) => d.price && d.date && d.cfgi && !isNaN(d.cfgi)),
-      ["date"]
+      ["date"],
     ),
     source: "coin-stats",
   };
@@ -116,14 +93,11 @@ export async function GET(request: Request) {
 
     // Ensure required parameters are present
     if (!token || !token_slug || !period) {
-      return NextResponse.json(
-        { error: "Missing required query parameters" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Missing required query parameters" }, { status: 400 });
     }
 
     const response = await fetch(
-      `https://cfgi.io/api/api_request.php?api_key=${apiKey}&token=${token}&period=${period}&values=${values}`
+      `https://cfgi.io/api/api_request_v2.php?api_key=${apiKey}&token=${token}&period=${period}&values=${values}`,
       // {
       //   cache: "no-store",
       // }
@@ -147,9 +121,6 @@ export async function GET(request: Request) {
   } catch (error) {
     // Handle errors gracefully
     console.log("Error fetching CFGI data:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch CFGI data" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch CFGI data" }, { status: 500 });
   }
 }

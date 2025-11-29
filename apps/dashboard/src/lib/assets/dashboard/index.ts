@@ -85,7 +85,9 @@ import gemachCopyInfo2 from "../../../../public/media/images/dashboard/gemach-co
 import gemachCopyInfo3 from "../../../../public/media/images/dashboard/gemach-copy-info-3.png";
 import gemachCopyInfo4 from "../../../../public/media/images/dashboard/gemach-copy-info-4.png";
 import gemachCopyInfo5 from "../../../../public/media/images/dashboard/gemach-copy-info-5.png";
-import referralAsset from "../../../../public/media/images/referrals/referral_asset.png"
+import youtube from "../../../../public/media/images/dashboard/youtube.png";
+import gemachPreview from "../../../../public/media/images/dashboard/gemach-preview.png";
+import referralAsset from "../../../../public/media/images/referrals/referral_asset.png";
 import ascendexLogo from "../../../../public/media/images/dashboard/ascendex/ascendex-logo.png";
 import buyOrderbook from "../../../../public/media/images/dashboard/ascendex/buy-orderbook.png";
 import sellOrderbook from "../../../../public/media/images/dashboard/ascendex/sell-orderbook.png";
@@ -99,6 +101,8 @@ import binanceLogo from "../../../../public/media/images/dashboard/binance-logo.
 import bybitLogo from "../../../../public/media/images/dashboard/bybit-logo.png";
 import coinwLogo from "../../../../public/media/images/dashboard/coinw-logo.png";
 import hyperliquidLogo2 from "../../../../public/media/images/dashboard/hyperliquid-logo.png";
+import telegramPreview from "../../../../public/media/images/dashboard/telegram-preview.png";
+import telegramUserIcon from "../../../../public/media/images/dashboard/telegram-user-icon.png";
 
 const dashboard = {
   layoutPlaceholder,
@@ -199,7 +203,11 @@ const dashboard = {
   hyperliquidLogo2,
   ascendexAnimation,
   noDeposits,
-  noOpenOrders
+  noOpenOrders,
+  gemachPreview,
+  youtube,
+  telegramPreview,
+  telegramUserIcon,
 };
 
 export default dashboard;

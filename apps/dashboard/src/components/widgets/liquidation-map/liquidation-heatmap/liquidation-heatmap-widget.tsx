@@ -72,6 +72,11 @@ export default function LiquidationHeatmapWidget(props: IProps) {
     error,
   } = useFetchLiquidHeatMapData(widget.props?.period, selectedPair?.value.exchange, selectedPair?.value.symbol);
 
+  if (error) {
+    const message = error.message || "Unexpected error occurred";
+    throw new Error(`Liquidation heatmap data request failed - ${message}`);
+  }
+
   const toggleFullscreen = () => {
     setIsFullscreen((prev) => !prev);
     if (!isFullscreen) {
@@ -124,12 +129,7 @@ export default function LiquidationHeatmapWidget(props: IProps) {
         {/* Controls */}
         <div className={cn("py-2", { "opacity-0": isFullscreen, "opacity-100": !isFullscreen })}>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <CoinDropdown
-              title=""
-              options={coinData || []}
-              value={widget.props?.token}
-              setValue={handleCoinChange}
-            />
+            <CoinDropdown title="" options={coinData || []} value={widget.props?.token} setValue={handleCoinChange} />
             <div className="flex flex-wrap items-center justify-start sm:justify-end gap-2 w-full sm:w-auto">
               <PairDropdown
                 options={filteredData}
@@ -154,7 +154,11 @@ export default function LiquidationHeatmapWidget(props: IProps) {
         {/* Chart Area */}
         <div className={cn("relative flex flex-col", isFullscreen ? "h-full" : "flex-1")} ref={chartRef}>
           {/* Legend */}
-          <div className={cn("flex flex-wrap items-center justify-center gap-x-4 gap-y-2 pt-1 pb-2", { hidden: isFullscreen })}>
+          <div
+            className={cn("flex flex-wrap items-center justify-center gap-x-4 gap-y-2 pt-1 pb-2", {
+              hidden: isFullscreen,
+            })}
+          >
             <ChartLegend colorOptions={colorToCfgi} />
           </div>
 
@@ -192,13 +196,13 @@ export default function LiquidationHeatmapWidget(props: IProps) {
                   </div>
                   <p className="text-[13px] leading-[1.35] font-medium text-white">
                     A Liquidation Heatmap is a chart that predicts price levels where large-scale liquidations might
-                    occur. When trader&apos;s leveraged positions lack sufficient margin, exchanges forcibly close
-                    them, creating these events. The heatmap helps traders identify these high-liquidity zones.
+                    occur. When trader&apos;s leveraged positions lack sufficient margin, exchanges forcibly close them,
+                    creating these events. The heatmap helps traders identify these high-liquidity zones.
                   </p>
                   <p className="text-[13px] leading-[1.35] font-medium text-white">
-                    The chart calculates potential liquidation levels using market data for various leverage amounts.
-                    As more estimated liquidations are added to a price, the colors change from purple (low
-                    concentration) to yellow (high concentration), highlighting areas of high risk and liquidity.
+                    The chart calculates potential liquidation levels using market data for various leverage amounts. As
+                    more estimated liquidations are added to a price, the colors change from purple (low concentration)
+                    to yellow (high concentration), highlighting areas of high risk and liquidity.
                   </p>
                   <div className="flex flex-col gap-2">
                     <p className="text-[13px] leading-[1.35] font-semibold text-white">How traders can use it:</p>

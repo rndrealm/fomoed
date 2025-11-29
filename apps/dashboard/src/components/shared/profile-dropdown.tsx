@@ -131,7 +131,7 @@ export function ProfileDropdown(props: IProps) {
             </div>
           </div>
 
-          <div className="px-3 py-0">
+          {/* <div className="px-3 py-0">
             <div className="px-2 py-4 border-t-[1px] border-[#242424] flex flex-row items-center justify-center">
               <button
                 type="button"
@@ -147,7 +147,7 @@ export function ProfileDropdown(props: IProps) {
                 </div>
               </button>
             </div>
-          </div>
+          </div> */}
 
           <div className="px-3 py-0">
             <div className="px-2 py-4 border-t-[1px] border-[#242424] flex flex-row items-center justify-center">

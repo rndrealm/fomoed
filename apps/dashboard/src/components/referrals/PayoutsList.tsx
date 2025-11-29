@@ -52,11 +52,9 @@ const PayoutsList: FC<PayoutsListProps> = ({ payouts }) => {
   };
 
   const handleExportToExcel = async () => {
-    // Create a new workbook and worksheet
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Payouts");
 
-    // Define columns
     worksheet.columns = [
       { header: "Email", key: "email", width: 30 },
       { header: "Status", key: "status", width: 12 },
@@ -66,7 +64,6 @@ const PayoutsList: FC<PayoutsListProps> = ({ payouts }) => {
       { header: "Eligibility", key: "eligibility", width: 15 },
     ];
 
-    // Style the header row
     const headerRow = worksheet.getRow(1);
     headerRow.height = 20;
 
@@ -87,7 +84,6 @@ const PayoutsList: FC<PayoutsListProps> = ({ payouts }) => {
       };
     }
 
-    // Add data rows
     payouts.forEach((payout, index) => {
       const row = worksheet.addRow({
         email: payout.email,
@@ -98,12 +94,10 @@ const PayoutsList: FC<PayoutsListProps> = ({ payouts }) => {
         eligibility: payout.eligibility,
       });
 
-      // Only apply styling to columns A–F
       const dataColumns = [1, 2, 3, 4, 5, 6];
       dataColumns.forEach((colNum) => {
         const cell = row.getCell(colNum);
 
-        // Gray background for odd rows
         if (index % 2 === 0) {
           cell.fill = {
             type: "pattern",
@@ -112,7 +106,6 @@ const PayoutsList: FC<PayoutsListProps> = ({ payouts }) => {
           };
         }
 
-        // Apply borders
         cell.border = {
           top: { style: "thin", color: { argb: "FFD3D3D3" } },
           left: { style: "thin", color: { argb: "FFD3D3D3" } },
@@ -123,17 +116,14 @@ const PayoutsList: FC<PayoutsListProps> = ({ payouts }) => {
         cell.alignment = { vertical: "middle" };
       });
 
-      // Format Amount column (C)
       const amountCell = row.getCell(3);
       amountCell.numFmt = "$#,##0.00";
       amountCell.alignment = { vertical: "middle", horizontal: "right" };
     });
 
-    // Generate file name with current date
     const date = new Date().toISOString().split("T")[0];
     const fileName = `payouts_${date}.xlsx`;
 
-    // Write to buffer and download
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -202,7 +192,6 @@ const PayoutsList: FC<PayoutsListProps> = ({ payouts }) => {
 
         {/* Pagination Controls */}
         <div className="flex items-center justify-between px-4 py-3 border-t border-zinc-700">
-          {/* Rows per page selector */}
           <div className="flex items-center gap-2 text-sm text-zinc-400">
             <span>Rows per page:</span>
             <select

@@ -28,6 +28,11 @@ const TradingEconomicsWidget = (props: IProps) => {
 
   const { data: events = [], isPending, error } = useFetchEconomicCalendar();
 
+  if (error) {
+    const message = error.message || "Unexpected error occurred";
+    throw new Error(`API request failed - ${message}`);
+  }
+
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
@@ -36,7 +41,6 @@ const TradingEconomicsWidget = (props: IProps) => {
   }, []);
 
   const eventsForCalendarView = useMemo(() => {
-    // **MODIFIED LOGIC STARTS HERE**
     const isInitialView = selectedDate.toDateString() === initialDate.toDateString();
 
     const startDate = isInitialView
@@ -63,7 +67,6 @@ const TradingEconomicsWidget = (props: IProps) => {
     });
 
     return groupedEvents;
-    // **MODIFIED LOGIC ENDS HERE**
   }, [events, selectedDate, initialDate]);
 
   const offsetMinutes = new Date().getTimezoneOffset();
@@ -104,8 +107,6 @@ const TradingEconomicsWidget = (props: IProps) => {
       <div className="flex-grow overflow-auto py-1 no-scrollbar overflow-auto">
         {isPending ? (
           <Skeleton className="h-full w-full bg-neutral-800" />
-        ) : error ? (
-          <div className="text-red-500">Error: {error.message}</div>
         ) : (
           <EconomicCalendarTableView eventsByDate={eventsForCalendarView} />
         )}

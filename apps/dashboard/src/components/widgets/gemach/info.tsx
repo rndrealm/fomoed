@@ -34,14 +34,16 @@ export function Info() {
             </div>
           </button>
 
-          <button type="button">
-            <div className="flex gap-1 items-center border border-[#242424] py-[6px] px-2 rounded-2xl">
-              <div className="w-[14px] h-[14px] flex items-center justify-center">
-                <ExternalLink />
+          <a href="https://docs.gemach.io/gemach-dao/products/gdex-pro" target="_blank" rel="noopener noreferrer">
+            <button type="button">
+              <div className="flex gap-1 items-center border border-[#242424] py-[6px] px-2 rounded-2xl">
+                <div className="w-[14px] h-[14px] flex items-center justify-center">
+                  <ExternalLink />
+                </div>
+                <p className="text-[#fafafa] text-xs leading-[16px] tracking-[-0.4%]">Docs</p>
               </div>
-              <p className="text-[#fafafa] text-xs leading-[16px] tracking-[-0.4%]">Docs</p>
-            </div>
-          </button>
+            </button>
+          </a>
         </div>
       </div>
 

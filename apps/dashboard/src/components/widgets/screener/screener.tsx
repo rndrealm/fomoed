@@ -70,7 +70,10 @@ export default function Screener(props: IProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isControlsVisible, setIsControlsVisible] = useState(true);
 
-  const { data = [] } = useFetchCoinStatsToken();
+  const { data = [], error } = useFetchCoinStatsToken();
+  if (error) {
+    throw new Error("CoinStats Token Error: " + error.message);
+  }
   const settings = useAtomValue(settingAtom);
   const updateSettings = useSetAtom(updateSettingAtom);
 

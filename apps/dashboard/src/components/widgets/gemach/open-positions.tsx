@@ -1,14 +1,22 @@
 import React from "react";
 import { useSupabaseAuth } from "@/components/providers";
-import { useReadGemachOpenPositions } from "@/services/queries/gemach";
+import { useGemachCloseSinglePosition, useReadGemachOpenPositions } from "@/services/queries/gemach";
 import { RenderIf } from "@/components/shared";
 import { Spinner } from "@/components/ui/shadcn-io/spinner";
 import { cn, CryptoUtils } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Close } from "@/components/icons/icons";
+import { useAccount } from "wagmi";
+import { toast } from "sonner";
 
 export function OpenPositions() {
   const { session } = useSupabaseAuth();
 
+  const { address } = useAccount();
+
   const { data, isLoading } = useReadGemachOpenPositions(session?.access_token);
+
+  const closePosition = useGemachCloseSinglePosition(session?.access_token);
 
   return (
     <div className="flex-1 mb-4 w-full h-full scrollbar">
@@ -40,7 +48,7 @@ export function OpenPositions() {
               Margin
             </th>
 
-            <th className="px-2 py-3 text-left text-xs leading-[16px] tracking-[-0.4%] whitespace-nowrap text-[#A6AEB2] bg-[#1C1C1C] rounded-tr-lg">
+            <th className="px-2 py-3 text-left text-xs leading-[16px] tracking-[-0.4%] whitespace-nowrap text-[#A6AEB2] bg-[#1C1C1C]">
               Liq. Price
             </th>
 
@@ -124,7 +132,32 @@ export function OpenPositions() {
                   className={cn(
                     "py-4 px-1 text-xs tracking-[-0.4%] leading-[16px] whitespace-nowrap font-medium text-[#FAFAFA]",
                   )}
-                ></td>
+                >
+                  <Button
+                    className="w-[30px] h-[30px] flex justify-center items-center bg-[transparent]"
+                    isLoading={closePosition.isPending}
+                    onClick={() => {
+                      const body = {
+                        address: address || "",
+                        coin: item?.position?.coin || "",
+                        size: item?.position?.szi || "0",
+                        isLongPosition: isLong,
+                      };
+                      closePosition.mutate(body, {
+                        onSuccess: () => {
+                          toast.success("Successfully initiated closing position.");
+                        },
+                        onError: () => {
+                          toast.error("Failed to initiate closing position. Please try again.");
+                        },
+                      });
+                    }}
+                  >
+                    <RenderIf condition={!closePosition.isPending}>
+                      <Close />
+                    </RenderIf>
+                  </Button>
+                </td>
               </tr>
             );
           })}

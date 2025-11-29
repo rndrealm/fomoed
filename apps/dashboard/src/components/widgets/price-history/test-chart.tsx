@@ -29,6 +29,7 @@ import {
   MouseEventParams,
   Time,
   HistogramData,
+  LineStyle,
 } from "lightweight-charts";
 import { RenderIf } from "@/components/shared";
 import { useFetchBinancePriceData } from "@/services/queries/charts";
@@ -134,7 +135,8 @@ function TestChart(props: IProps) {
   // const volumeTimeScaleRef = useRef<TimeScaleApiRef>(null);
   const dataRef = useRef<(LineData | CandlestickData)[]>([]);
   const wsRef = useRef<WebSocket | null>(null);
-  
+  const priceLineRef = useRef<any>(null);
+
   // Range management refs
   const defaultZoomRangeRef = useRef<{ from: number; to: number } | null>(null);
   const visibleRangeRef = useRef<{ from?: Time; to?: Time; } | null>(null);
@@ -174,8 +176,19 @@ function TestChart(props: IProps) {
       case "1D":
         cutoffDate = new Date(now);
         cutoffDate.setHours(0, 0, 0, 0);
+
+        let dailyCutoff: Date;
+
+        // If before 14:00, show exactly 14 hours of data ending at current time
+        if (now.getHours() < 14) {
+          dailyCutoff = new Date(now.getTime() - 14 * 60 * 60 * 1000);
+        } else {
+          // After 14:00, show from 00:00 today to current time
+          dailyCutoff = cutoffDate;
+        }
+
         const filteredDailyData = fullData
-          .filter((d) => (d.time as number) * 1000 >= cutoffDate.getTime())
+          .filter((d) => (d.time as number) * 1000 >= dailyCutoff.getTime())
           .sort((a, b) => (a.time as number) - (b.time as number)); // Ensure sorted
 
         // const intervalMinutes = getIntervalMinutes(period?.binanceInterval);
@@ -379,6 +392,7 @@ function TestChart(props: IProps) {
         const thinningFactor = theoreticalPoints > maxPoints ? Math.ceil(theoreticalPoints / maxPoints) : 1;
         const effectiveInterval = intervalMin * thinningFactor;
         const totalPoints = Math.ceil(1440 / effectiveInterval);
+
         return {
           from: 0,
           to: totalPoints
@@ -465,6 +479,7 @@ function TestChart(props: IProps) {
         const effectiveInterval = intervalMin * thinningFactor;
         const totalPoints = Math.ceil(1440 / effectiveInterval);
 
+        // Check if user has deviated from full 24-hour range
         const isDefaultRange = newRange.from === 0 && newRange.to === totalPoints;
         if (!isDefaultRange) {
           setUserHasZoomed(true);
@@ -590,41 +605,75 @@ function TestChart(props: IProps) {
   );
 
   useEffect(() => {
-    if (!performanceMetrics.startPrice) return;
+    if (!performanceMetrics.startPrice || !aggregatedData.length) return;
 
-    let priceLine: any;
-    const candleApi = candleSeriesRef.current?.api();
-    const lineApi = lineSeriesRef.current?.api();
+    // Capture refs at the beginning of effect
+    const candleSeriesApi = candleSeriesRef.current;
+    const lineSeriesApi = lineSeriesRef.current;
 
-    if (isCandleStick && candleApi) {
-      priceLine = candleApi.createPriceLine({
-        price: performanceMetrics.startPrice,
-        color: "#FFFFFF",
-        lineWidth: 1,
-        lineStyle: 2,
-        axisLabelVisible: false,
-      });
+    // Clean up existing price line first
+    if (priceLineRef.current) {
+      const candleApi = candleSeriesApi?.api();
+      const lineApi = lineSeriesApi?.api();
+
+      try {
+        if (isCandleStick && candleApi) {
+          candleApi.removePriceLine(priceLineRef.current);
+        } else if (!isCandleStick && lineApi) {
+          lineApi.removePriceLine(priceLineRef.current);
+        }
+      } catch (e) {
+        // Ignore cleanup errors
+      }
+      priceLineRef.current = null;
     }
 
-    if (!isCandleStick && lineApi) {
-      priceLine = lineApi.createPriceLine({
-        price: performanceMetrics.startPrice,
-        color: "#FFFFFF",
-        lineWidth: 1,
-        lineStyle: 2,
-        axisLabelVisible: false,
-      });
-    }
+    // Use setTimeout to ensure series API is ready
+    const timeoutId = setTimeout(() => {
+      const candleApi = candleSeriesApi?.api();
+      const lineApi = lineSeriesApi?.api();
+
+      if (isCandleStick && candleApi) {
+        priceLineRef.current = candleApi.createPriceLine({
+          price: performanceMetrics.startPrice,
+          color: "#FFFFFF",
+          lineWidth: 1,
+          lineStyle: LineStyle.Dashed,
+          axisLabelVisible: false,
+        });
+      }
+
+      if (!isCandleStick && lineApi) {
+        priceLineRef.current = lineApi.createPriceLine({
+          price: performanceMetrics.startPrice,
+          color: "#FFFFFF",
+          lineWidth: 1,
+          lineStyle: LineStyle.Dashed,
+          axisLabelVisible: false,
+        });
+      }
+    }, 50); // Small delay to ensure chart is fully rendered
 
     return () => {
-      if (isCandleStick && candleApi && priceLine) {
-        candleApi.removePriceLine(priceLine);
-      }
-      if (!isCandleStick && lineApi && priceLine) {
-        lineApi.removePriceLine(priceLine);
+      clearTimeout(timeoutId);
+      // Clean up on unmount - use captured refs
+      if (priceLineRef.current) {
+        const candleApi = candleSeriesApi?.api();
+        const lineApi = lineSeriesApi?.api();
+
+        try {
+          if (isCandleStick && candleApi) {
+            candleApi.removePriceLine(priceLineRef.current);
+          } else if (!isCandleStick && lineApi) {
+            lineApi.removePriceLine(priceLineRef.current);
+          }
+        } catch (e) {
+          // Ignore cleanup errors
+        }
+        priceLineRef.current = null;
       }
     };
-  }, [performanceMetrics.startPrice, isCandleStick]);
+  }, [performanceMetrics.startPrice, isCandleStick, aggregatedData.length, selectedPeriod]);
 
   // Format price for OHLC display
   const formatOHLCPrice = (price: number) => {

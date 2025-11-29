@@ -442,11 +442,70 @@ export const useReadGemachOpenPositions = (authToken?: string) => {
     refetchOnMount: true,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
-    refetchInterval: 5000,
+    refetchInterval: 10 * 1000,
   });
 
   return {
     ...res,
     data: res?.data as GemachOpenPositions | null,
   };
+};
+
+type CloseAllPositionsProps = {
+  address: string;
+};
+
+export const useGemachCloseAllPositions = (authToken?: string) => {
+  const publicKey = getFromLocalStorage(LOCAL_STORAGE_KEYS.GEMACH_NONCE)?.publicKeyCompressed || "";
+
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: CloseAllPositionsProps) => {
+      const res = await api.gemachPost({
+        url: `${BASE_URL}/gemach/hyperliquid/copy-trade/close-all`,
+        body: { ...data, publicKey },
+        auth: false,
+        headers: getAuthHeaders(authToken),
+      });
+
+      return res?.data?.data;
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["read-copy-trade-list"] });
+      queryClient.invalidateQueries({ queryKey: ["gemach-balance"] });
+      queryClient.invalidateQueries({ queryKey: ["read-gemach-user"] });
+    },
+  });
+};
+
+type CloseSinglePositionProps = {
+  address: string;
+  coin: string; // e.g., "BTC", "ETH", "SOL"
+  size: string; // Position size to close
+  isLongPosition: boolean; // true if closing a long position, false if closing short
+};
+
+export const useGemachCloseSinglePosition = (authToken?: string) => {
+  const publicKey = getFromLocalStorage(LOCAL_STORAGE_KEYS.GEMACH_NONCE)?.publicKeyCompressed || "";
+
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: CloseSinglePositionProps) => {
+      const res = await api.gemachPost({
+        url: `${BASE_URL}/gemach/hyperliquid/copy-trade/close`,
+        body: { ...data, publicKey },
+        auth: false,
+        headers: getAuthHeaders(authToken),
+      });
+
+      return res?.data?.data;
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["read-copy-trade-list"] });
+      queryClient.invalidateQueries({ queryKey: ["gemach-balance"] });
+      queryClient.invalidateQueries({ queryKey: ["read-gemach-user"] });
+    },
+  });
 };

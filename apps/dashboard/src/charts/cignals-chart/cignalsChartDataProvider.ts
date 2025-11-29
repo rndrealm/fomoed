@@ -8,9 +8,32 @@ import type {
   PriceData,
   PriceDataArray,
   CignalsInstrument,
-} from ".//types";
+} from "./types";
 import { capitalize } from "lodash-es";
 import { smartRoundPriceStep } from "../helpers";
+
+function normalizeError({
+  name = "CignalsError",
+  message = "Unknown error",
+  status,
+  url,
+  cause,
+}: {
+  name?: string;
+  message: string;
+  status?: number;
+  url?: string;
+  cause?: any;
+}) {
+  return {
+    name,
+    message,
+    status,
+    url,
+    cause,
+  };
+}
+
 
 abstract class CignalsChartDataProviderBase {
   lastUsedFootprintPriceStep = 0;
@@ -47,40 +70,47 @@ class CignalsChartDataProviderAPI extends CignalsChartDataProviderBase {
   #cignalsHost = "https://api.cignals.io";
 
   private async fetchThroughCignalsRelay(cignalsUrl: URL) {
-    const urlAsString = cignalsUrl.toString();
-    const base64url = btoa(urlAsString);
+    try {
+      const encoded = btoa(cignalsUrl.toString());
+      const relayUrl = new URL(window.location.origin + "/api/cignals/relay");
+      relayUrl.searchParams.append("path", encoded);
 
-    const fomoedUrl = new URL(window.location.origin + "/api/cignals/relay");
-    fomoedUrl.searchParams.append("path", base64url);
+      const response = await fetch(relayUrl);
 
-    const response = await fetch(fomoedUrl, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    if (!response.ok) {
-      throw new Error(`Error fetching through cignals relay: ${response.statusText}`);
+      if (!response.ok) {
+        throw normalizeError({
+          message: `Relay failed: ${response.statusText}`,
+          status: response.status,
+          url: relayUrl.toString(),
+        });
+      }
+
+      return response.json();
+    } catch (err: any) {
+      throw normalizeError({
+        message: "Unable to fetch via Cignals relay",
+        url: cignalsUrl.toString(),
+        cause: err,
+      });
     }
-
-    return response.json();
   }
 
   async fetchInstruments(): Promise<ParsedCignalsInstrumentArray> {
     const url = new URL(this.#cignalsHost + "/v1/instruments");
-    const data = (await this.fetchThroughCignalsRelay(url)) as CignalsInstrument[];
+    try {
+      const raw = (await this.fetchThroughCignalsRelay(url)) as CignalsInstrument[];
 
-    const parsed = data.map((i) => {
-      const exchange = capitalize(i.exchange.replace("_", " "));
-      const perp = i.perpetual ? " PERP" : "";
-
-      return {
+      return raw.map((i) => ({
         ...i,
-        label: `${exchange} ${i.base_currency.toUpperCase()}/${i.quote_currency.toUpperCase()}${perp}`,
-      };
-    });
-
-    return parsed;
+        label: `${capitalize(i.exchange.replace("_", " "))} ${i.base_currency.toUpperCase()}/${i.quote_currency.toUpperCase()}${i.perpetual ? " PERP" : ""}`,
+      }));
+    } catch (err: any) {
+      throw normalizeError({
+        message: "Failed to fetch instruments",
+        url: url.toString(),
+        cause: err,
+      });
+    }
   }
 
   async fetchFootprints(options: CignalsDatapointFetchOptions & { price_step: number }): Promise<FootprintDataArray> {
@@ -92,13 +122,30 @@ class CignalsChartDataProviderAPI extends CignalsChartDataProviderBase {
     url.searchParams.append("price_step", options.price_step.toString());
     url.searchParams.append("time_step", options.time_step);
 
-    const response = await fetch(url.toString());
-    const data = await response.json();
-    const parsed = data.map(CignalsChartDataProviderAPI.parseFootprintData);
+    try {
+      const response = await fetch(url.toString());
 
-    this.lastUsedFootprintPriceStep = options.price_step;
+      if (!response.ok) {
+        throw normalizeError({
+          message: `Footprints API failed: ${response.statusText}`,
+          status: response.status,
+          url: url.toString(),
+        });
+      }
 
-    return parsed;
+      const json = await response.json();
+      const parsed = json.map(CignalsChartDataProviderAPI.parseFootprintData);
+
+      this.lastUsedFootprintPriceStep = options.price_step;
+
+      return parsed;
+    } catch (err: any) {
+      throw normalizeError({
+        message: "Failed to fetch footprint data",
+        url: url.toString(),
+        cause: err,
+      });
+    }
   }
 
   async fetchOHLC(options: CignalsDatapointFetchOptions): Promise<PriceDataArray> {
@@ -109,57 +156,67 @@ class CignalsChartDataProviderAPI extends CignalsChartDataProviderBase {
     url.searchParams.append("end_range", options.end_range.toString());
     url.searchParams.append("time_step", options.time_step);
 
-    const data = await this.fetchThroughCignalsRelay(url);
-    const parsed = data.map(CignalsChartDataProviderAPI.parsePriceData);
+    try {
+      const data = await this.fetchThroughCignalsRelay(url);
 
-    return parsed;
-  }
+      if (!Array.isArray(data)) {
+        throw normalizeError({
+          message: "OHLC returned unexpected data format",
+          url: url.toString(),
+        });
+      }
 
-  async fetchDatapoints(options: CignalsDatapointFetchOptions): Promise<CignalsDatapointArray> {
-    const candles = await this.fetchOHLC(options);
-
-    let priceStepToUse: number;
-
-    // Calculate optimal price step
-    if (options.price_step === "auto") {
-      const preferredFootprintVerticalCount = 30; // Magic number, ask before adjusting
-      const averageCandleRange =
-        candles.reduce((acc, candle) => {
-          return acc + candle.high - candle.low;
-        }, 0) / candles.length;
-      const priceStep = averageCandleRange / preferredFootprintVerticalCount;
-      const roundedPriceStep = smartRoundPriceStep(priceStep);
-
-      priceStepToUse = roundedPriceStep;
-
-      console.log({ roundedPriceStep });
-    } else {
-      priceStepToUse = options.price_step;
-    }
-
-    const footprints = await this.fetchFootprints({
-      ...options,
-      price_step: priceStepToUse,
-    });
-
-    const datapoints: CignalsDatapointArray = [];
-
-    for (const candle of candles) {
-      // Optimize
-      const candleTimestamp = candle.timestamp;
-      const candleFootprints = footprints.filter((footprint) => footprint.timestamp == candleTimestamp);
-
-      datapoints.push({
-        candle,
-        footprints: candleFootprints,
+      return data.map(CignalsChartDataProviderAPI.parsePriceData);
+    } catch (err: any) {
+      throw normalizeError({
+        message: "Failed to fetch OHLC data",
+        url: url.toString(),
+        cause: err,
       });
     }
+  }
 
-    return datapoints;
+
+  async fetchDatapoints(options: CignalsDatapointFetchOptions): Promise<CignalsDatapointArray> {
+    try {
+      const candles = await this.fetchOHLC(options);
+
+      if (!candles.length) {
+        throw normalizeError({
+          message: "No OHLC data returned",
+        });
+      }
+
+      let priceStepToUse: number;
+
+      if (options.price_step === "auto") {
+        const avgRange =
+          candles.reduce((acc, c) => acc + (c.high - c.low), 0) / candles.length;
+
+        const preferred = 30;
+        priceStepToUse = smartRoundPriceStep(avgRange / preferred);
+      } else {
+        priceStepToUse = options.price_step;
+      }
+
+      const footprints = await this.fetchFootprints({
+        ...options,
+        price_step: priceStepToUse,
+      });
+
+      return candles.map((c) => ({
+        candle: c,
+        footprints: footprints.filter((f) => f.timestamp == c.timestamp),
+      }));
+    } catch (err: any) {
+      throw normalizeError({
+        message: "Failed to fetch merged datapoints",
+        cause: err,
+      });
+    }
   }
 }
 
-// This is used for quick testing without access to cignals API.
 class CignalsChartDataProviderDummy extends CignalsChartDataProviderBase {
   static now = dayjs();
 
@@ -168,18 +225,16 @@ class CignalsChartDataProviderDummy extends CignalsChartDataProviderBase {
   }
 
   async fetchFootprints(): Promise<FootprintDataArray> {
-    const footprintsRes = await fetch("/dummies/footprint_data.json");
-    const parsedFootprints = (await footprintsRes.json()).map(CignalsChartDataProviderAPI.parseFootprintData);
-    return parsedFootprints;
+    const res = await fetch("/dummies/footprint_data.json");
+    return (await res.json()).map(CignalsChartDataProviderAPI.parseFootprintData);
   }
 
   async fetchOHLC(): Promise<PriceDataArray> {
-    const candlesRes = await fetch("/dummies/candle_data.json");
-    const parsedCandles = (await candlesRes.json()).map(CignalsChartDataProviderAPI.parsePriceData);
-    return parsedCandles;
+    const res = await fetch("/dummies/candle_data.json");
+    return (await res.json()).map(CignalsChartDataProviderAPI.parsePriceData);
   }
 
-  async fetchDatapoints(options: CignalsDatapointFetchOptions): Promise<CignalsDatapointArray> {
+  fetchDatapoints(): Promise<CignalsDatapointArray> {
     throw new Error("Method not implemented.");
   }
 }
