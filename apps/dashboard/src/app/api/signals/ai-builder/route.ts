@@ -36,14 +36,13 @@ const AvailableDataSourcesDataSchema = z.object({
 });
 
 async function getAvailableDataSources() {
-  const url =
-    process.env.NEXT_PUBLIC_BACKEND_SMART_SIGNALS_BASE + "/data-sources";
+  const url = process.env.NEXT_PUBLIC_BACKEND_SMART_SIGNALS_BASE + "/data-sources";
   console.info("Fetching available data sources from:", url);
   const resp = await fetch(url);
 
   if (!resp.ok) {
     console.error("Failed to fetch available data sources:", resp.statusText);
-    console.info("Response body:", await resp.text());
+    // console.info("Response body:", await resp.text());
     return null;
   }
 
@@ -61,9 +60,7 @@ async function getAvailableDataSources() {
 
 export const maxDuration = 30;
 
-export async function POST(
-  req: Request,
-): Promise<NextResponse<GetAiSignalResponseBody>> {
+export async function POST(req: Request): Promise<NextResponse<GetAiSignalResponseBody>> {
   // Get the AI prompt
   const dataSources = await getAvailableDataSources();
 
@@ -173,17 +170,10 @@ export async function POST(
       errorReason: obj.message,
     });
 
-    const { data, error } = await supabase
-      .from("feedback")
-      .insert({ content, user_id: user?.id })
-      .select()
-      .single();
+    const { data, error } = await supabase.from("feedback").insert({ content, user_id: user?.id }).select().single();
 
     if (error) {
-      console.error(
-        "Failed to store feedback for unsuccessful signal generation:",
-        error,
-      );
+      console.error("Failed to store feedback for unsuccessful signal generation:", error);
     }
 
     return NextResponse.json(

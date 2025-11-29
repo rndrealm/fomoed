@@ -7,21 +7,16 @@ import { useAccount } from "wagmi";
 import { useGetAssetData, useGetPerpBalance, useGetSpotBalance } from "@/services/queries/hyperliquid";
 import { useExecuteTrade, useUpdateLeveraggeTrade } from "@/services/queries/trading";
 import { OrderEnum, TifEnum, TradeExecutionPayload } from "@/services/queries/trading/types";
-import LeverageModal from "./leverage-modal";
-import MarginModeModal from "./margin-mode-modal";
+import LeverageModal from "../modals/leverage-modal";
+import MarginModeModal from "../modals/margin-mode-modal";
 import { ModalContainer } from "@/components/shared/modal-container";
 import { useSupabaseAuth } from "@/components/providers";
-import ConfirmModal from "./confirm-modal";
+import ConfirmModal from "../modals/confirm-modal";
 import { estimateLiqPrice } from "@/lib/utils";
 import { toast } from "sonner";
-import { useAtomValue } from "jotai";
-import { tradingActiveSymbol } from "@/lib/atoms/tradingAtom";
-import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
-import { Button } from "@/components/ui/button";
-import { TransferIcon } from "@/components/icons/icon2";
 import TransferButtons from "./transfer-buttons";
-
-// const marketPrice = "91849";
+import { PerpUniverse, SpotsUniverse } from "@/services/queries/hyperliquid/types";
+import { WsActiveAssetCtx, WsActiveSpotAssetCtx } from "../chart/trading-view/hyperliquid/types";
 
 const initialValues = {
   price: "0",
@@ -37,26 +32,14 @@ const initialValues = {
 
 export type TradingFormInitialValues = ReturnType<() => typeof initialValues>;
 
-// {
-//   "provider": "hyperliquid",
-//   "wallet_address": "0xYourMasterWalletAddress",
-//   "orders": [
-//     {
-//       "type": "market",
-//       "asset": 0,
-//       "side": "buy",
-//       "size": "0.001",
-//       "reduceOnly": false,
-//       "slippagePercent": 10
-//     }
-//   ],
-//   "grouping": "na"
-// }
+interface IProps {
+  selectedToken: PerpUniverse | SpotsUniverse;
+  ticker: WsActiveAssetCtx | WsActiveSpotAssetCtx;
+}
 
-// const currAsset = 3; // Todo: this is asset id for bitcoin, update later to match the trading view chart
-// const currAssetName = "BTC";
-// const maxLeverage = 40; // Todo: this is max leverage for btc, update later to trading view data
-export default function CreateOrder() {
+export default function CreateOrder(props: IProps) {
+  const { selectedToken, ticker } = props;
+
   const validationSchema = Yup.object().shape({
     price: Yup.number().min(0.01, "Price must be greater than 0").required("Please enter price"),
     quantity: Yup.number().min(0, "Quantity must be a positive number").required("Please enter quantity"),
@@ -72,12 +55,9 @@ export default function CreateOrder() {
   const account = useAccount();
   const walletAddress = account?.address || "";
 
-  const selectedToken = useAtomValue(selectedTokenAtom);
-
   const tradingSymbol = selectedToken?.baseTokenName || "";
   const currAsset = selectedToken?.index || 0;
   const maxLeverage = selectedToken?.maxLeverage || 0;
-  const marketPrice = selectedToken?.priceVolume?.midPx || "0";
 
   const { data: perpBalance } = useGetPerpBalance(walletAddress);
   const { data: assetData } = useGetAssetData(walletAddress, tradingSymbol);
@@ -95,6 +75,16 @@ export default function CreateOrder() {
   const [isLong, setIsLong] = useState(true);
   const [leverage, setLeverage] = useState<null | number>(null);
   const [isCross, setIsCross] = useState<boolean>(false);
+
+  const selectOptions =
+    selectedToken?.displayName?.split("-").map((ed) => {
+      return {
+        label: ed,
+        value: ed,
+      };
+    }) || [];
+
+  const [orderBy, setOrderBy] = useState(selectOptions[1]?.value || "");
   const [isLeverageModalOpen, setIsLeverageModalOpen] = useState(false);
   const toggleLeverageModal = () => setIsLeverageModalOpen(!isLeverageModalOpen);
 
@@ -137,10 +127,15 @@ export default function CreateOrder() {
     session?.access_token,
   );
 
+  const marketPrice = ticker?.ctx?.midPx?.toString() || "0";
+
   function validateTpSl(values: TradingFormInitialValues, isLong: boolean): boolean {
     if (!values.tpSl) return true;
 
-    const orderPrice = Number(values.price);
+    // const orderPrice = Number(values.price);
+
+    const orderPrice = orderType === "market" ? Number(marketPrice) : Number(values.price);
+
     const tpPrice = Number(values.tp);
     const slPrice = Number(values.sl);
 
@@ -178,15 +173,15 @@ export default function CreateOrder() {
 
     return true;
   }
-  console.log(selectedToken);
   function onSubmit(_values: TradingFormInitialValues) {
     // Validate trigger order TP/SL prices
     if (!validateTpSl(_values, isLong)) {
       return;
     }
 
-    const converter = _values.price; //Todo: make this dynamic based on market price
-    const orderSize = (Number(_values.quantity) / Number(converter)).toFixed(5);
+    const converter = marketPrice;
+    const orderSize =
+      orderBy === selectOptions[0].value ? _values.quantity : (Number(_values.quantity) / Number(converter)).toFixed(5);
     const hasTP = _values.tpSl && _values.tp && Number(_values.tp) > 0;
     const hasSL = _values.tpSl && _values.sl && Number(_values.sl) > 0;
 
@@ -330,14 +325,17 @@ export default function CreateOrder() {
                     toggleMarginModeModal={toggleMarginModeModal}
                     isPending={isPending}
                     marketPrice={marketPrice}
+                    selectOptions={selectOptions}
+                    orderBy={orderBy}
+                    setOrderBy={setOrderBy}
                   />
 
                   <TransferButtons toPerp />
                 </div>
 
-                <div className="bg-[#121317] rounded-[10px] p-3 ">
+                {/* <div className="bg-[#121317] rounded-[10px] p-3 ">
                   <Overview />
-                </div>
+                </div> */}
               </div>
             </form>
           );

@@ -1,16 +1,32 @@
 import { ConnectButton as RainbowConnectButton } from "@rainbow-me/rainbowkit";
 import AccountDropdown from "./account-dropdown";
+import { cn } from "@/lib/utils";
 
-const ConnectButton = () => {
+interface IProps {
+  buttonClassName?: string;
+  buttonContainerClassName?: string;
+  buttonWrapperClassName?: string;
+  dropdownClassName?: string;
+  dropdownTextClassName?: string;
+}
+
+const ConnectButton = (props: IProps) => {
+  const {
+    buttonClassName,
+    buttonContainerClassName,
+    buttonWrapperClassName,
+    dropdownClassName,
+    dropdownTextClassName,
+  } = props;
   return (
-    <div className="flex  items-center gap-3 lg:gap-[0.625rem]">
+    <div className={cn("flex  items-center gap-3 lg:gap-[0.625rem]", buttonWrapperClassName)}>
       <RainbowConnectButton.Custom>
         {({ account, chain, openAccountModal, openChainModal, openConnectModal, mounted }) => {
           const ready = mounted;
           const connected = ready && account && chain;
           return (
             <div
-              className="flex items-center h-auto lg:h-10"
+              className={cn("flex items-center h-auto lg:h-10", buttonContainerClassName)}
               {...(!ready && {
                 "aria-hidden": true,
                 style: {
@@ -24,7 +40,11 @@ const ConnectButton = () => {
                 if (!connected) {
                   return (
                     <button
-                      className="text-[#A6A6A6] text-xxs border border-[#202020] px-2 h-8 rounded-[6px]"
+                      type="button"
+                      className={cn(
+                        "text-[#A6A6A6] text-xxs border border-[#202020] px-2 h-8 rounded-[6px]",
+                        buttonClassName,
+                      )}
                       onClick={openConnectModal}
                     >
                       Connect Wallet
@@ -34,7 +54,11 @@ const ConnectButton = () => {
                 if (chain.unsupported) {
                   return (
                     <button
-                      className="text-[#A6A6A6] text-xxs border border-[#202020] px-2 h-8 rounded-[6px]"
+                      type="button"
+                      className={cn(
+                        "text-[#A6A6A6] text-xxs border border-[#202020] px-2 h-8 rounded-[6px]",
+                        buttonClassName,
+                      )}
                       onClick={openChainModal}
                     >
                       Wrong Wallet
@@ -42,7 +66,13 @@ const ConnectButton = () => {
                   );
                 }
 
-                return <AccountDropdown account={account} />;
+                return (
+                  <AccountDropdown
+                    account={account}
+                    dropdownClassName={dropdownClassName}
+                    dropdownTextClassName={dropdownTextClassName}
+                  />
+                );
               })()}
             </div>
           );

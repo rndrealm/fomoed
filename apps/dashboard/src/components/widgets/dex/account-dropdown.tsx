@@ -24,11 +24,13 @@ import {
   useDisconnect,
   useWalletClient,
 } from "wagmi";
-import { shortenAddress } from "@/lib/utils";
+import { cn, shortenAddress } from "@/lib/utils";
 import WalletImage from "./shared/wallet-image";
 import Link from "next/link";
 
 interface IAccountDropdownProps {
+  dropdownClassName?: string;
+  dropdownTextClassName?: string;
   account?: {
     address: string;
     balanceDecimals?: number;
@@ -43,7 +45,7 @@ interface IAccountDropdownProps {
 }
 
 const AccountDropdown = (props: IAccountDropdownProps) => {
-  const { account } = props;
+  const { account, dropdownClassName, dropdownTextClassName } = props;
   const connections = useConnections();
   const { disconnect } = useDisconnect();
   const chainId = useChainId();
@@ -53,10 +55,17 @@ const AccountDropdown = (props: IAccountDropdownProps) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center gap-1 bg-[#161616] border border-[#141414] pl-1 pr-2 py-1 rounded-[10px]">
+        <button
+          className={cn(
+            "flex items-center gap-1 bg-[#161616] border border-[#141414] pl-1 pr-2 py-1 rounded-[10px]",
+            dropdownClassName,
+          )}
+        >
           <WalletImage icon={connections[0]?.connector?.icon} width={24} height={24} />
           {/* <p className="font-medium text-xxs">{account?.displayBalance}</p> */}
-          <p className="text-[#4B4B4B] font-semibold text-sm pl-2 ">{account?.displayName}</p>
+          <p className={cn("text-[#4B4B4B] font-semibold text-sm pl-2 ", dropdownTextClassName)}>
+            {account?.displayName}
+          </p>
           {/* <ChevronDown className="w-4 text-[#878787]" /> */}
         </button>
       </DropdownMenuTrigger>

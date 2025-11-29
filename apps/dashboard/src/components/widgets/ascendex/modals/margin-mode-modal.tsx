@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import Checkbox from "@/components/ui/checkbox";
+import OrderCheckLayout from "../create-order/order-check-layout";
 
 interface IProps {
   isCross: boolean;
@@ -54,14 +55,21 @@ const MarginModeModal = (props: IProps) => {
           })}
         </div>
       </div>
-      <div className="flex items-center gap-2 pt-8">
-        <Button
-          onClick={handleApply}
-          isLoading={isLoading}
-          className="flex-1 bg-[#E7E7E7] hover:bg-[#E7E7E7] text-[#010101] font-medium text-sm h-11"
+      <div className="flex items-center gap-2 pt-8 w-full">
+        <OrderCheckLayout
+          buttonClassName="w-full bg-[#E7E7E7]  hover:bg-[#E7E7E7]  text-[#010101] font-medium text-sm h-11 "
+          buttonContainerClassName="w-full"
+          buttonWrapperClassName="w-full"
+          approveClassName="h-11 !text-[0.875rem]"
         >
-          Submit
-        </Button>
+          <Button
+            onClick={handleApply}
+            isLoading={isLoading}
+            className="flex-1 bg-[#E7E7E7] hover:bg-[#E7E7E7] text-[#010101] font-medium text-sm h-11"
+          >
+            Submit
+          </Button>
+        </OrderCheckLayout>
       </div>
     </div>
   );

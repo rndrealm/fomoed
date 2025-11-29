@@ -2,7 +2,7 @@ import React from "react";
 
 export function Overview() {
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col  gap-3">
       <div className="flex items-center justify-between">
         <h3 className="text-white text-[10px] leading-[16px] font-medium">Cross- Margin Overview</h3>
 

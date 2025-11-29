@@ -232,3 +232,15 @@ export interface HyperliquidMetaResponse {
   >;
   collateralToken: number;
 }
+
+export interface HyperliquidAgentResponse {
+  agent_wallet: string;
+  master_wallet: string;
+}
+
+export interface HyperliquidRoleResponse {
+  role: string;
+  data?: {
+    user: string;
+  };
+}

@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { Dispatch, SetStateAction, useEffect, useRef } from "react";
+import React, { Dispatch, SetStateAction, useEffect } from "react";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { ErrorMsg, TextInput } from "@/components/auth/text-input";
@@ -8,7 +8,12 @@ import { Button } from "@/components/ui/button";
 import { useFormikContext } from "formik";
 import { TradingFormInitialValues } from ".";
 import { OrderType } from "@/services/queries/trading/types";
-import { AppSelect } from "@/components/ui/app-select";
+import { AppSelect, SelectOption } from "@/components/ui/app-select";
+import { InputWithSelect } from "@/components/shared/input-with-select";
+import OrderCheckLayout from "../order-check-layout";
+import { useCheckAccess } from "../../chart/trading-view/hyperliquid/use-check-access";
+import ApproveAgentButton from "../approve-agent-button";
+import ConnectButton from "@/components/widgets/dex/connect-button";
 
 interface IOrderTypeButtonProps {
   isActive: boolean;
@@ -82,12 +87,28 @@ interface FormContentProps {
   setIsLong: Dispatch<SetStateAction<boolean>>;
   isPending: boolean;
   marketPrice: string;
+  orderBy: string;
+  setOrderBy: Dispatch<SetStateAction<string>>;
+  selectOptions: SelectOption[];
 }
 
 export function SpotFormContent(props: FormContentProps) {
-  const { balance, orderType, setOrderType, isLong, setIsLong, isPending, marketPrice } = props;
+  const {
+    balance,
+    orderType,
+    setOrderType,
+    isLong,
+    setIsLong,
+    isPending,
+    marketPrice,
+    orderBy,
+    setOrderBy,
+    selectOptions,
+  } = props;
 
   const { values, handleChange, handleBlur, setFieldValue } = useFormikContext<TradingFormInitialValues>();
+
+  const multiplier = orderBy === selectOptions[0].value ? Number(marketPrice) : 1;
 
   const handleSliderChange = (value: number[]) => {
     const percentage = value[0];
@@ -95,14 +116,17 @@ export function SpotFormContent(props: FormContentProps) {
     setFieldValue("quantity", orderValue.toFixed(2));
   };
 
-  const sliderPercentage = Math.round(Math.min(balance ? (Number(values.quantity) / balance) * 100 : 0, 100));
+  const sliderPercentage = Math.round(
+    Math.min(balance ? ((Number(values.quantity) * multiplier) / balance) * 100 : 0, 100),
+  );
 
   useEffect(() => {
-    if (marketPrice) {
+    if (marketPrice || !values.price) {
       setFieldValue("price", marketPrice);
     }
-  }, [marketPrice]);
+  }, []);
   const insufficientBalanceCheck = !Number(balance) || Number(values.quantity) > Number(balance);
+
   return (
     <>
       <div className="flex flex-col gap-3">
@@ -154,7 +178,7 @@ export function SpotFormContent(props: FormContentProps) {
             <p className="text-[#A6AEB2] text-[8px] font-medium leading-[10px] tracking-[-0.4%]">Quantity</p>
 
             <div className="flex flex-col">
-              <TextInput
+              <InputWithSelect
                 className="h-[24px] w-full border-none outline-none text-[#D7D7D7] !text-[10px] tracking-[-0.4%] leading-[14px] px-1 rounded-sm focus-visible:ring-0 bg-[#222329]"
                 type="number"
                 value={values.quantity}
@@ -162,8 +186,18 @@ export function SpotFormContent(props: FormContentProps) {
                 onBlur={handleBlur}
                 name="quantity"
                 rightPlaceholder="USDC"
+                selectOptions={selectOptions}
+                selectValue={orderBy}
+                onChangeSelect={(val) => {
+                  if (val === orderBy) return;
+                  if (val === selectOptions[0].value) {
+                    setFieldValue("quantity", (Number(values.quantity) / Number(marketPrice)).toFixed(2));
+                  } else {
+                    setFieldValue("quantity", (Number(values.quantity) * Number(marketPrice)).toFixed(2));
+                  }
+                  setOrderBy(val);
+                }}
               />
-
               <ErrorMsg name="quantity" className="text-[8px] tracking-[-0.4%]" />
             </div>
           </div>
@@ -202,14 +236,16 @@ export function SpotFormContent(props: FormContentProps) {
         </div>
 
         <div className="">
-          <Button
-            disabled={!Number(values.quantity) || insufficientBalanceCheck || isPending}
-            type="submit"
-            isLoading={isPending}
-            className="w-full bg-[#7637BA] hover:bg-[#7637BA] text-white font-medium text-[10px] leading-[14px] h-[28px]"
-          >
-            {insufficientBalanceCheck ? "Insufficient Balance" : "Create Order"}
-          </Button>
+          <OrderCheckLayout>
+            <Button
+              disabled={!Number(values.quantity) || insufficientBalanceCheck || isPending}
+              type="submit"
+              isLoading={isPending}
+              className="w-full bg-[#7637BA] hover:bg-[#7637BA] text-white font-medium text-[10px] leading-[14px] h-[28px]"
+            >
+              {insufficientBalanceCheck ? "Insufficient Balance" : "Create Order"}
+            </Button>
+          </OrderCheckLayout>
         </div>
       </div>
     </>

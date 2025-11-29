@@ -1,22 +1,22 @@
 "use client";
-import React, { useState, Fragment, useEffect } from "react";
+import React, { useState, Fragment } from "react";
 import { LayoutType } from "@/lib/atoms/layoutAtom";
 import { cn } from "@/lib/utils";
 import AscendexHeader from "./header";
 import CreateOrder from "./create-order";
 import OrderBookAndTrade from "./order-book-and-trade";
-import { RenderIf } from "@/components/shared";
+import { RenderIf, SkeletonLoader } from "@/components/shared";
 import { LandingScreen } from "./initial";
 import ChartHeader from "./chart/chart-header";
 import Balance from "./balance";
 import { TradingView } from "./chart/trading-view";
 import TradingPanel from "./trading-panel";
-import { useReadHyperLiquidTokens } from "@/services/queries/hyperliquid";
 import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
-import { useAtom, useAtomValue } from "jotai";
-import TradeResults from "./trade-results";
+import { useAtomValue } from "jotai";
 import CreateSpotOrder from "./create-order/spot";
-import { Button } from "@/components/ui/button";
+import { useTicker } from "./chart/trading-view/hyperliquid/use-ticker";
+import { useSupabaseAuth } from "@/components/providers";
+import { useGetAgentAddress } from "@/services/queries/hyperliquid";
 
 interface IProps {
   widget: LayoutType["widgets"][0];
@@ -27,10 +27,15 @@ type ViewType = "futures" | "spot" | "lend" | "conditional" | "balance" | "setti
 export default function Ascendex(props: IProps) {
   const { widget } = props;
 
+  const { session } = useSupabaseAuth();
+
+  // const { data, isPending: agentIsPending } = useGetAgentAddress(session?.user.id, session?.access_token);
+
   const [isLoaded, setIsLoaded] = useState(true);
   const [activeView, setActiveView] = useState<ViewType>("futures");
 
   const selectedToken = useAtomValue(selectedTokenAtom);
+  const { isConnected, ticker } = useTicker(selectedToken?.name);
   const isSpot = selectedToken?.isSpot;
 
   const handleViewChange = (view: ViewType) => {
@@ -43,6 +48,7 @@ export default function Ascendex(props: IProps) {
     <Fragment>
       <RenderIf condition={!isLoaded}>
         <LandingScreen
+          widget={widget}
           handleIsLoaded={() => {
             setIsLoaded(true);
           }}
@@ -85,7 +91,17 @@ export default function Ascendex(props: IProps) {
                 </div>
 
                 <OrderBookAndTrade />
-                <div>{isSpot ? <CreateSpotOrder /> : <CreateOrder />}</div>
+                {selectedToken && isConnected && ticker ? (
+                  <div>
+                    {isSpot ? (
+                      <CreateSpotOrder selectedToken={selectedToken} ticker={ticker} />
+                    ) : (
+                      <CreateOrder selectedToken={selectedToken} ticker={ticker} />
+                    )}
+                  </div>
+                ) : (
+                  <SkeletonLoader width={210} heightFull backgroundColor="#121317" borderRadius={10} />
+                )}
               </div>
             </RenderIf>
 
@@ -109,7 +125,6 @@ export default function Ascendex(props: IProps) {
                 </div>
               </div>
             </RenderIf>
-            <TradeResults />
           </div>
         </div>
       </RenderIf>

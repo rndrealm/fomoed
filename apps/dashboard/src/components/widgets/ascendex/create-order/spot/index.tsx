@@ -1,24 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { useAccount } from "wagmi";
-import { useGetAssetData, useGetPerpBalance, useGetSpotBalance } from "@/services/queries/hyperliquid";
-import { useExecuteTrade, useUpdateLeveraggeTrade } from "@/services/queries/trading";
+import { useGetSpotBalance } from "@/services/queries/hyperliquid";
+import { useExecuteTrade } from "@/services/queries/trading";
 import { OrderEnum, TifEnum, TradeExecutionPayload } from "@/services/queries/trading/types";
 import { useSupabaseAuth } from "@/components/providers";
-import { estimateLiqPrice } from "@/lib/utils";
 import { toast } from "sonner";
-import { useAtomValue } from "jotai";
-import { tradingActiveSymbol } from "@/lib/atoms/tradingAtom";
-import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
 import { ModalContainer } from "@/components/shared";
-import ConfirmModal from "../confirm-modal";
+import ConfirmModal from "../../modals/confirm-modal";
 import { SpotFormContent } from "./form";
-import { Overview } from "../overview";
 import { getFromAndToToken } from "../../utils";
 import TransferButtons from "../transfer-buttons";
-
-// const marketPrice = "91849";
+import { PerpUniverse, SpotsUniverse } from "@/services/queries/hyperliquid/types";
+import { WsActiveAssetCtx, WsActiveSpotAssetCtx } from "../../chart/trading-view/hyperliquid/types";
 
 const initialValues = {
   price: "0",
@@ -28,7 +23,13 @@ const initialValues = {
 
 export type TradingFormInitialValues = ReturnType<() => typeof initialValues>;
 
-export default function CreateSpotOrder() {
+interface IProps {
+  selectedToken: PerpUniverse | SpotsUniverse;
+  ticker: WsActiveAssetCtx | WsActiveSpotAssetCtx;
+}
+
+export default function CreateSpotOrder(props: IProps) {
+  const { selectedToken, ticker } = props;
   const validationSchema = Yup.object().shape({
     price: Yup.number().min(0.01, "Price must be greater than 0").required("Please enter price"),
     quantity: Yup.number().min(0, "Quantity must be a positive number").required("Please enter quantity"),
@@ -38,21 +39,27 @@ export default function CreateSpotOrder() {
   const account = useAccount();
   const walletAddress = account?.address || "";
 
-  const selectedToken = useAtomValue(selectedTokenAtom);
-
-  const tradingSymbol = selectedToken?.baseTokenName || "";
   const displayName = selectedToken?.displayName || "";
   const { from, to } = getFromAndToToken(displayName);
   const currAsset = (selectedToken?.index || 0) + 10000;
-  const marketPrice = selectedToken?.priceVolume?.midPx || "0";
+  const marketPrice = ticker?.ctx?.midPx?.toString() || "0";
 
   const { data: spotBalance } = useGetSpotBalance(walletAddress);
-  const { data: assetData } = useGetAssetData(walletAddress, tradingSymbol);
 
   const fromBalance = spotBalance?.balances.find((spt) => spt.coin === from)?.total || "0";
   const toBalance = spotBalance?.balances.find((spt) => spt.coin === to)?.total || "0";
 
   const availableBalance = !isLong ? fromBalance : toBalance;
+
+  const selectOptions =
+    selectedToken?.displayName?.split("/").map((ed) => {
+      return {
+        label: ed,
+        value: ed,
+      };
+    }) || [];
+
+  const [orderBy, setOrderBy] = useState(selectOptions[1]?.value || "");
 
   const { session } = useSupabaseAuth();
 
@@ -73,7 +80,7 @@ export default function CreateSpotOrder() {
       toast.error("Quantity must be greater than 10");
       return;
     }
-    const converter = _values.price; //Todo: make this dynamic based on market price
+    const converter = marketPrice;
     const orderSize = (Number(_values.quantity) / Number(converter)).toFixed(2);
 
     // Create main order
@@ -163,13 +170,16 @@ export default function CreateSpotOrder() {
                     setIsLong={setIsLong}
                     isPending={isPending}
                     marketPrice={marketPrice}
+                    selectOptions={selectOptions}
+                    orderBy={orderBy}
+                    setOrderBy={setOrderBy}
                   />
                   <TransferButtons toPerp={false} />
                 </div>
 
-                <div className="bg-[#121317] rounded-[10px] p-3 ">
+                {/* <div className="bg-[#121317] rounded-[10px] p-3 ">
                   <Overview />
-                </div>
+                </div> */}
               </div>
             </form>
           );

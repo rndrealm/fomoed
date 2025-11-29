@@ -45,7 +45,7 @@ export async function transferSpotPerp(
   // Create Exchange client with the wallet client
   const exchangeClient = new hl.ExchangeClient({
     transport,
-    wallet: walletClient as any, // wagmi's WalletClient is compatible with the SDK's wallet interface
+    wallet: walletClient as any,
   });
 
   // Execute the transfer
@@ -58,53 +58,64 @@ export async function transferSpotPerp(
 }
 
 /**
- * Get the balance for both Spot and Perp accounts
+ * Approve a Hyperliquid API wallet (agent) to trade on behalf of the main wallet
  *
- * @param walletAddress - The wallet address to query
+ * @param walletClient - The wagmi wallet client from useWalletClient hook
+ * @param apiWalletAddress - The address of the API wallet to approve (agent address)
  * @param isTestnet - Whether to use testnet (default: true)
- * @returns Promise with spot and perp balance information
+ * @returns Promise with the approval result
  *
  * @example
  * ```ts
- * import { useAccount } from "wagmi";
- * import { getSpotPerpBalances } from "@/components/widgets/ascendex/utils";
+ * import { useWalletClient } from "wagmi";
+ * import { approveApiWallet } from "@/components/widgets/ascendex/utils";
  *
- * const { address } = useAccount();
- * const balances = await getSpotPerpBalances(address);
- * console.log("Spot:", balances.spot);
- * console.log("Perp:", balances.perp);
+ * const { data: walletClient } = useWalletClient();
+ *
+ * // Approve an API wallet
+ * await approveApiWallet(walletClient, "0x...", true);
  * ```
  */
-export async function getSpotPerpBalances(
-  walletAddress: string | undefined,
+export async function approveApiWallet(
+  walletClient: any | undefined,
+  apiWalletAddress: string,
   isTestnet: boolean = true,
-): Promise<{
-  spot: hl.SpotClearinghouseStateResponse;
-  perp: hl.ClearinghouseStateResponse;
-}> {
-  if (!walletAddress) {
-    throw new Error("Wallet address is required");
+): Promise<hl.ApproveAgentSuccessResponse> {
+  if (!walletClient) {
+    throw new Error("Wallet client is not available. Please connect your wallet first.");
   }
 
-  // Create HTTP transport for Hyperliquid
+  if (!walletClient.account) {
+    throw new Error("No account found in wallet client. Please ensure wallet is connected.");
+  }
+
+  if (!apiWalletAddress) {
+    throw new Error("API wallet address is required.");
+  }
+
   const transport = new hl.HttpTransport({
     isTestnet,
   });
 
-  // Create Info client
-  const infoClient = new hl.InfoClient({
+  const exchangeClient = new hl.ExchangeClient({
     transport,
+    wallet: walletClient as any,
   });
 
-  // Fetch both balances in parallel
-  const [spot, perp] = await Promise.all([
-    infoClient.spotClearinghouseState({ user: walletAddress }),
-    infoClient.clearinghouseState({ user: walletAddress }),
-  ]);
+  // Approve the agent (API wallet)
+  const result = await exchangeClient.approveAgent({
+    agentAddress: apiWalletAddress,
+    agentName: null,
+  });
 
-  return { spot, perp };
+  return result;
 }
 
+/**
+ *
+ * @param displayName - Token display name gotten from hyperliquid meta api eg BTC/USDC
+ * @returns - Splits tokens into individual strings eg { from: BTC, to: USDC }
+ */
 export const getFromAndToToken = (displayName?: string | null) => {
   if (!displayName) return { from: "", to: "" };
   const splitString = displayName.split("/");

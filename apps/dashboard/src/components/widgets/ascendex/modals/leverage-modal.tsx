@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { TextInput } from "@/components/auth/text-input";
 import { TriangleDangerIcon } from "@/components/icons/icon2";
+import OrderCheckLayout from "../create-order/order-check-layout";
+import { useCheckAccess } from "../chart/trading-view/hyperliquid/use-check-access";
 
 interface IProps {
   leverage: number;
@@ -60,6 +61,8 @@ const LeverageModal = (props: IProps) => {
     }
   };
 
+  const tradeAccess = useCheckAccess();
+
   return (
     <div className="flex flex-col">
       <div className="flex-1">
@@ -109,26 +112,6 @@ const LeverageModal = (props: IProps) => {
                 showDots
               />
             </div>
-            <div className="w-14">
-              <TextInput
-                type="number"
-                className={cn(
-                  "h-12 w-full rounded-[10px] border border-[#1F1F1F] bg-[#202127] px-2 pr-4 text-sm text-white placeholder:text-[#5F5F5F] focus:outline-none focus:border-[#f4f4f4]",
-                  {
-                    "border-[#FFC26D] focus:border-[#FFC26D]": errorText,
-                  },
-                )}
-                placeholder=""
-                value={customLeverage}
-                onChange={(e) => handleCustomLeverageChange((e.target as HTMLInputElement).value)}
-                min="1"
-                max={maxLeverage}
-                step="0.1"
-                rightPlaceholder="x"
-                rightPlaceholderClassName="text-sm top-[28%]"
-                disableFormikError
-              />
-            </div>
           </div>
 
           <div
@@ -149,14 +132,21 @@ const LeverageModal = (props: IProps) => {
         >
           Cancel
         </Button>
-        <Button
-          onClick={handleApply}
-          disabled={!!errorText}
-          isLoading={isLoading}
-          className="flex-1 bg-[#E7E7E7]  hover:bg-[#E7E7E7]  text-[#010101] font-medium text-sm h-11"
+        <OrderCheckLayout
+          buttonClassName="flex-1 bg-[#E7E7E7]  hover:bg-[#E7E7E7]  text-[#010101] font-medium text-sm h-11 "
+          buttonContainerClassName="flex-1"
+          buttonWrapperClassName="w-6/12"
+          approveClassName="h-11 !text-[0.875rem]"
         >
-          Submit
-        </Button>
+          <Button
+            onClick={handleApply}
+            disabled={!!errorText}
+            isLoading={isLoading}
+            className="flex-1 bg-[#E7E7E7]  hover:bg-[#E7E7E7]  text-[#010101] font-medium text-sm h-11"
+          >
+            Submit
+          </Button>
+        </OrderCheckLayout>
       </div>
     </div>
   );

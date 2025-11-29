@@ -19,6 +19,7 @@ interface IProps {
   dialogOverlayClassName?: string;
   hideX?: boolean;
   headerClassName?: string;
+  preventOutsideClick?: boolean;
 }
 
 const sizeClassMap: Record<NonNullable<IProps["size"]>, string> = {
@@ -38,6 +39,7 @@ export function ModalContainer(props: IProps) {
     bgBlur = true,
     dialogOverlayClassName = "",
     headerClassName = "",
+    preventOutsideClick = false,
     hideX,
   } = props;
 
@@ -56,6 +58,11 @@ export function ModalContainer(props: IProps) {
     >
       <DialogContent
         className={contentClasses}
+        onInteractOutside={(e) => {
+          if (preventOutsideClick) {
+            e.preventDefault();
+          }
+        }}
         dialogOverlayClassName={cn(!bgBlur ? "backdrop-blur-[0px] bg-[transparent]" : "", dialogOverlayClassName)}
       >
         <DialogTitle className={cn(noHeader ? "hidden" : "")}>

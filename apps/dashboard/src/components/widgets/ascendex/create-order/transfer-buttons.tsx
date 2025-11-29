@@ -2,7 +2,8 @@ import { TransferIcon } from "@/components/icons/icon2";
 import { ModalContainer } from "@/components/shared";
 import { Button } from "@/components/ui/button";
 import React, { useState } from "react";
-import PerpSpotTransferModal from "./perp-spot-transfer-modal";
+import PerpSpotTransferModal from "../modals/perp-spot-transfer-modal";
+import { useAccount } from "wagmi";
 
 interface IProps {
   toPerp: boolean;
@@ -10,6 +11,7 @@ interface IProps {
 
 const TransferButtons = ({ toPerp }: IProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const account = useAccount();
   const toggleModal = () => {
     setIsOpen(!isOpen);
   };
@@ -19,7 +21,8 @@ const TransferButtons = ({ toPerp }: IProps) => {
       <div className="mt-11">
         <Button
           type="button"
-          className="w-full bg-white  text-[#1E1E1E] font-medium text-[10px] leading-[14px] h-[28px]"
+          disabled={!account.isConnected}
+          className="w-full bg-white hover:bg-white  text-[#1E1E1E] font-medium text-[10px] leading-[14px] h-[28px]"
         >
           Deposit
         </Button>
@@ -27,6 +30,7 @@ const TransferButtons = ({ toPerp }: IProps) => {
           <Button
             type="button"
             onClick={toggleModal}
+            disabled={!account.isConnected}
             className=" w-6/12 bg-[#1F1F21]  text-white font-medium text-[10px] leading-[14px] h-[28px]"
           >
             <span>Perps</span>
@@ -35,6 +39,7 @@ const TransferButtons = ({ toPerp }: IProps) => {
           </Button>
           <Button
             type="button"
+            disabled={!account.isConnected}
             className=" w-6/12 bg-[#1F1F21]  text-white font-medium text-[10px] leading-[14px] h-[28px]"
           >
             Withdraw
