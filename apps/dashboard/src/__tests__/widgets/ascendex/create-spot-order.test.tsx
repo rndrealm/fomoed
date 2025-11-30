@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { toast } from "sonner";
-import CreateSpotOrder from "@/components/widgets/ascendex/create-order/spot";
+import CreateSpotOrder from "@/components/widgets/trading/create-order/spot";
 import { useAccount } from "wagmi";
 import { useGetSpotBalance } from "@/services/queries/hyperliquid";
 import { useExecuteTrade } from "@/services/queries/trading";
@@ -217,7 +217,7 @@ describe("CreateSpotOrder Component", () => {
                 side: "buy",
               }),
             ]),
-          })
+          }),
         );
       });
     });

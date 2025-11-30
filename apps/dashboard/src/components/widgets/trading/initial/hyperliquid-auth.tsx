@@ -1,7 +1,6 @@
 "use client";
 import React, { useState } from "react";
 import { ModalContainer, RenderIf } from "@/components/shared";
-import HyperliquidAuthModals from "../modals/hyperliquid-auth";
 import Image from "next/image";
 import tradingAssets from "@/lib/assets/dashboard/trading";
 import { Button } from "@/components/ui/button";
@@ -10,6 +9,7 @@ import ConnectButton from "../../dex/connect-button";
 import { useAccount } from "wagmi";
 import { useCreateApiAgent } from "@/services/queries/hyperliquid";
 import { useSupabaseAuth } from "@/components/providers";
+import HyperliquidAuthModals from "../hyperliquid/modals/hyperliquid-auth";
 
 type ExchangeType = "ascendex" | "backpack" | "hyperliquid" | "hyperliquid-end" | "coinw" | "bybit" | "binance";
 

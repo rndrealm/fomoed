@@ -10,10 +10,10 @@ import { toast } from "sonner";
 import { ModalContainer } from "@/components/shared";
 import ConfirmModal from "../../modals/confirm-modal";
 import { SpotFormContent } from "./form";
-import { getFromAndToToken } from "../../utils";
+import { getFromAndToToken } from "../../../utils";
 import TransferButtons from "../transfer-buttons";
 import { PerpUniverse, SpotsUniverse } from "@/services/queries/hyperliquid/types";
-import { WsActiveAssetCtx, WsActiveSpotAssetCtx } from "../../chart/trading-view/hyperliquid/types";
+import { WsActiveAssetCtx, WsActiveSpotAssetCtx } from "../../../chart/trading-view/hyperliquid/types";
 
 const initialValues = {
   price: "0",

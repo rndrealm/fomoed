@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { useGetPerpBalance, useGetSpotBalance } from "@/services/queries/hyperliquid";
 import React, { useState } from "react";
 import { useAccount, useWalletClient } from "wagmi";
-import { transferSpotPerp } from "../utils";
+import { transferSpotPerp } from "../../utils";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 

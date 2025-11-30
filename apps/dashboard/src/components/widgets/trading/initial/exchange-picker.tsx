@@ -2,8 +2,6 @@
 import React, { useState } from "react";
 import ExchangeButton from "./exchange-button";
 import dashboard from "@/lib/assets/dashboard";
-import { ModalContainer } from "@/components/shared";
-import HyperliquidAuthModals from "../modals/hyperliquid-auth";
 
 type ExchangeType = "ascendex" | "backpack" | "hyperliquid" | "coinw" | "bybit" | "binance";
 

@@ -1,14 +1,13 @@
 "use client";
 import React, { useState, useRef, useEffect, Fragment } from "react";
-import { cn } from "@/lib/utils";
-import { ChevronRight, ChevronLeft, ChevronDown } from "lucide-react";
-import { TokenSelect } from "../../modals/token-select";
+import { ChevronDown } from "lucide-react";
 import { RenderIf } from "@/components/shared";
 import { useAtomValue, useSetAtom } from "jotai";
 import { selectedTokenAtom, showSelectTokenModalAtom, toggleSelectTokenModalAtom } from "@/lib/atoms/hyperliquid";
 import Image from "next/image";
 import { useTicker } from "../trading-view/hyperliquid/use-ticker";
 import { Stats } from "./stats";
+import { TokenSelect } from "../../hyperliquid/modals/token-select";
 
 const getCoinIconUrl = (symbol = "BTC") => {
   return `https://app.hyperliquid.xyz/coins/${symbol}.svg`;

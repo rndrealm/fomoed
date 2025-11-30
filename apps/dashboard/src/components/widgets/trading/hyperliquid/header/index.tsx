@@ -4,9 +4,9 @@ import Image from "next/image";
 import { ChevronDown, Maximize2, PieChart } from "lucide-react";
 import { LayoutType } from "@/lib/atoms/layoutAtom";
 import dashboard from "@/lib/assets/dashboard";
-import { OptionsDropdown } from "../../shared/options-dropwdown";
+import { OptionsDropdown } from "../../../shared/options-dropwdown";
 import { SettingsAscendexIcon } from "@/components/icons/icons";
-import ConnectButton from "../../dex/connect-button";
+import ConnectButton from "../../../dex/connect-button";
 
 const AscendexLogo = () => (
   <Image src={dashboard.ascendexLogo} alt="AscendEX Logo" width={108} height={16} className="object-contain" priority />
