@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import BalancesTab from "./balances-tab";
+import OpenPositionsTab from "./position-tab";
 import OpenOrdersTab from "./open-orders";
 import OrderHistoryTab from "./order-history";
 import NewsTab from "./news-tab";
@@ -14,7 +15,7 @@ export default function TradingPanel() {
 
   const { data: clearinghouseState, isLoading } = useHyperliquidClearinghouseState(userAddress, !!userAddress);
 
-  const tabs = ["Balances", "Open Orders", "Order History", "News"];
+  const tabs = ["Balances", "Open Positions", "Open Orders", "Order History", "News"];
 
   const totalBalance = clearinghouseState?.marginSummary?.accountValue
     ? parseFloat(clearinghouseState.marginSummary.accountValue)
@@ -24,6 +25,8 @@ export default function TradingPanel() {
     switch (activeTab) {
       case "Balances":
         return <BalancesTab hideSmallBalances={hideSmallBalances} userAddress={userAddress} />;
+      case "Open Positions":
+        return <OpenPositionsTab hideSmallBalances={hideSmallBalances} userAddress={userAddress} />;
       case "Open Orders":
         return <OpenOrdersTab userAddress={userAddress} />;
       case "Order History":
@@ -70,7 +73,7 @@ export default function TradingPanel() {
         </div>
 
         {/* Hide Small Balances Toggle */}
-        {activeTab === "Balances" && (
+        {(activeTab === "Balances" || activeTab === "Open Positions") && (
           <Checkbox
             label="Hide Small Balances"
             checked={hideSmallBalances}
