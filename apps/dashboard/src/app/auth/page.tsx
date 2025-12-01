@@ -47,12 +47,13 @@ const SignupForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const searchParams = useSearchParams();
   const fromUrl = searchParams.get("from");
+  const nextUrl = searchParams.get("next");
   const referralCodeFromUrl = searchParams.get("referral");
 
   const onSubmit = async (_values: InitialValues) => {
     try {
       setIsLoading(true);
-      const retUser = await signUpNewUser(_values, fromUrl);
+      const retUser = await signUpNewUser(_values, fromUrl, nextUrl);
       if (retUser.success) {
         track("signup", {
           username: _values.username,
@@ -172,7 +173,11 @@ const SignupForm = () => {
           </div>
 
           <div className="relative mt-3 flex justify-center">
-            <GoogleLogin fromUrl={fromUrl || undefined} referralCode={referralCodeFromUrl} />
+            <GoogleLogin
+              fromUrl={fromUrl || undefined}
+              referralCode={referralCodeFromUrl}
+              nextUrl={nextUrl || undefined}
+            />
           </div>
         </div>
       </div>

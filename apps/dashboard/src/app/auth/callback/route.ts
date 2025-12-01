@@ -193,6 +193,8 @@ export async function GET(request: Request) {
       if (from === "marketing") {
         const marketingUrl = process.env.NEXT_PUBLIC_MARKETING_APP_URL;
         return NextResponse.redirect(marketingUrl || "https://marketing.fomoed.io");
+      } else if (next) {
+        return NextResponse.redirect(`${origin}/${next}`);
       } else {
         if (isNewUser === "new-user") {
           return NextResponse.redirect(`${origin}/waitlist`);

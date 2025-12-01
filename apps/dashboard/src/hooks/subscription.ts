@@ -67,7 +67,7 @@ export function subscriptionStateToConfig(state: SubscriptionState, canHaveFreeT
     stateConfiguration.proBtnAction === "resub";
 
   return {
-    proBtnContent: getBtnContent(stateConfiguration.proBtnAction, "Pro", canHaveFreeTrial),
+    proBtnContent: getBtnContent(stateConfiguration.proBtnAction, "Pro", false),
     plusBtnContent: getBtnContent(stateConfiguration.plusBtnAction, "Plus", canHaveFreeTrial),
     proBtnAction: stateConfiguration.proBtnAction,
     plusBtnAction: stateConfiguration.plusBtnAction,
@@ -109,7 +109,7 @@ export const useSubscription = () => {
     mutationFn: async ({ action, billingPeriod, plan, busyKey }: ChangeSubscriptionMutationOpts) => {
       if (!isLoggedIn) {
         setIsRedirecting(true);
-        router.push("/auth/login");
+        router.push("/auth/login?next=pricing");
         return;
       }
 
@@ -132,6 +132,10 @@ export const useSubscription = () => {
         url,
         body: { priceLookupKey },
       });
+
+      console.log(url);
+      console.log(priceLookupKey);
+      console.log(res);
 
       if (res.redirectTo) {
         setIsRedirecting(true);
