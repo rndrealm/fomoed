@@ -5,6 +5,8 @@ import { RenderIf } from "@/components/shared";
 
 import { LandingScreen } from "./initial";
 import HyperliquidWidget from "./hyperliquid";
+import { useAtomValue } from "jotai";
+import { settingAtom } from "@/lib/atoms/settingsAtom";
 
 interface IProps {
   widget: LayoutType["widgets"][0];
@@ -14,8 +16,8 @@ const selectedExchange = "hyperliquid";
 
 export default function Trading(props: IProps) {
   const { widget } = props;
-
-  const [isLoaded, setIsLoaded] = useState(true);
+  const settings = useAtomValue(settingAtom);
+  const [isLoaded, setIsLoaded] = useState(!!settings.exchange);
 
   return (
     <Fragment>

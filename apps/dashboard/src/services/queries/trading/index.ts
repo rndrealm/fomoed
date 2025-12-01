@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { TradeExecutionPayload, UpdateLeveragePayload } from "./types";
+import { updateExchangeAction, UpdateExchangePayload } from "./actions";
 import api from "@/services/api";
 import { toast } from "sonner";
 
@@ -60,6 +61,23 @@ export const useUpdateLeveraggeTrade = (onSuccessCallback: () => void, authToken
     onError: (data) => {
       console.log("execute error: ", data);
       toast.error("Leverage update error");
+    },
+  });
+};
+
+export const useUpdateExchange = (onSuccess?: () => void) => {
+  return useMutation({
+    mutationFn: async (data: UpdateExchangePayload) => {
+      return await updateExchangeAction(data);
+    },
+    onSuccess: (data) => {
+      console.log("exchange update success: ", data);
+      onSuccess?.();
+      // toast.success("Exchange updated to hyperliquid");
+    },
+    onError: (error: any) => {
+      console.log("exchange update error: ", error);
+      toast.error(error?.message || "Exchange update error");
     },
   });
 };
