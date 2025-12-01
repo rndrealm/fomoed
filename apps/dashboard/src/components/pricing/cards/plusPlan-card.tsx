@@ -118,7 +118,7 @@ const PlusPlanCard = ({
                       initial="hidden"
                       animate="visible"
                       exit="exit"
-                      className="text-4xl font-semibold"
+                      className="text-[2rem]! font-semibold "
                     >
                       {switchActive ? prices[1] : prices[0]}
                     </motion.h2>

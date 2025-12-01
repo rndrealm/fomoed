@@ -10,6 +10,11 @@ import {
   propagateErrorOrData,
 } from "../utils/server.utils";
 
+const discountMap = {
+  pro_monthly: "SjeN4WWD",
+  pro_yearly: "I0IGhXMr",
+};
+
 export function validatePriceLookupKey(priceLookupKey: string): boolean {
   return priceLookupKeys.includes(priceLookupKey as PriceLookupKey);
 }
@@ -88,12 +93,16 @@ export async function createCheckoutSession({
     };
   }
 
+  const discountValue = discountMap[priceLookupKey as keyof typeof discountMap];
+  const discounts = discountValue ? [{ coupon: discountValue }] : undefined;
+
   const session = await stripe.checkout.sessions.create({
     customer: customerId,
     mode: "subscription",
     payment_method_types: ["card"],
     line_items: [{ price: priceId, quantity: 1 }],
     success_url: returnUrl,
+    discounts: discounts,
     cancel_url: returnUrl,
 
     // Pass the metadata to the top-level Checkout Session

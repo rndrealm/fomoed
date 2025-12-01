@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const token_hash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
-  const next = searchParams.get("next") ?? "/";
+  const nextUrl = searchParams.get("nextUrl") ?? "/";
   const fromUrl = searchParams.get("fromUrl");
   const referralCode = searchParams.get("referralCode");
 
@@ -72,6 +72,8 @@ export async function GET(request: NextRequest) {
       if (fromUrl === "marketing") {
         const marketingUrl = process.env.NEXT_PUBLIC_MARKETING_APP_URL;
         return NextResponse.redirect(marketingUrl || "https://marketing.fomoed.io");
+      } else if (nextUrl) {
+        return redirect(`/${nextUrl}`);
       } else {
         // Temporary redirect to waitlist page
         redirect("/waitlist");
