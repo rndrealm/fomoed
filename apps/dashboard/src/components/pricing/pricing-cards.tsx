@@ -32,7 +32,7 @@ const PricingCards = ({ pricingCardsContent }: PricingCardsContent) => {
   const proPlanCardContent = pricingCardsContent.find((item) => item.title === "Pro") as PricingCard;
   const plusPlanCardContent = pricingCardsContent.find((item) => item.title === "Plus") as PricingCard;
 
-  const [switchActive, setSwitchActive] = useState<boolean>(false);
+  const [switchActive, setSwitchActive] = useState<boolean>(true);
   // console.log(switchActive);
 
   return (
@@ -41,6 +41,7 @@ const PricingCards = ({ pricingCardsContent }: PricingCardsContent) => {
         <PricingSwitch
           label={["Monthly", "Yearly"]}
           name="period"
+          checked={switchActive}
           labelClassName="text-[#A5A5A5] text-xs"
           setSwitchActive={setSwitchActive}
         />
