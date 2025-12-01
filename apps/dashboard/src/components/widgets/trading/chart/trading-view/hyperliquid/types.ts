@@ -63,3 +63,91 @@ type PerpsAssetCtx = SharedAssetCtx & {
 type SpotAssetCtx = SharedAssetCtx & {
   circulatingSupply: number;
 };
+
+export interface WsClearingHouseStateResponse {
+  channel: string;
+  data: WsClearingHouseState;
+}
+
+export interface WsClearingHouseState {
+  clearinghouseState: ClearinghouseState;
+  dex: string;
+  user: string;
+}
+
+interface ClearinghouseState {
+  assetPositions: Array<AssetPosition>;
+  marginSummary: MarginSummary;
+  crossMarginSummary: MarginSummary;
+  crossMaintenanceMarginUsed: number;
+  withdrawable: number;
+  time: number;
+}
+
+interface MarginSummary {
+  accountValue: number;
+  totalNtlPos: number;
+  totalRawUsd: number;
+  totalMarginUsed: number;
+}
+
+interface AssetPosition {
+  type: "oneWay";
+  position: Position;
+}
+
+interface Position {
+  coin: string;
+  szi: string;
+  leverage: Leverage;
+  entryPx: string;
+  positionValue: string;
+  unrealizedPnl: string;
+  returnOnEquity: string;
+  liquidationPx: null | string;
+  marginUsed: string;
+  maxLeverage: number;
+  cumFunding: CumFunding;
+}
+
+interface CumFunding {
+  allTime: string;
+  sinceOpen: string;
+  sinceChange: string;
+}
+
+interface Leverage {
+  type: string;
+  value: number;
+  rawUsd?: string;
+}
+
+export interface WsOpenOrdersResponse {
+  channel: string;
+  data: WsOpenOrders;
+}
+
+export interface WsOpenOrders {
+  dex: string;
+  user: string;
+  orders: Array<Order>;
+}
+
+interface Order {
+  coin: string;
+  side: string;
+  limitPx: string;
+  sz: string;
+  oid: number;
+  timestamp: number;
+  triggerCondition: string;
+  isTrigger: boolean;
+  triggerPx: string;
+  children: any[];
+  isPositionTpsl: boolean;
+  reduceOnly: boolean;
+  orderType: string;
+  origSz: string;
+  tif: string;
+  cloid: null;
+}

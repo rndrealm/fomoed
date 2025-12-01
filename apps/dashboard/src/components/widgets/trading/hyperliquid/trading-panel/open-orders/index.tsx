@@ -3,18 +3,19 @@ import React from "react";
 import Image from "next/image";
 import dashboard from "@/lib/assets/dashboard";
 import { useHyperliquidOpenOrders } from "@/services/queries/hyperliquid-dex";
+import { useOpenOrders } from "../../../chart/trading-view/hyperliquid/use-open-orders";
+import { useClearingHouseState } from "../../../chart/trading-view/hyperliquid/use-clearinghouse-state";
 
 interface OpenOrdersTabProps {
   userAddress: string;
 }
 
 export default function OpenOrdersTab({ userAddress }: OpenOrdersTabProps) {
-  const { data: openOrders, isLoading } = useHyperliquidOpenOrders(
-    userAddress,
-    !!userAddress
-  );
+  const { data: openOrders, isLoading } = useHyperliquidOpenOrders(userAddress, !!userAddress);
 
-  const perpOpenOrders = openOrders?.filter(order => !order.coin.startsWith("@")) || [];
+  const { isConnected, openOrders: openOrdersFromHook } = useOpenOrders(userAddress);
+
+  const perpOpenOrders = openOrders?.filter((order) => !order.coin.startsWith("@")) || [];
 
   if (isLoading) {
     return (
@@ -59,7 +60,7 @@ export default function OpenOrdersTab({ userAddress }: OpenOrdersTabProps) {
           const filledSize = parseFloat(order.origSz) - parseFloat(order.sz);
           const fillPercentage = (filledSize / parseFloat(order.origSz)) * 100;
           const orderTime = new Date(order.timestamp);
-          
+
           return (
             <div
               key={`${order.oid}-${index}`}
@@ -89,9 +90,7 @@ export default function OpenOrdersTab({ userAddress }: OpenOrdersTabProps) {
               <div>
                 <span
                   className={`text-[12px] font-medium px-2 py-1 rounded ${
-                    isBuy
-                      ? "bg-green-500/10 text-green-500"
-                      : "bg-red-500/10 text-red-500"
+                    isBuy ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"
                   }`}
                 >
                   {isBuy ? "Buy" : "Sell"}
@@ -101,42 +100,32 @@ export default function OpenOrdersTab({ userAddress }: OpenOrdersTabProps) {
               {/* Order Type */}
               <div className="text-white text-[12px]">
                 {order.orderType}
-                {order.reduceOnly && (
-                  <span className="text-[#84858C] text-[10px] ml-1">(RO)</span>
-                )}
+                {order.reduceOnly && <span className="text-[#84858C] text-[10px] ml-1">(RO)</span>}
               </div>
 
               {/* Price */}
               <div className="flex flex-col">
-                <span className="text-white text-[12px]">
-                  ${parseFloat(order.limitPx).toFixed(2)}
-                </span>
+                <span className="text-white text-[12px]">${parseFloat(order.limitPx).toFixed(2)}</span>
                 {order.isTrigger && order.triggerPx !== "0.0" && (
-                  <span className="text-[#84858C] text-[10px]">
-                    Trigger: ${parseFloat(order.triggerPx).toFixed(2)}
-                  </span>
+                  <span className="text-[#84858C] text-[10px]">Trigger: ${parseFloat(order.triggerPx).toFixed(2)}</span>
                 )}
               </div>
 
               {/* Size */}
               <div className="text-white text-[12px]">
                 {parseFloat(order.sz).toFixed(4)}
-                <span className="text-[#84858C] text-[10px] ml-1">
-                  / {parseFloat(order.origSz).toFixed(4)}
-                </span>
+                <span className="text-[#84858C] text-[10px] ml-1">/ {parseFloat(order.origSz).toFixed(4)}</span>
               </div>
 
               {/* Filled */}
-              <div className="text-white text-[12px]">
-                {fillPercentage.toFixed(0)}%
-              </div>
+              <div className="text-white text-[12px]">{fillPercentage.toFixed(0)}%</div>
 
               {/* Time */}
               <div className="text-[#84858C] text-[11px]">
-                {orderTime.toLocaleTimeString('en-US', { 
-                  hour: '2-digit', 
-                  minute: '2-digit',
-                  hour12: false 
+                {orderTime.toLocaleTimeString("en-US", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: false,
                 })}
               </div>
             </div>

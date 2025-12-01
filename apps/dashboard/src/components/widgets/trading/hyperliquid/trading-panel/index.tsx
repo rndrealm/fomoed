@@ -12,14 +12,11 @@ export default function TradingPanel() {
   const [hideSmallBalances, setHideSmallBalances] = useState(false);
   const userAddress = "0x02eC6F09CF972caEBd171314AE1C5c1B30919a57";
 
-  const { data: clearinghouseState, isLoading } = useHyperliquidClearinghouseState(
-    userAddress,
-    !!userAddress
-  );
+  const { data: clearinghouseState, isLoading } = useHyperliquidClearinghouseState(userAddress, !!userAddress);
 
   const tabs = ["Balances", "Open Orders", "Order History", "News"];
 
-  const totalBalance = clearinghouseState?.marginSummary?.accountValue 
+  const totalBalance = clearinghouseState?.marginSummary?.accountValue
     ? parseFloat(clearinghouseState.marginSummary.accountValue)
     : 0;
 
@@ -28,7 +25,7 @@ export default function TradingPanel() {
       case "Balances":
         return <BalancesTab hideSmallBalances={hideSmallBalances} userAddress={userAddress} />;
       case "Open Orders":
-        return <OpenOrdersTab userAddress={userAddress}/>;
+        return <OpenOrdersTab userAddress={userAddress} />;
       case "Order History":
         return <OrderHistoryTab userAddress={userAddress} />;
       case "News":
@@ -39,7 +36,7 @@ export default function TradingPanel() {
   };
 
   return (
-    <div className="bg-[#121317] rounded-[6px] flex flex-col mb-2">
+    <div className="bg-[#121317] rounded-[6px] flex flex-col mb-2 h-[400px]">
       <div
         className="flex items-center justify-between border-b border-[#0C0C0C]"
         style={{
@@ -91,7 +88,7 @@ export default function TradingPanel() {
             {isLoading ? (
               <span className="text-[#84858C]">Loading...</span>
             ) : (
-              `$ ${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+              `$ ${totalBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
             )}
           </div>
         </div>
