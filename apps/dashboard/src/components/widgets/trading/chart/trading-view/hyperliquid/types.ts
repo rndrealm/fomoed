@@ -151,3 +151,25 @@ interface Order {
   tif: string;
   cloid: null;
 }
+
+export interface WsSpotStateResponse {
+  channel: string;
+  data: WsSpotState;
+}
+
+export interface WsSpotState {
+  user: string;
+  spotState: SpotState;
+}
+
+interface SpotState {
+  balances: Balance[];
+}
+
+interface Balance {
+  coin: string;
+  token: number;
+  total: string;
+  hold: string;
+  entryNtl: string;
+}

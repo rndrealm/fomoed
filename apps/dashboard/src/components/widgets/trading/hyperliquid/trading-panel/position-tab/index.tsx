@@ -22,8 +22,9 @@ interface OpenPositionsTabProps {
   userAddress: string;
 }
 
-export default function OpenPositionsTab({ hideSmallBalances, userAddress }: OpenPositionsTabProps) {
-  
+const userAddress = "0x02eC6F09CF972caEBd171314AE1C5c1B30919a57";
+
+export default function OpenPositionsTab() {
   const { data: clearinghouseState, isLoading } = useHyperliquidClearinghouseState(userAddress, !!userAddress);
   const { data: allMids } = useHyperliquidAllMids(!!userAddress);
 
@@ -73,8 +74,6 @@ export default function OpenPositionsTab({ hideSmallBalances, userAddress }: Ope
     return positionList;
   }, [clearinghouseState, allMids]);
 
-  const filteredPositions = hideSmallBalances ? positions.filter((position) => position.positionValue > 1) : positions;
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full min-h-[375px]">
@@ -87,7 +86,7 @@ export default function OpenPositionsTab({ hideSmallBalances, userAddress }: Ope
     <div className="flex flex-col h-full">
       {/* Table */}
       <div className="flex-1 overflow-auto">
-        {filteredPositions.length === 0 ? (
+        {positions.length === 0 ? (
           <div className="flex flex-col min-h-[300px] h-full items-center justify-center bg-[#191B20] rounded-[6px] my-1">
             <div className="text-[#84858C] text-[48px] mb-4">📊</div>
             <p className="text-white text-[20px] font-semibold">No open positions</p>
@@ -121,7 +120,7 @@ export default function OpenPositionsTab({ hideSmallBalances, userAddress }: Ope
               </tr>
             </thead>
             <tbody>
-              {filteredPositions.map((position, index) => (
+              {positions.map((position, index) => (
                 <tr
                   key={`${position.coin}-${index}`}
                   className="border-b border-[#0C0C0C] hover:bg-[#1C1D21] transition-colors"
@@ -187,28 +186,26 @@ export default function OpenPositionsTab({ hideSmallBalances, userAddress }: Ope
       </div>
 
       {/* Summary Footer */}
-      {filteredPositions.length > 0 && (
+      {positions.length > 0 && (
         <div className="border-t border-[#0C0C0C] px-3 py-2 bg-[#0E0E0E]">
           <div className="flex justify-between items-center">
-            <span className="text-[#84858C] text-[12px]">Total Positions: {filteredPositions.length}</span>
+            <span className="text-[#84858C] text-[12px]">Total Positions: {positions.length}</span>
             <div className="flex gap-4">
               <div>
                 <span className="text-[#84858C] text-[12px]">Total Value: </span>
                 <span className="text-white text-[12px] font-medium">
-                  ${filteredPositions.reduce((sum, p) => sum + p.positionValue, 0).toFixed(2)}
+                  ${positions.reduce((sum, p) => sum + p.positionValue, 0).toFixed(2)}
                 </span>
               </div>
               <div>
                 <span className="text-[#84858C] text-[12px]">Total PNL: </span>
                 <span
                   className={`text-[12px] font-medium ${
-                    filteredPositions.reduce((sum, p) => sum + p.unrealizedPnl, 0) >= 0
-                      ? "text-green-500"
-                      : "text-red-500"
+                    positions.reduce((sum, p) => sum + p.unrealizedPnl, 0) >= 0 ? "text-green-500" : "text-red-500"
                   }`}
                 >
-                  ${filteredPositions.reduce((sum, p) => sum + p.unrealizedPnl, 0) >= 0 ? "+" : ""}
-                  {filteredPositions.reduce((sum, p) => sum + p.unrealizedPnl, 0).toFixed(2)}
+                  ${positions.reduce((sum, p) => sum + p.unrealizedPnl, 0) >= 0 ? "+" : ""}
+                  {positions.reduce((sum, p) => sum + p.unrealizedPnl, 0).toFixed(2)}
                 </span>
               </div>
             </div>

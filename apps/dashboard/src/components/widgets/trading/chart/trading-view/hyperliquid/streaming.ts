@@ -1,6 +1,6 @@
 import { getNextBarTime } from "@/lib/utils";
 import { LibrarySymbolInfo, SubscribeBarsCallback } from "../datafeed";
-import { WsClearingHouseStateResponse, WsOpenOrdersResponse, WsTradeResponse } from "./types";
+import { WsClearingHouseStateResponse, WsOpenOrdersResponse, WsSpotStateResponse, WsTradeResponse } from "./types";
 
 const resolutionToIntervalMap: { [key: string]: string } = {
   "1": "1m",
@@ -30,6 +30,7 @@ interface HyperliquidState {
   tickerSubscriptions: Map<string, Set<(data: any) => void>>;
   clearingHouseSubscriptions: Map<string, Set<(data: any) => void>>;
   openOrdersSubscriptions: Map<string, Set<(data: any) => void>>;
+  spotStateSubscriptions: Map<string, Set<(data: any) => void>>;
   pendingSubscriptions: any[];
 }
 
@@ -46,6 +47,7 @@ const state = globalForWs.hyperliquidState || {
   tickerSubscriptions: new Map(),
   openOrdersSubscriptions: new Map(),
   pendingSubscriptions: [],
+  spotStateSubscriptions: new Map(),
   clearingHouseSubscriptions: new Map(),
 };
 
@@ -67,8 +69,8 @@ function createSocket() {
   }
 
   // 2. Create new socket and assign to STATE
-  // state.socket = new WebSocket("wss://api.hyperliquid.xyz/ws");
-  state.socket = new WebSocket("wss://api-ui.hyperliquid-testnet.xyz/ws");
+  state.socket = new WebSocket("wss://api.hyperliquid.xyz/ws");
+  // state.socket = new WebSocket("wss://api-ui.hyperliquid-testnet.xyz/ws");
 
   state.socket.addEventListener("open", () => {
     console.log("[socket] Connected");
@@ -135,6 +137,8 @@ function handleMessage(event: MessageEvent) {
     handleClearingHouseData(data);
   } else if (data?.channel === "openOrders") {
     handleOpenOrdersData(data);
+  } else if (data?.channel === "spotState") {
+    handleSpotStateData(data);
   }
 }
 
@@ -223,6 +227,16 @@ function handleOpenOrdersData(data: WsOpenOrdersResponse) {
   const address = data?.data?.user;
 
   const callbacks = state.openOrdersSubscriptions.get(address);
+
+  if (callbacks) {
+    callbacks.forEach((callback) => callback(data?.data));
+  }
+}
+
+function handleSpotStateData(data: WsSpotStateResponse) {
+  const address = data?.data?.user;
+
+  const callbacks = state.spotStateSubscriptions.get(address);
 
   if (callbacks) {
     callbacks.forEach((callback) => callback(data?.data));
@@ -544,6 +558,55 @@ export function unsubscribeFromOpenOrders(_address: string, callback: (data: any
         method: "unsubscribe",
         subscription: {
           type: "openOrders",
+          user: address,
+        },
+      };
+
+      if (state.socket?.readyState === WebSocket.OPEN) {
+        state.socket.send(JSON.stringify(subRequest));
+      }
+    }
+  }
+}
+
+export function subscribeToSpotState(_address: string, callback: (data: any) => void) {
+  const address = _address.toLowerCase();
+  if (!state.spotStateSubscriptions.has(address)) {
+    state.spotStateSubscriptions.set(address, new Set());
+  }
+
+  const callbacks = state.spotStateSubscriptions.get(address)!;
+  callbacks.add(callback);
+
+  if (callbacks.size === 1) {
+    const subRequest = {
+      method: "subscribe",
+      subscription: {
+        type: "spotState",
+        user: address,
+      },
+    };
+
+    createSocket();
+
+    sendMessage(subRequest);
+  }
+}
+
+export function unsubscribeFromSpotState(_address: string, callback: (data: any) => void) {
+  const address = _address.toLowerCase();
+  const callbacks = state.spotStateSubscriptions.get(address);
+
+  if (callbacks) {
+    callbacks.delete(callback);
+
+    if (callbacks.size === 0) {
+      state.spotStateSubscriptions.delete(address);
+
+      const subRequest = {
+        method: "unsubscribe",
+        subscription: {
+          type: "spotState",
           user: address,
         },
       };
