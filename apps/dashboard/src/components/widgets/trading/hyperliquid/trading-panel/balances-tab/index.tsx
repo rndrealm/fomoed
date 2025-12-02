@@ -3,6 +3,8 @@ import React, { Fragment, useMemo } from "react";
 import Image from "next/image";
 import dashboard from "@/lib/assets/dashboard";
 import { useHyperliquidClearinghouseState } from "@/services/queries/hyperliquid-dex";
+import { useClearingHouseState } from "../../../chart/trading-view/hyperliquid/use-clearinghouse-state";
+import { useSpotState } from "../../../chart/trading-view/hyperliquid/use-spot-state";
 
 interface BalanceData {
   coin: string;
@@ -25,6 +27,8 @@ const userAddress = "0x02eC6F09CF972caEBd171314AE1C5c1B30919a57";
 
 export default function BalancesTab() {
   const { data: clearinghouseState, isLoading } = useHyperliquidClearinghouseState(userAddress, !!userAddress);
+  const { clearingHouse } = useClearingHouseState(userAddress);
+  const { spotState } = useSpotState(userAddress);
 
   const totalBalance = clearinghouseState?.marginSummary?.accountValue
     ? parseFloat(clearinghouseState.marginSummary.accountValue)

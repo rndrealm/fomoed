@@ -36,7 +36,7 @@ export const useHyperliquidClearinghouseState = (userAddress: string, enabled: b
       return response?.data;
     },
     enabled: enabled && !!userAddress,
-    refetchInterval: 5000,
+    // refetchInterval: 5000,
   });
 
   return {
@@ -113,7 +113,7 @@ export const useHyperliquidAllMids = (enabled: boolean = true) => {
       return response?.data;
     },
     enabled,
-    refetchInterval: 3000,
+    // refetchInterval: 3000,
   });
 
   return {

@@ -2,6 +2,10 @@
 import React, { useMemo } from "react";
 import Image from "next/image";
 import { useHyperliquidClearinghouseState, useHyperliquidAllMids } from "@/services/queries/hyperliquid-dex";
+import { useReadHyperLiquidTokens } from "@/services/queries/hyperliquid";
+import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
+import { useSetAtom } from "jotai";
+import { useClearingHouseState } from "../../../chart/trading-view/hyperliquid/use-clearinghouse-state";
 
 interface PositionData {
   coin: string;
@@ -27,6 +31,11 @@ const userAddress = "0x02eC6F09CF972caEBd171314AE1C5c1B30919a57";
 export default function OpenPositionsTab() {
   const { data: clearinghouseState, isLoading } = useHyperliquidClearinghouseState(userAddress, !!userAddress);
   const { data: allMids } = useHyperliquidAllMids(!!userAddress);
+
+  const { clearingHouse } = useClearingHouseState(userAddress);
+
+  const { data: tokensData } = useReadHyperLiquidTokens();
+  const setSelectedToken = useSetAtom(selectedTokenAtom);
 
   const positions: PositionData[] = useMemo(() => {
     const positionList: PositionData[] = [];
@@ -128,7 +137,14 @@ export default function OpenPositionsTab() {
                 >
                   {/* Coin */}
                   <td className="px-3">
-                    <div className="flex items-center gap-2">
+                    <div
+                      className="flex items-center gap-2"
+                      onClick={() => {
+                        const token = tokensData?.allTokens?.find((t) => t.name === position.coin);
+                        if (!token) return;
+                        setSelectedToken(token);
+                      }}
+                    >
                       <span className="text-white text-[14px] font-medium">{position.coin}</span>
                     </div>
                   </td>

@@ -6,16 +6,14 @@ import OpenOrdersTab from "./open-orders";
 import OrderHistoryTab from "./order-history";
 import NewsTab from "./news-tab";
 import Checkbox from "@/components/ui/checkbox";
-import { useHyperliquidClearinghouseState } from "@/services/queries/hyperliquid-dex";
 import { cn } from "@/lib/utils";
-const userAddress = "0x02eC6F09CF972caEBd171314AE1C5c1B30919a57";
 
 const tabContent = [
-  { id: "balances", component: BalancesTab },
-  { id: "open_positions", component: OpenPositionsTab },
-  { id: "open_orders", component: OpenOrdersTab },
-  { id: "order_history", component: OrderHistoryTab },
-  { id: "news", component: NewsTab },
+  { id: "balances", component: <BalancesTab /> },
+  { id: "open_positions", component: <OpenPositionsTab /> },
+  { id: "open_orders", component: <OpenOrdersTab /> },
+  { id: "order_history", component: <OrderHistoryTab /> },
+  { id: "news", component: <NewsTab /> },
 ];
 
 const tabs = [
@@ -27,14 +25,8 @@ const tabs = [
 ];
 
 export default function TradingPanel() {
-  const [activeTab, setActiveTab] = useState("balances");
+  const [activeTab, setActiveTab] = useState("news");
   const [hideSmallBalances, setHideSmallBalances] = useState(false);
-
-  const { data: clearinghouseState, isLoading } = useHyperliquidClearinghouseState(userAddress, !!userAddress);
-
-  const totalBalance = clearinghouseState?.marginSummary?.accountValue
-    ? parseFloat(clearinghouseState.marginSummary.accountValue)
-    : 0;
 
   return (
     <div className="bg-[#121317] rounded-[6px] flex flex-col mb-2 h-[400px]">
@@ -70,7 +62,7 @@ export default function TradingPanel() {
         {tabContent.map((tab) => {
           return (
             <div key={tab.id} className={cn("h-full w-full", activeTab === tab.id ? "block" : "hidden")}>
-              {tab.component()}
+              {tab.component}
             </div>
           );
         })}

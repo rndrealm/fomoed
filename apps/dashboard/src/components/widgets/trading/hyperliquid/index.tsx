@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import React, { useState } from "react";
+import React, { Fragment, useState } from "react";
 import AscendexHeader from "./header";
 import { LayoutType } from "@/lib/atoms/layoutAtom";
 import { useSupabaseAuth } from "@/components/providers";
@@ -21,15 +21,33 @@ interface IProps {
 
 type ViewType = "futures" | "spot" | "lend" | "conditional" | "balance" | "settings";
 
-const HyperliquidWidget = ({ widget }: IProps) => {
-  const { session } = useSupabaseAuth();
+function CreateOrderComponent() {
   const selectedToken = useAtomValue(selectedTokenAtom);
   const { isConnected, ticker } = useTicker(selectedToken?.name);
   const isSpot = selectedToken?.isSpot;
 
+  return (
+    <Fragment>
+      {selectedToken && isConnected && ticker ? (
+        <div>
+          {isSpot ? (
+            <CreateSpotOrder selectedToken={selectedToken} ticker={ticker} />
+          ) : (
+            <CreateOrder selectedToken={selectedToken} ticker={ticker} />
+          )}
+        </div>
+      ) : (
+        <SkeletonLoader width={210} heightFull backgroundColor="#121317" borderRadius={10} />
+      )}
+    </Fragment>
+  );
+}
+
+const HyperliquidWidget = ({ widget }: IProps) => {
   const handleViewChange = (view: ViewType) => {
     setActiveView(view);
   };
+
   const [activeView, setActiveView] = useState<ViewType>("futures");
 
   const showTradingInterface = ["futures", "spot", "lend", "conditional"].includes(activeView);
@@ -66,17 +84,8 @@ const HyperliquidWidget = ({ widget }: IProps) => {
             </div>
 
             <OrderBookAndTrade />
-            {selectedToken && isConnected && ticker ? (
-              <div>
-                {isSpot ? (
-                  <CreateSpotOrder selectedToken={selectedToken} ticker={ticker} />
-                ) : (
-                  <CreateOrder selectedToken={selectedToken} ticker={ticker} />
-                )}
-              </div>
-            ) : (
-              <SkeletonLoader width={210} heightFull backgroundColor="#121317" borderRadius={10} />
-            )}
+
+            <CreateOrderComponent />
           </div>
         </RenderIf>
 

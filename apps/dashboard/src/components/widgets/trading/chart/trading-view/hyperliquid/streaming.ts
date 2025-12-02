@@ -69,8 +69,8 @@ function createSocket() {
   }
 
   // 2. Create new socket and assign to STATE
-  state.socket = new WebSocket("wss://api.hyperliquid.xyz/ws");
-  // state.socket = new WebSocket("wss://api-ui.hyperliquid-testnet.xyz/ws");
+  // state.socket = new WebSocket("wss://api.hyperliquid.xyz/ws");
+  state.socket = new WebSocket("wss://api-ui.hyperliquid-testnet.xyz/ws");
 
   state.socket.addEventListener("open", () => {
     console.log("[socket] Connected");
