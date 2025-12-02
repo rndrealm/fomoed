@@ -7,7 +7,7 @@ import {
   IChartingLibraryWidget,
   ResolutionString,
 } from "../../../../../../public/static/charting_library/charting_library";
-import { widget } from "../../../../../../public/static/charting_library/charting_library";
+import { widget } from "../../../../../../public/static/charting_library";
 import { Datafeed } from "./datafeed";
 import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
 import { useAtom, useAtomValue } from "jotai";
@@ -92,6 +92,7 @@ export function TradingViewChart() {
         tvWidget.resetCache();
         chart.resetData();
       });
+      chart.getTimeScale().setBarSpacing(30);
     });
 
     return () => {

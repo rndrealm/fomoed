@@ -16,18 +16,15 @@ import {
   HyperliquidTwapSliceFill,
 } from "./types";
 
-const HYPERLIQUID_API_URL = "https://api.hyperliquid.xyz/info";
+// const HYPERLIQUID_API_URL = "https://api.hyperliquid.xyz/info";
+const HYPERLIQUID_API_URL = "https://api-ui.hyperliquid-testnet.xyz/info";
 
-export const useHyperliquidClearinghouseState = (
-  userAddress: string,
-  enabled: boolean = true
-) => {
+export const useHyperliquidClearinghouseState = (userAddress: string, enabled: boolean = true) => {
   const hash = ["hyperliquid-clearinghouse-state", userAddress];
 
   const res = useQuery({
     queryKey: hash,
     queryFn: async () => {
-
       const response = await api.post({
         url: HYPERLIQUID_API_URL,
         body: {
@@ -39,7 +36,7 @@ export const useHyperliquidClearinghouseState = (
       return response?.data;
     },
     enabled: enabled && !!userAddress,
-    refetchInterval: 5000, 
+    // refetchInterval: 5000,
   });
 
   return {
@@ -48,17 +45,12 @@ export const useHyperliquidClearinghouseState = (
   };
 };
 
-
-export const useHyperliquidSpotState = (
-  userAddress: string,
-  enabled: boolean = true
-) => {
+export const useHyperliquidSpotState = (userAddress: string, enabled: boolean = true) => {
   const hash = ["hyperliquid-spot-state", userAddress];
 
   const res = useQuery({
     queryKey: hash,
     queryFn: async () => {
-
       const response = await api.post({
         url: HYPERLIQUID_API_URL,
         body: {
@@ -79,10 +71,7 @@ export const useHyperliquidSpotState = (
   };
 };
 
-export const useHyperliquidPortfolio = (
-  userAddress: string,
-  enabled: boolean = true
-) => {
+export const useHyperliquidPortfolio = (userAddress: string, enabled: boolean = true) => {
   const hash = ["hyperliquid-portfolio-v2", userAddress];
 
   const res = useQuery({
@@ -99,7 +88,7 @@ export const useHyperliquidPortfolio = (
       return response?.data;
     },
     enabled: enabled && !!userAddress,
-    staleTime: 60000, 
+    staleTime: 60000,
   });
 
   return {
@@ -114,7 +103,6 @@ export const useHyperliquidAllMids = (enabled: boolean = true) => {
   const res = useQuery({
     queryKey: hash,
     queryFn: async () => {
-
       const response = await api.post({
         url: HYPERLIQUID_API_URL,
         body: {
@@ -125,7 +113,7 @@ export const useHyperliquidAllMids = (enabled: boolean = true) => {
       return response?.data;
     },
     enabled,
-    refetchInterval: 3000, 
+    // refetchInterval: 3000,
   });
 
   return {
@@ -140,7 +128,6 @@ export const useHyperliquidMeta = () => {
   const res = useQuery({
     queryKey: hash,
     queryFn: async () => {
-
       const response = await api.post({
         url: HYPERLIQUID_API_URL,
         body: {
@@ -150,7 +137,7 @@ export const useHyperliquidMeta = () => {
       });
       return response?.data;
     },
-    staleTime: Infinity, 
+    staleTime: Infinity,
   });
 
   return {
@@ -165,7 +152,6 @@ export const useHyperliquidSpotMeta = () => {
   const res = useQuery({
     queryKey: hash,
     queryFn: async () => {
-
       const response = await api.post({
         url: HYPERLIQUID_API_URL,
         body: {
@@ -184,16 +170,12 @@ export const useHyperliquidSpotMeta = () => {
   };
 };
 
-export const useHyperliquidOpenOrders = (
-  userAddress: string,
-  enabled: boolean = true
-) => {
+export const useHyperliquidOpenOrders = (userAddress: string, enabled: boolean = true) => {
   const hash = ["hyperliquid-open-orders", userAddress];
 
   const res = useQuery({
     queryKey: hash,
     queryFn: async () => {
-
       const response = await api.post({
         url: HYPERLIQUID_API_URL,
         body: {
@@ -214,16 +196,12 @@ export const useHyperliquidOpenOrders = (
   };
 };
 
-export const useHyperliquidHistoricalOrders = (
-  userAddress: string,
-  enabled: boolean = true
-) => {
+export const useHyperliquidHistoricalOrders = (userAddress: string, enabled: boolean = true) => {
   const hash = ["hyperliquid-historical-orders", userAddress];
 
   const res = useQuery({
     queryKey: hash,
     queryFn: async () => {
-
       const response = await api.post({
         url: HYPERLIQUID_API_URL,
         body: {
@@ -235,7 +213,7 @@ export const useHyperliquidHistoricalOrders = (
       return response?.data;
     },
     enabled: enabled && !!userAddress,
-    staleTime: 30000, 
+    staleTime: 30000,
   });
 
   return {
@@ -247,7 +225,6 @@ export const useHyperliquidHistoricalOrders = (
 export const useHyperliquidOrderStatus = () => {
   return useMutation({
     mutationFn: async (props: { userAddress: string; oid: number | string }) => {
-
       const { userAddress, oid } = props;
       const res = await api.post({
         url: HYPERLIQUID_API_URL,
@@ -263,16 +240,12 @@ export const useHyperliquidOrderStatus = () => {
   });
 };
 
-export const useHyperliquidUserFills = (
-  userAddress: string,
-  enabled: boolean = true
-) => {
+export const useHyperliquidUserFills = (userAddress: string, enabled: boolean = true) => {
   const hash = ["hyperliquid-user-fills", userAddress];
 
   const res = useQuery({
     queryKey: hash,
     queryFn: async () => {
-
       const response = await api.post({
         url: HYPERLIQUID_API_URL,
         body: {
@@ -302,7 +275,6 @@ export const useHyperliquidUserFillsByTime = () => {
       endTime?: number;
       aggregateByTime?: boolean;
     }) => {
-
       const { userAddress, startTime, endTime, aggregateByTime = false } = props;
       const res = await api.post({
         url: HYPERLIQUID_API_URL,
@@ -320,16 +292,12 @@ export const useHyperliquidUserFillsByTime = () => {
   });
 };
 
-export const useHyperliquidTwapSliceFills = (
-  userAddress: string,
-  enabled: boolean = true
-) => {
+export const useHyperliquidTwapSliceFills = (userAddress: string, enabled: boolean = true) => {
   const hash = ["hyperliquid-twap-slice-fills", userAddress];
 
   const res = useQuery({
     queryKey: hash,
     queryFn: async () => {
-
       const response = await api.post({
         url: HYPERLIQUID_API_URL,
         body: {
@@ -350,16 +318,12 @@ export const useHyperliquidTwapSliceFills = (
   };
 };
 
-export const useHyperliquidUserFees = (
-  userAddress: string,
-  enabled: boolean = true
-) => {
+export const useHyperliquidUserFees = (userAddress: string, enabled: boolean = true) => {
   const hash = ["hyperliquid-user-fees", userAddress];
 
   const res = useQuery({
     queryKey: hash,
     queryFn: async () => {
-
       const response = await api.post({
         url: HYPERLIQUID_API_URL,
         body: {
@@ -371,7 +335,7 @@ export const useHyperliquidUserFees = (
       return response?.data;
     },
     enabled: enabled && !!userAddress,
-    staleTime: 300000, 
+    staleTime: 300000,
   });
 
   return {
@@ -380,16 +344,12 @@ export const useHyperliquidUserFees = (
   };
 };
 
-export const useHyperliquidUserRole = (
-  userAddress: string,
-  enabled: boolean = true
-) => {
+export const useHyperliquidUserRole = (userAddress: string, enabled: boolean = true) => {
   const hash = ["hyperliquid-user-role", userAddress];
 
   const res = useQuery({
     queryKey: hash,
     queryFn: async () => {
-
       const response = await api.post({
         url: HYPERLIQUID_API_URL,
         body: {
@@ -401,7 +361,7 @@ export const useHyperliquidUserRole = (
       return response?.data;
     },
     enabled: enabled && !!userAddress,
-    staleTime: Infinity, 
+    staleTime: Infinity,
   });
 
   return {
@@ -410,16 +370,12 @@ export const useHyperliquidUserRole = (
   };
 };
 
-export const useHyperliquidSubAccounts = (
-  userAddress: string,
-  enabled: boolean = true
-) => {
+export const useHyperliquidSubAccounts = (userAddress: string, enabled: boolean = true) => {
   const hash = ["hyperliquid-subaccounts", userAddress];
 
   const res = useQuery({
     queryKey: hash,
     queryFn: async () => {
-
       const response = await api.post({
         url: HYPERLIQUID_API_URL,
         body: {
@@ -431,7 +387,7 @@ export const useHyperliquidSubAccounts = (
       return response?.data;
     },
     enabled: enabled && !!userAddress,
-    staleTime: 60000, 
+    staleTime: 60000,
   });
 
   return {
@@ -440,17 +396,12 @@ export const useHyperliquidSubAccounts = (
   };
 };
 
-
-export const useHyperliquidUserRateLimit = (
-  userAddress: string,
-  enabled: boolean = true
-) => {
+export const useHyperliquidUserRateLimit = (userAddress: string, enabled: boolean = true) => {
   const hash = ["hyperliquid-user-rate-limit", userAddress];
 
   const res = useQuery({
     queryKey: hash,
     queryFn: async () => {
-
       const response = await api.post({
         url: HYPERLIQUID_API_URL,
         body: {
@@ -484,7 +435,6 @@ export const useHyperliquidCandleSnapshot = () => {
       startTime: number;
       endTime: number;
     }) => {
-
       const { coin, interval, startTime, endTime } = props;
       const res = await api.post({
         url: HYPERLIQUID_API_URL,
@@ -507,7 +457,6 @@ export const useHyperliquidCandleSnapshot = () => {
 export const useHyperliquidL2Book = () => {
   return useMutation({
     mutationFn: async (props: { coin: string; nSigFigs?: number; mantissa?: number }) => {
-
       const { coin, nSigFigs, mantissa } = props;
       const res = await api.post({
         url: HYPERLIQUID_API_URL,
@@ -526,11 +475,7 @@ export const useHyperliquidL2Book = () => {
 
 export const useHyperliquidUserFunding = () => {
   return useMutation({
-    mutationFn: async (props: {
-      userAddress: string;
-      startTime: number;
-      endTime?: number;
-    }) => {
+    mutationFn: async (props: { userAddress: string; startTime: number; endTime?: number }) => {
       const { userAddress, startTime, endTime } = props;
       const res = await api.post({
         url: HYPERLIQUID_API_URL,
@@ -549,11 +494,7 @@ export const useHyperliquidUserFunding = () => {
 
 export const useHyperliquidUserNonFundingLedgerUpdates = () => {
   return useMutation({
-    mutationFn: async (props: {
-      userAddress: string;
-      startTime: number;
-      endTime?: number;
-    }) => {
+    mutationFn: async (props: { userAddress: string; startTime: number; endTime?: number }) => {
       const { userAddress, startTime, endTime } = props;
       const res = await api.post({
         url: HYPERLIQUID_API_URL,
@@ -572,11 +513,7 @@ export const useHyperliquidUserNonFundingLedgerUpdates = () => {
 
 export const useHyperliquidFundingHistory = () => {
   return useMutation({
-    mutationFn: async (props: {
-      coin: string;
-      startTime: number;
-      endTime?: number;
-    }) => {
+    mutationFn: async (props: { coin: string; startTime: number; endTime?: number }) => {
       const { coin, startTime, endTime } = props;
       const res = await api.post({
         url: HYPERLIQUID_API_URL,
@@ -592,7 +529,6 @@ export const useHyperliquidFundingHistory = () => {
     },
   });
 };
-
 
 export const useHyperliquidPredictedFundings = (enabled: boolean = true) => {
   const hash = ["hyperliquid-predicted-fundings"];
@@ -610,7 +546,7 @@ export const useHyperliquidPredictedFundings = (enabled: boolean = true) => {
       return response?.data;
     },
     enabled,
-    refetchInterval: 60000, 
+    refetchInterval: 60000,
   });
 
   return {
@@ -635,24 +571,26 @@ export const useHyperliquidMetaAndAssetCtxs = (enabled: boolean = true) => {
       return response?.data;
     },
     enabled,
-    refetchInterval: 10000, 
+    refetchInterval: 10000,
   });
 
   return {
     ...res,
-    data: res?.data as [
-      { universe: Array<{ name: string; szDecimals: number; maxLeverage: number }> },
-      Array<{
-        dayNtlVlm: string;
-        funding: string;
-        impactPxs: [string, string];
-        markPx: string;
-        midPx: string;
-        openInterest: string;
-        oraclePx: string;
-        premium: string;
-        prevDayPx: string;
-      }>
-    ] | null,
+    data: res?.data as
+      | [
+          { universe: Array<{ name: string; szDecimals: number; maxLeverage: number }> },
+          Array<{
+            dayNtlVlm: string;
+            funding: string;
+            impactPxs: [string, string];
+            markPx: string;
+            midPx: string;
+            openInterest: string;
+            oraclePx: string;
+            premium: string;
+            prevDayPx: string;
+          }>,
+        ]
+      | null,
   };
 };
