@@ -2,13 +2,13 @@
 import React, { Fragment, useMemo } from "react";
 import Image from "next/image";
 import dashboard from "@/lib/assets/dashboard";
-import { useHyperliquidClearinghouseState } from "@/services/queries/hyperliquid-dex";
 import { useClearingHouseState } from "../../../chart/trading-view/hyperliquid/use-clearinghouse-state";
 import { useSpotState } from "../../../chart/trading-view/hyperliquid/use-spot-state";
+import { useHyperliquidSpotPrices } from "@/services/queries/hyperliquid-dex";
 
 interface BalanceData {
   coin: string;
-  // coinIcon: string;
+  source: "Perp" | "Spot";
   totalBalance: number;
   availableBalance: number;
   usdcValue: number;
@@ -22,43 +22,89 @@ interface BalancesTabProps {
 }
 
 const hideSmallBalances = false;
-
 const userAddress = "0x02eC6F09CF972caEBd171314AE1C5c1B30919a57";
 
 export default function BalancesTab() {
-  const { data: clearinghouseState, isLoading } = useHyperliquidClearinghouseState(userAddress, !!userAddress);
   const { clearingHouse } = useClearingHouseState(userAddress);
   const { spotState } = useSpotState(userAddress);
+  const { spotPrices } = useHyperliquidSpotPrices(true);
 
-  const totalBalance = clearinghouseState?.marginSummary?.accountValue
-    ? parseFloat(clearinghouseState.marginSummary.accountValue)
+  const isLoading = !clearingHouse || !spotState;
+
+  const totalBalance = clearingHouse?.clearinghouseState?.marginSummary?.accountValue
+    ? Number(clearingHouse.clearinghouseState.marginSummary.accountValue)
     : 0;
 
   const balances: BalanceData[] = useMemo(() => {
+    if (!clearingHouse?.clearinghouseState || !spotState?.spotState) {
+      return [];
+    }
+
     const balanceList: BalanceData[] = [];
+    const withdrawable = clearingHouse.clearinghouseState.withdrawable
+      ? Number(clearingHouse.clearinghouseState.withdrawable)
+      : 0;
 
-    const withdrawable = clearinghouseState?.withdrawable ? parseFloat(clearinghouseState.withdrawable) : 0;
-
-    if (clearinghouseState?.crossMarginSummary) {
-      const accountValue = parseFloat(clearinghouseState.crossMarginSummary.accountValue || "0");
-      const totalRawUsd = parseFloat(clearinghouseState.crossMarginSummary.totalRawUsd || "0");
-      const totalMarginUsed = parseFloat(clearinghouseState.crossMarginSummary.totalMarginUsed || "0");
+    if (clearingHouse.clearinghouseState.crossMarginSummary) {
+      const accountValue = Number(clearingHouse.clearinghouseState.crossMarginSummary.accountValue || "0");
 
       balanceList.push({
         coin: "USDC",
-        // coinIcon: "/coins/usdc.png",
         totalBalance: accountValue,
         availableBalance: withdrawable,
         usdcValue: accountValue,
         pnl: 0,
         roe: 0,
+        source: "Perp",
+      });
+    }
+
+    if (spotState.spotState.balances) {
+      spotState.spotState.balances.forEach((balance) => {
+        const total = parseFloat(balance.total);
+        const hold = parseFloat(balance.hold);
+        const available = total - hold;
+        const entryNtl = parseFloat(balance.entryNtl);
+
+        if (hideSmallBalances && total <= 0.01) {
+          return;
+        }
+
+        let currentPrice = 0;
+        let currentValue = 0;
+
+        if (balance.coin === "USDC") {
+          currentPrice = 1;
+          currentValue = total;
+        } else {
+          currentPrice = spotPrices?.[balance.token] || 0;
+          currentValue = total * currentPrice;
+        }
+
+        let pnl = 0;
+        let roe = 0;
+        if (entryNtl !== 0 && total !== 0 && balance.coin !== "USDC") {
+          pnl = currentValue - entryNtl;
+          roe = entryNtl !== 0 ? (pnl / Math.abs(entryNtl)) * 100 : 0;
+        }
+
+        balanceList.push({
+          coin: balance.coin,
+          totalBalance: total,
+          availableBalance: available,
+          usdcValue: currentValue,
+          pnl,
+          roe,
+          source: "Spot",
+        });
       });
     }
 
     return balanceList;
-  }, [clearinghouseState]);
+  }, [clearingHouse, spotState]);
 
-  const filteredBalances = hideSmallBalances ? balances.filter((balance) => balance.usdcValue > 1) : balances;
+  const filteredBalances = balances.filter((balance) => balance.usdcValue > 1);
+  // const filteredBalances = hideSmallBalances ? balances.filter((balance) => balance.usdcValue > 1) : balances;
 
   if (isLoading) {
     return (
@@ -95,6 +141,9 @@ export default function BalancesTab() {
                   <th className="text-left text-[#84858C] text-[12px] font-normal px-3 py-2" style={{ width: "20%" }}>
                     Coin
                   </th>
+                  <th className="text-left text-[#84858C] text-[12px] font-normal px-3 py-2" style={{ width: "15%" }}>
+                    Source
+                  </th>
                   <th className="text-left text-[#84858C] text-[12px] font-normal px-3 py-2" style={{ width: "20%" }}>
                     Total Balance
                   </th>
@@ -104,9 +153,9 @@ export default function BalancesTab() {
                   <th className="text-left text-[#84858C] text-[12px] font-normal px-3 py-2" style={{ width: "20%" }}>
                     USDC Value
                   </th>
-                  <th className="text-left text-[#84858C] text-[12px] font-normal px-3 py-2" style={{ width: "20%" }}>
+                  {/* <th className="text-left text-[#84858C] text-[12px] font-normal px-3 py-2" style={{ width: "20%" }}>
                     PNL (ROE %)
-                  </th>
+                  </th> */}
                 </tr>
               </thead>
               <tbody>
@@ -121,6 +170,10 @@ export default function BalancesTab() {
                       <div className="flex items-center gap-2">
                         <span className="text-white text-[14px] font-medium">{balance.coin}</span>
                       </div>
+                    </td>
+
+                    <td className="px-3">
+                      <span className="text-white text-[12px]">{balance.source}</span>
                     </td>
 
                     {/* Total Balance */}
@@ -143,8 +196,8 @@ export default function BalancesTab() {
                     </td>
 
                     {/* PNL (ROE %) */}
-                    <td className="px-3">
-                      {balance.coin !== "USDC" && (
+                    {/* <td className="px-3">
+                      {balance.coin !== "USDC" && (balance.pnl !== 0 || balance.roe !== 0) && (
                         <div className="flex flex-col">
                           <span
                             className={`text-[12px] font-medium ${balance.pnl >= 0 ? "text-green-500" : "text-red-500"}`}
@@ -158,7 +211,7 @@ export default function BalancesTab() {
                           </span>
                         </div>
                       )}
-                    </td>
+                    </td> */}
                   </tr>
                 ))}
               </tbody>
