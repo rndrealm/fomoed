@@ -92,6 +92,7 @@ export function TradingViewChart() {
         tvWidget.resetCache();
         chart.resetData();
       });
+      chart.getTimeScale().setBarSpacing(30);
     });
 
     return () => {

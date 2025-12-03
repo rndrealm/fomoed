@@ -1,6 +1,12 @@
 import { getNextBarTime } from "@/lib/utils";
 import { LibrarySymbolInfo, SubscribeBarsCallback } from "../datafeed";
-import { WsActiveAssetCtx, WsActiveSpotAssetCtx, WsTradeResponse } from "./types";
+import {
+  WsAllMidsResponse,
+  WsClearingHouseStateResponse,
+  WsOpenOrdersResponse,
+  WsSpotStateResponse,
+  WsTradeResponse,
+} from "./types";
 
 const resolutionToIntervalMap: { [key: string]: string } = {
   "1": "1m",
@@ -28,6 +34,10 @@ interface HyperliquidState {
   orderBookSubscriptions: Map<string, Set<(data: any) => void>>;
   tradesSubscriptions: Map<string, Set<(data: any) => void>>;
   tickerSubscriptions: Map<string, Set<(data: any) => void>>;
+  clearingHouseSubscriptions: Map<string, Set<(data: any) => void>>;
+  openOrdersSubscriptions: Map<string, Set<(data: any) => void>>;
+  spotStateSubscriptions: Map<string, Set<(data: any) => void>>;
+  allMidsSubscriptions: Map<string, Set<(data: any) => void>>;
   pendingSubscriptions: any[];
 }
 
@@ -42,7 +52,11 @@ const state = globalForWs.hyperliquidState || {
   orderBookSubscriptions: new Map(),
   tradesSubscriptions: new Map(),
   tickerSubscriptions: new Map(),
+  openOrdersSubscriptions: new Map(),
   pendingSubscriptions: [],
+  spotStateSubscriptions: new Map(),
+  allMidsSubscriptions: new Map(),
+  clearingHouseSubscriptions: new Map(),
 };
 
 // Save to global object immediately to survive Hot Reloads
@@ -63,7 +77,8 @@ function createSocket() {
   }
 
   // 2. Create new socket and assign to STATE
-  state.socket = new WebSocket("wss://api.hyperliquid-testnet.xyz/ws");
+  // state.socket = new WebSocket("wss://api.hyperliquid.xyz/ws");
+  state.socket = new WebSocket("wss://api-ui.hyperliquid-testnet.xyz/ws");
 
   state.socket.addEventListener("open", () => {
     console.log("[socket] Connected");
@@ -126,6 +141,14 @@ function handleMessage(event: MessageEvent) {
     handleTradesData(data);
   } else if (data?.channel === "activeAssetCtx" || data?.channel === "activeSpotAssetCtx") {
     handleTickerData(data);
+  } else if (data?.channel === "clearinghouseState") {
+    handleClearingHouseData(data);
+  } else if (data?.channel === "openOrders") {
+    handleOpenOrdersData(data);
+  } else if (data?.channel === "spotState") {
+    handleSpotStateData(data);
+  } else if (data?.channel === "allMids") {
+    handleAllMidsData(data);
   }
 }
 
@@ -194,6 +217,44 @@ function handleTradesData(data: WsTradeResponse) {
 function handleTickerData(data: any) {
   const coin = data?.data?.coin;
   const callbacks = state.tickerSubscriptions.get(coin);
+
+  if (callbacks) {
+    callbacks.forEach((callback) => callback(data?.data));
+  }
+}
+
+function handleClearingHouseData(data: WsClearingHouseStateResponse) {
+  const address = data?.data?.user;
+
+  const callbacks = state.clearingHouseSubscriptions.get(address);
+
+  if (callbacks) {
+    callbacks.forEach((callback) => callback(data?.data));
+  }
+}
+
+function handleOpenOrdersData(data: WsOpenOrdersResponse) {
+  const address = data?.data?.user;
+
+  const callbacks = state.openOrdersSubscriptions.get(address);
+
+  if (callbacks) {
+    callbacks.forEach((callback) => callback(data?.data));
+  }
+}
+
+function handleSpotStateData(data: WsSpotStateResponse) {
+  const address = data?.data?.user;
+
+  const callbacks = state.spotStateSubscriptions.get(address);
+
+  if (callbacks) {
+    callbacks.forEach((callback) => callback(data?.data));
+  }
+}
+
+function handleAllMidsData(data: WsAllMidsResponse) {
+  const callbacks = state.allMidsSubscriptions.get("mids");
 
   if (callbacks) {
     callbacks.forEach((callback) => callback(data?.data));
@@ -428,14 +489,206 @@ export function unsubscribeFromTicker(coin: string, callback: (data: any) => voi
   }
 }
 
-document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible") {
-    if (!state.socket || state.socket.readyState !== WebSocket.OPEN) {
-      console.log("[socket] Page visible, reconnecting...");
-      createSocket();
+export function subscribeToClearingHouse(_address: string, callback: (data: any) => void) {
+  const address = _address.toLowerCase();
+  if (!state.clearingHouseSubscriptions.has(address)) {
+    state.clearingHouseSubscriptions.set(address, new Set());
+  }
+
+  const callbacks = state.clearingHouseSubscriptions.get(address)!;
+  callbacks.add(callback);
+
+  if (callbacks.size === 1) {
+    const subRequest = {
+      method: "subscribe",
+      subscription: {
+        type: "clearinghouseState",
+        user: address,
+      },
+    };
+
+    createSocket();
+
+    sendMessage(subRequest);
+  }
+}
+
+export function unsubscribeFromClearingHouse(_address: string, callback: (data: any) => void) {
+  const address = _address.toLowerCase();
+  const callbacks = state.clearingHouseSubscriptions.get(address);
+
+  if (callbacks) {
+    callbacks.delete(callback);
+
+    if (callbacks.size === 0) {
+      state.clearingHouseSubscriptions.delete(address);
+
+      const subRequest = {
+        method: "unsubscribe",
+        subscription: {
+          type: "clearinghouseState",
+          user: address,
+        },
+      };
+
+      if (state.socket?.readyState === WebSocket.OPEN) {
+        state.socket.send(JSON.stringify(subRequest));
+      }
     }
   }
-});
+}
+
+export function subscribeToOpenOrders(_address: string, callback: (data: any) => void) {
+  const address = _address.toLowerCase();
+  if (!state.openOrdersSubscriptions.has(address)) {
+    state.openOrdersSubscriptions.set(address, new Set());
+  }
+
+  const callbacks = state.openOrdersSubscriptions.get(address)!;
+  callbacks.add(callback);
+
+  if (callbacks.size === 1) {
+    const subRequest = {
+      method: "subscribe",
+      subscription: {
+        type: "openOrders",
+        user: address,
+      },
+    };
+
+    createSocket();
+
+    sendMessage(subRequest);
+  }
+}
+
+export function unsubscribeFromOpenOrders(_address: string, callback: (data: any) => void) {
+  const address = _address.toLowerCase();
+  const callbacks = state.openOrdersSubscriptions.get(address);
+
+  if (callbacks) {
+    callbacks.delete(callback);
+
+    if (callbacks.size === 0) {
+      state.openOrdersSubscriptions.delete(address);
+
+      const subRequest = {
+        method: "unsubscribe",
+        subscription: {
+          type: "openOrders",
+          user: address,
+        },
+      };
+
+      if (state.socket?.readyState === WebSocket.OPEN) {
+        state.socket.send(JSON.stringify(subRequest));
+      }
+    }
+  }
+}
+
+export function subscribeToSpotState(_address: string, callback: (data: any) => void) {
+  const address = _address.toLowerCase();
+  if (!state.spotStateSubscriptions.has(address)) {
+    state.spotStateSubscriptions.set(address, new Set());
+  }
+
+  const callbacks = state.spotStateSubscriptions.get(address)!;
+  callbacks.add(callback);
+
+  if (callbacks.size === 1) {
+    const subRequest = {
+      method: "subscribe",
+      subscription: {
+        type: "spotState",
+        user: address,
+      },
+    };
+
+    createSocket();
+
+    sendMessage(subRequest);
+  }
+}
+
+export function unsubscribeFromSpotState(_address: string, callback: (data: any) => void) {
+  const address = _address.toLowerCase();
+  const callbacks = state.spotStateSubscriptions.get(address);
+
+  if (callbacks) {
+    callbacks.delete(callback);
+
+    if (callbacks.size === 0) {
+      state.spotStateSubscriptions.delete(address);
+
+      const subRequest = {
+        method: "unsubscribe",
+        subscription: {
+          type: "spotState",
+          user: address,
+        },
+      };
+
+      if (state.socket?.readyState === WebSocket.OPEN) {
+        state.socket.send(JSON.stringify(subRequest));
+      }
+    }
+  }
+}
+
+export function subscribeToAllMids(callback: (data: any) => void) {
+  if (!state.allMidsSubscriptions.has("mids")) {
+    state.allMidsSubscriptions.set("mids", new Set());
+  }
+
+  const callbacks = state.allMidsSubscriptions.get("mids")!;
+  callbacks.add(callback);
+
+  if (callbacks.size === 1) {
+    const subRequest = {
+      method: "subscribe",
+      subscription: {
+        type: "allMids",
+      },
+    };
+
+    createSocket();
+
+    sendMessage(subRequest);
+  }
+}
+
+export function unsubscribeFromAllMids(callback: (data: any) => void) {
+  const callbacks = state.allMidsSubscriptions.get("mids");
+
+  if (callbacks) {
+    callbacks.delete(callback);
+
+    if (callbacks.size === 0) {
+      state.allMidsSubscriptions.delete("mids");
+
+      const subRequest = {
+        method: "unsubscribe",
+        subscription: {
+          type: "allMids",
+        },
+      };
+
+      if (state.socket?.readyState === WebSocket.OPEN) {
+        state.socket.send(JSON.stringify(subRequest));
+      }
+    }
+  }
+}
+
+// document.addEventListener("visibilitychange", () => {
+//   if (document.visibilityState === "visible") {
+//     if (!state.socket || state.socket.readyState !== WebSocket.OPEN) {
+//       console.log("[socket] Page visible, reconnecting...");
+//       createSocket();
+//     }
+//   }
+// });
 
 export function cleanup() {
   if (state.reconnectInterval) {
