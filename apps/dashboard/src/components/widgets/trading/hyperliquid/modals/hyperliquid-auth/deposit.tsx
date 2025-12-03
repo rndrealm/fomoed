@@ -14,7 +14,7 @@ import { formatToken } from "../../../utils";
 
 interface IProps {
   toggleModal: () => void;
-  onConfirm: () => void;
+  updateStep: (step: number) => void;
 }
 
 // Constants for Hyperliquid bridge
@@ -38,7 +38,7 @@ const erc20TransferAbi = [
 ] as const;
 
 const DepositModal = (props: IProps) => {
-  const { toggleModal, onConfirm } = props;
+  const { toggleModal, updateStep } = props;
 
   // Use testnet for now - change to false for mainnet
   const isTestnet = true;
@@ -54,6 +54,7 @@ const DepositModal = (props: IProps) => {
   const [value, setValue] = useState("");
   const queryClient = useQueryClient();
   const account = useAccount();
+  const { data: perpBalance } = useGetPerpBalance(account.address);
   const balance = useBalance({
     address: account?.address,
     token: USDC_ADDRESS, // ERC-20 token address
@@ -85,6 +86,11 @@ const DepositModal = (props: IProps) => {
       return;
     }
 
+    if (amount > Number(maxValue)) {
+      toast.error("Amount exceeds available USDC balance");
+      return;
+    }
+
     if (amount < 5) {
       toast.error("Minimum deposit amount is 5 USDC");
       return;
@@ -107,11 +113,6 @@ const DepositModal = (props: IProps) => {
     }
   };
 
-  const endAuth = () => {
-    toggleModal();
-    onConfirm();
-  };
-
   useEffect(() => {
     if (isError) {
       console.error("Transaction error:", error);
@@ -120,7 +121,7 @@ const DepositModal = (props: IProps) => {
     if (isSuccess) {
       toast.success("Deposit transaction sent successfully! Funds will appear in ~1 minute.");
       setValue("");
-      endAuth();
+      updateStep(2);
 
       // Invalidate queries to refresh balances
       queryClient.invalidateQueries({ queryKey: ["hyper-liquid-balancee"] });
@@ -170,12 +171,22 @@ const DepositModal = (props: IProps) => {
       </div>
 
       <div className="flex items-center gap-2 pt-12">
-        <Button
-          className="flex-1 bg-[#171717] hover:opacity-90 border-[#1F1F1F] border  text-white font-medium text-sm h-11"
-          onClick={endAuth}
-        >
-          Skip
-        </Button>
+        {Number(perpBalance?.withdrawable) > 0 ? (
+          <Button
+            className="flex-1 bg-[#171717] hover:opacity-90 border-[#1F1F1F] border  text-white font-medium text-sm h-11"
+            onClick={() => updateStep(2)}
+          >
+            Skip
+          </Button>
+        ) : (
+          <Button
+            className="flex-1 bg-[#171717] hover:opacity-90 border-[#1F1F1F] border  text-white font-medium text-sm h-11"
+            onClick={toggleModal}
+          >
+            Cancel
+          </Button>
+        )}
+
         <Button
           type="button"
           isLoading={isPending || isSwitching}

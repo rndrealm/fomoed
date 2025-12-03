@@ -37,9 +37,9 @@ const ApproveAgentButton = (props: IProps) => {
       } else {
         toast("Something went wrong!");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
-      toast("Something went wrong");
+      toast(error.message?.split(".")?.[0] || "Something went wrong");
     } finally {
       setIsLoading(false);
     }

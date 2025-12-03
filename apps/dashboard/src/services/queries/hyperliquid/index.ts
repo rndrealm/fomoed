@@ -143,7 +143,7 @@ export const useReadHyperLiquidTest = () => {
   return res;
 };
 
-export const useGetPerpBalance = (wallet_address: string) => {
+export const useGetPerpBalance = (wallet_address?: string) => {
   const hash = ["hyper-liquid-balance", wallet_address];
 
   const res = useQuery({

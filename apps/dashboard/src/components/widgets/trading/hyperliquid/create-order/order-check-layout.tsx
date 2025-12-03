@@ -4,6 +4,7 @@ import ConnectButton from "../../../dex/connect-button";
 import { cn } from "@/lib/utils";
 import { useCheckAccess } from "../../chart/trading-view/hyperliquid/use-check-access";
 import ApproveAgentButton from "./approve-agent-button";
+import CreateAgentButton from "./create-agent-button";
 
 interface IProps {
   children: ReactNode;
@@ -31,6 +32,9 @@ const OrderCheckLayout = (props: IProps) => {
         buttonWrapperClassName={cn("w-full", buttonWrapperClassName)}
       />
     );
+  }
+  if (tradeAccess.blocker === "auth") {
+    return <CreateAgentButton className={approveClassName} />;
   }
   if (tradeAccess.blocker === "api") {
     return <ApproveAgentButton className={approveClassName} />;
