@@ -367,3 +367,7 @@ export interface LiquidationData {
   time: number;
   hash: string;
 }
+
+export interface SpotPriceMap {
+  [tokenIndex: number]: number; // midPx
+}

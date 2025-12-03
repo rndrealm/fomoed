@@ -26,7 +26,7 @@ const tabs = [
 
 export default function TradingPanel() {
   const [activeTab, setActiveTab] = useState("news");
-  const [hideSmallBalances, setHideSmallBalances] = useState(false);
+  const [hideSmallBalances, setHideSmallBalances] = useState(true);
 
   return (
     <div className="bg-[#121317] rounded-[6px] flex flex-col mb-2 h-[400px]">
@@ -46,7 +46,6 @@ export default function TradingPanel() {
           ))}
         </div>
 
-        {/* Hide Small Balances Toggle */}
         {(activeTab === "Balances" || activeTab === "Open Positions") && (
           <Checkbox
             label="Hide Small Balances"
@@ -57,7 +56,6 @@ export default function TradingPanel() {
         )}
       </div>
 
-      {/* Content */}
       <div className="flex-1 overflow-auto">
         {tabContent.map((tab) => {
           return (

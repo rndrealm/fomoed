@@ -14,6 +14,7 @@ import {
   HyperliquidMeta,
   HyperliquidSpotMeta,
   HyperliquidTwapSliceFill,
+  SpotPriceMap
 } from "./types";
 
 // const HYPERLIQUID_API_URL = "https://api.hyperliquid.xyz/info";
@@ -592,5 +593,45 @@ export const useHyperliquidMetaAndAssetCtxs = (enabled: boolean = true) => {
           }>,
         ]
       | null,
+  };
+};
+
+export const useHyperliquidSpotPrices = (enabled: boolean = true) => {
+  const res = useQuery({
+    queryKey: ["hyperliquid-spot-prices"],
+    queryFn: async () => {
+      const response = await api.post({
+        url: HYPERLIQUID_API_URL,
+        body: {
+          type: "spotMetaAndAssetCtxs",
+        },
+        auth: false,
+      });
+
+      const [meta, assetCtxs] = response?.data || [];
+
+      if (!meta || !assetCtxs) return {};
+
+      const universe = meta.universe || [];
+      const prices: SpotPriceMap = {};
+
+      universe.forEach((pair: any, i: number) => {
+        const ctx = assetCtxs[i];
+        if (!ctx) return;
+
+        const [baseTokenIndex] = pair.tokens; 
+        const price = parseFloat(ctx.midPx || ctx.markPx || "0");
+
+        prices[baseTokenIndex] = price;
+      });
+
+      return prices;
+    },
+    enabled,
+    // refetchInterval: 3000
+  });
+  return {
+    ...res,
+    spotPrices: res.data as SpotPriceMap,
   };
 };
