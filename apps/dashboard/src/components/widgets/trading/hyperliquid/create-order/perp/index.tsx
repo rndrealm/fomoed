@@ -311,7 +311,7 @@ export default function CreateOrder(props: IProps) {
         {(props) => {
           const { values, handleChange, handleBlur, handleSubmit } = props;
           return (
-            <form onSubmit={handleSubmit} className="w-[210px] h-full block">
+            <form onSubmit={handleSubmit} className="w-full h-full block">
               <div className="w-full flex flex-col flex-1 gap-2">
                 <div className="bg-[#121317] rounded-[10px] pt-2 px-2 pb-4">
                   <FormContent
