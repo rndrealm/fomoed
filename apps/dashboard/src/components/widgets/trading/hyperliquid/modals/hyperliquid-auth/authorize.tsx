@@ -19,7 +19,7 @@ const AuthorizeModal = (props: IProps) => {
 
   const { session } = useSupabaseAuth();
 
-  const { data, isPending: agentIsPending } = useGetAgentAddress(session?.user.id, session?.access_token);
+  const { data, isPending: agentIsPending } = useGetAgentAddress(account.address, session?.access_token);
 
   const onMutateSuccess = () => {
     updateStep(2);
@@ -30,6 +30,11 @@ const AuthorizeModal = (props: IProps) => {
   const handleGrantPermission = async () => {
     if (!account.address) {
       toast("Please connect your wallet!");
+      return;
+    }
+
+    if (!walletClient.data) {
+      toast("Please reconnect your wallet!");
       return;
     }
 

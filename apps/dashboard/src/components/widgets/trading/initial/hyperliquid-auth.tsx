@@ -113,7 +113,7 @@ const ProceedButton = (props: ProceedButtonProps) => {
         onClick={handleProceed}
         isLoading={isPending}
       >
-        Proceed to Deposit
+        Proceed
       </Button>
     </div>
   );

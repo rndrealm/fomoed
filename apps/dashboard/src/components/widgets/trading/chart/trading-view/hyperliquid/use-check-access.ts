@@ -16,9 +16,9 @@ type CheckAccessResult = {
  * If all pass you're good to go
  */
 export const useCheckAccess = (): CheckAccessResult => {
-  const { isConnected, isConnecting, isReconnecting } = useAccount();
+  const { isConnected, isConnecting, isReconnecting, address } = useAccount();
   const { session } = useSupabaseAuth();
-  const { data: agentAddress } = useGetAgentAddress(session?.user.id, session?.access_token);
+  const { data: agentAddress } = useGetAgentAddress(address, session?.access_token);
   const { data, isPending } = useGetHyperliquidAgentRole(agentAddress?.agent_wallet);
 
   const role = data?.role;
