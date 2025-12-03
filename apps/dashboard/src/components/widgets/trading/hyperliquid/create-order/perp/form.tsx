@@ -124,13 +124,13 @@ export function FormContent(props: FormContentProps) {
     marketPrice,
   } = props;
 
-  const { values, handleChange, handleBlur, setFieldValue } = useFormikContext<TradingFormInitialValues>();
-
+  const { values, handleChange, handleBlur, setFieldValue, errors } = useFormikContext<TradingFormInitialValues>();
+  // console.log(errors);
   const multiplier = orderBy === selectOptions[0].value ? Number(marketPrice) : 1;
 
   const handleSliderChange = (value: number[]) => {
     const percentage = value[0];
-    const orderValue = ((balance * percentage) / 100) * leverage;
+    const orderValue = ((balance * percentage) / multiplier / 100) * leverage;
     setFieldValue("quantity", orderValue.toFixed(2));
   };
 
@@ -256,6 +256,7 @@ export function FormContent(props: FormContentProps) {
                 onChange={handleChange}
                 onBlur={handleBlur}
                 name="quantity"
+                placeholder="Quantity"
                 rightPlaceholder="USDC"
                 selectOptions={selectOptions}
                 selectValue={orderBy}
@@ -360,6 +361,7 @@ export function FormContent(props: FormContentProps) {
                     TP Price
                   </label>
                   <TextInput
+                    id="tp"
                     value={values.tp}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       setFieldValue("tp", e.target.value);
@@ -375,7 +377,7 @@ export function FormContent(props: FormContentProps) {
                           : "",
                       );
                     }}
-                    onBlur={handleChange}
+                    onBlur={handleBlur}
                     name="tp"
                     type="number"
                     className="h-[1.5rem] !pr-4.5 w-full border-[0.5px] border-[#384044] outline-none text-[#D7D7D7] !text-[10px] tracking-[-0.4%] leading-[14px] px-1 rounded-[4px] focus-visible:ring-0 bg-[#222329]"
@@ -398,7 +400,7 @@ export function FormContent(props: FormContentProps) {
                       setFieldValue("tp", e.target.value ? tp : "");
                     }}
                     rightPlaceholder="%"
-                    onBlur={handleChange}
+                    onBlur={handleBlur}
                     name="tpRoi"
                     className="h-[1.5rem] !pr-4.5 w-full border-[0.5px] border-[#384044] outline-none text-[#D7D7D7] !text-[10px] tracking-[-0.4%] leading-[14px] px-1 rounded-[4px] focus-visible:ring-0 bg-[#222329]"
                   />
@@ -410,6 +412,7 @@ export function FormContent(props: FormContentProps) {
                     SL Price
                   </label>
                   <TextInput
+                    id="sl"
                     value={values.sl}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       setFieldValue("sl", e.target.value);
@@ -425,7 +428,7 @@ export function FormContent(props: FormContentProps) {
                           : "",
                       );
                     }}
-                    onBlur={handleChange}
+                    onBlur={handleBlur}
                     name="sl"
                     type="number"
                     className="h-[1.5rem] !pr-4.5 w-full border-[0.5px] border-[#384044] outline-none text-[#D7D7D7] !text-[10px] tracking-[-0.4%] leading-[14px] px-1 rounded-[4px] focus-visible:ring-0 bg-[#222329]"
@@ -448,7 +451,7 @@ export function FormContent(props: FormContentProps) {
                       setFieldValue("sl", e.target.value ? sl.toFixed() : "");
                     }}
                     rightPlaceholder="%"
-                    onBlur={handleChange}
+                    onBlur={handleBlur}
                     name="slRoi"
                     className="h-[1.5rem] !pr-4.5 w-full border-[0.5px] border-[#384044] outline-none text-[#D7D7D7] !text-[10px] tracking-[-0.4%] leading-[14px] px-1 rounded-[4px] focus-visible:ring-0 bg-[#222329]"
                   />

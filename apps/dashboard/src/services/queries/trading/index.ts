@@ -4,8 +4,8 @@ import { updateExchangeAction, UpdateExchangePayload } from "./actions";
 import api from "@/services/api";
 import { toast } from "sonner";
 
-// const BASE_URL = "https://fomoed-data-ingestion-509111531565.us-central1.run.app/api/v1";
-const BASE_URL = "http://localhost:3000/api/v1";
+const BASE_URL = `${process.env.NEXT_PUBLIC_FOMOED_INGESTION_URL}/api/v1`;
+// const BASE_URL = "http://localhost:3000/api/v1";
 
 // Environment determination for Supabase auth
 const IS_PRODUCTION = process.env.NODE_ENV === "production";

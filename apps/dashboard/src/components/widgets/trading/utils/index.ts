@@ -1,4 +1,5 @@
 import * as hl from "@nktkas/hyperliquid";
+import { formatUnits } from "viem";
 
 /**
  * Transfer funds between Spot and Perpetual accounts on Hyperliquid
@@ -183,3 +184,14 @@ export const getFromAndToToken = (displayName?: string | null) => {
   const splitString = displayName.split("/");
   return { from: splitString[0], to: splitString[1] };
 };
+
+/**
+ * Formats an ERC-20 balance.
+ * @param value   The raw BigInt token balance (e.g. 27000000n)
+ * @param decimals  The token decimals (e.g. 6 for USDC)
+ * @returns string  Human-readable value (e.g. "27")
+ */
+export function formatToken(value: bigint | undefined, decimals: number | undefined) {
+  if (value === undefined || decimals === undefined) return "0";
+  return formatUnits(value, decimals); // returns a string
+}

@@ -109,7 +109,7 @@ export function SpotFormContent(props: FormContentProps) {
 
   const handleSliderChange = (value: number[]) => {
     const percentage = value[0];
-    const orderValue = (balance * percentage) / 100;
+    const orderValue = (balance * percentage) / multiplier / 100;
     setFieldValue("quantity", orderValue.toFixed(2));
   };
 
@@ -122,7 +122,9 @@ export function SpotFormContent(props: FormContentProps) {
       setFieldValue("price", marketPrice);
     }
   }, []);
-  const insufficientBalanceCheck = !Number(balance) || Number(values.quantity) > Number(balance);
+
+  const balanceInOrderByCurrency = orderBy === selectOptions[0].value ? balance : balance * Number(marketPrice);
+  const insufficientBalanceCheck = !Number(balance) || Number(values.quantity) > balanceInOrderByCurrency;
 
   return (
     <>
@@ -182,15 +184,16 @@ export function SpotFormContent(props: FormContentProps) {
                 onChange={handleChange}
                 onBlur={handleBlur}
                 name="quantity"
+                placeholder="Quantity"
                 rightPlaceholder="USDC"
                 selectOptions={selectOptions}
                 selectValue={orderBy}
                 onChangeSelect={(val) => {
                   if (val === orderBy) return;
                   if (val === selectOptions[0].value) {
-                    setFieldValue("quantity", (Number(values.quantity) / Number(marketPrice)).toFixed(2));
-                  } else {
                     setFieldValue("quantity", (Number(values.quantity) * Number(marketPrice)).toFixed(2));
+                  } else {
+                    setFieldValue("quantity", (Number(values.quantity) / Number(marketPrice)).toFixed(2));
                   }
                   setOrderBy(val);
                 }}

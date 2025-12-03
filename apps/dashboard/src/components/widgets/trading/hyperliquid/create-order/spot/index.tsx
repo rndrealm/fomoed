@@ -43,6 +43,7 @@ export default function CreateSpotOrder(props: IProps) {
   const { from, to } = getFromAndToToken(displayName);
   const currAsset = (selectedToken?.index || 0) + 10000;
   const marketPrice = ticker?.ctx?.midPx?.toString() || "0";
+  // console.log(ticker);
 
   const { data: spotBalance } = useGetSpotBalance(walletAddress);
 
@@ -80,7 +81,7 @@ export default function CreateSpotOrder(props: IProps) {
       toast.error("Quantity must be greater than 10");
       return;
     }
-    const converter = marketPrice;
+    const converter = orderType === "limit" ? _values.price : marketPrice;
     const orderSize = (Number(_values.quantity) / Number(converter)).toFixed(2);
 
     // Create main order

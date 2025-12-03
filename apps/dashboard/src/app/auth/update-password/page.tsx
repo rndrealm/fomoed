@@ -116,7 +116,7 @@ const UpdatePassword = () => {
                           onBlur={handleBlur}
                         />
                         <div className="">
-                          <SubmitButton isLoading={isLoading}>
+                          <SubmitButton isLoading={isLoading} disabled={!values.password || !values.confirmPassword}>
                             Continue
                             <ArrowRight fill={"#7d7d7d"} />
                           </SubmitButton>

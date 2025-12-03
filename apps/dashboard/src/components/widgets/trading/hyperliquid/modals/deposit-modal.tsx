@@ -3,13 +3,14 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useGetPerpBalance } from "@/services/queries/hyperliquid";
 import React, { useEffect, useState } from "react";
-import { useAccount, useWriteContract, useSwitchChain } from "wagmi";
+import { useAccount, useWriteContract, useSwitchChain, useBalance } from "wagmi";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import dashboard from "@/lib/assets/dashboard";
 import { parseUnits } from "viem";
 import { arbitrum, arbitrumSepolia } from "viem/chains";
+import { formatToken } from "../../utils";
 
 interface IProps {
   toggleModal: () => void;
@@ -37,15 +38,10 @@ const erc20TransferAbi = [
 
 const DepositModal = (props: IProps) => {
   const { toggleModal } = props;
-  const [value, setValue] = useState("");
-  const queryClient = useQueryClient();
-  const account = useAccount();
-  const walletAddress = account?.address || "";
-  const { data: perpBalance } = useGetPerpBalance(walletAddress);
-  const maxValue = perpBalance.withdrawable;
 
   // Use testnet for now - change to false for mainnet
   const isTestnet = true;
+
   const BRIDGE_ADDRESS = isTestnet ? HYPERLIQUID_BRIDGE_TESTNET : HYPERLIQUID_BRIDGE_MAINNET;
   const USDC_ADDRESS = isTestnet ? ARBITRUM_USDC_TESTNET : ARBITRUM_USDC_MAINNET;
 
@@ -54,11 +50,19 @@ const DepositModal = (props: IProps) => {
   const ARBITRUM_SEPOLIA_CHAIN_ID = arbitrumSepolia.id; // 421614
   const requiredChainId = isTestnet ? ARBITRUM_SEPOLIA_CHAIN_ID : ARBITRUM_MAINNET_CHAIN_ID;
 
+  const [value, setValue] = useState("");
+  const queryClient = useQueryClient();
+  const account = useAccount();
+  const balance = useBalance({
+    address: account?.address,
+    token: USDC_ADDRESS, // ERC-20 token address
+    chainId: requiredChainId,
+  });
+  const walletAddress = account?.address || "";
+  const maxValue = formatToken(balance.data?.value, balance.data?.decimals);
+
   // Check if user is on the correct Arbitrum network
   const isOnCorrectChain = account.chainId === requiredChainId;
-
-  console.log(account.chainId);
-  console.log(requiredChainId);
 
   const { writeContract, isPending, isError, isSuccess, error } = useWriteContract();
   const { switchChain, isPending: isSwitching } = useSwitchChain();
@@ -103,21 +107,22 @@ const DepositModal = (props: IProps) => {
     }
   };
 
-  // useEffect(() => {
-  //   if (isError) {
-  //     console.error("Transaction error:", error);
-  //     toast.error((error as any)?.shortMessage || "Transaction failed. Please try again.");
-  //   }
-  //   if (isSuccess) {
-  //     toast.success("Deposit transaction sent successfully! Funds will appear in ~1 minute.");
-  //     setValue("");
-  //     toggleModal();
+  useEffect(() => {
+    if (isError) {
+      console.error("Transaction error:", error);
+      toast.error((error as any)?.shortMessage || "Transaction failed. Please try again.");
+    }
+    if (isSuccess) {
+      toast.success("Deposit transaction sent successfully! Funds will appear in ~1 minute.");
+      setValue("");
+      toggleModal();
 
-  //     // Invalidate queries to refresh balances
-  //     queryClient.invalidateQueries({ queryKey: ["hyper-liquid-balancee"] });
-  //     queryClient.invalidateQueries({ queryKey: ["hyper-liquid-balance-spot"] });
-  //   }
-  // }, [isError, isSuccess]);
+      // Invalidate queries to refresh balances
+      queryClient.invalidateQueries({ queryKey: ["hyper-liquid-balancee"] });
+      queryClient.invalidateQueries({ queryKey: ["hyper-liquid-balance-spot"] });
+    }
+  }, [isError, isSuccess]);
+
   return (
     <div className="flex flex-col ">
       <div className="flex justify-center">

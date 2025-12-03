@@ -1,7 +1,6 @@
 import CloseIcon from "@/components/icons/CloseIcon";
 import PlusIcon from "@/components/icons/PlusIcon";
 import { ModalContainer } from "@/components/shared/modal-container";
-import { ProfileIcon } from "@/components/shared/profile-icon";
 import RemoteImage from "@/components/widgets/shared/remote-image";
 import useUserData from "@/lib/hooks/use-user-data";
 import { useUpdateAvatar } from "@/services/queries/tabs";
@@ -88,13 +87,10 @@ const AvatarFileBox: React.FC<AvatarFileBoxProps> = ({ avatarFileBox, setAvatarF
         formData.append("image", file);
 
         // Send to API
-        const res = await fetch(
-          "https://fomoed-data-ingestion-509111531565.us-central1.run.app/api/v1/profile/image-update",
-          {
-            method: "POST",
-            body: formData,
-          },
-        );
+        const res = await fetch(`${process.env.NEXT_PUBLIC_FOMOED_INGESTION_URL}/api/v1/profile/image-update`, {
+          method: "POST",
+          body: formData,
+        });
 
         const data = await res.json();
 

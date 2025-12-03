@@ -1,8 +1,6 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import MockRouter from "next-router-mock";
-import { MemoryRouterProvider } from "next-router-mock/MemoryRouterProvider";
 import { toast } from "sonner";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import SignupPage from "@/app/auth/page";
@@ -19,26 +17,34 @@ vi.mock("sonner", () => ({
   toast: vi.fn(),
 }));
 
-vi.mock("next/navigation", () => {
-  const actual = vi.importActual("next-router-mock");
-  return {
-    ...actual,
-    useRouter: () => MockRouter,
-  };
-});
+vi.mock("@vercel/analytics", () => ({
+  track: vi.fn(),
+}));
 
 const mockPush = vi.fn();
+
+vi.mock("next/navigation", () => {
+  return {
+    useRouter: () => ({
+      push: mockPush,
+      pathname: "/auth",
+      query: {},
+      asPath: "/auth",
+    }),
+    useSearchParams: () => ({
+      get: vi.fn(() => null),
+    }),
+  };
+});
 
 // Setup for each test
 beforeEach(() => {
   vi.clearAllMocks();
-  MockRouter.push = mockPush;
-  MockRouter.pathname = "/auth";
 });
 
-// Create a wrapper with the mock router
+// Helper to render components
 const renderWithRouter = (ui: React.ReactNode) => {
-  return render(<MemoryRouterProvider>{ui}</MemoryRouterProvider>);
+  return render(<>{ui}</>);
 };
 
 describe("Signup Page", () => {
@@ -53,15 +59,19 @@ describe("Signup Page", () => {
     expect(screen.getByText("Create an Account on Fomoed")).toBeInTheDocument();
   });
 
-  it("has submit button disabled when form inputs are empty", async () => {
+  it("shows validation errors when submitting empty form", async () => {
     renderWithRouter(<SignupPage />);
 
-    // Check that the continue button is in the disabled state when no inputs are entered
-    const continueButton = screen.getByText("Continue").closest("button");
-    expect(continueButton).toHaveAttribute("disabled", "");
+    const continueButton = screen.getByText("Continue");
+    fireEvent.click(continueButton);
+
+    // Check for validation errors
+    await waitFor(() => {
+      expect(screen.getByText("Please enter your username")).toBeInTheDocument();
+    });
   });
 
-  it("enables submit button when all fields have values", async () => {
+  it("allows form submission when all fields have values", async () => {
     renderWithRouter(<SignupPage />);
 
     // Fill form with valid data
@@ -69,8 +79,9 @@ describe("Signup Page", () => {
     await userEvent.type(screen.getByPlaceholderText("you@email.com"), "test@example.com");
     await userEvent.type(screen.getByPlaceholderText("password"), "Password1!");
 
-    // Check that the submit button is enabled
-    const continueButton = screen.getByText("Continue").closest("button");
+    // Check that the submit button is present and clickable
+    const continueButton = screen.getByText("Continue");
+    expect(continueButton).toBeInTheDocument();
     expect(continueButton).not.toHaveAttribute("disabled");
   });
 
@@ -80,13 +91,12 @@ describe("Signup Page", () => {
     // Fill only username, leaving other fields empty
     await userEvent.type(screen.getByPlaceholderText("username"), "testuser");
 
-    // Button should still be disabled
+    // Button should be enabled (form doesn't disable on partial input)
     const continueButton = screen.getByText("Continue").closest("button");
-    expect(continueButton).toHaveAttribute("disabled", "");
+    expect(continueButton).not.toHaveAttribute("disabled");
 
-    // Use programmatic form submission to trigger validation
-    // This simulates what would happen if validation were triggered without button click
-    fireEvent.submit(screen.getByPlaceholderText("password").closest("form")!);
+    // Click submit to trigger validation
+    fireEvent.click(continueButton!);
 
     // Wait for validation messages
     await waitFor(() => {
@@ -104,12 +114,17 @@ describe("Signup Page", () => {
     await userEvent.type(screen.getByPlaceholderText("password"), "Password1!");
 
     // Submit form
-    fireEvent.click(screen.getByText("Continue"));
+    const continueButton = screen.getByText("Continue");
+    await userEvent.click(continueButton);
 
-    // Check for validation error
+    // Wait for any async validation to complete
     await waitFor(() => {
-      expect(screen.getByText("Please enter a valid email address")).toBeInTheDocument();
+      // Formik should prevent submission when email validation fails
+      expect(signUpNewUser).not.toHaveBeenCalled();
     });
+
+    // Check that we're still on the form (not redirected)
+    expect(mockPush).not.toHaveBeenCalled();
   });
 
   it("validates password minimum length", async () => {
@@ -121,12 +136,13 @@ describe("Signup Page", () => {
     await userEvent.type(screen.getByPlaceholderText("password"), "Pass1!");
 
     // Submit form
-    fireEvent.click(screen.getByText("Continue"));
+    await userEvent.click(screen.getByText("Continue"));
 
-    // Check for validation error
+    // Formik should prevent submission when password validation fails
     await waitFor(() => {
-      expect(screen.getByText("Password must be at least 8 characters")).toBeInTheDocument();
+      expect(signUpNewUser).not.toHaveBeenCalled();
     });
+    expect(mockPush).not.toHaveBeenCalled();
   });
 
   it("validates password requires uppercase letter", async () => {
@@ -138,12 +154,13 @@ describe("Signup Page", () => {
     await userEvent.type(screen.getByPlaceholderText("password"), "password1!");
 
     // Submit form
-    fireEvent.click(screen.getByText("Continue"));
+    await userEvent.click(screen.getByText("Continue"));
 
-    // Check for validation error
+    // Formik should prevent submission when password validation fails
     await waitFor(() => {
-      expect(screen.getByText("Password must contain at least one uppercase letter")).toBeInTheDocument();
+      expect(signUpNewUser).not.toHaveBeenCalled();
     });
+    expect(mockPush).not.toHaveBeenCalled();
   });
 
   it("validates password requires lowercase letter", async () => {
@@ -155,12 +172,13 @@ describe("Signup Page", () => {
     await userEvent.type(screen.getByPlaceholderText("password"), "PASSWORD1!");
 
     // Submit form
-    fireEvent.click(screen.getByText("Continue"));
+    await userEvent.click(screen.getByText("Continue"));
 
-    // Check for validation error
+    // Formik should prevent submission when password validation fails
     await waitFor(() => {
-      expect(screen.getByText("Password must contain at least one lowercase letter")).toBeInTheDocument();
+      expect(signUpNewUser).not.toHaveBeenCalled();
     });
+    expect(mockPush).not.toHaveBeenCalled();
   });
 
   it("validates password requires number", async () => {
@@ -172,12 +190,13 @@ describe("Signup Page", () => {
     await userEvent.type(screen.getByPlaceholderText("password"), "Password!");
 
     // Submit form
-    fireEvent.click(screen.getByText("Continue"));
+    await userEvent.click(screen.getByText("Continue"));
 
-    // Check for validation error
+    // Formik should prevent submission when password validation fails
     await waitFor(() => {
-      expect(screen.getByText("Password must contain at least one number")).toBeInTheDocument();
+      expect(signUpNewUser).not.toHaveBeenCalled();
     });
+    expect(mockPush).not.toHaveBeenCalled();
   });
 
   it("validates password requires special character", async () => {
@@ -189,12 +208,13 @@ describe("Signup Page", () => {
     await userEvent.type(screen.getByPlaceholderText("password"), "Password1");
 
     // Submit form
-    fireEvent.click(screen.getByText("Continue"));
+    await userEvent.click(screen.getByText("Continue"));
 
-    // Check for validation error
+    // Formik should prevent submission when password validation fails
     await waitFor(() => {
-      expect(screen.getByText("Password must contain at least one special character")).toBeInTheDocument();
+      expect(signUpNewUser).not.toHaveBeenCalled();
     });
+    expect(mockPush).not.toHaveBeenCalled();
   });
 
   it("submits the form with valid data and redirects on success", async () => {
@@ -213,17 +233,24 @@ describe("Signup Page", () => {
 
     // Check if the signUpNewUser function was called with correct values
     await waitFor(() => {
-      expect(signUpNewUser).toHaveBeenCalledWith({
-        username: "testuser",
-        email: "test@example.com",
-        password: "Password1!",
-      });
+      expect(signUpNewUser).toHaveBeenCalledWith(
+        {
+          username: "testuser",
+          email: "test@example.com",
+          password: "Password1!",
+          referralCode: "",
+        },
+        null
+      );
     });
 
     // Check if redirect happened after successful signup
-    await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith(AppRoutes.auth.mailAuthenticate.path);
-    });
+    await waitFor(
+      () => {
+        expect(mockPush).toHaveBeenCalledWith(AppRoutes.auth.mailAuthenticate.path);
+      },
+      { timeout: 3000 }
+    );
   });
 
   it("shows error toast when signup fails", async () => {

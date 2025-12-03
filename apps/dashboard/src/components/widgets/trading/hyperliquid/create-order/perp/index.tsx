@@ -48,8 +48,8 @@ export default function CreateOrder(props: IProps) {
     tpSl: Yup.boolean(),
     tp: Yup.number().min(0, "Take Profit must be a positive number"),
     sl: Yup.number().min(0, "Stop Loss must be a positive number"),
-    gain: Yup.number().min(0, "Gain must be a positive number"),
-    loss: Yup.number().min(0, "Loss must be a positive number"),
+    gain: Yup.number(),
+    loss: Yup.number(),
     tif: Yup.string().oneOf(["Gtc", "Ioc", "Alo"]).required("Please select Time in Force"),
   });
 
@@ -62,6 +62,7 @@ export default function CreateOrder(props: IProps) {
 
   const { data: perpBalance } = useGetPerpBalance(walletAddress);
   const { data: assetData } = useGetAssetData(walletAddress, tradingSymbol);
+  // console.log(assetData);
 
   const availableBalance = perpBalance?.withdrawable;
 

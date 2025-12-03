@@ -18,8 +18,8 @@ import { toast } from "sonner";
 // const BASE_URL = "https://api.hyperliquid.xyz";
 const BASE_URL = "https://api.hyperliquid-testnet.xyz";
 
-// const FOMOED_INGESTION_BASE_URL = "https://fomoed-data-ingestion-509111531565.us-central1.run.app/api/v1";
-const FOMOED_INGESTION_BASE_URL = "http://localhost:3000/api/v1";
+const FOMOED_INGESTION_BASE_URL = `${process.env.NEXT_PUBLIC_FOMOED_INGESTION_URL}/api/v1`;
+// const FOMOED_INGESTION_BASE_URL = "http://localhost:3000/api/v1";
 
 export const useReadHyperLiquidTokens = () => {
   const hash = ["hyperliquid-tokens"];
