@@ -21,7 +21,7 @@ const ApproveAgentButton = (props: IProps) => {
   const queryClient = useQueryClient();
 
   const { session } = useSupabaseAuth();
-  const { data, isPending: agentIsPending } = useGetAgentAddress(session?.user.id, session?.access_token);
+  const { data, isPending: agentIsPending } = useGetAgentAddress(account?.address, session?.access_token);
 
   const handleGrantPermission = async () => {
     if (!account.address) {
