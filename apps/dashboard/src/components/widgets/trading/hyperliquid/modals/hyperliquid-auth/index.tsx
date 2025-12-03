@@ -13,8 +13,8 @@ const HyperliquidAuthModals = (props: IProps) => {
 
   return (
     <div className="flex flex-col">
-      {step === 1 ? <AuthorizeModal updateStep={setStep} toggleModal={toggle} /> : null}
-      {step === 2 ? <DepositModal toggleModal={toggle} onConfirm={onConfirm} /> : null}
+      {step === 1 ? <DepositModal toggleModal={toggle} updateStep={setStep} /> : null}
+      {step === 2 ? <AuthorizeModal updateStep={setStep} toggleModal={toggle} onConfirm={onConfirm} /> : null}
     </div>
   );
 };

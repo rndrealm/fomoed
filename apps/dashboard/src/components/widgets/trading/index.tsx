@@ -21,7 +21,7 @@ export default function Trading(props: IProps) {
 
   return (
     <Fragment>
-      <RenderIf condition={false}>
+      <RenderIf condition={!isLoaded}>
         <LandingScreen
           widget={widget}
           handleIsLoaded={() => {
@@ -30,9 +30,9 @@ export default function Trading(props: IProps) {
         />
       </RenderIf>
 
-      {/* <RenderIf condition={isLoaded && selectedExchange === "hyperliquid"}> */}
-      <HyperliquidWidget widget={widget} />
-      {/* </RenderIf> */}
+      <RenderIf condition={isLoaded && selectedExchange === "hyperliquid"}>
+        <HyperliquidWidget widget={widget} />
+      </RenderIf>
     </Fragment>
   );
 }
