@@ -1,6 +1,12 @@
 import { getNextBarTime } from "@/lib/utils";
 import { LibrarySymbolInfo, SubscribeBarsCallback } from "../datafeed";
-import { WsClearingHouseStateResponse, WsOpenOrdersResponse, WsSpotStateResponse, WsTradeResponse } from "./types";
+import {
+  WsAllMidsResponse,
+  WsClearingHouseStateResponse,
+  WsOpenOrdersResponse,
+  WsSpotStateResponse,
+  WsTradeResponse,
+} from "./types";
 
 const resolutionToIntervalMap: { [key: string]: string } = {
   "1": "1m",
@@ -31,6 +37,7 @@ interface HyperliquidState {
   clearingHouseSubscriptions: Map<string, Set<(data: any) => void>>;
   openOrdersSubscriptions: Map<string, Set<(data: any) => void>>;
   spotStateSubscriptions: Map<string, Set<(data: any) => void>>;
+  allMidsSubscriptions: Map<string, Set<(data: any) => void>>;
   pendingSubscriptions: any[];
 }
 
@@ -48,6 +55,7 @@ const state = globalForWs.hyperliquidState || {
   openOrdersSubscriptions: new Map(),
   pendingSubscriptions: [],
   spotStateSubscriptions: new Map(),
+  allMidsSubscriptions: new Map(),
   clearingHouseSubscriptions: new Map(),
 };
 
@@ -139,6 +147,8 @@ function handleMessage(event: MessageEvent) {
     handleOpenOrdersData(data);
   } else if (data?.channel === "spotState") {
     handleSpotStateData(data);
+  } else if (data?.channel === "allMids") {
+    handleAllMidsData(data);
   }
 }
 
@@ -237,6 +247,14 @@ function handleSpotStateData(data: WsSpotStateResponse) {
   const address = data?.data?.user;
 
   const callbacks = state.spotStateSubscriptions.get(address);
+
+  if (callbacks) {
+    callbacks.forEach((callback) => callback(data?.data));
+  }
+}
+
+function handleAllMidsData(data: WsAllMidsResponse) {
+  const callbacks = state.allMidsSubscriptions.get("mids");
 
   if (callbacks) {
     callbacks.forEach((callback) => callback(data?.data));
@@ -608,6 +626,51 @@ export function unsubscribeFromSpotState(_address: string, callback: (data: any)
         subscription: {
           type: "spotState",
           user: address,
+        },
+      };
+
+      if (state.socket?.readyState === WebSocket.OPEN) {
+        state.socket.send(JSON.stringify(subRequest));
+      }
+    }
+  }
+}
+
+export function subscribeToAllMids(callback: (data: any) => void) {
+  if (!state.allMidsSubscriptions.has("mids")) {
+    state.allMidsSubscriptions.set("mids", new Set());
+  }
+
+  const callbacks = state.allMidsSubscriptions.get("mids")!;
+  callbacks.add(callback);
+
+  if (callbacks.size === 1) {
+    const subRequest = {
+      method: "subscribe",
+      subscription: {
+        type: "allMids",
+      },
+    };
+
+    createSocket();
+
+    sendMessage(subRequest);
+  }
+}
+
+export function unsubscribeFromAllMids(callback: (data: any) => void) {
+  const callbacks = state.allMidsSubscriptions.get("mids");
+
+  if (callbacks) {
+    callbacks.delete(callback);
+
+    if (callbacks.size === 0) {
+      state.allMidsSubscriptions.delete("mids");
+
+      const subRequest = {
+        method: "unsubscribe",
+        subscription: {
+          type: "allMids",
         },
       };
 

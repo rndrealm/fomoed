@@ -173,3 +173,12 @@ interface Balance {
   hold: string;
   entryNtl: string;
 }
+
+export interface WsAllMidsResponse {
+  channel: string;
+  data: WsAllMids;
+}
+
+export interface WsAllMids {
+  mids: Record<string, string>;
+}
