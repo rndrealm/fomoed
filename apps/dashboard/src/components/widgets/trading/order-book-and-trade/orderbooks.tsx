@@ -95,7 +95,7 @@ export default function OrderBooks() {
 
   const processedBids = useMemo(() => {
     let cumulative = 0;
-    return bids.slice(0, 11).map((item) => {
+    return bids.slice(0, 13).map((item) => {
       const sizeInUsdc = parseFloat(item.sz || "0") * parseFloat(item.px || "0");
       cumulative += sizeInUsdc;
       return {
@@ -154,7 +154,7 @@ export default function OrderBooks() {
         </RenderIf>
         <RenderIf condition={mode === "both" && isConnected}>
           <div className="flex-1 overflow-y-aut border-b border-[#1C1D22] no-scrollbar">
-            {processedAsks?.slice(processedAsks.length - 11, processedAsks.length)?.map((item, index) => {
+            {processedAsks?.slice(processedAsks.length - 13, processedAsks.length)?.map((item, index) => {
               const width = (parseFloat(item.sz || "0") / maxAskVolume) * 100;
 
               return (
@@ -176,7 +176,7 @@ export default function OrderBooks() {
           ></div>
 
           <div className="flex-1 overflow-y-aut no-scrollbar">
-            {processedBids.slice(0, 11).map((item, index) => {
+            {processedBids.map((item, index) => {
               const width = (parseFloat(item.sz || "0") / maxBidVolume) * 100;
 
               return (

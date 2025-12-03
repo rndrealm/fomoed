@@ -60,32 +60,28 @@ const HyperliquidWidget = ({ widget }: IProps) => {
 
         {/* Trading*/}
         <RenderIf condition={showTradingInterface}>
-          <div className="flex h-full w-full flex-1 overflow-y-auto gap-3 px-2 pb-2">
-            {/* Left + Middle section: Chart, OrderBook, and Trading Panel */}
-            <div className="flex-1 flex flex-col gap-3 min-w-0">
-              {/* Top row: Chart and OrderBook */}
-              <div className="flex gap-3">
-                <div className="flex-1 flex flex-col gap-2 min-w-0">
+          <div className="flex h-full w-full flex-1 overflow-y-auto scrollbar gap-3 px-2 pb-2">
+            <div className="flex flex-1 flex-col gap-2">
+              <div className="flex-1 flex gap-3 min-h-[600px]">
+                <div className="flex flex-1 flex-col gap-2">
                   <ChartHeader />
-                  {/* Chart placeholder */}
                   <div
-                    className="bg-[#121317] rounded-[6px] flex items-center justify-center relative overflow-hidden"
+                    className="bg-[#121317] rounded-[6px] flex items-center justify-center relative overflow-hidden flex-1 bg-[green]"
                     style={{ height: "500px" }}
                   >
                     <TradingView />
                   </div>
                 </div>
-              </div>
 
-              {/* Trading Panel under Chart and OrderBook */}
-              <div style={{ height: "280px" }}>
+                <OrderBookAndTrade />
+              </div>
+              <div className="h-[280px]">
                 <TradingPanel />
               </div>
             </div>
-
-            <OrderBookAndTrade />
-
-            <CreateOrderComponent />
+            <div className="max-w-[210px] w-full">
+              <CreateOrderComponent />
+            </div>
           </div>
         </RenderIf>
 
