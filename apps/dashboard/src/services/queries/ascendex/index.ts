@@ -2,7 +2,7 @@ import api from "@/services/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AscendexMarketData, AscendexMarketTicker } from "./types";
 
-const BASE_URL = "https://fomoed-data-ingestion-509111531565.us-central1.run.app/api/v1";
+const BASE_URL = `${process.env.NEXT_PUBLIC_FOMOED_INGESTION_URL}/api/v1`;
 // const BASE_URL = "http://localhost:3000/api/v1";
 
 // Environment determination for Supabase auth

@@ -1,4 +1,5 @@
 import * as hl from "@nktkas/hyperliquid";
+import { formatUnits } from "viem";
 
 /**
  * Transfer funds between Spot and Perpetual accounts on Hyperliquid
@@ -112,6 +113,68 @@ export async function approveApiWallet(
 }
 
 /**
+ * Withdraw funds from Hyperliquid to an external wallet address
+ *
+ * @param walletClient - The wagmi wallet client from useWalletClient hook
+ * @param destination - The destination wallet address to withdraw to
+ * @param amount - The amount to withdraw (in USDC, e.g., "100" for $100)
+ * @param isTestnet - Whether to use testnet (default: true based on BASE_URL in hyperliquid queries)
+ * @returns Promise with the withdrawal result
+ *
+ * @example
+ * ```ts
+ * import { useWalletClient } from "wagmi";
+ * import { withdrawFromHyperliquid } from "@/components/widgets/trading/utils";
+ *
+ * const { data: walletClient } = useWalletClient();
+ *
+ * // Withdraw $100 to a wallet address
+ * await withdrawFromHyperliquid(walletClient, "0x1234...", "100", true);
+ * ```
+ */
+export async function withdrawFromHyperliquid(
+  walletClient: any | undefined,
+  destination: string,
+  amount: string,
+  isTestnet: boolean = true,
+): Promise<hl.Withdraw3SuccessResponse> {
+  if (!walletClient) {
+    throw new Error("Wallet client is not available. Please connect your wallet first.");
+  }
+
+  if (!walletClient.account) {
+    throw new Error("No account found in wallet client. Please ensure wallet is connected.");
+  }
+
+  if (!destination) {
+    throw new Error("Destination address is required.");
+  }
+
+  if (!amount || parseFloat(amount) <= 0) {
+    throw new Error("Amount must be greater than 0.");
+  }
+
+  // Create HTTP transport for Hyperliquid
+  const transport = new hl.HttpTransport({
+    isTestnet,
+  });
+
+  // Create Exchange client with the wallet client
+  const exchangeClient = new hl.ExchangeClient({
+    transport,
+    wallet: walletClient as any,
+  });
+
+  // Execute the withdrawal
+  const result = await exchangeClient.withdraw3({
+    destination,
+    amount,
+  });
+
+  return result;
+}
+
+/**
  *
  * @param displayName - Token display name gotten from hyperliquid meta api eg BTC/USDC
  * @returns - Splits tokens into individual strings eg { from: BTC, to: USDC }
@@ -121,3 +184,14 @@ export const getFromAndToToken = (displayName?: string | null) => {
   const splitString = displayName.split("/");
   return { from: splitString[0], to: splitString[1] };
 };
+
+/**
+ * Formats an ERC-20 balance.
+ * @param value   The raw BigInt token balance (e.g. 27000000n)
+ * @param decimals  The token decimals (e.g. 6 for USDC)
+ * @returns string  Human-readable value (e.g. "27")
+ */
+export function formatToken(value: bigint | undefined, decimals: number | undefined) {
+  if (value === undefined || decimals === undefined) return "0";
+  return formatUnits(value, decimals); // returns a string
+}

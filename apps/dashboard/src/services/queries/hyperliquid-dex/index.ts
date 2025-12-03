@@ -14,7 +14,7 @@ import {
   HyperliquidMeta,
   HyperliquidSpotMeta,
   HyperliquidTwapSliceFill,
-  SpotPriceMap
+  SpotPriceMap,
 } from "./types";
 
 // const HYPERLIQUID_API_URL = "https://api.hyperliquid.xyz/info";
@@ -619,7 +619,7 @@ export const useHyperliquidSpotPrices = (enabled: boolean = true) => {
         const ctx = assetCtxs[i];
         if (!ctx) return;
 
-        const [baseTokenIndex] = pair.tokens; 
+        const [baseTokenIndex] = pair.tokens;
         const price = parseFloat(ctx.midPx || ctx.markPx || "0");
 
         prices[baseTokenIndex] = price;

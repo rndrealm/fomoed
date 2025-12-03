@@ -2,8 +2,7 @@ import api from "@/services/api";
 import { useQuery } from "@tanstack/react-query";
 import { WeightedSentiment, WeightedSentimentToken } from "./types";
 
-const BASE_URL =
-  "https://fomoed-data-ingestion-509111531565.us-central1.run.app/api/v1";
+const BASE_URL = `${process.env.NEXT_PUBLIC_FOMOED_INGESTION_URL}/api/v1`;
 
 // Environment determination for Supabase auth
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
@@ -34,14 +33,7 @@ export const useReadWeightedSentiment = (props: ReadWeightedSentimentProps) => {
 
   const hash = ["weighted-sentiment", token, interval];
 
-  const {
-    data,
-    error,
-    isPending,
-    isFetching,
-    isSuccess,
-    refetch,
-  } = useQuery({
+  const { data, error, isPending, isFetching, isSuccess, refetch } = useQuery({
     queryKey: hash,
     queryFn: async () => {
       const response = await api.get({
@@ -60,8 +52,8 @@ export const useReadWeightedSentiment = (props: ReadWeightedSentimentProps) => {
   });
 
   return {
-    data: data?.data as WeightedSentiment[], 
-    error,                          
+    data: data?.data as WeightedSentiment[],
+    error,
     isPending,
     isFetching,
     isSuccess,
@@ -69,10 +61,7 @@ export const useReadWeightedSentiment = (props: ReadWeightedSentimentProps) => {
   };
 };
 
-
-export const useReadSantimentTokenPrice = (
-  props: ReadWeightedSentimentProps,
-) => {
+export const useReadSantimentTokenPrice = (props: ReadWeightedSentimentProps) => {
   const { auth_token, interval = "1h", token = "bitcoin" } = props;
   const hash = ["santiment-token-price", token, interval];
   const res = useQuery({
@@ -98,9 +87,7 @@ interface ReadSantimentTokenListProps {
   auth_token?: string;
 }
 
-export const useReadSantimentTokenList = (
-  props: ReadSantimentTokenListProps,
-) => {
+export const useReadSantimentTokenList = (props: ReadSantimentTokenListProps) => {
   const { auth_token } = props;
   const queryKey = ["santiment-token-list"];
 
@@ -135,7 +122,6 @@ export const useReadSantimentTokenList = (
   };
 };
 
-
 interface ReadSantimentVolumeProps {
   auth_token?: string;
   token?: string;
@@ -145,13 +131,7 @@ interface ReadSantimentVolumeProps {
 }
 
 export const useReadSantimentVolume = (props: ReadSantimentVolumeProps) => {
-  const {
-    auth_token,
-    token = "bitcoin",
-    interval = "1d",
-    from = "utc_now-1d",
-    to = "utc_now",
-  } = props;
+  const { auth_token, token = "bitcoin", interval = "1d", from = "utc_now-1d", to = "utc_now" } = props;
 
   const hash = ["santiment-volume", token, interval, from, to];
 
@@ -166,7 +146,7 @@ export const useReadSantimentVolume = (props: ReadSantimentVolumeProps) => {
       return response?.data as any;
     },
     enabled: !!auth_token,
-    refetchInterval: 5 * 60 * 1000
+    refetchInterval: 5 * 60 * 1000,
   });
 
   return {
@@ -181,13 +161,8 @@ interface ReadSantimentMarketCapProps {
   interval?: "5m" | "1h" | "8h" | "1d";
 }
 
-
 export const useReadSantimentMarketCap = (props: ReadSantimentMarketCapProps) => {
-  const {
-    auth_token,
-    token = "bitcoin",
-    interval = "1d",
-  } = props;
+  const { auth_token, token = "bitcoin", interval = "1d" } = props;
 
   const hash = ["santiment-marketcap", token, interval];
 
@@ -202,12 +177,12 @@ export const useReadSantimentMarketCap = (props: ReadSantimentMarketCapProps) =>
       return response?.data as any;
     },
     enabled: !!auth_token,
-    refetchInterval: 5 * 60 * 1000
+    refetchInterval: 5 * 60 * 1000,
   });
 
   return {
     ...res,
-    data: res?.data?.data?.length as { datetime: string; value: number }
+    data: (res?.data?.data?.length as { datetime: string; value: number })
       ? res.data.data[res.data.data.length - 1].value
       : undefined,
   };

@@ -1,6 +1,7 @@
 import { HyperliquidIcon } from "@/components/icons/icon2";
 import { Button } from "@/components/ui/button";
 import tradingAssets from "@/lib/assets/dashboard/trading";
+import { useUpdateExchange } from "@/services/queries/trading";
 import Image from "next/image";
 import React from "react";
 
@@ -9,6 +10,7 @@ interface IProps {
 }
 
 const HyperliquidEnd = ({ onStart }: IProps) => {
+  const { mutate, isPending } = useUpdateExchange(onStart);
   return (
     <div className="relative  h-full w-full  bg-[#0A1215] border border-[#222222] overflow-hidden rounded-2xl p-8">
       <div className="absolute -bottom-60 left-1/2 -translate-x-1/2 w-[1208px] h-[847px]">
@@ -27,7 +29,12 @@ const HyperliquidEnd = ({ onStart }: IProps) => {
 
           <div className="flex justify-center pt-4">
             <Button
-              onClick={onStart}
+              onClick={() => {
+                mutate({
+                  exchange: "hyperliquid",
+                });
+              }}
+              isLoading={isPending}
               className="bg-[#51D2C1] cursor-pointer hover:bg-[#51D2C1]  py-2 px-3.5 rounded-md text-[#010101] font-medium text-xs"
             >
               Start Trading

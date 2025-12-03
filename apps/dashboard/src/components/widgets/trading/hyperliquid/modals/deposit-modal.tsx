@@ -10,11 +10,10 @@ import Image from "next/image";
 import dashboard from "@/lib/assets/dashboard";
 import { parseUnits } from "viem";
 import { arbitrum, arbitrumSepolia } from "viem/chains";
-import { formatToken } from "../../../utils";
+import { formatToken } from "../../utils";
 
 interface IProps {
   toggleModal: () => void;
-  onConfirm: () => void;
 }
 
 // Constants for Hyperliquid bridge
@@ -38,7 +37,7 @@ const erc20TransferAbi = [
 ] as const;
 
 const DepositModal = (props: IProps) => {
-  const { toggleModal, onConfirm } = props;
+  const { toggleModal } = props;
 
   // Use testnet for now - change to false for mainnet
   const isTestnet = true;
@@ -59,6 +58,7 @@ const DepositModal = (props: IProps) => {
     token: USDC_ADDRESS, // ERC-20 token address
     chainId: requiredChainId,
   });
+  const walletAddress = account?.address || "";
   const maxValue = formatToken(balance.data?.value, balance.data?.decimals);
 
   // Check if user is on the correct Arbitrum network
@@ -67,9 +67,9 @@ const DepositModal = (props: IProps) => {
   const { writeContract, isPending, isError, isSuccess, error } = useWriteContract();
   const { switchChain, isPending: isSwitching } = useSwitchChain();
 
-  const handleSwitchChain = () => {
+  const handleSwitchChain = async () => {
     try {
-      switchChain({ chainId: requiredChainId });
+      await switchChain({ chainId: requiredChainId });
       toast.success(`Switched to ${isTestnet ? "Arbitrum Sepolia" : "Arbitrum"}`);
     } catch (err) {
       console.error("Chain switch error:", err);
@@ -107,11 +107,6 @@ const DepositModal = (props: IProps) => {
     }
   };
 
-  const endAuth = () => {
-    toggleModal();
-    onConfirm();
-  };
-
   useEffect(() => {
     if (isError) {
       console.error("Transaction error:", error);
@@ -120,7 +115,7 @@ const DepositModal = (props: IProps) => {
     if (isSuccess) {
       toast.success("Deposit transaction sent successfully! Funds will appear in ~1 minute.");
       setValue("");
-      endAuth();
+      toggleModal();
 
       // Invalidate queries to refresh balances
       queryClient.invalidateQueries({ queryKey: ["hyper-liquid-balancee"] });
@@ -129,21 +124,20 @@ const DepositModal = (props: IProps) => {
   }, [isError, isSuccess]);
 
   return (
-    <div>
-      <div className="flex justify-center pt-5">
+    <div className="flex flex-col ">
+      <div className="flex justify-center">
         <Image src={dashboard.usdc} alt="USDC icon" width={30} height={30} />
       </div>
-      <h1 className="text-center text-white font-medium text-lg pb-9">Deposit USDC</h1>
-      <p className="text-[#B0B0B0] font-medium text-xs">
+      <h3 className="text-lg font-medium py-4 text-center text-white">Deposit USDC</h3>
+      <p className=" font-medium text-[#B0B0B0] text-xs">
         Deposit USDC from Arbitrum to Hyperliquid. Minimum deposit: 5 USDC. Deposits less than 5 USDC will not be
         credited and will be lost.
       </p>
-
-      <div className="pt-4">
+      <div className="py-4">
         <TextInput
           type="number"
           className={cn(
-            "h-12 w-full rounded-[10px] border border-[#1F1F1F] bg-[#0D0D0D] px-2 pr-4 text-sm text-white placeholder:text-[#5F5F5F] focus:outline-none focus:border-[#f4f4f4]",
+            "h-10 w-full rounded-[10px] border border-[#1F1F1F] bg-[#0D0D0D] px-2 pr-4 text-sm text-white placeholder:text-[#5F5F5F] focus:outline-none focus:border-[#f4f4f4]",
             {
               "border-[#FFC26D] focus:border-[#FFC26D]": "",
             },
@@ -157,33 +151,16 @@ const DepositModal = (props: IProps) => {
           rightPlaceholderClassName="text-sm top-[28%] text-[#FFC26D]"
           disableFormikError
         />
-        <div className="pt-2 text-xs flex flex-col gap-1">
-          <div className="flex items-center justify-between">
-            <p className="text-[#B0B0B0]">USDC Balance</p>
-            <p className="text-white font-medium">{Number(maxValue).toFixed(2)} USDC</p>
-          </div>
-          <div className="flex items-center justify-between">
-            <p className="text-[#B0B0B0]">Min. Deposit</p>
-            <p className="text-white font-medium">5 USDC</p>
-          </div>
-        </div>
       </div>
-
-      <div className="flex items-center gap-2 pt-12">
-        <Button
-          className="flex-1 bg-[#171717] hover:opacity-90 border-[#1F1F1F] border  text-white font-medium text-sm h-11"
-          onClick={endAuth}
-        >
-          Skip
-        </Button>
+      <div>
         <Button
           type="button"
           isLoading={isPending || isSwitching}
           onClick={isOnCorrectChain ? handleBalance : handleSwitchChain}
           disabled={isPending || isSwitching || (!isOnCorrectChain ? false : !value || Number(value) < 5)}
-          className="flex-1 bg-[#51D2C1] hover:opacity-90 hover:bg-[#51D2C1]  text-[#010101] font-medium text-sm h-11"
+          className="w-full bg-white hover:bg-[#f4f4f4]  text-[#1E1E1E] font-medium text-[0.875rem] leading-[14px] h-12"
         >
-          {isOnCorrectChain ? "Deposit USDC" : `Switch to ${isTestnet ? "Arbitrum Sepolia" : "Arbitrum"}`}
+          {isOnCorrectChain ? "Deposit" : `Switch to ${isTestnet ? "Arbitrum Sepolia" : "Arbitrum"}`}
         </Button>
       </div>
     </div>
