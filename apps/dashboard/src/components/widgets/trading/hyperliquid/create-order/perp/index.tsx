@@ -183,7 +183,9 @@ export default function CreateOrder(props: IProps) {
 
     const converter = marketPrice;
     const orderSize =
-      orderBy === selectOptions[0].value ? _values.quantity : (Number(_values.quantity) / Number(converter)).toFixed(5);
+      orderBy === selectOptions[0].value
+        ? Number(_values.quantity).toFixed(2)
+        : (Number(_values.quantity) / Number(converter)).toFixed(2);
     const hasTP = _values.tpSl && _values.tp && Number(_values.tp) > 0;
     const hasSL = _values.tpSl && _values.sl && Number(_values.sl) > 0;
 
