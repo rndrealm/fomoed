@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { TriangleDangerIcon } from "@/components/icons/icon2";
 import OrderCheckLayout from "../create-order/order-check-layout";
+import { TextInput } from "@/components/auth";
 
 interface IProps {
   leverage: number;
@@ -45,7 +46,7 @@ const LeverageModal = (props: IProps) => {
     if (isNaN(numValue) || numValue <= 0) {
       setErrorText("Leverage must be greater than 0");
     } else if (numValue > maxLeverage / 2) {
-      setErrorText("Maximum leverage reached, there's a high chance of liquidation if you proceed with it.");
+      setErrorText("High leverage detected, there's a high chance of liquidation if you proceed with it.");
     } else {
       setErrorText("");
     }
@@ -109,6 +110,16 @@ const LeverageModal = (props: IProps) => {
                 showDots
               />
             </div>
+            <TextInput
+              className="h-12 !pr-1 w-14 border-none outline-none text-[#D7D7D7] !text-sm tracking-[-0.4%] leading-[14px] px-2 rounded-[10px] focus-visible:ring-0 bg-[#222329]"
+              value={customLeverage}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleCustomLeverageChange(e.target.value)}
+              name="percentage"
+              rightPlaceholder="X"
+              rightPlaceholderClassName="text-xs top-[35%]"
+              disableFormikError
+              type="number"
+            />
           </div>
 
           <div
@@ -116,7 +127,9 @@ const LeverageModal = (props: IProps) => {
               invisible: !errorText,
             })}
           >
-            <TriangleDangerIcon />
+            <div className="mt-0.5">
+              <TriangleDangerIcon />
+            </div>
             <p className="text-xs text-[#FFC26D] ">{errorText || ""}</p>
           </div>
         </div>

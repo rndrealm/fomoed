@@ -100,6 +100,7 @@ export default function CreateOrder(props: IProps) {
   const closeAllLeverageModals = () => {
     setIsMarginModeModalOpen(false);
     setIsConfirmModalOpen(false);
+    setIsLeverageModalOpen(false);
   };
 
   const updateLeverage = (value: number) => {

@@ -50,6 +50,7 @@ const ApproveAgentButton = (props: IProps) => {
         "flex-1 bg-[#51D2C1] hover:opacity-90 hover:bg-[#51D2C1]  text-[#010101] font-medium text-xxs w-full h-7",
         className,
       )}
+      type="button"
       onClick={handleGrantPermission}
       isLoading={isLoading || agentIsPending}
     >
