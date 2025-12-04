@@ -83,7 +83,12 @@ export default function CFGI(props: IProps) {
           align="center"
         />
       </div> */}
-
+      <div className="flex justify-center">
+        <div className="text-xl font-semibold text-white text-center">
+          <p className="">Overall Crypto Market</p>
+          <p className="">Fear and Greed</p>
+        </div>
+      </div>
       <div className="flex flex-1 flex-col items-center justify-center gap-0">
         <div className="flex flex-col gap-4">
           <Progress

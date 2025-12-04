@@ -46,7 +46,7 @@ export default function SimpleCfgiWidget(props: IProps) {
     return coinData?.find((coin) => coin.symbol === widget.props?.token)?.slug;
   }, [widget.props?.token, coinData]);
 
-  const { data, refetch, isFetching, error } = useReadCfgiData(
+  const { data, refetch, isFetching, error, source } = useReadCfgiData(
     widget.props?.token,
     widget.props?.period,
     activeCoinSlug,
@@ -119,11 +119,13 @@ export default function SimpleCfgiWidget(props: IProps) {
               title=""
             />
             <div className="flex flex-wrap items-center justify-start gap-2 sm:justify-end">
-              <PeriodDropdown
-                options={CfgiPeriods}
-                value={widget.props?.period}
-                setValue={(value: string) => handleSetProp("period", value)}
-              />
+              {source && source !== 'coin-stats' && (
+                <PeriodDropdown
+                  options={CfgiPeriods}
+                  value={widget.props?.period}
+                  setValue={(value: string) => handleSetProp("period", value)}
+                />
+              )}
               <CameraAndRefresh
                 isFetching={isFetching}
                 chartRef={chartRef}
