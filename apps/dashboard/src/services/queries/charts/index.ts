@@ -32,18 +32,22 @@ import { fetchFearAndGreed } from "./actions";
 
 export const useReadCfgiData = (token?: string, period?: string, token_slug?: string) => {
   const hash = ["cfgi", token, period, token_slug];
-  const { data, isPending, error, isSuccess, refetch, isLoading, isFetching } = useQuery<CfgiDataResponse[]>({
+  const { data: responseData, isPending, error, isSuccess, refetch, isLoading, isFetching } = useQuery<{
+    data: CfgiDataResponse[];
+    source: string;
+  }>({
     queryKey: hash,
     queryFn: async () => {
       const response = await api.get({
         url: `/api/cfgi?token=${token}&period=${period}&values=1200&token_slug=${token_slug}`,
       });
-      return response.data;
+      return response; // Return full response including source
     },
     enabled: !!token && !!period && !!token_slug,
   });
   return {
-    data,
+    data: responseData?.data,
+    source: responseData?.source,
     isPending,
     isSuccess,
     error,
