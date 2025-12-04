@@ -23,6 +23,7 @@ export function ErrorMsg(props: IErrorMsg) {
 }
 
 interface TextInputProps extends React.HTMLProps<HTMLInputElement> {
+  rightComponent?: React.ReactNode;
   rightPlaceholder?: string;
   rightPlaceholderClassName?: string;
   disableFormikError?: boolean;
@@ -35,6 +36,7 @@ export function TextInput(props: TextInputProps) {
     value,
     rightPlaceholder,
     rightPlaceholderClassName,
+    rightComponent,
     disableFormikError = false,
     ...rest
   } = props;
@@ -65,6 +67,9 @@ export function TextInput(props: TextInputProps) {
         <RenderIf condition={props.type === "password"}>
           <PasswordText showPassword={showPassword} setShowPassword={setShowPassword} />
         </RenderIf>
+
+        <RenderIf condition={!!rightComponent}>{rightComponent}</RenderIf>
+
         <RenderIf condition={!!rightPlaceholder}>
           <span
             className={cn(
