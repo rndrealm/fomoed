@@ -8,17 +8,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = createClient(supabaseUrl, supabaseKey);
 
   // Fetch all news articles with their slugs or IDs
-  const { data: newsArticles } = await supabase
+  const { data: newsArticles, error } = await supabase
     .from("news")
-    .select("id, slug, published_at, updated_at")
+    .select("id, slug, published_at, created_at")
     .eq("metadata->>region", "en")
     .not("original_url", "ilike", "%youtube%")
     .not("source", "eq", "BeInCrypto")
     .order("published_at", { ascending: false });
 
+  console.log(newsArticles);
+  console.log(error);
+
   const newsUrls: MetadataRoute.Sitemap = (newsArticles || []).map((article) => ({
     url: `https://dashboard.fomoed.io/news/${article.slug || article.id}`,
-    lastModified: article.updated_at || article.published_at,
+    lastModified: article.published_at || article.created_at,
     changeFrequency: "daily",
     priority: 0.8,
   }));
