@@ -9,7 +9,7 @@ import { Stats } from "./stats";
 import { TokenSelect } from "../../hyperliquid/modals/token-select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
-const getCoinIconUrl = (symbol = "BTC") => {
+export const getCoinIconUrl = (symbol = "BTC") => {
   return `https://app.hyperliquid.xyz/coins/${symbol}.svg`;
 };
 

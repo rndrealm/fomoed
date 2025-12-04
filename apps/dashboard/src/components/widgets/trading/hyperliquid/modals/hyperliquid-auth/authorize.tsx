@@ -9,27 +9,34 @@ import { approveApiWallet } from "../../../utils";
 interface IProps {
   updateStep: (step: number) => void;
   toggleModal: () => void;
+  onConfirm: () => void;
 }
 
 const AuthorizeModal = (props: IProps) => {
-  const { updateStep, toggleModal } = props;
+  const { updateStep, toggleModal, onConfirm } = props;
   const [isLoading, setIsLoading] = useState(false);
   const account = useAccount();
   const walletClient = useWalletClient();
 
   const { session } = useSupabaseAuth();
 
-  const { data, isPending: agentIsPending } = useGetAgentAddress(session?.user.id, session?.access_token);
+  const { data, isPending: agentIsPending } = useGetAgentAddress(account.address, session?.access_token);
 
   const onMutateSuccess = () => {
-    updateStep(2);
+    toggleModal();
+    onConfirm();
   };
 
   const { mutate, isPending } = useApproveApiAgent(session?.access_token, onMutateSuccess);
 
   const handleGrantPermission = async () => {
     if (!account.address) {
-      toast("Please connect your wallet!");
+      toast.error("Please connect your wallet!");
+      return;
+    }
+
+    if (!walletClient.data) {
+      toast.error("Please reconnect your wallet!");
       return;
     }
 
@@ -39,11 +46,11 @@ const AuthorizeModal = (props: IProps) => {
       if (result.status === "ok") {
         mutate({ wallet_address: account.address });
       } else {
-        toast("Something went wrong!");
+        toast.error("Something went wrong!");
       }
-    } catch (error) {
-      console.log(error);
-      toast("Something went wrong");
+    } catch (error: any) {
+      console.log(error.message);
+      toast.error(error.message?.split(".")?.[0] || "Something went wrong");
     } finally {
       setIsLoading(false);
     }

@@ -143,7 +143,7 @@ export const useReadHyperLiquidTest = () => {
   return res;
 };
 
-export const useGetPerpBalance = (wallet_address: string) => {
+export const useGetPerpBalance = (wallet_address?: string) => {
   const hash = ["hyper-liquid-balance", wallet_address];
 
   const res = useQuery({
@@ -281,19 +281,20 @@ export const useApproveApiAgent = (authToken?: string, onSuccess?: () => void) =
   });
 };
 
-export const useGetAgentAddress = (user_id?: string, authToken?: string) => {
-  const hash = ["agent-address", user_id];
+export const useGetAgentAddress = (wallet_address?: string, authToken?: string) => {
+  const hash = ["agent-address", wallet_address];
 
   const res = useQuery({
     queryKey: hash,
     queryFn: async () => {
       const response = await api.get({
-        url: `${FOMOED_INGESTION_BASE_URL}/hyperliquid/get-agent`,
+        url: `${FOMOED_INGESTION_BASE_URL}/hyperliquid/get-agent?wallet_address=${wallet_address}`,
         auth: false,
         headers: getAuthHeaders(authToken),
       });
       return response;
     },
+    enabled: !!wallet_address,
   });
   return { ...res, data: res?.data?.data?.data as HyperliquidAgentResponse };
 };

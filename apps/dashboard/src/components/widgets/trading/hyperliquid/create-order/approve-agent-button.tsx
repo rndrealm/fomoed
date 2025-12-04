@@ -21,7 +21,7 @@ const ApproveAgentButton = (props: IProps) => {
   const queryClient = useQueryClient();
 
   const { session } = useSupabaseAuth();
-  const { data, isPending: agentIsPending } = useGetAgentAddress(session?.user.id, session?.access_token);
+  const { data, isPending: agentIsPending } = useGetAgentAddress(account?.address, session?.access_token);
 
   const handleGrantPermission = async () => {
     if (!account.address) {
@@ -37,9 +37,9 @@ const ApproveAgentButton = (props: IProps) => {
       } else {
         toast("Something went wrong!");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
-      toast("Something went wrong");
+      toast(error.message?.split(".")?.[0] || "Something went wrong");
     } finally {
       setIsLoading(false);
     }
@@ -50,6 +50,7 @@ const ApproveAgentButton = (props: IProps) => {
         "flex-1 bg-[#51D2C1] hover:opacity-90 hover:bg-[#51D2C1]  text-[#010101] font-medium text-xxs w-full h-7",
         className,
       )}
+      type="button"
       onClick={handleGrantPermission}
       isLoading={isLoading || agentIsPending}
     >

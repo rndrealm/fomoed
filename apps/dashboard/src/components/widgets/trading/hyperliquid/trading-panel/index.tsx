@@ -25,7 +25,7 @@ const tabs = [
 ];
 
 export default function TradingPanel() {
-  const [activeTab, setActiveTab] = useState("news");
+  const [activeTab, setActiveTab] = useState("open_positions");
   const [hideSmallBalances, setHideSmallBalances] = useState(true);
 
   return (

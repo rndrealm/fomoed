@@ -5,7 +5,7 @@ import { useSupabaseAuth } from "@/components/providers";
 
 type CheckAccessResult = {
   connected: boolean;
-  blocker: "wallet" | "api" | null;
+  blocker: "auth" | "wallet" | "api" | null;
   isPending: boolean;
 };
 
@@ -16,9 +16,9 @@ type CheckAccessResult = {
  * If all pass you're good to go
  */
 export const useCheckAccess = (): CheckAccessResult => {
-  const { isConnected, isConnecting, isReconnecting } = useAccount();
+  const { isConnected, isConnecting, isReconnecting, address } = useAccount();
   const { session } = useSupabaseAuth();
-  const { data: agentAddress } = useGetAgentAddress(session?.user.id, session?.access_token);
+  const { data: agentAddress, isError, isPending: agentIsPending } = useGetAgentAddress(address, session?.access_token);
   const { data, isPending } = useGetHyperliquidAgentRole(agentAddress?.agent_wallet);
 
   const role = data?.role;
@@ -31,17 +31,23 @@ export const useCheckAccess = (): CheckAccessResult => {
   return useMemo(() => {
     let newResult: CheckAccessResult;
 
-    if (!isConnected) {
+    if (isError) {
+      newResult = {
+        connected: false,
+        blocker: "auth" as const,
+        isPending: isPending || isConnecting || isReconnecting || agentIsPending,
+      };
+    } else if (!isConnected) {
       newResult = {
         connected: false,
         blocker: "wallet" as const,
-        isPending: isPending || isConnecting || isReconnecting,
+        isPending: isPending || isConnecting || isReconnecting || agentIsPending,
       };
     } else if (role === "missing") {
       newResult = {
         connected: false,
         blocker: "api" as const,
-        isPending: isPending || isConnecting || isReconnecting,
+        isPending: isPending || isConnecting || isReconnecting || agentIsPending,
       };
     } else {
       newResult = {
@@ -62,5 +68,5 @@ export const useCheckAccess = (): CheckAccessResult => {
 
     resultRef.current = newResult;
     return newResult;
-  }, [isConnected, isConnecting, isReconnecting, role, isPending]);
+  }, [isConnected, isConnecting, isReconnecting, role, isPending, agentIsPending, isError]);
 };

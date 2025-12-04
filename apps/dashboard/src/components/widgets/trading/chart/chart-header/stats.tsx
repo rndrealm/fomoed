@@ -18,7 +18,7 @@ const coinStats = {
   isPositive: true,
 };
 
-function formatNumber(n: number, decimalPoint?: number, currency = false): string {
+export function formatNumberToDecimalPoints(n: number, decimalPoint?: number, currency = false): string {
   if (!n) return "";
 
   // Count decimal places in the original number
@@ -37,8 +37,8 @@ function calculate24hChange(current: number, previous: number) {
   const _percentChange = (_change / previous) * 100;
   const isPositive = _change >= 0;
   const decimalPlaces = current.toString().includes(".") ? current.toString().split(".")[1].length : 0;
-  const change = formatNumber(_change, decimalPlaces);
-  const percentChange = formatNumber(_percentChange, 2);
+  const change = formatNumberToDecimalPoints(_change, decimalPlaces);
+  const percentChange = formatNumberToDecimalPoints(_percentChange, 2);
 
   return { change, percentChange, isPositive };
 }
@@ -64,13 +64,13 @@ function PerpStats(props: IPerpStats) {
         <div className="flex flex-col items-end py-[7.5px] px-1 flex-shrink-0">
           <span className="text-xs text-[#84858C] leading-tight mb-0.5">Mark</span>
           <span className={cn("text-sm font-medium", coinStats.isPositive ? "text-[#00C087]" : "text-[#FF4976]")}>
-            {formatNumber(data?.ctx?.markPx)}
+            {formatNumberToDecimalPoints(data?.ctx?.markPx)}
           </span>
         </div>
 
         <div className="flex flex-col items-end py-[7.5px] px-1 flex-shrink-0">
           <span className="text-xs text-[#84858C] leading-tight mb-0.5">Oracle</span>
-          <span className="text-sm font-medium text-white">{formatNumber(data?.ctx?.oraclePx)}</span>
+          <span className="text-sm font-medium text-white">{formatNumberToDecimalPoints(data?.ctx?.oraclePx)}</span>
         </div>
 
         <div className="flex flex-col items-end py-[7.5px] px-1 flex-shrink-0">
@@ -84,12 +84,16 @@ function PerpStats(props: IPerpStats) {
 
         <div className="flex flex-col items-end py-[7.5px] px-1 flex-shrink-0">
           <span className="text-xs text-[#84858C] leading-tight mb-0.5">24h Volume</span>
-          <span className="text-sm font-medium text-white">{formatNumber(data?.ctx?.dayNtlVlm, 2, true)}</span>
+          <span className="text-sm font-medium text-white">
+            {formatNumberToDecimalPoints(data?.ctx?.dayNtlVlm, 2, true)}
+          </span>
         </div>
 
         <div className="flex flex-col items-end py-[7.5px] px-1 flex-shrink-0">
           <span className="text-xs text-[#84858C] leading-tight mb-0.5">Open Interest</span>
-          <span className="text-sm font-medium text-white">{formatNumber(data?.ctx?.openInterest, 2, true)}</span>
+          <span className="text-sm font-medium text-white">
+            {formatNumberToDecimalPoints(data?.ctx?.openInterest, 2, true)}
+          </span>
         </div>
       </div>
     </div>
@@ -113,7 +117,7 @@ function SpotStats(props: ISpotStats) {
         <div className="flex flex-col items-end py-[7.5px] px-1 flex-shrink-0">
           <span className="text-xs text-[#84858C] leading-tight mb-0.5">Price</span>
           <span className={cn("text-sm font-medium", coinStats.isPositive ? "text-[#00C087]" : "text-[#FF4976]")}>
-            {formatNumber(data?.ctx?.markPx)}
+            {formatNumberToDecimalPoints(data?.ctx?.markPx)}
           </span>
         </div>
 
@@ -128,13 +132,15 @@ function SpotStats(props: ISpotStats) {
 
         <div className="flex flex-col items-end py-[7.5px] px-1 flex-shrink-0">
           <span className="text-xs text-[#84858C] leading-tight mb-0.5">24h Volume</span>
-          <span className="text-sm font-medium text-white">{formatNumber(data?.ctx?.dayNtlVlm, 2)} USDC</span>
+          <span className="text-sm font-medium text-white">
+            {formatNumberToDecimalPoints(data?.ctx?.dayNtlVlm, 2)} USDC
+          </span>
         </div>
 
         <div className="flex flex-col items-end py-[7.5px] px-1 flex-shrink-0">
           <span className="text-xs text-[#84858C] leading-tight mb-0.5">Market Cap</span>
           <span className="text-sm font-medium text-white">
-            {formatNumber(data?.ctx?.circulatingSupply * data?.ctx?.markPx, 2)} USDC
+            {formatNumberToDecimalPoints(data?.ctx?.circulatingSupply * data?.ctx?.markPx, 2)} USDC
           </span>
         </div>
       </div>

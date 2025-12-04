@@ -5,148 +5,170 @@ import dashboard from "@/lib/assets/dashboard";
 import { useOpenOrders } from "../../../chart/trading-view/hyperliquid/use-open-orders";
 import { RenderIf } from "@/components/shared";
 import { Spinner } from "@/components/ui/shadcn-io/spinner";
+import { cn } from "@/lib/utils";
+import { useAllMids } from "../../../chart/trading-view/hyperliquid/use-all-mids";
+import { formatNumberToDecimalPoints } from "../../../chart/chart-header/stats";
 
 interface OpenOrdersTabProps {
   userAddress: string;
+}
+
+function getOrderAction(coin: string, side: string, reduceOnly: boolean) {
+  const isSpot = coin.includes("/");
+
+  if (isSpot) {
+    return side === "B" ? "Buy" : "Sell";
+  }
+
+  if (side === "B") {
+    return reduceOnly ? "Close Short" : "Long";
+  }
+
+  if (side === "A") {
+    return reduceOnly ? "Close Long" : "Short";
+  }
+
+  return "";
 }
 
 const userAddress = "0x02eC6F09CF972caEBd171314AE1C5c1B30919a57";
 
 export default function OpenOrdersTab() {
   const { isConnected, openOrders } = useOpenOrders(userAddress);
+  const { allMids, isConnected: midsConnected } = useAllMids();
 
   const ordersArray = openOrders?.orders || [];
 
+  const isLoading = !isConnected || !midsConnected;
+
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      <div className="overflow-auto flex-1">
-        <table className="w-full">
-          <thead className="sticky top-0 bg-[#191B20] z-10">
-            <tr className="border-b border-[#0C0C0C]">
-              <th className="text-[#84858C] text-[12px] font-normal text-left px-3 py-2">Coin</th>
-              <th className="text-[#84858C] text-[12px] font-normal text-left px-3 py-2">Side</th>
-              <th className="text-[#84858C] text-[12px] font-normal text-left px-3 py-2">Type</th>
-              <th className="text-[#84858C] text-[12px] font-normal text-left px-3 py-2">Price</th>
-              <th className="text-[#84858C] text-[12px] font-normal text-left px-3 py-2">Size</th>
-              <th className="text-[#84858C] text-[12px] font-normal text-left px-3 py-2">Filled</th>
-              <th className="text-[#84858C] text-[12px] font-normal text-left px-3 py-2">Time</th>
-            </tr>
-          </thead>
-          <tbody>
-            <RenderIf condition={!isConnected}>
-              <tr>
-                <td colSpan={7}>
-                  <div className="flex justify-center items-center py-2">
-                    <Spinner className="text-[rgb(255,59,16)]" size={28} />
-                  </div>
-                </td>
+      <div className="overflow-auto scrollbar flex-1">
+        <div className="bg-[#191B20] my-2 rounded-[15px] border border-[#222327] p-2">
+          <table className="w-full" style={{ borderSpacing: "0 6px", borderCollapse: "separate" }}>
+            <thead>
+              <tr className="">
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">Time</th>
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">Type</th>
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">Coin</th>
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">
+                  Direction
+                </th>
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">Size</th>
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">
+                  Original Size
+                </th>
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">
+                  Order Value
+                </th>
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">Price</th>
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">
+                  Reduce Only
+                </th>
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">
+                  Trigger Conditions
+                </th>
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">TP/SL</th>
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">
+                  Close All
+                </th>
               </tr>
-            </RenderIf>
-            <RenderIf condition={isConnected && ordersArray.length !== 0}>
-              {ordersArray.map((order, index) => {
-                if (!order || !order.coin) return null;
+            </thead>
 
-                const isBuy = order.side === "B";
-                const isSpot = !order.coin.startsWith("@") || order.coin.includes("/");
-                const filledSize = parseFloat(order.origSz) - parseFloat(order.sz);
-                const fillPercentage = (filledSize / parseFloat(order.origSz)) * 100;
-                const orderTime = new Date(order.timestamp);
+            <tbody>
+              <RenderIf condition={isLoading}>
+                <tr>
+                  <td colSpan={12} className="py-10">
+                    <div className="flex justify-center w-full">
+                      <Spinner variant="circle" className="text-[rgb(255,59,16)]" size={24} />
+                    </div>
+                  </td>
+                </tr>
+              </RenderIf>
+              <RenderIf condition={!isLoading && ordersArray?.length !== 0}>
+                {ordersArray?.map((item, index) => {
+                  const time = `${new Date(item.timestamp).toLocaleDateString()} - ${new Date(item.timestamp).toLocaleTimeString()}`;
+                  const sideColorClassName = item.side === "B" ? "text-[#00AF58]" : "text-[#F99185]";
+                  const isSpot = item?.coin?.includes("/");
 
-                let sideLabel = "";
-                let sideColor = "";
-                if (isSpot) {
-                  sideLabel = isBuy ? "Buy" : "Sell";
-                  sideColor = isBuy ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500";
-                } else {
-                  sideLabel = isBuy ? "Long" : "Short";
-                  sideColor = isBuy ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500";
-                }
+                  const originalSize = parseFloat(item?.origSz || "0");
 
-                return (
-                  <tr
-                    key={`${order.oid}-${index}`}
-                    className="border-b border-[#0C0C0C] hover:bg-[#1C1D21] transition-colors"
-                  >
-                    {/* Coin */}
-                    <td className="px-3 py-3">
-                      <div className="flex items-center gap-2">
-                        <span className="text-white text-[12px] font-medium">{order.coin}</span>
-                      </div>
-                    </td>
+                  const size = parseFloat(item?.sz || "0");
 
-                    {/* Side */}
-                    <td className="px-3 py-3">
-                      <span className={`text-[12px] font-medium px-2 py-1 rounded inline-block ${sideColor}`}>
-                        {sideLabel}
-                      </span>
-                    </td>
+                  const price = parseFloat(item?.limitPx || "0");
+                  const formattedPrice = formatNumberToDecimalPoints(price, price < 1 ? undefined : 1);
 
-                    {/* Order Type */}
-                    <td className="px-3 py-3">
-                      <div className="text-white text-[12px]">
-                        {order.orderType}
-                        {order.reduceOnly && <span className="text-[#84858C] text-[10px] ml-1">(RO)</span>}
-                      </div>
-                    </td>
+                  const orderValue = price * size;
+                  const formattedOrderValue = formatNumberToDecimalPoints(orderValue, 2);
 
-                    {/* Price */}
-                    <td className="px-3 py-3">
-                      <div className="flex flex-col">
-                        <span className="text-white text-[12px]">${parseFloat(order.limitPx).toFixed(2)}</span>
-                        {order.isTrigger && order.triggerPx !== "0.0" && (
-                          <span className="text-[#84858C] text-[10px]">
-                            Trigger: ${parseFloat(order.triggerPx).toFixed(2)}
-                          </span>
+                  return (
+                    <tr key={index} className="h-[24px] relative">
+                      <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">{time}</td>
+                      <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
+                        {item?.orderType}
+                      </td>
+                      <td className="rounded-l-[10px] p-2">
+                        <button
+                          className="flex items-center gap-2"
+                          type="button"
+                          onClick={() => {
+                            // const currentToken = tokensData?.perp?.find((token) => token.name === item?.position?.coin);
+                            // if (!currentToken) return;
+                            // setSelectedToken(currentToken);
+                          }}
+                        >
+                          <p className={cn("text-white text-xs font-medium leading-[1.35%]", sideColorClassName)}>
+                            {item?.coin}
+                          </p>
+                        </button>
+                      </td>
+                      <td
+                        className={cn(
+                          "text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap",
+                          sideColorClassName,
                         )}
-                      </div>
-                    </td>
+                      >
+                        {getOrderAction(item?.coin, item?.side, item?.reduceOnly)}
+                      </td>
+                      <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
+                        {size || "-"}
+                      </td>
+                      <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
+                        {originalSize || "-"}
+                      </td>
+                      <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
+                        {orderValue ? formattedOrderValue : "-"}
+                      </td>
+                      <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
+                        {orderValue ? formattedPrice : "Market"}
+                      </td>
+                      <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
+                        <RenderIf condition={isSpot}>--</RenderIf>
+                        <RenderIf condition={!isSpot}>{item?.reduceOnly ? "Yes" : "No"}</RenderIf>
+                      </td>
+                      <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
+                        {item?.triggerCondition}
+                      </td>
+                      <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">--</td>
+                      <td className="text-[#FFF0D3] leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <button type="button">Cancel</button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </RenderIf>
 
-                    {/* Size */}
-                    <td className="px-3 py-3">
-                      <div className="text-white text-[12px]">
-                        {parseFloat(order.sz).toFixed(4)}
-                        <span className="text-[#84858C] text-[10px] ml-1">/ {parseFloat(order.origSz).toFixed(4)}</span>
-                      </div>
-                    </td>
-
-                    {/* Filled */}
-                    <td className="px-3 py-3">
-                      <span className="text-white text-[12px]">{fillPercentage.toFixed(0)}%</span>
-                    </td>
-
-                    {/* Time */}
-                    <td className="px-3 py-3">
-                      <span className="text-[#84858C] text-[11px]">
-                        {orderTime.toLocaleTimeString("en-US", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: false,
-                        })}
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </RenderIf>
-
-            <RenderIf condition={isConnected && ordersArray.length === 0}>
-              <tr>
-                <td colSpan={7}>
-                  <div className="flex flex-col justify-center items-center py-2 pt-4">
-                    <Image
-                      src={dashboard.noOpenOrders}
-                      alt="No Open Orders"
-                      width={168}
-                      height={168}
-                      className="mb-4"
-                    />
-                    <p className="text-white text-[20px] font-semibold">No Open Orders</p>
-                  </div>
-                </td>
-              </tr>
-            </RenderIf>
-          </tbody>
-        </table>
+              <RenderIf condition={!isLoading && ordersArray?.length === 0}>
+                <div className="flex flex-col min-h-[300px] h-full items-center justify-center bg-[#191B20] rounded-[6px] my-1">
+                  <Image src={dashboard.noDeposits} alt="No balances" width={168} height={168} className="mb-4" />
+                  <p className="text-white text-[20px] font-semibold">No Open Orders</p>
+                </div>
+              </RenderIf>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
