@@ -112,12 +112,16 @@ export default function SimpleCfgiWidget(props: IProps) {
         {/* Controls */}
         <div className={cn("py-2", { "opacity-0": isFullscreen, "opacity-100": !isFullscreen })}>
           <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
-            <CoinDropdown
-              options={coinData || []}
-              value={widget.props?.token}
-              setValue={(coin: string) => handleSetProp("token", coin)}
-              title=""
-            />
+            {(source && source !== 'coin-stats') ? (
+              <CoinDropdown
+                options={coinData || []}
+                value={widget.props?.token}
+                setValue={(coin: string) => handleSetProp("token", coin)}
+                title=""
+              />
+            ) : (
+              <p className="text-base font-medium text-white">Overall Crypto Market Fear and Greed</p>
+            )}
             <div className="flex flex-wrap items-center justify-start gap-2 sm:justify-end">
               {source && source !== 'coin-stats' && (
                 <PeriodDropdown
@@ -218,6 +222,7 @@ export default function SimpleCfgiWidget(props: IProps) {
         periodOptions={CfgiPeriods}
         periodValue={widget.props?.period}
         setPeriodValue={(period) => handleSetProp("period", period)}
+        source={source}
       />
     </div>
   );
