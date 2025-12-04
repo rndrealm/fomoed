@@ -2,6 +2,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import dashboard from "@/lib/assets/dashboard";
+import { Copy } from "@/components/icons/icons";
 import { useHyperliquidUserNonFundingLedgerUpdates } from "@/services/queries/hyperliquid-dex";
 import { useFetchCoinStatsToken } from "@/services/queries/charts";
 
@@ -24,15 +25,15 @@ interface TransferData {
 
 const TransfersTab = ({ userAddress }: TransfersTabProps) => {
   const [activeTab, setActiveTab] = useState<"deposits" | "withdrawals">("deposits");
+  const [copiedTxId, setCopiedTxId] = useState<string | null>(null);
 
   const { data: coinStatsData } = useFetchCoinStatsToken();
   const { mutate: fetchLedgerUpdates, data: ledgerUpdates } = useHyperliquidUserNonFundingLedgerUpdates();
 
-  // Fetch last 30 days of transfers on mount
   useEffect(() => {
     if (userAddress) {
       const endTime = Date.now();
-      const startTime = endTime - 300 * 24 * 60 * 60 * 1000; 
+      const startTime = endTime - 300 * 24 * 60 * 60 * 1000;
       fetchLedgerUpdates({ userAddress, startTime, endTime });
     }
   }, [userAddress, fetchLedgerUpdates]);
@@ -78,7 +79,7 @@ const TransfersTab = ({ userAddress }: TransfersTabProps) => {
 
         const coinInfo = coinInfoMap[asset] || {
           name: asset,
-          icon: "https://static.coinstats.app/coins/default.png",
+          icon: "https://static.coinstats.app/coins/1650455771843.png",
         };
 
         const quantity = delta.usdc || delta.amount || "0";
@@ -96,7 +97,7 @@ const TransfersTab = ({ userAddress }: TransfersTabProps) => {
           destinationAddress,
           initiated: update.time,
           transactionId: update.hash,
-          status: "Completed", 
+          status: "Completed",
           type: type === "deposit" ? "deposit" : "withdraw",
         };
       })
@@ -130,6 +131,38 @@ const TransfersTab = ({ userAddress }: TransfersTabProps) => {
     return `${hash.slice(0, 8)}...${hash.slice(-6)}`;
   };
 
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedTxId(text);
+    setTimeout(() => setCopiedTxId(null), 2000);
+  };
+
+  const getStatusStyles = (status: string) => {
+    const normalizedStatus = status.toLowerCase();
+
+    if (normalizedStatus === "completed") {
+      return {
+        backgroundColor: "#152F22",
+        color: "#21FF86",
+      };
+    } else if (normalizedStatus === "pending" || normalizedStatus === "loading" || normalizedStatus === "processing") {
+      return {
+        backgroundColor: "#382B19",
+        color: "#FFC26D",
+      };
+    } else if (normalizedStatus === "cancelled" || normalizedStatus === "failed" || normalizedStatus === "aborted") {
+      return {
+        backgroundColor: "#422825",
+        color: "#F99185",
+      };
+    }
+
+    return {
+      backgroundColor: "#152F22",
+      color: "#21FF86",
+    };
+  };
+
   const hasData = filteredTransfers.length > 0;
 
   return (
@@ -158,115 +191,137 @@ const TransfersTab = ({ userAddress }: TransfersTabProps) => {
         </div>
       </div>
 
-      {/* Table */}
+      {/* Table Container */}
       <div className="flex-1 flex flex-col overflow-hidden px-3">
         {/* Header */}
         <div
-          className="grid grid-cols-[1fr_1fr_1fr_2fr_1.5fr_1.5fr_1fr] gap-4 sticky top-0 z-10 bg-[#121317] border-b border-[#1B1B1B] items-center"
+          className="grid grid-cols-[1.2fr_1fr_0.8fr_1.5fr_1.3fr_1.3fr_0.9fr] gap-4 sticky top-0 z-10 bg-[#121317] border-b border-[#1B1B1B] items-center"
           style={{
-            height: "32px",
-            paddingTop: "8px",
-            paddingBottom: "8px",
+            height: "40px",
+            paddingTop: "12px",
+            paddingBottom: "12px",
             paddingLeft: "12px",
             paddingRight: "12px",
           }}
         >
           <div className="text-[#84858C] text-[12px] font-medium">Asset</div>
-          <div className="text-[#84858C] text-[12px] font-medium text-right">Quantity</div>
-          <div className="text-[#84858C] text-[12px] font-medium text-right">Chain</div>
-          <div className="text-[#84858C] text-[12px] font-medium text-right">Destination Address</div>
-          <div className="text-[#84858C] text-[12px] font-medium text-right">Initiated</div>
-          <div className="text-[#84858C] text-[12px] font-medium text-right">Transaction ID</div>
-          <div className="text-[#84858C] text-[12px] font-medium text-right">Status</div>
+          <div className="text-[#84858C] text-[12px] font-medium text-left">Quantity</div>
+          <div className="text-[#84858C] text-[12px] font-medium text-left">Chain</div>
+          <div className="text-[#84858C] text-[12px] font-medium text-left">
+            {activeTab === "deposits" ? "Source Address" : "Destination Address"}
+          </div>
+          <div className="text-[#84858C] text-[12px] font-medium text-left">Initiated</div>
+          <div className="text-[#84858C] text-[12px] font-medium text-left">Transaction ID</div>
+          <div className="text-[#84858C] text-[12px] font-medium text-left">Status</div>
         </div>
 
         {/* Content */}
         {hasData ? (
-          <div className="flex-1 overflow-auto no-scrollbar">
+          <div
+            className="flex-1 overflow-auto no-scrollbar"
+            style={{
+              backgroundColor: "#191B20",
+              borderRadius: "15px",
+              border: "1px solid #222327",
+              padding: "8px",
+              marginTop: "8px",
+            }}
+          >
             {filteredTransfers.map((transfer: TransferData, index: number) => (
               <div
                 key={`${transfer.transactionId}-${index}`}
-                className="grid grid-cols-[1fr_1fr_1fr_2fr_1.5fr_1.5fr_1fr] gap-4 hover:bg-[#1C1D21] transition-colors items-center"
+                className="grid grid-cols-[1.2fr_1fr_0.8fr_1.5fr_1.3fr_1.3fr_0.9fr] gap-4 hover:bg-[#1C1D21] transition-colors items-center"
                 style={{
-                  height: "64px",
-                  paddingTop: "16px",
-                  paddingBottom: "16px",
+                  height: "48px",
                   paddingLeft: "12px",
                   paddingRight: "12px",
                 }}
               >
                 {/* Asset */}
-                <div className="flex items-center gap-[12px] h-[32px]">
+                <div className="flex items-center gap-2">
                   <Image
                     src={transfer.assetIcon}
                     alt={transfer.assetName}
-                    width={32}
-                    height={32}
+                    width={20}
+                    height={20}
                     className="rounded-full"
                     onError={(e) => {
-                      e.currentTarget.src = "https://static.coinstats.app/coins/default.png";
+                      e.currentTarget.src = "https://static.coinstats.app/coins/1650455771843.png";
                     }}
                   />
-                  <div className="flex flex-col justify-center">
-                    <span className="text-white text-[12px] font-medium leading-tight">{transfer.assetName}</span>
-                    <span className="text-[#84858C] text-[12px] leading-tight">{transfer.asset}</span>
-                  </div>
+                  <span className="text-white text-[13px] font-medium">{transfer.assetName}</span>
                 </div>
 
                 {/* Quantity */}
-                <div className="flex items-center justify-end h-[32px]">
-                  <span className="text-white text-[12px] font-medium">
-                    {parseFloat(transfer.quantity).toLocaleString("en-US", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 6,
-                    })}
-                  </span>
-                </div>
+                <span className="text-white text-[12px]">
+                  {parseFloat(transfer.quantity).toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 6,
+                  })}{" "}
+                  {transfer.assetName}
+                </span>
 
                 {/* Chain */}
-                <div className="flex items-center justify-end h-[32px]">
-                  <span className="text-white text-[12px]">{transfer.chain}</span>
-                </div>
+                <span className="text-white text-[12px]">{transfer.chain}</span>
 
-                {/* Destination Address */}
-                <div className="flex items-center justify-end h-[32px]">
-                  <span
-                    className="text-[#9CA3AF] text-[12px] font-mono hover:text-white cursor-pointer"
-                    title={transfer.destinationAddress}
-                  >
-                    {formatAddress(transfer.destinationAddress)}
-                  </span>
-                </div>
+                {/* Source/Destination Address */}
+                <span
+                  className="text-white text-[12px] hover:text-[#9CA3AF] cursor-pointer transition-colors"
+                  title={transfer.destinationAddress}
+                >
+                  {formatAddress(transfer.destinationAddress)}
+                </span>
 
                 {/* Initiated */}
-                <div className="flex items-center justify-end h-[32px]">
-                  <span className="text-[#84858C] text-[12px]">{formatDate(transfer.initiated)}</span>
-                </div>
+                <span className="text-white text-[12px]">{formatDate(transfer.initiated)}</span>
 
                 {/* Transaction ID */}
-                <div className="flex items-center justify-end h-[32px]">
+                <div className="flex items-center gap-2">
                   <a
                     href={`https://app.hyperliquid.xyz/explorer/tx/${transfer.transactionId}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[#7637BA] text-[12px] font-mono hover:text-[#9047d9] transition-colors"
+                    className="text-white text-[12px] hover:text-[#7637BA] transition-colors"
                     title={transfer.transactionId}
                   >
                     {formatTxId(transfer.transactionId)}
                   </a>
+                  <button
+                    onClick={() => copyToClipboard(transfer.transactionId)}
+                    className="hover:opacity-70 transition-opacity"
+                    title="Copy transaction ID"
+                  >
+                    <div className="w-3 h-3 text-[#84858C]">
+                      <Copy />
+                    </div>
+                  </button>
                 </div>
 
                 {/* Status */}
-                <div className="flex items-center justify-end h-[32px]">
-                  <span className="inline-flex items-center bg-[#00AF58]/20 text-[#00AF58] text-[10px] px-2 py-1 rounded-[4px]">
-                    {transfer.status}
-                  </span>
-                </div>
+                <span
+                  className="inline-flex items-center text-[10px] font-medium w-fit"
+                  style={{
+                    ...getStatusStyles(transfer.status),
+                    borderRadius: "36px",
+                    paddingTop: "5px",
+                    paddingRight: "8px",
+                    paddingBottom: "5px",
+                    paddingLeft: "8px",
+                  }}
+                >
+                  {transfer.status}
+                </span>
               </div>
             ))}
           </div>
         ) : (
-          <div className="flex flex-col h-full items-center justify-center bg-[#191B20] rounded-[20px] my-1">
+          <div
+            className="flex flex-col h-full items-center justify-center rounded-[15px] my-1"
+            style={{
+              backgroundColor: "#191B20",
+              border: "1px solid #222327",
+            }}
+          >
             <Image src={dashboard.noDeposits} alt="No data" width={168} height={168} className="mb-4" />
             <p className="text-white text-[20px] font-semibold">
               {activeTab === "deposits" ? "No Deposits" : "No Withdrawals"}

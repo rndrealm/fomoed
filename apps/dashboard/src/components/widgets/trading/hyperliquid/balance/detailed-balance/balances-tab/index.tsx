@@ -88,7 +88,7 @@ const BalancesTab = ({ userAddress }: BalancesTabProps) => {
 
           const coinInfo = coinInfoMap[coinSymbol] || {
             name: coinSymbol,
-            icon: `https://static.coinstats.app/coins/default.png`,
+            icon: `https://static.coinstats.app/coins/1650455771843.png`,
           };
 
           balances[coinSymbol] = {
@@ -255,7 +255,7 @@ const BalancesTab = ({ userAddress }: BalancesTabProps) => {
                   height={32} 
                   className="rounded-full"
                   onError={(e) => {
-                    e.currentTarget.src = "https://static.coinstats.app/coins/default.png";
+                    e.currentTarget.src = "https://static.coinstats.app/coins/1650455771843.png";
                   }}
                 />
                 <div className="flex flex-col justify-center">
