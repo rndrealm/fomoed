@@ -234,6 +234,7 @@ export default function DetailedCfgiWidget(props: IProps) {
         periodOptions={CfgiPeriods}
         periodValue={widget.props?.period}
         setPeriodValue={(period) => handleSetProp("period", period)}
+        source={source}
       />
     </div>
   );
