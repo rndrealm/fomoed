@@ -5,6 +5,7 @@ import dashboard from "@/lib/assets/dashboard";
 import { useClearingHouseState } from "../../../chart/trading-view/hyperliquid/use-clearinghouse-state";
 import { useSpotState } from "../../../chart/trading-view/hyperliquid/use-spot-state";
 import { useHyperliquidSpotPrices } from "@/services/queries/hyperliquid-dex";
+import { useAccount } from "wagmi";
 
 interface BalanceData {
   coin: string;
@@ -22,9 +23,10 @@ interface BalancesTabProps {
 }
 
 const hideSmallBalances = false;
-const userAddress = "0x02eC6F09CF972caEBd171314AE1C5c1B30919a57";
 
 export default function BalancesTab() {
+  const { address } = useAccount();
+  const userAddress = address || "";
   const { clearingHouse } = useClearingHouseState(userAddress);
   const { spotState } = useSpotState(userAddress);
   const { spotPrices } = useHyperliquidSpotPrices(true);
