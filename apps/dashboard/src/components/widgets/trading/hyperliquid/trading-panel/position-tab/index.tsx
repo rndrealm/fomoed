@@ -17,8 +17,7 @@ import { getCoinIconUrl } from "../../../chart/chart-header";
 import CloseOrder from "../modals/close-order";
 import { TakeProfit } from "../../modals/take-profit";
 import { PerpUniverse, SpotsUniverse } from "@/services/queries/hyperliquid/types";
-
-const userAddress = "0x02eC6F09CF972caEBd171314AE1C5c1B30919a57";
+import { useAccount } from "wagmi";
 
 interface ILeverageTag {
   isLong: boolean;
@@ -53,6 +52,9 @@ export interface IPositionOrder {
 }
 
 export default function OpenPositionsTab() {
+  const { address } = useAccount();
+  const userAddress = address || "";
+
   const { clearingHouse, isConnected } = useClearingHouseState(userAddress);
   const { allMids, isConnected: midsConnected } = useAllMids();
 
