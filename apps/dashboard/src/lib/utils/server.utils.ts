@@ -30,7 +30,7 @@ export function asNextResponseError(errorW: ErrorWrapper): NextResponse {
 
 export function asNextResponseData<T>(data: T) {
   if (!process.env.DISABLE_RESPONSE_LOG) {
-    console.info("Response body:\n" + JSON.stringify(data, null, 2));
+    // console.info("Response body:\n" + JSON.stringify(data, null, 2));
   }
 
   return NextResponse.json({ data, success: true });

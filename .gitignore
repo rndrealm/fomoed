@@ -45,3 +45,6 @@ supabase/.temp/
 
 # Custom
 tmp/
+
+# Exclude bundle.js from being ignored
+!apps/dashboard/public/static/datafeeds/udf/dist/bundle.js

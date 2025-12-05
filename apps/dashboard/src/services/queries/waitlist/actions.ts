@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const fileUploadApi = axios.create({
-  baseURL: "https://fomoed-data-ingestion-509111531565.us-central1.run.app/api/v1",
+  baseURL: `${process.env.NEXT_PUBLIC_FOMOED_INGESTION_URL}/api/v1`,
 });
 
 export const uploadProfileImage = async (file: File, headers?: Record<string, string>) => {

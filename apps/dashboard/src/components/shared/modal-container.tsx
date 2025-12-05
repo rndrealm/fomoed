@@ -3,6 +3,8 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import CloseIcon from "../icons/CloseIcon";
 import { cn } from "@/lib/utils";
 import { RenderIf } from "./render-if";
+import { DialogDescription } from "@radix-ui/react-dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 interface IProps {
   open: boolean;
@@ -11,9 +13,13 @@ interface IProps {
   size?: "lg";
   className?: string;
   title?: string;
+  description?: string;
   noHeader?: boolean;
   bgBlur?: boolean;
   dialogOverlayClassName?: string;
+  hideX?: boolean;
+  headerClassName?: string;
+  preventOutsideClick?: boolean;
 }
 
 const sizeClassMap: Record<NonNullable<IProps["size"]>, string> = {
@@ -28,9 +34,13 @@ export function ModalContainer(props: IProps) {
     size = "lg",
     className = "",
     title,
+    description,
     noHeader = false,
     bgBlur = true,
     dialogOverlayClassName = "",
+    headerClassName = "",
+    preventOutsideClick = false,
+    hideX,
   } = props;
 
   const contentClasses = cn(
@@ -48,17 +58,27 @@ export function ModalContainer(props: IProps) {
     >
       <DialogContent
         className={contentClasses}
+        onInteractOutside={(e) => {
+          if (preventOutsideClick) {
+            e.preventDefault();
+          }
+        }}
         dialogOverlayClassName={cn(!bgBlur ? "backdrop-blur-[0px] bg-[transparent]" : "", dialogOverlayClassName)}
       >
         <DialogTitle className={cn(noHeader ? "hidden" : "")}>
           <div className="flex items-center justify-between">
-            <p className="text-base text-white">{title}</p>
+            <p className={cn("text-base text-white", headerClassName)}>{title}</p>
 
-            <button type="button" onClick={handleClose}>
-              <CloseIcon />
-            </button>
+            <RenderIf condition={!hideX}>
+              <button type="button" onClick={handleClose}>
+                <CloseIcon />
+              </button>
+            </RenderIf>
           </div>
         </DialogTitle>
+        <VisuallyHidden>
+          <DialogDescription>{description || title || "Dialog description"}</DialogDescription>
+        </VisuallyHidden>
 
         {children}
       </DialogContent>

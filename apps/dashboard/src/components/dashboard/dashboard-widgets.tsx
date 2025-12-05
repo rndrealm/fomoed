@@ -119,7 +119,7 @@ export function DashboardWidgets(props: IProps) {
                 FallbackComponent={(props) => (
                   <WidgetErrorOverlay
                     {...props}
-                    widget = {layout}
+                    widget={layout}
                     resetErrorBoundary={() => handleResetError(widgetId)}
                   />
                 )}

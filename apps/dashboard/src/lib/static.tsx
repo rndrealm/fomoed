@@ -49,6 +49,7 @@ import TradingEconomicsWidget from "@/components/widgets/trading-economics/econo
 import GemachCopyTrading from "@/components/widgets/gemach/gemach-copy-trading";
 import YoutubeWidget from "@/components/widgets/youtube/youtube-widget";
 import TelegramWidget from "@/components/widgets/telegram/telegram-widget";
+import Trading from "@/components/widgets/trading";
 
 export const layoutClassMap = {
   SinglePane: "grid-rows-1 grid-cols-1",
@@ -336,7 +337,7 @@ export const layoutOptionsMap = [
     category: "news",
     tags: ["news", "new"],
   },
-    {
+  {
     id: 24,
     name: "Telegram",
     slug: "telegram",
@@ -344,6 +345,14 @@ export const layoutOptionsMap = [
     image: dashboard.telegramPreview,
     category: "social",
     tags: ["social", "new"],
+  },
+  {
+    id: 215,
+    name: "Gemach Copy Trading",
+    slug: "gemach-copy-trading",
+    image: dashboard.tradingCalendar,
+    category: "charts",
+    tags: ["new"],
   },
   // {
   //   name: "Token Price History",
@@ -370,6 +379,15 @@ export const layoutOptionsMap = [
   //   category: "charts",
   //   tags: ["charts"],
   // },
+
+  {
+    id: 217,
+    name: "Ascendex",
+    slug: "ascendex",
+    image: dashboard.cfgi,
+    category: "charts",
+    tags: ["charts"],
+  },
 ].filter((i) => !disabledWgSlugs.includes(i.slug));
 
 export type LayoutOptionType = typeof layoutOptionsMap;
@@ -533,6 +551,13 @@ export const chartsMap = {
     extra: [],
     component: (widget: LayoutType["widgets"][0]) => <GemachCopyTrading widget={widget} />,
     isResizable: true,
+  },
+
+  ascendex: {
+    name: "Trading",
+    extra: [],
+    component: (widget: LayoutType["widgets"][0]) => <Trading widget={widget} />,
+    isResizable: false,
   },
   youtube: {
     name: "YouTube",
@@ -862,6 +887,17 @@ export const widgetPropsDefaults = {
       h: 4,
       minW: 8,
       minH: 4,
+      maxW: Infinity,
+      maxH: Infinity,
+    },
+  },
+
+  ascendex: {
+    meta: {
+      w: 16,
+      h: 6,
+      minW: 8,
+      minH: 6,
       maxW: Infinity,
       maxH: Infinity,
     },

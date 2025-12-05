@@ -17,6 +17,7 @@ import {
   scroll,
   zora,
   aurora,
+  arbitrumSepolia,
 } from "viem/chains";
 
 import { cookieStorage, createConfig, createStorage, http } from "wagmi";
@@ -40,6 +41,7 @@ export const supportedChains = [
   scroll,
   zora,
   aurora,
+  arbitrumSepolia,
 ] as const;
 
 export const config = createConfig({

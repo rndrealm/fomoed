@@ -3,6 +3,7 @@ import { SupportedPairsData } from "@/services/queries/charts/types";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { widgetIdJoin } from "./static";
+import { HyperliquidMetaResponse, PerpBalanceResponse } from "@/services/queries/hyperliquid/types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -701,4 +702,300 @@ export function formatDateMMDDYYFromUnix(unixSeconds: number) {
 export function shortenString(str: string, maxLength = 10): string {
   if (str.length <= maxLength) return str;
   return str.slice(0, maxLength) + "..";
+}
+
+export function getNextBarTime(barTime: number, resolution: string) {
+  const date = new Date(barTime);
+
+  switch (resolution) {
+    case "1D":
+    case "1440":
+      date.setUTCDate(date.getUTCDate() + 1);
+      date.setUTCHours(0, 0, 0, 0);
+      break;
+
+    case "1W":
+    case "10080":
+      date.setUTCDate(date.getUTCDate() + 7);
+      date.setUTCHours(0, 0, 0, 0);
+      break;
+
+    case "1M":
+    case "43200":
+      date.setUTCMonth(date.getUTCMonth() + 1);
+      date.setUTCDate(1);
+      date.setUTCHours(0, 0, 0, 0);
+      break;
+
+    default:
+      const interval = parseInt(resolution);
+      if (!isNaN(interval)) {
+        date.setUTCMinutes(date.getUTCMinutes() + interval);
+      }
+      break;
+  }
+
+  return date.getTime();
+}
+
+export function hyperliquidFormatPriceChange(
+  current: number | string,
+  previous: number | string,
+  volume?: number | string,
+  openInterest?: number | string,
+) {
+  // Convert inputs to numbers
+  const currentNum = Number(current);
+  const previousNum = Number(previous);
+  const volumeNum = volume !== undefined ? Number(volume) : undefined;
+  const openInterestNum = openInterest !== undefined ? Number(openInterest) : undefined;
+
+  // Handle invalid inputs
+  if (isNaN(currentNum) || isNaN(previousNum)) {
+    return {
+      currentPrice: "0",
+      priceChange: "0",
+      priceChangePercent: "0.00%",
+      volume: volumeNum ? volumeNum.toLocaleString(undefined, { maximumFractionDigits: 0 }) : "0",
+      openInterest: openInterestNum ? openInterestNum.toLocaleString(undefined, { maximumFractionDigits: 0 }) : "0",
+      isPositive: false,
+    };
+  }
+
+  // Calculate price change and percent change
+  const priceChange = currentNum - previousNum;
+  const priceChangePercent = (priceChange / previousNum) * 100;
+  const isPositive = priceChange > 0;
+
+  // Determine decimal places based on current price
+  const currentDecimals = current.toString().split(".")[1]?.length || 0;
+
+  // Format numbers
+  const formattedCurrent = currentNum.toLocaleString(undefined, {
+    minimumFractionDigits: currentDecimals,
+    maximumFractionDigits: currentDecimals,
+  });
+
+  const formattedChange = priceChange.toLocaleString(undefined, {
+    minimumFractionDigits: currentDecimals,
+    maximumFractionDigits: currentDecimals,
+  });
+
+  const formattedPercent = `${priceChangePercent.toFixed(2)}%`;
+
+  const formattedVolume =
+    volumeNum !== undefined && !isNaN(volumeNum)
+      ? `$${volumeNum.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
+      : "-";
+
+  const formattedOpenInterest =
+    openInterestNum !== undefined && !isNaN(openInterestNum)
+      ? `$${openInterestNum.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
+      : "-";
+
+  return {
+    currentPrice: formattedCurrent,
+    priceChange: formattedChange,
+    priceChangePercent: formattedPercent,
+    volume: formattedVolume,
+    openInterest: formattedOpenInterest,
+    isPositive,
+  };
+}
+
+type PositionSide = "long" | "short";
+
+export function calcMargin({ positionSize, leverage }: { positionSize: number; leverage: number }) {
+  const marginRequired = positionSize / leverage;
+
+  return marginRequired;
+}
+
+/**
+ * Returns estimated liquidation price (mark-based) for isolated margin positions.
+ * Returns `null` when calculation is not applicable (e.g., leverage <= 1).
+ */
+export function estimateLiqPrice({
+  entryPrice,
+  leverage,
+  maintenanceRate,
+  side,
+}: {
+  entryPrice: number; // E
+  leverage: number; // >= 1 (exchanges usually treat 1x as non-margin)
+  maintenanceRate: number; // mmr, e.g. 0.005
+  side: PositionSide;
+}): number | null {
+  if (!isFinite(entryPrice) || entryPrice <= 0) return null;
+  if (!isFinite(leverage) || leverage <= 1) return null; // treat 1x as NA
+  if (!isFinite(maintenanceRate) || maintenanceRate < 0 || maintenanceRate >= 1) return null;
+
+  const invLev = 1 / leverage;
+
+  if (side === "long") {
+    const denom = 1 - maintenanceRate;
+    if (denom <= 0) return null;
+    const numerator = 1 - invLev; // (1 - 1/lev)
+    return entryPrice * (numerator / denom);
+  } else {
+    // short
+    const denom = 1 + maintenanceRate;
+    const numerator = 1 + invLev; // (1 + 1/lev)
+    return entryPrice * (numerator / denom);
+  }
+}
+
+type MetaResponse = {
+  universe: {
+    name: string;
+    maxLeverage: number;
+    marginTable: number; // table id
+  }[];
+  marginTables: [
+    number,
+    {
+      description: string;
+      marginTiers: {
+        lowerBound: string;
+        maxLeverage: number;
+      }[];
+    },
+  ][];
+};
+
+type ClearinghouseResponse = {
+  assetPositions: {
+    position: {
+      coin: string;
+      szi: string; // size in coin units
+      positionValue: string; // notional in USDC
+    };
+  }[];
+};
+
+export function getMaintenanceMargin(meta: HyperliquidMetaResponse, ch: PerpBalanceResponse, asset: string) {
+  if (!meta || !ch) return { maintenanceMargin: 0, reason: "No open position" };
+  // 1. Find the asset in the universe
+  const assetConfig = meta.universe.find((a) => a.name === asset);
+  if (!assetConfig) {
+    throw new Error(`Asset ${asset} not found in meta.universe`);
+  }
+
+  const marginTableId = assetConfig.marginTableId;
+
+  // 2. Get the corresponding margin table
+  const marginTableTuple = meta.marginTables.find(([id]) => id === marginTableId);
+  if (!marginTableTuple) {
+    throw new Error(`Margin table ${marginTableId} not found`);
+  }
+
+  const marginTable = marginTableTuple[1];
+
+  // 3. Find user's position for this asset
+  const pos = ch.assetPositions.find((p) => p.position.coin === asset);
+  if (!pos || Number(pos.position.szi) === 0) {
+    return { maintenanceMargin: 0, reason: "No open position" };
+  }
+
+  const notional = Number(pos.position.positionValue);
+
+  // 4. Pick the tier that matches this notional
+  const tiers = marginTable.marginTiers;
+
+  let tier = tiers[0];
+  for (const t of tiers) {
+    if (notional >= Number(t.lowerBound)) {
+      tier = t;
+    } else {
+      break;
+    }
+  }
+
+  // 5. Compute IMR + MMR
+  const maxLev = tier.maxLeverage;
+  const IMR = 1 / maxLev;
+  const MMR = IMR / 2;
+
+  // 6. Maintenance margin in USDC
+  const maintenanceMargin = notional * MMR;
+
+  return {
+    asset,
+    notional,
+    tier,
+    IMR,
+    MMR,
+    maintenanceMargin,
+  };
+}
+
+export function validateReduceOnly(positionSize: number, orderSide: string, orderSize: number) {
+  // 1. No position → can't reduce-only
+  if (positionSize === 0) {
+    return { ok: false, reason: "No position to reduce" };
+  }
+
+  const isLong = positionSize > 0;
+  const isShort = positionSize < 0;
+
+  // 2. Side must be opposite
+  if (isLong && orderSide !== "sell") {
+    return { ok: false, reason: "Must sell to reduce a long" };
+  }
+  if (isShort && orderSide !== "buy") {
+    return { ok: false, reason: "Must buy to reduce a short" };
+  }
+
+  // 3. Size cannot exceed current position
+  if (Math.abs(orderSize) > Math.abs(positionSize)) {
+    return { ok: false, reason: "Reduce-only too large" };
+  }
+
+  return { ok: true };
+}
+
+export function calculateTpGain(tp: number, entry: number, leverage: number, side: PositionSide): number {
+  if (side === "long") {
+    return ((tp - entry) / entry) * leverage * 100;
+  }
+
+  // short
+  return ((entry - tp) / entry) * leverage * 100;
+}
+export function reverseCalculateTpGain(
+  gainPercent: number,
+  entry: number,
+  leverage: number,
+  side: PositionSide,
+): number {
+  const factor = gainPercent / (100 * leverage);
+
+  if (side === "long") {
+    return entry * (1 + factor);
+  }
+
+  // short
+  return entry * (1 - factor);
+}
+
+export function calculateLossPercent(sl: number, entry: number, leverage: number, side: PositionSide): number {
+  if (side === "long") {
+    // entry > SL → negative change
+    return ((entry - sl) / entry) * leverage * 100;
+  }
+
+  // short: SL > entry → negative change
+  return ((sl - entry) / entry) * leverage * 100;
+}
+
+export function calculateSLFromLoss(lossPercent: number, entry: number, leverage: number, side: PositionSide): number {
+  const factor = lossPercent / (100 * leverage);
+
+  if (side === "long") {
+    // SL is below entry
+    return entry * (1 - factor);
+  }
+
+  // short: SL is above entry
+  return entry * (1 + factor);
 }

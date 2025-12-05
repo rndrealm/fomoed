@@ -1,8 +1,8 @@
 "use client";
-import React, { Dispatch, useEffect, useRef, useState } from "react";
+import React, { Dispatch, useRef, useState } from "react";
 import { ErrorMessage } from "formik";
 import { Input } from "../ui/input";
-import { animate, motion, useMotionValue, useTransform } from "motion/react";
+import { motion } from "motion/react";
 import { RenderIf } from "../shared";
 import { SetStateAction } from "jotai";
 import { cn } from "@/lib/utils";
@@ -22,27 +22,66 @@ export function ErrorMsg(props: IErrorMsg) {
   );
 }
 
-export function TextInput(props: React.HTMLProps<HTMLInputElement>) {
-  const { name = "name", value, className = "", ...rest } = props;
+interface TextInputProps extends React.HTMLProps<HTMLInputElement> {
+  rightComponent?: React.ReactNode;
+  rightPlaceholder?: string;
+  rightPlaceholderClassName?: string;
+  disableFormikError?: boolean;
+}
+
+export function TextInput(props: TextInputProps) {
+  const {
+    name = "name",
+    className,
+    value,
+    rightPlaceholder,
+    rightPlaceholderClassName,
+    rightComponent,
+    disableFormikError = false,
+    ...rest
+  } = props;
   const [showPassword, setShowPassword] = useState<PasswordOption>(props.type === "password" ? "password" : "text");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleClick = () => {
+    if (props.type === "number" && inputRef.current) {
+      inputRef.current.select();
+    }
+  };
 
   return (
     <div className="flex flex-col gap-1">
       <div className="relative">
         <Input
+          ref={inputRef}
           className={cn(
             "h-[50px] w-full rounded-2xl border border-transparent bg-[#151515] px-4 text-base leading-[1.35] font-medium text-white transition selection:bg-white/20 selection:text-white placeholder:text-[#5c5c5c] focus:!border-[#646464] focus:shadow-none focus:ring-0 focus:ring-offset-0 focus:outline-none focus-visible:!ring-0",
             className,
           )}
           value={value}
+          onClick={handleClick}
           {...rest}
+          name={name}
           type={props.type === "password" ? showPassword : props.type}
         />
         <RenderIf condition={props.type === "password"}>
           <PasswordText showPassword={showPassword} setShowPassword={setShowPassword} />
         </RenderIf>
+
+        <RenderIf condition={!!rightComponent}>{rightComponent}</RenderIf>
+
+        <RenderIf condition={!!rightPlaceholder}>
+          <span
+            className={cn(
+              "absolute top-[25%] right-2 text-[0.5rem] font-medium text-white pointer-events-none",
+              rightPlaceholderClassName,
+            )}
+          >
+            {rightPlaceholder}
+          </span>
+        </RenderIf>
       </div>
-      <ErrorMsg name={name} />
+      {!disableFormikError && <ErrorMsg name={name} />}
     </div>
   );
 }

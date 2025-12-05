@@ -3,7 +3,7 @@ import axiosInstance from "./axiosConfig";
 
 interface Request {
   url: string;
-  body?: Record<string, unknown>;
+  body?: Record<string, unknown> | unknown;
   auth?: boolean;
   headers?: any;
 }
@@ -22,7 +22,10 @@ const get = async ({ url, auth = true, headers }: Request) => {
 };
 
 async function post<ResT = any>({ url, body, auth = true }: Request): Promise<ResT> {
-  return await (auth ? axiosInstance.post(url, body) : axios.post(baseURL + url, body));
+  const isAbsoluteUrl = url.startsWith("http://") || url.startsWith("https://");
+  const finalUrl = isAbsoluteUrl ? url : baseURL + url;
+
+  return await (auth ? axiosInstance.post(url, body) : axios.post(finalUrl, body));
 }
 
 async function gemachPost<ResT = any>({ url, body, auth = true, headers }: Request): Promise<ResT> {

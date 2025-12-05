@@ -1,8 +1,6 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import MockRouter from "next-router-mock";
-import { MemoryRouterProvider } from "next-router-mock/MemoryRouterProvider";
 import { toast } from "sonner";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import LoginPage from "@/app/auth/login/page";
@@ -19,26 +17,38 @@ vi.mock("sonner", () => ({
   toast: vi.fn(),
 }));
 
-vi.mock("next/navigation", () => {
-  const actual = vi.importActual("next-router-mock");
-  return {
-    ...actual,
-    useRouter: () => MockRouter,
-  };
-});
+vi.mock("@/lib/utils/supabase/browser-client", () => ({
+  createSupabaseBrowserClient: vi.fn(() => ({
+    auth: {
+      refreshSession: vi.fn().mockResolvedValue({ data: {}, error: null }),
+    },
+  })),
+}));
 
 const mockPush = vi.fn();
+
+vi.mock("next/navigation", () => {
+  return {
+    useRouter: () => ({
+      push: mockPush,
+      pathname: "/auth/login",
+      query: {},
+      asPath: "/auth/login",
+    }),
+    useSearchParams: () => ({
+      get: vi.fn(() => null),
+    }),
+  };
+});
 
 // Setup for each test
 beforeEach(() => {
   vi.clearAllMocks();
-  MockRouter.push = mockPush;
-  MockRouter.pathname = "/auth/login";
 });
 
-// Create a wrapper with the mock router
+// Helper to render components
 const renderWithRouter = (ui: React.ReactNode) => {
-  return render(<MemoryRouterProvider>{ui}</MemoryRouterProvider>);
+  return render(<>{ui}</>);
 };
 
 describe("Login Page", () => {
@@ -53,23 +63,28 @@ describe("Login Page", () => {
     expect(screen.getByText("Login to access more tools.")).toBeInTheDocument();
   });
 
-  it("has submit button disabled when form inputs are empty", async () => {
+  it("shows validation errors when submitting empty form", async () => {
     renderWithRouter(<LoginPage />);
 
-    // Check that the login button is in the disabled state when no inputs are entered
-    const loginButton = screen.getByRole("button", { name: /login/i });
-    expect(loginButton).toHaveAttribute("disabled");
+    const loginButton = screen.getByText("Login");
+    fireEvent.click(loginButton);
+
+    // Check for validation errors
+    await waitFor(() => {
+      expect(screen.getByText("Please enter your email address")).toBeInTheDocument();
+    });
   });
 
-  it("enables submit button when both fields have values", async () => {
+  it("allows form submission when both fields have values", async () => {
     renderWithRouter(<LoginPage />);
 
     // Fill form with data
     await userEvent.type(screen.getByPlaceholderText("you@email.com"), "test@example.com");
     await userEvent.type(screen.getByPlaceholderText("password"), "password123");
 
-    // Check that the submit button is enabled
-    const loginButton = screen.getByRole("button", { name: /login/i });
+    // Check that the submit button is present and clickable
+    const loginButton = screen.getByText("Login");
+    expect(loginButton).toBeInTheDocument();
     expect(loginButton).not.toHaveAttribute("disabled");
   });
 
@@ -114,9 +129,12 @@ describe("Login Page", () => {
     });
 
     // Check if redirect happened after successful login
-    await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith(AppRoutes.dashboard.path);
-    });
+    await waitFor(
+      () => {
+        expect(mockPush).toHaveBeenCalledWith(AppRoutes.dashboard.path);
+      },
+      { timeout: 3000 }
+    );
   });
 
   it("shows error toast when login fails with specific message", async () => {

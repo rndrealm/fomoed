@@ -87,7 +87,20 @@ import gemachCopyInfo4 from "../../../../public/media/images/dashboard/gemach-co
 import gemachCopyInfo5 from "../../../../public/media/images/dashboard/gemach-copy-info-5.png";
 import youtube from "../../../../public/media/images/dashboard/youtube.png";
 import gemachPreview from "../../../../public/media/images/dashboard/gemach-preview.png";
-import referralAsset from "../../../../public/media/images/referrals/referral_asset.png"
+import referralAsset from "../../../../public/media/images/referrals/referral_asset.png";
+import ascendexLogo from "../../../../public/media/images/dashboard/ascendex/ascendex-logo.png";
+import buyOrderbook from "../../../../public/media/images/dashboard/ascendex/buy-orderbook.png";
+import sellOrderbook from "../../../../public/media/images/dashboard/ascendex/sell-orderbook.png";
+import allOrderbook from "../../../../public/media/images/dashboard/ascendex/all-orderbook.png";
+import ascendexAnimation from "../../../../public/media/images/dashboard/ascendex/asxendex-animation.png";
+import noDeposits from "../../../../public/media/images/dashboard/ascendex/no-deposits.png";
+import noOpenOrders from "../../../../public/media/images/dashboard/ascendex/no-open-orders.png";
+// import shieldAnimation from "../../../../public/media/images/dashboard/ascendex/shield-animation.riv";
+import backpackLogo from "../../../../public/media/images/dashboard/backpack-logo.png";
+import binanceLogo from "../../../../public/media/images/dashboard/binance-logo.png";
+import bybitLogo from "../../../../public/media/images/dashboard/bybit-logo.png";
+import coinwLogo from "../../../../public/media/images/dashboard/coinw-logo.png";
+import hyperliquidLogo2 from "../../../../public/media/images/dashboard/hyperliquid-logo.png";
 import telegramPreview from "../../../../public/media/images/dashboard/telegram-preview.png";
 import telegramUserIcon from "../../../../public/media/images/dashboard/telegram-user-icon.png";
 
@@ -179,6 +192,18 @@ const dashboard = {
   gemachCopyInfo4,
   gemachCopyInfo5,
   referralAsset,
+  ascendexLogo,
+  buyOrderbook,
+  sellOrderbook,
+  allOrderbook,
+  backpackLogo,
+  binanceLogo,
+  bybitLogo,
+  coinwLogo,
+  hyperliquidLogo2,
+  ascendexAnimation,
+  noDeposits,
+  noOpenOrders,
   gemachPreview,
   youtube,
   telegramPreview,

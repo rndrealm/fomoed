@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
-import { widgetPropsDefaults } from "@/lib/static"; 
+import { widgetPropsDefaults } from "@/lib/static";
 
 const createDefaultWidgets = () => {
   const priceChartSlug = "new-price-history";
@@ -30,7 +30,8 @@ const createDefaultWidgets = () => {
       props: priceChartDefaults,
       meta: {
         i: `${priceChartId}${widgetIdJoin}${priceChartSlug}`,
-        x: 0, y: 0, 
+        x: 0,
+        y: 0,
         ...priceChartDefaults.meta,
       },
     },
@@ -40,7 +41,8 @@ const createDefaultWidgets = () => {
       props: tradingEconomicDefaults,
       meta: {
         i: `${tradingEconomicId}${widgetIdJoin}${tradingEconomicSlug}`,
-        x: 0, y: 4, 
+        x: 0,
+        y: 4,
         ...tradingEconomicDefaults.meta,
       },
     },
@@ -50,7 +52,8 @@ const createDefaultWidgets = () => {
       props: liquidationHeatMapDefaults,
       meta: {
         i: `${liquidationHeatMapId}${widgetIdJoin}${liquidationHeatMapSlug}`,
-        x: 8, y: 0,
+        x: 8,
+        y: 0,
         ...liquidationHeatMapDefaults.meta,
       },
     },
@@ -60,7 +63,8 @@ const createDefaultWidgets = () => {
       props: cfgiDefaults,
       meta: {
         i: `${cfgiId}${widgetIdJoin}${cfgiSlug}`,
-        x: 8, y: 4, 
+        x: 8,
+        y: 4,
         ...cfgiDefaults.meta,
       },
     },
@@ -70,10 +74,11 @@ const createDefaultWidgets = () => {
       props: newsDefaults,
       meta: {
         i: `${newsId}${widgetIdJoin}${newsSlug}`,
-        x: 12, y: 4, 
+        x: 12,
+        y: 4,
         ...newsDefaults.meta,
       },
-    },    
+    },
   ];
 };
 
@@ -104,7 +109,7 @@ export const getDashboardDataClient = async (userId: string) => {
   let returnSettings;
   const { data: settingsData, error: settingsError } = await supabase
     .from("dashboard_settings")
-    .select("id, user_id, auto_save, active_tab_id, favorite_widgets, favorite_tokens")
+    .select("id, user_id, auto_save, active_tab_id, favorite_widgets, favorite_tokens, exchange")
     .eq("user_id", userId);
 
   if (settingsError) {
@@ -140,7 +145,7 @@ export const getDashboardDataClient = async (userId: string) => {
     throw new Error(tabsError.message);
   }
 
-  if (user && !user.onboarded && layoutData && layoutData.length===0 && existingTabs.length === 0) {
+  if (user && !user.onboarded && layoutData && layoutData.length === 0 && existingTabs.length === 0) {
     const { data: newLayout, error: newLayoutError } = await supabase
       .from("layouts")
       .insert({ user_id: userId, name: "Default Dashboard" })
@@ -155,7 +160,7 @@ export const getDashboardDataClient = async (userId: string) => {
     const widgetsToInsert = createDefaultWidgets().map((widget) => ({
       ...widget,
       layout_id: newLayout.id,
-      user_id: userId
+      user_id: userId,
     }));
 
     const { data: newWidgetsFromDb, error: newWidgetsError } = await supabase
