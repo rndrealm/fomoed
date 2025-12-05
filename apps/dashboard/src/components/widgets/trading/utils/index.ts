@@ -1,5 +1,6 @@
 import * as hl from "@nktkas/hyperliquid";
 import { formatUnits } from "viem";
+import { MAX_PRICE_SF } from "./constants";
 
 /**
  * Transfer funds between Spot and Perpetual accounts on Hyperliquid
@@ -194,4 +195,61 @@ export const getFromAndToToken = (displayName?: string | null) => {
 export function formatToken(value: bigint | undefined, decimals: number | undefined) {
   if (value === undefined || decimals === undefined) return "0";
   return formatUnits(value, decimals); // returns a string
+}
+
+/**
+ * Formats a number to respect both significant figures and decimal places limits
+ * @param num - The number to format
+ * @param maxDecimalPlaces - Maximum number of decimal places allowed
+ * @returns The formatted number as a string, or the original number if it doesn't exceed limits
+ *
+ * @example
+ * formatNumber(123.456789, 2) // "123.46" (limited by maxDecimalPlaces)
+ * formatNumber(0.0012345678, 4) // "0.0012346" (limited by 5 SF)
+ * formatNumber(123456789, 2) // "123460000" (limited by 5 SF)
+ * formatNumber(123.45, 4) // "123.45" (unchanged, within limits)
+ */
+export function formatHlPrice(num: number, maxDecimalPlaces: number): string {
+  if (!isFinite(num)) return String(num);
+
+  // Handle zero
+  if (num === 0) return "0";
+
+  // Apply 5 significant figures limit
+  const withSigFigs = Number(num.toPrecision(MAX_PRICE_SF));
+
+  // Apply decimal places limit
+  const withMaxDP = Number(withSigFigs.toFixed(maxDecimalPlaces));
+
+  // If the formatted version is the same as original, return original
+  if (withMaxDP === num) return num.toString();
+
+  return withMaxDP.toString();
+}
+
+/**
+ * Truncates a size/quantity to the specified number of decimal places (szDecimals)
+ * This ensures the value is valid according to Hyperliquid's size decimal requirements
+ * Note: This truncates (floors) rather than rounds
+ *
+ * @param size - The size/quantity to truncate
+ * @param szDecimals - The number of decimal places allowed for this asset
+ * @returns The truncated size as a string
+ *
+ * @example
+ * formatHlSize(1.0001, 3) // "1" (truncated to 3 decimals, no trailing zeros)
+ * formatHlSize(100.999, 2) // "100.99" (truncated, not rounded to 101)
+ * formatHlSize(10.251, 2) // "10.25" (truncated to 2 decimals)
+ * formatHlSize(5.6789, 1) // "5.6" (truncated, not rounded to 5.7)
+ * formatHlSize(100, 2) // "100" (no decimal needed)
+ */
+export function formatHlSize(size: number, szDecimals: number): string {
+  if (!isFinite(size)) return String(size);
+
+  // Truncate to the specified decimal places by multiplying, flooring, then dividing
+  const multiplier = Math.pow(10, szDecimals);
+  const truncated = Math.floor(size * multiplier) / multiplier;
+
+  // Return as string without forcing trailing zeros
+  return truncated.toString();
 }

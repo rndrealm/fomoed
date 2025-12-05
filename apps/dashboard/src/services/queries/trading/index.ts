@@ -58,9 +58,9 @@ export const useUpdateLeveraggeTrade = (onSuccessCallback: () => void, authToken
       onSuccessCallback();
       toast.success("Leverage updated successfully");
     },
-    onError: (data) => {
-      console.log("execute error: ", data);
-      toast.error("Leverage update error");
+    onError: (error: any) => {
+      console.log("execute error: ", error);
+      toast.error(error.response.data.error.message || "Leverage update error");
     },
   });
 };
