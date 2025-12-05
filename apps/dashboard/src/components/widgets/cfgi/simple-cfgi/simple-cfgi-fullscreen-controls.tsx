@@ -16,6 +16,7 @@ interface IProps {
   periodOptions: { label: string; value: string }[];
   periodValue?: string;
   setPeriodValue: (period: string) => void;
+  source?: string
 }
 
 export function SimpleCfgiFullscreenControls(props: IProps) {
@@ -28,6 +29,7 @@ export function SimpleCfgiFullscreenControls(props: IProps) {
     periodOptions,
     periodValue,
     setPeriodValue,
+    source,
   } = props;
 
   const overlayRoot = getOverlayRoot();
@@ -44,19 +46,23 @@ export function SimpleCfgiFullscreenControls(props: IProps) {
               exit={{ opacity: 0 }}
               className="pointer-events-auto fixed top-0 right-0 left-0 z-[60] flex items-center justify-between gap-4 bg-black/20 px-4 backdrop-blur-2xl py-2"
             >
-              <div className="flex flex-wrap items-center gap-2">
-                <CoinDropdown
-                  options={coinOptions}
-                  value={tokenValue}
-                  setValue={setTokenValue}
-                  title="Fear and Greed Chart"
-                />
-                <PeriodDropdown
-                  options={periodOptions}
-                  value={periodValue as string}
-                  setValue={setPeriodValue}
-                />
-              </div>
+              {(source && source !== 'coin-stats') ? (
+                <div className="flex flex-wrap items-center gap-2">
+                  <CoinDropdown
+                    options={coinOptions}
+                    value={tokenValue}
+                    setValue={setTokenValue}
+                    title="Fear and Greed Chart"
+                  />
+                  <PeriodDropdown
+                    options={periodOptions}
+                    value={periodValue as string}
+                    setValue={setPeriodValue}
+                  />
+                </div>
+              ) : (
+                <p className="text-base font-medium text-white">Overall Crypto Market Fear and Greed</p>
+              )}
               <div className="flex items-center">
                 <button
                   onClick={toggleFullscreen}

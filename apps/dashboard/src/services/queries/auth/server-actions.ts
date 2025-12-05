@@ -8,6 +8,7 @@ import { customAlphabet } from "nanoid";
 export async function signUpNewUser(
   body: RegisterUserPayload,
   fromUrl?: string | null,
+  nextUrl?: string | null,
 ): Promise<LoginUserFunctionResponse> {
   const supabase = await createSupabaseServiceClient();
 
@@ -23,9 +24,11 @@ export async function signUpNewUser(
   const confirmUrlParams = new URLSearchParams();
   if (fromUrl) confirmUrlParams.set("fromUrl", fromUrl);
   if (referralCode) confirmUrlParams.set("referralCode", referralCode);
+  if (nextUrl) confirmUrlParams.set("nextUrl", nextUrl);
 
   const emailRedirectTo =
     confirmUrlParams.toString().length > 0 ? `${baseConfirmUrl}&${confirmUrlParams.toString()}` : baseConfirmUrl;
+
   const authRes = await supabase.auth.signUp({
     email,
     password,

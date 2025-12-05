@@ -4,7 +4,13 @@ import { Close } from "@/components/icons/icons";
 import { AnimatePresence, motion } from "motion/react";
 import { modalSlide } from "@/lib/utils";
 import { Progress } from "./progress";
-import { useFetchFearAndGreed, useReadCoinList, useReadFearAndGridFromDb } from "@/services/queries/charts";
+// COMMENTED OUT: Old CFGI.io import (replaced with Alternative.me)
+// import { useFetchFearAndGreed, useReadCoinList, useReadFearAndGridFromDb } from "@/services/queries/charts";
+import {
+  useFetchAlternativeMeFearAndGreed,
+  useReadCoinList,
+  // useReadFearAndGridFromDb,
+} from "@/services/queries/charts";
 import CoinStatsTokenDropdown from "../../shared/coin-stats-token-dropdown";
 import { tokenArray } from "./tokenArray";
 import { LayoutType, updateWidgetPropsAtom } from "@/lib/atoms/layoutAtom";
@@ -28,14 +34,22 @@ export default function CFGI(props: IProps) {
     throw new Error("CoinStats Error: " + coinListError.message);
   }
 
-  const activeCoinSlug = useMemo(() => {
-    return coinData?.find((coin) => coin.symbol === widget.props?.token)?.slug;
-  }, [widget.props?.token, coinData]);
+  // COMMENTED OUT: Old CFGI.io implementation (replaced with Alternative.me)
+  // const activeCoinSlug = useMemo(() => {
+  //   return coinData?.find((coin) => coin.symbol === widget.props?.token)?.slug;
+  // }, [widget.props?.token, coinData]);
+  //
+  // const { data = [], error: CFGIError } = useFetchFearAndGreed(widget?.props?.token, activeCoinSlug);
+  //
+  // if (CFGIError) {
+  //   throw new Error("CoinStats Error: " + CFGIError.message);
+  // }
 
-  const { data = [], error: CFGIError } = useFetchFearAndGreed(widget?.props?.token, activeCoinSlug);
+  // NEW: Using Alternative.me (Free, Bitcoin-focused Fear & Greed Index)
+  const { data = [], error: CFGIError } = useFetchAlternativeMeFearAndGreed();
 
   if (CFGIError) {
-    throw new Error("CoinStats Error: " + CFGIError.message);
+    throw new Error("Alternative.me Error: " + CFGIError.message);
   }
 
   // const { data: testt } = useReadFearAndGridFromDb(widget?.props?.token);
@@ -52,7 +66,7 @@ export default function CFGI(props: IProps) {
       }}
       className="gap-3"
     >
-      <div className="flex justify-center">
+      {/* <div className="flex justify-center">
         <CoinStatsTokenDropdown
           options={tokenArray}
           setValue={(coin) => {
@@ -68,12 +82,18 @@ export default function CFGI(props: IProps) {
           value={widget?.props?.token}
           align="center"
         />
+      </div> */}
+      <div className="flex justify-center">
+        <div className="text-xl font-semibold text-white text-center">
+          <p className="">Overall Crypto Market</p>
+          <p className="">Fear and Greed</p>
+        </div>
       </div>
-
       <div className="flex flex-1 flex-col items-center justify-center gap-0">
         <div className="flex flex-col gap-4">
           <Progress
-            progress={data[data?.length - 1]?.cfgi}
+            progress={data[0]?.cfgi}
+            // progress={data[data?.length - 1]?.cfgi}
             // progress={20 * 1}
             // progress={20 * 2}
             // progress={20 * 3}
@@ -82,7 +102,8 @@ export default function CFGI(props: IProps) {
           />
         </div>
         <p className="text-base leading-[1.35] text-[#878787]">
-          <span className="text-[white]">{data[0]?.cfgi || 0}</span> Avg. yesterday
+          <span className="text-[white]">{data[data?.length - 1]?.cfgi || 0}</span> Avg. yesterday
+          {/* <span className="text-[white]">{data[0]?.cfgi || 0}</span> Avg. yesterday */}
         </p>
       </div>
 
@@ -143,8 +164,8 @@ export default function CFGI(props: IProps) {
                   <div className="flex flex-col">
                     <p className="text-xs font-semibold text-[#696969] text-[1.25]">
                       We use data from{" "}
-                      <a href="https://cfgi.io/" target="_blank">
-                        CFGI.io
+                      <a href="https://alternative.me/crypto/fear-and-greed-index/" target="_blank">
+                        Alternative.me
                       </a>
                     </p>
                   </div>

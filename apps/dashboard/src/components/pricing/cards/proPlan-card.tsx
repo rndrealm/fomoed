@@ -9,6 +9,10 @@ import useSubscription from "@/hooks/subscription";
 import { PricingCardButton } from "./pricing-card-common";
 import { RenderIf } from "@/components/shared";
 
+const formatDiscount = (price: string, discount: number) => {
+  return `$${(Number(price.slice(1)) * discount).toFixed(2)}`;
+};
+
 const ProPlanCard = ({
   title,
   prices,
@@ -109,7 +113,12 @@ const ProPlanCard = ({
             </div>
 
             <div className="flex flex-col gap-6">
-              <h2 className="text-base">{title}</h2>
+              <h2 className="text-base">
+                {title}
+                <span className="ml-2 bg-[#e4350f] rounded-full text-white font-medium text-sm px-2 py-1">
+                  {switchActive ? "50" : "30"}% off
+                </span>
+              </h2>
               <div className="flex flex-col gap-4">
                 {/* <div className='flex flex-row gap-2'>
                                     <span className='inline-block text-base text-[#878787]'>$</span>
@@ -119,22 +128,36 @@ const ProPlanCard = ({
                                     </h2>
                                 </div> */}
 
-                <div className="overflow-hidden">
+                <div className="overflow-hidden flex items-center gap-2">
                   <AnimatePresence mode="wait">
-                    <motion.h2
-                      key={switchActive ? prices[1] : prices[0]}
-                      variants={variants}
-                      initial="hidden"
-                      animate="visible"
-                      exit="exit"
-                      className="text-4xl font-semibold"
-                    >
-                      {switchActive ? prices[1] : prices[0]}
-                    </motion.h2>
+                    <>
+                      <motion.h2
+                        key={switchActive ? prices[1] : prices[0]}
+                        variants={variants}
+                        initial="hidden"
+                        animate="visible"
+                        exit="exit"
+                        className="!text-[2rem] font-semibold line-through !opacity-[0.8]"
+                      >
+                        {switchActive ? prices[1] : prices[0]}
+                      </motion.h2>
+
+                      <motion.h2
+                        key={switchActive ? formatDiscount(prices[1], 0.5) : formatDiscount(prices[0], 0.7)}
+                        variants={variants}
+                        initial="hidden"
+                        animate="visible"
+                        exit="exit"
+                        className="!text-[2rem] font-semibold "
+                      >
+                        {switchActive ? formatDiscount(prices[1], 0.5) : formatDiscount(prices[0], 0.7)}
+                      </motion.h2>
+                    </>
                   </AnimatePresence>
                 </div>
 
-                <p className="text-base">{description}</p>
+                <p className="text-base">$20.99/month or $143.95/year</p>
+                {/* <p className="text-base">{description}</p> */}
               </div>
             </div>
 

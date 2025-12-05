@@ -46,7 +46,7 @@ export default function SimpleCfgiWidget(props: IProps) {
     return coinData?.find((coin) => coin.symbol === widget.props?.token)?.slug;
   }, [widget.props?.token, coinData]);
 
-  const { data, refetch, isFetching, error } = useReadCfgiData(
+  const { data, refetch, isFetching, error, source } = useReadCfgiData(
     widget.props?.token,
     widget.props?.period,
     activeCoinSlug,
@@ -112,18 +112,24 @@ export default function SimpleCfgiWidget(props: IProps) {
         {/* Controls */}
         <div className={cn("py-2", { "opacity-0": isFullscreen, "opacity-100": !isFullscreen })}>
           <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
-            <CoinDropdown
-              options={coinData || []}
-              value={widget.props?.token}
-              setValue={(coin: string) => handleSetProp("token", coin)}
-              title=""
-            />
-            <div className="flex flex-wrap items-center justify-start gap-2 sm:justify-end">
-              <PeriodDropdown
-                options={CfgiPeriods}
-                value={widget.props?.period}
-                setValue={(value: string) => handleSetProp("period", value)}
+            {(source && source !== 'coin-stats') ? (
+              <CoinDropdown
+                options={coinData || []}
+                value={widget.props?.token}
+                setValue={(coin: string) => handleSetProp("token", coin)}
+                title=""
               />
+            ) : (
+              <p className="text-base font-medium text-white">Overall Crypto Market Fear and Greed</p>
+            )}
+            <div className="flex flex-wrap items-center justify-start gap-2 sm:justify-end">
+              {source && source !== 'coin-stats' && (
+                <PeriodDropdown
+                  options={CfgiPeriods}
+                  value={widget.props?.period}
+                  setValue={(value: string) => handleSetProp("period", value)}
+                />
+              )}
               <CameraAndRefresh
                 isFetching={isFetching}
                 chartRef={chartRef}
@@ -216,6 +222,7 @@ export default function SimpleCfgiWidget(props: IProps) {
         periodOptions={CfgiPeriods}
         periodValue={widget.props?.period}
         setPeriodValue={(period) => handleSetProp("period", period)}
+        source={source}
       />
     </div>
   );

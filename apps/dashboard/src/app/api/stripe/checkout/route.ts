@@ -12,7 +12,7 @@ export interface CheckoutResponse {
 }
 
 export async function POST(request: NextRequest) {
-  const stripe = getStripe()
+  const stripe = getStripe();
   const payload = await request.json();
   const priceLookupKey = payload.priceLookupKey as PriceLookupKey;
 
@@ -55,12 +55,12 @@ export async function POST(request: NextRequest) {
     customerId: customer.id,
     priceLookupKey,
     returnUrl,
-    canHaveFreeTrial: !user.has_had_free_trial,
+    canHaveFreeTrial: !user.has_had_free_trial && !priceLookupKey.includes("pro"),
     metadata: {
       user_id: user.user_id,
       referral_id: referralId,
-      price_lookup_key: priceLookupKey
-    }
+      price_lookup_key: priceLookupKey,
+    },
   });
 
   if (error) {

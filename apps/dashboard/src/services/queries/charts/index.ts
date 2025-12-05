@@ -32,18 +32,22 @@ import { fetchFearAndGreed } from "./actions";
 
 export const useReadCfgiData = (token?: string, period?: string, token_slug?: string) => {
   const hash = ["cfgi", token, period, token_slug];
-  const { data, isPending, error, isSuccess, refetch, isLoading, isFetching } = useQuery<CfgiDataResponse[]>({
+  const { data: responseData, isPending, error, isSuccess, refetch, isLoading, isFetching } = useQuery<{
+    data: CfgiDataResponse[];
+    source: string;
+  }>({
     queryKey: hash,
     queryFn: async () => {
       const response = await api.get({
         url: `/api/cfgi?token=${token}&period=${period}&values=1200&token_slug=${token_slug}`,
       });
-      return response.data;
+      return response; // Return full response including source
     },
     enabled: !!token && !!period && !!token_slug,
   });
   return {
-    data,
+    data: responseData?.data,
+    source: responseData?.source,
     isPending,
     isSuccess,
     error,
@@ -483,26 +487,79 @@ export const useFetchCoinStatsSingleToken = (token = "") => {
   return res;
 };
 
-export const useFetchFearAndGreed = (token: string, token_slug?: string) => {
-  const hash = ["fetch-fear-and-greed", token];
+// COMMENTED OUT: Old CFGI.io hook (too expensive, replaced with Alternative.me)
+// Kept for reference in case we need to switch back
+// export const useFetchFearAndGreed = (token: string, token_slug?: string) => {
+//   const hash = ["fetch-fear-and-greed", token];
+//
+//   const { data, isPending, error, isSuccess, isFetching, refetch } = useQuery<CfgiDataResponse[]>({
+//     queryKey: hash,
+//     queryFn: async () => {
+//       const response = await api.get({
+//         url: `/api/cfgi?token=${token}&period=4&values=1&token_slug=${token_slug}`,
+//       });
+//
+//       const message =
+//         response?.error || response?.message || response?.data?.error || "Failed to fetch fear & greed data";
+//
+//       if (!response || response.error) {
+//         throw new Error(message);
+//       }
+//
+//       return response.data;
+//     },
+//     enabled: !!token && !!token_slug,
+//   });
+//
+//   // Normalize error to ensure it always has a message property
+//   const normalizedError = error
+//     ? new Error(
+//         (error as any)?.message ||
+//           (error as any)?.msg ||
+//           (error as any)?.error ||
+//           JSON.stringify(error) ||
+//           "Failed to fetch fear & greed data"
+//       )
+//     : null;
+//
+//   return {
+//     data,
+//     isPending,
+//     error: normalizedError,
+//     isSuccess,
+//     isFetching,
+//     refetch,
+//   };
+// };
 
-  const { data, isPending, error, isSuccess, isFetching, refetch } = useQuery<CfgiDataResponse[]>({
+// NEW: Alternative.me Fear & Greed Index API (Free, Bitcoin-focused)
+// Replaces CFGI.io to reduce costs
+export const useFetchAlternativeMeFearAndGreed = () => {
+  const hash = ["fetch-alternative-me-fear-and-greed"];
+
+  const { data, isPending, error, isSuccess, isFetching, refetch } = useQuery({
     queryKey: hash,
     queryFn: async () => {
-      const response = await api.get({
-        url: `/api/cfgi?token=${token}&period=4&values=1&token_slug=${token_slug}`,
-      });
+      try {
+        const response = await axios.get('https://api.alternative.me/fng/?limit=2');
 
-      const message =
-        response?.error || response?.message || response?.data?.error || "Failed to fetch fear & greed data";
+        // Alternative.me response format: { data: [{ value: "45", value_classification: "Fear", timestamp: "1638360000" }] }
+        // Map ALL items to CFGI format for compatibility
+        return response.data.data.map((item: any) => ({
+          cfgi: parseInt(item.value),
+          date: new Date(parseInt(item.timestamp) * 1000).toISOString(),
+          value_classification: item.value_classification,
+        }));
+      } catch (err: any) {
+        const message =
+          err?.response?.data?.error ||
+          err?.response?.data?.message ||
+          err?.message ||
+          "Failed to fetch fear & greed data from Alternative.me";
 
-      if (!response || response.error) {
         throw new Error(message);
       }
-
-      return response.data;
     },
-    enabled: !!token && !!token_slug,
   });
 
   return {

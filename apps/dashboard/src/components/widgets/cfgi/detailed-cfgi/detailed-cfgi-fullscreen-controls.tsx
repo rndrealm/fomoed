@@ -20,6 +20,7 @@ interface IProps {
   periodOptions: { label: string; value: string }[];
   periodValue?: string;
   setPeriodValue: (period: string) => void;
+  source?: string
 }
 
 export function DetailedCfgiFullscreenControls(props: IProps) {
@@ -34,6 +35,7 @@ export function DetailedCfgiFullscreenControls(props: IProps) {
     periodOptions,
     periodValue,
     setPeriodValue,
+    source,
   } = props;
 
   const overlayRoot = getOverlayRoot();
@@ -61,11 +63,13 @@ export function DetailedCfgiFullscreenControls(props: IProps) {
                   value={tabValue || "both"}
                   setValue={setTabValue} 
                 />
-                <PeriodDropdown
-                  options={periodOptions}
-                  value={periodValue as string}
-                  setValue={setPeriodValue} 
-                />
+                {source && source !== 'coin-stats' && (
+                  <PeriodDropdown
+                    options={periodOptions}
+                    value={periodValue as string}
+                    setValue={setPeriodValue} 
+                  />
+                )}
               </div>
               <div className="flex items-center">
                 <button

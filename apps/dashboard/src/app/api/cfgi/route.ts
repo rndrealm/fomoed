@@ -96,31 +96,51 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Missing required query parameters" }, { status: 400 });
     }
 
-    const response = await fetch(
-      `https://cfgi.io/api/api_request_v2.php?api_key=${apiKey}&token=${token}&period=${period}&values=${values}`,
-      // {
-      //   cache: "no-store",
-      // }
-    );
-    const resText = await response.text();
+    let cfgiData = null;
 
-    if (resText.length) {
-      const data = JSON.parse(resText) as CfgiDataResponse[];
+    // Try CFGI.io first (nested try-catch to handle failures gracefully)
+    try {
+      const response = await fetch(
+        `https://cfgi.io/api/api_request_v2.php?api_key=${apiKey}&token=${token}&period=${period}&values=${values}`
+      );
+      const resText = await response.text();
 
-      // Format the response data, sorting by date and filtering out invalid entries
-      const formatData = {
-        data: sortBy(parseCfgiData(data, token!), ["date"]),
-        source: "cfgi.io",
-      };
+      // Only use CFGI data if response has content
+      if (resText.length > 0) {
+        const data = JSON.parse(resText) as CfgiDataResponse[];
+        const formatData = {
+          data: sortBy(parseCfgiData(data, token), ["date"]),
+          source: "cfgi.io",
+        };
 
-      return NextResponse.json({ data: formatData.data });
-    } else {
-      const fallBackData = await fetchFallbackData(token_slug, token, period);
-      return NextResponse.json({ data: fallBackData.data });
+        if (formatData.data.length > 0) {
+          cfgiData = formatData;
+        }
+      }
+    } catch (cfgiError) {
+      // CFGI.io failed, will use fallback
     }
+
+    // If CFGI.io succeeded, return its data
+    if (cfgiData) {
+      console.log('📊 Data source: CFGI.io');
+      return NextResponse.json({
+        data: cfgiData.data,
+        source: cfgiData.source
+      });
+    }
+
+    // SINGLE FALLBACK LOGIC: Use CoinStats if CFGI.io failed or returned empty
+    const fallBackData = await fetchFallbackData(token_slug, token, period);
+    console.log('📊 Data source: CoinStats');
+    return NextResponse.json({
+      data: fallBackData.data,
+      source: fallBackData.source
+    });
+
   } catch (error) {
-    // Handle errors gracefully
-    console.log("Error fetching CFGI data:", error);
+    // Final catch for unexpected errors (parameter issues, fallback failures, etc.)
+    console.log("❌ Unexpected error:", error);
     return NextResponse.json({ error: "Failed to fetch CFGI data" }, { status: 500 });
   }
 }

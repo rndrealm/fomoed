@@ -44,13 +44,17 @@ export function LoginForm() {
       await supabase.auth.refreshSession();
 
       if (retUser.success) {
+        console.log(nextUrl);
+        console.log(fromUrl);
         // Redirect to next URL if available, otherwise to dashboard
         if (fromUrl === "marketing") {
           const marketingUrl = process.env.NEXT_PUBLIC_MARKETING_APP_URL;
           window.location.href = marketingUrl || "https://marketing.fomoed.io";
-        } else {
+        } else if (nextUrl && nextUrl !== "/auth/login") {
           const redirectUrl = nextUrl && nextUrl !== "/auth/login" ? nextUrl : AppRoutes.dashboard.path;
-          router.push(redirectUrl);
+          router.push(`/${redirectUrl}`);
+        } else {
+          router.push(AppRoutes.dashboard.path);
         }
       } else {
         toast(retUser.message || "Something went wrong!");
@@ -146,7 +150,11 @@ export function LoginForm() {
           <FormBottomDivider />
         </div>
         <FormBottomLink
-          href={fromUrl ? `${AppRoutes.auth.path}?from=${fromUrl}` : AppRoutes.auth.path}
+          href={
+            fromUrl || nextUrl
+              ? `${AppRoutes.auth.path}?${fromUrl ? `from=${fromUrl}` : ""}${fromUrl && nextUrl ? "&" : ""}${nextUrl ? `next=${nextUrl}` : ""}`
+              : AppRoutes.auth.path
+          }
           infoText="Don't have an account yet?"
           linkText="Sign Up"
         />
