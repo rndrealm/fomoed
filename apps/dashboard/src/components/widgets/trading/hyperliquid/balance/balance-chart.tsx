@@ -76,6 +76,21 @@ export default function BalanceChart({ userAddress }: BalanceChartProps) {
     }));
   }, [portfolioData, timeframe]);
 
+  const { minBalance, maxBalance } = useMemo(() => {
+    if (chartData.length === 0) return { minBalance: 0, maxBalance: 0 };
+    
+    const values = chartData.map(d => d.balance);
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const range = max - min;
+    const padding = range * 0.1; 
+    
+    return {
+      minBalance: min - padding,
+      maxBalance: max + padding,
+    };
+  }, [chartData]);
+
   const currentBalance = chartData.length > 0 ? chartData[chartData.length - 1]?.balance : 0;
   const previousBalance = chartData.length > 0 ? chartData[0]?.balance : 0;
   const pnlChange = currentBalance - previousBalance;
@@ -117,7 +132,6 @@ export default function BalanceChart({ userAddress }: BalanceChartProps) {
     const ctx = chartRef.current.getContext("2d");
     if (!ctx) return;
 
-    const balanceValue = chartData[0]?.balance || 0;
     const labels = chartData.map((d: ChartDataPoint) => formatXAxis(d.timestamp, timeframe));
     const dataValues = chartData.map((d: ChartDataPoint) => d.balance);
 
@@ -128,8 +142,8 @@ export default function BalanceChart({ userAddress }: BalanceChartProps) {
       chart.data.datasets[0].borderColor = lineColor;
       chart.data.datasets[0].backgroundColor = lineColor;      
       if (chart.options.scales?.y) {
-        chart.options.scales.y.min = balanceValue * 0.95;
-        chart.options.scales.y.max = balanceValue * 1.05;
+        chart.options.scales.y.min = minBalance;
+        chart.options.scales.y.max = maxBalance;
       }
       
       chart.update("none");
@@ -205,8 +219,8 @@ export default function BalanceChart({ userAddress }: BalanceChartProps) {
           },
           y: {
             display: true,
-            min: balanceValue * 0.95,
-            max: balanceValue * 1.05,
+            min: minBalance,
+            max: maxBalance,
             border: { display: false },
             grid: { color: "rgba(156, 163, 175, 0.1)" },
             ticks: {
@@ -236,7 +250,7 @@ export default function BalanceChart({ userAddress }: BalanceChartProps) {
         chartInstanceRef.current = null;
       }
     };
-  }, [chartData, timeframe, lineColor]);
+  }, [chartData, timeframe, lineColor, minBalance, maxBalance]);
 
   if (isLoading) {
     return (
