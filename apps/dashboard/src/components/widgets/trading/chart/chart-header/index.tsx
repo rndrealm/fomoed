@@ -8,10 +8,32 @@ import Image from "next/image";
 import { Stats } from "./stats";
 import { TokenSelect } from "../../hyperliquid/modals/token-select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 export const getCoinIconUrl = (symbol = "BTC") => {
   return `https://app.hyperliquid.xyz/coins/${symbol}.svg`;
 };
+
+interface ITag {
+  isSpot?: boolean;
+}
+
+function Tag(props: ITag) {
+  const { isSpot = false } = props;
+
+  return (
+    <div
+      className={cn(
+        "w-[47px] h-5 px-2 py-0.5 bg-[#2C233A] border border-[#3A2C4F] rounded flex items-center justify-center",
+        isSpot && "bg-[#2E241F]",
+      )}
+    >
+      <span className={cn("text-[11px] font-medium text-[#C1A8FF]", isSpot && "text-[#C97038]")}>
+        {isSpot ? "Spot" : "Perps"}
+      </span>
+    </div>
+  );
+}
 
 export default function ChartHeader() {
   const [showSelectTokenModal, setShowSelectTokenModal] = useAtom(showSelectTokenModalAtom);
@@ -55,9 +77,7 @@ export default function ChartHeader() {
             </PopoverContent>
           </Popover>
 
-          <div className="w-[47px] h-5 px-2 py-0.5 bg-[#2C233A] border border-[#3A2C4F] rounded flex items-center justify-center">
-            <span className="text-[11px] font-medium text-[#C1A8FF]">Perps</span>
-          </div>
+          <Tag isSpot={selectedToken?.isSpot} />
         </div>
 
         <Stats />
