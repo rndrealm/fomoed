@@ -11,10 +11,7 @@ import { formatNumberToDecimalPoints } from "../../../chart/chart-header/stats";
 import { useReadHyperLiquidTokens } from "@/services/queries/hyperliquid";
 import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
 import { useSetAtom } from "jotai";
-
-interface OpenOrdersTabProps {
-  userAddress: string;
-}
+import { useAccount } from "wagmi";
 
 function getOrderAction(coin: string, side: string, reduceOnly: boolean) {
   const isSpot = coin.includes("/");
@@ -34,10 +31,9 @@ function getOrderAction(coin: string, side: string, reduceOnly: boolean) {
   return "";
 }
 
-const userAddress = "0x02eC6F09CF972caEBd171314AE1C5c1B30919a57";
-
 export default function OpenOrdersTab() {
-  const { isConnected, openOrders } = useOpenOrders(userAddress);
+  const { address } = useAccount();
+  const { isConnected, openOrders } = useOpenOrders(address);
   const { allMids, isConnected: midsConnected } = useAllMids();
 
   const { data: tokensData } = useReadHyperLiquidTokens();
@@ -102,7 +98,7 @@ export default function OpenOrdersTab() {
                   const size = parseFloat(item?.sz || "0");
 
                   const price = parseFloat(item?.limitPx || "0");
-                  const formattedPrice = formatNumberToDecimalPoints(price, price < 1 ? undefined : 1);
+                  const formattedPrice = formatNumberToDecimalPoints(price);
 
                   const orderValue = price * size;
                   const formattedOrderValue = formatNumberToDecimalPoints(orderValue, 2);
