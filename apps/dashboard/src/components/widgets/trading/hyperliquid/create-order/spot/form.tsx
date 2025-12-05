@@ -11,6 +11,9 @@ import { OrderType } from "@/services/queries/trading/types";
 import { AppSelect, SelectOption } from "@/components/ui/app-select";
 import { InputWithSelect } from "@/components/shared/input-with-select";
 import OrderCheckLayout from "../order-check-layout";
+import { PerpUniverse, SpotsUniverse } from "@/services/queries/hyperliquid/types";
+import { SPOT_MAX_DECIMALS } from "../../../utils/constants";
+import { formatHlPrice, formatHlSize } from "../../../utils";
 
 interface IOrderTypeButtonProps {
   isActive: boolean;
@@ -87,6 +90,7 @@ interface FormContentProps {
   orderBy: string;
   setOrderBy: Dispatch<SetStateAction<string>>;
   selectOptions: SelectOption[];
+  selectedToken: PerpUniverse | SpotsUniverse;
 }
 
 export function SpotFormContent(props: FormContentProps) {
@@ -101,16 +105,18 @@ export function SpotFormContent(props: FormContentProps) {
     orderBy,
     setOrderBy,
     selectOptions,
+    selectedToken,
   } = props;
 
   const { values, handleChange, handleBlur, setFieldValue } = useFormikContext<TradingFormInitialValues>();
-
+  const decimals = selectedToken.szDecimals;
+  const maxDecimal = SPOT_MAX_DECIMALS - decimals;
   const multiplier = orderBy === selectOptions[0].value ? Number(marketPrice) : 1;
 
   const handleSliderChange = (value: number[]) => {
     const percentage = value[0];
     const orderValue = (balance * percentage) / multiplier / 100;
-    setFieldValue("quantity", orderValue.toFixed(2));
+    setFieldValue("quantity", formatHlSize(orderValue, orderBy === selectOptions[0].value ? decimals : 2));
   };
 
   const sliderPercentage = Math.round(
@@ -119,7 +125,7 @@ export function SpotFormContent(props: FormContentProps) {
 
   useEffect(() => {
     if (marketPrice || !values.price) {
-      setFieldValue("price", marketPrice);
+      setFieldValue("price", formatHlPrice(Number(marketPrice), maxDecimal));
     }
   }, []);
 
@@ -162,7 +168,10 @@ export function SpotFormContent(props: FormContentProps) {
                 className="h-[24px] w-full border-none outline-none text-[#D7D7D7] !text-[10px] tracking-[-0.4%] leading-[14px] px-1 rounded-sm focus-visible:ring-0 bg-[#222329]"
                 type="number"
                 value={values.price}
-                onChange={handleChange}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  const val = e.target.value;
+                  setFieldValue("price", formatHlPrice(Number(val), maxDecimal));
+                }}
                 onBlur={handleBlur}
                 name="price"
                 rightPlaceholder="USDC"
@@ -191,9 +200,9 @@ export function SpotFormContent(props: FormContentProps) {
                 onChangeSelect={(val) => {
                   if (val === orderBy) return;
                   if (val === selectOptions[0].value) {
-                    setFieldValue("quantity", (Number(values.quantity) * Number(marketPrice)).toFixed(2));
+                    setFieldValue("quantity", formatHlSize(Number(values.quantity) / Number(marketPrice), decimals));
                   } else {
-                    setFieldValue("quantity", (Number(values.quantity) / Number(marketPrice)).toFixed(2));
+                    setFieldValue("quantity", (Number(values.quantity) * Number(marketPrice)).toFixed(2));
                   }
                   setOrderBy(val);
                 }}

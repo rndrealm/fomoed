@@ -22,6 +22,9 @@ import { OrderType } from "@/services/queries/trading/types";
 import { RenderIf } from "@/components/shared";
 import { InputWithSelect } from "@/components/shared/input-with-select";
 import OrderCheckLayout from "../order-check-layout";
+import { formatHlPrice, formatHlSize } from "../../../utils";
+import { PERP_MAX_DECIMALS } from "../../../utils/constants";
+import { PerpUniverse, SpotsUniverse } from "@/services/queries/hyperliquid/types";
 
 interface IOrderTypeButtonProps {
   isActive: boolean;
@@ -103,6 +106,7 @@ interface FormContentProps {
   orderBy: string;
   setOrderBy: Dispatch<SetStateAction<string>>;
   selectOptions: SelectOption[];
+  selectedToken: PerpUniverse | SpotsUniverse;
 }
 
 export function FormContent(props: FormContentProps) {
@@ -122,16 +126,18 @@ export function FormContent(props: FormContentProps) {
     isPending,
     currentPosition,
     marketPrice,
+    selectedToken,
   } = props;
 
   const { values, handleChange, handleBlur, setFieldValue, errors } = useFormikContext<TradingFormInitialValues>();
-  // console.log(errors);
+  const decimals = selectedToken.szDecimals;
+  const maxDecimal = PERP_MAX_DECIMALS - decimals;
   const multiplier = orderBy === selectOptions[0].value ? Number(marketPrice) : 1;
 
   const handleSliderChange = (value: number[]) => {
     const percentage = value[0];
     const orderValue = ((balance * percentage) / multiplier / 100) * leverage;
-    setFieldValue("quantity", orderValue.toFixed(2));
+    setFieldValue("quantity", formatHlSize(orderValue, orderBy === selectOptions[0].value ? decimals : 2));
   };
 
   const sliderPercentage = Math.round(
@@ -157,10 +163,9 @@ export function FormContent(props: FormContentProps) {
 
   useEffect(() => {
     if (marketPrice || !values.price) {
-      setFieldValue("price", marketPrice);
+      setFieldValue("price", formatHlPrice(Number(marketPrice), maxDecimal));
     }
   }, []);
-
   return (
     <>
       <div className="flex flex-col gap-3">
@@ -234,7 +239,10 @@ export function FormContent(props: FormContentProps) {
                 className="h-[24px] w-full border-none outline-none text-[#D7D7D7] !text-[10px] tracking-[-0.4%] leading-[14px] px-1 rounded-sm focus-visible:ring-0 bg-[#222329]"
                 type="number"
                 value={values.price}
-                onChange={handleChange}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  const val = e.target.value;
+                  setFieldValue("price", formatHlPrice(Number(val), maxDecimal));
+                }}
                 onBlur={handleBlur}
                 name="price"
                 rightPlaceholder="USDC"
@@ -253,7 +261,13 @@ export function FormContent(props: FormContentProps) {
                 className="h-[24px] w-full border-none outline-none text-[#D7D7D7] !text-[10px] tracking-[-0.4%] leading-[14px] px-1 rounded-sm focus-visible:ring-0 bg-[#222329]"
                 type="number"
                 value={values.quantity}
-                onChange={handleChange}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  const val = e.target.value;
+                  setFieldValue(
+                    "quantity",
+                    formatHlSize(Number(val), orderBy === selectOptions[0].value ? decimals : 2),
+                  );
+                }}
                 onBlur={handleBlur}
                 name="quantity"
                 placeholder="Quantity"
@@ -263,7 +277,7 @@ export function FormContent(props: FormContentProps) {
                 onChangeSelect={(val) => {
                   if (val === orderBy) return;
                   if (val === selectOptions[0].value) {
-                    setFieldValue("quantity", (Number(values.quantity) / Number(marketPrice)).toFixed(2));
+                    setFieldValue("quantity", formatHlSize(Number(values.quantity) / Number(marketPrice), decimals));
                   } else {
                     setFieldValue("quantity", (Number(values.quantity) * Number(marketPrice)).toFixed(2));
                   }

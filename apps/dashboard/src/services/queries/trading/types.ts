@@ -19,6 +19,7 @@ interface MarketOrderType {
   side: "buy" | "sell";
   size: string;
   type: "market";
+  isSpot: boolean;
   reduceOnly?: boolean | undefined;
 }
 
