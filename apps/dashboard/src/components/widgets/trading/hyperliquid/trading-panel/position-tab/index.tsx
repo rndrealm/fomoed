@@ -15,6 +15,7 @@ import { ModalContainer, RenderIf } from "@/components/shared";
 import { Spinner } from "@/components/ui/shadcn-io/spinner";
 import { getCoinIconUrl } from "../../../chart/chart-header";
 import CloseOrder from "../modals/close-order";
+import { TakeProfit } from "../../modals/take-profit";
 
 const userAddress = "0x02eC6F09CF972caEBd171314AE1C5c1B30919a57";
 
@@ -60,6 +61,8 @@ export default function OpenPositionsTab() {
   const [isMarket, setIsMarket] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<IPositionOrder | null>(null);
   const [isCloseOrderModalOpen, setIsCloseOrderModalOpen] = useState(false);
+  const [isTakeProfitModalOpen, setIsTakeProfitModalOpen] = useState(false);
+
   const toggleModalOrderOpwn = () => {
     setIsCloseOrderModalOpen(!isCloseOrderModalOpen);
   };
@@ -234,7 +237,12 @@ export default function OpenPositionsTab() {
                         <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
                           <div className="flex gap-1 items-center">
                             --/--
-                            <button type="button">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setIsTakeProfitModalOpen(true);
+                              }}
+                            >
                               <Pencil size={15} />
                             </button>
                           </div>
@@ -333,6 +341,21 @@ export default function OpenPositionsTab() {
           <CloseOrder toggleModal={toggleModalOrderOpwn} isMarket={isMarket} order={selectedOrder} />
         </ModalContainer>
       ) : null}
+
+      <RenderIf condition={isTakeProfitModalOpen}>
+        <ModalContainer
+          open={isTakeProfitModalOpen}
+          handleClose={() => {
+            setIsTakeProfitModalOpen(false);
+          }}
+          headerClassName="text-center w-full text-lg font-medium"
+          hideX
+          title="TP/SL for Position"
+          className="!max-w-[462px] px-6 py-8 bg-[#141416] gap-0 scrollbar"
+        >
+          <TakeProfit />
+        </ModalContainer>
+      </RenderIf>
     </>
   );
 }

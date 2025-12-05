@@ -8,6 +8,9 @@ import { Spinner } from "@/components/ui/shadcn-io/spinner";
 import { cn } from "@/lib/utils";
 import { useAllMids } from "../../../chart/trading-view/hyperliquid/use-all-mids";
 import { formatNumberToDecimalPoints } from "../../../chart/chart-header/stats";
+import { useReadHyperLiquidTokens } from "@/services/queries/hyperliquid";
+import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
+import { useSetAtom } from "jotai";
 
 interface OpenOrdersTabProps {
   userAddress: string;
@@ -36,6 +39,9 @@ const userAddress = "0x02eC6F09CF972caEBd171314AE1C5c1B30919a57";
 export default function OpenOrdersTab() {
   const { isConnected, openOrders } = useOpenOrders(userAddress);
   const { allMids, isConnected: midsConnected } = useAllMids();
+
+  const { data: tokensData } = useReadHyperLiquidTokens();
+  const setSelectedToken = useSetAtom(selectedTokenAtom);
 
   const ordersArray = openOrders?.orders || [];
 
@@ -112,9 +118,10 @@ export default function OpenOrdersTab() {
                           className="flex items-center gap-2"
                           type="button"
                           onClick={() => {
-                            // const currentToken = tokensData?.perp?.find((token) => token.name === item?.position?.coin);
-                            // if (!currentToken) return;
-                            // setSelectedToken(currentToken);
+                            const tokensArray = (isSpot ? tokensData?.spot : tokensData?.perp) || [];
+                            const currentToken = tokensArray.find((token) => token.name === item?.coin);
+                            if (!currentToken) return;
+                            setSelectedToken(currentToken);
                           }}
                         >
                           <p className={cn("text-white text-xs font-medium leading-[1.35%]", sideColorClassName)}>
