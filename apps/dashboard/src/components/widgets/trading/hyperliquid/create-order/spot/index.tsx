@@ -82,7 +82,10 @@ export default function CreateSpotOrder(props: IProps) {
       return;
     }
     const converter = orderType === "limit" ? _values.price : marketPrice;
-    const orderSize = (Number(_values.quantity) / Number(converter)).toFixed(2);
+    const toDecimal = selectedToken.szDecimals;
+    const orderSize = (
+      orderBy === selectOptions[0].value ? Number(_values.quantity) : Number(_values.quantity) / Number(converter)
+    ).toFixed(toDecimal);
 
     // Create main order
     const orders: OrderEnum[] = [];
@@ -94,6 +97,7 @@ export default function CreateSpotOrder(props: IProps) {
         side: isLong ? "buy" : "sell",
         size: orderSize,
         reduceOnly: false,
+        isSpot: true,
       });
     } else if (orderType === "limit") {
       orders.push({
@@ -174,6 +178,7 @@ export default function CreateSpotOrder(props: IProps) {
                     selectOptions={selectOptions}
                     orderBy={orderBy}
                     setOrderBy={setOrderBy}
+                    selectedToken={selectedToken}
                   />
                   <TransferButtons toPerp={false} />
                 </div>

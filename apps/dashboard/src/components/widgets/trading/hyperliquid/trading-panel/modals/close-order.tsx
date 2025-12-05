@@ -14,6 +14,8 @@ import { useAccount } from "wagmi";
 import { OrderEnum } from "@/services/queries/trading/types";
 import { useQueryClient } from "@tanstack/react-query";
 import OrderCheckLayout from "../../create-order/order-check-layout";
+import { formatHlPrice, formatHlSize } from "../../../utils";
+import { PERP_MAX_DECIMALS, SPOT_MAX_DECIMALS } from "../../../utils/constants";
 
 interface IProps {
   toggleModal: () => void;
@@ -26,10 +28,14 @@ const limitDesc = "This will send an order to close your position at the limit p
 
 const CloseOrder = (props: IProps) => {
   const { toggleModal, isMarket, order } = props;
-  const { size: orderSize, isLong, leverage, coin } = order;
+  const { size: orderSize, isLong, leverage, coin, selectedToken, isSpot } = order;
+
+  const decimals = selectedToken.szDecimals;
+  const maxDecimal = (isSpot ? SPOT_MAX_DECIMALS : PERP_MAX_DECIMALS) - decimals;
+
   const queryClient = useQueryClient();
   const account = useAccount();
-  const [size, setSize] = useState("");
+  const [size, setSize] = useState(order.size);
   const [price, setPrice] = useState("");
   const { ticker } = useTicker(coin);
   const currentPrice = ticker ? Number(ticker.ctx.midPx) : 0;
@@ -38,7 +44,7 @@ const CloseOrder = (props: IProps) => {
   const handleSliderChange = (value: number[]) => {
     const percentage = value[0];
     const orderValue = (Number(orderSize) * percentage) / multiplier / 100;
-    setSize(orderValue.toFixed(2));
+    setSize(formatHlSize(orderValue, decimals));
   };
 
   const sliderPercentage = Math.round(
@@ -55,17 +61,19 @@ const CloseOrder = (props: IProps) => {
 
   const handleSubmit = () => {
     const orderData = [] as OrderEnum[];
+    const assetIndex = isSpot ? selectedToken.index + 10000 : selectedToken.index;
     if (isMarket) {
       orderData.push({
-        asset: 0,
+        asset: assetIndex,
         side: isLong ? "sell" : "buy",
         size: size,
         type: "market",
         reduceOnly: true,
+        isSpot,
       });
     } else {
       orderData.push({
-        asset: 0,
+        asset: assetIndex,
         side: isLong ? "sell" : "buy",
         size: size,
         type: "limit",
@@ -80,7 +88,6 @@ const CloseOrder = (props: IProps) => {
       orders: orderData,
     });
   };
-
   return (
     <div className="flex flex-col ">
       <p className=" font-medium text-[#B0B0B0] text-center text-xs pt-4">{isMarket ? marketDesc : limitDesc}</p>
@@ -107,13 +114,16 @@ const CloseOrder = (props: IProps) => {
             )}
             placeholder="Price"
             value={price}
-            onChange={(e) => setPrice((e.target as HTMLInputElement).value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              const val = e.target.value;
+              setPrice(formatHlPrice(Number(val), maxDecimal));
+            }}
             min="5"
             step="0.1"
             disableFormikError
             rightComponent={
               <button
-                onClick={() => setPrice(currentPrice.toFixed(2).toString())}
+                onClick={() => setPrice(currentPrice.toString())}
                 className="absolute right-2 top-[25%] text-sm text-[#FFDCA5]"
               >
                 Mid
@@ -131,35 +141,16 @@ const CloseOrder = (props: IProps) => {
           )}
           placeholder="Size"
           value={size}
-          onChange={(e) => setSize((e.target as HTMLInputElement).value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            const val = e.target.value;
+            setSize(formatHlSize(Number(val), decimals));
+          }}
           min="5"
           step="0.1"
-          //   rightPlaceholder={`Max: $${Number(maxValue).toFixed(2)}`}
           rightPlaceholder={coin.toUpperCase()}
           rightPlaceholderClassName="text-sm top-[28%] text-[#FFDCA5]"
           disableFormikError
         />
-
-        {/* <InputWithSelect
-          className="h-[24px] w-full border-none outline-none text-[#D7D7D7] !text-[10px] tracking-[-0.4%] leading-[14px] px-1 rounded-sm focus-visible:ring-0 bg-[#222329]"
-          type="number"
-          value={size}
-          onChange={(e) => setSize((e.target as HTMLInputElement).value)}
-          name="size"
-          placeholder="Size"
-          rightPlaceholder={coin}
-          selectOptions={selectOptions}
-          selectValue={orderBy}
-          onChangeSelect={(val) => {
-            if (val === orderBy) return;
-            if (val === selectOptions[0].value) {
-              setFieldValue("quantity", (Number(values.quantity) / Number(marketPrice)).toFixed(2));
-            } else {
-              setFieldValue("quantity", (Number(values.quantity) * Number(marketPrice)).toFixed(2));
-            }
-            setOrderBy(val);
-          }}
-        /> */}
       </div>
 
       <div className="flex items-center pb-8 gap-4">

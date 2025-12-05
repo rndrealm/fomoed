@@ -183,10 +183,10 @@ export default function CreateOrder(props: IProps) {
     }
 
     const converter = marketPrice;
-    const orderSize =
-      orderBy === selectOptions[0].value
-        ? Number(_values.quantity).toFixed(2)
-        : (Number(_values.quantity) / Number(converter)).toFixed(2);
+    const toDecimal = selectedToken.szDecimals;
+    const orderSize = (
+      orderBy === selectOptions[0].value ? Number(_values.quantity) : Number(_values.quantity) / Number(converter)
+    ).toFixed(toDecimal);
     const hasTP = _values.tpSl && _values.tp && Number(_values.tp) > 0;
     const hasSL = _values.tpSl && _values.sl && Number(_values.sl) > 0;
 
@@ -200,6 +200,7 @@ export default function CreateOrder(props: IProps) {
         side: isLong ? "buy" : "sell",
         size: orderSize,
         reduceOnly: _values.reduceOnly,
+        isSpot: false,
       });
     } else if (orderType === "limit") {
       orders.push({
@@ -333,6 +334,7 @@ export default function CreateOrder(props: IProps) {
                     selectOptions={selectOptions}
                     orderBy={orderBy}
                     setOrderBy={setOrderBy}
+                    selectedToken={selectedToken}
                   />
 
                   <TransferButtons toPerp />

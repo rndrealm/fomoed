@@ -16,6 +16,7 @@ import { Spinner } from "@/components/ui/shadcn-io/spinner";
 import { getCoinIconUrl } from "../../../chart/chart-header";
 import CloseOrder from "../modals/close-order";
 import { TakeProfit } from "../../modals/take-profit";
+import { PerpUniverse, SpotsUniverse } from "@/services/queries/hyperliquid/types";
 
 const userAddress = "0x02eC6F09CF972caEBd171314AE1C5c1B30919a57";
 
@@ -47,6 +48,8 @@ export interface IPositionOrder {
   isLong: boolean;
   leverage: number;
   coin: string;
+  isSpot: boolean;
+  selectedToken: SpotsUniverse | PerpUniverse;
 }
 
 export default function OpenPositionsTab() {
@@ -164,6 +167,8 @@ export default function OpenPositionsTab() {
                       formatNumberToDecimalPoints(Math.abs(fundingSinceOpen), 2) || "0.00";
                     const isFundingPositive = fundingSinceOpen > 0;
 
+                    const isSpot = item?.position?.coin?.includes("/");
+
                     return (
                       <tr
                         key={index}
@@ -252,11 +257,16 @@ export default function OpenPositionsTab() {
                             <button
                               type="button"
                               onClick={() => {
+                                const tokensArray = (isSpot ? tokensData?.spot : tokensData?.perp) || [];
+                                const currentToken = tokensArray.find((token) => token.name === item?.position?.coin);
+                                if (!currentToken) return;
                                 openCloseOrderModal("limit", {
                                   size: formattedSize,
                                   isLong: isLong,
                                   leverage: item?.position?.leverage?.value,
                                   coin: item?.position?.coin,
+                                  isSpot: isSpot,
+                                  selectedToken: currentToken,
                                 });
                               }}
                             >
@@ -265,11 +275,16 @@ export default function OpenPositionsTab() {
                             <button
                               type="button"
                               onClick={() => {
+                                const tokensArray = (isSpot ? tokensData?.spot : tokensData?.perp) || [];
+                                const currentToken = tokensArray.find((token) => token.name === item?.position?.coin);
+                                if (!currentToken) return;
                                 openCloseOrderModal("market", {
                                   size: formattedSize,
                                   isLong: isLong,
                                   leverage: item?.position?.leverage?.value,
                                   coin: item?.position?.coin,
+                                  isSpot: isSpot,
+                                  selectedToken: currentToken,
                                 });
                               }}
                             >
