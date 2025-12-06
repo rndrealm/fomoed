@@ -14,16 +14,16 @@ interface TradesTabProps {
 
 const TradesTab = ({ userAddress }: TradesTabProps) => {
   const [activeTab, setActiveTab] = useState<
-    "open-orders" | "conditional-orders" | "running-twaps" | "fills" | "order-history" | "twap-history"
+    "open-orders" | "conditional-orders" |  "fills" | "order-history"
   >("open-orders");
 
   const tabs = [
     { key: "open-orders", label: "Open Orders" },
     { key: "conditional-orders", label: "Conditional Orders" },
-    { key: "running-twaps", label: "Running TWAPs" },
+    // { key: "running-twaps", label: "Running TWAPs" },
     { key: "fills", label: "Fills" },
     { key: "order-history", label: "Order History" },
-    { key: "twap-history", label: "TWAP History" },
+    // { key: "twap-history", label: "TWAP History" },
   ];
 
   const { data: coinStatsData } = useFetchCoinStatsToken();
@@ -46,14 +46,14 @@ const TradesTab = ({ userAddress }: TradesTabProps) => {
         return <OpenOrdersTab userAddress={userAddress} coinInfoMap={coinInfoMap} />;
       case "conditional-orders":
         return <ConditionalOrdersTab userAddress={userAddress} coinInfoMap={coinInfoMap} />;
-      case "running-twaps":
-        return <RunningTwapsTab userAddress={userAddress} coinInfoMap={coinInfoMap} />;
+      // case "running-twaps":
+      //   return <RunningTwapsTab userAddress={userAddress} coinInfoMap={coinInfoMap} />;
       case "fills":
         return <FillsTab userAddress={userAddress} coinInfoMap={coinInfoMap} />;
       case "order-history":
         return <OrderHistoryTab userAddress={userAddress} coinInfoMap={coinInfoMap} />;
-      case "twap-history":
-        return <TwapHistoryTab userAddress={userAddress} coinInfoMap={coinInfoMap} />;
+      // case "twap-history":
+      //   return <TwapHistoryTab userAddress={userAddress} coinInfoMap={coinInfoMap} />;
       default:
         return null;
     }

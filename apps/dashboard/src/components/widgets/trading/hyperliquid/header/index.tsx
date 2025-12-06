@@ -11,7 +11,7 @@ import { ModalContainer } from "@/components/shared";
 import DepositModal from "../modals/deposit-modal";
 
 const AscendexLogo = () => (
-  <Image src={dashboard.ascendexLogo} alt="AscendEX Logo" width={108} height={16} className="object-contain" priority />
+  <Image src={dashboard.hyperliquidLogo2} alt="Hyperliquid" width={108} height={16} className="object-contain" priority />
 );
 
 interface AscendexHeaderProps {
