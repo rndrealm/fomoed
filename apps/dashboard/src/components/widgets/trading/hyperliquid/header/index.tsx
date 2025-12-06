@@ -11,7 +11,14 @@ import { ModalContainer } from "@/components/shared";
 import DepositModal from "../modals/deposit-modal";
 
 const AscendexLogo = () => (
-  <Image src={dashboard.hyperliquidLogo2} alt="Hyperliquid" width={108} height={16} className="object-contain" priority />
+  <Image
+    src={dashboard.hyperliquidLogo2}
+    alt="Hyperliquid"
+    width={108}
+    height={16}
+    className="object-contain"
+    priority
+  />
 );
 
 interface AscendexHeaderProps {
@@ -21,9 +28,9 @@ interface AscendexHeaderProps {
 }
 
 const navLinks = [
-  { label: "Futures", value: "futures" as const },
-  { label: "Spot", value: "spot" as const },
-  { label: "Lend", value: "lend" as const },
+  { label: "Trade", value: "futures" as const },
+  // { label: "Spot", value: "spot" as const },
+  // { label: "Lend", value: "lend" as const },
 ];
 
 export default function AscendexHeader({ widget, activeView, onViewChange }: AscendexHeaderProps) {
@@ -53,7 +60,7 @@ export default function AscendexHeader({ widget, activeView, onViewChange }: Asc
                 </button>
               ))}
 
-              <button
+              {/* <button
                 onClick={() => onViewChange("conditional")}
                 className={`px-[12px] py-[4px] rounded-[6px] transition-colors flex items-center gap-[4px] ${
                   activeView === "conditional" ? "text-white" : "hover:text-white hover:bg-[#1C1D21]"
@@ -61,7 +68,7 @@ export default function AscendexHeader({ widget, activeView, onViewChange }: Asc
               >
                 Conditional
                 <ChevronDown size={12} strokeWidth={2} />
-              </button>
+              </button> */}
             </nav>
           </div>
         </div>
@@ -88,7 +95,7 @@ export default function AscendexHeader({ widget, activeView, onViewChange }: Asc
 
           <button
             onClick={() => onViewChange("settings")}
-            className={`transition-colors ${
+            className={`transition-colors hidden ${
               activeView === "settings" ? "text-white" : "text-[#A6AEB2] hover:text-white"
             }`}
           >

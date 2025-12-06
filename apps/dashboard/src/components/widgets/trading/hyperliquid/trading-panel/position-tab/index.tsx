@@ -15,6 +15,7 @@ import { ModalContainer, RenderIf } from "@/components/shared";
 import { Spinner } from "@/components/ui/shadcn-io/spinner";
 import { getCoinIconUrl } from "../../../chart/chart-header";
 import CloseOrder from "../modals/close-order";
+import CloseAllOrders from "../modals/close-all-orders";
 import { TakeProfit } from "../../modals/take-profit";
 import { PerpUniverse, SpotsUniverse } from "@/services/queries/hyperliquid/types";
 import { useAccount } from "wagmi";
@@ -67,6 +68,7 @@ export default function OpenPositionsTab() {
   const [selectedOrder, setSelectedOrder] = useState<IPositionOrder | null>(null);
   const [isCloseOrderModalOpen, setIsCloseOrderModalOpen] = useState(false);
   const [isTakeProfitModalOpen, setIsTakeProfitModalOpen] = useState(false);
+  const [isCloseAllOrdersModalOpen, setIsCloseAllOrdersModalOpen] = useState(false);
 
   const toggleModalOrderOpwn = () => {
     setIsCloseOrderModalOpen(!isCloseOrderModalOpen);
@@ -114,7 +116,14 @@ export default function OpenPositionsTab() {
                     TP/SL
                   </th>
                   <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">
-                    Close All
+                    <button
+                      type="button"
+                      onClick={() => setIsCloseAllOrdersModalOpen(true)}
+                      disabled={clearingHouse?.clearinghouseState?.assetPositions?.length === 0 || isLoading}
+                      className="text-[#FFF0D3] leading-[1.35] text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Close All
+                    </button>
                   </th>
                 </tr>
               </thead>
@@ -371,6 +380,21 @@ export default function OpenPositionsTab() {
           className="!max-w-[462px] px-6 py-8 bg-[#141416] gap-0 scrollbar"
         >
           <TakeProfit />
+        </ModalContainer>
+      </RenderIf>
+
+      <RenderIf condition={isCloseAllOrdersModalOpen}>
+        <ModalContainer
+          open={isCloseAllOrdersModalOpen}
+          handleClose={() => {
+            setIsCloseAllOrdersModalOpen(false);
+          }}
+          headerClassName="text-center w-full text-lg font-medium"
+          hideX
+          title="Close All Positions"
+          className="!max-w-[462px] px-6 py-8 bg-[#141416] gap-0"
+        >
+          <CloseAllOrders toggleModal={() => setIsCloseAllOrdersModalOpen(false)} tokensData={tokensData} />
         </ModalContainer>
       </RenderIf>
     </>

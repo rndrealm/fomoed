@@ -52,3 +52,14 @@ export interface UpdateLeveragePayload {
   leverage: number;
   isCross?: boolean;
 }
+
+export interface CancelOrderBody {
+  orderId: number;
+  assetId: number;
+}
+
+export interface CancelOrderPayload {
+  provider: TradingProviderEnum;
+  wallet_address: string;
+  orders: CancelOrderBody[];
+}
