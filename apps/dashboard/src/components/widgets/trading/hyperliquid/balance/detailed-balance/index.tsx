@@ -20,7 +20,7 @@ interface BalanceTabProps {
 export default function DetailedBalance({userAddress} : BalanceTabProps) {
   const [activeTab, setActiveTab] = useState("Balances");
 
-  const tabs = ["Balances", "Transfers", "Trades", "Futures", "Settings"];
+  const tabs = ["Balances", "Transfers", "Trades", "Futures"];
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -32,8 +32,8 @@ export default function DetailedBalance({userAddress} : BalanceTabProps) {
         return <TradesTab userAddress={userAddress} />;
       case "Futures":
         return <FuturesTab userAddress={userAddress} />;
-      case "Settings":
-        return <SettingsTab  />;
+      // case "Settings":
+      //   return <SettingsTab  />;
       default:
         return <BalancesTab userAddress={userAddress}   />;
     }

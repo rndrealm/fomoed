@@ -45,11 +45,11 @@ export default function OpenOrdersTab() {
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      <div className="overflow-auto scrollbar flex-1">
-        <div className="bg-[#191B20] my-2 rounded-[15px] border border-[#222327] p-2">
-          <table className="w-full" style={{ borderSpacing: "0 6px", borderCollapse: "separate" }}>
+      <div className="overflow-auto no-scrollbar px-3 flex-1">
+        <div className="my-2">
+          <table className="w-full" style={{ borderCollapse: "separate", borderSpacing: 0 }}>
             <thead>
-              <tr className="">
+              <tr className="border-b-[0.5px] border-[#191B20]">
                 <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">Time</th>
                 <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">Type</th>
                 <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">Coin</th>
@@ -77,12 +77,22 @@ export default function OpenOrdersTab() {
               </tr>
             </thead>
 
-            <tbody>
+            <tbody className="bg-[#191B20] rounded-[15px] border border-[#222327]">
               <RenderIf condition={isLoading}>
                 <tr>
                   <td colSpan={12} className="py-10">
                     <div className="flex justify-center w-full">
                       <Spinner variant="circle" className="text-[rgb(255,59,16)]" size={24} />
+                    </div>
+                  </td>
+                </tr>
+              </RenderIf>
+              <RenderIf condition={!isLoading && ordersArray?.length === 0}>
+                <tr>
+                  <td colSpan={12} className="py-10">
+                    <div className="flex flex-col items-center justify-center">
+                      <Image src={dashboard.noDeposits} alt="No balances" width={168} height={168} className="mb-4" />
+                      <p className="text-white text-[20px] font-semibold">No Open Orders</p>
                     </div>
                   </td>
                 </tr>
@@ -103,13 +113,16 @@ export default function OpenOrdersTab() {
                   const orderValue = price * size;
                   const formattedOrderValue = formatNumberToDecimalPoints(orderValue, 2);
 
+                  const isFirstRow = index === 0;
+                  const isLastRow = index === ordersArray.length - 1;
+
                   return (
-                    <tr key={index} className="h-[24px] relative">
-                      <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">{time}</td>
+                    <tr key={index} className="h-[48px] relative border-t border-[#222327]" style={{ marginTop: index === 0 ? "6px" : 0 }}>
+                      <td className={cn("text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap", isFirstRow && "rounded-tl-[10px]", isLastRow && "rounded-bl-[10px]")}>{time}</td>
                       <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
                         {item?.orderType}
                       </td>
-                      <td className="rounded-l-[10px] p-2">
+                      <td className="p-2">
                         <button
                           className="flex items-center gap-2"
                           type="button"
@@ -153,7 +166,7 @@ export default function OpenOrdersTab() {
                         {item?.triggerCondition}
                       </td>
                       <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">--</td>
-                      <td className="text-[#FFF0D3] leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
+                      <td className={cn("text-[#FFF0D3] leading-[1.35] text-xs font-medium p-2 whitespace-nowrap", isFirstRow && "rounded-tr-[10px]", isLastRow && "rounded-br-[10px]")}>
                         <div className="flex items-center">
                           <button type="button">Cancel</button>
                         </div>
@@ -161,13 +174,6 @@ export default function OpenOrdersTab() {
                     </tr>
                   );
                 })}
-              </RenderIf>
-
-              <RenderIf condition={!isLoading && ordersArray?.length === 0}>
-                <div className="flex flex-col min-h-[300px] h-full items-center justify-center bg-[#191B20] rounded-[6px] my-1">
-                  <Image src={dashboard.noDeposits} alt="No balances" width={168} height={168} className="mb-4" />
-                  <p className="text-white text-[20px] font-semibold">No Open Orders</p>
-                </div>
               </RenderIf>
             </tbody>
           </table>

@@ -56,7 +56,7 @@ export default function TradingPanel() {
         )}
       </div>
 
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-auto no-scrollbar">
         {tabContent.map((tab) => {
           return (
             <div key={tab.id} className={cn("h-full w-full", activeTab === tab.id ? "block" : "hidden")}>

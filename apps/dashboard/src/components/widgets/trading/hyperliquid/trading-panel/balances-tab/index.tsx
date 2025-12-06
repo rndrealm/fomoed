@@ -117,7 +117,7 @@ export default function BalancesTab() {
   }
 
   return (
-    <div className="flex h-full w-full flex-col">
+    <div className="flex h-full w-full flex-col px-3">
       <div className="px-3 py-2 border-b border-[#0C0C0C]">
         <div className="text-[#84858C] text-[12px]">Your Balances</div>
         <div className="text-white text-[16px] font-medium">
@@ -130,7 +130,7 @@ export default function BalancesTab() {
       </div>
       <div className="flex flex-1 flex-col h-full">
         {/* Table */}
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 overflow-auto no-scrollbar">
           {filteredBalances.length === 0 ? (
             <div className="flex flex-col min-h-[300px] h-full items-center justify-center bg-[#191B20] rounded-[6px] my-1">
               <Image src={dashboard.noDeposits} alt="No balances" width={168} height={168} className="mb-4" />

@@ -82,7 +82,7 @@ export default function OpenPositionsTab() {
     <>
       <div className="flex flex-col h-full">
         {/* Table */}
-        <div className="flex-1 overflow-auto px-3">
+        <div className="flex-1 overflow-auto px-3 no-scrollbar">
           <div className="bg-[#191B20] my-2 rounded-[15px] border border-[#222327] p-2">
             <table className="w-full" style={{ borderSpacing: "0 6px", borderCollapse: "separate" }}>
               <thead>
