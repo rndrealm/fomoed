@@ -1,4 +1,3 @@
-import DexProvider from "@/components/providers/DexProvider";
 import { NavbarNews } from "@/components/shared/navbar-news";
 import "@rainbow-me/rainbowkit/styles.css";
 import "simplebar-react/dist/simplebar.min.css";
@@ -9,7 +8,7 @@ export default function ReferralLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <DexProvider>
+    <>
       <div className="absolute inset-x-0 top-0 z-[9]">
         <NavbarNews isDashboard />
       </div>
@@ -19,6 +18,6 @@ export default function ReferralLayout({
           <div className="ml-0 md:ml-[64px]">{children}</div>
         </div>
       </div>
-    </DexProvider>
+    </>
   );
 }

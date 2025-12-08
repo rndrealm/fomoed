@@ -1,12 +1,13 @@
 import { useSupabaseAuth } from "@/components/providers";
 import { Button } from "@/components/ui/button";
-import { useApproveApiAgent, useGetAgentAddress } from "@/services/queries/hyperliquid";
-import React, { useState } from "react";
+import { useApproveApiAgent, useCreateApiAgent, useGetAgentAddress } from "@/services/queries/hyperliquid";
+import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useAccount, useWalletClient } from "wagmi";
 import { approveApiWallet } from "../../utils";
 import { cn } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
+import { CreateApiAgentResponse } from "@/services/queries/hyperliquid/types";
 
 interface IProps {
   title?: string;
@@ -16,12 +17,22 @@ interface IProps {
 const ApproveAgentButton = (props: IProps) => {
   const { title, className } = props;
   const [isLoading, setIsLoading] = useState(false);
+  const [agentWallet, setAgentWallet] = useState<string | null>(null);
   const account = useAccount();
   const walletClient = useWalletClient();
   const queryClient = useQueryClient();
 
+  const onCreateSuccess = (_data: CreateApiAgentResponse) => {
+    setAgentWallet(_data.agent_address);
+  };
+
   const { session } = useSupabaseAuth();
-  const { data, isPending: agentIsPending } = useGetAgentAddress(account?.address, session?.access_token);
+  const { mutate, isPending: agentIsPending } = useCreateApiAgent(session?.access_token, onCreateSuccess);
+
+  useEffect(() => {
+    if (!account?.address) return;
+    mutate({ wallet_address: account?.address });
+  }, []);
 
   const handleGrantPermission = async () => {
     if (!account.address) {
@@ -29,11 +40,17 @@ const ApproveAgentButton = (props: IProps) => {
       return;
     }
 
+    if (!agentWallet) {
+      toast("Agent wallet not available, please refresh the page!");
+      return;
+    }
+
     try {
       setIsLoading(true);
-      const result = await approveApiWallet(walletClient.data, data.agent_wallet, true);
+      const result = await approveApiWallet(walletClient.data, agentWallet, true);
       if (result.status === "ok") {
-        queryClient.invalidateQueries({ queryKey: ["hyper-liquid-agent-role", data.agent_wallet] });
+        queryClient.invalidateQueries({ queryKey: ["agent-address"] });
+        // queryClient.invalidateQueries({ queryKey: ["hyper-liquid-agent-role"] });
       } else {
         toast("Something went wrong!");
       }
@@ -52,6 +69,7 @@ const ApproveAgentButton = (props: IProps) => {
       )}
       type="button"
       onClick={handleGrantPermission}
+      disabled={!agentWallet}
       isLoading={isLoading || agentIsPending}
     >
       {title || "Grant Permission"}

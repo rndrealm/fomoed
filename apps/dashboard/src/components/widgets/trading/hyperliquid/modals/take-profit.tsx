@@ -5,6 +5,10 @@ import { SubmitButton, TextInput } from "@/components/auth";
 import Checkbox from "@/components/ui/checkbox";
 import { RenderIf } from "@/components/shared";
 import { Slider } from "@/components/ui/slider";
+import { ITpSlOrder } from "../trading-panel/position-tab";
+import { PERP_MAX_DECIMALS, SPOT_MAX_DECIMALS } from "../../utils/constants";
+import { formatHlPrice } from "../../utils";
+import { cn } from "@/lib/utils";
 
 const validationSchema = Yup.object().shape({
   tpPrice: Yup.number(),
@@ -30,8 +34,18 @@ const initialValues = {
 
 type InitialValues = ReturnType<() => typeof initialValues>;
 
-export function TakeProfit() {
-  const onSubmit = async (_values: InitialValues) => {};
+interface IProps {
+  order: ITpSlOrder;
+}
+
+export function TakeProfit(props: IProps) {
+  const { order } = props;
+  const { coin, positionSize, entryPrice, markPrice, selectedToken, isSpot, isLong } = order;
+  const decimals = selectedToken.szDecimals;
+  const maxDecimal = (isSpot ? SPOT_MAX_DECIMALS : PERP_MAX_DECIMALS) - decimals;
+  const onSubmit = async (_values: InitialValues) => {
+    console.log("Submit values:", _values);
+  };
 
   return (
     <div className="flex flex-col gap-8 pt-8">
@@ -39,20 +53,31 @@ export function TakeProfit() {
         <div className="flex flex-col gap-1">
           <div className="flex items-center justify-between">
             <p className="text-xs leading-[18px] text-[#D1D1D1]">Coin</p>
-            <p className="text-xs leading-[18px] text-[#D1D1D1] font-medium">BTC</p>
+            <p className="text-xs leading-[18px] text-[#D1D1D1] font-medium">{coin}</p>
           </div>
           <div className="flex items-center justify-between">
             <p className="text-xs leading-[18px] text-[#D1D1D1]">Position</p>
-            <p className="text-xs leading-[18px] text-[#FFF0D3] font-medium">0.0392 BTC</p>
+            <p
+              className={cn(
+                "text-xs leading-[18px] text-[#FFF0D3] font-medium",
+                isLong ? "text-[#4ADE80]" : "text-[#FF7A7A]",
+              )}
+            >
+              {positionSize} {coin}
+            </p>
           </div>
           <div className="flex items-center justify-between">
             <p className="text-xs leading-[18px] text-[#D1D1D1]">Entry Price</p>
-            <p className="text-xs leading-[18px] text-[#D1D1D1] font-medium">$89,291.01</p>
+            <p className="text-xs leading-[18px] text-[#D1D1D1] font-medium">
+              ${formatHlPrice(Number(entryPrice), maxDecimal)}
+            </p>
           </div>
 
           <div className="flex items-center justify-between">
             <p className="text-xs leading-[18px] text-[#D1D1D1]">Mark Price</p>
-            <p className="text-xs leading-[18px] text-[#D1D1D1] font-medium">$89,291.01</p>
+            <p className="text-xs leading-[18px] text-[#D1D1D1] font-medium">
+              ${formatHlPrice(Number(markPrice), maxDecimal)}
+            </p>
           </div>
         </div>
 
@@ -65,8 +90,8 @@ export function TakeProfit() {
           validateOnChange={false}
         >
           {(props) => {
-            const { values, handleChange, handleBlur, handleSubmit, setFieldValue } = props;
-
+            const { values, handleChange, handleBlur, handleSubmit, setFieldValue, errors } = props;
+            console.log("Formik errors:", errors);
             return (
               <form onSubmit={handleSubmit} className="">
                 <div className="flex flex-col gap-8">

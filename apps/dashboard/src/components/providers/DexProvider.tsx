@@ -2,7 +2,7 @@
 
 import React, { ReactNode } from "react";
 import { config } from "@/config/wagmi";
-
+import "@rainbow-me/rainbowkit/styles.css";
 import { State, WagmiProvider } from "wagmi";
 import { darkTheme, RainbowKitProvider, Theme } from "@rainbow-me/rainbowkit";
 import merge from "lodash.merge";

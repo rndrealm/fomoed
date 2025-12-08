@@ -244,3 +244,8 @@ export interface HyperliquidRoleResponse {
     user: string;
   };
 }
+
+export interface CreateApiAgentResponse {
+  agent_address: string;
+  wallet_address: string;
+}

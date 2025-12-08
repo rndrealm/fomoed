@@ -52,6 +52,16 @@ export interface IPositionOrder {
   selectedToken: SpotsUniverse | PerpUniverse;
 }
 
+export interface ITpSlOrder {
+  coin: string;
+  positionSize: string;
+  entryPrice: string;
+  markPrice: string;
+  isSpot: boolean;
+  selectedToken: SpotsUniverse | PerpUniverse;
+  isLong: boolean;
+}
+
 export default function OpenPositionsTab() {
   const { address } = useAccount();
   const userAddress = address || "";
@@ -79,6 +89,8 @@ export default function OpenPositionsTab() {
     setSelectedOrder(order);
     setIsCloseOrderModalOpen(true);
   };
+
+  const [selectedTpSlOrder, setSelectedTpSlOrder] = useState<ITpSlOrder | null>(null);
 
   return (
     <>
@@ -256,6 +268,18 @@ export default function OpenPositionsTab() {
                             <button
                               type="button"
                               onClick={() => {
+                                const tokensArray = (isSpot ? tokensData?.spot : tokensData?.perp) || [];
+                                const currentToken = tokensArray.find((token) => token.name === item?.position?.coin);
+                                if (!currentToken) return;
+                                setSelectedTpSlOrder({
+                                  coin: item?.position?.coin,
+                                  positionSize: formattedSize,
+                                  entryPrice: formattedEntryPrice,
+                                  markPrice: formattedMarkPrice,
+                                  isSpot: isSpot,
+                                  selectedToken: currentToken,
+                                  isLong: isLong,
+                                });
                                 setIsTakeProfitModalOpen(true);
                               }}
                             >
@@ -368,20 +392,22 @@ export default function OpenPositionsTab() {
         </ModalContainer>
       ) : null}
 
-      <RenderIf condition={isTakeProfitModalOpen}>
-        <ModalContainer
-          open={isTakeProfitModalOpen}
-          handleClose={() => {
-            setIsTakeProfitModalOpen(false);
-          }}
-          headerClassName="text-center w-full text-lg font-medium"
-          hideX
-          title="TP/SL for Position"
-          className="!max-w-[462px] px-6 py-8 bg-[#141416] gap-0 scrollbar"
-        >
-          <TakeProfit />
-        </ModalContainer>
-      </RenderIf>
+      {selectedTpSlOrder ? (
+        <RenderIf condition={isTakeProfitModalOpen}>
+          <ModalContainer
+            open={isTakeProfitModalOpen}
+            handleClose={() => {
+              setIsTakeProfitModalOpen(false);
+            }}
+            headerClassName="text-center w-full text-lg font-medium"
+            hideX
+            title="TP/SL for Position"
+            className="!max-w-[462px] px-6 py-8 bg-[#141416] gap-0 scrollbar"
+          >
+            <TakeProfit order={selectedTpSlOrder} />
+          </ModalContainer>
+        </RenderIf>
+      ) : null}
 
       <RenderIf condition={isCloseAllOrdersModalOpen}>
         <ModalContainer

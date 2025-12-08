@@ -103,11 +103,10 @@ export async function approveApiWallet(
     transport,
     wallet: walletClient as any,
   });
-
   // Approve the agent (API wallet)
   const result = await exchangeClient.approveAgent({
     agentAddress: apiWalletAddress,
-    agentName: null,
+    agentName: "fomoed",
   });
 
   return result;
