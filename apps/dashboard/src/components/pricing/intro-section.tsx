@@ -11,10 +11,9 @@ const IntroSection = () => {
           <ChevronRight height="20" />
         </div>
       </div>
-      <h1 className="text-[1.5rem] sm:text-[2rem] font-medium pt-4 pb-2">Cyber Monday</h1>
+      <h1 className="text-[1.5rem] sm:text-[2rem] font-medium pt-4 pb-2"> Get your free trial to Unlock More</h1>
       <h3 className="text-[0.925rem] sm:text-base font-medium text-[#B9B9B9]">
-        Up to 50% off Pro Tools
-        {/* Get <span className="font-semibold text-white">Fomoed Pro</span> to unlock more tools. */}
+        Get <span className="font-semibold text-white">Fomoed Pro</span> to unlock more tools.
       </h3>
     </div>
   );

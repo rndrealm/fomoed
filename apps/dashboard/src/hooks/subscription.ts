@@ -67,7 +67,7 @@ export function subscriptionStateToConfig(state: SubscriptionState, canHaveFreeT
     stateConfiguration.proBtnAction === "resub";
 
   return {
-    proBtnContent: getBtnContent(stateConfiguration.proBtnAction, "Pro", false),
+    proBtnContent: getBtnContent(stateConfiguration.proBtnAction, "Pro", canHaveFreeTrial),
     plusBtnContent: getBtnContent(stateConfiguration.plusBtnAction, "Plus", canHaveFreeTrial),
     proBtnAction: stateConfiguration.proBtnAction,
     plusBtnAction: stateConfiguration.plusBtnAction,

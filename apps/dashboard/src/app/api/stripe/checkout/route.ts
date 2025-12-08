@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     customerId: customer.id,
     priceLookupKey,
     returnUrl,
-    canHaveFreeTrial: !user.has_had_free_trial && !priceLookupKey.includes("pro"),
+    canHaveFreeTrial: !user.has_had_free_trial,
     metadata: {
       user_id: user.user_id,
       referral_id: referralId,

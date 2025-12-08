@@ -102,7 +102,6 @@ export async function createCheckoutSession({
     payment_method_types: ["card"],
     line_items: [{ price: priceId, quantity: 1 }],
     success_url: returnUrl,
-    discounts: discounts,
     cancel_url: returnUrl,
 
     // Pass the metadata to the top-level Checkout Session
