@@ -6,6 +6,8 @@ import {
   WsOpenOrdersResponse,
   WsSpotStateResponse,
   WsTradeResponse,
+  WsUserFillsResponse,
+  WsUserHistoricalOrdersResponse,
 } from "./types";
 
 const resolutionToIntervalMap: { [key: string]: string } = {
@@ -38,6 +40,8 @@ interface HyperliquidState {
   openOrdersSubscriptions: Map<string, Set<(data: any) => void>>;
   spotStateSubscriptions: Map<string, Set<(data: any) => void>>;
   allMidsSubscriptions: Map<string, Set<(data: any) => void>>;
+  historicalOrdersSubscriptions: Map<string, Set<(data: any) => void>>;
+  userFillsSubscriptions: Map<string, Set<(data: any) => void>>;
   pendingSubscriptions: any[];
 }
 
@@ -57,6 +61,8 @@ const state = globalForWs.hyperliquidState || {
   spotStateSubscriptions: new Map(),
   allMidsSubscriptions: new Map(),
   clearingHouseSubscriptions: new Map(),
+  historicalOrdersSubscriptions: new Map(),
+  userFillsSubscriptions: new Map(),
 };
 
 // Save to global object immediately to survive Hot Reloads
@@ -149,6 +155,10 @@ function handleMessage(event: MessageEvent) {
     handleSpotStateData(data);
   } else if (data?.channel === "allMids") {
     handleAllMidsData(data);
+  } else if (data?.channel === "userHistoricalOrders") {
+    handleHistoricalOrdersData(data);
+  } else if (data?.channel === "userFills") {
+    handleUserFillsData(data);
   }
 }
 
@@ -258,6 +268,26 @@ function handleAllMidsData(data: WsAllMidsResponse) {
 
   if (callbacks) {
     callbacks.forEach((callback) => callback(data?.data));
+  }
+}
+
+function handleHistoricalOrdersData(data: WsUserHistoricalOrdersResponse) {
+  const address = data?.data?.user;
+
+  const callbacks = state.historicalOrdersSubscriptions.get(address);
+
+  if (callbacks) {
+    callbacks.forEach((callback) => callback(data?.data?.orderHistory));
+  }
+}
+
+function handleUserFillsData(data: WsUserFillsResponse) {
+  const address = data?.data?.user;
+
+  const callbacks = state.userFillsSubscriptions.get(address);
+
+  if (callbacks) {
+    callbacks.forEach((callback) => callback(data?.data?.fills));
   }
 }
 
@@ -553,6 +583,7 @@ export function subscribeToOpenOrders(_address: string, callback: (data: any) =>
       subscription: {
         type: "openOrders",
         user: address,
+        aggregateByTime: true,
       },
     };
 
@@ -671,6 +702,106 @@ export function unsubscribeFromAllMids(callback: (data: any) => void) {
         method: "unsubscribe",
         subscription: {
           type: "allMids",
+        },
+      };
+
+      if (state.socket?.readyState === WebSocket.OPEN) {
+        state.socket.send(JSON.stringify(subRequest));
+      }
+    }
+  }
+}
+
+export function subscribeToHistoricalOrders(_address: string, callback: (data: any) => void) {
+  const address = _address.toLowerCase();
+  if (!state.historicalOrdersSubscriptions.has(address)) {
+    state.historicalOrdersSubscriptions.set(address, new Set());
+  }
+
+  const callbacks = state.historicalOrdersSubscriptions.get(address)!;
+  callbacks.add(callback);
+
+  if (callbacks.size === 1) {
+    const subRequest = {
+      method: "subscribe",
+      subscription: {
+        type: "userHistoricalOrders",
+        user: address,
+        aggregateByTime: true,
+      },
+    };
+
+    createSocket();
+
+    sendMessage(subRequest);
+  }
+}
+
+export function unsubscribeFromHistoricalOrders(_address: string, callback: (data: any) => void) {
+  const address = _address.toLowerCase();
+  const callbacks = state.historicalOrdersSubscriptions.get(address);
+
+  if (callbacks) {
+    callbacks.delete(callback);
+
+    if (callbacks.size === 0) {
+      state.historicalOrdersSubscriptions.delete(address);
+
+      const subRequest = {
+        method: "unsubscribe",
+        subscription: {
+          type: "userHistoricalOrders",
+          user: address,
+        },
+      };
+
+      if (state.socket?.readyState === WebSocket.OPEN) {
+        state.socket.send(JSON.stringify(subRequest));
+      }
+    }
+  }
+}
+
+export function subscribeToUserFills(_address: string, callback: (data: any) => void) {
+  const address = _address.toLowerCase();
+  if (!state.userFillsSubscriptions.has(address)) {
+    state.userFillsSubscriptions.set(address, new Set());
+  }
+
+  const callbacks = state.userFillsSubscriptions.get(address)!;
+  callbacks.add(callback);
+
+  if (callbacks.size === 1) {
+    const subRequest = {
+      method: "subscribe",
+      subscription: {
+        type: "userFills",
+        user: address,
+        aggregateByTime: true,
+      },
+    };
+
+    createSocket();
+
+    sendMessage(subRequest);
+  }
+}
+
+export function unsubscribeFromUserFills(_address: string, callback: (data: any) => void) {
+  const address = _address.toLowerCase();
+  const callbacks = state.userFillsSubscriptions.get(address);
+
+  if (callbacks) {
+    callbacks.delete(callback);
+
+    if (callbacks.size === 0) {
+      state.userFillsSubscriptions.delete(address);
+
+      const subRequest = {
+        method: "unsubscribe",
+        subscription: {
+          type: "userFills",
+          user: address,
         },
       };
 
