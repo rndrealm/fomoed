@@ -659,11 +659,22 @@ export const useFetchWhaleTransactions = () => {
     refetchInterval: 5000,
   });
 
+  // Normalize error to ensure it always has a message property
+  const normalizedError = error
+    ? new Error(
+        (error as any)?.message ||
+        (error as any)?.error ||
+        (error as any)?.msg ||
+        JSON.stringify(error) ||
+        "Failed to fetch whale transaction data"
+      )
+    : null;
+
   return {
-    data: data?.data, 
+    data: data?.data,
     isPending,
     isSuccess,
-    error,
+    error: normalizedError,
     isFetching,
     refetch,
   };

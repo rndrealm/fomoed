@@ -31,7 +31,26 @@ const onResponse = (response: AxiosResponse): AxiosResponse => {
 };
 
 const onResponseError = async (error: AxiosError) => {
-  return await Promise.reject(error?.response?.data || error.message);
+  const errorData = error?.response?.data;
+
+  // If error data is an object, convert to Error with message
+  if (errorData && typeof errorData === 'object') {
+    const message =
+      (errorData as any).error ||
+      (errorData as any).message ||
+      (errorData as any).msg ||
+      error.message ||
+      'An error occurred';
+    return await Promise.reject(new Error(message));
+  }
+
+  // If error data is a string, convert to Error
+  if (errorData && typeof errorData === 'string') {
+    return await Promise.reject(new Error(errorData));
+  }
+
+  // Fallback to error message
+  return await Promise.reject(new Error(error.message || 'Network error'));
 };
 
 axiosInstance.interceptors.request.use(onRequest, onRequestError);
