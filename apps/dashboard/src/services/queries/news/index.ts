@@ -214,7 +214,7 @@ export const useReadSingleNewsArticle = (id: string) => {
 
 // This hook fetches news articles for multiple tokens and returns a randomized selection
 // It's useful for showing similar/related articles based on multiple symbols
-export const useReadSimilarNewsFeed = (tokens?: string[], limit: number = 3) => {
+export const useReadSimilarNewsFeed = (tokens?: string[] | null, limit: number = 3) => {
   const hash = ["similar-news-feed", tokens?.sort(), limit];
   const { data, isPending, error, isSuccess } = useQuery({
     queryKey: hash,

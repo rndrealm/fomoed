@@ -243,14 +243,14 @@ export function ImmersiveNews(props: IProps) {
                 {extractedArticle.title}
               </p>
               <RenderIf
-                condition={!!article?.symbols && article?.symbols.length > 0}
+                condition={!!article?.symbols && article.symbols.length > 0}
               >
                 <div className="flex flex-col items-start gap-3 mt-5 md:flex-row md:items-center">
                   <p className="text-xs text-[#A4A4A4]">
                     Tokens mentioned in article
                   </p>
                   <div className="flex flex-wrap items-center gap-2">
-                    {article?.symbols.map((symbol, i) => (
+                    {article?.symbols?.map((symbol, i) => (
                       <TokenPill symbol={symbol} key={i} />
                     ))}
                   </div>

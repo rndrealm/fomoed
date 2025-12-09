@@ -111,7 +111,7 @@ export type NewsRowInsert = {
   image_url: string | null;
   sentiment: "bullish" | "bearish" | "neutral";
   summary: string;
-  symbols: string[];
+  symbols: string[] | null;
   metadata: Record<string, any>;
   ai_summary: string[];
   slug: string | null;
@@ -134,7 +134,7 @@ export type NewsFeedItem = {
   source: string;
   title: string;
   summary: string;
-  symbols: string[];
+  symbols: string[] | null;
   original_url: string;
   slug: string | null;
 };

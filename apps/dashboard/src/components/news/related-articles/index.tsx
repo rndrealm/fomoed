@@ -8,7 +8,7 @@ import { RelatedArticleCardV2 } from "./related-articles-card-v2";
 import { SkeletonLoader } from "../../shared/skeleton-loader";
 
 interface IProps {
-  symbols?: string[];
+  symbols?: string[] | null;
 }
 
 const RelatedArticles = (props: IProps) => {
