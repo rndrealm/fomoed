@@ -12,8 +12,9 @@ import { useReadHyperLiquidTokens } from "@/services/queries/hyperliquid";
 import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
 import { useSetAtom } from "jotai";
 import { useAccount } from "wagmi";
+import { HyperliquidSpotListResponse } from "@/services/queries/hyperliquid/types";
 
-function getOrderAction(coin: string, side: string, reduceOnly: boolean) {
+export function getOrderAction(coin: string, side: string, reduceOnly: boolean) {
   const isSpot = coin.includes("/");
 
   if (isSpot) {
@@ -34,14 +35,13 @@ function getOrderAction(coin: string, side: string, reduceOnly: boolean) {
 export default function OpenOrdersTab() {
   const { address } = useAccount();
   const { isConnected, openOrders } = useOpenOrders(address);
-  const { allMids, isConnected: midsConnected } = useAllMids();
 
   const { data: tokensData } = useReadHyperLiquidTokens();
   const setSelectedToken = useSetAtom(selectedTokenAtom);
 
   const ordersArray = openOrders?.orders || [];
 
-  const isLoading = !isConnected || !midsConnected;
+  const isLoading = !isConnected;
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -91,7 +91,7 @@ export default function OpenOrdersTab() {
                 {ordersArray?.map((item, index) => {
                   const time = `${new Date(item.timestamp).toLocaleDateString()} - ${new Date(item.timestamp).toLocaleTimeString()}`;
                   const sideColorClassName = item.side === "B" ? "text-[#00AF58]" : "text-[#F99185]";
-                  const isSpot = item?.coin?.includes("/");
+                  const isSpot = item?.coin?.includes("@");
 
                   const originalSize = parseFloat(item?.origSz || "0");
 
@@ -102,6 +102,10 @@ export default function OpenOrdersTab() {
 
                   const orderValue = price * size;
                   const formattedOrderValue = formatNumberToDecimalPoints(orderValue, 2);
+
+                  const resolvedSpotToken = isSpot
+                    ? tokensData?.spot?.find((token) => token.name === item.coin) || null
+                    : null;
 
                   return (
                     <tr key={index} className="h-[24px] relative">
@@ -114,6 +118,10 @@ export default function OpenOrdersTab() {
                           className="flex items-center gap-2"
                           type="button"
                           onClick={() => {
+                            if (isSpot) {
+                              setSelectedToken(resolvedSpotToken);
+                              return;
+                            }
                             const tokensArray = (isSpot ? tokensData?.spot : tokensData?.perp) || [];
                             const currentToken = tokensArray.find((token) => token.name === item?.coin);
                             if (!currentToken) return;
@@ -121,7 +129,7 @@ export default function OpenOrdersTab() {
                           }}
                         >
                           <p className={cn("text-white text-xs font-medium leading-[1.35%]", sideColorClassName)}>
-                            {item?.coin}
+                            {resolvedSpotToken?.symbol || item?.coin}
                           </p>
                         </button>
                       </td>
@@ -164,10 +172,14 @@ export default function OpenOrdersTab() {
               </RenderIf>
 
               <RenderIf condition={!isLoading && ordersArray?.length === 0}>
-                <div className="flex flex-col min-h-[300px] h-full items-center justify-center bg-[#191B20] rounded-[6px] my-1">
-                  <Image src={dashboard.noDeposits} alt="No balances" width={168} height={168} className="mb-4" />
-                  <p className="text-white text-[20px] font-semibold">No Open Orders</p>
-                </div>
+                <tr>
+                  <td colSpan={12} className="">
+                    <div className="flex flex-col min-h-[200px] h-full items-center justify-center bg-[#191B20] rounded-[6px] my-1">
+                      <Image src={dashboard.noDeposits} alt="No balances" width={168} height={168} className="mb-4" />
+                      <p className="text-white text-[20px] font-semibold">No Open Orders</p>
+                    </div>
+                  </td>
+                </tr>
               </RenderIf>
             </tbody>
           </table>

@@ -1,178 +1,178 @@
-"use client";
 import React from "react";
-import Image from "next/image";
-import dashboard from "@/lib/assets/dashboard";
-import { useHyperliquidHistoricalOrders } from "@/services/queries/hyperliquid-dex";
+import { useHistoricalOrders } from "../../../chart/trading-view/hyperliquid/use-historical-orders";
+import { useAccount } from "wagmi";
+import { RenderIf } from "@/components/shared";
+import { useReadHyperLiquidTokens } from "@/services/queries/hyperliquid";
+import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
+import { useSetAtom } from "jotai";
+import { cn } from "@/lib/utils";
+import { directionColorMap } from "../trade-history";
+import { formatNumberToDecimalPoints } from "../../../chart/chart-header/stats";
 
-interface OrderHistoryTabProps {
-  userAddress: string;
+function getTradeType(isSpot: boolean, side: string, reduceOnly: boolean) {
+  if (isSpot) {
+    return side === "B" ? "Buy" : "Sell";
+  }
+
+  if (side === "B") {
+    return reduceOnly ? "Close Short" : "Open Long";
+  } else {
+    return reduceOnly ? "Close Long" : "Open Short";
+  }
 }
 
-const userAddress = "0x02eC6F09CF972caEBd171314AE1C5c1B30919a57";
+export default function OrderHistory() {
+  const { address } = useAccount();
+  const userAddress = address || "";
 
-export default function OrderHistoryTab() {
-  const { data: historicalOrders, isLoading } = useHyperliquidHistoricalOrders(userAddress, !!userAddress);
+  const { isConnected, orderHistory } = useHistoricalOrders(address);
 
-  const perpHistoricalOrders = historicalOrders?.filter((item) => !item.order.coin.startsWith("@")) || [];
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-full min-h-[375px]">
-        <div className="text-[#84858C] text-[14px]">Loading order history...</div>
-      </div>
-    );
-  }
-
-  if (perpHistoricalOrders.length === 0) {
-    return (
-      <div className="flex flex-col min-h-[375px] h-full items-center justify-center bg-[#191B20] rounded-[6px] my-1">
-        <Image src={dashboard.noOpenOrders} alt="No Order History" width={168} height={168} className="mb-4" />
-        <p className="text-white text-[20px] font-semibold">No Order History</p>
-      </div>
-    );
-  }
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "filled":
-        return "text-green-500";
-      case "canceled":
-      case "marginCanceled":
-      case "rejected":
-        return "text-red-500";
-      case "open":
-        return "text-blue-500";
-      default:
-        return "text-[#84858C]";
-    }
-  };
-
-  const formatStatus = (status: string) => {
-    const statusMap: Record<string, string> = {
-      filled: "Filled",
-      canceled: "Canceled",
-      triggered: "Triggered",
-      rejected: "Rejected",
-      marginCanceled: "Margin Canceled",
-      open: "Open",
-      vaultWithdrawalCanceled: "Vault Withdrawal Canceled",
-      openInterestCapCanceled: "OI Cap Canceled",
-      selfTradeCanceled: "Self Trade Canceled",
-      reduceOnlyCanceled: "Reduce Only Canceled",
-      siblingFilledCanceled: "Sibling Filled",
-      delistedCanceled: "Delisted",
-      liquidatedCanceled: "Liquidated",
-      scheduledCancel: "Scheduled Cancel",
-    };
-    return statusMap[status] || status;
-  };
+  const { data: tokensData } = useReadHyperLiquidTokens();
+  const setSelectedToken = useSetAtom(selectedTokenAtom);
 
   return (
     <div className="flex flex-col h-full">
-      {/* Table Header */}
-      <div
-        className="grid items-center border-b border-[#0C0C0C] px-3"
-        style={{
-          gridTemplateColumns: "1fr 0.8fr 1fr 1fr 1fr 0.8fr 1fr",
-          height: "32px",
-        }}
-      >
-        <div className="text-[#84858C] text-[12px]">Coin</div>
-        <div className="text-[#84858C] text-[12px]">Side</div>
-        <div className="text-[#84858C] text-[12px]">Type</div>
-        <div className="text-[#84858C] text-[12px]">Price</div>
-        <div className="text-[#84858C] text-[12px]">Size</div>
-        <div className="text-[#84858C] text-[12px]">Status</div>
-        <div className="text-[#84858C] text-[12px]">Time</div>
-      </div>
+      <div className="overflow-auto scrollbar flex-1">
+        <div className="bg-[#191B20] my-2 rounded-[15px] border border-[#222327] p-2">
+          <table className="w-full" style={{ borderSpacing: "0 6px", borderCollapse: "separate" }}>
+            <thead>
+              <tr className="">
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">Time</th>
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">Type</th>
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">Coin</th>
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">
+                  Direction
+                </th>
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">Size</th>
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">
+                  Filled Size
+                </th>
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">
+                  Order Value
+                </th>
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">Price</th>
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">
+                  Reduce Only
+                </th>
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">
+                  Trigger Conditions
+                </th>
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">TP/SL</th>
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">Status</th>
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">
+                  Order ID
+                </th>
+              </tr>
+            </thead>
 
-      {/* Table Body */}
-      <div className="flex-1 overflow-auto">
-        {perpHistoricalOrders.map((item, index) => {
-          const order = item.order;
-          const isBuy = order.side === "B";
-          const orderTime = new Date(order.timestamp);
-          const statusTime = new Date(item.statusTimestamp);
+            <tbody>
+              <RenderIf condition={isConnected && orderHistory?.length !== 0}>
+                {orderHistory
+                  ?.slice()
+                  .reverse()
+                  .map((item, index) => {
+                    const time = `${new Date(item?.statusTimestamp).toLocaleDateString()} - ${new Date(item?.statusTimestamp).toLocaleTimeString()}`;
 
-          return (
-            <div
-              key={`${order.oid}-${index}`}
-              className="grid items-center border-b border-[#0C0C0C] px-3 hover:bg-[#1C1D21] transition-colors"
-              style={{
-                gridTemplateColumns: "1fr 0.8fr 1fr 1fr 1fr 0.8fr 1fr",
-                height: "48px",
-              }}
-            >
-              {/* Coin */}
-              <div className="flex items-center gap-2">
-                {/* <div className="relative w-6 h-6">
-                  <Image
-                    src={`/coins/${order.coin.toLowerCase()}.png`}
-                    alt={order.coin}
-                    fill
-                    className="rounded-full"
-                    onError={(e) => {
-                      e.currentTarget.src = "/coins/default.png";
-                    }}
-                  />
-                </div> */}
-                <span className="text-white text-[12px] font-medium">{order.coin}</span>
-              </div>
+                    const isSpot = item?.order?.coin?.indexOf("@") > -1 || item?.order?.coin === "PURR/USDC";
+                    const direction = getTradeType(isSpot, item?.order?.side, item?.order?.reduceOnly);
 
-              {/* Side */}
-              <div>
-                <span
-                  className={`text-[12px] font-medium px-2 py-1 rounded ${
-                    isBuy ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"
-                  }`}
-                >
-                  {isBuy ? "Buy" : "Sell"}
-                </span>
-              </div>
+                    const size = parseFloat(item?.order?.sz || "0");
+                    const originalSize = parseFloat(item?.order?.origSz || "0");
+                    const formattedSize = formatNumberToDecimalPoints(size, size < 1 ? undefined : 1);
 
-              {/* Order Type */}
-              <div className="text-white text-[12px]">
-                {order.orderType}
-                {order.reduceOnly && <span className="text-[#84858C] text-[10px] ml-1">(RO)</span>}
-              </div>
+                    const filledSize = originalSize - size;
+                    const formattedFilledSize = formatNumberToDecimalPoints(filledSize, filledSize < 1 ? undefined : 1);
 
-              {/* Price */}
-              <div className="flex flex-col">
-                <span className="text-white text-[12px]">${parseFloat(order.limitPx).toFixed(2)}</span>
-                {order.isTrigger && order.triggerPx !== "0.0" && (
-                  <span className="text-[#84858C] text-[10px]">Trigger: ${parseFloat(order.triggerPx).toFixed(2)}</span>
-                )}
-              </div>
+                    const limitPrice = parseFloat(item?.order?.limitPx || "0");
+                    const formattedPrice = formatNumberToDecimalPoints(limitPrice, limitPrice < 1 ? undefined : 1);
 
-              {/* Size */}
-              <div className="text-white text-[12px]">{parseFloat(order.origSz).toFixed(4)}</div>
+                    const orderValue = limitPrice * size;
+                    const formattedOrderValue = formatNumberToDecimalPoints(orderValue, 2);
 
-              {/* Status */}
-              <div className="flex flex-col">
-                <span className={`text-[12px] font-medium ${getStatusColor(item.status)}`}>
-                  {formatStatus(item.status)}
-                </span>
-              </div>
+                    const triggerPrice = parseFloat(item?.order?.triggerPx || "0");
+                    const formattedTriggerPrice = formatNumberToDecimalPoints(
+                      triggerPrice,
+                      triggerPrice < 1 ? undefined : 1,
+                    );
 
-              {/* Time */}
-              <div className="flex flex-col">
-                <span className="text-white text-[11px]">
-                  {orderTime.toLocaleTimeString("en-US", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hour12: false,
+                    const resolvedSpotToken = isSpot
+                      ? tokensData?.spot?.find((token) => token.name === item?.order?.coin) || null
+                      : null;
+
+                    return (
+                      <tr key={index} className="h-[24px] relative">
+                        <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">{time}</td>
+                        <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
+                          {item?.order?.orderType}
+                        </td>
+                        <td className="rounded-l-[10px] p-2">
+                          <button
+                            className="flex items-center gap-2"
+                            type="button"
+                            onClick={() => {
+                              if (isSpot) {
+                                setSelectedToken(resolvedSpotToken);
+                                return;
+                              }
+                              const tokensArray = (isSpot ? tokensData?.spot : tokensData?.perp) || [];
+                              const currentToken = tokensArray.find((token) => token.name === item?.order?.coin);
+                              if (!currentToken) return;
+                              setSelectedToken(currentToken);
+                            }}
+                          >
+                            <p
+                              className={cn(
+                                "text-white text-xs font-medium leading-[1.35%]",
+                                directionColorMap[direction],
+                              )}
+                            >
+                              {resolvedSpotToken?.symbol || item?.order?.coin}
+                            </p>
+                          </button>
+                        </td>
+                        <td
+                          className={cn(
+                            "text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap",
+                            directionColorMap[direction],
+                          )}
+                        >
+                          {direction}
+                        </td>
+                        <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
+                          {size ? formattedSize : "--"}
+                        </td>
+
+                        <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
+                          {filledSize ? formattedFilledSize : "--"}
+                        </td>
+                        <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
+                          {orderValue ? `${formattedOrderValue} USDC` : "--"}
+                        </td>
+                        <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
+                          {triggerPrice ? "Market" : formattedPrice}
+                        </td>
+                        <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
+                          {isSpot ? "--" : item?.order?.reduceOnly ? "Yes" : "No"}
+                        </td>
+                        <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
+                          {item?.order?.triggerCondition || "N/A"}
+                        </td>
+                        <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
+                          {item?.order?.isPositionTpsl ? "--" : "--"}
+                        </td>
+                        <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap capitalize">
+                          {item?.status}
+                        </td>
+                        <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
+                          {item?.order?.oid}
+                        </td>
+                      </tr>
+                    );
                   })}
-                </span>
-                <span className="text-[#84858C] text-[10px]">
-                  {orderTime.toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                  })}
-                </span>
-              </div>
-            </div>
-          );
-        })}
+              </RenderIf>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

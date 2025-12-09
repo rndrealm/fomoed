@@ -182,3 +182,71 @@ export interface WsAllMidsResponse {
 export interface WsAllMids {
   mids: Record<string, string>;
 }
+
+export interface WsUserHistoricalOrdersResponse {
+  channel: string;
+  data: Data;
+}
+
+interface Data {
+  isSnapshot: boolean;
+  user: string;
+  orderHistory: WsOrderHistory[];
+}
+
+export interface WsOrderHistory {
+  order: Order;
+  status: Status;
+  statusTimestamp: number;
+}
+
+enum Status {
+  Canceled = "canceled",
+  Filled = "filled",
+  MinTradeNtlRejected = "minTradeNtlRejected",
+  Open = "open",
+  ReduceOnlyCanceled = "reduceOnlyCanceled",
+}
+
+export interface WsUserFillsResponse {
+  channel: string;
+  data: WsUserFillsData;
+}
+
+interface WsUserFillsData {
+  isSnapshot: boolean;
+  user: string;
+  fills: WsUserFills[];
+}
+
+export interface WsUserFills {
+  coin: string;
+  px: string;
+  sz: string;
+  side: Side;
+  time: number;
+  startPosition: string;
+  dir: Dir;
+  closedPnl: string;
+  hash: string;
+  oid: number;
+  crossed: boolean;
+  fee: string;
+  tid: number;
+  feeToken: string;
+  twapId: null;
+}
+
+export enum Dir {
+  Buy = "Buy",
+  CloseLong = "Close Long",
+  CloseShort = "Close Short",
+  OpenLong = "Open Long",
+  OpenShort = "Open Short",
+  Sell = "Sell",
+}
+
+enum Side {
+  A = "A",
+  B = "B",
+}
