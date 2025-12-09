@@ -60,6 +60,7 @@ export interface ITpSlOrder {
   isSpot: boolean;
   selectedToken: SpotsUniverse | PerpUniverse;
   isLong: boolean;
+  leverage: number;
 }
 
 export default function OpenPositionsTab() {
@@ -91,6 +92,10 @@ export default function OpenPositionsTab() {
   };
 
   const [selectedTpSlOrder, setSelectedTpSlOrder] = useState<ITpSlOrder | null>(null);
+
+  const toggleModalOrderTpSl = () => {
+    setIsTakeProfitModalOpen(!isTakeProfitModalOpen);
+  };
 
   return (
     <>
@@ -154,6 +159,7 @@ export default function OpenPositionsTab() {
                     const size = parseFloat(item?.position?.szi || "0");
                     const isLong = size > 0;
                     const formattedSize = formatNumberToDecimalPoints(Math.abs(size));
+                    const orderSize = Math.abs(size);
                     const positionValue = formatNumberToDecimalPoints(
                       parseFloat(item?.position?.positionValue) || 0,
                       2,
@@ -273,12 +279,13 @@ export default function OpenPositionsTab() {
                                 if (!currentToken) return;
                                 setSelectedTpSlOrder({
                                   coin: item?.position?.coin,
-                                  positionSize: formattedSize,
+                                  positionSize: orderSize.toString(),
                                   entryPrice: formattedEntryPrice,
                                   markPrice: formattedMarkPrice,
                                   isSpot: isSpot,
                                   selectedToken: currentToken,
                                   isLong: isLong,
+                                  leverage: item?.position?.leverage?.value,
                                 });
                                 setIsTakeProfitModalOpen(true);
                               }}
@@ -296,7 +303,7 @@ export default function OpenPositionsTab() {
                                 const currentToken = tokensArray.find((token) => token.name === item?.position?.coin);
                                 if (!currentToken) return;
                                 openCloseOrderModal("limit", {
-                                  size: formattedSize,
+                                  size: orderSize.toString(),
                                   isLong: isLong,
                                   leverage: item?.position?.leverage?.value,
                                   coin: item?.position?.coin,
@@ -314,7 +321,7 @@ export default function OpenPositionsTab() {
                                 const currentToken = tokensArray.find((token) => token.name === item?.position?.coin);
                                 if (!currentToken) return;
                                 openCloseOrderModal("market", {
-                                  size: formattedSize,
+                                  size: orderSize.toString(),
                                   isLong: isLong,
                                   leverage: item?.position?.leverage?.value,
                                   coin: item?.position?.coin,
@@ -404,7 +411,7 @@ export default function OpenPositionsTab() {
             title="TP/SL for Position"
             className="!max-w-[462px] px-6 py-8 bg-[#141416] gap-0 scrollbar"
           >
-            <TakeProfit order={selectedTpSlOrder} />
+            <TakeProfit order={selectedTpSlOrder} toggleModal={toggleModalOrderTpSl} />
           </ModalContainer>
         </RenderIf>
       ) : null}

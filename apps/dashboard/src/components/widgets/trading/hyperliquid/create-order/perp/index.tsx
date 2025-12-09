@@ -219,11 +219,14 @@ export default function CreateOrder(props: IProps) {
 
     // Add TP order if exists
     if (hasTP) {
+      const calculatedPrice = Number(_values.tp) * (1 - 0.036);
+      const decimalPlaces = _values.tp.includes(".") ? _values.tp.split(".")[1].length : 0;
       orders.push({
         type: "trigger",
         asset: currAsset,
         side: isLong ? "sell" : "buy", // Opposite side to close position
         triggerPrice: _values.tp.toString(),
+        price: calculatedPrice.toFixed(decimalPlaces),
         size: orderSize,
         isMarket: true,
         reduceOnly: true,
@@ -233,11 +236,14 @@ export default function CreateOrder(props: IProps) {
 
     // Add SL order if exists
     if (hasSL) {
+      const calculatedPrice = Number(_values.sl) * (1 - 0.036);
+      const decimalPlaces = _values.sl.includes(".") ? _values.sl.split(".")[1].length : 0;
       orders.push({
         type: "trigger",
         asset: currAsset,
         side: isLong ? "sell" : "buy", // Opposite side to close position
         triggerPrice: _values.sl.toString(),
+        price: calculatedPrice.toFixed(decimalPlaces),
         size: orderSize,
         isMarket: true,
         reduceOnly: true,

@@ -252,3 +252,14 @@ export function formatHlSize(size: number, szDecimals: number): string {
   // Return as string without forcing trailing zeros
   return truncated.toString();
 }
+
+/**
+ * function to parse numeric strings that may contain commas or extra spaces
+ * @param input
+ * @returns the formatted number
+ */
+export function parseNumericString(input: string | number): number {
+  const cleaned = String(input).replace(/,/g, "").trim();
+  const num = parseFloat(cleaned);
+  return Number.isFinite(num) ? num : 0;
+}

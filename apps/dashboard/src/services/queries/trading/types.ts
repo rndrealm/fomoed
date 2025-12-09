@@ -29,6 +29,7 @@ interface TriggerOrderType {
   size: string;
   type: "trigger";
   triggerPrice: string;
+  price: string;
   isMarket: boolean;
   tpsl: "tp" | "sl";
   reduceOnly?: boolean | undefined;
