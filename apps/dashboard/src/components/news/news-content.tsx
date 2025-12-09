@@ -39,7 +39,7 @@ export function NewsContent(props: IProps) {
               </p>
               <p className="text-[14px] leading-[1.35] font-medium text-white">Joshua Jake /</p>
               <p className="text-[14px] leading-[1.35] font-medium text-[#9b9b9b]">
-                News{(article?.symbols || []).length > 0 ? "," : ""} {article?.symbols.join(", ")}
+                News{(article?.symbols || []).length > 0 ? "," : ""} {(article?.symbols || []).join(", ")}
               </p>
             </div>
 
