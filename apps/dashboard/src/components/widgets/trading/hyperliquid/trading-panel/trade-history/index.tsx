@@ -23,7 +23,7 @@ export const directionColorMap = {
 };
 
 export default function TradeHistory() {
-  const { address } = useAccount();
+  const { address, isConnected: isAccountConnected } = useAccount();
   const userAddress = address || "";
 
   const { isConnected, userFills } = useUserFills(userAddress);
@@ -56,7 +56,7 @@ export default function TradeHistory() {
             </thead>
 
             <tbody>
-              <RenderIf condition={!isConnected}>
+              <RenderIf condition={isAccountConnected && !isConnected}>
                 <tr>
                   <td colSpan={12} className="py-10">
                     <div className="flex justify-center w-full">
@@ -65,7 +65,7 @@ export default function TradeHistory() {
                   </td>
                 </tr>
               </RenderIf>
-              <RenderIf condition={isConnected && userFills?.length !== 0}>
+              <RenderIf condition={isAccountConnected && isConnected && userFills?.length !== 0}>
                 {userFills
                   ?.slice()
                   .reverse()
@@ -145,7 +145,7 @@ export default function TradeHistory() {
                   })}
               </RenderIf>
 
-              <RenderIf condition={isConnected && userFills?.length === 0}>
+              <RenderIf condition={!isAccountConnected || (isConnected && userFills?.length === 0)}>
                 <tr>
                   <td colSpan={12} className="">
                     <div className="flex flex-col min-h-[200px] h-full items-center justify-center bg-[#191B20] rounded-[6px] my-1">

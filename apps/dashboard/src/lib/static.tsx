@@ -382,9 +382,9 @@ export const layoutOptionsMap = [
 
   {
     id: 217,
-    name: "Ascendex",
+    name: "Trading Widget",
     slug: "ascendex",
-    image: dashboard.cfgi,
+    image: dashboard.tradingWidget,
     category: "charts",
     tags: ["charts"],
   },

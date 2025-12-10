@@ -11,7 +11,7 @@ export function useUserFills(address?: string) {
   const handleUserFillsUpdate = useCallback((data: WsUserFills[]) => {
     // console.log(data);
 
-    setUserFills(data);
+    setUserFills((prev) => [...prev, ...data]);
     setIsConnected(true);
   }, []);
 
