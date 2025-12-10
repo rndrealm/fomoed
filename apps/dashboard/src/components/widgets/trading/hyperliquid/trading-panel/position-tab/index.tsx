@@ -101,7 +101,7 @@ export default function OpenPositionsTab() {
     <>
       <div className="flex flex-col h-full">
         {/* Table */}
-        <div className="flex-1 overflow-auto px-3 no-scrollbar">
+        <div className="flex-1 overflow-auto px-3 scrollbar">
           <div className="bg-[#191B20] my-2 rounded-[15px] border border-[#222327] p-2">
             <table className="w-full" style={{ borderSpacing: "0 6px", borderCollapse: "separate" }}>
               <thead>
@@ -338,16 +338,20 @@ export default function OpenPositionsTab() {
                     );
                   })}
                 </RenderIf>
+
+                <RenderIf condition={!isLoading && clearingHouse?.clearinghouseState?.assetPositions?.length === 0}>
+                  <tr>
+                    <td colSpan={11} className="">
+                      <div className="flex flex-col items-center justify-center bg-[#191B20] rounded-[6px] my-1">
+                        <Image src={dashboard.noDeposits} alt="No balances" width={168} height={168} className="mb-4" />
+                        <p className="text-white text-[20px] font-semibold">No Positions</p>
+                      </div>
+                    </td>
+                  </tr>
+                </RenderIf>
               </tbody>
             </table>
           </div>
-
-          <RenderIf condition={!isLoading && clearingHouse?.clearinghouseState?.assetPositions?.length === 0}>
-            <div className="flex flex-col min-h-[300px] h-full items-center justify-center bg-[#191B20] rounded-[6px] my-1">
-              <Image src={dashboard.noDeposits} alt="No balances" width={168} height={168} className="mb-4" />
-              <p className="text-white text-[20px] font-semibold">No Positions</p>
-            </div>
-          </RenderIf>
         </div>
 
         {/* Summary Footer */}

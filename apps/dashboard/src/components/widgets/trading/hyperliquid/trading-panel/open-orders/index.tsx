@@ -12,9 +12,10 @@ import { useReadHyperLiquidTokens } from "@/services/queries/hyperliquid";
 import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
 import { useSetAtom } from "jotai";
 import { useAccount } from "wagmi";
+import { HyperliquidSpotListResponse } from "@/services/queries/hyperliquid/types";
 import CancelAllOrders from "../modals/cancel-all-orders";
 
-function getOrderAction(coin: string, side: string, reduceOnly: boolean) {
+export function getOrderAction(coin: string, side: string, reduceOnly: boolean) {
   const isSpot = coin.includes("/");
 
   if (isSpot) {
@@ -35,14 +36,13 @@ function getOrderAction(coin: string, side: string, reduceOnly: boolean) {
 export default function OpenOrdersTab() {
   const { address } = useAccount();
   const { isConnected, openOrders } = useOpenOrders(address);
-  const { allMids, isConnected: midsConnected } = useAllMids();
 
   const { data: tokensData } = useReadHyperLiquidTokens();
   const setSelectedToken = useSetAtom(selectedTokenAtom);
 
   const ordersArray = openOrders?.orders || [];
 
-  const isLoading = !isConnected || !midsConnected;
+  const isLoading = !isConnected;
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
@@ -94,135 +94,103 @@ export default function OpenOrdersTab() {
                     </button>
                   </th>
                 </tr>
-              </thead>
+              </RenderIf>
+              <RenderIf condition={!isLoading && ordersArray?.length !== 0}>
+                {ordersArray?.map((item, index) => {
+                  const time = `${new Date(item.timestamp).toLocaleDateString()} - ${new Date(item.timestamp).toLocaleTimeString()}`;
+                  const sideColorClassName = item.side === "B" ? "text-[#00AF58]" : "text-[#F99185]";
+                  const isSpot = item?.coin?.includes("@");
 
-              <tbody className="bg-[#191B20] rounded-[15px] border border-[#222327]">
-                <RenderIf condition={isLoading}>
-                  <tr>
-                    <td colSpan={12} className="py-10">
-                      <div className="flex justify-center w-full">
-                        <Spinner variant="circle" className="text-[rgb(255,59,16)]" size={24} />
-                      </div>
-                    </td>
-                  </tr>
-                </RenderIf>
-                <RenderIf condition={!isLoading && ordersArray?.length === 0}>
-                  <tr>
-                    <td colSpan={12} className="py-10">
-                      <div className="flex flex-col items-center justify-center">
-                        <Image src={dashboard.noDeposits} alt="No balances" width={168} height={168} className="mb-4" />
-                        <p className="text-white text-[20px] font-semibold">No Open Orders</p>
-                      </div>
-                    </td>
-                  </tr>
-                </RenderIf>
-                <RenderIf condition={!isLoading && ordersArray?.length !== 0}>
-                  {ordersArray?.map((item, index) => {
-                    const time = `${new Date(item.timestamp).toLocaleDateString()} - ${new Date(item.timestamp).toLocaleTimeString()}`;
-                    const sideColorClassName = item.side === "B" ? "text-[#00AF58]" : "text-[#F99185]";
-                    const isSpot = item?.coin?.includes("/");
+                  const originalSize = parseFloat(item?.origSz || "0");
 
-                    const originalSize = parseFloat(item?.origSz || "0");
+                  const size = parseFloat(item?.sz || "0");
 
-                    const size = parseFloat(item?.sz || "0");
+                  const price = parseFloat(item?.limitPx || "0");
+                  const formattedPrice = formatNumberToDecimalPoints(price);
 
-                    const price = parseFloat(item?.limitPx || "0");
-                    const formattedPrice = formatNumberToDecimalPoints(price);
+                  const orderValue = price * size;
+                  const formattedOrderValue = formatNumberToDecimalPoints(orderValue, 2);
 
-                    const orderValue = price * size;
-                    const formattedOrderValue = formatNumberToDecimalPoints(orderValue, 2);
+                  const resolvedSpotToken = isSpot
+                    ? tokensData?.spot?.find((token) => token.name === item.coin) || null
+                    : null;
 
-                    const isFirstRow = index === 0;
-                    const isLastRow = index === ordersArray.length - 1;
-
-                    return (
-                      <tr
-                        key={index}
-                        className="h-[48px] relative border-t border-[#222327]"
-                        style={{ marginTop: index === 0 ? "6px" : 0 }}
+                  return (
+                    <tr key={index} className="h-[24px] relative">
+                      <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">{time}</td>
+                      <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
+                        {item?.orderType}
+                      </td>
+                      <td className="rounded-l-[10px] p-2">
+                        <button
+                          className="flex items-center gap-2"
+                          type="button"
+                          onClick={() => {
+                            if (isSpot) {
+                              setSelectedToken(resolvedSpotToken);
+                              return;
+                            }
+                            const tokensArray = (isSpot ? tokensData?.spot : tokensData?.perp) || [];
+                            const currentToken = tokensArray.find((token) => token.name === item?.coin);
+                            if (!currentToken) return;
+                            setSelectedToken(currentToken);
+                          }}
+                        >
+                          <p className={cn("text-white text-xs font-medium leading-[1.35%]", sideColorClassName)}>
+                            {resolvedSpotToken?.symbol || item?.coin}
+                          </p>
+                        </button>
+                      </td>
+                      <td
+                        className={cn(
+                          "text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap",
+                          sideColorClassName,
+                        )}
                       >
-                        <td
-                          className={cn(
-                            "text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap",
-                            isFirstRow && "rounded-tl-[10px]",
-                            isLastRow && "rounded-bl-[10px]",
-                          )}
-                        >
-                          {time}
-                        </td>
-                        <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
-                          {item?.orderType}
-                        </td>
-                        <td className="p-2">
-                          <button
-                            className="flex items-center gap-2"
-                            type="button"
-                            onClick={() => {
-                              const tokensArray = (isSpot ? tokensData?.spot : tokensData?.perp) || [];
-                              const currentToken = tokensArray.find((token) => token.name === item?.coin);
-                              if (!currentToken) return;
-                              setSelectedToken(currentToken);
-                            }}
-                          >
-                            <p className={cn("text-white text-xs font-medium leading-[1.35%]", sideColorClassName)}>
-                              {item?.coin}
-                            </p>
-                          </button>
-                        </td>
-                        <td
-                          className={cn(
-                            "text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap",
-                            sideColorClassName,
-                          )}
-                        >
-                          {getOrderAction(item?.coin, item?.side, item?.reduceOnly)}
-                        </td>
-                        <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
-                          {size || "-"}
-                        </td>
-                        <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
-                          {originalSize || "-"}
-                        </td>
-                        <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
-                          {orderValue ? formattedOrderValue : "-"}
-                        </td>
-                        <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
-                          {orderValue ? formattedPrice : "Market"}
-                        </td>
-                        <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
-                          <RenderIf condition={isSpot}>--</RenderIf>
-                          <RenderIf condition={!isSpot}>{item?.reduceOnly ? "Yes" : "No"}</RenderIf>
-                        </td>
-                        <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
-                          {item?.triggerCondition}
-                        </td>
-                        <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">--</td>
-                        <td
-                          className={cn(
-                            "text-[#FFF0D3] leading-[1.35] text-xs font-medium p-2 whitespace-nowrap",
-                            isFirstRow && "rounded-tr-[10px]",
-                            isLastRow && "rounded-br-[10px]",
-                          )}
-                        >
-                          <div className="flex items-center">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setSelectedOrderId(item.oid);
-                                setIsCancelModalOpen(true);
-                              }}
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </RenderIf>
-              </tbody>
-            </table>
-          </div>
+                        {getOrderAction(item?.coin, item?.side, item?.reduceOnly)}
+                      </td>
+                      <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
+                        {size || "-"}
+                      </td>
+                      <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
+                        {originalSize || "-"}
+                      </td>
+                      <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
+                        {orderValue ? formattedOrderValue : "-"}
+                      </td>
+                      <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
+                        {orderValue ? formattedPrice : "Market"}
+                      </td>
+                      <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
+                        <RenderIf condition={isSpot}>--</RenderIf>
+                        <RenderIf condition={!isSpot}>{item?.reduceOnly ? "Yes" : "No"}</RenderIf>
+                      </td>
+                      <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
+                        {item?.triggerCondition}
+                      </td>
+                      <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">--</td>
+                      <td className="text-[#FFF0D3] leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <button type="button">Cancel</button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </RenderIf>
+
+              <RenderIf condition={!isLoading && ordersArray?.length === 0}>
+                <tr>
+                  <td colSpan={12} className="">
+                    <div className="flex flex-col min-h-[200px] h-full items-center justify-center bg-[#191B20] rounded-[6px] my-1">
+                      <Image src={dashboard.noDeposits} alt="No balances" width={168} height={168} className="mb-4" />
+                      <p className="text-white text-[20px] font-semibold">No Open Orders</p>
+                    </div>
+                  </td>
+                </tr>
+              </RenderIf>
+            </tbody>
+          </table>
         </div>
       </div>
 
