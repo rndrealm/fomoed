@@ -7,7 +7,7 @@ import { RenderIf } from "@/components/shared";
 import { Slider } from "@/components/ui/slider";
 import { ITpSlOrder } from "../trading-panel/position-tab";
 import { PERP_MAX_DECIMALS, SPOT_MAX_DECIMALS } from "../../utils/constants";
-import { formatHlPrice, formatHlSize } from "../../utils";
+import { formatHlPrice, formatHlPriceInput, formatHlSize, formatHlSizeInput } from "../../utils";
 import { calculateLossPercent, calculateSLFromLoss, calculateTpGain, cn, reverseCalculateTpGain } from "@/lib/utils";
 import { useTicker } from "../../chart/trading-view/hyperliquid/use-ticker";
 import { toast } from "sonner";
@@ -15,6 +15,7 @@ import { OrderEnum, TradeExecutionPayload } from "@/services/queries/trading/typ
 import { useAccount } from "wagmi";
 import { useSupabaseAuth } from "@/components/providers";
 import { useExecuteTrade } from "@/services/queries/trading";
+import { CustomTextInput } from "@/components/shared/custom-text-input";
 
 const validationSchema = Yup.object().shape({
   tpPrice: Yup.number(),
@@ -112,7 +113,7 @@ export function TakeProfit(props: IProps) {
   }
 
   const onSubmit = async (_values: InitialValues) => {
-    console.log("Submit values:", _values);
+    const toDecimal = selectedToken.szDecimals;
 
     if (!validateTpSl(_values, isLong)) {
       return;
@@ -141,8 +142,8 @@ export function TakeProfit(props: IProps) {
         triggerPrice: _values.tpPrice.toString(),
         price:
           _values.limitPrice && _values.tpLimitPrice
-            ? _values.tpLimitPrice.toString()
-            : calculatedPrice.toFixed(decimalPlaces),
+            ? Number(_values.tpLimitPrice).toFixed(toDecimal)
+            : calculatedPrice.toFixed(toDecimal),
         size: customOrderSize,
         isMarket: true,
         reduceOnly: true,
@@ -161,8 +162,8 @@ export function TakeProfit(props: IProps) {
         triggerPrice: _values.slPrice.toString(),
         price:
           _values.limitPrice && _values.slLimitPrice
-            ? _values.slLimitPrice.toString()
-            : calculatedPrice.toFixed(decimalPlaces),
+            ? Number(_values.slLimitPrice).toFixed(toDecimal)
+            : calculatedPrice.toFixed(toDecimal),
         size: customOrderSize,
         isMarket: true,
         reduceOnly: true,
@@ -238,7 +239,7 @@ export function TakeProfit(props: IProps) {
                     <div className="flex flex-col gap-2">
                       <div className="flex items-center gap-1">
                         <div className="flex-1">
-                          <TextInput
+                          <CustomTextInput
                             aria-label="TP Price"
                             name="tpPrice"
                             type="number"
@@ -246,7 +247,7 @@ export function TakeProfit(props: IProps) {
                             placeholder="TP Price"
                             value={values.tpPrice}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                              setFieldValue("tpPrice", formatHlPrice(Number(e.target.value), maxDecimal));
+                              setFieldValue("tpPrice", formatHlPriceInput(e.target.value, maxDecimal));
                               setFieldValue(
                                 "gain",
                                 e.target.value
@@ -264,7 +265,7 @@ export function TakeProfit(props: IProps) {
                           />
                         </div>
                         <div className="flex-1">
-                          <TextInput
+                          <CustomTextInput
                             aria-label="Gain"
                             name="gain"
                             type="number"
@@ -279,7 +280,10 @@ export function TakeProfit(props: IProps) {
                                 isLong ? "long" : "short",
                               );
                               setFieldValue("gain", e.target.value);
-                              setFieldValue("tpPrice", e.target.value ? formatHlPrice(tp, maxDecimal) : "");
+                              setFieldValue(
+                                "tpPrice",
+                                e.target.value ? formatHlPriceInput(tp.toString(), maxDecimal) : "",
+                              );
                             }}
                             onBlur={handleBlur}
                             className="bg-[#1B1B1D] h-[40px] rounded-lg text-sm text-white"
@@ -291,7 +295,7 @@ export function TakeProfit(props: IProps) {
 
                       <div className="flex items-center gap-1">
                         <div className="flex-1">
-                          <TextInput
+                          <CustomTextInput
                             aria-label="SL Price"
                             name="slPrice"
                             type="number"
@@ -299,7 +303,7 @@ export function TakeProfit(props: IProps) {
                             placeholder="SL Price"
                             value={values.slPrice}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                              setFieldValue("slPrice", formatHlPrice(Number(e.target.value), maxDecimal));
+                              setFieldValue("slPrice", formatHlPriceInput(e.target.value, maxDecimal));
                               setFieldValue(
                                 "loss",
                                 e.target.value
@@ -317,7 +321,7 @@ export function TakeProfit(props: IProps) {
                           />
                         </div>
                         <div className="flex-1">
-                          <TextInput
+                          <CustomTextInput
                             aria-label="Loss"
                             name="loss"
                             type="number"
@@ -332,7 +336,10 @@ export function TakeProfit(props: IProps) {
                                 isLong ? "long" : "short",
                               );
                               setFieldValue("loss", e.target.value);
-                              setFieldValue("slPrice", e.target.value ? formatHlPrice(sl, maxDecimal) : "");
+                              setFieldValue(
+                                "slPrice",
+                                e.target.value ? formatHlPriceInput(sl.toString(), maxDecimal) : "",
+                              );
                             }}
                             onBlur={handleBlur}
                             className="bg-[#1B1B1D] h-[40px] rounded-lg text-sm text-white"
@@ -360,18 +367,18 @@ export function TakeProfit(props: IProps) {
                             onValueChange={(value: number[]) => {
                               const percentage = value[0];
                               const orderValue = (Number(positionSize) * percentage) / multiplier / 100;
-                              setFieldValue("customAmount", formatHlSize(orderValue, decimals));
+                              setFieldValue("customAmount", formatHlSizeInput(orderValue.toString(), decimals));
                             }}
                             min={0}
                             max={100}
                             step={1}
                             showDots
                           />
-                          <TextInput
+                          <CustomTextInput
                             className="h-12 !pr-4.5 w-28 border-none outline-none text-[#D7D7D7] !text-sm tracking-[-0.4%] leading-[14px] px-2.5 rounded-[10px] focus-visible:ring-0 bg-[#222329]"
                             value={values.customAmount}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                              setFieldValue("customAmount", formatHlSize(Number(e.target.value), decimals));
+                              setFieldValue("customAmount", formatHlSizeInput(e.target.value, decimals));
                             }}
                             disableFormikError
                             name="percentage"
@@ -395,7 +402,7 @@ export function TakeProfit(props: IProps) {
                       <RenderIf condition={values.limitPrice}>
                         <div className="flex items-center gap-1">
                           <div className="flex-1">
-                            <TextInput
+                            <CustomTextInput
                               aria-label="TP Limit Price"
                               name="tpLimitPrice"
                               type="number"
@@ -408,7 +415,7 @@ export function TakeProfit(props: IProps) {
                             />
                           </div>
                           <div className="flex-1">
-                            <TextInput
+                            <CustomTextInput
                               aria-label="SL Limit Price"
                               name="slLimitPrice"
                               type="number"

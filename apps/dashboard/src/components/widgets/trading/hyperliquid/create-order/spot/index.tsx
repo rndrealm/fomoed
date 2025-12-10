@@ -77,15 +77,16 @@ export default function CreateSpotOrder(props: IProps) {
 
   const { mutate, isPending } = useExecuteTrade(session?.access_token, onSuccessExecute);
   function onSubmit(_values: TradingFormInitialValues) {
-    if (Number(_values.quantity) < 10) {
-      toast.error("Quantity must be greater than 10");
-      return;
-    }
     const converter = orderType === "limit" ? _values.price : marketPrice;
     const toDecimal = selectedToken.szDecimals;
     const orderSize = (
       orderBy === selectOptions[0].value ? Number(_values.quantity) : Number(_values.quantity) / Number(converter)
     ).toFixed(toDecimal);
+
+    if (Number(orderSize) * Number(converter) < 10) {
+      toast.error("Quantity must be greater than 10");
+      return;
+    }
 
     // Create main order
     const orders: OrderEnum[] = [];
@@ -95,7 +96,7 @@ export default function CreateSpotOrder(props: IProps) {
         type: "market",
         asset: currAsset,
         side: isLong ? "buy" : "sell",
-        size: orderSize,
+        size: Number(orderSize).toFixed(toDecimal),
         reduceOnly: false,
         isSpot: true,
       });
@@ -104,8 +105,8 @@ export default function CreateSpotOrder(props: IProps) {
         type: "limit",
         asset: currAsset,
         side: isLong ? "buy" : "sell",
-        price: String(_values.price),
-        size: orderSize,
+        price: Number(_values.price).toFixed(toDecimal),
+        size: Number(orderSize).toFixed(toDecimal),
         reduceOnly: false,
         timeInForce: _values.tif as TifEnum,
       });
