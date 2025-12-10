@@ -11,7 +11,7 @@ export function useHistoricalOrders(address?: string) {
   const handleOrderHistoryUpdate = useCallback((data: WsOrderHistory[]) => {
     // console.log(data);
 
-    setOrderHistory(data);
+    setOrderHistory((prev) => [...prev, ...data]);
     setIsConnected(true);
   }, []);
 

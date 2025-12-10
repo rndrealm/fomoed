@@ -32,7 +32,7 @@ export function getOrderAction(coin: string, side: string, reduceOnly: boolean) 
 }
 
 export default function OpenOrdersTab() {
-  const { address } = useAccount();
+  const { address, isConnected: isAccountConnected } = useAccount();
   const { isConnected, openOrders } = useOpenOrders(address);
 
   const { data: tokensData } = useReadHyperLiquidTokens();
@@ -44,6 +44,8 @@ export default function OpenOrdersTab() {
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
+
+  console.log(ordersArray);
 
   return (
     <>
@@ -94,7 +96,7 @@ export default function OpenOrdersTab() {
                 </tr>
               </thead>
               <tbody>
-                <RenderIf condition={isLoading}>
+                <RenderIf condition={isAccountConnected && isLoading}>
                   <tr>
                     <td colSpan={11} className="py-10">
                       <div className="flex justify-center w-full">
@@ -103,7 +105,7 @@ export default function OpenOrdersTab() {
                     </td>
                   </tr>
                 </RenderIf>
-                <RenderIf condition={!isLoading && ordersArray?.length !== 0}>
+                <RenderIf condition={isAccountConnected && !isLoading && ordersArray?.length !== 0}>
                   {ordersArray?.map((item, index) => {
                     const time = `${new Date(item.timestamp).toLocaleDateString()} - ${new Date(item.timestamp).toLocaleTimeString()}`;
                     const sideColorClassName = item.side === "B" ? "text-[#00AF58]" : "text-[#F99185]";
@@ -122,6 +124,8 @@ export default function OpenOrdersTab() {
                     const resolvedSpotToken = isSpot
                       ? tokensData?.spot?.find((token) => token.name === item.coin) || null
                       : null;
+
+                    const isMarket = item.orderType.toLowerCase().includes("market");
 
                     return (
                       <tr key={index} className="h-[24px] relative">
@@ -167,7 +171,7 @@ export default function OpenOrdersTab() {
                           {orderValue ? formattedOrderValue : "-"}
                         </td>
                         <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
-                          {orderValue ? formattedPrice : "Market"}
+                          {isMarket ? "Market" : formattedPrice}
                         </td>
                         <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
                           <RenderIf condition={isSpot}>--</RenderIf>
@@ -179,15 +183,7 @@ export default function OpenOrdersTab() {
                         <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">--</td>
                         <td className="text-[#FFF0D3] leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
                           <div className="flex items-center">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setSelectedOrderId(item.oid);
-                                setIsCancelModalOpen(true);
-                              }}
-                            >
-                              Cancel
-                            </button>
+                            <button type="button">Cancel</button>
                           </div>
                         </td>
                       </tr>
@@ -195,7 +191,7 @@ export default function OpenOrdersTab() {
                   })}
                 </RenderIf>
 
-                <RenderIf condition={!isLoading && ordersArray?.length === 0}>
+                <RenderIf condition={(!isLoading && ordersArray?.length === 0) || !isAccountConnected}>
                   <tr>
                     <td colSpan={12} className="">
                       <div className="flex flex-col min-h-[200px] h-full items-center justify-center bg-[#191B20] rounded-[6px] my-1">

@@ -25,7 +25,7 @@ interface BalancesTabProps {
 const hideSmallBalances = false;
 
 export default function BalancesTab() {
-  const { address } = useAccount();
+  const { address, isConnected: isAccountConnected } = useAccount();
   const userAddress = address || "";
   const { clearingHouse } = useClearingHouseState(userAddress);
   const { spotState } = useSpotState(userAddress);
@@ -107,6 +107,14 @@ export default function BalancesTab() {
 
   const filteredBalances = balances.filter((balance) => balance.usdcValue > 1);
   // const filteredBalances = hideSmallBalances ? balances.filter((balance) => balance.usdcValue > 1) : balances;
+
+  if (!isAccountConnected) {
+    return (
+      <div className="flex items-center justify-center h-full min-h-[300px]">
+        <div className="text-[#84858C] text-[14px]"></div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
