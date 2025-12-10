@@ -46,6 +46,7 @@ const mockSelectedToken: SpotsUniverse = {
   tokens: [0, 1],
   name: "BTC/USDC",
   isCanonical: true,
+  szDecimals: 5,
 } as SpotsUniverse;
 
 const mockTicker: WsActiveSpotAssetCtx = {
@@ -319,7 +320,7 @@ describe("CreateSpotOrder Component", () => {
                 asset: 10000,
                 side: "buy",
                 price: "100000",
-                size: "0.01",
+                size: "0.01000",
                 reduceOnly: false,
                 timeInForce: "Gtc",
               },
@@ -379,7 +380,7 @@ describe("CreateSpotOrder Component", () => {
                 asset: 10000,
                 side: "sell",
                 price: "99000",
-                size: "0.02",
+                size: "0.02020",
                 reduceOnly: false,
                 timeInForce: "Gtc",
               },
@@ -447,6 +448,7 @@ describe("CreateSpotOrder Component", () => {
                 side: "buy",
                 size: expect.any(String),
                 reduceOnly: false,
+                isSpot: true,
               },
             ],
           });
@@ -489,6 +491,7 @@ describe("CreateSpotOrder Component", () => {
                 side: "sell",
                 size: expect.any(String),
                 reduceOnly: false,
+                isSpot: true,
               },
             ],
           });
@@ -627,11 +630,11 @@ describe("CreateSpotOrder Component", () => {
 
         await waitFor(() => {
           const call = mockMutate.mock.calls[0][0];
-          expect(call.orders[0].size).toBe("0.50");
+          expect(call.orders[0].size).toBe("0.50000");
         });
       });
 
-      it("formats size to 2 decimal places", async () => {
+      it("formats size to 5 decimal places (szDecimals)", async () => {
         render(<CreateSpotOrder selectedToken={mockSelectedToken} ticker={mockTicker} />);
 
         const priceInput = screen.getByPlaceholderText("Price (USDC)");
@@ -651,7 +654,7 @@ describe("CreateSpotOrder Component", () => {
 
         await waitFor(() => {
           const call = mockMutate.mock.calls[0][0];
-          expect(call.orders[0].size).toBe("0.33");
+          expect(call.orders[0].size).toBe("0.33333");
         });
       });
     });

@@ -240,6 +240,7 @@ describe("Signup Page", () => {
           password: "Password1!",
           referralCode: "",
         },
+        null,
         null
       );
     });
