@@ -251,7 +251,7 @@ export function TakeProfit(props: IProps) {
                                 "gain",
                                 e.target.value
                                   ? calculateTpGain(
-                                      Number(values.tpPrice),
+                                      Number(e.target.value),
                                       Number(currentPrice),
                                       leverage,
                                       isLong ? "long" : "short",
@@ -304,7 +304,7 @@ export function TakeProfit(props: IProps) {
                                 "loss",
                                 e.target.value
                                   ? calculateLossPercent(
-                                      Number(values.slPrice),
+                                      Number(e.target.value),
                                       Number(currentPrice),
                                       leverage,
                                       isLong ? "long" : "short",

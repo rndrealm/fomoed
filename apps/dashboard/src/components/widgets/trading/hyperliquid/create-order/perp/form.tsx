@@ -384,7 +384,7 @@ export function FormContent(props: FormContentProps) {
                         "gain",
                         e.target.value
                           ? calculateTpGain(
-                              Number(values.tp),
+                              Number(e.target.value),
                               Number(marketPrice),
                               leverage,
                               isLong ? "long" : "short",
@@ -435,7 +435,7 @@ export function FormContent(props: FormContentProps) {
                         "loss",
                         e.target.value
                           ? calculateLossPercent(
-                              Number(values.sl),
+                              Number(e.target.value),
                               Number(marketPrice),
                               leverage,
                               isLong ? "long" : "short",
