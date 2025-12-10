@@ -54,8 +54,8 @@ export interface IPositionOrder {
 export interface ITpSlOrder {
   coin: string;
   positionSize: string;
-  entryPrice: string;
-  markPrice: string;
+  entryPrice: string | number;
+  markPrice: string | number;
   isSpot: boolean;
   selectedToken: SpotsUniverse | PerpUniverse;
   isLong: boolean;
@@ -287,8 +287,8 @@ export default function OpenPositionsTab() {
                                 setSelectedTpSlOrder({
                                   coin: item?.position?.coin,
                                   positionSize: orderSize.toString(),
-                                  entryPrice: formattedEntryPrice,
-                                  markPrice: formattedMarkPrice,
+                                  entryPrice: entryPrice,
+                                  markPrice: markPrice,
                                   isSpot: isSpot,
                                   selectedToken: currentToken,
                                   isLong: isLong,
