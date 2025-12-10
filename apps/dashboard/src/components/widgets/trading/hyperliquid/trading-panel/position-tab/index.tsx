@@ -1,7 +1,6 @@
 "use client";
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
-import { useHyperliquidAllMids } from "@/services/queries/hyperliquid-dex";
 import { useReadHyperLiquidTokens } from "@/services/queries/hyperliquid";
 import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
 import { useSetAtom } from "jotai";
@@ -168,13 +167,17 @@ export default function OpenPositionsTab() {
                     const entryPrice = parseFloat(item?.position?.entryPx);
                     const formattedEntryPrice = formatNumberToDecimalPoints(entryPrice);
 
-                    const markPrice = parseFloat(allMids?.mids?.[item?.position?.coin] || "0");
-                    const formattedMarkPrice = formatNumberToDecimalPoints(
-                      parseFloat(allMids?.mids?.[item?.position?.coin] || "0"),
-                    );
-
                     const pnl = parseFloat(item?.position?.unrealizedPnl) || 0;
                     const formattedPnl = formatNumberToDecimalPoints(Math.abs(pnl), 2) || "0.00";
+
+                    const midPrice = allMids?.mids?.[item?.position?.coin] || "0.00";
+
+                    const markPrice = entryPrice + pnl / size;
+                    const formattedMarkPrice = formatNumberToDecimalPoints(
+                      markPrice,
+                      midPrice?.split(".")[1].length - 1,
+                    );
+
                     const isPnlPositive = pnl >= 0;
                     const pnlSign = isPnlPositive ? "+" : "-";
 
@@ -353,41 +356,6 @@ export default function OpenPositionsTab() {
             </table>
           </div>
         </div>
-
-        {/* Summary Footer */}
-        {/* {positions.length > 0 && (
-        <div className="border-t border-[#0C0C0C] px-3 py-2 bg-[#0E0E0E]">
-          <div className="flex justify-between items-center">
-            <span className="text-[#84858C] text-[12px]">Total Positions: {positions.length}</span>
-            <div className="flex gap-4">
-              <div>
-                <span className="text-[#84858C] text-[12px]">Total Value: </span>
-                <span className="text-white text-[12px] font-medium">
-                  ${positions.reduce((sum, p) => sum + p.positionValue, 0).toFixed(2)}
-                </span>
-              </div>
-              <div>
-                <span className="text-[#84858C] text-[12px]">Total PNL: </span>
-                <span
-                  className="text-[12px] font-medium"
-                  style={{
-                    color: positions.reduce((sum, p) => sum + p.unrealizedPnl, 0) >= 0 ? "#00AF58" : "#DC2626",
-                  }}
-                >
-                  ${positions.reduce((sum, p) => sum + p.unrealizedPnl, 0) >= 0 ? "+" : ""}
-                  {positions.reduce((sum, p) => sum + p.unrealizedPnl, 0).toFixed(2)}
-                </span>
-              </div>
-              <div>
-                <span className="text-[#84858C] text-[12px]">Total Margin: </span>
-                <span className="text-white text-[12px] font-medium">
-                  ${positions.reduce((sum, p) => sum + p.marginUsed, 0).toFixed(2)}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )} */}
       </div>
 
       {selectedOrder ? (
