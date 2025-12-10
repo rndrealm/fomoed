@@ -8,6 +8,9 @@ import { useSetAtom } from "jotai";
 import { cn } from "@/lib/utils";
 import { directionColorMap } from "../trade-history";
 import { formatNumberToDecimalPoints } from "../../../chart/chart-header/stats";
+import { Spinner } from "@/components/ui/shadcn-io/spinner";
+import Image from "next/image";
+import dashboard from "@/lib/assets/dashboard";
 
 function getTradeType(isSpot: boolean, side: string, reduceOnly: boolean) {
   if (isSpot) {
@@ -22,7 +25,7 @@ function getTradeType(isSpot: boolean, side: string, reduceOnly: boolean) {
 }
 
 export default function OrderHistory() {
-  const { address } = useAccount();
+  const { address, isConnected: isAccountConnected } = useAccount();
   const userAddress = address || "";
 
   const { isConnected, orderHistory } = useHistoricalOrders(address);
@@ -32,13 +35,13 @@ export default function OrderHistory() {
 
   const formatDateTime = (timestamp: number) => {
     const date = new Date(timestamp);
-    const mm = String(date.getMonth() + 1).padStart(2, '0');
-    const dd = String(date.getDate()).padStart(2, '0');
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
     const yyyy = date.getFullYear();
-    const hh = String(date.getHours()).padStart(2, '0');
-    const min = String(date.getMinutes()).padStart(2, '0');
-    const ss = String(date.getSeconds()).padStart(2, '0');
-    
+    const hh = String(date.getHours()).padStart(2, "0");
+    const min = String(date.getMinutes()).padStart(2, "0");
+    const ss = String(date.getSeconds()).padStart(2, "0");
+
     return `${mm}/${dd}/${yyyy} - ${hh}:${min}:${ss}`;
   };
 
@@ -78,7 +81,16 @@ export default function OrderHistory() {
             </thead>
 
             <tbody>
-              <RenderIf condition={isConnected && orderHistory?.length !== 0}>
+              <RenderIf condition={isAccountConnected && !isConnected}>
+                <tr>
+                  <td colSpan={13} className="py-10">
+                    <div className="flex justify-center w-full">
+                      <Spinner variant="circle" className="text-[rgb(255,59,16)]" size={24} />
+                    </div>
+                  </td>
+                </tr>
+              </RenderIf>
+              <RenderIf condition={isAccountConnected && isConnected && orderHistory?.length !== 0}>
                 {orderHistory
                   ?.slice()
                   .reverse()
@@ -181,6 +193,17 @@ export default function OrderHistory() {
                       </tr>
                     );
                   })}
+              </RenderIf>
+
+              <RenderIf condition={!isAccountConnected || (isConnected && orderHistory?.length === 0)}>
+                <tr>
+                  <td colSpan={13} className="">
+                    <div className="flex flex-col min-h-[200px] h-full items-center justify-center bg-[#191B20] rounded-[6px] my-1">
+                      <Image src={dashboard.noDeposits} alt="No balances" width={168} height={168} className="mb-4" />
+                      <p className="text-white text-[20px] font-semibold">No Data</p>
+                    </div>
+                  </td>
+                </tr>
               </RenderIf>
             </tbody>
           </table>

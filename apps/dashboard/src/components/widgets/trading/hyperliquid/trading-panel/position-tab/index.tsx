@@ -63,7 +63,7 @@ export interface ITpSlOrder {
 }
 
 export default function OpenPositionsTab() {
-  const { address } = useAccount();
+  const { address, isConnected: isAccountConnected } = useAccount();
   const userAddress = address || "";
 
   const { clearingHouse, isConnected } = useClearingHouseState(userAddress);
@@ -144,7 +144,7 @@ export default function OpenPositionsTab() {
                 </tr>
               </thead>
               <tbody>
-                <RenderIf condition={isLoading}>
+                <RenderIf condition={isAccountConnected && isLoading}>
                   <tr>
                     <td colSpan={11} className="py-10">
                       <div className="flex justify-center w-full">
@@ -153,7 +153,11 @@ export default function OpenPositionsTab() {
                     </td>
                   </tr>
                 </RenderIf>
-                <RenderIf condition={!isLoading && clearingHouse?.clearinghouseState?.assetPositions?.length !== 0}>
+                <RenderIf
+                  condition={
+                    isAccountConnected && !isLoading && clearingHouse?.clearinghouseState?.assetPositions?.length !== 0
+                  }
+                >
                   {clearingHouse?.clearinghouseState?.assetPositions?.map((item, index) => {
                     const size = parseFloat(item?.position?.szi || "0");
                     const isLong = size > 0;
@@ -342,7 +346,12 @@ export default function OpenPositionsTab() {
                   })}
                 </RenderIf>
 
-                <RenderIf condition={!isLoading && clearingHouse?.clearinghouseState?.assetPositions?.length === 0}>
+                <RenderIf
+                  condition={
+                    !isAccountConnected ||
+                    (!isLoading && clearingHouse?.clearinghouseState?.assetPositions?.length === 0)
+                  }
+                >
                   <tr>
                     <td colSpan={11} className="">
                       <div className="flex flex-col items-center justify-center bg-[#191B20] rounded-[6px] my-1">
