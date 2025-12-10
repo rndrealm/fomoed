@@ -29,6 +29,7 @@ interface TriggerOrderType {
   size: string;
   type: "trigger";
   triggerPrice: string;
+  price: string;
   isMarket: boolean;
   tpsl: "tp" | "sl";
   reduceOnly?: boolean | undefined;
@@ -51,4 +52,15 @@ export interface UpdateLeveragePayload {
   asset: number;
   leverage: number;
   isCross?: boolean;
+}
+
+export interface CancelOrderBody {
+  orderId: number;
+  assetId: number;
+}
+
+export interface CancelOrderPayload {
+  provider: TradingProviderEnum;
+  wallet_address: string;
+  orders: CancelOrderBody[];
 }

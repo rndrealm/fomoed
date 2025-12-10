@@ -12,6 +12,7 @@ import {
   validateReduceOnly,
 } from "@/lib/utils";
 import { ErrorMsg, TextInput } from "@/components/auth/text-input";
+import { formatPrice, formatSize } from "@nktkas/hyperliquid/utils";
 import { Slider } from "@/components/ui/slider";
 import Checkbox from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
@@ -241,7 +242,7 @@ export function FormContent(props: FormContentProps) {
                 value={values.price}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   const val = e.target.value;
-                  setFieldValue("price", formatHlPrice(Number(val), maxDecimal));
+                  setFieldValue("price", formatPrice(Number(val), decimals));
                 }}
                 onBlur={handleBlur}
                 name="price"
@@ -378,7 +379,7 @@ export function FormContent(props: FormContentProps) {
                     id="tp"
                     value={values.tp}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                      setFieldValue("tp", e.target.value);
+                      setFieldValue("tp", formatHlPrice(Number(e.target.value), maxDecimal));
                       setFieldValue(
                         "gain",
                         e.target.value
@@ -411,7 +412,7 @@ export function FormContent(props: FormContentProps) {
                         isLong ? "long" : "short",
                       );
                       setFieldValue("gain", e.target.value);
-                      setFieldValue("tp", e.target.value ? tp : "");
+                      setFieldValue("tp", e.target.value ? formatHlPrice(tp, maxDecimal) : "");
                     }}
                     rightPlaceholder="%"
                     onBlur={handleBlur}
@@ -429,7 +430,7 @@ export function FormContent(props: FormContentProps) {
                     id="sl"
                     value={values.sl}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                      setFieldValue("sl", e.target.value);
+                      setFieldValue("sl", formatHlPrice(Number(e.target.value), maxDecimal));
                       setFieldValue(
                         "loss",
                         e.target.value
@@ -462,7 +463,7 @@ export function FormContent(props: FormContentProps) {
                         isLong ? "long" : "short",
                       );
                       setFieldValue("loss", e.target.value);
-                      setFieldValue("sl", e.target.value ? sl.toFixed() : "");
+                      setFieldValue("sl", e.target.value ? formatHlPrice(sl, maxDecimal) : "");
                     }}
                     rightPlaceholder="%"
                     onBlur={handleBlur}

@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { TradeExecutionPayload, UpdateLeveragePayload } from "./types";
+import { CancelOrderPayload, TradeExecutionPayload, UpdateLeveragePayload } from "./types";
 import { updateExchangeAction, UpdateExchangePayload } from "./actions";
 import api from "@/services/api";
 import { toast } from "sonner";
@@ -37,6 +37,29 @@ export const useExecuteTrade = (authToken?: string, onSuccess?: () => void) => {
     onError: (data: any) => {
       console.log("execute error: ", data.response.data.error.message);
       toast.error(data?.response?.data?.error?.message || "Order execution error");
+    },
+  });
+};
+export const useCancelOrder = (authToken?: string, onSuccess?: () => void) => {
+  return useMutation({
+    mutationFn: async (data: CancelOrderPayload) => {
+      const res = await api.gemachPost({
+        url: `${BASE_URL}/trading/cancel-orders`,
+        body: data,
+        auth: false,
+        headers: getAuthHeaders(authToken),
+      });
+
+      return res?.data?.data;
+    },
+    onSuccess: (data) => {
+      console.log("cancel success: ", data);
+      onSuccess?.();
+      toast.success("Order canceled successfully");
+    },
+    onError: (data: any) => {
+      console.log("cancel error: ", data.response.data.error.message);
+      toast.error(data?.response?.data?.error?.message || "Order cancellation error");
     },
   });
 };

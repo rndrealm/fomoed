@@ -8,14 +8,8 @@ interface BalanceAccountHeaderProps {
   accountName?: string;
 }
 
-export default function BalanceAccountHeader({
-  userAddress,
-  accountName = "Account 1",
-}: BalanceAccountHeaderProps) {
-  const { data: clearinghouse, isLoading } = useHyperliquidClearinghouseState(
-    userAddress,
-    !!userAddress
-  );
+export default function BalanceAccountHeader({ userAddress, accountName = "Account 1" }: BalanceAccountHeaderProps) {
+  const { data: clearinghouse, isLoading } = useHyperliquidClearinghouseState(userAddress, !!userAddress);
 
   const formatBalance = (value: string | undefined) => {
     if (!value) return "$0.00";
@@ -43,13 +37,11 @@ export default function BalanceAccountHeader({
         </div>
         <div className="flex flex-col">
           <span className="text-white font-semibold text-sm leading-tight">{accountName}</span>
-          <span className="text-[#9CA3AF] text-sm leading-tight">
-            {isLoading ? "Loading..." : balance}
-          </span>
+          <span className="text-[#9CA3AF] text-sm leading-tight">{isLoading ? "Loading..." : balance}</span>
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex hidden items-center gap-3">
         <button
           className="flex items-center justify-center bg-[rgba(118,55,186,0.2)] text-[#7637BA] font-semibold text-[12px] px-4 rounded-[8px] hover:bg-[rgba(118,55,186,0.3)] transition-colors"
           style={{ height: "32px" }}

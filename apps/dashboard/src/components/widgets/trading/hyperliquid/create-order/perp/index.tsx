@@ -18,6 +18,7 @@ import LeverageModal from "../../modals/leverage-modal";
 import ConfirmModal from "../../modals/confirm-modal";
 import MarginModeModal from "../../modals/margin-mode-modal";
 import { WsActiveAssetCtx, WsActiveSpotAssetCtx } from "../../../chart/trading-view/hyperliquid/types";
+import { getFromAndToToken } from "../../../utils";
 
 const initialValues = {
   price: "0",
@@ -40,6 +41,8 @@ interface IProps {
 
 export default function CreateOrder(props: IProps) {
   const { selectedToken, ticker } = props;
+
+  const { from } = getFromAndToToken(selectedToken.displayName, "-");
 
   const validationSchema = Yup.object().shape({
     price: Yup.number().min(0.01, "Price must be greater than 0").required("Please enter price"),
@@ -216,11 +219,14 @@ export default function CreateOrder(props: IProps) {
 
     // Add TP order if exists
     if (hasTP) {
+      const calculatedPrice = Number(_values.tp) * (1 - 0.036);
+      const decimalPlaces = _values.tp.includes(".") ? _values.tp.split(".")[1].length : 0;
       orders.push({
         type: "trigger",
         asset: currAsset,
         side: isLong ? "sell" : "buy", // Opposite side to close position
-        triggerPrice: _values.tp,
+        triggerPrice: _values.tp.toString(),
+        price: calculatedPrice.toFixed(decimalPlaces),
         size: orderSize,
         isMarket: true,
         reduceOnly: true,
@@ -230,11 +236,14 @@ export default function CreateOrder(props: IProps) {
 
     // Add SL order if exists
     if (hasSL) {
+      const calculatedPrice = Number(_values.sl) * (1 - 0.036);
+      const decimalPlaces = _values.sl.includes(".") ? _values.sl.split(".")[1].length : 0;
       orders.push({
         type: "trigger",
         asset: currAsset,
         side: isLong ? "sell" : "buy", // Opposite side to close position
-        triggerPrice: _values.sl,
+        triggerPrice: _values.sl.toString(),
+        price: calculatedPrice.toFixed(decimalPlaces),
         size: orderSize,
         isMarket: true,
         reduceOnly: true,
@@ -266,7 +275,7 @@ export default function CreateOrder(props: IProps) {
     if (!pendingOrderPayload) {
       return {
         action: isLong,
-        size: "0 BTC",
+        size: `0 ${from}`,
         price: "0",
         liqPrice: "N/A",
       };
@@ -285,7 +294,7 @@ export default function CreateOrder(props: IProps) {
 
     return {
       action: isLong,
-      size: `${order.size} BTC`,
+      size: `${order.size} ${from}`,
       price: orderPrice,
       liqPrice: liqPrice ? liqPrice.toFixed(2) : "N/A",
     };

@@ -1,9 +1,9 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import dashboard from "@/lib/assets/dashboard";
 import { useOpenOrders } from "../../../chart/trading-view/hyperliquid/use-open-orders";
-import { RenderIf } from "@/components/shared";
+import { RenderIf, ModalContainer } from "@/components/shared";
 import { Spinner } from "@/components/ui/shadcn-io/spinner";
 import { cn } from "@/lib/utils";
 import { useAllMids } from "../../../chart/trading-view/hyperliquid/use-all-mids";
@@ -13,6 +13,7 @@ import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
 import { useSetAtom } from "jotai";
 import { useAccount } from "wagmi";
 import { HyperliquidSpotListResponse } from "@/services/queries/hyperliquid/types";
+import CancelAllOrders from "../modals/cancel-all-orders";
 
 export function getOrderAction(coin: string, side: string, reduceOnly: boolean) {
   const isSpot = coin.includes("/");
@@ -43,48 +44,55 @@ export default function OpenOrdersTab() {
 
   const isLoading = !isConnected;
 
-  return (
-    <div className="flex flex-col h-full overflow-hidden">
-      <div className="overflow-auto scrollbar flex-1">
-        <div className="bg-[#191B20] my-2 rounded-[15px] border border-[#222327] p-2">
-          <table className="w-full" style={{ borderSpacing: "0 6px", borderCollapse: "separate" }}>
-            <thead>
-              <tr className="">
-                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">Time</th>
-                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">Type</th>
-                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">Coin</th>
-                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">
-                  Direction
-                </th>
-                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">Size</th>
-                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">
-                  Original Size
-                </th>
-                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">
-                  Order Value
-                </th>
-                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">Price</th>
-                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">
-                  Reduce Only
-                </th>
-                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">
-                  Trigger Conditions
-                </th>
-                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">TP/SL</th>
-                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">
-                  Close All
-                </th>
-              </tr>
-            </thead>
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
 
-            <tbody>
-              <RenderIf condition={isLoading}>
-                <tr>
-                  <td colSpan={12} className="py-10">
-                    <div className="flex justify-center w-full">
-                      <Spinner variant="circle" className="text-[rgb(255,59,16)]" size={24} />
-                    </div>
-                  </td>
+  return (
+    <>
+      <div className="flex flex-col h-full overflow-hidden">
+        <div className="overflow-auto no-scrollbar px-3 flex-1">
+          <div className="my-2">
+            <table className="w-full" style={{ borderCollapse: "separate", borderSpacing: 0 }}>
+              <thead>
+                <tr className="border-b-[0.5px] border-[#191B20]">
+                  <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">Time</th>
+                  <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">Type</th>
+                  <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">Coin</th>
+                  <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">
+                    Direction
+                  </th>
+                  <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">Size</th>
+                  <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">
+                    Original Size
+                  </th>
+                  <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">
+                    Order Value
+                  </th>
+                  <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">
+                    Price
+                  </th>
+                  <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">
+                    Reduce Only
+                  </th>
+                  <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">
+                    Trigger Conditions
+                  </th>
+                  <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">
+                    TP/SL
+                  </th>
+                  <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedOrderId(null);
+                        setIsCancelModalOpen(true);
+                      }}
+                      disabled={ordersArray.length === 0 || isLoading}
+                      className="text-[#FFF0D3] leading-[1.35] text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Cancel All
+                    </button>
+                  </th>
                 </tr>
               </RenderIf>
               <RenderIf condition={!isLoading && ordersArray?.length !== 0}>
@@ -185,6 +193,34 @@ export default function OpenOrdersTab() {
           </table>
         </div>
       </div>
-    </div>
+
+      <RenderIf condition={isCancelModalOpen}>
+        <ModalContainer
+          open={isCancelModalOpen}
+          handleClose={() => {
+            setIsCancelModalOpen(false);
+            setSelectedOrderId(null);
+          }}
+          headerClassName="text-center w-full text-lg font-medium"
+          hideX
+          title={selectedOrderId === null ? "Cancel All Orders" : "Cancel Order"}
+          className="!max-w-[462px] px-6 py-8 bg-[#141416] gap-0"
+        >
+          <CancelAllOrders
+            toggleModal={() => {
+              setIsCancelModalOpen(false);
+              setSelectedOrderId(null);
+            }}
+            tokensData={tokensData}
+            openOrders={
+              selectedOrderId === null
+                ? openOrders
+                : { orders: openOrders?.orders?.filter((order) => order.oid === selectedOrderId) || [] }
+            }
+          />
+        </ModalContainer>
+      </RenderIf>
+    </>
   );
 }
+

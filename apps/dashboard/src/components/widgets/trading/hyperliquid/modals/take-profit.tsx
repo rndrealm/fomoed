@@ -5,6 +5,16 @@ import { SubmitButton, TextInput } from "@/components/auth";
 import Checkbox from "@/components/ui/checkbox";
 import { RenderIf } from "@/components/shared";
 import { Slider } from "@/components/ui/slider";
+import { ITpSlOrder } from "../trading-panel/position-tab";
+import { PERP_MAX_DECIMALS, SPOT_MAX_DECIMALS } from "../../utils/constants";
+import { formatHlPrice, formatHlSize } from "../../utils";
+import { calculateLossPercent, calculateSLFromLoss, calculateTpGain, cn, reverseCalculateTpGain } from "@/lib/utils";
+import { useTicker } from "../../chart/trading-view/hyperliquid/use-ticker";
+import { toast } from "sonner";
+import { OrderEnum, TradeExecutionPayload } from "@/services/queries/trading/types";
+import { useAccount } from "wagmi";
+import { useSupabaseAuth } from "@/components/providers";
+import { useExecuteTrade } from "@/services/queries/trading";
 
 const validationSchema = Yup.object().shape({
   tpPrice: Yup.number(),
@@ -12,6 +22,7 @@ const validationSchema = Yup.object().shape({
   slPrice: Yup.number(),
   loss: Yup.number(),
   configureAmount: Yup.boolean(),
+  customAmpunt: Yup.number(),
   limitPrice: Yup.boolean(),
   tpLimitPrice: Yup.number(),
   slLimitPrice: Yup.number(),
@@ -23,6 +34,7 @@ const initialValues = {
   slPrice: "",
   loss: "",
   configureAmount: false,
+  customAmount: "",
   limitPrice: false,
   tpLimitPrice: "",
   slLimitPrice: "",
@@ -30,8 +42,143 @@ const initialValues = {
 
 type InitialValues = ReturnType<() => typeof initialValues>;
 
-export function TakeProfit() {
-  const onSubmit = async (_values: InitialValues) => {};
+interface IProps {
+  order: ITpSlOrder;
+  toggleModal: () => void;
+}
+
+export function TakeProfit(props: IProps) {
+  const { order, toggleModal } = props;
+  const { coin, positionSize, entryPrice, markPrice, selectedToken, isSpot, isLong, leverage } = order;
+
+  const account = useAccount();
+  const walletAddress = account?.address || "";
+
+  const { session } = useSupabaseAuth();
+
+  const onSuccessCallback = () => {
+    toggleModal();
+  };
+
+  const { mutate, isPending } = useExecuteTrade(session?.access_token, onSuccessCallback);
+
+  const decimals = selectedToken.szDecimals;
+  const maxDecimal = (isSpot ? SPOT_MAX_DECIMALS : PERP_MAX_DECIMALS) - decimals;
+
+  const multiplier = 1; // to be replaced with actual multiplier logic
+
+  const { ticker } = useTicker(coin);
+  const currentPrice = ticker ? Number(ticker.ctx.midPx) : 0;
+
+  function validateTpSl(values: InitialValues, isLong: boolean): boolean {
+    const orderPrice = Number(currentPrice);
+
+    const tpPrice = Number(values.tpPrice);
+    const slPrice = Number(values.slPrice);
+
+    // Check if TP and SL are greater than 0
+    if (tpPrice && tpPrice <= 0) {
+      toast.error("Take Profit price must be greater than 0");
+      return false;
+    }
+    if (slPrice && slPrice <= 0) {
+      toast.error("Stop Loss price must be greater than 0");
+      return false;
+    }
+
+    if (isLong) {
+      // For long positions: TP must be higher than order price, SL must be lower
+      if (tpPrice && tpPrice <= orderPrice) {
+        toast.error("Take Profit price must be greater than order price for long positions");
+        return false;
+      }
+      if (slPrice && slPrice >= orderPrice) {
+        toast.error("Stop Loss price must be lower than order price for long positions");
+        return false;
+      }
+    } else {
+      // For short positions: TP must be lower than order price, SL must be higher
+      if (tpPrice && tpPrice >= orderPrice) {
+        toast.error("Take Profit price must be lower than order price for short positions");
+        return false;
+      }
+      if (slPrice && slPrice <= orderPrice) {
+        toast.error("Stop Loss price must be greater than order price for short positions");
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  const onSubmit = async (_values: InitialValues) => {
+    console.log("Submit values:", _values);
+
+    if (!validateTpSl(_values, isLong)) {
+      return;
+    }
+    const assetIndex = isSpot ? selectedToken.index + 10000 : selectedToken.index;
+    const hasTP = _values.tpPrice && Number(_values.tpPrice) > 0;
+    const hasSL = _values.slPrice && Number(_values.slPrice) > 0;
+
+    if (!hasTP && !hasSL) {
+      toast.error("Please set at least a Take Profit or Stop Loss price.");
+      return;
+    }
+
+    const orders: OrderEnum[] = [];
+
+    const customOrderSize = _values.configureAmount ? _values.customAmount : positionSize;
+
+    // Add TP order if exists
+    if (hasTP) {
+      const calculatedPrice = Number(_values.tpPrice) * (1 - 0.036);
+      const decimalPlaces = _values.tpPrice.includes(".") ? _values.tpPrice.split(".")[1].length : 0;
+      orders.push({
+        type: "trigger",
+        asset: assetIndex,
+        side: isLong ? "sell" : "buy", // Opposite side to close position
+        triggerPrice: _values.tpPrice.toString(),
+        price:
+          _values.limitPrice && _values.tpLimitPrice
+            ? _values.tpLimitPrice.toString()
+            : calculatedPrice.toFixed(decimalPlaces),
+        size: customOrderSize,
+        isMarket: true,
+        reduceOnly: true,
+        tpsl: "tp",
+      });
+    }
+
+    // Add SL order if exists
+    if (hasSL) {
+      const calculatedPrice = Number(_values.slPrice) * (1 - 0.036);
+      const decimalPlaces = _values.slPrice.includes(".") ? _values.slPrice.split(".")[1].length : 0;
+      orders.push({
+        type: "trigger",
+        asset: assetIndex,
+        side: isLong ? "sell" : "buy", // Opposite side to close position
+        triggerPrice: _values.slPrice.toString(),
+        price:
+          _values.limitPrice && _values.slLimitPrice
+            ? _values.slLimitPrice.toString()
+            : calculatedPrice.toFixed(decimalPlaces),
+        size: customOrderSize,
+        isMarket: true,
+        reduceOnly: true,
+        tpsl: "sl",
+      });
+    }
+
+    const orderPayload = {
+      provider: "hyperliquid",
+      wallet_address: walletAddress,
+      grouping: "normalTpsl",
+      orders,
+    } as TradeExecutionPayload;
+
+    mutate(orderPayload);
+  };
 
   return (
     <div className="flex flex-col gap-8 pt-8">
@@ -39,20 +186,31 @@ export function TakeProfit() {
         <div className="flex flex-col gap-1">
           <div className="flex items-center justify-between">
             <p className="text-xs leading-[18px] text-[#D1D1D1]">Coin</p>
-            <p className="text-xs leading-[18px] text-[#D1D1D1] font-medium">BTC</p>
+            <p className="text-xs leading-[18px] text-[#D1D1D1] font-medium">{coin}</p>
           </div>
           <div className="flex items-center justify-between">
             <p className="text-xs leading-[18px] text-[#D1D1D1]">Position</p>
-            <p className="text-xs leading-[18px] text-[#FFF0D3] font-medium">0.0392 BTC</p>
+            <p
+              className={cn(
+                "text-xs leading-[18px] text-[#FFF0D3] font-medium",
+                isLong ? "text-[#4ADE80]" : "text-[#FF7A7A]",
+              )}
+            >
+              {positionSize} {coin}
+            </p>
           </div>
           <div className="flex items-center justify-between">
             <p className="text-xs leading-[18px] text-[#D1D1D1]">Entry Price</p>
-            <p className="text-xs leading-[18px] text-[#D1D1D1] font-medium">$89,291.01</p>
+            <p className="text-xs leading-[18px] text-[#D1D1D1] font-medium">
+              ${formatHlPrice(Number(entryPrice), maxDecimal)}
+            </p>
           </div>
 
           <div className="flex items-center justify-between">
             <p className="text-xs leading-[18px] text-[#D1D1D1]">Mark Price</p>
-            <p className="text-xs leading-[18px] text-[#D1D1D1] font-medium">$89,291.01</p>
+            <p className="text-xs leading-[18px] text-[#D1D1D1] font-medium">
+              ${formatHlPrice(Number(markPrice), maxDecimal)}
+            </p>
           </div>
         </div>
 
@@ -65,8 +223,14 @@ export function TakeProfit() {
           validateOnChange={false}
         >
           {(props) => {
-            const { values, handleChange, handleBlur, handleSubmit, setFieldValue } = props;
-
+            const { values, handleChange, handleBlur, handleSubmit, setFieldValue, errors } = props;
+            const sliderPercentage = Math.round(
+              Math.min(
+                Number(positionSize) ? ((Number(values.customAmount) * multiplier) / Number(positionSize)) * 100 : 0,
+                100,
+              ),
+            );
+            // console.log(sliderPercentage);
             return (
               <form onSubmit={handleSubmit} className="">
                 <div className="flex flex-col gap-8">
@@ -81,7 +245,20 @@ export function TakeProfit() {
                             id="tpPrice"
                             placeholder="TP Price"
                             value={values.tpPrice}
-                            onChange={handleChange}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                              setFieldValue("tpPrice", formatHlPrice(Number(e.target.value), maxDecimal));
+                              setFieldValue(
+                                "gain",
+                                e.target.value
+                                  ? calculateTpGain(
+                                      Number(values.tpPrice),
+                                      Number(currentPrice),
+                                      leverage,
+                                      isLong ? "long" : "short",
+                                    ).toFixed(2)
+                                  : "",
+                              );
+                            }}
                             onBlur={handleBlur}
                             className="bg-[#1B1B1D] h-[40px] rounded-lg text-sm text-white"
                           />
@@ -94,7 +271,16 @@ export function TakeProfit() {
                             id="gain"
                             placeholder="Gain"
                             value={values.gain}
-                            onChange={handleChange}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                              const tp = reverseCalculateTpGain(
+                                Number(e.target.value),
+                                Number(currentPrice),
+                                leverage,
+                                isLong ? "long" : "short",
+                              );
+                              setFieldValue("gain", e.target.value);
+                              setFieldValue("tpPrice", e.target.value ? formatHlPrice(tp, maxDecimal) : "");
+                            }}
                             onBlur={handleBlur}
                             className="bg-[#1B1B1D] h-[40px] rounded-lg text-sm text-white"
                             rightPlaceholder="%"
@@ -112,7 +298,20 @@ export function TakeProfit() {
                             id="slPrice"
                             placeholder="SL Price"
                             value={values.slPrice}
-                            onChange={handleChange}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                              setFieldValue("slPrice", formatHlPrice(Number(e.target.value), maxDecimal));
+                              setFieldValue(
+                                "loss",
+                                e.target.value
+                                  ? calculateLossPercent(
+                                      Number(values.slPrice),
+                                      Number(currentPrice),
+                                      leverage,
+                                      isLong ? "long" : "short",
+                                    ).toFixed(2)
+                                  : "",
+                              );
+                            }}
                             onBlur={handleBlur}
                             className="bg-[#1B1B1D] h-[40px] rounded-lg text-sm text-white"
                           />
@@ -125,7 +324,16 @@ export function TakeProfit() {
                             id="loss"
                             placeholder="Loss"
                             value={values.loss}
-                            onChange={handleChange}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                              const sl = calculateSLFromLoss(
+                                Number(e.target.value),
+                                Number(currentPrice),
+                                leverage,
+                                isLong ? "long" : "short",
+                              );
+                              setFieldValue("loss", e.target.value);
+                              setFieldValue("slPrice", e.target.value ? formatHlPrice(sl, maxDecimal) : "");
+                            }}
                             onBlur={handleBlur}
                             className="bg-[#1B1B1D] h-[40px] rounded-lg text-sm text-white"
                             rightPlaceholder="%"
@@ -147,14 +355,27 @@ export function TakeProfit() {
 
                       <RenderIf condition={values.configureAmount}>
                         <div className="flex items-center gap-4">
-                          <Slider value={[0]} onValueChange={() => {}} min={0} max={100} step={1} showDots />
+                          <Slider
+                            value={[sliderPercentage]}
+                            onValueChange={(value: number[]) => {
+                              const percentage = value[0];
+                              const orderValue = (Number(positionSize) * percentage) / multiplier / 100;
+                              setFieldValue("customAmount", formatHlSize(orderValue, decimals));
+                            }}
+                            min={0}
+                            max={100}
+                            step={1}
+                            showDots
+                          />
                           <TextInput
-                            className="h-10 !pr-4.5 w-14 border-none outline-none text-[#D7D7D7] !text-sm tracking-[-0.4%] leading-[14px] px-2.5 rounded-[10px] focus-visible:ring-0 bg-[#222329]"
-                            value={0}
-                            // onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleSliderChange([Number(e.target.value)])}
+                            className="h-12 !pr-4.5 w-28 border-none outline-none text-[#D7D7D7] !text-sm tracking-[-0.4%] leading-[14px] px-2.5 rounded-[10px] focus-visible:ring-0 bg-[#222329]"
+                            value={values.customAmount}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                              setFieldValue("customAmount", formatHlSize(Number(e.target.value), decimals));
+                            }}
                             disableFormikError
                             name="percentage"
-                            rightPlaceholder="%"
+                            rightPlaceholder={coin}
                             rightPlaceholderClassName="text-sm top-[30%]"
                             type="number"
                           />
@@ -207,7 +428,7 @@ export function TakeProfit() {
                   </div>
 
                   <div className="flex flex-col gap-4">
-                    <SubmitButton isLoading={false} disabled={false}>
+                    <SubmitButton isLoading={isPending} disabled={false}>
                       Submit
                     </SubmitButton>
 

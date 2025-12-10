@@ -15,6 +15,7 @@ import { ModalContainer, RenderIf } from "@/components/shared";
 import { Spinner } from "@/components/ui/shadcn-io/spinner";
 import { getCoinIconUrl } from "../../../chart/chart-header";
 import CloseOrder from "../modals/close-order";
+import CloseAllOrders from "../modals/close-all-orders";
 import { TakeProfit } from "../../modals/take-profit";
 import { PerpUniverse, SpotsUniverse } from "@/services/queries/hyperliquid/types";
 import { useAccount } from "wagmi";
@@ -51,6 +52,17 @@ export interface IPositionOrder {
   selectedToken: SpotsUniverse | PerpUniverse;
 }
 
+export interface ITpSlOrder {
+  coin: string;
+  positionSize: string;
+  entryPrice: string;
+  markPrice: string;
+  isSpot: boolean;
+  selectedToken: SpotsUniverse | PerpUniverse;
+  isLong: boolean;
+  leverage: number;
+}
+
 export default function OpenPositionsTab() {
   const { address } = useAccount();
   const userAddress = address || "";
@@ -67,6 +79,7 @@ export default function OpenPositionsTab() {
   const [selectedOrder, setSelectedOrder] = useState<IPositionOrder | null>(null);
   const [isCloseOrderModalOpen, setIsCloseOrderModalOpen] = useState(false);
   const [isTakeProfitModalOpen, setIsTakeProfitModalOpen] = useState(false);
+  const [isCloseAllOrdersModalOpen, setIsCloseAllOrdersModalOpen] = useState(false);
 
   const toggleModalOrderOpwn = () => {
     setIsCloseOrderModalOpen(!isCloseOrderModalOpen);
@@ -76,6 +89,12 @@ export default function OpenPositionsTab() {
     setIsMarket(type === "market");
     setSelectedOrder(order);
     setIsCloseOrderModalOpen(true);
+  };
+
+  const [selectedTpSlOrder, setSelectedTpSlOrder] = useState<ITpSlOrder | null>(null);
+
+  const toggleModalOrderTpSl = () => {
+    setIsTakeProfitModalOpen(!isTakeProfitModalOpen);
   };
 
   return (
@@ -114,7 +133,14 @@ export default function OpenPositionsTab() {
                     TP/SL
                   </th>
                   <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">
-                    Close All
+                    <button
+                      type="button"
+                      onClick={() => setIsCloseAllOrdersModalOpen(true)}
+                      disabled={clearingHouse?.clearinghouseState?.assetPositions?.length === 0 || isLoading}
+                      className="text-[#FFF0D3] leading-[1.35] text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Close All
+                    </button>
                   </th>
                 </tr>
               </thead>
@@ -133,6 +159,7 @@ export default function OpenPositionsTab() {
                     const size = parseFloat(item?.position?.szi || "0");
                     const isLong = size > 0;
                     const formattedSize = formatNumberToDecimalPoints(Math.abs(size));
+                    const orderSize = Math.abs(size);
                     const positionValue = formatNumberToDecimalPoints(
                       parseFloat(item?.position?.positionValue) || 0,
                       2,
@@ -247,6 +274,19 @@ export default function OpenPositionsTab() {
                             <button
                               type="button"
                               onClick={() => {
+                                const tokensArray = (isSpot ? tokensData?.spot : tokensData?.perp) || [];
+                                const currentToken = tokensArray.find((token) => token.name === item?.position?.coin);
+                                if (!currentToken) return;
+                                setSelectedTpSlOrder({
+                                  coin: item?.position?.coin,
+                                  positionSize: orderSize.toString(),
+                                  entryPrice: formattedEntryPrice,
+                                  markPrice: formattedMarkPrice,
+                                  isSpot: isSpot,
+                                  selectedToken: currentToken,
+                                  isLong: isLong,
+                                  leverage: item?.position?.leverage?.value,
+                                });
                                 setIsTakeProfitModalOpen(true);
                               }}
                             >
@@ -263,7 +303,7 @@ export default function OpenPositionsTab() {
                                 const currentToken = tokensArray.find((token) => token.name === item?.position?.coin);
                                 if (!currentToken) return;
                                 openCloseOrderModal("limit", {
-                                  size: formattedSize,
+                                  size: orderSize.toString(),
                                   isLong: isLong,
                                   leverage: item?.position?.leverage?.value,
                                   coin: item?.position?.coin,
@@ -281,7 +321,7 @@ export default function OpenPositionsTab() {
                                 const currentToken = tokensArray.find((token) => token.name === item?.position?.coin);
                                 if (!currentToken) return;
                                 openCloseOrderModal("market", {
-                                  size: formattedSize,
+                                  size: orderSize.toString(),
                                   isLong: isLong,
                                   leverage: item?.position?.leverage?.value,
                                   coin: item?.position?.coin,
@@ -363,18 +403,35 @@ export default function OpenPositionsTab() {
         </ModalContainer>
       ) : null}
 
-      <RenderIf condition={isTakeProfitModalOpen}>
+      {selectedTpSlOrder ? (
+        <RenderIf condition={isTakeProfitModalOpen}>
+          <ModalContainer
+            open={isTakeProfitModalOpen}
+            handleClose={() => {
+              setIsTakeProfitModalOpen(false);
+            }}
+            headerClassName="text-center w-full text-lg font-medium"
+            hideX
+            title="TP/SL for Position"
+            className="!max-w-[462px] px-6 py-8 bg-[#141416] gap-0 scrollbar"
+          >
+            <TakeProfit order={selectedTpSlOrder} toggleModal={toggleModalOrderTpSl} />
+          </ModalContainer>
+        </RenderIf>
+      ) : null}
+
+      <RenderIf condition={isCloseAllOrdersModalOpen}>
         <ModalContainer
-          open={isTakeProfitModalOpen}
+          open={isCloseAllOrdersModalOpen}
           handleClose={() => {
-            setIsTakeProfitModalOpen(false);
+            setIsCloseAllOrdersModalOpen(false);
           }}
           headerClassName="text-center w-full text-lg font-medium"
           hideX
-          title="TP/SL for Position"
-          className="!max-w-[462px] px-6 py-8 bg-[#141416] gap-0 scrollbar"
+          title="Close All Positions"
+          className="!max-w-[462px] px-6 py-8 bg-[#141416] gap-0"
         >
-          <TakeProfit />
+          <CloseAllOrders toggleModal={() => setIsCloseAllOrdersModalOpen(false)} tokensData={tokensData} />
         </ModalContainer>
       </RenderIf>
     </>

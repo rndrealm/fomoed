@@ -115,9 +115,9 @@ const ProPlanCard = ({
             <div className="flex flex-col gap-6">
               <h2 className="text-base">
                 {title}
-                <span className="ml-2 bg-[#e4350f] rounded-full text-white font-medium text-sm px-2 py-1">
+                {/* <span className="ml-2 bg-[#e4350f] rounded-full text-white font-medium text-sm px-2 py-1">
                   {switchActive ? "50" : "30"}% off
-                </span>
+                </span> */}
               </h2>
               <div className="flex flex-col gap-4">
                 {/* <div className='flex flex-row gap-2'>
@@ -137,12 +137,12 @@ const ProPlanCard = ({
                         initial="hidden"
                         animate="visible"
                         exit="exit"
-                        className="!text-[2rem] font-semibold line-through !opacity-[0.8]"
+                        className="!text-[2rem] font-semibold "
                       >
                         {switchActive ? prices[1] : prices[0]}
                       </motion.h2>
 
-                      <motion.h2
+                      {/* <motion.h2
                         key={switchActive ? formatDiscount(prices[1], 0.5) : formatDiscount(prices[0], 0.7)}
                         variants={variants}
                         initial="hidden"
@@ -151,13 +151,12 @@ const ProPlanCard = ({
                         className="!text-[2rem] font-semibold "
                       >
                         {switchActive ? formatDiscount(prices[1], 0.5) : formatDiscount(prices[0], 0.7)}
-                      </motion.h2>
+                      </motion.h2> */}
                     </>
                   </AnimatePresence>
                 </div>
 
-                <p className="text-base">$20.99/month or $143.95/year</p>
-                {/* <p className="text-base">{description}</p> */}
+                <p className="text-base">{description}</p>
               </div>
             </div>
 

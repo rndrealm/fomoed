@@ -1,6 +1,7 @@
 import api from "@/services/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  CreateApiAgentResponse,
   HyperliquidAgentResponse,
   HyperliquidPerpListResponse,
   HyperliquidRoleResponse,
@@ -237,7 +238,7 @@ export const useGetHyperliquidMetaData = () => {
   };
 };
 
-export const useCreateApiAgent = (authToken?: string, onSuccess?: () => void) => {
+export const useCreateApiAgent = (authToken?: string, onSuccess?: (_data: CreateApiAgentResponse) => void) => {
   return useMutation({
     mutationFn: async (data: { wallet_address: string }) => {
       const res = await api.gemachPost({
@@ -249,8 +250,8 @@ export const useCreateApiAgent = (authToken?: string, onSuccess?: () => void) =>
 
       return res?.data?.data;
     },
-    onSuccess: (data) => {
-      onSuccess?.();
+    onSuccess: (data: CreateApiAgentResponse) => {
+      onSuccess?.(data);
     },
     onError: (data: any) => {
       console.log("agent error: ", data.response.data.error.message);

@@ -103,11 +103,10 @@ export async function approveApiWallet(
     transport,
     wallet: walletClient as any,
   });
-
   // Approve the agent (API wallet)
   const result = await exchangeClient.approveAgent({
     agentAddress: apiWalletAddress,
-    agentName: null,
+    agentName: "fomoed",
   });
 
   return result;
@@ -180,9 +179,9 @@ export async function withdrawFromHyperliquid(
  * @param displayName - Token display name gotten from hyperliquid meta api eg BTC/USDC
  * @returns - Splits tokens into individual strings eg { from: BTC, to: USDC }
  */
-export const getFromAndToToken = (displayName?: string | null) => {
+export const getFromAndToToken = (displayName?: string | null, separator: string = "/") => {
   if (!displayName) return { from: "", to: "" };
-  const splitString = displayName.split("/");
+  const splitString = displayName.split(separator);
   return { from: splitString[0], to: splitString[1] };
 };
 
@@ -252,4 +251,15 @@ export function formatHlSize(size: number, szDecimals: number): string {
 
   // Return as string without forcing trailing zeros
   return truncated.toString();
+}
+
+/**
+ * function to parse numeric strings that may contain commas or extra spaces
+ * @param input
+ * @returns the formatted number
+ */
+export function parseNumericString(input: string | number): number {
+  const cleaned = String(input).replace(/,/g, "").trim();
+  const num = parseFloat(cleaned);
+  return Number.isFinite(num) ? num : 0;
 }
