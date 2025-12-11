@@ -255,7 +255,7 @@ export function formatHlSize(size: number, szDecimals: number): string {
 
 /**
  * Less aggressive version of formatHlPrice for input onChange handlers
- * Only enforces max significant figures and decimal places without reformatting
+ * Only enforces max decimal places without reformatting
  * Preserves trailing zeros and decimal points (e.g., "100.", "100.0")
  *
  * @param input - The input string from the user
@@ -267,7 +267,7 @@ export function formatHlSize(size: number, szDecimals: number): string {
  * formatHlPriceInput("100.0", 2) // "100.0" (preserved)
  * formatHlPriceInput("100.000000", 2) // "100.00" (truncated to max DP but preserves format)
  * formatHlPriceInput("123.456", 2) // "123.45" (truncated to max DP)
- * formatHlPriceInput("0.123456", 4) // "0.1235" (limited by 5 SF)
+ * formatHlPriceInput("0.123456", 4) // "0.1234" (truncated to max DP)
  */
 export function formatHlPriceInput(input: string, maxDecimalPlaces: number): string {
   // Preserve empty string or just a decimal point
@@ -277,31 +277,18 @@ export function formatHlPriceInput(input: string, maxDecimalPlaces: number): str
   const num = parseFloat(input);
   if (!isFinite(num)) return input;
 
-  // Handle zero
-  if (num === 0) return input;
-
-  // Apply 5 significant figures limit (same as formatHlPrice)
-  const withSigFigs = Number(num.toPrecision(MAX_PRICE_SF));
-
-  // Apply decimal places limit on the SF-limited value (same as formatHlPrice)
-  const withMaxDP = Number(withSigFigs.toFixed(maxDecimalPlaces));
-
-  // If the formatted version is the same as original, return original input as-is
-  if (withMaxDP === num) return input;
-
-  // If we need to truncate, check if we can just slice the string
+  // Check if we need to limit by decimal places
   const decimalIndex = input.indexOf(".");
   if (decimalIndex !== -1) {
     const decimalPlaces = input.length - decimalIndex - 1;
-
-    // If only DP limit exceeded (not SF), just truncate the string
-    if (withSigFigs === num && decimalPlaces > maxDecimalPlaces) {
+    if (decimalPlaces > maxDecimalPlaces) {
+      // Just truncate the string to max decimal places
       return input.slice(0, decimalIndex + maxDecimalPlaces + 1);
     }
   }
 
-  // Otherwise return the formatted value
-  return withMaxDP.toString();
+  // Input is within limits, return as-is
+  return input;
 }
 
 /**

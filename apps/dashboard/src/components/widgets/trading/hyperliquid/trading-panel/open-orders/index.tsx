@@ -45,8 +45,6 @@ export default function OpenOrdersTab() {
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
 
-  console.log(ordersArray);
-
   return (
     <>
       <div className="flex flex-col h-full overflow-hidden">

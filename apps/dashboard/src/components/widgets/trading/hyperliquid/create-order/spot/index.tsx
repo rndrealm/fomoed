@@ -47,10 +47,13 @@ export default function CreateSpotOrder(props: IProps) {
 
   const { data: spotBalance } = useGetSpotBalance(walletAddress);
 
-  const fromBalance = spotBalance?.balances.find((spt) => spt.coin === from)?.total || "0";
-  const toBalance = spotBalance?.balances.find((spt) => spt.coin === to)?.total || "0";
+  const fromBalance = spotBalance?.balances.find((spt) => spt.coin === from);
+  const toBalance = spotBalance?.balances.find((spt) => spt.coin === to);
 
-  const availableBalance = !isLong ? fromBalance : toBalance;
+  const availableBalance =
+    (!isLong
+      ? Number(fromBalance?.total) - Number(fromBalance?.hold)
+      : Number(toBalance?.total) - Number(toBalance?.hold)) || "0";
 
   const selectOptions =
     selectedToken?.displayName?.split("/").map((ed) => {

@@ -170,6 +170,7 @@ export function FormContent(props: FormContentProps) {
       setFieldValue("price", formatHlPrice(Number(marketPrice), maxDecimal));
     }
   }, []);
+
   return (
     <>
       <div className="flex flex-col gap-3">
@@ -245,7 +246,6 @@ export function FormContent(props: FormContentProps) {
                 value={values.price}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   const val = e.target.value;
-                  console.log(maxDecimal);
                   setFieldValue("price", formatHlPriceInput(val, maxDecimal));
                 }}
                 onBlur={handleBlur}
