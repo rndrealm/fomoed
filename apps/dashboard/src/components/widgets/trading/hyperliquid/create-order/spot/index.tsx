@@ -10,10 +10,11 @@ import { toast } from "sonner";
 import { ModalContainer } from "@/components/shared";
 import ConfirmModal from "../../modals/confirm-modal";
 import { SpotFormContent } from "./form";
-import { getFromAndToToken } from "../../../utils";
+import { formatHlPrice, formatHlSize, getFromAndToToken } from "../../../utils";
 import TransferButtons from "../transfer-buttons";
 import { PerpUniverse, SpotsUniverse } from "@/services/queries/hyperliquid/types";
 import { WsActiveAssetCtx, WsActiveSpotAssetCtx } from "../../../chart/trading-view/hyperliquid/types";
+import { SPOT_MAX_DECIMALS } from "../../../utils/constants";
 
 const initialValues = {
   price: "0",
@@ -82,6 +83,7 @@ export default function CreateSpotOrder(props: IProps) {
   function onSubmit(_values: TradingFormInitialValues) {
     const converter = orderType === "limit" ? _values.price : marketPrice;
     const toDecimal = selectedToken.szDecimals;
+    const maxDecimal = SPOT_MAX_DECIMALS - toDecimal;
     const orderSize = (
       orderBy === selectOptions[0].value ? Number(_values.quantity) : Number(_values.quantity) / Number(converter)
     ).toFixed(toDecimal);
@@ -99,7 +101,7 @@ export default function CreateSpotOrder(props: IProps) {
         type: "market",
         asset: currAsset,
         side: isLong ? "buy" : "sell",
-        size: Number(orderSize).toFixed(toDecimal),
+        size: formatHlSize(Number(orderSize), toDecimal),
         reduceOnly: false,
         isSpot: true,
       });
@@ -108,8 +110,8 @@ export default function CreateSpotOrder(props: IProps) {
         type: "limit",
         asset: currAsset,
         side: isLong ? "buy" : "sell",
-        price: Number(_values.price).toFixed(toDecimal),
-        size: Number(orderSize).toFixed(toDecimal),
+        price: formatHlPrice(Number(_values.price), maxDecimal),
+        size: formatHlSize(Number(orderSize), toDecimal),
         reduceOnly: false,
         timeInForce: _values.tif as TifEnum,
       });

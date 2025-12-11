@@ -129,7 +129,9 @@ export function TakeProfit(props: IProps) {
 
     const orders: OrderEnum[] = [];
 
-    const customOrderSize = _values.configureAmount ? _values.customAmount : positionSize;
+    const customOrderSize = _values.configureAmount
+      ? formatHlSize(Number(_values.customAmount), toDecimal)
+      : positionSize;
 
     // Add TP order if exists
     if (hasTP) {
@@ -142,8 +144,8 @@ export function TakeProfit(props: IProps) {
         triggerPrice: _values.tpPrice.toString(),
         price:
           _values.limitPrice && _values.tpLimitPrice
-            ? Number(_values.tpLimitPrice).toFixed(toDecimal)
-            : calculatedPrice.toFixed(toDecimal),
+            ? formatHlPrice(Number(_values.tpLimitPrice), maxDecimal)
+            : formatHlPrice(calculatedPrice, maxDecimal),
         size: customOrderSize,
         isMarket: true,
         reduceOnly: true,
@@ -162,8 +164,8 @@ export function TakeProfit(props: IProps) {
         triggerPrice: _values.slPrice.toString(),
         price:
           _values.limitPrice && _values.slLimitPrice
-            ? Number(_values.slLimitPrice).toFixed(toDecimal)
-            : calculatedPrice.toFixed(toDecimal),
+            ? formatHlPrice(Number(_values.slLimitPrice), maxDecimal)
+            : formatHlPrice(calculatedPrice, maxDecimal),
         size: customOrderSize,
         isMarket: true,
         reduceOnly: true,

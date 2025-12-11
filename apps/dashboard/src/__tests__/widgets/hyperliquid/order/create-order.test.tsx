@@ -41,6 +41,11 @@ const mockSelectedToken = {
   index: 0,
   maxLeverage: 50,
   displayName: "BTC-PERP",
+  szDecimals: 5,
+  name: "BTC",
+  marginTableId: 0,
+  quoteTokenName: "USDC",
+  tradingViewName: "BTCUSD",
 } as PerpUniverse;
 
 const mockTicker: WsActiveAssetCtx = {
@@ -277,7 +282,7 @@ describe("CreateOrder Component", () => {
 
       // Wait for initial render and price to be set
       await waitFor(() => {
-        expect(screen.getByPlaceholderText("Price (USDC)")).toHaveValue(100000);
+        expect(screen.getByPlaceholderText("Price (USDC)")).toHaveValue("100000");
       });
 
       const quantityInput = screen.getByPlaceholderText("Quantity");
@@ -311,7 +316,7 @@ describe("CreateOrder Component", () => {
 
       // Wait for initial render and price to be set
       await waitFor(() => {
-        expect(screen.getByPlaceholderText("Price (USDC)")).toHaveValue(100000);
+        expect(screen.getByPlaceholderText("Price (USDC)")).toHaveValue("100000");
       });
 
       // Enable TP/SL
@@ -573,6 +578,7 @@ describe("CreateOrder Component", () => {
                 side: "buy",
                 size: "0.02000",
                 reduceOnly: false,
+                isSpot: false,
               },
             ],
           });
@@ -615,6 +621,7 @@ describe("CreateOrder Component", () => {
                 side: "sell",
                 size: "0.01500",
                 reduceOnly: false,
+                isSpot: false,
               },
             ],
           });
@@ -668,6 +675,7 @@ describe("CreateOrder Component", () => {
                 side: "sell",
                 triggerPrice: "110000",
                 size: "0.01000",
+                price: "106040",
                 isMarket: true,
                 reduceOnly: true,
                 tpsl: "tp",
@@ -731,6 +739,7 @@ describe("CreateOrder Component", () => {
                 side: "sell",
                 triggerPrice: "95000",
                 size: "0.01000",
+                price: "91580",
                 isMarket: true,
                 reduceOnly: true,
                 tpsl: "sl",
@@ -791,6 +800,7 @@ describe("CreateOrder Component", () => {
                 side: "sell",
                 triggerPrice: "110000",
                 size: "0.01000",
+                price: "106040",
                 isMarket: true,
                 reduceOnly: true,
                 tpsl: "tp",
@@ -801,6 +811,7 @@ describe("CreateOrder Component", () => {
                 side: "sell",
                 triggerPrice: "95000",
                 size: "0.01000",
+                price: "91580",
                 isMarket: true,
                 reduceOnly: true,
                 tpsl: "sl",
@@ -866,6 +877,7 @@ describe("CreateOrder Component", () => {
                 side: "buy",
                 triggerPrice: "95000",
                 size: "0.01000",
+                price: "91580",
                 isMarket: true,
                 reduceOnly: true,
                 tpsl: "tp",
@@ -876,6 +888,7 @@ describe("CreateOrder Component", () => {
                 side: "buy",
                 triggerPrice: "105000",
                 size: "0.01000",
+                price: "101220",
                 isMarket: true,
                 reduceOnly: true,
                 tpsl: "sl",
