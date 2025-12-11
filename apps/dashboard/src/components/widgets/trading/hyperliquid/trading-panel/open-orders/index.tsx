@@ -181,7 +181,15 @@ export default function OpenOrdersTab() {
                         <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">--</td>
                         <td className="text-[#FFF0D3] leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
                           <div className="flex items-center">
-                            <button type="button">Cancel</button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedOrderId(item.oid);
+                                setIsCancelModalOpen(true);
+                              }}
+                            >
+                              Cancel
+                            </button>
                           </div>
                         </td>
                       </tr>
