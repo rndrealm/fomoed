@@ -185,7 +185,7 @@ export function QuickWidgets(props: IProps) {
                 </span>
                 <Input
                   placeholder="Search Widget"
-                  className=" pl-6 pr-[9px] py-[1px] text-sm placeholder:text-[#737373] placeholder:font-semibold bg-transparent text-white focus:outline-none focus:ring-0 focus:ring-offset-0 focus:shadow-none [&:focus-visible]:outline-none [&:focus]:outline-none transition-all w-full border-none focus-visible:ring-0"
+                  className=" pl-6 pr-[9px] py-[1px] text-sm placeholder:text-[#737373] placeholder:font-semibold bg-transparent text-white focus:outline-none focus:ring-0 focus:ring-offset-0 focus:shadow-none [&:focus-visible]:outline-none  transition-all w-full border-none focus-visible:ring-0 selection:bg-blue-500 selection:text-white"
                   value={searchValue}
                   onChange={(e) => setSearchValue(e.target.value)}
                 />
@@ -240,48 +240,55 @@ export function QuickWidgets(props: IProps) {
             </RenderIf>
 
             <div className="grid min-w-full min-h-0 grid-cols-1 overflow-auto md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-8">
-              {filteredWidget.sort((a, b) => a.id - b.id).map((widget, index) => {
-                const widgetSlug = widget.slug;
+              {filteredWidget
+                .sort((a, b) => b.id - a.id)
+                .map((widget, index) => {
+                  const widgetSlug = widget.slug;
 
-                //every index of element that comes after third element
-                const indexTarget = index % 3 === 0 && index !== 0;
+                  //every index of element that comes after third element
+                  const indexTarget = index % 3 === 0 && index !== 0;
 
-                //every second row starting from the second
-                const rowTarget = (index / 3 - 1) * 2 + 2;
+                  //every second row starting from the second
+                  const rowTarget = (index / 3 - 1) * 2 + 2;
 
-                // only for the default state of the widgets when the modal is opened - (no search no tags selected)
-                const defaultSettings = !searchValue && selectedTag === "all";
-                // console.log("defaultSettings", selectedTag, searchView);
+                  // only for the default state of the widgets when the modal is opened - (no search no tags selected)
+                  const defaultSettings = !searchValue && selectedTag === "all";
+                  // console.log("defaultSettings", selectedTag, searchView);
 
-                const textCondition = indexTarget && defaultSettings;
+                  const textCondition = indexTarget && defaultSettings;
 
-                return (
-                  <Fragment key={widget.slug}>
-                    {/* text elements */}
-                    {textCondition && (
-                      <div className={`hidden xl:block w-full col-span-3 max-w-[17rem] row-start-[${rowTarget}]`}>
-                        <h2 className="text-white text-base font-medium">{textCategoryContent[index / 3 - 1]}</h2>
-                      </div>
-                    )}
+                  return (
+                    <Fragment key={widget.slug}>
+                      {/* text elements */}
+                      {textCondition && (
+                        <div className={`hidden xl:block w-full col-span-3 max-w-[17rem] row-start-[${rowTarget}]`}>
+                          <h2 className="text-white text-base font-medium">{textCategoryContent[index / 3 - 1]}</h2>
+                        </div>
+                      )}
 
-                    {/* widget cell */}
-                    <CommandGroup className="relative min-h-fit aspect-square rounded-[24px] p-0">
-                      <CommandItem
-                        key={widget.name}
-                        className="min-h-fit aspect-square bg-[#28282866] data-[selected=true]:bg-[#27292E] rounded-[24px] p-0 overflow-hidden cursor-pointer"
-                        onSelect={(e) => {
-                          handleWidgetClick(widget);
-                        }}
-                      >
-                        <QuickWidgetItem tag={selectedTag} key={widget.id} widget={widget} handleGoBack={handleBack} />
-                      </CommandItem>
+                      {/* widget cell */}
+                      <CommandGroup className="relative min-h-fit aspect-square rounded-[24px] p-0">
+                        <CommandItem
+                          key={widget.name}
+                          className="min-h-fit aspect-square bg-[#28282866] data-[selected=true]:bg-[#27292E] rounded-[24px] p-0 overflow-hidden cursor-pointer"
+                          onSelect={(e) => {
+                            handleWidgetClick(widget);
+                          }}
+                        >
+                          <QuickWidgetItem
+                            tag={selectedTag}
+                            key={widget.id}
+                            widget={widget}
+                            handleGoBack={handleBack}
+                          />
+                        </CommandItem>
 
-                      {/* button for favourites */}
-                      <div
-                        style={{ background: "transparent", borderWidth: 0 }}
-                        className="absolute bg-gradient-widget-preview-button z-[100] top-5 right-5 h-[24px] aspect-square border-[1px] border-[#353535] rounded-[6px] flex items-center justify-center"
-                      >
-                        {/* <button
+                        {/* button for favourites */}
+                        <div
+                          style={{ background: "transparent", borderWidth: 0 }}
+                          className="absolute bg-gradient-widget-preview-button z-[100] top-5 right-5 h-[24px] aspect-square border-[1px] border-[#353535] rounded-[6px] flex items-center justify-center"
+                        >
+                          {/* <button
                           type="button"
                           className="scale-[0.875]"
                           // onClick={handleBack}
@@ -289,34 +296,34 @@ export function QuickWidgets(props: IProps) {
                           <PlusIcon fill="#fff" />
                           <Star fill="#fff" />
                         </button> */}
-                        <motion.button
-                          type="button"
-                          variants={variants}
-                          className="absolute scale-[0.875]"
-                          whileTap="small"
-                          onClick={() => {
-                            const isFavorite = settings.favorite_widgets.includes(widgetSlug);
+                          <motion.button
+                            type="button"
+                            variants={variants}
+                            className="absolute scale-[0.875]"
+                            whileTap="small"
+                            onClick={() => {
+                              const isFavorite = settings.favorite_widgets.includes(widgetSlug);
 
-                            let newWidgetArray: string[] = [];
+                              let newWidgetArray: string[] = [];
 
-                            if (isFavorite) {
-                              newWidgetArray = settings.favorite_widgets.filter((item) => item !== widgetSlug);
-                            } else {
-                              newWidgetArray = [...settings.favorite_widgets, widgetSlug];
-                            }
-                            updateSettings({
-                              ...settings,
-                              favorite_widgets: newWidgetArray,
-                            });
-                          }}
-                        >
-                          {settings.favorite_widgets.includes(widgetSlug) ? <StarFilled /> : <Star />}
-                        </motion.button>
-                      </div>
-                    </CommandGroup>
-                  </Fragment>
-                );
-              })}
+                              if (isFavorite) {
+                                newWidgetArray = settings.favorite_widgets.filter((item) => item !== widgetSlug);
+                              } else {
+                                newWidgetArray = [...settings.favorite_widgets, widgetSlug];
+                              }
+                              updateSettings({
+                                ...settings,
+                                favorite_widgets: newWidgetArray,
+                              });
+                            }}
+                          >
+                            {settings.favorite_widgets.includes(widgetSlug) ? <StarFilled /> : <Star />}
+                          </motion.button>
+                        </div>
+                      </CommandGroup>
+                    </Fragment>
+                  );
+                })}
 
               {/* if no widgets */}
               <RenderIf condition={filteredWidget.length === 0}>
