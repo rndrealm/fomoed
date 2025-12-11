@@ -4,17 +4,16 @@ import Image from "next/image";
 import dashboard from "@/lib/assets/dashboard";
 import { useOpenOrders } from "../../../chart/trading-view/hyperliquid/use-open-orders";
 import { RenderIf, ModalContainer } from "@/components/shared";
-import { Spinner } from "@/components/ui/shadcn-io/spinner";
 import { cn } from "@/lib/utils";
-import { useAllMids } from "../../../chart/trading-view/hyperliquid/use-all-mids";
 import { formatNumberToDecimalPoints } from "../../../chart/chart-header/stats";
 import { useReadHyperLiquidTokens } from "@/services/queries/hyperliquid";
 import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
 import { useSetAtom } from "jotai";
 import { useAccount } from "wagmi";
 import CancelAllOrders from "../modals/cancel-all-orders";
+import { Spinner } from "@/components/ui/shadcn-io/spinner";
 
-function getOrderAction(coin: string, side: string, reduceOnly: boolean) {
+export function getOrderAction(coin: string, side: string, reduceOnly: boolean) {
   const isSpot = coin.includes("/");
 
   if (isSpot) {
@@ -33,16 +32,15 @@ function getOrderAction(coin: string, side: string, reduceOnly: boolean) {
 }
 
 export default function OpenOrdersTab() {
-  const { address } = useAccount();
+  const { address, isConnected: isAccountConnected } = useAccount();
   const { isConnected, openOrders } = useOpenOrders(address);
-  const { allMids, isConnected: midsConnected } = useAllMids();
 
   const { data: tokensData } = useReadHyperLiquidTokens();
   const setSelectedToken = useSetAtom(selectedTokenAtom);
 
   const ordersArray = openOrders?.orders || [];
 
-  const isLoading = !isConnected || !midsConnected;
+  const isLoading = !isConnected;
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
@@ -51,7 +49,7 @@ export default function OpenOrdersTab() {
     <>
       <div className="flex flex-col h-full overflow-hidden">
         <div className="overflow-auto no-scrollbar px-3 flex-1">
-          <div className="my-2">
+          <div className="bg-[#191B20] my-2 rounded-[15px] border border-[#222327] p-2">
             <table className="w-full" style={{ borderCollapse: "separate", borderSpacing: 0 }}>
               <thead>
                 <tr className="border-b-[0.5px] border-[#191B20]">
@@ -95,32 +93,21 @@ export default function OpenOrdersTab() {
                   </th>
                 </tr>
               </thead>
-
-              <tbody className="bg-[#191B20] rounded-[15px] border border-[#222327]">
-                <RenderIf condition={isLoading}>
+              <tbody>
+                <RenderIf condition={isAccountConnected && isLoading}>
                   <tr>
-                    <td colSpan={12} className="py-10">
+                    <td colSpan={11} className="py-10">
                       <div className="flex justify-center w-full">
                         <Spinner variant="circle" className="text-[rgb(255,59,16)]" size={24} />
                       </div>
                     </td>
                   </tr>
                 </RenderIf>
-                <RenderIf condition={!isLoading && ordersArray?.length === 0}>
-                  <tr>
-                    <td colSpan={12} className="py-10">
-                      <div className="flex flex-col items-center justify-center">
-                        <Image src={dashboard.noDeposits} alt="No balances" width={168} height={168} className="mb-4" />
-                        <p className="text-white text-[20px] font-semibold">No Open Orders</p>
-                      </div>
-                    </td>
-                  </tr>
-                </RenderIf>
-                <RenderIf condition={!isLoading && ordersArray?.length !== 0}>
+                <RenderIf condition={isAccountConnected && !isLoading && ordersArray?.length !== 0}>
                   {ordersArray?.map((item, index) => {
                     const time = `${new Date(item.timestamp).toLocaleDateString()} - ${new Date(item.timestamp).toLocaleTimeString()}`;
                     const sideColorClassName = item.side === "B" ? "text-[#00AF58]" : "text-[#F99185]";
-                    const isSpot = item?.coin?.includes("/");
+                    const isSpot = item?.coin?.includes("@");
 
                     const originalSize = parseFloat(item?.origSz || "0");
 
@@ -132,32 +119,27 @@ export default function OpenOrdersTab() {
                     const orderValue = price * size;
                     const formattedOrderValue = formatNumberToDecimalPoints(orderValue, 2);
 
-                    const isFirstRow = index === 0;
-                    const isLastRow = index === ordersArray.length - 1;
+                    const resolvedSpotToken = isSpot
+                      ? tokensData?.spot?.find((token) => token.name === item.coin) || null
+                      : null;
+
+                    const isMarket = item.orderType.toLowerCase().includes("market");
 
                     return (
-                      <tr
-                        key={index}
-                        className="h-[48px] relative border-t border-[#222327]"
-                        style={{ marginTop: index === 0 ? "6px" : 0 }}
-                      >
-                        <td
-                          className={cn(
-                            "text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap",
-                            isFirstRow && "rounded-tl-[10px]",
-                            isLastRow && "rounded-bl-[10px]",
-                          )}
-                        >
-                          {time}
-                        </td>
+                      <tr key={index} className="h-[24px] relative">
+                        <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">{time}</td>
                         <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
                           {item?.orderType}
                         </td>
-                        <td className="p-2">
+                        <td className="rounded-l-[10px] p-2">
                           <button
                             className="flex items-center gap-2"
                             type="button"
                             onClick={() => {
+                              if (isSpot) {
+                                setSelectedToken(resolvedSpotToken);
+                                return;
+                              }
                               const tokensArray = (isSpot ? tokensData?.spot : tokensData?.perp) || [];
                               const currentToken = tokensArray.find((token) => token.name === item?.coin);
                               if (!currentToken) return;
@@ -165,7 +147,7 @@ export default function OpenOrdersTab() {
                             }}
                           >
                             <p className={cn("text-white text-xs font-medium leading-[1.35%]", sideColorClassName)}>
-                              {item?.coin}
+                              {resolvedSpotToken?.symbol || item?.coin}
                             </p>
                           </button>
                         </td>
@@ -187,7 +169,7 @@ export default function OpenOrdersTab() {
                           {orderValue ? formattedOrderValue : "-"}
                         </td>
                         <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
-                          {orderValue ? formattedPrice : "Market"}
+                          {isMarket ? "Market" : formattedPrice}
                         </td>
                         <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
                           <RenderIf condition={isSpot}>--</RenderIf>
@@ -197,13 +179,7 @@ export default function OpenOrdersTab() {
                           {item?.triggerCondition}
                         </td>
                         <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">--</td>
-                        <td
-                          className={cn(
-                            "text-[#FFF0D3] leading-[1.35] text-xs font-medium p-2 whitespace-nowrap",
-                            isFirstRow && "rounded-tr-[10px]",
-                            isLastRow && "rounded-br-[10px]",
-                          )}
-                        >
+                        <td className="text-[#FFF0D3] leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
                           <div className="flex items-center">
                             <button
                               type="button"
@@ -219,6 +195,17 @@ export default function OpenOrdersTab() {
                       </tr>
                     );
                   })}
+                </RenderIf>
+
+                <RenderIf condition={(!isLoading && ordersArray?.length === 0) || !isAccountConnected}>
+                  <tr>
+                    <td colSpan={12} className="">
+                      <div className="flex flex-col min-h-[200px] h-full items-center justify-center bg-[#191B20] rounded-[6px] my-1">
+                        <Image src={dashboard.noDeposits} alt="No balances" width={168} height={168} className="mb-4" />
+                        <p className="text-white text-[20px] font-semibold">No Open Orders</p>
+                      </div>
+                    </td>
+                  </tr>
                 </RenderIf>
               </tbody>
             </table>
@@ -255,4 +242,3 @@ export default function OpenOrdersTab() {
     </>
   );
 }
-

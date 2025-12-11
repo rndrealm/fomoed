@@ -14,8 +14,9 @@ import { useAccount } from "wagmi";
 import { OrderEnum } from "@/services/queries/trading/types";
 import { useQueryClient } from "@tanstack/react-query";
 import OrderCheckLayout from "../../create-order/order-check-layout";
-import { formatHlPrice, formatHlSize } from "../../../utils";
+import { formatHlPriceInput, formatHlSizeInput } from "../../../utils";
 import { PERP_MAX_DECIMALS, SPOT_MAX_DECIMALS } from "../../../utils/constants";
+import { CustomTextInput } from "@/components/shared/custom-text-input";
 
 interface IProps {
   toggleModal: () => void;
@@ -44,7 +45,7 @@ const CloseOrder = (props: IProps) => {
   const handleSliderChange = (value: number[]) => {
     const percentage = value[0];
     const orderValue = (Number(orderSize) * percentage) / multiplier / 100;
-    setSize(formatHlSize(orderValue, decimals));
+    setSize(formatHlSizeInput(orderValue.toString(), decimals));
   };
 
   const sliderPercentage = Math.round(
@@ -64,11 +65,12 @@ const CloseOrder = (props: IProps) => {
   const handleSubmit = () => {
     const orderData = [] as OrderEnum[];
     const assetIndex = isSpot ? selectedToken.index + 10000 : selectedToken.index;
+    const toDecimal = selectedToken.szDecimals;
     if (isMarket) {
       orderData.push({
         asset: assetIndex,
         side: isLong ? "sell" : "buy",
-        size: size,
+        size: Number(size).toFixed(toDecimal),
         type: "market",
         reduceOnly: true,
         isSpot,
@@ -77,10 +79,10 @@ const CloseOrder = (props: IProps) => {
       orderData.push({
         asset: assetIndex,
         side: isLong ? "sell" : "buy",
-        size: size,
+        size: Number(size).toFixed(toDecimal),
         type: "limit",
         reduceOnly: true,
-        price,
+        price: Number(price).toFixed(toDecimal),
       });
     }
     mutate({
@@ -109,7 +111,7 @@ const CloseOrder = (props: IProps) => {
         </div>
       ) : (
         <div className="pt-8">
-          <TextInput
+          <CustomTextInput
             type="number"
             className={cn(
               "h-10 w-full rounded-[10px] border-none bg-[#1E1E20] px-2 pr-4 text-sm text-white placeholder:text-[#5F5F5F] focus:outline-none focus:border-[#f4f4f4]",
@@ -118,7 +120,7 @@ const CloseOrder = (props: IProps) => {
             value={price}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               const val = e.target.value;
-              setPrice(formatHlPrice(Number(val), maxDecimal));
+              setPrice(formatHlPriceInput(val, maxDecimal));
             }}
             min="5"
             step="0.1"
@@ -136,7 +138,7 @@ const CloseOrder = (props: IProps) => {
       )}
 
       <div className="py-4">
-        <TextInput
+        <CustomTextInput
           type="number"
           className={cn(
             "h-10 w-full rounded-[10px] border-none bg-[#1E1E20] px-2 pr-4 text-sm text-white placeholder:text-[#5F5F5F] focus:outline-none focus:border-[#f4f4f4]",
@@ -145,7 +147,7 @@ const CloseOrder = (props: IProps) => {
           value={size}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             const val = e.target.value;
-            setSize(formatHlSize(Number(val), decimals));
+            setSize(formatHlSizeInput(val, decimals));
           }}
           min="5"
           step="0.1"
@@ -157,7 +159,7 @@ const CloseOrder = (props: IProps) => {
 
       <div className="flex items-center pb-8 gap-4">
         <Slider value={[sliderPercentage]} onValueChange={handleSliderChange} min={0} max={100} step={1} showDots />
-        <TextInput
+        <CustomTextInput
           className="h-12 !pr-4.5 w-14 border-none outline-none text-[#D7D7D7] !text-sm tracking-[-0.4%] leading-[14px] px-2.5 rounded-[10px] focus-visible:ring-0 bg-[#222329]"
           value={sliderPercentage}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleSliderChange([Number(e.target.value)])}

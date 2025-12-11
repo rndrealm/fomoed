@@ -117,14 +117,14 @@ const disabledWgSlugs = process.env.NEXT_PUBLIC_DISABLED_WG_SLUGS?.split(",") ||
 
 export const layoutOptionsMap = [
   {
-    id: 1,
+    id: 201,
     showId: 0,
     name: "Price Chart Widget",
     slug: "new-price-history",
     description: "See price trends unfold in real time, with a clean chart built for clarity.",
     image: dashboard.tokenHistoryV2,
     category: "charts",
-    tags: ["charts", "new"],
+    tags: ["charts"],
   },
   {
     id: 2,
@@ -181,7 +181,7 @@ export const layoutOptionsMap = [
     description: "Stay informed at a glance  market cap, volume, and supply, presented with clear precision.",
     image: dashboard.coinStatsV2,
     category: "charts",
-    tags: ["charts", "new"],
+    tags: ["charts"],
   },
   {
     id: 8,
@@ -190,7 +190,7 @@ export const layoutOptionsMap = [
     description: "Explore market flow bids, asks, and volume imbalances displayed for clear trading insight.",
     image: dashboard.footprint,
     category: "charts",
-    tags: ["charts", "new"],
+    tags: ["charts"],
   },
   {
     id: 9,
@@ -200,10 +200,10 @@ export const layoutOptionsMap = [
     description: "Measure market sentiment instantly a clear index revealing when fear or greed drives decisions.",
     image: dashboard.cfgiV2,
     category: "charts",
-    tags: ["charts", "new"],
+    tags: ["charts"],
   },
   {
-    id: 10,
+    id: 217,
     name: "Hyperliquid Copy Trading",
     slug: "gemach-copy-trading",
     description: "Copy top traders in real time. Track moves, mirror strategies, and evolve with every trade",
@@ -238,7 +238,7 @@ export const layoutOptionsMap = [
     description: "Your trading day at a glance key positions, performance, and insights distilled into clarity.",
     image: dashboard.summaryV2,
     category: "charts",
-    tags: ["charts", "new"],
+    tags: ["charts"],
   },
   {
     id: 14,
@@ -248,7 +248,7 @@ export const layoutOptionsMap = [
     description: "Track Bitcoin’s market share  a clear view of dominance shaping sentiment.",
     image: dashboard.btcDominanceV2,
     category: "charts",
-    tags: ["charts", "new"],
+    tags: ["charts"],
   },
   {
     id: 15,
@@ -258,7 +258,7 @@ export const layoutOptionsMap = [
     description: "Stay ahead with curated crypto headlines market-moving updates with clarity and focus.",
     image: dashboard.newsV2,
     category: "news",
-    tags: ["news", "new"],
+    tags: ["news"],
   },
   {
     id: 16,
@@ -268,7 +268,7 @@ export const layoutOptionsMap = [
     description: "See market depth in real time bids and asks displayed with precision and balance.",
     image: dashboard.orderBookV2,
     category: "charts",
-    tags: ["charts", "new"],
+    tags: ["charts"],
   },
   {
     id: 17,
@@ -278,7 +278,7 @@ export const layoutOptionsMap = [
     description: "Trade directly from your dashboard seamless swaps, real-time prices, and execution built in.",
     image: dashboard.dexV2,
     category: "charts",
-    tags: ["new", "charts"],
+    tags: ["charts"],
   },
   {
     id: 18,
@@ -306,7 +306,7 @@ export const layoutOptionsMap = [
       "Visualize market sentiment weighted by influence showing bullish and bearish conviction beyond raw counts.",
     image: dashboard.weightedSentiment,
     category: "charts",
-    tags: ["charts", "new"],
+    tags: ["charts"],
   },
   {
     id: 21,
@@ -316,7 +316,7 @@ export const layoutOptionsMap = [
       "Compare weighted sentiment with price action highlighting relation between crowd conviction and market trends.",
     image: dashboard.weightedPriceSentiment,
     category: "charts",
-    tags: ["charts", "new"],
+    tags: ["charts"],
   },
   {
     id: 22,
@@ -326,7 +326,7 @@ export const layoutOptionsMap = [
     description: "Compete yourself by racing duck",
     image: dashboard.duckGame,
     category: "games",
-    tags: ["new", "games"],
+    tags: ["games"],
   },
   {
     id: 23,
@@ -346,14 +346,14 @@ export const layoutOptionsMap = [
     category: "social",
     tags: ["social", "new"],
   },
-  {
-    id: 215,
-    name: "Gemach Copy Trading",
-    slug: "gemach-copy-trading",
-    image: dashboard.tradingCalendar,
-    category: "charts",
-    tags: ["new"],
-  },
+  // {
+  //   id: 215,
+  //   name: "Gemach Copy Trading",
+  //   slug: "gemach-copy-trading",
+  //   image: dashboard.tradingCalendar,
+  //   category: "charts",
+  //   tags: ["new"],
+  // },
   // {
   //   name: "Token Price History",
   //   slug: "token-price-history",
@@ -381,12 +381,12 @@ export const layoutOptionsMap = [
   // },
 
   {
-    id: 217,
-    name: "Ascendex",
+    id: 218,
+    name: "Trading Widget",
     slug: "ascendex",
-    image: dashboard.cfgi,
+    image: dashboard.tradingWidget,
     category: "charts",
-    tags: ["charts"],
+    tags: ["charts", "new"],
   },
 ].filter((i) => !disabledWgSlugs.includes(i.slug));
 

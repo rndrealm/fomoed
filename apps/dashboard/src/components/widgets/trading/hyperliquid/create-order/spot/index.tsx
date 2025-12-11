@@ -47,10 +47,13 @@ export default function CreateSpotOrder(props: IProps) {
 
   const { data: spotBalance } = useGetSpotBalance(walletAddress);
 
-  const fromBalance = spotBalance?.balances.find((spt) => spt.coin === from)?.total || "0";
-  const toBalance = spotBalance?.balances.find((spt) => spt.coin === to)?.total || "0";
+  const fromBalance = spotBalance?.balances.find((spt) => spt.coin === from);
+  const toBalance = spotBalance?.balances.find((spt) => spt.coin === to);
 
-  const availableBalance = !isLong ? fromBalance : toBalance;
+  const availableBalance =
+    (!isLong
+      ? Number(fromBalance?.total) - Number(fromBalance?.hold)
+      : Number(toBalance?.total) - Number(toBalance?.hold)) || "0";
 
   const selectOptions =
     selectedToken?.displayName?.split("/").map((ed) => {
@@ -77,15 +80,16 @@ export default function CreateSpotOrder(props: IProps) {
 
   const { mutate, isPending } = useExecuteTrade(session?.access_token, onSuccessExecute);
   function onSubmit(_values: TradingFormInitialValues) {
-    if (Number(_values.quantity) < 10) {
-      toast.error("Quantity must be greater than 10");
-      return;
-    }
     const converter = orderType === "limit" ? _values.price : marketPrice;
     const toDecimal = selectedToken.szDecimals;
     const orderSize = (
       orderBy === selectOptions[0].value ? Number(_values.quantity) : Number(_values.quantity) / Number(converter)
     ).toFixed(toDecimal);
+
+    if (Number(orderSize) * Number(converter) < 10) {
+      toast.error("Quantity must be greater than 10");
+      return;
+    }
 
     // Create main order
     const orders: OrderEnum[] = [];
@@ -95,7 +99,7 @@ export default function CreateSpotOrder(props: IProps) {
         type: "market",
         asset: currAsset,
         side: isLong ? "buy" : "sell",
-        size: orderSize,
+        size: Number(orderSize).toFixed(toDecimal),
         reduceOnly: false,
         isSpot: true,
       });
@@ -104,8 +108,8 @@ export default function CreateSpotOrder(props: IProps) {
         type: "limit",
         asset: currAsset,
         side: isLong ? "buy" : "sell",
-        price: String(_values.price),
-        size: orderSize,
+        price: Number(_values.price).toFixed(toDecimal),
+        size: Number(orderSize).toFixed(toDecimal),
         reduceOnly: false,
         timeInForce: _values.tif as TifEnum,
       });

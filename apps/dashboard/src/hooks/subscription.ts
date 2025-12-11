@@ -165,7 +165,7 @@ export const useSubscription = () => {
 
       setSubscriptionActionsPending((s) => {
         s.add("sub-mutation");
-        return s;
+        return new Set(s);
       });
 
       try {
@@ -177,7 +177,7 @@ export const useSubscription = () => {
       } finally {
         setSubscriptionActionsPending((c) => {
           c.delete("sub-mutation");
-          return c;
+          return new Set(c);
         });
       }
     },
@@ -190,7 +190,7 @@ export const useSubscription = () => {
   const nextPeriodPlan = userSubscriptionsQuery.data?.nextPeriodPlan;
 
   const isAnyUseSubscriptionHookBusy =
-    !!subscriptionActionsPending.size || userSubscriptionsQuery.isFetching || isRedirecting;
+    !!(subscriptionActionsPending?.size) || userSubscriptionsQuery.isFetching || isRedirecting;
 
   return {
     userSubscriptionsQuery,

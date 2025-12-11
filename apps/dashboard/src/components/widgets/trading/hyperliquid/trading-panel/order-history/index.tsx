@@ -1,176 +1,210 @@
-"use client";
 import React from "react";
+import { useHistoricalOrders } from "../../../chart/trading-view/hyperliquid/use-historical-orders";
+import { useAccount } from "wagmi";
+import { RenderIf } from "@/components/shared";
+import { useReadHyperLiquidTokens } from "@/services/queries/hyperliquid";
+import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
+import { useSetAtom } from "jotai";
+import { cn } from "@/lib/utils";
+import { directionColorMap } from "../trade-history";
+import { formatNumberToDecimalPoints } from "../../../chart/chart-header/stats";
+import { Spinner } from "@/components/ui/shadcn-io/spinner";
 import Image from "next/image";
 import dashboard from "@/lib/assets/dashboard";
-import { useHyperliquidHistoricalOrders } from "@/services/queries/hyperliquid-dex";
-import { useAccount } from "wagmi";
 
-export default function OrderHistoryTab() {
-  const { address } = useAccount();
+function getTradeType(isSpot: boolean, side: string, reduceOnly: boolean) {
+  if (isSpot) {
+    return side === "B" ? "Buy" : "Sell";
+  }
+
+  if (side === "B") {
+    return reduceOnly ? "Close Short" : "Open Long";
+  } else {
+    return reduceOnly ? "Close Long" : "Open Short";
+  }
+}
+
+export default function OrderHistory() {
+  const { address, isConnected: isAccountConnected } = useAccount();
   const userAddress = address || "";
 
-  const { data: historicalOrders, isLoading } = useHyperliquidHistoricalOrders(userAddress, !!userAddress);
+  const { isConnected, orderHistory } = useHistoricalOrders(address);
 
-  const perpHistoricalOrders = historicalOrders?.filter((item) => !item.order.coin.startsWith("@")) || [];
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "filled":
-        return "text-green-500";
-      case "canceled":
-      case "marginCanceled":
-      case "rejected":
-        return "text-red-500";
-      case "open":
-        return "text-blue-500";
-      default:
-        return "text-[#84858C]";
-    }
-  };
-
-  const formatStatus = (status: string) => {
-    const statusMap: Record<string, string> = {
-      filled: "Filled",
-      canceled: "Canceled",
-      triggered: "Triggered",
-      rejected: "Rejected",
-      marginCanceled: "Margin Canceled",
-      open: "Open",
-      vaultWithdrawalCanceled: "Vault Withdrawal Canceled",
-      openInterestCapCanceled: "OI Cap Canceled",
-      selfTradeCanceled: "Self Trade Canceled",
-      reduceOnlyCanceled: "Reduce Only Canceled",
-      siblingFilledCanceled: "Sibling Filled",
-      delistedCanceled: "Delisted",
-      liquidatedCanceled: "Liquidated",
-      scheduledCancel: "Scheduled Cancel",
-    };
-    return statusMap[status] || status;
-  };
+  const { data: tokensData } = useReadHyperLiquidTokens();
+  const setSelectedToken = useSetAtom(selectedTokenAtom);
 
   const formatDateTime = (timestamp: number) => {
     const date = new Date(timestamp);
-    const mm = String(date.getMonth() + 1).padStart(2, '0');
-    const dd = String(date.getDate()).padStart(2, '0');
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
     const yyyy = date.getFullYear();
-    const hh = String(date.getHours()).padStart(2, '0');
-    const min = String(date.getMinutes()).padStart(2, '0');
-    const ss = String(date.getSeconds()).padStart(2, '0');
-    
+    const hh = String(date.getHours()).padStart(2, "0");
+    const min = String(date.getMinutes()).padStart(2, "0");
+    const ss = String(date.getSeconds()).padStart(2, "0");
+
     return `${mm}/${dd}/${yyyy} - ${hh}:${min}:${ss}`;
   };
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-auto px-3 no-scrollbar">
-        <div className="my-2">
-          <table className="w-full" style={{ borderSpacing: "0", borderCollapse: "separate" }}>
+      <div className="overflow-auto scrollbar flex-1">
+        <div className="bg-[#191B20] my-2 rounded-[15px] border border-[#222327] p-2">
+          <table className="w-full" style={{ borderSpacing: "0 6px", borderCollapse: "separate" }}>
             <thead>
-              <tr className="border-b-[0.5px] border-[#191B20]">
-                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap w-[12%]">Coin</th>
-                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap w-[12%]">Side</th>
-                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap w-[12%]">Type</th>
-                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap w-[15%]">Price</th>
-                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap w-[12%]">Size</th>
-                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap w-[12%]">Status</th>
-                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap w-[25%]">Time</th>
+              <tr className="">
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">Time</th>
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">Type</th>
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">Coin</th>
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">
+                  Direction
+                </th>
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">Size</th>
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">
+                  Filled Size
+                </th>
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">
+                  Order Value
+                </th>
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">Price</th>
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">
+                  Reduce Only
+                </th>
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">
+                  Trigger Conditions
+                </th>
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">TP/SL</th>
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">Status</th>
+                <th className="text-left text-[#84858C] text-[12px] font-normal px-2 py-2 whitespace-nowrap">
+                  Order ID
+                </th>
               </tr>
             </thead>
 
-            <tbody className="bg-[#191B20] border border-[#222327]">
-              {isLoading && (
+            <tbody>
+              <RenderIf condition={isAccountConnected && !isConnected}>
                 <tr>
-                  <td colSpan={7} className="py-10">
+                  <td colSpan={13} className="py-10">
                     <div className="flex justify-center w-full">
-                      <div className="text-[#84858C] text-[14px]">Loading order history...</div>
+                      <Spinner variant="circle" className="text-[rgb(255,59,16)]" size={24} />
                     </div>
                   </td>
                 </tr>
-              )}
-              {!isLoading && perpHistoricalOrders.length === 0 && (
+              </RenderIf>
+              <RenderIf condition={isAccountConnected && isConnected && orderHistory?.length !== 0}>
+                {orderHistory
+                  ?.slice()
+                  .reverse()
+                  .map((item, index) => {
+                    const time = `${new Date(item?.statusTimestamp).toLocaleDateString()} - ${new Date(item?.statusTimestamp).toLocaleTimeString()}`;
+
+                    const isSpot = item?.order?.coin?.indexOf("@") > -1 || item?.order?.coin === "PURR/USDC";
+                    const direction = getTradeType(isSpot, item?.order?.side, item?.order?.reduceOnly);
+
+                    const size = parseFloat(item?.order?.sz || "0");
+                    const originalSize = parseFloat(item?.order?.origSz || "0");
+                    const formattedSize = formatNumberToDecimalPoints(size, size < 1 ? undefined : 1);
+
+                    const filledSize = originalSize - size;
+                    const formattedFilledSize = formatNumberToDecimalPoints(filledSize, filledSize < 1 ? undefined : 1);
+
+                    const limitPrice = parseFloat(item?.order?.limitPx || "0");
+                    const formattedPrice = formatNumberToDecimalPoints(limitPrice, limitPrice < 1 ? undefined : 1);
+
+                    const orderValue = limitPrice * size;
+                    const formattedOrderValue = formatNumberToDecimalPoints(orderValue, 2);
+
+                    const triggerPrice = parseFloat(item?.order?.triggerPx || "0");
+                    const formattedTriggerPrice = formatNumberToDecimalPoints(
+                      triggerPrice,
+                      triggerPrice < 1 ? undefined : 1,
+                    );
+
+                    const resolvedSpotToken = isSpot
+                      ? tokensData?.spot?.find((token) => token.name === item?.order?.coin) || null
+                      : null;
+
+                    return (
+                      <tr key={index} className="h-[24px] relative">
+                        <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">{time}</td>
+                        <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
+                          {item?.order?.orderType}
+                        </td>
+                        <td className="rounded-l-[10px] p-2">
+                          <button
+                            className="flex items-center gap-2"
+                            type="button"
+                            onClick={() => {
+                              if (isSpot) {
+                                setSelectedToken(resolvedSpotToken);
+                                return;
+                              }
+                              const tokensArray = (isSpot ? tokensData?.spot : tokensData?.perp) || [];
+                              const currentToken = tokensArray.find((token) => token.name === item?.order?.coin);
+                              if (!currentToken) return;
+                              setSelectedToken(currentToken);
+                            }}
+                          >
+                            <p
+                              className={cn(
+                                "text-white text-xs font-medium leading-[1.35%]",
+                                directionColorMap[direction],
+                              )}
+                            >
+                              {resolvedSpotToken?.symbol || item?.order?.coin}
+                            </p>
+                          </button>
+                        </td>
+                        <td
+                          className={cn(
+                            "text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap",
+                            directionColorMap[direction],
+                          )}
+                        >
+                          {direction}
+                        </td>
+                        <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
+                          {size ? formattedSize : "--"}
+                        </td>
+
+                        <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
+                          {filledSize ? formattedFilledSize : "--"}
+                        </td>
+                        <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
+                          {orderValue ? `${formattedOrderValue} USDC` : "--"}
+                        </td>
+                        <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
+                          {triggerPrice ? "Market" : formattedPrice}
+                        </td>
+                        <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
+                          {isSpot ? "--" : item?.order?.reduceOnly ? "Yes" : "No"}
+                        </td>
+                        <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
+                          {item?.order?.triggerCondition || "N/A"}
+                        </td>
+                        <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
+                          {item?.order?.isPositionTpsl ? "--" : "--"}
+                        </td>
+                        <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap capitalize">
+                          {item?.status}
+                        </td>
+                        <td className="text-white leading-[1.35] text-xs font-medium p-2 whitespace-nowrap">
+                          {item?.order?.oid}
+                        </td>
+                      </tr>
+                    );
+                  })}
+              </RenderIf>
+
+              <RenderIf condition={!isAccountConnected || (isConnected && orderHistory?.length === 0)}>
                 <tr>
-                  <td colSpan={7} className="py-10">
-                    <div className="flex flex-col items-center justify-center">
-                      <Image src={dashboard.noOpenOrders} alt="No Order History" width={168} height={168} className="mb-4" />
-                      <p className="text-white text-[20px] font-semibold">No Order History</p>
+                  <td colSpan={13} className="">
+                    <div className="flex flex-col min-h-[200px] h-full items-center justify-center bg-[#191B20] rounded-[6px] my-1">
+                      <Image src={dashboard.noDeposits} alt="No balances" width={168} height={168} className="mb-4" />
+                      <p className="text-white text-[20px] font-semibold">No Data</p>
                     </div>
                   </td>
                 </tr>
-              )}
-              {!isLoading && perpHistoricalOrders.map((item, index) => {
-                const order = item.order;
-                const isBuy = order.side === "B";
-                const isFirstRow = index === 0;
-                const isLastRow = index === perpHistoricalOrders.length - 1;
-
-                return (
-                  <tr
-                    key={`${order.oid}-${index}`}
-                    className="h-[48px] hover:bg-[#1C1D21] transition-colors"
-                  >
-                    {/* Coin */}
-                    <td className={`text-white text-xs font-medium px-2 py-2 whitespace-nowrap w-[12%] ${
-                      isFirstRow ? 'rounded-tl-[15px]' : ''
-                    } ${
-                      isLastRow ? 'rounded-bl-[15px]' : ''
-                    }`}>
-                      {order.coin}
-                    </td>
-
-                    {/* Side */}
-                    <td className="px-2 py-2 whitespace-nowrap w-[12%]">
-                      <span
-                        className={`text-[12px] font-medium px-2 py-1 rounded ${
-                          isBuy ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"
-                        }`}
-                      >
-                        {isBuy ? "Buy" : "Sell"}
-                      </span>
-                    </td>
-
-                    {/* Order Type */}
-                    <td className="text-white text-xs px-2 py-2 whitespace-nowrap w-[12%]">
-                      {order.orderType}
-                      {order.reduceOnly && <span className="text-[#84858C] text-[10px] ml-1">(RO)</span>}
-                    </td>
-
-                    {/* Price */}
-                    <td className="px-2 py-2 whitespace-nowrap w-[15%]">
-                      <div className="flex flex-col">
-                        <span className="text-white text-xs">${parseFloat(order.limitPx).toFixed(2)}</span>
-                        {order.isTrigger && order.triggerPx !== "0.0" && (
-                          <span className="text-[#84858C] text-[10px]">
-                            Trigger: ${parseFloat(order.triggerPx).toFixed(2)}
-                          </span>
-                        )}
-                      </div>
-                    </td>
-
-                    {/* Size */}
-                    <td className="text-white text-xs px-2 py-2 whitespace-nowrap w-[12%]">
-                      {parseFloat(order.origSz).toFixed(4)}
-                    </td>
-
-                    {/* Status */}
-                    <td className="px-2 py-2 whitespace-nowrap w-[12%]">
-                      <span className={`text-xs font-medium ${getStatusColor(item.status)}`}>
-                        {formatStatus(item.status)}
-                      </span>
-                    </td>
-
-                    {/* Time */}
-                    <td className={`px-2 py-2 whitespace-nowrap w-[25%] ${
-                      isFirstRow ? 'rounded-tr-[15px]' : ''
-                    } ${
-                      isLastRow ? 'rounded-br-[15px]' : ''
-                    }`}>
-                      <span className="text-white text-[11px]">
-                        {formatDateTime(order.timestamp)}
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
+              </RenderIf>
             </tbody>
           </table>
         </div>

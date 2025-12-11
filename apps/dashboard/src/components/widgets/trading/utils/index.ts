@@ -254,6 +254,82 @@ export function formatHlSize(size: number, szDecimals: number): string {
 }
 
 /**
+ * Less aggressive version of formatHlPrice for input onChange handlers
+ * Only enforces max decimal places without reformatting
+ * Preserves trailing zeros and decimal points (e.g., "100.", "100.0")
+ *
+ * @param input - The input string from the user
+ * @param maxDecimalPlaces - Maximum number of decimal places allowed
+ * @returns The input string if valid, or truncated version if it exceeds limits
+ *
+ * @example
+ * formatHlPriceInput("100.", 2) // "100." (preserved)
+ * formatHlPriceInput("100.0", 2) // "100.0" (preserved)
+ * formatHlPriceInput("100.000000", 2) // "100.00" (truncated to max DP but preserves format)
+ * formatHlPriceInput("123.456", 2) // "123.45" (truncated to max DP)
+ * formatHlPriceInput("0.123456", 4) // "0.1234" (truncated to max DP)
+ */
+export function formatHlPriceInput(input: string, maxDecimalPlaces: number): string {
+  // Preserve empty string or just a decimal point
+  if (input === "" || input === ".") return input;
+
+  // Parse the numeric value
+  const num = parseFloat(input);
+  if (!isFinite(num)) return input;
+
+  // Check if we need to limit by decimal places
+  const decimalIndex = input.indexOf(".");
+  if (decimalIndex !== -1) {
+    const decimalPlaces = input.length - decimalIndex - 1;
+    if (decimalPlaces > maxDecimalPlaces) {
+      // Just truncate the string to max decimal places
+      return input.slice(0, decimalIndex + maxDecimalPlaces + 1);
+    }
+  }
+
+  // Input is within limits, return as-is
+  return input;
+}
+
+/**
+ * Less aggressive version of formatHlSize for input onChange handlers
+ * Only enforces max decimal places without reformatting
+ * Preserves trailing zeros and decimal points (e.g., "100.", "100.0")
+ *
+ * @param input - The input string from the user
+ * @param szDecimals - The number of decimal places allowed for this asset
+ * @returns The input string if valid, or truncated version if it exceeds limits
+ *
+ * @example
+ * formatHlSizeInput("100.", 2) // "100." (preserved)
+ * formatHlSizeInput("100.0", 2) // "100.0" (preserved)
+ * formatHlSizeInput("100.000000", 2) // "100.00" (truncated to max DP but preserves format)
+ * formatHlSizeInput("10.999", 2) // "10.99" (truncated to 2 decimals)
+ * formatHlSizeInput("5.6789", 1) // "5.6" (truncated to 1 decimal)
+ */
+export function formatHlSizeInput(input: string, szDecimals: number): string {
+  // Preserve empty string or just a decimal point
+  if (input === "" || input === ".") return input;
+
+  // Parse the numeric value
+  const num = parseFloat(input);
+  if (!isFinite(num)) return input;
+
+  // Check if we need to limit by decimal places
+  const decimalIndex = input.indexOf(".");
+  if (decimalIndex !== -1) {
+    const decimalPlaces = input.length - decimalIndex - 1;
+    if (decimalPlaces > szDecimals) {
+      // Just truncate the string to max decimal places
+      return input.slice(0, decimalIndex + szDecimals + 1);
+    }
+  }
+
+  // Input is within limits, return as-is
+  return input;
+}
+
+/**
  * function to parse numeric strings that may contain commas or extra spaces
  * @param input
  * @returns the formatted number

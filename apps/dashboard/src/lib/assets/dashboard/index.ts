@@ -103,6 +103,7 @@ import coinwLogo from "../../../../public/media/images/dashboard/coinw-logo.png"
 import hyperliquidLogo2 from "../../../../public/media/images/dashboard/hyperliquid-logo.png";
 import telegramPreview from "../../../../public/media/images/dashboard/telegram-preview.png";
 import telegramUserIcon from "../../../../public/media/images/dashboard/telegram-user-icon.png";
+import tradingWidget from "../../../../public/media/images/dashboard/trading-widget.png";
 
 const dashboard = {
   layoutPlaceholder,
@@ -208,6 +209,7 @@ const dashboard = {
   youtube,
   telegramPreview,
   telegramUserIcon,
+  tradingWidget
 };
 
 export default dashboard;

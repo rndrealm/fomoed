@@ -65,14 +65,6 @@ const navLinks: INavLink[] = [
     keyboardBoxes: ["command", "K"],
   },
   {
-    label: "Trading Competition Photos",
-    icon: <LinkIcon />,
-    href: AppRoutes.eventPhotos.path,
-    disabled: false,
-    beta: false,
-    alpha: false,
-  },
-  {
     label: "News",
     icon: <NewsIconV2 />,
     href: AppRoutes.news.path,
@@ -128,14 +120,6 @@ const navLinks: INavLink[] = [
   //   alpha: false,
   //   comingSoon: true,
   // },
-  {
-    label: "Referrals",
-    icon: <ReferAndEarnIcon />,
-    href: AppRoutes.referrals.path,
-    disabled: false,
-    beta: false,
-    alpha: false,
-  },
   // {
   //   label: "Terms of Service",
   //   icon: <Article />,

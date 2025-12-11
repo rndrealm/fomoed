@@ -13,7 +13,8 @@ import { InputWithSelect } from "@/components/shared/input-with-select";
 import OrderCheckLayout from "../order-check-layout";
 import { PerpUniverse, SpotsUniverse } from "@/services/queries/hyperliquid/types";
 import { SPOT_MAX_DECIMALS } from "../../../utils/constants";
-import { formatHlPrice, formatHlSize } from "../../../utils";
+import { formatHlPrice, formatHlPriceInput, formatHlSizeInput } from "../../../utils";
+import { CustomTextInput } from "@/components/shared/custom-text-input";
 
 interface IOrderTypeButtonProps {
   isActive: boolean;
@@ -116,7 +117,10 @@ export function SpotFormContent(props: FormContentProps) {
   const handleSliderChange = (value: number[]) => {
     const percentage = value[0];
     const orderValue = (balance * percentage) / multiplier / 100;
-    setFieldValue("quantity", formatHlSize(orderValue, orderBy === selectOptions[0].value ? decimals : 2));
+    setFieldValue(
+      "quantity",
+      formatHlSizeInput(orderValue.toString(), orderBy === selectOptions[0].value ? decimals : 2),
+    );
   };
 
   const sliderPercentage = Math.round(
@@ -164,13 +168,13 @@ export function SpotFormContent(props: FormContentProps) {
             <p className="text-[#A6AEB2] text-[8px] font-medium leading-[10px] tracking-[-0.4%]">Price</p>
 
             <div className="flex flex-col">
-              <TextInput
+              <CustomTextInput
                 className="h-[24px] w-full border-none outline-none text-[#D7D7D7] !text-[10px] tracking-[-0.4%] leading-[14px] px-1 rounded-sm focus-visible:ring-0 bg-[#222329]"
                 type="number"
                 value={values.price}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   const val = e.target.value;
-                  setFieldValue("price", formatHlPrice(Number(val), maxDecimal));
+                  setFieldValue("price", formatHlPriceInput(val, maxDecimal));
                 }}
                 onBlur={handleBlur}
                 name="price"
@@ -190,7 +194,11 @@ export function SpotFormContent(props: FormContentProps) {
                 className="h-[24px] w-full border-none outline-none text-[#D7D7D7] !text-[10px] tracking-[-0.4%] leading-[14px] px-1 rounded-sm focus-visible:ring-0 bg-[#222329]"
                 type="number"
                 value={values.quantity}
-                onChange={handleChange}
+                // onChange={handleChange}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  const val = e.target.value;
+                  setFieldValue("quantity", formatHlSizeInput(val, orderBy === selectOptions[0].value ? decimals : 2));
+                }}
                 onBlur={handleBlur}
                 name="quantity"
                 placeholder="Quantity"
@@ -200,7 +208,10 @@ export function SpotFormContent(props: FormContentProps) {
                 onChangeSelect={(val) => {
                   if (val === orderBy) return;
                   if (val === selectOptions[0].value) {
-                    setFieldValue("quantity", formatHlSize(Number(values.quantity) / Number(marketPrice), decimals));
+                    setFieldValue(
+                      "quantity",
+                      formatHlSizeInput((Number(values.quantity) / Number(marketPrice)).toString(), decimals),
+                    );
                   } else {
                     setFieldValue("quantity", (Number(values.quantity) * Number(marketPrice)).toFixed(2));
                   }
@@ -213,7 +224,7 @@ export function SpotFormContent(props: FormContentProps) {
 
           <div className="flex items-center gap-1.5">
             <Slider value={[sliderPercentage]} onValueChange={handleSliderChange} min={0} max={100} step={1} showDots />
-            <TextInput
+            <CustomTextInput
               className="h-[1.5rem] !pr-4.5 w-[3rem] border-none outline-none text-[#D7D7D7] !text-[10px] tracking-[-0.4%] leading-[14px] px-1 rounded-sm focus-visible:ring-0 bg-[#222329]"
               value={sliderPercentage}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleSliderChange([Number(e.target.value)])}

@@ -19,6 +19,7 @@ import ConfirmModal from "../../modals/confirm-modal";
 import MarginModeModal from "../../modals/margin-mode-modal";
 import { WsActiveAssetCtx, WsActiveSpotAssetCtx } from "../../../chart/trading-view/hyperliquid/types";
 import { getFromAndToToken } from "../../../utils";
+import { PERP_MAX_DECIMALS } from "../../../utils/constants";
 
 const initialValues = {
   price: "0",
@@ -201,7 +202,7 @@ export default function CreateOrder(props: IProps) {
         type: "market",
         asset: currAsset,
         side: isLong ? "buy" : "sell",
-        size: orderSize,
+        size: Number(orderSize).toFixed(toDecimal),
         reduceOnly: _values.reduceOnly,
         isSpot: false,
       });
@@ -210,8 +211,8 @@ export default function CreateOrder(props: IProps) {
         type: "limit",
         asset: currAsset,
         side: isLong ? "buy" : "sell",
-        price: String(_values.price),
-        size: orderSize,
+        price: Number(_values.price).toFixed(toDecimal),
+        size: Number(orderSize).toFixed(toDecimal),
         reduceOnly: _values.reduceOnly,
         timeInForce: _values.tif as TifEnum,
       });
@@ -225,9 +226,9 @@ export default function CreateOrder(props: IProps) {
         type: "trigger",
         asset: currAsset,
         side: isLong ? "sell" : "buy", // Opposite side to close position
-        triggerPrice: _values.tp.toString(),
-        price: calculatedPrice.toFixed(decimalPlaces),
-        size: orderSize,
+        triggerPrice: Number(_values.tp).toFixed(toDecimal),
+        price: Number(calculatedPrice).toFixed(toDecimal),
+        size: Number(orderSize).toFixed(toDecimal),
         isMarket: true,
         reduceOnly: true,
         tpsl: "tp",
@@ -242,9 +243,9 @@ export default function CreateOrder(props: IProps) {
         type: "trigger",
         asset: currAsset,
         side: isLong ? "sell" : "buy", // Opposite side to close position
-        triggerPrice: _values.sl.toString(),
-        price: calculatedPrice.toFixed(decimalPlaces),
-        size: orderSize,
+        triggerPrice: Number(_values.sl).toFixed(toDecimal),
+        price: Number(calculatedPrice).toFixed(toDecimal),
+        size: Number(orderSize).toFixed(toDecimal),
         isMarket: true,
         reduceOnly: true,
         tpsl: "sl",

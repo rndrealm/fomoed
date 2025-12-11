@@ -11,8 +11,7 @@ import {
   reverseCalculateTpGain,
   validateReduceOnly,
 } from "@/lib/utils";
-import { ErrorMsg, TextInput } from "@/components/auth/text-input";
-import { formatPrice, formatSize } from "@nktkas/hyperliquid/utils";
+import { ErrorMsg } from "@/components/auth/text-input";
 import { Slider } from "@/components/ui/slider";
 import Checkbox from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
@@ -23,9 +22,10 @@ import { OrderType } from "@/services/queries/trading/types";
 import { RenderIf } from "@/components/shared";
 import { InputWithSelect } from "@/components/shared/input-with-select";
 import OrderCheckLayout from "../order-check-layout";
-import { formatHlPrice, formatHlSize } from "../../../utils";
+import { formatHlPrice, formatHlPriceInput, formatHlSizeInput } from "../../../utils";
 import { PERP_MAX_DECIMALS } from "../../../utils/constants";
 import { PerpUniverse, SpotsUniverse } from "@/services/queries/hyperliquid/types";
+import { CustomTextInput } from "@/components/shared/custom-text-input";
 
 interface IOrderTypeButtonProps {
   isActive: boolean;
@@ -130,7 +130,7 @@ export function FormContent(props: FormContentProps) {
     selectedToken,
   } = props;
 
-  const { values, handleChange, handleBlur, setFieldValue, errors } = useFormikContext<TradingFormInitialValues>();
+  const { values, handleBlur, setFieldValue, errors } = useFormikContext<TradingFormInitialValues>();
   const decimals = selectedToken.szDecimals;
   const maxDecimal = PERP_MAX_DECIMALS - decimals;
   const multiplier = orderBy === selectOptions[0].value ? Number(marketPrice) : 1;
@@ -138,7 +138,10 @@ export function FormContent(props: FormContentProps) {
   const handleSliderChange = (value: number[]) => {
     const percentage = value[0];
     const orderValue = ((balance * percentage) / multiplier / 100) * leverage;
-    setFieldValue("quantity", formatHlSize(orderValue, orderBy === selectOptions[0].value ? decimals : 2));
+    setFieldValue(
+      "quantity",
+      formatHlSizeInput(orderValue.toString(), orderBy === selectOptions[0].value ? decimals : 2),
+    );
   };
 
   const sliderPercentage = Math.round(
@@ -167,6 +170,7 @@ export function FormContent(props: FormContentProps) {
       setFieldValue("price", formatHlPrice(Number(marketPrice), maxDecimal));
     }
   }, []);
+
   return (
     <>
       <div className="flex flex-col gap-3">
@@ -236,13 +240,13 @@ export function FormContent(props: FormContentProps) {
             <p className="text-[#A6AEB2] text-[8px] font-medium leading-[10px] tracking-[-0.4%]">Price</p>
 
             <div className="flex flex-col">
-              <TextInput
+              <CustomTextInput
                 className="h-[24px] w-full border-none outline-none text-[#D7D7D7] !text-[10px] tracking-[-0.4%] leading-[14px] px-1 rounded-sm focus-visible:ring-0 bg-[#222329]"
                 type="number"
                 value={values.price}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   const val = e.target.value;
-                  setFieldValue("price", formatPrice(Number(val), decimals));
+                  setFieldValue("price", formatHlPriceInput(val, maxDecimal));
                 }}
                 onBlur={handleBlur}
                 name="price"
@@ -264,10 +268,7 @@ export function FormContent(props: FormContentProps) {
                 value={values.quantity}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   const val = e.target.value;
-                  setFieldValue(
-                    "quantity",
-                    formatHlSize(Number(val), orderBy === selectOptions[0].value ? decimals : 2),
-                  );
+                  setFieldValue("quantity", formatHlSizeInput(val, orderBy === selectOptions[0].value ? decimals : 2));
                 }}
                 onBlur={handleBlur}
                 name="quantity"
@@ -278,7 +279,10 @@ export function FormContent(props: FormContentProps) {
                 onChangeSelect={(val) => {
                   if (val === orderBy) return;
                   if (val === selectOptions[0].value) {
-                    setFieldValue("quantity", formatHlSize(Number(values.quantity) / Number(marketPrice), decimals));
+                    setFieldValue(
+                      "quantity",
+                      formatHlSizeInput((Number(values.quantity) / Number(marketPrice)).toString(), decimals),
+                    );
                   } else {
                     setFieldValue("quantity", (Number(values.quantity) * Number(marketPrice)).toFixed(2));
                   }
@@ -292,7 +296,7 @@ export function FormContent(props: FormContentProps) {
 
           <div className="flex items-center gap-1.5">
             <Slider value={[sliderPercentage]} onValueChange={handleSliderChange} min={0} max={100} step={1} showDots />
-            <TextInput
+            <CustomTextInput
               className="h-[1.5rem] !pr-4.5 w-[3rem] border-none outline-none text-[#D7D7D7] !text-[10px] tracking-[-0.4%] leading-[14px] px-1 rounded-sm focus-visible:ring-0 bg-[#222329]"
               value={sliderPercentage}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleSliderChange([Number(e.target.value)])}
@@ -375,16 +379,16 @@ export function FormContent(props: FormContentProps) {
                   <label className="text-[#A6AEB2] text-xxxs font-medium" htmlFor="tp">
                     TP Price
                   </label>
-                  <TextInput
+                  <CustomTextInput
                     id="tp"
                     value={values.tp}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                      setFieldValue("tp", formatHlPrice(Number(e.target.value), maxDecimal));
+                      setFieldValue("tp", formatHlPriceInput(e.target.value, maxDecimal));
                       setFieldValue(
                         "gain",
                         e.target.value
                           ? calculateTpGain(
-                              Number(values.tp),
+                              Number(e.target.value),
                               Number(marketPrice),
                               leverage,
                               isLong ? "long" : "short",
@@ -402,7 +406,7 @@ export function FormContent(props: FormContentProps) {
                   <label className="text-[#A6AEB2] text-xxxs font-medium" htmlFor="tpRoi">
                     ROI
                   </label>
-                  <TextInput
+                  <CustomTextInput
                     value={values.gain}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       const tp = reverseCalculateTpGain(
@@ -412,7 +416,7 @@ export function FormContent(props: FormContentProps) {
                         isLong ? "long" : "short",
                       );
                       setFieldValue("gain", e.target.value);
-                      setFieldValue("tp", e.target.value ? formatHlPrice(tp, maxDecimal) : "");
+                      setFieldValue("tp", e.target.value ? formatHlPriceInput(tp.toString(), maxDecimal) : "");
                     }}
                     rightPlaceholder="%"
                     onBlur={handleBlur}
@@ -426,16 +430,16 @@ export function FormContent(props: FormContentProps) {
                   <label className="text-[#A6AEB2] text-xxxs font-medium" htmlFor="sl">
                     SL Price
                   </label>
-                  <TextInput
+                  <CustomTextInput
                     id="sl"
                     value={values.sl}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                      setFieldValue("sl", formatHlPrice(Number(e.target.value), maxDecimal));
+                      setFieldValue("sl", formatHlPriceInput(e.target.value, maxDecimal));
                       setFieldValue(
                         "loss",
                         e.target.value
                           ? calculateLossPercent(
-                              Number(values.sl),
+                              Number(e.target.value),
                               Number(marketPrice),
                               leverage,
                               isLong ? "long" : "short",
@@ -453,7 +457,7 @@ export function FormContent(props: FormContentProps) {
                   <label className="text-[#A6AEB2] text-xxxs font-medium" htmlFor="slRoi">
                     ROI
                   </label>
-                  <TextInput
+                  <CustomTextInput
                     value={values.loss}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       const sl = calculateSLFromLoss(
@@ -463,7 +467,7 @@ export function FormContent(props: FormContentProps) {
                         isLong ? "long" : "short",
                       );
                       setFieldValue("loss", e.target.value);
-                      setFieldValue("sl", e.target.value ? formatHlPrice(sl, maxDecimal) : "");
+                      setFieldValue("sl", e.target.value ? formatHlPriceInput(sl.toString(), maxDecimal) : "");
                     }}
                     rightPlaceholder="%"
                     onBlur={handleBlur}

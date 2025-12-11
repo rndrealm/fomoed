@@ -1,7 +1,6 @@
 "use client";
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
-import { useHyperliquidAllMids } from "@/services/queries/hyperliquid-dex";
 import { useReadHyperLiquidTokens } from "@/services/queries/hyperliquid";
 import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
 import { useSetAtom } from "jotai";
@@ -55,8 +54,8 @@ export interface IPositionOrder {
 export interface ITpSlOrder {
   coin: string;
   positionSize: string;
-  entryPrice: string;
-  markPrice: string;
+  entryPrice: string | number;
+  markPrice: string | number;
   isSpot: boolean;
   selectedToken: SpotsUniverse | PerpUniverse;
   isLong: boolean;
@@ -64,7 +63,7 @@ export interface ITpSlOrder {
 }
 
 export default function OpenPositionsTab() {
-  const { address } = useAccount();
+  const { address, isConnected: isAccountConnected } = useAccount();
   const userAddress = address || "";
 
   const { clearingHouse, isConnected } = useClearingHouseState(userAddress);
@@ -101,7 +100,7 @@ export default function OpenPositionsTab() {
     <>
       <div className="flex flex-col h-full">
         {/* Table */}
-        <div className="flex-1 overflow-auto px-3 no-scrollbar">
+        <div className="flex-1 overflow-auto px-3 scrollbar">
           <div className="bg-[#191B20] my-2 rounded-[15px] border border-[#222327] p-2">
             <table className="w-full" style={{ borderSpacing: "0 6px", borderCollapse: "separate" }}>
               <thead>
@@ -145,7 +144,7 @@ export default function OpenPositionsTab() {
                 </tr>
               </thead>
               <tbody>
-                <RenderIf condition={isLoading}>
+                <RenderIf condition={isAccountConnected && isLoading}>
                   <tr>
                     <td colSpan={11} className="py-10">
                       <div className="flex justify-center w-full">
@@ -154,7 +153,11 @@ export default function OpenPositionsTab() {
                     </td>
                   </tr>
                 </RenderIf>
-                <RenderIf condition={!isLoading && clearingHouse?.clearinghouseState?.assetPositions?.length !== 0}>
+                <RenderIf
+                  condition={
+                    isAccountConnected && !isLoading && clearingHouse?.clearinghouseState?.assetPositions?.length !== 0
+                  }
+                >
                   {clearingHouse?.clearinghouseState?.assetPositions?.map((item, index) => {
                     const size = parseFloat(item?.position?.szi || "0");
                     const isLong = size > 0;
@@ -168,13 +171,17 @@ export default function OpenPositionsTab() {
                     const entryPrice = parseFloat(item?.position?.entryPx);
                     const formattedEntryPrice = formatNumberToDecimalPoints(entryPrice);
 
-                    const markPrice = parseFloat(allMids?.mids?.[item?.position?.coin] || "0");
-                    const formattedMarkPrice = formatNumberToDecimalPoints(
-                      parseFloat(allMids?.mids?.[item?.position?.coin] || "0"),
-                    );
-
                     const pnl = parseFloat(item?.position?.unrealizedPnl) || 0;
                     const formattedPnl = formatNumberToDecimalPoints(Math.abs(pnl), 2) || "0.00";
+
+                    const midPrice = allMids?.mids?.[item?.position?.coin] || "0.00";
+
+                    const markPrice = entryPrice + pnl / size;
+                    const formattedMarkPrice = formatNumberToDecimalPoints(
+                      markPrice,
+                      midPrice?.split(".")[1].length - 1,
+                    );
+
                     const isPnlPositive = pnl >= 0;
                     const pnlSign = isPnlPositive ? "+" : "-";
 
@@ -280,8 +287,8 @@ export default function OpenPositionsTab() {
                                 setSelectedTpSlOrder({
                                   coin: item?.position?.coin,
                                   positionSize: orderSize.toString(),
-                                  entryPrice: formattedEntryPrice,
-                                  markPrice: formattedMarkPrice,
+                                  entryPrice: entryPrice,
+                                  markPrice: markPrice,
                                   isSpot: isSpot,
                                   selectedToken: currentToken,
                                   isLong: isLong,
@@ -338,52 +345,26 @@ export default function OpenPositionsTab() {
                     );
                   })}
                 </RenderIf>
+
+                <RenderIf
+                  condition={
+                    !isAccountConnected ||
+                    (!isLoading && clearingHouse?.clearinghouseState?.assetPositions?.length === 0)
+                  }
+                >
+                  <tr>
+                    <td colSpan={11} className="">
+                      <div className="flex flex-col items-center justify-center bg-[#191B20] rounded-[6px] my-1">
+                        <Image src={dashboard.noDeposits} alt="No balances" width={168} height={168} className="mb-4" />
+                        <p className="text-white text-[20px] font-semibold">No Positions</p>
+                      </div>
+                    </td>
+                  </tr>
+                </RenderIf>
               </tbody>
             </table>
           </div>
-
-          <RenderIf condition={!isLoading && clearingHouse?.clearinghouseState?.assetPositions?.length === 0}>
-            <div className="flex flex-col min-h-[300px] h-full items-center justify-center bg-[#191B20] rounded-[6px] my-1">
-              <Image src={dashboard.noDeposits} alt="No balances" width={168} height={168} className="mb-4" />
-              <p className="text-white text-[20px] font-semibold">No Positions</p>
-            </div>
-          </RenderIf>
         </div>
-
-        {/* Summary Footer */}
-        {/* {positions.length > 0 && (
-        <div className="border-t border-[#0C0C0C] px-3 py-2 bg-[#0E0E0E]">
-          <div className="flex justify-between items-center">
-            <span className="text-[#84858C] text-[12px]">Total Positions: {positions.length}</span>
-            <div className="flex gap-4">
-              <div>
-                <span className="text-[#84858C] text-[12px]">Total Value: </span>
-                <span className="text-white text-[12px] font-medium">
-                  ${positions.reduce((sum, p) => sum + p.positionValue, 0).toFixed(2)}
-                </span>
-              </div>
-              <div>
-                <span className="text-[#84858C] text-[12px]">Total PNL: </span>
-                <span
-                  className="text-[12px] font-medium"
-                  style={{
-                    color: positions.reduce((sum, p) => sum + p.unrealizedPnl, 0) >= 0 ? "#00AF58" : "#DC2626",
-                  }}
-                >
-                  ${positions.reduce((sum, p) => sum + p.unrealizedPnl, 0) >= 0 ? "+" : ""}
-                  {positions.reduce((sum, p) => sum + p.unrealizedPnl, 0).toFixed(2)}
-                </span>
-              </div>
-              <div>
-                <span className="text-[#84858C] text-[12px]">Total Margin: </span>
-                <span className="text-white text-[12px] font-medium">
-                  ${positions.reduce((sum, p) => sum + p.marginUsed, 0).toFixed(2)}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )} */}
       </div>
 
       {selectedOrder ? (

@@ -27,6 +27,7 @@ const LeverageModal = (props: IProps) => {
   const { leverage, updateLeverage, isLoading, maxLeverage, onClose } = props;
   const [customLeverage, setCustomLeverage] = useState<string>(leverage.toString());
   const [errorText, setErrorText] = useState("");
+  const [warningText, setWarningText] = useState("");
 
   const handleCustomLeverageChange = (value: string) => {
     const numValue = parseFloat(value);
@@ -40,15 +41,19 @@ const LeverageModal = (props: IProps) => {
 
     if (value === "") {
       setErrorText("");
+      setWarningText("");
       return;
     }
 
     if (isNaN(numValue) || numValue <= 0) {
       setErrorText("Leverage must be greater than 0");
+      setWarningText("");
     } else if (numValue > maxLeverage / 2) {
-      setErrorText("High leverage detected, there's a high chance of liquidation if you proceed with it.");
+      setWarningText("High leverage detected, there's a high chance of liquidation if you proceed with it.");
+      setErrorText("");
     } else {
       setErrorText("");
+      setWarningText("");
     }
   };
 
@@ -73,6 +78,7 @@ const LeverageModal = (props: IProps) => {
                   updateLeverage(option.value);
                   setCustomLeverage("");
                   setErrorText("");
+                  setWarningText("");
                 }}
                 type="button"
                 key={option.id}
@@ -124,20 +130,19 @@ const LeverageModal = (props: IProps) => {
 
           <div
             className={cn("flex items-start pt-4 gap-1", {
-              invisible: !errorText,
+              invisible: !errorText && !warningText,
             })}
           >
             <div className="mt-0.5">
               <TriangleDangerIcon />
             </div>
-            <p className="text-xs text-[#FFC26D] ">{errorText || ""}</p>
+            <p className="text-xs text-[#FFC26D] ">{warningText || errorText || ""}</p>
           </div>
         </div>
       </div>
       <div className="flex items-center gap-2 pt-8">
         <Button
           onClick={onClose}
-          disabled={!!errorText}
           className="flex-1 bg-[#171717] border border-[#1F1F1F] text-white font-medium text-sm h-11"
         >
           Cancel
