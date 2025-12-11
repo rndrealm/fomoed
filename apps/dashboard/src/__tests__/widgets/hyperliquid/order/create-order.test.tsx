@@ -282,7 +282,7 @@ describe("CreateOrder Component", () => {
 
       // Wait for initial render and price to be set
       await waitFor(() => {
-        expect(screen.getByPlaceholderText("Price (USDC)")).toHaveValue(100000);
+        expect(screen.getByPlaceholderText("Price (USDC)")).toHaveValue("100000");
       });
 
       const quantityInput = screen.getByPlaceholderText("Quantity");
@@ -316,7 +316,7 @@ describe("CreateOrder Component", () => {
 
       // Wait for initial render and price to be set
       await waitFor(() => {
-        expect(screen.getByPlaceholderText("Price (USDC)")).toHaveValue(100000);
+        expect(screen.getByPlaceholderText("Price (USDC)")).toHaveValue("100000");
       });
 
       // Enable TP/SL

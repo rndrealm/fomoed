@@ -4,7 +4,7 @@ import { Overview } from "../overview";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { useAccount } from "wagmi";
-import { useGetAssetData, useGetPerpBalance, useGetSpotBalance } from "@/services/queries/hyperliquid";
+import { useGetAssetData, useGetPerpBalance } from "@/services/queries/hyperliquid";
 import { useExecuteTrade, useUpdateLeveraggeTrade } from "@/services/queries/trading";
 import { OrderEnum, TifEnum, TradeExecutionPayload } from "@/services/queries/trading/types";
 
@@ -18,7 +18,7 @@ import LeverageModal from "../../modals/leverage-modal";
 import ConfirmModal from "../../modals/confirm-modal";
 import MarginModeModal from "../../modals/margin-mode-modal";
 import { WsActiveAssetCtx, WsActiveSpotAssetCtx } from "../../../chart/trading-view/hyperliquid/types";
-import { getFromAndToToken } from "../../../utils";
+import { formatHlPrice, formatHlSize, getFromAndToToken } from "../../../utils";
 import { PERP_MAX_DECIMALS } from "../../../utils/constants";
 
 const initialValues = {
@@ -188,6 +188,7 @@ export default function CreateOrder(props: IProps) {
 
     const converter = marketPrice;
     const toDecimal = selectedToken.szDecimals;
+    const maxDecimal = PERP_MAX_DECIMALS - toDecimal;
     const orderSize = (
       orderBy === selectOptions[0].value ? Number(_values.quantity) : Number(_values.quantity) / Number(converter)
     ).toFixed(toDecimal);
@@ -202,7 +203,7 @@ export default function CreateOrder(props: IProps) {
         type: "market",
         asset: currAsset,
         side: isLong ? "buy" : "sell",
-        size: Number(orderSize).toFixed(toDecimal),
+        size: formatHlSize(Number(orderSize), toDecimal),
         reduceOnly: _values.reduceOnly,
         isSpot: false,
       });
@@ -211,8 +212,8 @@ export default function CreateOrder(props: IProps) {
         type: "limit",
         asset: currAsset,
         side: isLong ? "buy" : "sell",
-        price: Number(_values.price).toFixed(toDecimal),
-        size: Number(orderSize).toFixed(toDecimal),
+        price: formatHlPrice(Number(_values.price), maxDecimal),
+        size: formatHlSize(Number(orderSize), toDecimal),
         reduceOnly: _values.reduceOnly,
         timeInForce: _values.tif as TifEnum,
       });
@@ -226,9 +227,9 @@ export default function CreateOrder(props: IProps) {
         type: "trigger",
         asset: currAsset,
         side: isLong ? "sell" : "buy", // Opposite side to close position
-        triggerPrice: Number(_values.tp).toFixed(toDecimal),
-        price: Number(calculatedPrice).toFixed(toDecimal),
-        size: Number(orderSize).toFixed(toDecimal),
+        triggerPrice: formatHlPrice(Number(_values.tp), maxDecimal),
+        price: formatHlPrice(Number(calculatedPrice), maxDecimal),
+        size: formatHlSize(Number(orderSize), toDecimal),
         isMarket: true,
         reduceOnly: true,
         tpsl: "tp",
@@ -243,9 +244,9 @@ export default function CreateOrder(props: IProps) {
         type: "trigger",
         asset: currAsset,
         side: isLong ? "sell" : "buy", // Opposite side to close position
-        triggerPrice: Number(_values.sl).toFixed(toDecimal),
-        price: Number(calculatedPrice).toFixed(toDecimal),
-        size: Number(orderSize).toFixed(toDecimal),
+        triggerPrice: formatHlPrice(Number(_values.sl), maxDecimal),
+        price: formatHlPrice(Number(calculatedPrice), maxDecimal),
+        size: formatHlSize(Number(orderSize), toDecimal),
         isMarket: true,
         reduceOnly: true,
         tpsl: "sl",
