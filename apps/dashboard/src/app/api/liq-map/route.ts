@@ -11,13 +11,14 @@ async function fetchCoinglassLiqMap(range: string, exchange: string, symbol: str
   };
 
   const res = await fetch(url, options);
-  const data = await res.json();
 
   if (!res.ok) {
-    return NextResponse.json({ error: "Failed to fetch Liquidation data" }, { status: 500 });
+    const data = await res.json();
+    console.error("Failed to fetch liquidation map from CoinGlass:", data);
+    throw new Error(data.msg || "Failed to fetch liquidation map data");
   }
 
-  return data;
+  return res.json();
 }
 
 async function fetchPairMarkets(symbol: string) {
@@ -31,13 +32,14 @@ async function fetchPairMarkets(symbol: string) {
   };
 
   const res = await fetch(url, options);
-  const data = await res.json();
 
   if (!res.ok) {
-    return NextResponse.json({ error: "Failed to fetch Liquidation data" }, { status: 500 });
+    const data = await res.json();
+    console.error("Failed to fetch pair markets from CoinGlass:", data);
+    throw new Error(data.msg || "Failed to fetch pair markets data");
   }
 
-  return data;
+  return res.json();
 }
 
 //! REQUEST HANDLER FOR /api/liq-map
@@ -57,6 +59,12 @@ export async function GET(request: Request) {
 
     const liquidationData = await fetchCoinglassLiqMap(timeframe, exchange, instrumentId);
     const pairMarketsData = await fetchPairMarkets(baseAsset);
+
+    // Validate pairMarketsData structure
+    if (!pairMarketsData || !Array.isArray(pairMarketsData.data)) {
+      console.error("Invalid pair markets data structure:", pairMarketsData);
+      throw new Error("Invalid response format from CoinGlass pair markets API");
+    }
 
     const pairMarketData = pairMarketsData.data.find((i: any) => i.symbol === baseAsset + "/" + quoteAsset);
 
