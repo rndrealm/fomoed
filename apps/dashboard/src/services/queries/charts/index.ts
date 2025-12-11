@@ -90,7 +90,7 @@ export const useReadCoinList = (summary = false) => {
       priceChange: coin.priceChange1d,
       marketCap: coin.marketCap,
       volume: coin.volume,
-      icon: coin.icon,
+      icon: coin.icon?.trim() || "",
       symbol: coin.symbol,
       name: coin.name,
       color: undefined,

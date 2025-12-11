@@ -25,7 +25,7 @@ const RemoteImage = (props: RemoteImageProps) => {
   }, [src]);
   return (
     <Image
-      src={imageError || !src ? fallbackUrl : src}
+      src={imageError || !src ? fallbackUrl : src?.trim()}
       alt={alt || "Chain Image"}
       fill={fill}
       width={width}
