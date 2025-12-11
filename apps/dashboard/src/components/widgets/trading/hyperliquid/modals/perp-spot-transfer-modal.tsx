@@ -8,6 +8,7 @@ import { useAccount, useWalletClient } from "wagmi";
 import { transferSpotPerp } from "../../utils";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { isTestnet } from "../../utils/constants";
 
 interface IProps {
   toPerp: boolean;
@@ -32,7 +33,7 @@ const PerpSpotTransferModal = (props: IProps) => {
   const handleBalance = async () => {
     try {
       setIsLoading(true);
-      const result = await transferSpotPerp(walletClient.data, value, toPerp, true);
+      const result = await transferSpotPerp(walletClient.data, value, toPerp, isTestnet);
       setIsLoading(false);
       if (result.status === "ok") {
         queryClient.invalidateQueries({ queryKey: ["hyper-liquid-balance"] });

@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useApproveApiAgent, useGetAgentAddress } from "@/services/queries/hyperliquid";
 import { useSupabaseAuth } from "@/components/providers";
 import { approveApiWallet } from "../../../utils";
+import { isTestnet } from "../../../utils/constants";
 
 interface IProps {
   updateStep: (step: number) => void;
@@ -42,7 +43,7 @@ const AuthorizeModal = (props: IProps) => {
 
     try {
       setIsLoading(true);
-      const result = await approveApiWallet(walletClient.data, data.agent_wallet, true);
+      const result = await approveApiWallet(walletClient.data, data.agent_wallet, isTestnet);
       if (result.status === "ok") {
         mutate({ wallet_address: account.address });
       } else {

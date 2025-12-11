@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import dashboard from "@/lib/assets/dashboard";
+import { isTestnet } from "../../utils/constants";
 
 interface IProps {
   toggleModal: () => void;
@@ -29,7 +30,7 @@ const WithdrawalModal = (props: IProps) => {
   const handleBalance = async () => {
     try {
       setIsLoading(true);
-      const result = await withdrawFromHyperliquid(walletClient.data, walletAddress, value, true);
+      const result = await withdrawFromHyperliquid(walletClient.data, walletAddress, value, isTestnet);
       setIsLoading(false);
       if (result.status === "ok") {
         queryClient.invalidateQueries({ queryKey: ["hyper-liquid-balance"] });

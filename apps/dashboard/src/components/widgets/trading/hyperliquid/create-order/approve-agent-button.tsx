@@ -8,6 +8,7 @@ import { approveApiWallet } from "../../utils";
 import { cn } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { CreateApiAgentResponse } from "@/services/queries/hyperliquid/types";
+import { isTestnet } from "../../utils/constants";
 
 interface IProps {
   title?: string;
@@ -47,7 +48,7 @@ const ApproveAgentButton = (props: IProps) => {
 
     try {
       setIsLoading(true);
-      const result = await approveApiWallet(walletClient.data, agentWallet, true);
+      const result = await approveApiWallet(walletClient.data, agentWallet, isTestnet);
       if (result.status === "ok") {
         queryClient.invalidateQueries({ queryKey: ["agent-address"] });
         // queryClient.invalidateQueries({ queryKey: ["hyper-liquid-agent-role"] });
