@@ -11,12 +11,14 @@ async function fetchCoinglassHeatmap(range: string, exchange: string, symbol: st
   };
 
   const res = await fetch(url, options);
-  const data = await res.json();
+
   if (!res.ok) {
-    return NextResponse.json({ error: data.msg || "Failed to fetch Liquidation data" }, { status: data.code || 500 });
+    const data = await res.json();
+    console.error("Failed to fetch liquidation heatmap from CoinGlass:", data);
+    throw new Error(data.msg || "Failed to fetch liquidation heatmap data");
   }
 
-  return data;
+  return res.json();
 }
 
 //! REQUEST HANDLER FOR /api/liq-heatmap
