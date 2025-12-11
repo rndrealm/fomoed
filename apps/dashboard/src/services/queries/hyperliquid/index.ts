@@ -15,9 +15,10 @@ import { AxiosResponse } from "axios";
 import { AssetDataResponse, HyperliquidMetaResponse } from "./types";
 import { getAuthHeaders } from "@/services/utils";
 import { toast } from "sonner";
+import { HYPERLIQUID_BASE_URL } from "@/components/widgets/trading/utils/constants";
 
 // const BASE_URL = "https://api.hyperliquid.xyz";
-const BASE_URL = "https://api.hyperliquid-testnet.xyz";
+const BASE_URL = HYPERLIQUID_BASE_URL;
 
 const FOMOED_INGESTION_BASE_URL = `${process.env.NEXT_PUBLIC_FOMOED_INGESTION_URL}/api/v1`;
 // const FOMOED_INGESTION_BASE_URL = "http://localhost:3000/api/v1";

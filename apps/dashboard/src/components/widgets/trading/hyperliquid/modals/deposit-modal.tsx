@@ -11,6 +11,7 @@ import dashboard from "@/lib/assets/dashboard";
 import { parseUnits } from "viem";
 import { arbitrum, arbitrumSepolia } from "viem/chains";
 import { formatToken } from "../../utils";
+import { isTestnet } from "../../utils/constants";
 
 interface IProps {
   toggleModal: () => void;
@@ -40,7 +41,6 @@ const DepositModal = (props: IProps) => {
   const { toggleModal } = props;
 
   // Use testnet for now - change to false for mainnet
-  const isTestnet = true;
 
   const BRIDGE_ADDRESS = isTestnet ? HYPERLIQUID_BRIDGE_TESTNET : HYPERLIQUID_BRIDGE_MAINNET;
   const USDC_ADDRESS = isTestnet ? ARBITRUM_USDC_TESTNET : ARBITRUM_USDC_MAINNET;

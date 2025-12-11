@@ -9,6 +9,7 @@ import {
   WsUserFillsResponse,
   WsUserHistoricalOrdersResponse,
 } from "./types";
+import { isTestnet } from "../../../utils/constants";
 
 const resolutionToIntervalMap: { [key: string]: string } = {
   "1": "1m",
@@ -84,7 +85,8 @@ function createSocket() {
 
   // 2. Create new socket and assign to STATE
   // state.socket = new WebSocket("wss://api.hyperliquid.xyz/ws");
-  state.socket = new WebSocket("wss://api-ui.hyperliquid-testnet.xyz/ws");
+  const socketUrl = isTestnet ? "wss://api-ui.hyperliquid-testnet.xyz/ws" : "wss://api.hyperliquid.xyz/ws";
+  state.socket = new WebSocket(socketUrl);
 
   state.socket.addEventListener("open", () => {
     console.log("[socket] Connected");

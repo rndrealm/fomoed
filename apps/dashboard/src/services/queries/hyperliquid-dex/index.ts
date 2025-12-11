@@ -16,9 +16,10 @@ import {
   HyperliquidTwapSliceFill,
   SpotPriceMap,
 } from "./types";
+import { HYPERLIQUID_BASE_URL } from "@/components/widgets/trading/utils/constants";
 
 // const HYPERLIQUID_API_URL = "https://api.hyperliquid.xyz/info";
-const HYPERLIQUID_API_URL = "https://api-ui.hyperliquid-testnet.xyz/info";
+const HYPERLIQUID_API_URL = `${HYPERLIQUID_BASE_URL}/info`;
 
 export const useHyperliquidClearinghouseState = (userAddress: string, enabled: boolean = true) => {
   const hash = ["hyperliquid-clearinghouse-state", userAddress];
