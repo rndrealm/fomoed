@@ -79,7 +79,12 @@ export default function CreateOrder(props: IProps) {
   const { session } = useSupabaseAuth();
 
   const onSuccessExecute = () => {
-    queryClient.invalidateQueries({ queryKey: ["hyper-liquid-balance-spot"] });
+    queryClient.invalidateQueries({ queryKey: ["hyper-liquid-balance"] });
+    formikRef.current?.setFieldValue("quantity", "");
+    formikRef.current?.setFieldValue("tp", "");
+    formikRef.current?.setFieldValue("sl", "");
+    formikRef.current?.setFieldValue("gain", "");
+    formikRef.current?.setFieldValue("loss", "");
   };
 
   const { mutate, isPending } = useExecuteTrade(session?.access_token, onSuccessExecute);

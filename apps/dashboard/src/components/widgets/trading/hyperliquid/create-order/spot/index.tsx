@@ -80,7 +80,7 @@ export default function CreateSpotOrder(props: IProps) {
   const [pendingOrderPayload, setPendingOrderPayload] = useState<TradeExecutionPayload | null>(null);
 
   const onSuccessExecute = () => {
-    queryClient.invalidateQueries({ queryKey: ["hyper-liquid-balance"] });
+    queryClient.invalidateQueries({ queryKey: ["hyper-liquid-balance-spot"] });
     formikRef.current?.setFieldValue("quantity", "");
     toggleConfirmModal();
     setPendingOrderPayload(null);
