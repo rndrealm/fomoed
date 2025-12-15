@@ -100,6 +100,12 @@ function createSocket() {
 
     // Resubscribe to Candles
     for (const [channelString, subscriptionItem] of state.channelToSubscription.entries()) {
+      subscriptionItem.handlers.forEach((handler: any) => {
+        if (handler.resetCache) {
+          handler.resetCache();
+        }
+      });
+
       const subRequest = {
         method: "subscribe",
         subscription: {
@@ -111,15 +117,73 @@ function createSocket() {
       state.socket?.send(JSON.stringify(subRequest));
     }
 
-    // Resubscribe to Orderbooks/Trades...
-    // (Add your existing resubscribe loops here using state.orderBookSubscriptions)
+    // 3. Resubscribe to ORDER BOOKS
+    for (const coin of state.orderBookSubscriptions.keys()) {
+      state.socket?.send(JSON.stringify({ method: "subscribe", subscription: { type: "l2Book", coin } }));
+    }
+
+    // 4. Resubscribe to TRADES
+    for (const coin of state.tradesSubscriptions.keys()) {
+      state.socket?.send(JSON.stringify({ method: "subscribe", subscription: { type: "trades", coin } }));
+    }
+
+    // 4. Resubscribe to TICKERS
+    for (const coin of state.tickerSubscriptions.keys()) {
+      state.socket?.send(JSON.stringify({ method: "subscribe", subscription: { type: "activeAssetCtx", coin } }));
+    }
+
+    // 5. Resubscribe to USER DATA (Clearinghouse, OpenOrders, etc.)
+    // Note: These maps use 'address' as key
+    for (const user of state.clearingHouseSubscriptions.keys()) {
+      state.socket?.send(JSON.stringify({ method: "subscribe", subscription: { type: "clearinghouseState", user } }));
+    }
+
+    for (const user of state.openOrdersSubscriptions.keys()) {
+      state.socket?.send(
+        JSON.stringify({ method: "subscribe", subscription: { type: "openOrders", user, aggregateByTime: true } }),
+      );
+    }
+
+    for (const user of state.spotStateSubscriptions.keys()) {
+      state.socket?.send(JSON.stringify({ method: "subscribe", subscription: { type: "spotState", user } }));
+    }
+
+    for (const user of state.historicalOrdersSubscriptions.keys()) {
+      state.socket?.send(
+        JSON.stringify({
+          method: "subscribe",
+          subscription: { type: "userHistoricalOrders", user, aggregateByTime: true },
+        }),
+      );
+    }
+
+    for (const user of state.userFillsSubscriptions.keys()) {
+      state.socket?.send(
+        JSON.stringify({ method: "subscribe", subscription: { type: "userFills", user, aggregateByTime: true } }),
+      );
+    }
+
+    // 6. Resubscribe to GLOBAL data
+    if (state.allMidsSubscriptions.size > 0) {
+      state.socket?.send(JSON.stringify({ method: "subscribe", subscription: { type: "allMids" } }));
+    }
 
     // Start Ping
+    if (state.pingInterval) clearInterval(state.pingInterval);
     state.pingInterval = setInterval(() => {
       if (state.socket?.readyState === WebSocket.OPEN) {
         state.socket.send(JSON.stringify({ method: "ping" }));
       }
     }, 30000);
+  });
+
+  state.socket.addEventListener("close", (event) => {
+    console.log("[socket] Disconnected", event.code, event.reason);
+    state.socket = null; // Clear the instance
+    if (state.pingInterval) clearInterval(state.pingInterval);
+
+    // Automatically try to reconnect
+    attemptReconnect();
   });
 
   // ... (Keep your existing Close/Error handlers, but update variable references)
@@ -168,7 +232,7 @@ function sendMessage(message: any) {
   if (state.socket?.readyState === WebSocket.OPEN) {
     state.socket.send(JSON.stringify(message));
   } else {
-    state.pendingSubscriptions.push(message);
+    // state.pendingSubscriptions.push(message);
   }
 }
 
@@ -312,6 +376,7 @@ export function subscribeOnStream(
   const handler = {
     id: subscriberUID,
     callback: onRealtimeCallback,
+    resetCache: onResetCacheNeededCallback,
   };
 
   let subscriptionItem = state.channelToSubscription.get(channelString);
@@ -420,12 +485,6 @@ export function unsubscribeFromOrderBook(coin: string, callback: (data: any) => 
     }
   }
 }
-
-// window.addEventListener("online", () => {
-//   if (!socket || socket.readyState !== WebSocket.OPEN) {
-//     createSocket();
-//   }
-// });
 
 export function subscribeToTrades(coin: string, callback: (data: any) => void) {
   if (!state.tradesSubscriptions.has(coin)) {
@@ -814,15 +873,6 @@ export function unsubscribeFromUserFills(_address: string, callback: (data: any)
   }
 }
 
-// document.addEventListener("visibilitychange", () => {
-//   if (document.visibilityState === "visible") {
-//     if (!state.socket || state.socket.readyState !== WebSocket.OPEN) {
-//       console.log("[socket] Page visible, reconnecting...");
-//       createSocket();
-//     }
-//   }
-// });
-
 export function cleanup() {
   if (state.reconnectInterval) {
     clearTimeout(state.reconnectInterval);
@@ -833,4 +883,18 @@ export function cleanup() {
   if (state.socket) {
     state.socket.close(1000);
   }
+}
+
+if (typeof window !== "undefined") {
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+      const socket = state.socket;
+      // If socket doesn't exist, is closed, or is closing -> Reconnect immediately
+      if (!socket || socket.readyState === WebSocket.CLOSED || socket.readyState === WebSocket.CLOSING) {
+        console.log("[socket] Tab visible, socket disconnected. Reconnecting...");
+        state.isReconnecting = false; // Reset flag to allow immediate reconnect
+        createSocket();
+      }
+    }
+  });
 }
