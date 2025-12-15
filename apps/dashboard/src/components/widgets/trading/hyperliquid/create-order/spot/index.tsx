@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Formik } from "formik";
+import React, { useRef, useState } from "react";
+import { Formik, FormikProps } from "formik";
 import * as Yup from "yup";
 import { useAccount } from "wagmi";
 import { useGetSpotBalance } from "@/services/queries/hyperliquid";
@@ -15,6 +15,7 @@ import TransferButtons from "../transfer-buttons";
 import { PerpUniverse, SpotsUniverse } from "@/services/queries/hyperliquid/types";
 import { WsActiveAssetCtx, WsActiveSpotAssetCtx } from "../../../chart/trading-view/hyperliquid/types";
 import { SPOT_MAX_DECIMALS } from "../../../utils/constants";
+import { useQueryClient } from "@tanstack/react-query";
 
 const initialValues = {
   price: "0",
@@ -31,12 +32,16 @@ interface IProps {
 
 export default function CreateSpotOrder(props: IProps) {
   const { selectedToken, ticker } = props;
+
+  const formikRef = useRef<FormikProps<TradingFormInitialValues>>(null);
+
   const validationSchema = Yup.object().shape({
     price: Yup.number().min(0.01, "Price must be greater than 0").required("Please enter price"),
     quantity: Yup.number().min(0, "Quantity must be a positive number").required("Please enter quantity"),
     tif: Yup.string().oneOf(["Gtc", "Ioc", "Alo"]).required("Please select Time in Force"),
   });
   const [isLong, setIsLong] = useState(true);
+  const queryClient = useQueryClient();
   const account = useAccount();
   const walletAddress = account?.address || "";
 
@@ -75,6 +80,8 @@ export default function CreateSpotOrder(props: IProps) {
   const [pendingOrderPayload, setPendingOrderPayload] = useState<TradeExecutionPayload | null>(null);
 
   const onSuccessExecute = () => {
+    queryClient.invalidateQueries({ queryKey: ["hyper-liquid-balance"] });
+    formikRef.current?.setFieldValue("quantity", "");
     toggleConfirmModal();
     setPendingOrderPayload(null);
   };
@@ -160,6 +167,7 @@ export default function CreateSpotOrder(props: IProps) {
   return (
     <>
       <Formik
+        innerRef={formikRef}
         initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={onSubmit}

@@ -456,7 +456,7 @@ export async function getEligibleCommissionsForPayout() {
         const subscriptions = await stripe.subscriptions.list({
           customer: customer.id,
           status: "active",
-          expand: ["data.items.data.price"], 
+          expand: ["data.items.data.price"],
         });
 
         const hasProOrPlus = subscriptions.data.some((sub) => {

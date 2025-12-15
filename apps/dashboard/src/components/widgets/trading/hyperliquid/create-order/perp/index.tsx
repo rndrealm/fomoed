@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FormContent } from "./form";
 import { Overview } from "../overview";
-import { Formik } from "formik";
+import { Formik, FormikProps } from "formik";
 import * as Yup from "yup";
 import { useAccount } from "wagmi";
 import { useGetAssetData, useGetPerpBalance } from "@/services/queries/hyperliquid";
@@ -20,6 +20,7 @@ import MarginModeModal from "../../modals/margin-mode-modal";
 import { WsActiveAssetCtx, WsActiveSpotAssetCtx } from "../../../chart/trading-view/hyperliquid/types";
 import { formatHlPrice, formatHlSize, getFromAndToToken } from "../../../utils";
 import { PERP_MAX_DECIMALS } from "../../../utils/constants";
+import { useQueryClient } from "@tanstack/react-query";
 
 const initialValues = {
   price: "0",
@@ -45,6 +46,8 @@ export default function CreateOrder(props: IProps) {
 
   const { from } = getFromAndToToken(selectedToken.displayName, "-");
 
+  const formikRef = useRef<FormikProps<TradingFormInitialValues>>(null);
+
   const validationSchema = Yup.object().shape({
     price: Yup.number().min(0.01, "Price must be greater than 0").required("Please enter price"),
     quantity: Yup.number().min(0, "Quantity must be a positive number").required("Please enter quantity"),
@@ -56,7 +59,7 @@ export default function CreateOrder(props: IProps) {
     loss: Yup.number(),
     tif: Yup.string().oneOf(["Gtc", "Ioc", "Alo"]).required("Please select Time in Force"),
   });
-
+  const queryClient = useQueryClient();
   const account = useAccount();
   const walletAddress = account?.address || "";
 
@@ -75,7 +78,11 @@ export default function CreateOrder(props: IProps) {
 
   const { session } = useSupabaseAuth();
 
-  const { mutate, isPending } = useExecuteTrade(session?.access_token);
+  const onSuccessExecute = () => {
+    queryClient.invalidateQueries({ queryKey: ["hyper-liquid-balance-spot"] });
+  };
+
+  const { mutate, isPending } = useExecuteTrade(session?.access_token, onSuccessExecute);
 
   const [orderType, setOrderType] = useState<"limit" | "market" | "trigger">("limit");
   const [isLong, setIsLong] = useState(true);
@@ -316,6 +323,7 @@ export default function CreateOrder(props: IProps) {
   return (
     <>
       <Formik
+        innerRef={formikRef}
         initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={onSubmit}

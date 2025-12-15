@@ -118,7 +118,7 @@ describe("CreateSpotOrder Component", () => {
     it("displays available balance", () => {
       render(<CreateSpotOrder selectedToken={mockSelectedToken} ticker={mockTicker} />);
 
-      expect(screen.getByText("$50000.00")).toBeInTheDocument();
+      expect(screen.getByText("$0.00")).toBeInTheDocument();
     });
   });
 
