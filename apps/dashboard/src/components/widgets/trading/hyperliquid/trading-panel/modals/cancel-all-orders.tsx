@@ -5,6 +5,7 @@ import { useCancelOrder } from "@/services/queries/trading";
 import { useAccount } from "wagmi";
 import { PerpUniverse, SpotsUniverse } from "@/services/queries/hyperliquid/types";
 import OrderCheckLayout from "../../create-order/order-check-layout";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface IProps {
   toggleModal: () => void;
@@ -23,8 +24,11 @@ const CancelAllOrders = (props: IProps) => {
   // console.log(tokensData);
   const { address } = useAccount();
   const { session } = useSupabaseAuth();
+  const queryClient = useQueryClient();
 
   const onSuccessCallback = () => {
+    queryClient.invalidateQueries({ queryKey: ["hyper-liquid-balance"] });
+    queryClient.invalidateQueries({ queryKey: ["hyper-liquid-balance-spot"] });
     toggleModal();
   };
 
@@ -67,8 +71,8 @@ const CancelAllOrders = (props: IProps) => {
   return (
     <div className="flex flex-col">
       <p className="font-medium text-[#B0B0B0] text-center text-xs pt-4">
-        Are you sure you want to cancel {orderCount === 1 ? "this" : `all ${orderCount}`} open order{orderCount !== 1 ? "s" : ""}? This action cannot be
-        undone.
+        Are you sure you want to cancel {orderCount === 1 ? "this" : `all ${orderCount}`} open order
+        {orderCount !== 1 ? "s" : ""}? This action cannot be undone.
       </p>
 
       <div className="pt-8">

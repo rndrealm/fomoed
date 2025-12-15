@@ -337,7 +337,9 @@ describe("DepositModal Component", () => {
       render(<DepositModal toggleModal={mockToggleModal} />);
 
       await waitFor(() => {
-        expect(toast.success).toHaveBeenCalledWith("Deposit transaction sent successfully! Funds will appear in ~1 minute.");
+        expect(toast.success).toHaveBeenCalledWith(
+          "Deposit transaction sent successfully! Funds will appear in ~1 minute.",
+        );
       });
     });
 
@@ -369,7 +371,7 @@ describe("DepositModal Component", () => {
       render(<DepositModal toggleModal={mockToggleModal} />);
 
       await waitFor(() => {
-        expect(mockInvalidateQueries).toHaveBeenCalledWith({ queryKey: ["hyper-liquid-balancee"] });
+        expect(mockInvalidateQueries).toHaveBeenCalledWith({ queryKey: ["hyper-liquid-balance"] });
         expect(mockInvalidateQueries).toHaveBeenCalledWith({ queryKey: ["hyper-liquid-balance-spot"] });
       });
     });

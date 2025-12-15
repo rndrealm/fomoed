@@ -53,9 +53,9 @@ const CloseOrder = (props: IProps) => {
   );
 
   const onSuccessCallback = () => {
-    toggleModal();
-    queryClient.invalidateQueries({ queryKey: ["hyper-liquid-balancee"] });
+    queryClient.invalidateQueries({ queryKey: ["hyper-liquid-balance"] });
     queryClient.invalidateQueries({ queryKey: ["hyper-liquid-balance-spot"] });
+    toggleModal();
   };
 
   const { session } = useSupabaseAuth();

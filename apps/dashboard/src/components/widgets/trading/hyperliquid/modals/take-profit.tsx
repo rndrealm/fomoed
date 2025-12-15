@@ -16,6 +16,7 @@ import { useAccount } from "wagmi";
 import { useSupabaseAuth } from "@/components/providers";
 import { useExecuteTrade } from "@/services/queries/trading";
 import { CustomTextInput } from "@/components/shared/custom-text-input";
+import { useQueryClient } from "@tanstack/react-query";
 
 const validationSchema = Yup.object().shape({
   tpPrice: Yup.number(),
@@ -53,11 +54,14 @@ export function TakeProfit(props: IProps) {
   const { coin, positionSize, entryPrice, markPrice, selectedToken, isSpot, isLong, leverage } = order;
 
   const account = useAccount();
+  const queryClient = useQueryClient();
   const walletAddress = account?.address || "";
 
   const { session } = useSupabaseAuth();
 
   const onSuccessCallback = () => {
+    queryClient.invalidateQueries({ queryKey: ["hyper-liquid-balance"] });
+    queryClient.invalidateQueries({ queryKey: ["hyper-liquid-balance-spot"] });
     toggleModal();
   };
 

@@ -24,9 +24,9 @@ const CloseAllOrders = (props: IProps) => {
   const { session } = useSupabaseAuth();
 
   const onSuccessCallback = () => {
-    toggleModal();
-    queryClient.invalidateQueries({ queryKey: ["hyper-liquid-balancee"] });
+    queryClient.invalidateQueries({ queryKey: ["hyper-liquid-balance"] });
     queryClient.invalidateQueries({ queryKey: ["hyper-liquid-balance-spot"] });
+    toggleModal();
   };
 
   const { mutate, isPending } = useExecuteTrade(session?.access_token, onSuccessCallback);

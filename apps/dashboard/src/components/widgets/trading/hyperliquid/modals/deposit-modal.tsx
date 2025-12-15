@@ -118,7 +118,7 @@ const DepositModal = (props: IProps) => {
       toggleModal();
 
       // Invalidate queries to refresh balances
-      queryClient.invalidateQueries({ queryKey: ["hyper-liquid-balancee"] });
+      queryClient.invalidateQueries({ queryKey: ["hyper-liquid-balance"] });
       queryClient.invalidateQueries({ queryKey: ["hyper-liquid-balance-spot"] });
     }
   }, [isError, isSuccess]);

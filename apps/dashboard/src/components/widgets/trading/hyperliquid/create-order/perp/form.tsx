@@ -166,10 +166,20 @@ export function FormContent(props: FormContentProps) {
   );
 
   useEffect(() => {
+    // Set price input to initial market price on mount
     if (marketPrice || !values.price) {
       setFieldValue("price", formatHlPrice(Number(marketPrice), maxDecimal));
     }
   }, []);
+
+  useEffect(() => {
+    // Reset appropriate form fields when balance changes
+    setFieldValue("quantity", "");
+    setFieldValue("tp", "");
+    setFieldValue("sl", "");
+    setFieldValue("gain", "");
+    setFieldValue("loss", "");
+  }, [balance]);
 
   return (
     <>
