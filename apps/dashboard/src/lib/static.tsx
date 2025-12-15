@@ -50,6 +50,7 @@ import GemachCopyTrading from "@/components/widgets/gemach/gemach-copy-trading";
 import YoutubeWidget from "@/components/widgets/youtube/youtube-widget";
 import TelegramWidget from "@/components/widgets/telegram/telegram-widget";
 import Trading from "@/components/widgets/trading";
+import TradingViewWidget from "@/components/widgets/trading-view";
 
 export const layoutClassMap = {
   SinglePane: "grid-rows-1 grid-cols-1",
@@ -346,6 +347,14 @@ export const layoutOptionsMap = [
     category: "social",
     tags: ["social", "new"],
   },
+  {
+    id: 25,
+    name: "Trading View",
+    slug: "trading-view-widget",
+    image:dashboard.duckGame,
+    category: "chart",
+    tags:["chart"],
+  },
   // {
   //   id: 215,
   //   name: "Gemach Copy Trading",
@@ -571,6 +580,12 @@ export const chartsMap = {
     component: (widget: LayoutType["widgets"][0]) => <TelegramWidget widget={widget} />,
     isResizable: true,
   },
+  "trading-view-widget": {
+    name: "Trading View Widget",
+    extra: [],
+    component: (widget: LayoutType["widgets"][0]) => <TradingViewWidget widget={widget} />,
+    isResizable: true,
+  }
 };
 
 export const widgetIdJoin = "@/$";
@@ -919,6 +934,16 @@ export const widgetPropsDefaults = {
       h: 6,
       minW: 4,
       minH: 4,
+      maxW: Infinity,
+      maxH: Infinity,
+    },
+  },
+  "trading-view-widget": {
+    meta: {
+      w: 8,
+      h: 4,
+      minW: 6,
+      minH: 2,
       maxW: Infinity,
       maxH: Infinity,
     },
