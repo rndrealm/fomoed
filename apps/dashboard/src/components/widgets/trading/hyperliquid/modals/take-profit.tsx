@@ -146,7 +146,7 @@ export function TakeProfit(props: IProps) {
         type: "trigger",
         asset: assetIndex,
         side: isLong ? "sell" : "buy", // Opposite side to close position
-        triggerPrice: _values.tpPrice.toString(),
+        triggerPrice: formatHlPrice(Number(_values.tpPrice), maxDecimal),
         price:
           _values.limitPrice && _values.tpLimitPrice
             ? formatHlPrice(Number(_values.tpLimitPrice), maxDecimal)
@@ -166,7 +166,7 @@ export function TakeProfit(props: IProps) {
         type: "trigger",
         asset: assetIndex,
         side: isLong ? "sell" : "buy", // Opposite side to close position
-        triggerPrice: _values.slPrice.toString(),
+        triggerPrice: formatHlPrice(Number(_values.slPrice), maxDecimal),
         price:
           _values.limitPrice && _values.slLimitPrice
             ? formatHlPrice(Number(_values.slLimitPrice), maxDecimal)

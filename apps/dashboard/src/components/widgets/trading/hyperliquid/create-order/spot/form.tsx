@@ -178,7 +178,16 @@ export function SpotFormContent(props: FormContentProps) {
                 }}
                 onBlur={handleBlur}
                 name="price"
-                rightPlaceholder="USDC"
+                // rightPlaceholder="USDC"
+                rightComponent={
+                  <button
+                    onClick={() => setFieldValue("price", formatHlPrice(Number(marketPrice), maxDecimal))}
+                    type="button"
+                    className="absolute right-2 top-[20%] text-xxs font-medium text-[#FF9D32] underline"
+                  >
+                    Mid
+                  </button>
+                }
                 placeholder="Price (USDC)"
               />
 
