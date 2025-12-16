@@ -1,12 +1,13 @@
 "use client";
-import React, { useState, Fragment } from "react";
+import React, { useState, Fragment, useEffect } from "react";
 import { LayoutType } from "@/lib/atoms/layoutAtom";
 import { RenderIf } from "@/components/shared";
 
 import { LandingScreen } from "./initial";
 import HyperliquidWidget from "./hyperliquid";
-import { useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { settingAtom } from "@/lib/atoms/settingsAtom";
+import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
 
 interface IProps {
   widget: LayoutType["widgets"][0];
@@ -16,8 +17,16 @@ const selectedExchange = "hyperliquid";
 
 export default function Trading(props: IProps) {
   const { widget } = props;
+
+  const [selectedToken, setSelectedToken] = useAtom(selectedTokenAtom);
   const settings = useAtomValue(settingAtom);
   const [isLoaded, setIsLoaded] = useState(!!settings.exchange);
+
+  useEffect(() => {
+    if (widget?.props?.token) {
+      setSelectedToken(widget?.props?.token);
+    }
+  }, [widget?.props?.token]);
 
   return (
     <Fragment>

@@ -64,7 +64,7 @@ const HyperliquidWidget = ({ widget }: IProps) => {
             <div className="flex flex-1 flex-col gap-2">
               <div className="flex-1 flex gap-3 min-h-[600px]">
                 <div className="flex flex-1 flex-col gap-2">
-                  <ChartHeader />
+                  <ChartHeader widget={widget} />
                   <div
                     className="bg-[#121317] rounded-[6px] flex items-center justify-center relative overflow-hidden flex-1 bg-[green]"
                     style={{ height: "500px" }}

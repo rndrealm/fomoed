@@ -893,6 +893,7 @@ export const widgetPropsDefaults = {
   },
 
   ascendex: {
+    token: null,
     meta: {
       w: 16,
       h: 6,
