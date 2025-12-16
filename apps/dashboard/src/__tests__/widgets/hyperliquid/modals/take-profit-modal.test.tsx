@@ -4,17 +4,24 @@ import userEvent from "@testing-library/user-event";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { toast } from "sonner";
 import { useAccount } from "wagmi";
+import { useQueryClient } from "@tanstack/react-query";
 import "@testing-library/jest-dom/vitest";
 import { TakeProfit } from "@/components/widgets/trading/hyperliquid/modals/take-profit";
 import { useSupabaseAuth } from "@/components/providers";
 import { useExecuteTrade } from "@/services/queries/trading";
 import { useTicker } from "@/components/widgets/trading/chart/trading-view/hyperliquid/use-ticker";
+import { formatHlPrice, formatHlSize } from "@/components/widgets/trading/utils";
+import { PERP_MAX_DECIMALS, SPOT_MAX_DECIMALS } from "@/components/widgets/trading/utils/constants";
 
 // Mock all dependencies
 vi.mock("wagmi");
+vi.mock("@tanstack/react-query");
 vi.mock("@/components/providers");
 vi.mock("@/services/queries/trading");
 vi.mock("@/components/widgets/trading/chart/trading-view/hyperliquid/use-ticker");
+vi.mock("@/components/widgets/trading/hyperliquid/create-order/order-check-layout", () => ({
+  default: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+}));
 vi.mock("sonner", () => ({
   toast: {
     error: vi.fn(),
@@ -25,11 +32,32 @@ vi.mock("sonner", () => ({
 describe("TakeProfit Modal Component", () => {
   const mockToggleModal = vi.fn();
   const mockMutate = vi.fn();
+  const mockInvalidateQueries = vi.fn();
 
   const mockSelectedToken = {
-    index: 0,
     szDecimals: 5,
     name: "BTC",
+    maxLeverage: 40,
+    marginTableId: 54,
+    symbol: "BTC",
+    isSpot: false,
+    baseTokenName: "BTC",
+    quoteTokenName: "USDC",
+    tradingViewName: '{"baseTokenName":"BTC","quoteTokenName":"USDC","price":"86031.0","isSpot":false,"name":"BTC"}',
+    priceVolume: {
+      funding: "-0.0000507921",
+      openInterest: "64.04052",
+      prevDayPx: "89822.0",
+      dayNtlVlm: "4489981.5206300002",
+      premium: "-0.0010947168",
+      oraclePx: "86141.0",
+      markPx: "86031.0",
+      midPx: "86025.0",
+      impactPxs: ["85928.0", "86046.7"],
+      dayBaseVlm: "51.72342",
+    },
+    displayName: "BTC-USDC",
+    index: 3,
   };
 
   const defaultOrder = {
@@ -43,11 +71,31 @@ describe("TakeProfit Modal Component", () => {
     leverage: 10,
   };
 
+  // Helper function to calculate maxDecimal based on asset type and szDecimals
+  const getMaxDecimal = (isSpot: boolean, szDecimals: number) => {
+    return (isSpot ? SPOT_MAX_DECIMALS : PERP_MAX_DECIMALS) - szDecimals;
+  };
+
+  // Helper function to format prices based on asset precision
+  const formatPrice = (price: number, isSpot: boolean, szDecimals: number) => {
+    const maxDecimal = getMaxDecimal(isSpot, szDecimals);
+    return formatHlPrice(price, maxDecimal);
+  };
+
+  // Helper function to format sizes based on asset precision
+  const formatSize = (size: number, szDecimals: number) => {
+    return formatHlSize(size, szDecimals);
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
 
     (useAccount as ReturnType<typeof vi.fn>).mockReturnValue({
       address: "0x123",
+    });
+
+    (useQueryClient as ReturnType<typeof vi.fn>).mockReturnValue({
+      invalidateQueries: mockInvalidateQueries,
     });
 
     (useSupabaseAuth as ReturnType<typeof vi.fn>).mockReturnValue({
@@ -93,7 +141,7 @@ describe("TakeProfit Modal Component", () => {
 
       const tpInput = screen.getByLabelText("TP Price");
       expect(tpInput).toBeInTheDocument();
-      expect(tpInput).toHaveAttribute("type", "number");
+      expect(tpInput).toHaveAttribute("type", "text");
     });
 
     it("shows SL Price input field", () => {
@@ -101,7 +149,7 @@ describe("TakeProfit Modal Component", () => {
 
       const slInput = screen.getByLabelText("SL Price");
       expect(slInput).toBeInTheDocument();
-      expect(slInput).toHaveAttribute("type", "number");
+      expect(slInput).toHaveAttribute("type", "text");
     });
 
     it("shows Gain percentage input", () => {
@@ -114,8 +162,9 @@ describe("TakeProfit Modal Component", () => {
     it("displays submit button", () => {
       render(<TakeProfit order={defaultOrder} toggleModal={mockToggleModal} />);
 
-      const submitButton = screen.getByRole("button", { name: /submit/i });
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
       expect(submitButton).toBeInTheDocument();
+      expect(submitButton).toHaveAttribute("type", "submit");
     });
   });
 
@@ -126,7 +175,7 @@ describe("TakeProfit Modal Component", () => {
       const tpInput = screen.getByLabelText("TP Price");
       await userEvent.type(tpInput, "100000");
 
-      const submitButton = screen.getByRole("button", { name: /submit/i });
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
       await userEvent.click(submitButton);
 
       await waitFor(() => {
@@ -142,7 +191,7 @@ describe("TakeProfit Modal Component", () => {
       const slInput = screen.getByLabelText("SL Price");
       await userEvent.type(slInput, "102000");
 
-      const submitButton = screen.getByRole("button", { name: /submit/i });
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
       await userEvent.click(submitButton);
 
       await waitFor(() => {
@@ -156,7 +205,7 @@ describe("TakeProfit Modal Component", () => {
       const tpInput = screen.getByLabelText("TP Price");
       await userEvent.type(tpInput, "110000");
 
-      const submitButton = screen.getByRole("button", { name: /submit/i });
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
       await userEvent.click(submitButton);
 
       await waitFor(() => {
@@ -170,7 +219,7 @@ describe("TakeProfit Modal Component", () => {
       const slInput = screen.getByLabelText("SL Price");
       await userEvent.type(slInput, "95000");
 
-      const submitButton = screen.getByRole("button", { name: /submit/i });
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
       await userEvent.click(submitButton);
 
       await waitFor(() => {
@@ -191,7 +240,7 @@ describe("TakeProfit Modal Component", () => {
       const tpInput = screen.getByLabelText("TP Price");
       await userEvent.type(tpInput, "105000");
 
-      const submitButton = screen.getByRole("button", { name: /submit/i });
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
       await userEvent.click(submitButton);
 
       await waitFor(() => {
@@ -207,7 +256,7 @@ describe("TakeProfit Modal Component", () => {
       const slInput = screen.getByLabelText("SL Price");
       await userEvent.type(slInput, "95000");
 
-      const submitButton = screen.getByRole("button", { name: /submit/i });
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
       await userEvent.click(submitButton);
 
       await waitFor(() => {
@@ -223,7 +272,7 @@ describe("TakeProfit Modal Component", () => {
       const tpInput = screen.getByLabelText("TP Price");
       await userEvent.type(tpInput, "95000");
 
-      const submitButton = screen.getByRole("button", { name: /submit/i });
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
       await userEvent.click(submitButton);
 
       await waitFor(() => {
@@ -237,7 +286,7 @@ describe("TakeProfit Modal Component", () => {
       const slInput = screen.getByLabelText("SL Price");
       await userEvent.type(slInput, "110000");
 
-      const submitButton = screen.getByRole("button", { name: /submit/i });
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
       await userEvent.click(submitButton);
 
       await waitFor(() => {
@@ -250,7 +299,7 @@ describe("TakeProfit Modal Component", () => {
     it("shows error when neither TP nor SL is set", async () => {
       render(<TakeProfit order={defaultOrder} toggleModal={mockToggleModal} />);
 
-      const submitButton = screen.getByRole("button", { name: /submit/i });
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
       await userEvent.click(submitButton);
 
       await waitFor(() => {
@@ -264,11 +313,11 @@ describe("TakeProfit Modal Component", () => {
       const tpInput = screen.getByLabelText("TP Price");
       await userEvent.type(tpInput, "0");
 
-      const submitButton = screen.getByRole("button", { name: /submit/i });
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
       await userEvent.click(submitButton);
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith("Take Profit price must be greater than 0");
+        expect(toast.error).toHaveBeenCalledWith("Please set at least a Take Profit or Stop Loss price.");
       });
     });
 
@@ -278,11 +327,11 @@ describe("TakeProfit Modal Component", () => {
       const slInput = screen.getByLabelText("SL Price");
       await userEvent.type(slInput, "0");
 
-      const submitButton = screen.getByRole("button", { name: /submit/i });
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
       await userEvent.click(submitButton);
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith("Stop Loss price must be greater than 0");
+        expect(toast.error).toHaveBeenCalledWith("Please set at least a Take Profit or Stop Loss price.");
       });
     });
 
@@ -292,7 +341,7 @@ describe("TakeProfit Modal Component", () => {
       const tpInput = screen.getByLabelText("TP Price");
       await userEvent.type(tpInput, "110000");
 
-      const submitButton = screen.getByRole("button", { name: /submit/i });
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
       await userEvent.click(submitButton);
 
       await waitFor(() => {
@@ -306,7 +355,7 @@ describe("TakeProfit Modal Component", () => {
       const slInput = screen.getByLabelText("SL Price");
       await userEvent.type(slInput, "95000");
 
-      const submitButton = screen.getByRole("button", { name: /submit/i });
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
       await userEvent.click(submitButton);
 
       await waitFor(() => {
@@ -323,7 +372,7 @@ describe("TakeProfit Modal Component", () => {
       await userEvent.type(tpInput, "110000");
       await userEvent.type(slInput, "95000");
 
-      const submitButton = screen.getByRole("button", { name: /submit/i });
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
       await userEvent.click(submitButton);
 
       await waitFor(() => {
@@ -339,7 +388,7 @@ describe("TakeProfit Modal Component", () => {
       const tpInput = screen.getByLabelText("TP Price");
       await userEvent.type(tpInput, "110000");
 
-      const submitButton = screen.getByRole("button", { name: /submit/i });
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
       await userEvent.click(submitButton);
 
       await waitFor(() => {
@@ -347,7 +396,7 @@ describe("TakeProfit Modal Component", () => {
           expect.objectContaining({
             provider: "hyperliquid",
             wallet_address: "0x123",
-            grouping: "normalTpsl",
+            grouping: "positionTpsl",
             orders: expect.arrayContaining([
               expect.objectContaining({
                 type: "trigger",
@@ -369,7 +418,7 @@ describe("TakeProfit Modal Component", () => {
       const slInput = screen.getByLabelText("SL Price");
       await userEvent.type(slInput, "95000");
 
-      const submitButton = screen.getByRole("button", { name: /submit/i });
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
       await userEvent.click(submitButton);
 
       await waitFor(() => {
@@ -396,7 +445,7 @@ describe("TakeProfit Modal Component", () => {
       await userEvent.type(tpInput, "110000");
       await userEvent.type(slInput, "95000");
 
-      const submitButton = screen.getByRole("button", { name: /submit/i });
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
       await userEvent.click(submitButton);
 
       await waitFor(() => {
@@ -414,7 +463,7 @@ describe("TakeProfit Modal Component", () => {
       const tpInput = screen.getByLabelText("TP Price");
       await userEvent.type(tpInput, "95000");
 
-      const submitButton = screen.getByRole("button", { name: /submit/i });
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
       await userEvent.click(submitButton);
 
       await waitFor(() => {
@@ -423,68 +472,74 @@ describe("TakeProfit Modal Component", () => {
       });
     });
 
-    it("includes position size in order", async () => {
+    it("includes position size in order (uses positionSize directly when not configured)", async () => {
       render(<TakeProfit order={defaultOrder} toggleModal={mockToggleModal} />);
 
       const tpInput = screen.getByLabelText("TP Price");
       await userEvent.type(tpInput, "110000");
 
-      const submitButton = screen.getByRole("button", { name: /submit/i });
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
       await userEvent.click(submitButton);
 
       await waitFor(() => {
         const call = mockMutate.mock.calls[0][0];
-        expect(call.orders[0].size).toBe("0.5");
+        // When configureAmount is false, positionSize is used directly (not formatted)
+        expect(call.orders[0].size).toBe(defaultOrder.positionSize);
       });
     });
 
-    it("applies slippage adjustment to execution price", async () => {
+    it("applies slippage adjustment to execution price with correct formatting", async () => {
       render(<TakeProfit order={defaultOrder} toggleModal={mockToggleModal} />);
 
       const tpInput = screen.getByLabelText("TP Price");
       await userEvent.type(tpInput, "110000");
 
-      const submitButton = screen.getByRole("button", { name: /submit/i });
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
       await userEvent.click(submitButton);
 
       await waitFor(() => {
         const call = mockMutate.mock.calls[0][0];
-        // Price should be adjusted by 3.6% slippage (110000 * 0.964)
-        const expectedPrice = 110000 * (1 - 0.036);
-        expect(parseFloat(call.orders[0].price)).toBeCloseTo(expectedPrice, 0);
+        // Price should be adjusted by 3.6% slippage and formatted with maxDecimal
+        const slippageAdjustedPrice = 110000 * (1 - 0.036);
+        const expectedPrice = formatPrice(slippageAdjustedPrice, defaultOrder.isSpot, mockSelectedToken.szDecimals);
+        expect(call.orders[0].price).toBe(expectedPrice);
       });
     });
   });
 
   describe("Spot vs Perp Asset Index", () => {
     it("uses correct asset index for perp", async () => {
+      mockMutate.mockClear();
       render(<TakeProfit order={defaultOrder} toggleModal={mockToggleModal} />);
 
       const tpInput = screen.getByLabelText("TP Price");
       await userEvent.type(tpInput, "110000");
 
-      const submitButton = screen.getByRole("button", { name: /submit/i });
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
       await userEvent.click(submitButton);
 
       await waitFor(() => {
-        const call = mockMutate.mock.calls[0][0];
-        expect(call.orders[0].asset).toBe(0); // Perp asset index
+        expect(mockMutate).toHaveBeenCalled();
+        const call = mockMutate.mock.calls[mockMutate.mock.calls.length - 1][0];
+        expect(call.orders[0].asset).toBe(3); // Perp asset index
       });
     });
 
     it("uses correct asset index for spot (index + 10000)", async () => {
+      mockMutate.mockClear();
       const spotOrder = { ...defaultOrder, isSpot: true };
       render(<TakeProfit order={spotOrder} toggleModal={mockToggleModal} />);
 
       const tpInput = screen.getByLabelText("TP Price");
       await userEvent.type(tpInput, "110000");
 
-      const submitButton = screen.getByRole("button", { name: /submit/i });
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
       await userEvent.click(submitButton);
 
       await waitFor(() => {
-        const call = mockMutate.mock.calls[0][0];
-        expect(call.orders[0].asset).toBe(10000); // Spot asset index (0 + 10000)
+        expect(mockMutate).toHaveBeenCalled();
+        const call = mockMutate.mock.calls[mockMutate.mock.calls.length - 1][0];
+        expect(call.orders[0].asset).toBe(10003); // Spot asset index (3 + 10000)
       });
     });
   });
@@ -498,14 +553,14 @@ describe("TakeProfit Modal Component", () => {
 
       render(<TakeProfit order={defaultOrder} toggleModal={mockToggleModal} />);
 
-      const submitButton = screen.getByRole("button", { name: /submit/i });
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
       expect(submitButton).toBeDisabled();
     });
 
     it("enables submit button when not loading", () => {
       render(<TakeProfit order={defaultOrder} toggleModal={mockToggleModal} />);
 
-      const submitButton = screen.getByRole("button", { name: /submit/i });
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
       expect(submitButton).not.toBeDisabled();
     });
   });
@@ -571,7 +626,7 @@ describe("TakeProfit Modal Component", () => {
       const tpInput = screen.getByLabelText("TP Price");
       await userEvent.type(tpInput, "110000.50");
 
-      const submitButton = screen.getByRole("button", { name: /submit/i });
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
       await userEvent.click(submitButton);
 
       await waitFor(() => {
@@ -585,7 +640,7 @@ describe("TakeProfit Modal Component", () => {
       const slInput = screen.getByLabelText("SL Price");
       await userEvent.type(slInput, "0.00001");
 
-      const submitButton = screen.getByRole("button", { name: /submit/i });
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
       await userEvent.click(submitButton);
 
       await waitFor(() => {
@@ -598,22 +653,20 @@ describe("TakeProfit Modal Component", () => {
     it("calls onSuccess callback after successful submission", async () => {
       let successCallback: (() => void) | undefined;
 
-      (useExecuteTrade as ReturnType<typeof vi.fn>).mockImplementation(
-        (_token: any, onSuccess: () => void) => {
-          successCallback = onSuccess;
-          return {
-            mutate: mockMutate,
-            isPending: false,
-          };
-        },
-      );
+      (useExecuteTrade as ReturnType<typeof vi.fn>).mockImplementation((_token: any, onSuccess: () => void) => {
+        successCallback = onSuccess;
+        return {
+          mutate: mockMutate,
+          isPending: false,
+        };
+      });
 
       render(<TakeProfit order={defaultOrder} toggleModal={mockToggleModal} />);
 
       const tpInput = screen.getByLabelText("TP Price");
       await userEvent.type(tpInput, "110000");
 
-      const submitButton = screen.getByRole("button", { name: /submit/i });
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
       await userEvent.click(submitButton);
 
       // Simulate success
@@ -632,7 +685,7 @@ describe("TakeProfit Modal Component", () => {
       const tpInput = screen.getByLabelText("TP Price");
       await userEvent.type(tpInput, "110000");
 
-      const submitButton = screen.getByRole("button", { name: /submit/i });
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
       await userEvent.click(submitButton);
 
       await waitFor(() => {
@@ -649,7 +702,7 @@ describe("TakeProfit Modal Component", () => {
       const tpInput = screen.getByLabelText("TP Price");
       await userEvent.type(tpInput, "110000");
 
-      const submitButton = screen.getByRole("button", { name: /submit/i });
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
       await userEvent.click(submitButton);
 
       await waitFor(() => {
@@ -664,13 +717,78 @@ describe("TakeProfit Modal Component", () => {
       const tpInput = screen.getByLabelText("TP Price");
       await userEvent.type(tpInput, "110000");
 
-      const submitButton = screen.getByRole("button", { name: /submit/i });
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
       await userEvent.click(submitButton);
 
       await waitFor(() => {
         const call = mockMutate.mock.calls[0][0];
         expect(typeof call.orders[0].isMarket).toBe("boolean");
         expect(typeof call.orders[0].reduceOnly).toBe("boolean");
+      });
+    });
+  });
+
+  describe("Precision Formatting Based on szDecimals", () => {
+    it("formats prices correctly for perp with szDecimals=5 (maxDecimal=1)", async () => {
+      // For perp: maxDecimal = PERP_MAX_DECIMALS(6) - szDecimals(5) = 1
+      const perpOrder = { ...defaultOrder, isSpot: false };
+      render(<TakeProfit order={perpOrder} toggleModal={mockToggleModal} />);
+
+      const tpInput = screen.getByLabelText("TP Price");
+      await userEvent.type(tpInput, "110000.5");
+
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
+      await userEvent.click(submitButton);
+
+      await waitFor(() => {
+        const call = mockMutate.mock.calls[0][0];
+        const slippageAdjustedPrice = 110000.5 * (1 - 0.036);
+        const maxDecimal = getMaxDecimal(perpOrder.isSpot, mockSelectedToken.szDecimals);
+        expect(maxDecimal).toBe(1); // Verify maxDecimal calculation
+        const expectedPrice = formatPrice(slippageAdjustedPrice, perpOrder.isSpot, mockSelectedToken.szDecimals);
+        expect(call.orders[0].price).toBe(expectedPrice);
+      });
+    });
+
+    it("formats prices correctly for spot with szDecimals=5 (maxDecimal=3)", async () => {
+      // For spot: maxDecimal = SPOT_MAX_DECIMALS(8) - szDecimals(5) = 3
+      const spotOrder = { ...defaultOrder, isSpot: true };
+      render(<TakeProfit order={spotOrder} toggleModal={mockToggleModal} />);
+
+      const tpInput = screen.getByLabelText("TP Price");
+      await userEvent.type(tpInput, "110000.5");
+
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
+      await userEvent.click(submitButton);
+
+      await waitFor(() => {
+        const call = mockMutate.mock.calls[0][0];
+        const slippageAdjustedPrice = 110000.5 * (1 - 0.036);
+        const maxDecimal = getMaxDecimal(spotOrder.isSpot, mockSelectedToken.szDecimals);
+        expect(maxDecimal).toBe(3); // Verify maxDecimal calculation
+        const expectedPrice = formatPrice(slippageAdjustedPrice, spotOrder.isSpot, mockSelectedToken.szDecimals);
+        expect(call.orders[0].price).toBe(expectedPrice);
+      });
+    });
+
+    it("respects 5 significant figures limit (MAX_PRICE_SF) in price formatting", async () => {
+      // formatHlPrice applies both SF and decimal limits
+      const perpOrder = { ...defaultOrder, isSpot: false };
+      render(<TakeProfit order={perpOrder} toggleModal={mockToggleModal} />);
+
+      // Use a large number that would exceed 5 SF
+      const tpInput = screen.getByLabelText("TP Price");
+      await userEvent.type(tpInput, "123456.789");
+
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
+      await userEvent.click(submitButton);
+
+      await waitFor(() => {
+        const call = mockMutate.mock.calls[0][0];
+        const slippageAdjustedPrice = 123456.789 * (1 - 0.036);
+        const expectedPrice = formatPrice(slippageAdjustedPrice, perpOrder.isSpot, mockSelectedToken.szDecimals);
+        // formatHlPrice should apply 5 SF limit and maxDecimal=1
+        expect(call.orders[0].price).toBe(expectedPrice);
       });
     });
   });
@@ -685,7 +803,7 @@ describe("TakeProfit Modal Component", () => {
       await userEvent.type(tpInput, "110000");
       await userEvent.type(slInput, "95000");
 
-      const submitButton = screen.getByRole("button", { name: /submit/i });
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
       await userEvent.click(submitButton);
 
       await waitFor(() => {
@@ -705,7 +823,7 @@ describe("TakeProfit Modal Component", () => {
       await userEvent.type(tpInput, "110000");
       await userEvent.type(slInput, "95000");
 
-      const submitButton = screen.getByRole("button", { name: /submit/i });
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
       await userEvent.click(submitButton);
 
       await waitFor(() => {
@@ -724,13 +842,13 @@ describe("TakeProfit Modal Component", () => {
       await userEvent.type(tpInput, "110000");
       await userEvent.type(slInput, "95000");
 
-      const submitButton = screen.getByRole("button", { name: /submit/i });
+      const submitButton = screen.getByRole("button", { name: "Sign in" });
       await userEvent.click(submitButton);
 
       await waitFor(() => {
         const call = mockMutate.mock.calls[0][0];
         expect(call.orders[0].size).toBe(call.orders[1].size);
-        expect(call.orders[0].size).toBe("0.5");
+        expect(call.orders[0].size).toBe(defaultOrder.positionSize);
       });
     });
   });

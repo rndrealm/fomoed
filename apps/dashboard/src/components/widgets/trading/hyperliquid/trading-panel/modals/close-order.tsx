@@ -14,7 +14,7 @@ import { useAccount } from "wagmi";
 import { OrderEnum } from "@/services/queries/trading/types";
 import { useQueryClient } from "@tanstack/react-query";
 import OrderCheckLayout from "../../create-order/order-check-layout";
-import { formatHlPriceInput, formatHlSizeInput } from "../../../utils";
+import { formatHlPrice, formatHlPriceInput, formatHlSize, formatHlSizeInput } from "../../../utils";
 import { PERP_MAX_DECIMALS, SPOT_MAX_DECIMALS } from "../../../utils/constants";
 import { CustomTextInput } from "@/components/shared/custom-text-input";
 
@@ -70,7 +70,7 @@ const CloseOrder = (props: IProps) => {
       orderData.push({
         asset: assetIndex,
         side: isLong ? "sell" : "buy",
-        size: Number(size).toFixed(toDecimal),
+        size: formatHlSize(Number(size), toDecimal),
         type: "market",
         reduceOnly: true,
         isSpot,
@@ -79,10 +79,10 @@ const CloseOrder = (props: IProps) => {
       orderData.push({
         asset: assetIndex,
         side: isLong ? "sell" : "buy",
-        size: Number(size).toFixed(toDecimal),
+        size: formatHlSize(Number(size), toDecimal),
         type: "limit",
         reduceOnly: true,
-        price: Number(price).toFixed(toDecimal),
+        price: formatHlPrice(Number(price), maxDecimal),
       });
     }
     mutate({
@@ -94,7 +94,9 @@ const CloseOrder = (props: IProps) => {
   };
   return (
     <div className="flex flex-col ">
-      <p className=" font-medium text-[#B0B0B0] text-center text-xs pt-4">{isMarket ? marketDesc : limitDesc}</p>
+      <p className=" font-medium text-[#B0B0B0] text-center text-xs pt-4">
+        {isMarket ? marketDesc : `Ask $${ticker?.ctx.midPx} (Live Ask)`}
+      </p>
 
       {isMarket ? (
         <div className="pt-8 flex flex-col gap-1">
@@ -106,7 +108,7 @@ const CloseOrder = (props: IProps) => {
           </div>
           <div className=" text-[#D1D1D1] text-ideal flex items-center justify-between font-medium">
             <p>Price</p>
-            <p>Market</p>
+            <p>Market (${ticker?.ctx.midPx})</p>
           </div>
         </div>
       ) : (
@@ -128,7 +130,7 @@ const CloseOrder = (props: IProps) => {
             rightComponent={
               <button
                 onClick={() => setPrice(currentPrice.toString())}
-                className="absolute right-2 top-[25%] text-sm text-[#FFDCA5]"
+                className="absolute right-2 top-[25%] text-sm text-[#FF9D32] underline"
               >
                 Mid
               </button>

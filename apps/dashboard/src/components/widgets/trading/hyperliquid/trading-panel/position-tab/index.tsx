@@ -373,7 +373,7 @@ export default function OpenPositionsTab() {
           handleClose={toggleModalOrderOpwn}
           headerClassName="text-center w-full text-lg font-medium"
           hideX
-          title={isMarket ? "Market Close" : "Limit Close"}
+          title={`Sell ${selectedOrder.coin}`}
           className="!max-w-[462px] px-6 py-8 bg-[#141416] gap-0"
         >
           <CloseOrder toggleModal={toggleModalOrderOpwn} isMarket={isMarket} order={selectedOrder} />
@@ -408,7 +408,11 @@ export default function OpenPositionsTab() {
           title="Close All Positions"
           className="!max-w-[462px] px-6 py-8 bg-[#141416] gap-0"
         >
-          <CloseAllOrders toggleModal={() => setIsCloseAllOrdersModalOpen(false)} tokensData={tokensData} />
+          <CloseAllOrders
+            clearingHouse={clearingHouse}
+            toggleModal={() => setIsCloseAllOrdersModalOpen(false)}
+            tokensData={tokensData}
+          />
         </ModalContainer>
       </RenderIf>
     </>

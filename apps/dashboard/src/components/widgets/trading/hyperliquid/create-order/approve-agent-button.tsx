@@ -22,6 +22,7 @@ const ApproveAgentButton = (props: IProps) => {
   const account = useAccount();
   const walletClient = useWalletClient();
   const queryClient = useQueryClient();
+  const hasCalledRef = React.useRef(false);
 
   const onCreateSuccess = (_data: CreateApiAgentResponse) => {
     setAgentWallet(_data.agent_address);
@@ -31,7 +32,10 @@ const ApproveAgentButton = (props: IProps) => {
   const { mutate, isPending: agentIsPending } = useCreateApiAgent(session?.access_token, onCreateSuccess);
 
   useEffect(() => {
-    if (!account?.address) return;
+    // The ref logic is to prevent race conditions (especially on dev cos of use strict use effect runs twice on mount)
+    if (!account?.address || hasCalledRef.current) return;
+
+    hasCalledRef.current = true;
     mutate({ wallet_address: account?.address });
   }, []);
 
@@ -71,7 +75,7 @@ const ApproveAgentButton = (props: IProps) => {
       type="button"
       onClick={handleGrantPermission}
       disabled={!agentWallet}
-      isLoading={isLoading || agentIsPending}
+      isLoading={isLoading}
     >
       {title || "Grant Permission"}
     </Button>

@@ -72,7 +72,7 @@ const BalancesTab = ({ userAddress }: BalancesTabProps) => {
   const assetBalances = useMemo(() => {
     console.log("Processing spot balances...");
     console.log("spotState:", spotState);
-    
+
     const balances: Record<string, AssetBalance> = {};
 
     if (spotState?.balances) {
@@ -84,7 +84,7 @@ const BalancesTab = ({ userAddress }: BalancesTabProps) => {
         const price = allMids?.[coinSymbol] ? parseFloat(allMids[coinSymbol]) : 1;
 
         if (total > 0 || hold > 0) {
-          console.log(`Spot balance for ${coinSymbol}:`, { total, hold, available, price });
+          // console.log(`Spot balance for ${coinSymbol}:`, { total, hold, available, price });
 
           const coinInfo = coinInfoMap[coinSymbol] || {
             name: coinSymbol,
@@ -115,8 +115,8 @@ const BalancesTab = ({ userAddress }: BalancesTabProps) => {
     }
 
     const result = Object.values(balances).sort((a, b) => b.totalBalanceUsd - a.totalBalanceUsd);
-    console.log("Final spot balances:", result);
-    
+    // console.log("Final spot balances:", result);
+
     return result;
   }, [spotState, openOrders, allMids, coinInfoMap]);
 
@@ -154,7 +154,7 @@ const BalancesTab = ({ userAddress }: BalancesTabProps) => {
             </button>
           </div>
         </div>
-        
+
         <div className="flex-1 flex flex-col overflow-hidden px-3">
           {/* Header */}
           <div
@@ -174,7 +174,7 @@ const BalancesTab = ({ userAddress }: BalancesTabProps) => {
             <div className="text-[#84858C] text-[12px] font-medium text-right">Open Orders</div>
             <div className="w-[240px]"></div>
           </div>
-          
+
           {/* Empty State */}
           <div className="flex flex-col h-full items-center justify-center bg-[#191B20] rounded-[20px] my-1">
             <Image src={dashboard.noDeposits} alt="No assets" width={168} height={168} className="mb-4" />
@@ -248,11 +248,11 @@ const BalancesTab = ({ userAddress }: BalancesTabProps) => {
             >
               {/* Asset */}
               <div className="flex items-center gap-[12px] h-[32px]">
-                <Image 
-                  src={asset.icon} 
-                  alt={asset.name} 
-                  width={32} 
-                  height={32} 
+                <Image
+                  src={asset.icon}
+                  alt={asset.name}
+                  width={32}
+                  height={32}
                   className="rounded-full"
                   onError={(e) => {
                     e.currentTarget.src = "https://static.coinstats.app/coins/1650455771843.png";
@@ -269,9 +269,7 @@ const BalancesTab = ({ userAddress }: BalancesTabProps) => {
                 <span className="text-white text-[12px] font-medium leading-tight">
                   {formatNumber(asset.totalBalance)}
                 </span>
-                <span className="text-[#84858C] text-[12px] leading-tight">
-                  {formatUsd(asset.totalBalanceUsd)}
-                </span>
+                <span className="text-[#84858C] text-[12px] leading-tight">{formatUsd(asset.totalBalanceUsd)}</span>
               </div>
 
               {/* Available Balance */}
@@ -279,9 +277,7 @@ const BalancesTab = ({ userAddress }: BalancesTabProps) => {
                 <span className="text-white text-[12px] font-medium leading-tight">
                   {formatNumber(asset.availableBalance)}
                 </span>
-                <span className="text-[#84858C] text-[12px] leading-tight">
-                  {formatUsd(asset.availableBalanceUsd)}
-                </span>
+                <span className="text-[#84858C] text-[12px] leading-tight">{formatUsd(asset.availableBalanceUsd)}</span>
               </div>
 
               {/* Open Orders */}

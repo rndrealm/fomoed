@@ -82,7 +82,7 @@ const WithdrawalModal = (props: IProps) => {
           type="button"
           isLoading={isLoading}
           onClick={handleBalance}
-          disabled={isLoading || Number(value) > Number(maxValue)}
+          disabled={isLoading || !value || Number(value) <= 0 || Number(value) > Number(maxValue)}
           className="w-full bg-white hover:bg-[#f4f4f4]  text-[#1E1E1E] font-medium text-[0.875rem] leading-[14px] h-12"
         >
           Submit

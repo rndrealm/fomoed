@@ -12,10 +12,12 @@ import { parseUnits } from "viem";
 import { arbitrum, arbitrumSepolia } from "viem/chains";
 import { formatToken } from "../../../utils";
 import { isTestnet } from "../../../utils/constants";
+import { RefreshCw } from "lucide-react";
 
 interface IProps {
   toggleModal: () => void;
   updateStep: (step: number) => void;
+  onConfirm: () => void;
 }
 
 // Constants for Hyperliquid bridge
@@ -39,7 +41,7 @@ const erc20TransferAbi = [
 ] as const;
 
 const DepositModal = (props: IProps) => {
-  const { toggleModal, updateStep } = props;
+  const { toggleModal, updateStep, onConfirm } = props;
 
   const BRIDGE_ADDRESS = isTestnet ? HYPERLIQUID_BRIDGE_TESTNET : HYPERLIQUID_BRIDGE_MAINNET;
   const USDC_ADDRESS = isTestnet ? ARBITRUM_USDC_TESTNET : ARBITRUM_USDC_MAINNET;
@@ -111,6 +113,11 @@ const DepositModal = (props: IProps) => {
     }
   };
 
+  const onSkip = () => {
+    toggleModal();
+    onConfirm();
+  };
+
   useEffect(() => {
     if (isError) {
       console.error("Transaction error:", error);
@@ -139,23 +146,39 @@ const DepositModal = (props: IProps) => {
       </p>
 
       <div className="pt-4">
-        <TextInput
-          type="number"
-          className={cn(
-            "h-12 w-full rounded-[10px] border border-[#1F1F1F] bg-[#0D0D0D] px-2 pr-4 text-sm text-white placeholder:text-[#5F5F5F] focus:outline-none focus:border-[#f4f4f4]",
-            {
-              "border-[#FFC26D] focus:border-[#FFC26D]": "",
-            },
-          )}
-          placeholder="$5 (minimum)"
-          value={value}
-          onChange={(e) => setValue((e.target as HTMLInputElement).value)}
-          min="5"
-          step="0.1"
-          rightPlaceholder={`Max: $${Number(maxValue).toFixed(2)}`}
-          rightPlaceholderClassName="text-sm top-[28%] text-[#FFC26D]"
-          disableFormikError
-        />
+        <div className="relative">
+          <TextInput
+            type="number"
+            className={cn(
+              "h-12 w-full rounded-[10px] border border-[#1F1F1F] bg-[#0D0D0D] px-2 pr-4 text-sm text-white placeholder:text-[#5F5F5F] focus:outline-none focus:border-[#f4f4f4]",
+              {
+                "border-[#FFC26D] focus:border-[#FFC26D]": "",
+              },
+            )}
+            placeholder="$5 (minimum)"
+            value={value}
+            onChange={(e) => setValue((e.target as HTMLInputElement).value)}
+            min="5"
+            step="0.1"
+            rightPlaceholder={`Max: $${Number(maxValue).toFixed(2)}`}
+            rightPlaceholderClassName="text-sm top-[28%] text-[#FFC26D] pr-7"
+            disableFormikError
+          />
+          <button
+            type="button"
+            onClick={() => balance.refetch()}
+            disabled={balance.isFetching}
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-[#FFC26D] hover:text-[#FFB84D] transition-colors disabled:opacity-50"
+            aria-label="Refresh balance"
+          >
+            <RefreshCw
+              size={14}
+              className={cn("transition-transform", {
+                "animate-spin": balance.isFetching,
+              })}
+            />
+          </button>
+        </div>
         <div className="pt-2 text-xs flex flex-col gap-1">
           <div className="flex items-center justify-between">
             <p className="text-[#B0B0B0]">USDC Balance</p>
@@ -169,7 +192,7 @@ const DepositModal = (props: IProps) => {
       </div>
 
       <div className="flex items-center gap-2 pt-12">
-        {Number(perpBalance?.withdrawable) > 0 ? (
+        {/* {Number(perpBalance?.withdrawable) > 0 ? (
           <Button
             className="flex-1 bg-[#171717] hover:opacity-90 border-[#1F1F1F] border  text-white font-medium text-sm h-11"
             onClick={() => updateStep(2)}
@@ -183,7 +206,15 @@ const DepositModal = (props: IProps) => {
           >
             Cancel
           </Button>
-        )}
+        )} */}
+
+        <Button
+          className="flex-1 bg-[#171717] hover:opacity-90 border-[#1F1F1F] border  text-white font-medium text-sm h-11"
+          onClick={() => onSkip()}
+          // onClick={() => updateStep(2)}
+        >
+          Skip
+        </Button>
 
         <Button
           type="button"

@@ -34,7 +34,7 @@ export const useCheckAccess = (): CheckAccessResult => {
     if (isError) {
       newResult = {
         connected: false,
-        blocker: "auth" as const,
+        blocker: "api" as const,
         isPending: isPending || isConnecting || isReconnecting || agentIsPending,
       };
     } else if (!isConnected) {

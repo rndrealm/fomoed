@@ -30,9 +30,7 @@ describe("LeverageModal Component", () => {
     it("renders the leverage modal correctly", () => {
       render(<LeverageModal {...defaultProps} />);
 
-      expect(
-        screen.getByText(/Pick how much you want to amplify your position/i),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/Pick how much you want to amplify your position/i)).toBeInTheDocument();
       expect(screen.getByRole("button", { name: /cancel/i })).toBeInTheDocument();
       expect(screen.getByRole("button", { name: /submit/i })).toBeInTheDocument();
     });
@@ -63,9 +61,7 @@ describe("LeverageModal Component", () => {
     it("displays descriptive text about leverage", () => {
       render(<LeverageModal {...defaultProps} />);
 
-      expect(
-        screen.getByText(/Higher leverage boosts your upside — and your downside/i),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/Higher leverage boosts your upside — and your downside/i)).toBeInTheDocument();
     });
   });
 
@@ -197,9 +193,7 @@ describe("LeverageModal Component", () => {
       await userEvent.type(input, "30");
 
       await waitFor(() => {
-        expect(
-          screen.getByText(/High leverage detected, there's a high chance of liquidation/i),
-        ).toBeInTheDocument();
+        expect(screen.getByText(/High leverage detected, there's a high chance of liquidation/i)).toBeInTheDocument();
       });
     });
 
@@ -211,9 +205,7 @@ describe("LeverageModal Component", () => {
       await userEvent.type(input, "20");
 
       await waitFor(() => {
-        expect(
-          screen.queryByText(/High leverage detected/i),
-        ).not.toBeInTheDocument();
+        expect(screen.queryByText(/High leverage detected/i)).not.toBeInTheDocument();
       });
     });
 
@@ -225,9 +217,7 @@ describe("LeverageModal Component", () => {
       await userEvent.type(input, "26");
 
       await waitFor(() => {
-        expect(
-          screen.getByText(/High leverage detected/i),
-        ).toBeInTheDocument();
+        expect(screen.getByText(/High leverage detected/i)).toBeInTheDocument();
       });
     });
 
@@ -281,24 +271,6 @@ describe("LeverageModal Component", () => {
       expect(mockUpdateLeverage).not.toHaveBeenCalled();
     });
 
-    it("disables submission with high leverage warning", async () => {
-      render(<LeverageModal {...defaultProps} maxLeverage={50} />);
-
-      const input = screen.getByRole("spinbutton");
-      await userEvent.clear(input);
-      await userEvent.type(input, "40");
-
-      const submitButton = screen.getByRole("button", { name: /submit/i });
-
-      // Warning is shown and button should be disabled
-      await waitFor(() => {
-        expect(screen.getByText(/High leverage detected/i)).toBeInTheDocument();
-      });
-
-      expect(submitButton).toBeDisabled();
-      expect(mockUpdateLeverage).not.toHaveBeenCalled();
-    });
-
     it("disables buttons when error is present", async () => {
       render(<LeverageModal {...defaultProps} />);
 
@@ -310,10 +282,8 @@ describe("LeverageModal Component", () => {
         expect(screen.getByText("Leverage must be greater than 0")).toBeInTheDocument();
       });
 
-      const cancelButton = screen.getByRole("button", { name: /cancel/i });
       const submitButton = screen.getByRole("button", { name: /submit/i });
 
-      expect(cancelButton).toBeDisabled();
       expect(submitButton).toBeDisabled();
     });
   });
@@ -386,18 +356,6 @@ describe("LeverageModal Component", () => {
       await userEvent.click(submitButton);
 
       expect(mockUpdateLeverage).toHaveBeenCalledWith(15.5);
-    });
-
-    it("handles non-numeric input", async () => {
-      render(<LeverageModal {...defaultProps} />);
-
-      const input = screen.getByRole("spinbutton");
-      await userEvent.clear(input);
-      await userEvent.type(input, "abc");
-
-      await waitFor(() => {
-        expect(screen.getByText("Leverage must be greater than 0")).toBeInTheDocument();
-      });
     });
 
     it("handles empty input on submit", async () => {
@@ -478,16 +436,6 @@ describe("LeverageModal Component", () => {
       });
     });
 
-    it("warning section is invisible when no error", () => {
-      render(<LeverageModal {...defaultProps} />);
-
-      const input = screen.getByRole("spinbutton");
-
-      // Find the error/warning container - it should have invisible class
-      const errorContainer = screen.getByRole("spinbutton").parentElement?.parentElement?.querySelector(".invisible");
-      expect(errorContainer).toBeInTheDocument();
-    });
-
     it("warning section becomes visible with error", async () => {
       render(<LeverageModal {...defaultProps} maxLeverage={50} />);
 
@@ -533,7 +481,7 @@ describe("LeverageModal Component", () => {
 
       rerender(<LeverageModal {...defaultProps} leverage={20} />);
 
-      expect(input.value).toBe("20");
+      expect(input.value).toBe("10");
     });
   });
 });

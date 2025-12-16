@@ -53,8 +53,6 @@ const PopoverContent = () => {
   const currLayoutId = activeTab.layout_id;
   const currLayout = layouts.find((item) => item.id === currLayoutId);
 
-  console.log("currLayout", currLayout);
-
   const handleSaveLayout = async () => {
     if (isPending) return;
     const currentLayout = layouts.find((layout) => layout.id === activeTab.layout_id);

@@ -52,8 +52,8 @@ export default function AscendexHeader({ widget, activeView, onViewChange }: Asc
                 <button
                   key={value}
                   onClick={() => onViewChange(value)}
-                  className={`px-[12px] py-[4px] rounded-[6px] transition-colors ${
-                    activeView === value ? "text-white" : "hover:text-white hover:bg-[#1C1D21]"
+                  className={`px-4 py-2 rounded-[6px] transition-colors font-medium bg-[#1A1B20] text-xs ${
+                    activeView === value ? "text-white" : "hover:text-white  hover:bg-[#1C1D21]"
                   }`}
                 >
                   {label}
