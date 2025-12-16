@@ -87,7 +87,7 @@ export class Datafeed {
         supports_marks: false,
         supports_timescale_marks: false,
         supports_time: true,
-        supported_resolutions: ["1", "3", "5", "15", "30", "60", "120", "240", "480", "720", "1D", "3D", "1W", "1M"],
+        supported_resolutions: ["1", "3", "5", "15", "30", "60", "120", "240", "480", "720", "1D"],
       });
     });
   }
@@ -110,7 +110,7 @@ export class Datafeed {
       const { pricescale, minmov } = getPriceScaleAndMinmov(parseFloat(symbol.price));
 
       const symbolInfo: LibrarySymbolInfo = {
-        ticker: symbol.name,
+        ticker: symbolName,
         name: symbol.name,
         description,
         type: "crypto",
@@ -123,7 +123,7 @@ export class Datafeed {
         has_intraday: true,
         has_no_volume: false,
         has_weekly_and_monthly: true,
-        supported_resolutions: ["1", "3", "5", "15", "30", "60", "120", "240", "480", "720", "1D", "3D", "1W", "1M"],
+        supported_resolutions: ["1", "3", "5", "15", "30", "60", "120", "240", "480", "720", "1D"],
         volume_precision: 8,
         data_status: "streaming",
       };
@@ -144,7 +144,7 @@ export class Datafeed {
     try {
       const { from, to, firstDataRequest } = periodParams;
 
-      const data = await this.api.getKlines(symbolInfo.ticker, resolution, from * 1000, to * 1000);
+      const data = await this.api.getKlines(symbolInfo.name, resolution, from * 1000, to * 1000);
 
       const bars: Bar[] = data.map((item) => ({
         time: item.time,

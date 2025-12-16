@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import React, { Fragment, use, useEffect, useMemo, useRef, useState } from "react";
 import {
   ChartingLibraryFeatureset,
   ChartingLibraryWidgetOptions,
@@ -45,7 +45,16 @@ export function TradingViewChart() {
       container: chartContainerRef.current,
       datafeed: datafeed as any,
       theme: "dark",
-      disabled_features: ["volume_force_overlay", "header_compare", "header_symbol_search", "symbol_search_hot_key"],
+      disabled_features: [
+        "volume_force_overlay",
+        "header_compare",
+        "header_symbol_search",
+        "symbol_search_hot_key",
+        "header_screenshot",
+        "header_saveload",
+        "header_settings",
+        "header_undo_redo",
+      ],
       enabled_features: [
         "study_templates",
         "side_toolbar_in_fullscreen_mode",
@@ -67,24 +76,6 @@ export function TradingViewChart() {
     tvWidget.onChartReady(() => {
       tvWidget.setCSSCustomProperty("--tv-color-pane-background", "#121317");
       setIsChartReady(true);
-      // tvWidget.changeTheme("dark");
-
-      // tvWidget.headerReady().then(() => {
-      //   const button = tvWidget.createButton();
-      //   button.setAttribute("title", "Click to show a notification popup");
-      //   button.classList.add("apply-common-tooltip");
-      //   button.addEventListener("click", () =>
-      //     tvWidget.showNoticeDialog({
-      //       title: "Notification",
-      //       body: "TradingView Charting Library API works correctly",
-      //       callback: () => {
-      //         console.log("Noticed!");
-      //       },
-      //     }),
-      //   );
-
-      //   button.innerHTML = "Check API";
-      // });
 
       const chart = tvWidget.activeChart();
       // Subscribe to interval changes and then clear cache
@@ -117,9 +108,7 @@ export function TradingViewChart() {
     // Check if the symbol actually needs changing to prevent loops
     // Note: activeChart.symbol() might return the full exchange:symbol pair
     if (activeChart && activeChart.symbol() !== selectedToken.tradingViewName) {
-      widget.setSymbol(selectedToken.tradingViewName, activeChart.resolution(), () => {
-        console.log("Symbol changed to", selectedToken.tradingViewName);
-      });
+      widget.setSymbol(selectedToken.tradingViewName, activeChart.resolution(), () => {});
     }
   }, [selectedToken, isChartReady]);
 
