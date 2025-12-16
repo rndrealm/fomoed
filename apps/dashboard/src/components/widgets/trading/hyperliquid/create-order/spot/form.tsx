@@ -102,7 +102,7 @@ export function SpotFormContent(props: FormContentProps) {
     isLong,
     setIsLong,
     isPending,
-    marketPrice,
+    marketPrice = 1,
     orderBy,
     setOrderBy,
     selectOptions,
@@ -133,7 +133,7 @@ export function SpotFormContent(props: FormContentProps) {
     }
   }, []);
 
-  const balanceInOrderByCurrency = orderBy === selectOptions[0].value ? balance : balance * Number(marketPrice);
+  const balanceInOrderByCurrency = orderBy === selectOptions[1].value ? balance : balance * Number(marketPrice);
   const insufficientBalanceCheck = !Number(balance) || Number(values.quantity) > balanceInOrderByCurrency;
 
   return (

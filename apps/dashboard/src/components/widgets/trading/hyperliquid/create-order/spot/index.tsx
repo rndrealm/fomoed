@@ -51,6 +51,7 @@ export default function CreateSpotOrder(props: IProps) {
   const marketPrice = ticker?.ctx?.midPx?.toString() || "0";
   // console.log(ticker);
 
+  // console.log("curr asset:", selectedToken);
   const { data: spotBalance } = useGetSpotBalance(walletAddress);
 
   const fromBalance = spotBalance?.balances.find((spt) => spt.coin === from);

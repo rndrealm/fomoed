@@ -354,7 +354,7 @@ export function FormContent(props: FormContentProps) {
           </div>
 
           <div className="flex items-center justify-between">
-            <Checkbox label="Post Only" />
+            {/* <Checkbox label="Post Only" /> */}
             {/* <Checkbox label="IOC" /> */}
             <Checkbox
               label="Reduce Only"
