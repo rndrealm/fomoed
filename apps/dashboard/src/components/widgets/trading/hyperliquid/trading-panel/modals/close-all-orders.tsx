@@ -5,22 +5,21 @@ import { useExecuteTrade } from "@/services/queries/trading";
 import { useAccount } from "wagmi";
 import { OrderEnum } from "@/services/queries/trading/types";
 import OrderCheckLayout from "../../create-order/order-check-layout";
-import { useClearingHouseState } from "../../../chart/trading-view/hyperliquid/use-clearinghouse-state";
 import { useQueryClient } from "@tanstack/react-query";
+import { WsClearingHouseState } from "../../../chart/trading-view/hyperliquid/types";
 
 interface IProps {
   toggleModal: () => void;
   tokensData: any;
+  clearingHouse: WsClearingHouseState | null;
 }
 
 const CloseAllOrders = (props: IProps) => {
-  const { toggleModal, tokensData } = props;
+  const { toggleModal, tokensData, clearingHouse } = props;
   const account = useAccount();
-  const { address } = account;
-  const userAddress = address || "";
+
   const queryClient = useQueryClient();
 
-  const { clearingHouse } = useClearingHouseState(userAddress);
   const { session } = useSupabaseAuth();
 
   const onSuccessCallback = () => {

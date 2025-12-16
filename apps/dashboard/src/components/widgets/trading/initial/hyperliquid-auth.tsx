@@ -80,7 +80,7 @@ export default function HyperliquidAuth(props: ExchangePickerProps) {
         open={isOpen}
         handleClose={toggleModal}
         preventOutsideClick
-        hideX
+        // hideX
         headerClassName=" w-full text-lg font-medium"
         className="!max-w-[462px] px-6 pb-6 bg-[#141416] gap-0"
       >

@@ -17,6 +17,7 @@ import { useSupabaseAuth } from "@/components/providers";
 import { useExecuteTrade } from "@/services/queries/trading";
 import { CustomTextInput } from "@/components/shared/custom-text-input";
 import { useQueryClient } from "@tanstack/react-query";
+import OrderCheckLayout from "../create-order/order-check-layout";
 
 const validationSchema = Yup.object().shape({
   tpPrice: Yup.number(),
@@ -52,7 +53,7 @@ interface IProps {
 export function TakeProfit(props: IProps) {
   const { order, toggleModal } = props;
   const { coin, positionSize, entryPrice, markPrice, selectedToken, isSpot, isLong, leverage } = order;
-
+  // console.log(selectedToken);
   const account = useAccount();
   const queryClient = useQueryClient();
   const walletAddress = account?.address || "";
@@ -180,7 +181,7 @@ export function TakeProfit(props: IProps) {
     const orderPayload = {
       provider: "hyperliquid",
       wallet_address: walletAddress,
-      grouping: "normalTpsl",
+      grouping: "positionTpsl",
       orders,
     } as TradeExecutionPayload;
 
@@ -441,9 +442,16 @@ export function TakeProfit(props: IProps) {
                   </div>
 
                   <div className="flex flex-col gap-4">
-                    <SubmitButton isLoading={isPending} disabled={false}>
-                      Submit
-                    </SubmitButton>
+                    <OrderCheckLayout
+                      buttonClassName="w-full bg-[#E7E7E7] hover:bg-[#E7E7E7] text-[#010101] font-medium text-sm h-11"
+                      buttonContainerClassName="w-full"
+                      buttonWrapperClassName="w-full"
+                      approveClassName="h-11 !text-[0.875rem]"
+                    >
+                      <SubmitButton isLoading={isPending} disabled={false}>
+                        Submit
+                      </SubmitButton>
+                    </OrderCheckLayout>
 
                     <div className="w-full border-t border-[#1E1E20] border-dashed"></div>
 

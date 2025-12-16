@@ -396,9 +396,10 @@ describe("MarginModeModal Component", () => {
     });
 
     it("ensures isCross prop is boolean", () => {
-      render(<MarginModeModal {...defaultProps} isCross={true as boolean} />);
+      const { unmount } = render(<MarginModeModal {...defaultProps} isCross={true as boolean} />);
       expect(screen.getByText("Cross")).toBeInTheDocument();
 
+      unmount();
       render(<MarginModeModal {...defaultProps} isCross={false as boolean} />);
       expect(screen.getByText("Isolated")).toBeInTheDocument();
     });

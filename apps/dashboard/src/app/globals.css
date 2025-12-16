@@ -824,3 +824,29 @@ input[type="number"] {
 .app_coming_soon_gemach_logo.ascendex {
   background-image: url(../../public/media/images/coming-soon/ascendex-logo.png);
 }
+
+/* Toast typography customization */
+.toast-custom {
+  font-family: var(--font-geist-sans);
+}
+
+/* Toast title styling */
+.toast-custom [data-title] {
+  font-size: 54px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* Toast description styling */
+.toast-custom [data-description] {
+  font-size: 13px;
+  font-weight: 400;
+  opacity: 0.9;
+  margin-top: 2px;
+}
+
+/* Toast button styling */
+.toast-custom [data-button] {
+  font-size: 13px;
+  font-weight: 500;
+}

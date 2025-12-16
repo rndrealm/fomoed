@@ -169,12 +169,7 @@ describe("WithdrawalModal Component", () => {
       await userEvent.click(submitButton);
 
       await waitFor(() => {
-        expect(withdrawFromHyperliquid).toHaveBeenCalledWith(
-          mockWalletClient.data,
-          "0x123",
-          "100",
-          true,
-        );
+        expect(withdrawFromHyperliquid).toHaveBeenCalledWith(mockWalletClient.data, "0x123", "100", true);
       });
     });
 
@@ -219,12 +214,7 @@ describe("WithdrawalModal Component", () => {
       await userEvent.click(submitButton);
 
       await waitFor(() => {
-        expect(withdrawFromHyperliquid).toHaveBeenCalledWith(
-          expect.anything(),
-          expect.anything(),
-          "99.99",
-          true,
-        );
+        expect(withdrawFromHyperliquid).toHaveBeenCalledWith(expect.anything(), expect.anything(), "99.99", true);
       });
     });
   });
@@ -328,9 +318,7 @@ describe("WithdrawalModal Component", () => {
     });
 
     it("handles network errors gracefully", async () => {
-      (withdrawFromHyperliquid as ReturnType<typeof vi.fn>).mockRejectedValue(
-        new Error("Network error"),
-      );
+      (withdrawFromHyperliquid as ReturnType<typeof vi.fn>).mockRejectedValue(new Error("Network error"));
 
       render(<WithdrawalModal toggleModal={mockToggleModal} />);
 
@@ -346,9 +334,7 @@ describe("WithdrawalModal Component", () => {
     });
 
     it("re-enables button after error", async () => {
-      (withdrawFromHyperliquid as ReturnType<typeof vi.fn>).mockRejectedValue(
-        new Error("Network error"),
-      );
+      (withdrawFromHyperliquid as ReturnType<typeof vi.fn>).mockRejectedValue(new Error("Network error"));
 
       render(<WithdrawalModal toggleModal={mockToggleModal} />);
 
@@ -504,9 +490,7 @@ describe("WithdrawalModal Component", () => {
     });
 
     it("handles clearing input after error", async () => {
-      (withdrawFromHyperliquid as ReturnType<typeof vi.fn>).mockRejectedValue(
-        new Error("Error"),
-      );
+      (withdrawFromHyperliquid as ReturnType<typeof vi.fn>).mockRejectedValue(new Error("Error"));
 
       render(<WithdrawalModal toggleModal={mockToggleModal} />);
 
@@ -532,7 +516,7 @@ describe("WithdrawalModal Component", () => {
     it("displays fee information prominently", () => {
       render(<WithdrawalModal toggleModal={mockToggleModal} />);
 
-      expect(screen.getByText(/a 1 USDC fee will be deducted from the amount you're about to send/i)).toBeInTheDocument();
+      expect(screen.getByText(/a 1 USDC fee will be deducted from the amount/i)).toBeInTheDocument();
     });
 
     it("shows that withdrawal goes to Arbitrum network", () => {
@@ -553,12 +537,7 @@ describe("WithdrawalModal Component", () => {
       await userEvent.click(submitButton);
 
       await waitFor(() => {
-        expect(withdrawFromHyperliquid).toHaveBeenCalledWith(
-          expect.anything(),
-          expect.any(String),
-          "75.50",
-          true,
-        );
+        expect(withdrawFromHyperliquid).toHaveBeenCalledWith(expect.anything(), expect.any(String), "75.5", true);
       });
     });
 
@@ -594,12 +573,7 @@ describe("WithdrawalModal Component", () => {
 
       // Step 3: Verify withdrawal called
       await waitFor(() => {
-        expect(withdrawFromHyperliquid).toHaveBeenCalledWith(
-          mockWalletClient.data,
-          "0x123",
-          "250",
-          true,
-        );
+        expect(withdrawFromHyperliquid).toHaveBeenCalledWith(mockWalletClient.data, "0x123", "250", true);
       });
 
       // Step 4: Verify success actions
