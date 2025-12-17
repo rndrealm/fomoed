@@ -8,6 +8,7 @@ import HyperliquidWidget from "./hyperliquid";
 import { useAtom, useAtomValue } from "jotai";
 import { settingAtom } from "@/lib/atoms/settingsAtom";
 import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
+import Notification from "./hyperliquid/notifications";
 
 interface IProps {
   widget: LayoutType["widgets"][0];
@@ -42,6 +43,8 @@ export default function Trading(props: IProps) {
       <RenderIf condition={isLoaded && selectedExchange === "hyperliquid"}>
         <HyperliquidWidget widget={widget} />
       </RenderIf>
+
+      <Notification />
     </Fragment>
   );
 }
