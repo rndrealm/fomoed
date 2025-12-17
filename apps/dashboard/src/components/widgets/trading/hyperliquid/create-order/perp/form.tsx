@@ -185,6 +185,8 @@ export function FormContent(props: FormContentProps) {
     setFieldValue("loss", "");
   }, [balance]);
 
+  const isInsufficient = balance <= 0.1;
+
   return (
     <>
       <div className="flex flex-col gap-3">
@@ -515,14 +517,16 @@ export function FormContent(props: FormContentProps) {
         <div className="">
           <OrderCheckLayout>
             <Button
-              disabled={!values.quantity || (values.reduceOnly && !validateReduceOnlyResponse.ok)}
+              disabled={!values.quantity || (values.reduceOnly && !validateReduceOnlyResponse.ok) || isInsufficient}
               type="submit"
               isLoading={isPending}
               className="w-full bg-[#7637BA] hover:bg-[#7637BA] text-white font-medium text-[10px] leading-[14px] h-[28px]"
             >
-              {values.reduceOnly && validateReduceOnlyResponse.reason
-                ? validateReduceOnlyResponse.reason
-                : "Create Order"}
+              {isInsufficient
+                ? "Insufficient margin"
+                : values.reduceOnly && validateReduceOnlyResponse.reason
+                  ? validateReduceOnlyResponse.reason
+                  : "Create Order"}
             </Button>
           </OrderCheckLayout>
         </div>

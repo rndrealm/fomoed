@@ -69,7 +69,7 @@ export default function CreateOrder(props: IProps) {
 
   const { data: perpBalance } = useGetPerpBalance(walletAddress);
   const { data: assetData } = useGetAssetData(walletAddress, tradingSymbol);
-  // console.log(assetData);
+  // console.log(perpBalance);
 
   const availableBalance = perpBalance?.withdrawable;
 
