@@ -55,6 +55,7 @@ export function TradingViewChart() {
         "header_saveload",
         "header_settings",
         "header_undo_redo",
+        "create_volume_indicator_by_default",
       ],
       enabled_features: [
         "study_templates",

@@ -139,7 +139,8 @@ export function SpotFormContent(props: FormContentProps) {
       setFieldValue("price", formatHlPrice(Number(marketPrice), maxDecimal));
     }
   }, []);
-  const balanceInOrderByCurrency = orderBy === selectOptions[1].value ? balance : balance * Number(marketPrice);
+  const orderCondition = isLong ? orderBy === selectOptions[1].value : orderBy === selectOptions[0].value;
+  const balanceInOrderByCurrency = orderCondition ? balance : balance * Number(marketPrice);
   const insufficientBalanceCheck = !Number(balance) || Number(values.quantity) > balanceInOrderByCurrency;
   return (
     <>
