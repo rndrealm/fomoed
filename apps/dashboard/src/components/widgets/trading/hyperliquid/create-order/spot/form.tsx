@@ -141,8 +141,7 @@ export function SpotFormContent(props: FormContentProps) {
   }, []);
   const orderCondition = isLong ? orderBy === selectOptions[1].value : orderBy === selectOptions[0].value;
   const balanceInOrderByCurrency = orderCondition ? balance : balance * Number(marketPrice);
-  const insufficientBalanceCheck =
-    !Number(balance) || Number(values.quantity) > balanceInOrderByCurrency || balance <= 0.1;
+  const insufficientBalanceCheck = !Number(balance) || Number(values.quantity) > balanceInOrderByCurrency;
   return (
     <>
       <div className="flex flex-col gap-3">

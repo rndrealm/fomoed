@@ -108,7 +108,6 @@ export async function approveApiWallet(
     agentAddress: apiWalletAddress,
     agentName: "fomoed",
   });
-
   return result;
 }
 
