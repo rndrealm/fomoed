@@ -3,6 +3,7 @@ import { LibrarySymbolInfo, SubscribeBarsCallback } from "../datafeed";
 import {
   WsAllMidsResponse,
   WsClearingHouseStateResponse,
+  WsNotificationsResponse,
   WsOpenOrdersResponse,
   WsSpotStateResponse,
   WsTradeResponse,
@@ -43,7 +44,9 @@ interface HyperliquidState {
   allMidsSubscriptions: Map<string, Set<(data: any) => void>>;
   historicalOrdersSubscriptions: Map<string, Set<(data: any) => void>>;
   userFillsSubscriptions: Map<string, Set<(data: any) => void>>;
+  notificationsSubscriptions: Map<string, Set<(data: any) => void>>;
   pendingSubscriptions: any[];
+  notificationsAddress: string;
 }
 
 const globalForWs = globalThis as unknown as { hyperliquidState: HyperliquidState };
@@ -64,6 +67,8 @@ const state = globalForWs.hyperliquidState || {
   clearingHouseSubscriptions: new Map(),
   historicalOrdersSubscriptions: new Map(),
   userFillsSubscriptions: new Map(),
+  notificationsSubscriptions: new Map(),
+  notificationsAddress: "",
 };
 
 // Save to global object immediately to survive Hot Reloads
@@ -168,6 +173,15 @@ function createSocket() {
       state.socket?.send(JSON.stringify({ method: "subscribe", subscription: { type: "allMids" } }));
     }
 
+    if (state.notificationsSubscriptions.size > 0) {
+      state.socket?.send(
+        JSON.stringify({
+          method: "subscribe",
+          subscription: { type: "notification", user: state.notificationsAddress },
+        }),
+      );
+    }
+
     // Start Ping
     if (state.pingInterval) clearInterval(state.pingInterval);
     state.pingInterval = setInterval(() => {
@@ -225,6 +239,8 @@ function handleMessage(event: MessageEvent) {
     handleHistoricalOrdersData(data);
   } else if (data?.channel === "userFills") {
     handleUserFillsData(data);
+  } else if (data?.channel === "notification") {
+    handleNotificationsData(data);
   }
 }
 
@@ -354,6 +370,16 @@ function handleUserFillsData(data: WsUserFillsResponse) {
 
   if (callbacks) {
     callbacks.forEach((callback) => callback(data?.data?.fills));
+  }
+}
+
+function handleNotificationsData(data: WsNotificationsResponse) {
+  console.log(data, "notification data");
+
+  const callbacks = state.notificationsSubscriptions.get("notifications");
+
+  if (callbacks) {
+    callbacks.forEach((callback) => callback(data?.data?.notification));
   }
 }
 
@@ -862,6 +888,57 @@ export function unsubscribeFromUserFills(_address: string, callback: (data: any)
         method: "unsubscribe",
         subscription: {
           type: "userFills",
+          user: address,
+        },
+      };
+
+      if (state.socket?.readyState === WebSocket.OPEN) {
+        state.socket.send(JSON.stringify(subRequest));
+      }
+    }
+  }
+}
+
+export function subscribeToNotifications(_address: string, callback: (data: any) => void) {
+  const address = _address.toLowerCase();
+  state.notificationsAddress = address;
+  if (!state.notificationsSubscriptions.has("notifications")) {
+    state.notificationsSubscriptions.set("notifications", new Set());
+  }
+
+  const callbacks = state.notificationsSubscriptions.get("notifications")!;
+  callbacks.add(callback);
+
+  if (callbacks.size === 1) {
+    const subRequest = {
+      method: "subscribe",
+      subscription: {
+        type: "notification",
+        user: address,
+      },
+    };
+
+    createSocket();
+
+    sendMessage(subRequest);
+  }
+}
+
+export function unsubscribeFromNotifications(_address: string, callback: (data: any) => void) {
+  const address = _address.toLowerCase();
+  const callbacks = state.notificationsSubscriptions.get("notifications");
+  state.notificationsAddress = "";
+
+  if (callbacks) {
+    callbacks.delete(callback);
+
+    if (callbacks.size === 0) {
+      state.notificationsSubscriptions.delete("notifications");
+
+      const subRequest = {
+        method: "unsubscribe",
+        subscription: {
+          type: "notification",
           user: address,
         },
       };
