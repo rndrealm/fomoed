@@ -895,7 +895,7 @@ export const widgetPropsDefaults = {
   ascendex: {
     token: null,
     meta: {
-      w: 16,
+      w: 24,
       h: 6,
       minW: 8,
       minH: 6,
