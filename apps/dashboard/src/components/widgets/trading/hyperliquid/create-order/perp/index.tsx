@@ -210,6 +210,11 @@ export default function CreateOrder(props: IProps) {
     // Create main order
     const orders: OrderEnum[] = [];
 
+    if (Number(orderSize) === 0) {
+      toast.error("Your position value is below the minimum, please increase the value");
+      return;
+    }
+
     if (orderType === "market") {
       orders.push({
         type: "market",

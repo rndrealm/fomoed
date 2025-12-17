@@ -15,7 +15,7 @@ import { AxiosResponse } from "axios";
 import { AssetDataResponse, HyperliquidMetaResponse } from "./types";
 import { getAuthHeaders } from "@/services/utils";
 import { toast } from "sonner";
-import { HYPERLIQUID_BASE_URL } from "@/components/widgets/trading/utils/constants";
+import { HYPERLIQUID_BASE_URL, HYPERLIQUID_BUILDER_ADDRESS } from "@/components/widgets/trading/utils/constants";
 
 // const BASE_URL = "https://api.hyperliquid.xyz";
 const BASE_URL = HYPERLIQUID_BASE_URL;
@@ -326,5 +326,30 @@ export const useGetHyperliquidAgentRole = (wallet_address?: string) => {
   return {
     ...res,
     data: res?.data as HyperliquidRoleResponse,
+  };
+};
+
+export const useGetBuilderFee = (wallet_address?: string) => {
+  const hash = ["get-builder-fee", wallet_address];
+
+  const res = useQuery({
+    queryKey: hash,
+    queryFn: async () => {
+      const response = await api.post({
+        url: `${BASE_URL}/info`,
+        auth: true,
+        body: {
+          user: wallet_address,
+          type: "maxBuilderFee",
+          builder: HYPERLIQUID_BUILDER_ADDRESS,
+        },
+      });
+      return response;
+    },
+    enabled: !!wallet_address,
+  });
+  return {
+    ...res,
+    data: res?.data as number,
   };
 };

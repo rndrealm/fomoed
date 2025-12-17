@@ -346,3 +346,65 @@ export const countLeadingZeros = (num: number): number => {
   const exponent = parseInt(str.split("e")[1]);
   return exponent < 0 ? Math.abs(exponent) - 1 : 0;
 };
+
+/**
+ * Approve builder fee for Hyperliquid trading
+ *
+ * @param walletClient - The wagmi wallet client from useWalletClient hook
+ * @param builderAddress - The builder address to approve fees for
+ * @param maxFeeRate - The maximum fee rate to approve (e.g., "0.0001" for 0.01%)
+ * @param isTestnet - Whether to use testnet (default: true)
+ * @returns Promise with the approval result
+ *
+ * @example
+ * ```ts
+ * import { useWalletClient } from "wagmi";
+ * import { approveBuilderFee } from "@/components/widgets/trading/utils";
+ *
+ * const { data: walletClient } = useWalletClient();
+ *
+ * // Approve builder fee
+ * await approveBuilderFee(
+ *   walletClient,
+ *   "0x4ff046b6b197669a3e04cc0bf1050d371b8c301e",
+ *   "0.0001",
+ *   true
+ * );
+ * ```
+ */
+export async function approveBuilderFeeFn(
+  walletClient: any | undefined,
+  builderAddress: string,
+  isTestnet: boolean = true,
+): Promise<hl.ApproveBuilderFeeSuccessResponse> {
+  if (!walletClient) {
+    throw new Error("Wallet client is not available. Please connect your wallet first.");
+  }
+
+  if (!walletClient.account) {
+    throw new Error("No account found in wallet client. Please ensure wallet is connected.");
+  }
+
+  if (!builderAddress) {
+    throw new Error("Builder address is required.");
+  }
+
+  // Create HTTP transport for Hyperliquid
+  const transport = new hl.HttpTransport({
+    isTestnet,
+  });
+
+  // Create Exchange client with the wallet client
+  const exchangeClient = new hl.ExchangeClient({
+    transport,
+    wallet: walletClient as any,
+  });
+
+  // Approve the builder fee
+  const result = await exchangeClient.approveBuilderFee({
+    builder: builderAddress,
+    maxFeeRate: "0.05%",
+  });
+
+  return result;
+}
