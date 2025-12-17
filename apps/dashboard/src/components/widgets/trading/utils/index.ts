@@ -339,3 +339,11 @@ export function parseNumericString(input: string | number): number {
   const num = parseFloat(cleaned);
   return Number.isFinite(num) ? num : 0;
 }
+
+// Helper function to count leading zeros after decimal point
+export const countLeadingZeros = (num: number): number => {
+  if (num === 0 || !isFinite(num)) return Infinity;
+  const str = num.toExponential();
+  const exponent = parseInt(str.split("e")[1]);
+  return exponent < 0 ? Math.abs(exponent) - 1 : 0;
+};

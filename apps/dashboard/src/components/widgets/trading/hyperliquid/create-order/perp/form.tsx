@@ -22,7 +22,7 @@ import { OrderType } from "@/services/queries/trading/types";
 import { RenderIf } from "@/components/shared";
 import { InputWithSelect } from "@/components/shared/input-with-select";
 import OrderCheckLayout from "../order-check-layout";
-import { formatHlPrice, formatHlPriceInput, formatHlSizeInput } from "../../../utils";
+import { countLeadingZeros, formatHlPrice, formatHlPriceInput, formatHlSizeInput } from "../../../utils";
 import { PERP_MAX_DECIMALS } from "../../../utils/constants";
 import { PerpUniverse, SpotsUniverse } from "@/services/queries/hyperliquid/types";
 import { CustomTextInput } from "@/components/shared/custom-text-input";
@@ -143,6 +143,10 @@ export function FormContent(props: FormContentProps) {
       formatHlSizeInput(orderValue.toString(), orderBy === selectOptions[0].value ? decimals : 2),
     );
   };
+
+  const balanceOverMultiplier = balance / multiplier;
+  const leadingZeros = countLeadingZeros(balanceOverMultiplier);
+  const isSliderDisabled = leadingZeros >= decimals;
 
   const sliderPercentage = Math.round(
     Math.min(balance ? ((Number(values.quantity) * multiplier) / leverage / balance) * 100 : 0, 100),
@@ -314,7 +318,15 @@ export function FormContent(props: FormContentProps) {
           </div>
 
           <div className="flex items-center gap-1.5">
-            <Slider value={[sliderPercentage]} onValueChange={handleSliderChange} min={0} max={100} step={1} showDots />
+            <Slider
+              value={[sliderPercentage]}
+              onValueChange={handleSliderChange}
+              min={0}
+              max={100}
+              step={1}
+              showDots
+              disabled={isSliderDisabled}
+            />
             <CustomTextInput
               className="h-[1.5rem] !pr-4.5 w-[3rem] border-none outline-none text-[#D7D7D7] !text-[10px] tracking-[-0.4%] leading-[14px] px-1 rounded-sm focus-visible:ring-0 bg-[#222329]"
               value={sliderPercentage}
@@ -323,6 +335,7 @@ export function FormContent(props: FormContentProps) {
               name="percentage"
               rightPlaceholder="%"
               type="number"
+              disabled={isSliderDisabled}
             />
           </div>
 

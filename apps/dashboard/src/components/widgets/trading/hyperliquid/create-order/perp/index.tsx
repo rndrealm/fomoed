@@ -146,7 +146,7 @@ export default function CreateOrder(props: IProps) {
     session?.access_token,
   );
 
-  const marketPrice = ticker?.ctx?.midPx?.toString() || "0";
+  const marketPrice = ticker?.ctx?.midPx?.toString() || ticker?.ctx?.markPx?.toString() || "0";
 
   function validateTpSl(values: TradingFormInitialValues, isLong: boolean): boolean {
     if (!values.tpSl) return true;
