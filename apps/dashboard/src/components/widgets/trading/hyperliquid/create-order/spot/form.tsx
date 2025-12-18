@@ -128,7 +128,7 @@ export function SpotFormContent(props: FormContentProps) {
 
   const balanceOverMultiplier = balance / multiplier;
   const leadingZeros = countLeadingZeros(balanceOverMultiplier);
-  const isSliderDisabled = leadingZeros >= decimals;
+  const isSliderDisabled = leadingZeros >= decimals && balanceOverMultiplier < 1;
 
   const sliderPercentage = Math.round(
     Math.min(balance ? ((Number(values.quantity) * multiplier) / balance) * 100 : 0, 100),
@@ -147,9 +147,23 @@ export function SpotFormContent(props: FormContentProps) {
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-center">
           <div className="flex bg-[#222329] rounded-md items-center">
-            <LongShortButton isActive={isLong} label="Buy / Long" onClick={() => setIsLong(true)} />
+            <LongShortButton
+              isActive={isLong}
+              label="Buy / Long"
+              onClick={() => {
+                setIsLong(true);
+                setFieldValue("quantity", "");
+              }}
+            />
 
-            <LongShortButton isActive={!isLong} label="Sell / Short" onClick={() => setIsLong(false)} />
+            <LongShortButton
+              isActive={!isLong}
+              label="Sell / Short"
+              onClick={() => {
+                setIsLong(false);
+                setFieldValue("quantity", "");
+              }}
+            />
           </div>
         </div>
 

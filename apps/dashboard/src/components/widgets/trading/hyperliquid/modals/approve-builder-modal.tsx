@@ -48,25 +48,25 @@ const ApproveBuilderModal = (props: IProps) => {
   return (
     <div className="flex flex-col">
       <p className="font-medium text-[#B0B0B0] text-center text-xs pt-4">
-        {/* This will immediately close all open position at market price. */}
+        Confirm this step to activate advanced trading functionality and ensure your account is properly configured.
       </p>
 
       <div className="pt-8">
-        <OrderCheckLayout
+        {/* <OrderCheckLayout
           buttonClassName="w-full bg-[#E7E7E7] hover:bg-[#E7E7E7] text-[#010101] font-medium text-sm h-11"
           buttonContainerClassName="w-full"
           buttonWrapperClassName="w-full"
           approveClassName="h-11 !text-[0.875rem]"
+        > */}
+        <Button
+          type="button"
+          onClick={handleGrant}
+          isLoading={isLoading}
+          className="w-full bg-white hover:bg-[#f4f4f4] text-[#1E1E1E] font-medium text-[0.875rem] leading-[14px] h-12"
         >
-          <Button
-            type="button"
-            onClick={handleGrant}
-            isLoading={isLoading}
-            className="w-full bg-white hover:bg-[#f4f4f4] text-[#1E1E1E] font-medium text-[0.875rem] leading-[14px] h-12"
-          >
-            Approve
-          </Button>
-        </OrderCheckLayout>
+          Approve
+        </Button>
+        {/* </OrderCheckLayout> */}
       </div>
     </div>
   );

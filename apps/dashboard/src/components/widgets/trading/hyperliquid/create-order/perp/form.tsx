@@ -209,9 +209,23 @@ export function FormContent(props: FormContentProps) {
         </div>
         <div className="flex items-center justify-center">
           <div className="flex bg-[#222329] rounded-md items-center">
-            <LongShortButton isActive={isLong} label="Buy / Long" onClick={() => setIsLong(true)} />
+            <LongShortButton
+              isActive={isLong}
+              label="Buy / Long"
+              onClick={() => {
+                setIsLong(true);
+                setFieldValue("quantity", "");
+              }}
+            />
 
-            <LongShortButton isActive={!isLong} label="Sell / Short" onClick={() => setIsLong(false)} />
+            <LongShortButton
+              isActive={!isLong}
+              label="Sell / Short"
+              onClick={() => {
+                setIsLong(false);
+                setFieldValue("quantity", "");
+              }}
+            />
           </div>
         </div>
 
