@@ -60,7 +60,7 @@ const HyperliquidWidget = ({ widget }: IProps) => {
 
   const [isOpen, setIsOpen] = useState(false);
   const toggleModal = () => {
-    setIsOpen(!isOpen);
+    // setIsOpen(!isOpen);
   };
 
   useEffect(() => {
