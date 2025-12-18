@@ -1,10 +1,10 @@
 "use client";
-import React, { useMemo, useEffect } from "react";
+import React, { useMemo } from "react";
 import Image from "next/image";
-import { useHyperliquidUserNonFundingLedgerUpdates } from "@/services/queries/hyperliquid-dex";
 import { useHyperliquidUserFills } from "@/services/queries/hyperliquid-dex";
+import { useAccount } from "wagmi";
 import { useFetchCoinStatsToken } from "@/services/queries/charts";
-import { PositionHistoryData } from "@/services/queries/hyperliquid-dex/types";
+import { Spinner } from "@/components/ui/shadcn-io/spinner";
 
 interface PositionHistoryTabProps {
   userAddress: string;
@@ -12,18 +12,13 @@ interface PositionHistoryTabProps {
 }
 
 const PositionHistoryTab = ({ userAddress, emptyStateComponent }: PositionHistoryTabProps) => {
-  const { mutate: fetchLedger, data: ledgerData } = useHyperliquidUserNonFundingLedgerUpdates();
-  const { data: fillsData } = useHyperliquidUserFills(userAddress, !!userAddress);
+  const { address, isConnected: isAccountConnected } = useAccount();
+  const userAddressUsed = address || userAddress;
+
+  const { data: fillsData, isLoading } = useHyperliquidUserFills(userAddressUsed, !!userAddressUsed);
   const { data: coinStatsData } = useFetchCoinStatsToken();
 
-  useEffect(() => {
-    if (userAddress) {
-      const endTime = Date.now();
-      const startTime = endTime - 90 * 24 * 60 * 60 * 1000;
-      fetchLedger({ userAddress, startTime, endTime });
-    }
-  }, [userAddress, fetchLedger]);
-
+  // Create coin info map from CoinStats data
   const coinInfoMap = useMemo(() => {
     if (!coinStatsData) return {};
     const map: Record<string, { name: string; icon: string }> = {};
@@ -36,58 +31,15 @@ const PositionHistoryTab = ({ userAddress, emptyStateComponent }: PositionHistor
     return map;
   }, [coinStatsData]);
 
-  const fillsByHash = useMemo(() => {
-    if (!fillsData) return {};
-    const map: Record<string, number> = {};
-
-    fillsData.forEach((fill: any) => {
-      const hash = fill.hash;
-      const fee = parseFloat(fill.fee || "0");
-
-      if (map[hash]) {
-        map[hash] += fee;
-      } else {
-        map[hash] = fee;
-      }
+  // Filter fills to only show closed positions (those with closedPnl)
+  const closedPositions = useMemo(() => {
+    if (!fillsData) return [];
+    
+    return fillsData.filter((fill) => {
+      const pnl = parseFloat(fill?.closedPnl || "0");
+      return pnl !== 0; // Only show fills that closed a position
     });
-
-    return map;
   }, [fillsData]);
-
-  const positionHistory = useMemo<Array<PositionHistoryData & { fee: number }>>(() => {
-    if (!ledgerData) return [];
-
-    return ledgerData
-      .filter((item: any) => item.delta.type === "position")
-      .map((item: any): PositionHistoryData & { fee: number } => {
-        const delta = item.delta;
-        const coinSymbol = delta.coin;
-
-        const coinInfo = coinInfoMap[coinSymbol] || {
-          name: coinSymbol,
-          icon: "https://static.coinstats.app/coins/1650455771843.png",
-        };
-
-        const size = parseFloat(delta.szi);
-        const side = size > 0 ? "Long" : "Short";
-
-        const fee = fillsByHash[item.hash] || 0;
-
-        return {
-          coin: coinSymbol,
-          name: coinInfo.name,
-          icon: coinInfo.icon,
-          size: delta.szi,
-          side,
-          entryPrice: parseFloat(delta.entryPx),
-          exitPrice: parseFloat(delta.exitPx),
-          pnl: parseFloat(delta.pnl),
-          time: item.time,
-          hash: item.hash,
-          fee,
-        };
-      });
-  }, [ledgerData, coinInfoMap, fillsByHash]);
 
   const formatPrice = (price: number) => {
     return `$${price.toLocaleString("en-US", {
@@ -114,6 +66,23 @@ const PositionHistoryTab = ({ userAddress, emptyStateComponent }: PositionHistor
 
   const calculateTradeValue = (size: string, price: number) => {
     return Math.abs(parseFloat(size)) * price;
+  };
+
+  const getCoinIcon = (coinName: string) => {
+    const coinInfo = coinInfoMap[coinName.toUpperCase()];
+    return coinInfo?.icon || "https://static.coinstats.app/coins/1650455771843.png";
+  };
+
+  const getCoinDisplayName = (coinName: string) => {
+    const coinInfo = coinInfoMap[coinName.toUpperCase()];
+    return coinInfo?.name || coinName;
+  };
+
+  // Determine side based on direction
+  const getSide = (dir: string) => {
+    if (dir === "Open Long" || dir === "Close Short") return "Long";
+    if (dir === "Open Short" || dir === "Close Long") return "Short";
+    return dir;
   };
 
   return (
@@ -148,53 +117,77 @@ const PositionHistoryTab = ({ userAddress, emptyStateComponent }: PositionHistor
           marginTop: "8px",
         }}
       >
-        {positionHistory.length === 0 ? (
+        {/* Loading state */}
+        {isLoading && (
+          <div className="flex justify-center items-center py-10">
+            <Spinner variant="circle" className="text-[rgb(255,59,16)]" size={24} />
+          </div>
+        )}
+
+        {/* Empty state - no data */}
+        {!isLoading && closedPositions.length === 0 && (
           <>{emptyStateComponent}</>
-        ) : (
-          positionHistory.map((p, index: number) => {
-            const isProfit = p.pnl >= 0;
-            const tradeValue = calculateTradeValue(p.size, p.exitPrice);
+        )}
 
-            return (
-              <div
-                key={`${p.hash}-${index}`}
-                className="grid grid-cols-[15%_11%_10%_11%_11%_11%_10%_12%] gap-4 hover:bg-[#1C1D21] transition-colors items-center"
-                style={{
-                  height: "48px",
-                  paddingLeft: "12px",
-                  paddingRight: "12px",
-                }}
-              >
-                <div className="text-[#84858C] text-[12px]">{formatTime(p.time)}</div>
+        {/* Data state - show closed positions */}
+        {!isLoading && closedPositions.length > 0 && (
+          <>
+            {closedPositions.slice().reverse().map((fill, index: number) => {
+              const price = parseFloat(fill?.px || "0");
+              const size = parseFloat(fill?.sz || "0");
+              const fee = parseFloat(fill?.fee || "0");
+              const pnl = parseFloat(fill?.closedPnl || "0");
+              const isProfit = pnl >= 0;
+              const tradeValue = calculateTradeValue(fill.sz, price);
+              const side = getSide(fill?.dir || "");
 
-                <div className="flex items-center gap-[12px]">
-                  <Image src={p.icon} alt={p.name} width={32} height={32} className="rounded-full" />
-                  <span className="text-white text-[12px]">{p.name}</span>
-                </div>
-
+              return (
                 <div
-                  className={`text-[12px] text-right font-medium ${
-                    p.side === "Long" ? "text-[#00AF58]" : "text-[#DC2626]"
-                  }`}
+                  key={`${fill.tid}-${index}`}
+                  className="grid grid-cols-[15%_11%_10%_11%_11%_11%_10%_12%] gap-4 hover:bg-[#1C1D21] transition-colors items-center"
+                  style={{
+                    height: "48px",
+                    paddingLeft: "12px",
+                    paddingRight: "12px",
+                  }}
                 >
-                  {p.side}
+                  <div className="text-[#84858C] text-[12px]">{formatTime(fill.time)}</div>
+
+                  <div className="flex items-center gap-[12px]">
+                    <Image 
+                      src={getCoinIcon(fill.coin)} 
+                      alt={fill.coin} 
+                      width={20} 
+                      height={20} 
+                      className="rounded-full" 
+                    />
+                    <span className="text-white text-[12px]">{getCoinDisplayName(fill.coin)}</span>
+                  </div>
+
+                  <div
+                    className={`text-[12px] text-right font-medium ${
+                      side === "Long" ? "text-[#00AF58]" : "text-[#DC2626]"
+                    }`}
+                  >
+                    {side}
+                  </div>
+
+                  <div className="text-white text-[12px] text-right">{formatPrice(price)}</div>
+
+                  <div className="text-white text-[12px] text-right">{Math.abs(size).toFixed(4)}</div>
+
+                  <div className="text-white text-[12px] text-right">{formatPrice(tradeValue)}</div>
+
+                  <div className="text-[#84858C] text-[12px] text-right">{formatPrice(fee)}</div>
+
+                  <div className={`text-[12px] text-right font-medium ${isProfit ? "text-[#00AF58]" : "text-[#DC2626]"}`}>
+                    {isProfit ? "+" : ""}
+                    {formatPrice(pnl)}
+                  </div>
                 </div>
-
-                <div className="text-white text-[12px] text-right">{formatPrice(p.exitPrice)}</div>
-
-                <div className="text-white text-[12px] text-right">{Math.abs(parseFloat(p.size)).toFixed(4)}</div>
-
-                <div className="text-white text-[12px] text-right">{formatPrice(tradeValue)}</div>
-
-                <div className="text-[#84858C] text-[12px] text-right">{formatPrice(p.fee)}</div>
-
-                <div className={`text-[12px] text-right font-medium ${isProfit ? "text-[#00AF58]" : "text-[#DC2626]"}`}>
-                  {isProfit ? "+" : ""}
-                  {formatPrice(p.pnl)}
-                </div>
-              </div>
-            );
-          })
+              );
+            })}
+          </>
         )}
       </div>
     </>
