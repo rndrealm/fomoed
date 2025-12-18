@@ -64,7 +64,7 @@ const ApproveBuilderModal = (props: IProps) => {
           isLoading={isLoading}
           className="w-full bg-white hover:bg-[#f4f4f4] text-[#1E1E1E] font-medium text-[0.875rem] leading-[14px] h-12"
         >
-          Approve
+          Confirm
         </Button>
         {/* </OrderCheckLayout> */}
       </div>
