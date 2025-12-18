@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { toast } from "sonner";
 import { useAccount } from "wagmi";
-import { useGetPerpBalance, useGetAssetData } from "@/services/queries/hyperliquid";
+import { useGetPerpBalance, useGetAssetData, useGetBuilderFee } from "@/services/queries/hyperliquid";
 import { useExecuteTrade, useUpdateLeveraggeTrade } from "@/services/queries/trading";
 import { useSupabaseAuth } from "@/components/providers";
 import "@testing-library/jest-dom/vitest";
@@ -147,6 +147,13 @@ describe("CreateOrder Component", () => {
       connected: true,
       blocker: null,
       isPending: false,
+    });
+
+    (useGetBuilderFee as ReturnType<typeof vi.fn>).mockReturnValue({
+      data: 0,
+      isLoading: false,
+      isError: false,
+      error: null,
     });
   });
 
