@@ -25,7 +25,7 @@ const WithdrawalModal = (props: IProps) => {
   const walletClient = useWalletClient();
   const walletAddress = account?.address || "";
   const { data: perpBalance } = useGetPerpBalance(walletAddress);
-  const maxValue = perpBalance.withdrawable;
+  const maxValue = perpBalance?.withdrawable;
 
   const handleBalance = async () => {
     try {

@@ -142,7 +142,7 @@ describe("CloseOrder Modal Component", () => {
 
       const sizeInput = screen.getByPlaceholderText("Size");
       expect(sizeInput).toBeInTheDocument();
-      expect(sizeInput).toHaveAttribute("type", "number");
+      expect(sizeInput).toHaveAttribute("type", "text");
     });
 
     it("shows price input field for limit orders", () => {
@@ -150,7 +150,7 @@ describe("CloseOrder Modal Component", () => {
 
       const priceInput = screen.getByPlaceholderText("Price");
       expect(priceInput).toBeInTheDocument();
-      expect(priceInput).toHaveAttribute("type", "number");
+      expect(priceInput).toHaveAttribute("type", "text");
     });
 
     it("displays submit button", () => {
@@ -185,7 +185,7 @@ describe("CloseOrder Modal Component", () => {
       await user.clear(sizeInput);
       await user.type(sizeInput, "0.5");
 
-      expect(sizeInput).toHaveValue(0.5);
+      expect(sizeInput).toHaveValue("0.5");
     });
 
     it("formats size input based on szDecimals", async () => {
@@ -280,7 +280,7 @@ describe("CloseOrder Modal Component", () => {
       const priceInput = screen.getByPlaceholderText("Price");
       await user.type(priceInput, "86500");
 
-      expect(priceInput).toHaveValue(86500);
+      expect(priceInput).toHaveValue("86500");
     });
 
     it("formats price input based on maxDecimal", async () => {
@@ -389,7 +389,7 @@ describe("CloseOrder Modal Component", () => {
       await user.clear(percentageInput);
       await user.type(percentageInput, "50");
 
-      expect(percentageInput).toHaveValue(50);
+      expect(percentageInput).toHaveValue("50");
     });
 
     it("updates size when percentage changes", async () => {
