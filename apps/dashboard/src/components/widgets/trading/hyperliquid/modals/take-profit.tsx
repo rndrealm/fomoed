@@ -260,7 +260,7 @@ export function TakeProfit(props: IProps) {
                                 e.target.value
                                   ? calculateTpGain(
                                       Number(e.target.value),
-                                      Number(currentPrice),
+                                      Number(entryPrice),
                                       leverage,
                                       isLong ? "long" : "short",
                                     ).toFixed(2)
@@ -282,7 +282,7 @@ export function TakeProfit(props: IProps) {
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                               const tp = reverseCalculateTpGain(
                                 Number(e.target.value),
-                                Number(currentPrice),
+                                Number(entryPrice),
                                 leverage,
                                 isLong ? "long" : "short",
                               );
@@ -316,7 +316,7 @@ export function TakeProfit(props: IProps) {
                                 e.target.value
                                   ? calculateLossPercent(
                                       Number(e.target.value),
-                                      Number(currentPrice),
+                                      Number(entryPrice),
                                       leverage,
                                       isLong ? "long" : "short",
                                     ).toFixed(2)
@@ -338,7 +338,7 @@ export function TakeProfit(props: IProps) {
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                               const sl = calculateSLFromLoss(
                                 Number(e.target.value),
-                                Number(currentPrice),
+                                Number(entryPrice),
                                 leverage,
                                 isLong ? "long" : "short",
                               );
