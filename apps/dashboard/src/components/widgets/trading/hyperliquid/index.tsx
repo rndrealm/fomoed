@@ -60,12 +60,12 @@ const HyperliquidWidget = ({ widget }: IProps) => {
 
   const [isOpen, setIsOpen] = useState(false);
   const toggleModal = () => {
-    // setIsOpen(!isOpen);
+    setIsOpen(!isOpen);
   };
 
   useEffect(() => {
     if (!isOpen && builderData === 0) {
-      setIsOpen(true);
+      // setIsOpen(true);
     }
   }, [builderData]);
 
@@ -133,7 +133,7 @@ const HyperliquidWidget = ({ widget }: IProps) => {
       <ModalContainer
         open={isOpen}
         handleClose={toggleModal}
-        title="Confirm Trading Preferences"
+        title="Confirm Trading Preferences."
         headerClassName=" w-full text-lg text-center font-medium"
         className="!max-w-[462px] px-6 py-6 bg-[#141416] gap-0"
         hideX
