@@ -3,14 +3,14 @@ import Chart from "chart.js/auto";
 import { DownwardTriangleIcon, UpwardTriangleIcon } from "@/components/icons/icons";
 import { useHyperliquidPortfolio, useHyperliquidClearinghouseState } from "@/services/queries/hyperliquid-dex";
 
-type Timeframe = "1d" | "1w" | "1m" | "6m";
+type Timeframe = "1d" | "1w" | "1m" | "All";
 type ApiTimeframe = "day" | "week" | "month" | "allTime";
 
 const timeframeMap: Record<Timeframe, ApiTimeframe> = {
   "1d": "day",
   "1w": "week",
   "1m": "month",
-  "6m": "allTime",
+  "All": "allTime",
 };
 
 const formatXAxis = (timestamp: number, timeframe: Timeframe): string => {
@@ -20,11 +20,11 @@ const formatXAxis = (timestamp: number, timeframe: Timeframe): string => {
     case "1d":
       return date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false });
     case "1w":
-      return date.toLocaleDateString("en-US", { weekday: "short" });
+      return date.toLocaleDateString("en-US", { month: "numeric", day: "numeric" });
     case "1m":
       return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-    case "6m":
-      return date.toLocaleDateString("en-US", { month: "short" });
+    case "All":
+      return date.toLocaleDateString("en-US", { month: "2-digit", day: "2-digit", year: "numeric" });
     default:
       return "";
   }
@@ -44,7 +44,7 @@ export default function BalanceChart({ userAddress }: BalanceChartProps) {
   const [timeframe, setTimeframe] = useState<Timeframe>("1d");
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstanceRef = useRef<Chart | null>(null);
-  const timeframes: Timeframe[] = ["1d", "1w", "1m", "6m"];
+  const timeframes: Timeframe[] = ["1d", "1w", "1m", "All"];
 
   const { data: portfolioArray, isLoading, error } = useHyperliquidPortfolio(userAddress, !!userAddress);
   const { data: clearinghouse } = useHyperliquidClearinghouseState(userAddress, !!userAddress);
@@ -141,7 +141,7 @@ export default function BalanceChart({ userAddress }: BalanceChartProps) {
         return 7;
       case "1m":
         return 10;
-      case "6m":
+      case "All":
         return 6;
       default:
         return 10;
@@ -166,7 +166,9 @@ export default function BalanceChart({ userAddress }: BalanceChartProps) {
   }, [chartData, processedChartData, timeframe]);
 
   const currentBalance = chartData.length > 0 ? chartData[chartData.length - 1]?.balance : 0;
-  const previousBalance = chartData.length > 0 ? chartData[0]?.balance : 0;
+  const previousBalance = timeframe === "1d" && previousDayClosePrice !== null 
+    ? previousDayClosePrice 
+    : (chartData.length > 0 ? chartData[0]?.balance : 0);
   const pnlChange = currentBalance - previousBalance;
   const pnlPercentage = previousBalance > 0 ? ((pnlChange / previousBalance) * 100).toFixed(2) : "0.00";
   const isPositive = pnlChange >= 0;
@@ -258,34 +260,8 @@ export default function BalanceChart({ userAddress }: BalanceChartProps) {
     const dataValues = timeframe === "1d" ? processedChartData : chartData.map((d: ChartDataPoint) => d.balance);
 
     if (chartInstanceRef.current) {
-      const chart = chartInstanceRef.current;
-      chart.data.labels = labels;
-      chart.data.datasets[0].data = dataValues;
-      chart.data.datasets[0].borderColor = lineColor;
-      chart.data.datasets[0].backgroundColor = lineColor;
-      (chart.data.datasets[0] as any).spanGaps = timeframe === "1d";
-
-      if (chart.options.scales?.y) {
-        chart.options.scales.y.min = minBalance;
-        chart.options.scales.y.max = maxBalance;
-      }
-
-      if (chart.options.scales?.x?.ticks) {
-        (chart.options.scales.x.ticks as any).maxTicksLimit = getMaxTicksLimit(timeframe);
-        (chart.options.scales.x.ticks as any).autoSkip = timeframe !== "1d";
-      }
-
-      if (timeframe === "1d" && previousDayClosePrice !== null) {
-        if (!chart.options.plugins) chart.options.plugins = {};
-        (chart.options.plugins as any).afterDatasetsDraw = drawPreviousDayLine;
-      } else {
-        if (chart.options.plugins) {
-          (chart.options.plugins as any).afterDatasetsDraw = undefined;
-        }
-      }
-
-      chart.update("none");
-      return;
+      chartInstanceRef.current.destroy();
+      chartInstanceRef.current = null;
     }
 
     const chartConfig: any = {
@@ -359,7 +335,6 @@ export default function BalanceChart({ userAddress }: BalanceChartProps) {
               },
             },
           },
-          afterDatasetsDraw: drawPreviousDayLine,
         },
         scales: {
           x: {
@@ -374,7 +349,7 @@ export default function BalanceChart({ userAddress }: BalanceChartProps) {
             },
           },
           y: {
-            display: true,
+            display: false,
             min: minBalance,
             max: maxBalance,
             border: { display: false },
@@ -398,14 +373,16 @@ export default function BalanceChart({ userAddress }: BalanceChartProps) {
           mode: "index",
         },
       },
+      plugins: timeframe === "1d" && previousDayClosePrice !== null
+        ? [
+            {
+              id: "previousDayLine",
+              afterDatasetsDraw: drawPreviousDayLine,
+            },
+          ]
+        : [],
     };
 
-    const previousDayLinePlugin = {
-      id: "previousDayLine",
-      afterDatasetsDraw: drawPreviousDayLine,
-    };
-
-    Chart.register(previousDayLinePlugin);
     chartInstanceRef.current = new Chart(ctx, chartConfig);
 
     return () => {
