@@ -287,12 +287,12 @@ const BalancesTab = ({ userAddress }: BalancesTabProps) => {
 
               {/* Action Buttons */}
               <div className="flex items-center gap-2 justify-end w-[240px] h-[32px]">
-                <button className="px-4 h-[32px] rounded-[8px] bg-[rgba(118,55,186,0.2)] text-[#7637BA] text-[12px] font-medium hover:bg-[rgba(118,55,186,0.3)] transition-colors">
+                {/* <button className="px-4 h-[32px] rounded-[8px] bg-[rgba(118,55,186,0.2)] text-[#7637BA] text-[12px] font-medium hover:bg-[rgba(118,55,186,0.3)] transition-colors">
                   Deposit
                 </button>
                 <button className="px-4 h-[32px] rounded-[8px] bg-[#222329] text-[#E7E7E7] text-[12px] font-medium hover:bg-[#2B2C32] transition-colors">
                   Withdraw
-                </button>
+                </button> */}
               </div>
             </div>
           ))}
