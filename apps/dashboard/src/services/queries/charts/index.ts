@@ -278,11 +278,21 @@ export const useFetchLiquidDataMerged = (timeframe?: string, asset?: string) => 
     resData = formatMergetLiquidMapData(data);
   }
 
+  const normalizedError = error
+    ? new Error(
+        (error as any)?.message ||
+        (error as any)?.error ||
+        (error as any)?.msg ||
+        JSON.stringify(error) ||
+        "Failed to fetch liquidation exchange map data"
+      )
+    : null;
+
   return {
     data: resData,
     isPending,
     isSuccess,
-    error, 
+    error: normalizedError,
     isFetching,
     refetch,
   };
