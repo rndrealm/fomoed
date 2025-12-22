@@ -69,7 +69,7 @@ export default function CreateOrder(props: IProps) {
 
   const { data: perpBalance } = useGetPerpBalance(walletAddress);
   const { data: assetData } = useGetAssetData(walletAddress, tradingSymbol);
-  // console.log(assetData);
+  // console.log(perpBalance);
 
   const availableBalance = perpBalance?.withdrawable;
 
@@ -146,7 +146,7 @@ export default function CreateOrder(props: IProps) {
     session?.access_token,
   );
 
-  const marketPrice = ticker?.ctx?.midPx?.toString() || "0";
+  const marketPrice = ticker?.ctx?.midPx?.toString() || ticker?.ctx?.markPx?.toString() || "0";
 
   function validateTpSl(values: TradingFormInitialValues, isLong: boolean): boolean {
     if (!values.tpSl) return true;
@@ -209,6 +209,11 @@ export default function CreateOrder(props: IProps) {
 
     // Create main order
     const orders: OrderEnum[] = [];
+
+    if (Number(orderSize) === 0) {
+      toast.error("Your position value is below the minimum, please increase the value");
+      return;
+    }
 
     if (orderType === "market") {
       orders.push({

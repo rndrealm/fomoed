@@ -146,7 +146,7 @@ export function TakeProfit(props: IProps) {
         type: "trigger",
         asset: assetIndex,
         side: isLong ? "sell" : "buy", // Opposite side to close position
-        triggerPrice: _values.tpPrice.toString(),
+        triggerPrice: formatHlPrice(Number(_values.tpPrice), maxDecimal),
         price:
           _values.limitPrice && _values.tpLimitPrice
             ? formatHlPrice(Number(_values.tpLimitPrice), maxDecimal)
@@ -166,7 +166,7 @@ export function TakeProfit(props: IProps) {
         type: "trigger",
         asset: assetIndex,
         side: isLong ? "sell" : "buy", // Opposite side to close position
-        triggerPrice: _values.slPrice.toString(),
+        triggerPrice: formatHlPrice(Number(_values.slPrice), maxDecimal),
         price:
           _values.limitPrice && _values.slLimitPrice
             ? formatHlPrice(Number(_values.slLimitPrice), maxDecimal)
@@ -260,7 +260,7 @@ export function TakeProfit(props: IProps) {
                                 e.target.value
                                   ? calculateTpGain(
                                       Number(e.target.value),
-                                      Number(currentPrice),
+                                      Number(entryPrice),
                                       leverage,
                                       isLong ? "long" : "short",
                                     ).toFixed(2)
@@ -282,7 +282,7 @@ export function TakeProfit(props: IProps) {
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                               const tp = reverseCalculateTpGain(
                                 Number(e.target.value),
-                                Number(currentPrice),
+                                Number(entryPrice),
                                 leverage,
                                 isLong ? "long" : "short",
                               );
@@ -316,7 +316,7 @@ export function TakeProfit(props: IProps) {
                                 e.target.value
                                   ? calculateLossPercent(
                                       Number(e.target.value),
-                                      Number(currentPrice),
+                                      Number(entryPrice),
                                       leverage,
                                       isLong ? "long" : "short",
                                     ).toFixed(2)
@@ -338,7 +338,7 @@ export function TakeProfit(props: IProps) {
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                               const sl = calculateSLFromLoss(
                                 Number(e.target.value),
-                                Number(currentPrice),
+                                Number(entryPrice),
                                 leverage,
                                 isLong ? "long" : "short",
                               );

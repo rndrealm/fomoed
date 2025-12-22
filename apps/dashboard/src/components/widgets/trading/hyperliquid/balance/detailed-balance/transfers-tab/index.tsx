@@ -5,6 +5,7 @@ import dashboard from "@/lib/assets/dashboard";
 import { Copy } from "@/components/icons/icons";
 import { useHyperliquidUserNonFundingLedgerUpdates } from "@/services/queries/hyperliquid-dex";
 import { useFetchCoinStatsToken } from "@/services/queries/charts";
+import { isTestnet } from "@/components/widgets/trading/utils/constants";
 
 interface TransfersTabProps {
   userAddress: string;
@@ -278,7 +279,8 @@ const TransfersTab = ({ userAddress }: TransfersTabProps) => {
                 {/* Transaction ID */}
                 <div className="flex items-center gap-2">
                   <a
-                    href={`https://app.hyperliquid.xyz/explorer/tx/${transfer.transactionId}`}
+                    href={`${isTestnet ? "https://sepolia.arbiscan.io" : "https://arbiscan.io"}/tx/${transfer.transactionId}`}
+                    // href={`https://app.hyperliquid.xyz/explorer/tx/${transfer.transactionId}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-white text-[12px] hover:text-[#7637BA] transition-colors"

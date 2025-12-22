@@ -45,6 +45,7 @@ export function TradingViewChart() {
       container: chartContainerRef.current,
       datafeed: datafeed as any,
       theme: "dark",
+      auto_save_delay: 3,
       disabled_features: [
         "volume_force_overlay",
         "header_compare",
@@ -54,6 +55,7 @@ export function TradingViewChart() {
         "header_saveload",
         "header_settings",
         "header_undo_redo",
+        "create_volume_indicator_by_default",
       ],
       enabled_features: [
         "study_templates",
@@ -77,6 +79,25 @@ export function TradingViewChart() {
       tvWidget.setCSSCustomProperty("--tv-color-pane-background", "#121317");
       setIsChartReady(true);
 
+      const savedState = localStorage.getItem("my_tv_chart_state");
+
+      if (savedState) {
+        try {
+          const parsedData = JSON.parse(savedState);
+
+          // Load it into the widget
+          tvWidget.load(parsedData);
+        } catch (e) {
+          console.error("Failed to load chart data:", e);
+        }
+      }
+
+      tvWidget.subscribe("onAutoSaveNeeded", () => {
+        tvWidget.save((chartData) => {
+          localStorage.setItem("my_tv_chart_state", JSON.stringify(chartData));
+        });
+      });
+
       const chart = tvWidget.activeChart();
       // Subscribe to interval changes and then clear cache
       chart.onIntervalChanged().subscribe(null, () => {
@@ -87,30 +108,27 @@ export function TradingViewChart() {
     });
 
     return () => {
+      // tvWidget?.unsubscribe("onAutoSaveNeeded", () => {});
       tvWidget.remove();
     };
   }, [datafeed]);
 
   useEffect(() => {
-    if (tokensData?.allTokens?.length && !selectedToken) {
-      setSelectedToken(tokensData.allTokens[0]);
-    }
-  }, [tokensData, selectedToken, setSelectedToken]);
-
-  useEffect(() => {
     const widget = tvWidgetRef.current;
 
-    // Only proceed if widget exists, is confirmed ready, and we have a token
+    if (tokensData?.allTokens?.length && !selectedToken) {
+      setSelectedToken(tokensData.allTokens[0]);
+      return;
+    }
+
     if (!widget || !isChartReady || !selectedToken) return;
 
     const activeChart = widget.activeChart();
 
-    // Check if the symbol actually needs changing to prevent loops
-    // Note: activeChart.symbol() might return the full exchange:symbol pair
     if (activeChart && activeChart.symbol() !== selectedToken.tradingViewName) {
       widget.setSymbol(selectedToken.tradingViewName, activeChart.resolution(), () => {});
     }
-  }, [selectedToken, isChartReady]);
+  }, [tokensData?.allTokens, selectedToken, setSelectedToken, isChartReady]);
 
   return (
     <div className="absolute top-0 right-0 bottom-0 left-0 flex">

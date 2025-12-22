@@ -13,7 +13,7 @@ import { InputWithSelect } from "@/components/shared/input-with-select";
 import OrderCheckLayout from "../order-check-layout";
 import { PerpUniverse, SpotsUniverse } from "@/services/queries/hyperliquid/types";
 import { SPOT_MAX_DECIMALS } from "../../../utils/constants";
-import { formatHlPrice, formatHlPriceInput, formatHlSizeInput } from "../../../utils";
+import { countLeadingZeros, formatHlPrice, formatHlPriceInput, formatHlSizeInput } from "../../../utils";
 import { CustomTextInput } from "@/components/shared/custom-text-input";
 
 interface IOrderTypeButtonProps {
@@ -102,7 +102,7 @@ export function SpotFormContent(props: FormContentProps) {
     isLong,
     setIsLong,
     isPending,
-    marketPrice,
+    marketPrice = 1,
     orderBy,
     setOrderBy,
     selectOptions,
@@ -112,16 +112,23 @@ export function SpotFormContent(props: FormContentProps) {
   const { values, handleChange, handleBlur, setFieldValue } = useFormikContext<TradingFormInitialValues>();
   const decimals = selectedToken.szDecimals;
   const maxDecimal = SPOT_MAX_DECIMALS - decimals;
-  const multiplier = orderBy === selectOptions[0].value ? Number(marketPrice) : 1;
+  const multiplier =
+    orderBy === selectOptions[0].value && isLong
+      ? Number(marketPrice)
+      : orderBy === selectOptions[1].value && !isLong
+        ? 1 / Number(marketPrice)
+        : 1;
 
   const handleSliderChange = (value: number[]) => {
     const percentage = value[0];
     const orderValue = (balance * percentage) / multiplier / 100;
-    setFieldValue(
-      "quantity",
-      formatHlSizeInput(orderValue.toString(), orderBy === selectOptions[0].value ? decimals : 2),
-    );
+    const formattedSize = formatHlSizeInput(orderValue.toString(), orderBy === selectOptions[0].value ? decimals : 2);
+    setFieldValue("quantity", formattedSize);
   };
+
+  const balanceOverMultiplier = balance / multiplier;
+  const leadingZeros = countLeadingZeros(balanceOverMultiplier);
+  const isSliderDisabled = leadingZeros >= decimals && balanceOverMultiplier < 1;
 
   const sliderPercentage = Math.round(
     Math.min(balance ? ((Number(values.quantity) * multiplier) / balance) * 100 : 0, 100),
@@ -132,18 +139,31 @@ export function SpotFormContent(props: FormContentProps) {
       setFieldValue("price", formatHlPrice(Number(marketPrice), maxDecimal));
     }
   }, []);
-
-  const balanceInOrderByCurrency = orderBy === selectOptions[0].value ? balance : balance * Number(marketPrice);
+  const orderCondition = isLong ? orderBy === selectOptions[1].value : orderBy === selectOptions[0].value;
+  const balanceInOrderByCurrency = orderCondition ? balance : balance * Number(marketPrice);
   const insufficientBalanceCheck = !Number(balance) || Number(values.quantity) > balanceInOrderByCurrency;
-
   return (
     <>
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-center">
           <div className="flex bg-[#222329] rounded-md items-center">
-            <LongShortButton isActive={isLong} label="Buy / Long" onClick={() => setIsLong(true)} />
+            <LongShortButton
+              isActive={isLong}
+              label="Buy / Long"
+              onClick={() => {
+                setIsLong(true);
+                setFieldValue("quantity", "");
+              }}
+            />
 
-            <LongShortButton isActive={!isLong} label="Sell / Short" onClick={() => setIsLong(false)} />
+            <LongShortButton
+              isActive={!isLong}
+              label="Sell / Short"
+              onClick={() => {
+                setIsLong(false);
+                setFieldValue("quantity", "");
+              }}
+            />
           </div>
         </div>
 
@@ -155,7 +175,10 @@ export function SpotFormContent(props: FormContentProps) {
           <div className="flex items-center justify-between">
             <p className="text-[#A6AEB2] text-[8px] font-medium leading-[10px] tracking-[-0.4%]">Available Equity</p>
 
-            <p className="text-white text-[8px] font-semibold leading-[10px] tracking-[-0.4%]">${balance.toFixed(2)}</p>
+            <p className="text-white text-[8px] font-semibold leading-[10px] tracking-[-0.4%]">
+              {isLong ? "$" : ""}
+              {balance.toFixed(decimals)} {isLong ? "" : selectedToken.baseTokenName}
+            </p>
           </div>
         </div>
 
@@ -178,7 +201,16 @@ export function SpotFormContent(props: FormContentProps) {
                 }}
                 onBlur={handleBlur}
                 name="price"
-                rightPlaceholder="USDC"
+                // rightPlaceholder="USDC"
+                rightComponent={
+                  <button
+                    onClick={() => setFieldValue("price", formatHlPrice(Number(marketPrice), maxDecimal))}
+                    type="button"
+                    className="absolute right-2 top-[20%] text-xxs font-medium text-[#FF9D32] underline"
+                  >
+                    Mid
+                  </button>
+                }
                 placeholder="Price (USDC)"
               />
 
@@ -223,7 +255,15 @@ export function SpotFormContent(props: FormContentProps) {
           </div>
 
           <div className="flex items-center gap-1.5">
-            <Slider value={[sliderPercentage]} onValueChange={handleSliderChange} min={0} max={100} step={1} showDots />
+            <Slider
+              value={[sliderPercentage]}
+              onValueChange={handleSliderChange}
+              min={0}
+              max={100}
+              step={1}
+              showDots
+              disabled={isSliderDisabled}
+            />
             <CustomTextInput
               className="h-[1.5rem] !pr-4.5 w-[3rem] border-none outline-none text-[#D7D7D7] !text-[10px] tracking-[-0.4%] leading-[14px] px-1 rounded-sm focus-visible:ring-0 bg-[#222329]"
               value={sliderPercentage}
@@ -232,6 +272,7 @@ export function SpotFormContent(props: FormContentProps) {
               name="percentage"
               rightPlaceholder="%"
               type="number"
+              disabled={isSliderDisabled}
             />
           </div>
         </div>

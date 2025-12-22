@@ -107,10 +107,13 @@ export class Datafeed {
         ? `${symbol.baseTokenName}/${symbol.quoteTokenName}`
         : `${symbol.baseTokenName}${symbol.quoteTokenName}`;
 
+      const { price, ...rest } = symbol;
+      const newSymbolName = JSON.stringify(rest);
+
       const { pricescale, minmov } = getPriceScaleAndMinmov(parseFloat(symbol.price));
 
       const symbolInfo: LibrarySymbolInfo = {
-        ticker: symbolName,
+        ticker: newSymbolName,
         name: symbol.name,
         description,
         type: "crypto",

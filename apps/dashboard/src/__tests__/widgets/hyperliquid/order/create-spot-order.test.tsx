@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { toast } from "sonner";
 import { useAccount } from "wagmi";
-import { useGetSpotBalance } from "@/services/queries/hyperliquid";
+import { useGetSpotBalance, useGetBuilderFee } from "@/services/queries/hyperliquid";
 import { useExecuteTrade } from "@/services/queries/trading";
 import { useSupabaseAuth } from "@/components/providers";
 import "@testing-library/jest-dom/vitest";
@@ -55,6 +55,7 @@ const mockSelectedToken: SpotsUniverse = {
   name: "BTC/USDC",
   isCanonical: true,
   szDecimals: 5,
+  baseTokenName: "BTC",
 } as SpotsUniverse;
 
 const mockTicker: WsActiveSpotAssetCtx = {
@@ -76,6 +77,7 @@ const mockEthSpotToken: SpotsUniverse = {
   name: "ETH/USDC",
   isCanonical: true,
   szDecimals: 4,
+  baseTokenName: "ETH",
 } as SpotsUniverse;
 
 const mockSolSpotToken: SpotsUniverse = {
@@ -85,6 +87,7 @@ const mockSolSpotToken: SpotsUniverse = {
   name: "SOL/USDC",
   isCanonical: true,
   szDecimals: 3,
+  baseTokenName: "SOL",
 } as SpotsUniverse;
 
 describe("CreateSpotOrder Component", () => {
@@ -130,6 +133,13 @@ describe("CreateSpotOrder Component", () => {
       blocker: null,
       isPending: false,
     });
+
+    (useGetBuilderFee as ReturnType<typeof vi.fn>).mockReturnValue({
+      data: 0,
+      isLoading: false,
+      isError: false,
+      error: null,
+    });
   });
 
   describe("Component Rendering", () => {
@@ -145,7 +155,7 @@ describe("CreateSpotOrder Component", () => {
     it("displays available balance", () => {
       render(<CreateSpotOrder selectedToken={mockSelectedToken} ticker={mockTicker} />);
 
-      expect(screen.getByText("$50000.00")).toBeInTheDocument();
+      expect(screen.getByText("$50000.00000")).toBeInTheDocument();
     });
   });
 
@@ -157,7 +167,7 @@ describe("CreateSpotOrder Component", () => {
       await userEvent.click(sellButton);
 
       await waitFor(() => {
-        expect(screen.getByText("$1.50")).toBeInTheDocument();
+        expect(screen.getByText("1.50000 BTC")).toBeInTheDocument();
       });
     });
   });
@@ -706,7 +716,7 @@ describe("CreateSpotOrder Component", () => {
           expect(call.orders[0].size).toBe(expectedSize);
 
           // Verify precision: should have at most 5 decimal places for BTC
-          const sizeDecimals = (call.orders[0].size.split('.')[1] || '').length;
+          const sizeDecimals = (call.orders[0].size.split(".")[1] || "").length;
           expect(sizeDecimals).toBeLessThanOrEqual(szDecimals);
         });
       });
@@ -754,7 +764,7 @@ describe("CreateSpotOrder Component", () => {
           expect(call.orders[0].price).toBe(expectedPrice);
 
           // Verify precision: ETH should have 4 decimal places for size
-          const sizeDecimals = (call.orders[0].size.split('.')[1] || '').length;
+          const sizeDecimals = (call.orders[0].size.split(".")[1] || "").length;
           expect(sizeDecimals).toBeLessThanOrEqual(szDecimals);
         });
       });
@@ -798,7 +808,7 @@ describe("CreateSpotOrder Component", () => {
 
           // Verify the size is properly formatted with correct precision (3 decimals max for SOL)
           const actualSize = call.orders[0].size;
-          const sizeDecimals = (actualSize.split('.')[1] || '').length;
+          const sizeDecimals = (actualSize.split(".")[1] || "").length;
           expect(sizeDecimals).toBeLessThanOrEqual(szDecimals);
 
           // Verify the size is close to expected (allowing for precision formatting differences)

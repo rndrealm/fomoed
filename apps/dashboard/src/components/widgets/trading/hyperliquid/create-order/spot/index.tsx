@@ -48,11 +48,12 @@ export default function CreateSpotOrder(props: IProps) {
   const displayName = selectedToken?.displayName || "";
   const { from, to } = getFromAndToToken(displayName);
   const currAsset = (selectedToken?.index || 0) + 10000;
-  const marketPrice = ticker?.ctx?.midPx?.toString() || "0";
+  const marketPrice = ticker?.ctx?.midPx?.toString() || ticker?.ctx?.markPx?.toString() || "0";
   // console.log(ticker);
 
+  // console.log("curr asset:", selectedToken);
   const { data: spotBalance } = useGetSpotBalance(walletAddress);
-
+  // console.log("spot balance:", spotBalance);
   const fromBalance = spotBalance?.balances.find((spt) => spt.coin === from);
   const toBalance = spotBalance?.balances.find((spt) => spt.coin === to);
 

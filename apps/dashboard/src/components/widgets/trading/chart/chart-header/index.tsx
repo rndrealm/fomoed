@@ -2,13 +2,15 @@
 import React, { Fragment } from "react";
 import { ChevronDown } from "lucide-react";
 import { RenderIf } from "@/components/shared";
-import { useAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { selectedTokenAtom, showSelectTokenModalAtom } from "@/lib/atoms/hyperliquid";
 import Image from "next/image";
 import { Stats } from "./stats";
 import { TokenSelect } from "../../hyperliquid/modals/token-select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { LayoutType, updateWidgetPropsAtom } from "@/lib/atoms/layoutAtom";
+import { activeTabAtom } from "@/lib/atoms/tabsAtom";
 
 export const getCoinIconUrl = (symbol = "BTC") => {
   return `https://app.hyperliquid.xyz/coins/${symbol}.svg`;
@@ -35,9 +37,18 @@ function Tag(props: ITag) {
   );
 }
 
-export default function ChartHeader() {
+interface IProps {
+  widget: LayoutType["widgets"][0];
+}
+
+export default function ChartHeader(props: IProps) {
+  const { widget } = props;
+
   const [showSelectTokenModal, setShowSelectTokenModal] = useAtom(showSelectTokenModalAtom);
   const [selectedToken, setSelectedToken] = useAtom(selectedTokenAtom);
+
+  const activeLayout = useAtomValue(activeTabAtom);
+  const updateWidgetPropsFromAtom = useSetAtom(updateWidgetPropsAtom);
 
   return (
     <Fragment>
@@ -72,6 +83,13 @@ export default function ChartHeader() {
                 handleSelectToken={(token) => {
                   setSelectedToken(token);
                   setShowSelectTokenModal(false);
+                  updateWidgetPropsFromAtom({
+                    tabId: activeLayout.id,
+                    widgetId: widget.id,
+                    widgetProps: {
+                      token,
+                    },
+                  });
                 }}
               />
             </PopoverContent>

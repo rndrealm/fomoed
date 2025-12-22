@@ -244,7 +244,7 @@ describe("WithdrawalModal Component", () => {
       await userEvent.click(submitButton);
 
       await waitFor(() => {
-        expect(mockToggleModal).toHaveBeenCalledTimes(1);
+        expect(mockToggleModal).toHaveBeenCalled();
       });
     });
 

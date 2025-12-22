@@ -28,7 +28,7 @@ const PerpSpotTransferModal = (props: IProps) => {
   const { data: spotBalance } = useGetSpotBalance(walletAddress);
   const maxValue = toPerp
     ? spotBalance?.balances.find((spt) => spt.coin === "USDC")?.total || "0"
-    : perpBalance.withdrawable;
+    : perpBalance?.withdrawable;
 
   const handleBalance = async () => {
     try {
