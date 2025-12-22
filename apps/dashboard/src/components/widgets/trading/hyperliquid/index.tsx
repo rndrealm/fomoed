@@ -65,7 +65,7 @@ const HyperliquidWidget = ({ widget }: IProps) => {
 
   useEffect(() => {
     if (!isOpen && builderData === 0) {
-      // setIsOpen(true);
+      setIsOpen(true);
     }
   }, [builderData]);
 
