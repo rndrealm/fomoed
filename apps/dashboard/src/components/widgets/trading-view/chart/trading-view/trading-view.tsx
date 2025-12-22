@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import React, { Fragment, use, useEffect, useMemo, useRef, useState } from "react";
 import {
   ChartingLibraryFeatureset,
   ChartingLibraryWidgetOptions,
@@ -9,7 +9,7 @@ import {
 } from "../../../../../../public/static/charting_library/charting_library";
 import { widget } from "../../../../../../public/static/charting_library";
 import { Datafeed } from "./datafeed";
-import { selectedTokenAtom } from "@/lib/atoms/hyperliquid";
+import { selectedTokenAtomWidgets } from "@/lib/atoms/tradingViewWidget";
 import { useAtom, useAtomValue } from "jotai";
 import { useReadHyperLiquidTokens } from "@/services/queries/hyperliquid";
 import { RenderIf, SkeletonLoader } from "@/components/shared";
@@ -20,7 +20,7 @@ const initialSymbol = '{"baseTokenName":"BTC","quoteTokenName":"USDC","price":"1
 export function TradingViewChart() {
   const { data: tokensData } = useReadHyperLiquidTokens();
 
-  const [selectedToken, setSelectedToken] = useAtom(selectedTokenAtom);
+  const [selectedToken, setSelectedToken] = useAtom(selectedTokenAtomWidgets);
 
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const tvWidgetRef = useRef<IChartingLibraryWidget>(null);
@@ -45,7 +45,18 @@ export function TradingViewChart() {
       container: chartContainerRef.current,
       datafeed: datafeed as any,
       theme: "dark",
-      disabled_features: ["volume_force_overlay", "header_compare", "header_symbol_search", "symbol_search_hot_key"],
+      auto_save_delay: 3,
+      disabled_features: [
+        "volume_force_overlay",
+        "header_compare",
+        "header_symbol_search",
+        "symbol_search_hot_key",
+        "header_screenshot",
+        "header_saveload",
+        "header_settings",
+        "header_undo_redo",
+        "create_volume_indicator_by_default",
+      ],
       enabled_features: [
         "study_templates",
         "side_toolbar_in_fullscreen_mode",
@@ -67,24 +78,25 @@ export function TradingViewChart() {
     tvWidget.onChartReady(() => {
       tvWidget.setCSSCustomProperty("--tv-color-pane-background", "#121317");
       setIsChartReady(true);
-      // tvWidget.changeTheme("dark");
 
-      // tvWidget.headerReady().then(() => {
-      //   const button = tvWidget.createButton();
-      //   button.setAttribute("title", "Click to show a notification popup");
-      //   button.classList.add("apply-common-tooltip");
-      //   button.addEventListener("click", () =>
-      //     tvWidget.showNoticeDialog({
-      //       title: "Notification",
-      //       body: "TradingView Charting Library API works correctly",
-      //       callback: () => {
-      //         console.log("Noticed!");
-      //       },
-      //     }),
-      //   );
+      const savedState = localStorage.getItem("tv_widget_state");
 
-      //   button.innerHTML = "Check API";
-      // });
+      if (savedState) {
+        try {
+          const parsedData = JSON.parse(savedState);
+
+          // Load it into the widget
+          tvWidget.load(parsedData);
+        } catch (e) {
+          console.error("Failed to load chart data:", e);
+        }
+      }
+
+      tvWidget.subscribe("onAutoSaveNeeded", () => {
+        tvWidget.save((chartData) => {
+          localStorage.setItem("tv_widget_state", JSON.stringify(chartData));
+        });
+      });
 
       const chart = tvWidget.activeChart();
       // Subscribe to interval changes and then clear cache
@@ -96,32 +108,27 @@ export function TradingViewChart() {
     });
 
     return () => {
+      // tvWidget?.unsubscribe("onAutoSaveNeeded", () => {});
       tvWidget.remove();
     };
   }, [datafeed]);
 
   useEffect(() => {
-    if (tokensData?.allTokens?.length && !selectedToken) {
-      setSelectedToken(tokensData.allTokens[0]);
-    }
-  }, [tokensData, selectedToken, setSelectedToken]);
-
-  useEffect(() => {
     const widget = tvWidgetRef.current;
 
-    // Only proceed if widget exists, is confirmed ready, and we have a token
+    if (tokensData?.allTokens?.length && !selectedToken) {
+      setSelectedToken(tokensData.allTokens[0]);
+      return;
+    }
+
     if (!widget || !isChartReady || !selectedToken) return;
 
     const activeChart = widget.activeChart();
 
-    // Check if the symbol actually needs changing to prevent loops
-    // Note: activeChart.symbol() might return the full exchange:symbol pair
     if (activeChart && activeChart.symbol() !== selectedToken.tradingViewName) {
-      widget.setSymbol(selectedToken.tradingViewName, activeChart.resolution(), () => {
-        console.log("Symbol changed to", selectedToken.tradingViewName);
-      });
+      widget.setSymbol(selectedToken.tradingViewName, activeChart.resolution(), () => {});
     }
-  }, [selectedToken, isChartReady]);
+  }, [tokensData?.allTokens, selectedToken, setSelectedToken, isChartReady]);
 
   return (
     <div className="absolute top-0 right-0 bottom-0 left-0 flex">

@@ -250,3 +250,12 @@ enum Side {
   A = "A",
   B = "B",
 }
+
+export interface WsNotificationsResponse {
+  channel: string;
+  data: WsNotifications;
+}
+
+export interface WsNotifications {
+  notification: string;
+}

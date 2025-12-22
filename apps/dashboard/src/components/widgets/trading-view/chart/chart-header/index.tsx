@@ -3,7 +3,7 @@ import React, { Fragment } from "react";
 import { ChevronDown } from "lucide-react";
 import { RenderIf } from "@/components/shared";
 import { useAtom } from "jotai";
-import { selectedTokenAtom, showSelectTokenModalAtom } from "@/lib/atoms/hyperliquid";
+import { selectedTokenAtomWidgets, showSelectTokenModalAtom } from "@/lib/atoms/tradingViewWidget";
 import Image from "next/image";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
@@ -34,7 +34,7 @@ function Tag({ isSpot = false }: ITag) {
 
 export default function ChartHeader() {
   const [showSelectTokenModal, setShowSelectTokenModal] = useAtom(showSelectTokenModalAtom);
-  const [selectedToken, setSelectedToken] = useAtom(selectedTokenAtom);
+  const [selectedToken, setSelectedToken] = useAtom(selectedTokenAtomWidgets);
 
   return (
     <Fragment>

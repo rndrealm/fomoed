@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
+import { useAtom } from "jotai";
 import SearchIcon from "@/components/icons/SearchIcon";
 import { Input } from "@/components/ui/input";
 import { cn, hyperliquidFormatPriceChange } from "@/lib/utils";
@@ -6,6 +7,7 @@ import { motion } from "motion/react";
 import { useReadHyperLiquidTokens } from "@/services/queries/hyperliquid";
 import Star from "@/components/icons/Star";
 import { PerpUniverse, SpotsUniverse } from "@/services/queries/hyperliquid/types";
+import { tokenSearchValueAtom, tokenActiveCategoryAtom } from "@/lib/atoms/tradingViewWidget";
 
 const categories = [
   { id: 1, label: "All", value: "all" },
@@ -82,8 +84,9 @@ interface IProps {
 export function TokenSelect(props: IProps) {
   const { handleSelectToken } = props;
 
-  const [searchValue, setSearchValue] = useState("");
-  const [activeCategory, setActiveCategory] = useState("all");
+  // Use Jotai atoms instead of useState
+  const [searchValue, setSearchValue] = useAtom(tokenSearchValueAtom);
+  const [activeCategory, setActiveCategory] = useAtom(tokenActiveCategoryAtom);
 
   const { data: tokensData } = useReadHyperLiquidTokens();
 
@@ -187,7 +190,7 @@ export function TokenSelect(props: IProps) {
               return (
                 <tr
                   key={item?.name}
-                  className="hover:bg-[#1A1A1C] transition-colors"
+                  className="hover:bg-[#1A1A1C] transition-colors cursor-pointer"
                   onClick={() => {
                     handleSelectToken(item);
                   }}

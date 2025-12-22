@@ -2,9 +2,8 @@ import axios from "axios";
 import { HyperLiquidKline } from "./types";
 import { HYPERLIQUID_BASE_URL } from "@/components/widgets/trading/utils/constants";
 
-
 export class HyperliquidAPI {
-  private BASE_URL = `${HYPERLIQUID_BASE_URL}/info`;
+  private BASE_URL = `https://api.hyperliquid.xyz/info`;
 
   private resolutionToInterval(resolution: string): string {
     const intervalMap: { [key: string]: string } = {
