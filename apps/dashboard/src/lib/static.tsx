@@ -49,6 +49,7 @@ import TradingEconomicsWidget from "@/components/widgets/trading-economics/econo
 import GemachCopyTrading from "@/components/widgets/gemach/gemach-copy-trading";
 import YoutubeWidget from "@/components/widgets/youtube/youtube-widget";
 import TelegramWidget from "@/components/widgets/telegram/telegram-widget";
+import AggrTradeWidget from "@/components/widgets/aggr-trade/aggr-trade-widget";
 
 export const layoutClassMap = {
   SinglePane: "grid-rows-1 grid-cols-1",
@@ -345,6 +346,15 @@ export const layoutOptionsMap = [
     category: "social",
     tags: ["social", "new"],
   },
+  {
+    id: 25,
+    name: "Aggr.trade",
+    slug: "aggr-trade",
+    description: "Advanced real-time order flow and trade aggregation with customizable workspace configurations",
+    image: dashboard.footprint,
+    category: "charts",
+    tags: ["charts", "new", "trading"],
+  },
   // {
   //   name: "Token Price History",
   //   slug: "token-price-history",
@@ -544,6 +554,12 @@ export const chartsMap = {
     name: "Telegram",
     extra: [],
     component: (widget: LayoutType["widgets"][0]) => <TelegramWidget widget={widget} />,
+    isResizable: true,
+  },
+  "aggr-trade": {
+    name: "Aggr.trade",
+    extra: ["workspaceId"],
+    component: (widget: LayoutType["widgets"][0]) => <AggrTradeWidget widget={widget} />,
     isResizable: true,
   },
 };
@@ -882,6 +898,16 @@ export const widgetPropsDefaults = {
       w: 8,
       h: 6,
       minW: 4,
+      minH: 4,
+      maxW: Infinity,
+      maxH: Infinity,
+    },
+  },
+  "aggr-trade": {
+    meta: {
+      w: 16,
+      h: 6,
+      minW: 8,
       minH: 4,
       maxW: Infinity,
       maxH: Infinity,
