@@ -16,7 +16,7 @@ export default function TradingViewWidget({ widget }: IProps) {
     <WidgetWrapper title="Trading View" widget={widget}>
       <div
         className={cn(
-          "flex h-full w-full flex-col gap-2", // spacing handled here
+          "flex h-full w-full flex-col gap-2",
         )}
       >
         {/* Chart Header */}
