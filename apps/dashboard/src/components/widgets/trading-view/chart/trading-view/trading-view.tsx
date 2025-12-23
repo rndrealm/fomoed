@@ -1,0 +1,141 @@
+"use client";
+
+import React, { Fragment, use, useEffect, useMemo, useRef, useState } from "react";
+import {
+  ChartingLibraryFeatureset,
+  ChartingLibraryWidgetOptions,
+  IChartingLibraryWidget,
+  ResolutionString,
+} from "../../../../../../public/static/charting_library/charting_library";
+import { widget } from "../../../../../../public/static/charting_library";
+import { Datafeed } from "./datafeed";
+import { selectedTokenAtomWidgets } from "@/lib/atoms/tradingViewWidget";
+import { useAtom, useAtomValue } from "jotai";
+import { useReadHyperLiquidTokens } from "@/services/queries/hyperliquid";
+import { RenderIf, SkeletonLoader } from "@/components/shared";
+import { cn } from "@/lib/utils";
+
+const initialSymbol = '{"baseTokenName":"BTC","quoteTokenName":"USDC","price":"105200.0","isSpot":false,"name":"BTC"}';
+
+export function TradingViewChart() {
+  const { data: tokensData } = useReadHyperLiquidTokens();
+
+  const [selectedToken, setSelectedToken] = useAtom(selectedTokenAtomWidgets);
+
+  const chartContainerRef = useRef<HTMLDivElement>(null);
+  const tvWidgetRef = useRef<IChartingLibraryWidget>(null);
+  const [isChartReady, setIsChartReady] = useState(false);
+
+  const datafeed = useMemo(() => new Datafeed(), []);
+
+  useEffect(() => {
+    if (!chartContainerRef.current) return;
+
+    const defaultWidgetProps: ChartingLibraryWidgetOptions = {
+      symbol: initialSymbol,
+      interval: "60" as ResolutionString,
+      library_path: "/static/charting_library/",
+      locale: "en",
+      charts_storage_url: "https://saveload.tradingview.com",
+      charts_storage_api_version: "1.1",
+      client_id: "tradingview.com",
+      user_id: "public_user_id",
+      fullscreen: false,
+      autosize: true,
+      container: chartContainerRef.current,
+      datafeed: datafeed as any,
+      theme: "dark",
+      auto_save_delay: 3,
+      disabled_features: [
+        "volume_force_overlay",
+        "header_compare",
+        "header_symbol_search",
+        "symbol_search_hot_key",
+        "header_screenshot",
+        "header_saveload",
+        "header_settings",
+        "header_undo_redo",
+        "create_volume_indicator_by_default",
+      ],
+      enabled_features: [
+        "study_templates",
+        "side_toolbar_in_fullscreen_mode",
+        "use_localstorage_for_settings",
+        "disable_legend_inplace_symbol_change" as ChartingLibraryFeatureset,
+      ],
+      loading_screen: {
+        backgroundColor: "#121317",
+      },
+      overrides: {
+        "paneProperties.background": "#121317",
+        "paneProperties.backgroundType": "solid",
+      },
+      toolbar_bg: "#121317",
+    };
+    const tvWidget = new widget(defaultWidgetProps);
+    tvWidgetRef.current = tvWidget;
+
+    tvWidget.onChartReady(() => {
+      tvWidget.setCSSCustomProperty("--tv-color-pane-background", "#121317");
+      setIsChartReady(true);
+
+      const savedState = localStorage.getItem("tv_widget_state");
+
+      if (savedState) {
+        try {
+          const parsedData = JSON.parse(savedState);
+
+          // Load it into the widget
+          tvWidget.load(parsedData);
+        } catch (e) {
+          console.error("Failed to load chart data:", e);
+        }
+      }
+
+      tvWidget.subscribe("onAutoSaveNeeded", () => {
+        tvWidget.save((chartData) => {
+          localStorage.setItem("tv_widget_state", JSON.stringify(chartData));
+        });
+      });
+
+      const chart = tvWidget.activeChart();
+      // Subscribe to interval changes and then clear cache
+      chart.onIntervalChanged().subscribe(null, () => {
+        tvWidget.resetCache();
+        chart.resetData();
+      });
+      chart.getTimeScale().setBarSpacing(30);
+    });
+
+    return () => {
+      // tvWidget?.unsubscribe("onAutoSaveNeeded", () => {});
+      tvWidget.remove();
+    };
+  }, [datafeed]);
+
+  useEffect(() => {
+    const widget = tvWidgetRef.current;
+
+    if (tokensData?.allTokens?.length && !selectedToken) {
+      setSelectedToken(tokensData.allTokens[0]);
+      return;
+    }
+
+    if (!widget || !isChartReady || !selectedToken) return;
+
+    const activeChart = widget.activeChart();
+
+    if (activeChart && activeChart.symbol() !== selectedToken.tradingViewName) {
+      widget.setSymbol(selectedToken.tradingViewName, activeChart.resolution(), () => {});
+    }
+  }, [tokensData?.allTokens, selectedToken, setSelectedToken, isChartReady]);
+
+  return (
+    <div className="absolute top-0 right-0 bottom-0 left-0 flex">
+      <RenderIf condition={!isChartReady}>
+        <SkeletonLoader widthFull heightFull backgroundColor="#121317" borderRadius={0} />
+      </RenderIf>
+      <div className={cn("flex-1", !isChartReady && "invisible")} ref={chartContainerRef}></div>
+    </div>
+  );
+}

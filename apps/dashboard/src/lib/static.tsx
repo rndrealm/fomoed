@@ -51,6 +51,7 @@ import YoutubeWidget from "@/components/widgets/youtube/youtube-widget";
 import TelegramWidget from "@/components/widgets/telegram/telegram-widget";
 import Trading from "@/components/widgets/trading";
 import AggrTradeWidget from "@/components/widgets/aggr-trade/aggr-trade-widget";
+import TradingViewWidget from "@/components/widgets/trading-view";
 
 export const layoutClassMap = {
   SinglePane: "grid-rows-1 grid-cols-1",
@@ -356,6 +357,14 @@ export const layoutOptionsMap = [
     category: "charts",
     tags: ["charts", "new", "trading"],
   },
+  {
+    id: 26,
+    name: "Trading View",
+    slug: "trading-view-widget",
+    image:dashboard.tokenHistoryV2,
+    category: "chart",
+    tags:["chart"],
+  },
   // {
   //   id: 215,
   //   name: "Gemach Copy Trading",
@@ -587,6 +596,12 @@ export const chartsMap = {
     component: (widget: LayoutType["widgets"][0]) => <AggrTradeWidget widget={widget} />,
     isResizable: true,
   },
+  "trading-view-widget": {
+    name: "Trading View Widget",
+    extra: [],
+    component: (widget: LayoutType["widgets"][0]) => <TradingViewWidget widget={widget} />,
+    isResizable: true,
+  }
 };
 
 export const widgetIdJoin = "@/$";
@@ -944,6 +959,16 @@ export const widgetPropsDefaults = {
     meta: {
       w: 16,
       h: 6,
+      minW: 8,
+      minH: 4,
+      maxW: Infinity,
+      maxH: Infinity,
+    },
+  },
+  "trading-view-widget": {
+    meta: {
+      w: 8,
+      h: 4,
       minW: 8,
       minH: 4,
       maxW: Infinity,
