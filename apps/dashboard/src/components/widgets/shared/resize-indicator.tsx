@@ -9,9 +9,8 @@ const ResizeIndicator = () => {
       const el = document.elementFromPoint(event.clientX, event.clientY);
       if (
         el &&
-        el?.className &&
-        typeof el.className.includes == "function" &&
-        el?.className?.includes("resizable-handle")
+        typeof el?.className === "string" &&
+        el.className.includes("resizable-handle")
       ) {
         setIsActive(true);
       } else {

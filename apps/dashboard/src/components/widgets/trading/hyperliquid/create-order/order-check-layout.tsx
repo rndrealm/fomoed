@@ -49,34 +49,34 @@ const OrderCheckLayout = (props: IProps) => {
   if (tradeAccess.blocker === "api") {
     return <ApproveAgentButton className={approveClassName} />;
   }
-  // if (builderData === 0) {
-  //   return (
-  //     <>
-  //       <div className={buttonWrapperClassName}>
-  //         <Button
-  //           onClick={toggleModal}
-  //           type="button"
-  //           className={cn(
-  //             "w-full bg-[#7637BA] hover:bg-[#7637BA] text-white font-medium text-[10px] leading-[14px] h-[28px]",
-  //             approveClassName,
-  //           )}
-  //         >
-  //           Confirm Trading Preferences
-  //         </Button>
-  //       </div>
-  //       <ModalContainer
-  //         open={isOpen}
-  //         handleClose={toggleModal}
-  //         title="Confirm Trading Preferences"
-  //         headerClassName=" w-full text-lg text-center font-medium"
-  //         className="!max-w-[462px] px-6 py-6 bg-[#141416] gap-0"
-  //         hideX
-  //       >
-  //         <ApproveBuilderModal toggleModal={toggleModal} />
-  //       </ModalContainer>
-  //     </>
-  //   );
-  // }
+  if (builderData === 0) {
+    return (
+      <>
+        <div className={buttonWrapperClassName}>
+          <Button
+            onClick={toggleModal}
+            type="button"
+            className={cn(
+              "w-full bg-[#7637BA] hover:bg-[#7637BA] text-white font-medium text-[10px] leading-[14px] h-[28px]",
+              approveClassName,
+            )}
+          >
+            Confirm Trading Preferences
+          </Button>
+        </div>
+        <ModalContainer
+          open={isOpen}
+          handleClose={toggleModal}
+          title="Confirm Trading Preferences"
+          headerClassName=" w-full text-lg text-center font-medium"
+          className="!max-w-[462px] px-6 py-6 bg-[#141416] gap-0"
+          hideX
+        >
+          <ApproveBuilderModal toggleModal={toggleModal} />
+        </ModalContainer>
+      </>
+    );
+  }
   return <Fragment>{children}</Fragment>;
 };
 

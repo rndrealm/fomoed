@@ -67,20 +67,37 @@ export function DashboardWidgets(props: IProps) {
         resizeHandles={["se"]}
         rowHeight={110}
         margin={[12, 12]}
+        onDragStart={() => {
+          // Handler exists to satisfy react-grid-layout's drag lifecycle
+        }}
         onDragStop={(newLayouts) => {
-          const syncCondition = dashboardSetting.auto_save || currLayout?.draft;
-          syncLayoutChangeFromAtom({
-            newLayouts: newLayouts,
-            sync: syncCondition,
-          });
+          try {
+            const syncCondition = dashboardSetting.auto_save || currLayout?.draft;
+            syncLayoutChangeFromAtom({
+              newLayouts: newLayouts,
+              sync: syncCondition,
+            });
+          } catch (error) {
+            console.error("Drag stop error:", error);
+            Sentry.captureException(error, {
+              tags: { context: "onDragStop" },
+            });
+          }
         }}
         onLayoutChange={(test) => {}}
         onResizeStop={(newLayouts) => {
-          const syncCondition = dashboardSetting.auto_save || currLayout?.draft;
-          syncLayoutChangeFromAtom({
-            newLayouts: newLayouts,
-            sync: syncCondition,
-          });
+          try {
+            const syncCondition = dashboardSetting.auto_save || currLayout?.draft;
+            syncLayoutChangeFromAtom({
+              newLayouts: newLayouts,
+              sync: syncCondition,
+            });
+          } catch (error) {
+            console.error("Resize stop error:", error);
+            Sentry.captureException(error, {
+              tags: { context: "onResizeStop" },
+            });
+          }
         }}
         verticalCompact={!false}
         onBreakpointChange={(newBreakpoint) => {

@@ -90,7 +90,7 @@ export const useReadCoinList = (summary = false) => {
       priceChange: coin.priceChange1d,
       marketCap: coin.marketCap,
       volume: coin.volume,
-      icon: coin.icon,
+      icon: coin.icon?.trim() || "",
       symbol: coin.symbol,
       name: coin.name,
       color: undefined,
@@ -278,11 +278,21 @@ export const useFetchLiquidDataMerged = (timeframe?: string, asset?: string) => 
     resData = formatMergetLiquidMapData(data);
   }
 
+  const normalizedError = error
+    ? new Error(
+        (error as any)?.message ||
+        (error as any)?.error ||
+        (error as any)?.msg ||
+        JSON.stringify(error) ||
+        "Failed to fetch liquidation exchange map data"
+      )
+    : null;
+
   return {
     data: resData,
     isPending,
     isSuccess,
-    error, 
+    error: normalizedError,
     isFetching,
     refetch,
   };
