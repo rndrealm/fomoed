@@ -1,69 +1,71 @@
 name: Playwright E2E Tests
 
 on:
-    workflow_dispatch:
-    push:
-        branches:
-            - main
-            - chore/end-to-end-test
-            - "release*"
+  workflow_dispatch:
+  push:
+    branches:
+      - chore/end-to-end-test
+      - "release*"
+  pull_request:
+    branches:
+      - main
 
 jobs:
-    e2e:
-        runs-on: [self-hosted, linux]
-        defaults:
-            run:
-                working-directory: apps/dashboard
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
+  e2e:
+    runs-on: [self-hosted, linux]
+    defaults:
+      run:
+        working-directory: apps/dashboard
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-            - name: Set up Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: "20"
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
 
-            - name: Install pnpm
-              run: npm install -g pnpm
+      - name: Install pnpm
+        run: npm install -g pnpm
 
-            - name: Clone fomoed-db repo
-              run: |
-                  set -e
-                  rm -rf fomoed-db
-                  git clone --depth 1 https://x-access-token:${FOMOED_DB_PAT}@github.com/fomoed-dev/fomoed-db.git fomoed-db
-              env:
-                  FOMOED_DB_PAT: ${{ secrets.FOMOED_DB_PAT }}
-              working-directory: apps/dashboard
+      - name: Clone fomoed-db repo
+        run: |
+          set -e
+          rm -rf fomoed-db
+          git clone --depth 1 https://x-access-token:${FOMOED_DB_PAT}@github.com/fomoed-dev/fomoed-db.git fomoed-db
+        env:
+          FOMOED_DB_PAT: ${{ secrets.FOMOED_DB_PAT }}
+        working-directory: apps/dashboard
 
-            - name: Install dependencies
-              run: pnpm install
+      - name: Install dependencies
+        run: pnpm install
 
-            - name: Stop supabase
-              run: npx supabase stop
+      - name: Stop supabase
+        run: npx supabase stop
 
-            - name: Start supabase
-              run: pnpm sb:start
+      - name: Start supabase
+        run: pnpm sb:start
 
-            - name: Reset local supabase
-              run: pnpm sb:reset
+      - name: Reset local supabase
+        run: pnpm sb:reset
 
-            - name: Run Playwright install
-              run: pnpm exec playwright install
+      - name: Run Playwright install
+        run: pnpm exec playwright install
 
-            - name: Link .env and .env.test
-              run: |
-                  ln -s /opt/fomoed-dashboard-config/.env .env
-                  ln -s /opt/fomoed-dashboard-config/.env.test .env.test
+      - name: Link .env and .env.test
+        run: |
+          ln -s /opt/fomoed-dashboard-config/.env .env
+          ln -s /opt/fomoed-dashboard-config/.env.test .env.test
 
-            - name: Build Next.js app
-              run: pnpm run build:with-local-db
+      - name: Build Next.js app
+        run: pnpm run build:with-local-db
 
-            - name: Run Playwright E2E tests
-              run: DEBUG=pw:webserver npx playwright test
+      - name: Run Playwright E2E tests
+        run: DEBUG=pw:webserver npx playwright test
 
-            - name: Upload Playwright report
-              if: always()
-              uses: actions/upload-artifact@v4
-              with:
-                  name: playwright-report
-                  path: apps/dashboard/playwright-report
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: apps/dashboard/playwright-report
