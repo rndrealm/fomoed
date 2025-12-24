@@ -105,6 +105,7 @@ import telegramPreview from "../../../../public/media/images/dashboard/telegram-
 import telegramUserIcon from "../../../../public/media/images/dashboard/telegram-user-icon.png";
 import tradingWidget from "../../../../public/media/images/dashboard/trading-widget.png";
 import aggrPreview from "../../../../public/media/images/dashboard/aggr-preview.png";
+import tradingView from "../../../../public/media/images/dashboard/tradingView.png";
 
 const dashboard = {
   layoutPlaceholder,
@@ -212,6 +213,7 @@ const dashboard = {
   telegramUserIcon,
   tradingWidget,
   aggrPreview,
+  tradingView,
 };
 
 export default dashboard;

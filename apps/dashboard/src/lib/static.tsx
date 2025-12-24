@@ -119,7 +119,7 @@ const disabledWgSlugs = process.env.NEXT_PUBLIC_DISABLED_WG_SLUGS?.split(",") ||
 
 export const layoutOptionsMap = [
   {
-    id: 201,
+    id: 25,
     showId: 0,
     name: "Price Chart Widget",
     slug: "new-price-history",
@@ -205,7 +205,7 @@ export const layoutOptionsMap = [
     tags: ["charts"],
   },
   {
-    id: 217,
+    id: 25,
     name: "Hyperliquid Copy Trading",
     slug: "gemach-copy-trading",
     description: "Copy top traders in real time. Track moves, mirror strategies, and evolve with every trade",
@@ -349,21 +349,23 @@ export const layoutOptionsMap = [
     tags: ["social", "new"],
   },
   {
-    id: 25,
+    id: 217,
     name: "Aggr.trade",
     slug: "aggr-trade",
-    description: "Cryptocurrency market trades aggregator with advanced analytics tools, supported by 15+ exchanges data.",
+    description:
+      "Cryptocurrency market trades aggregator with advanced analytics tools, supported by 15+ exchanges data.",
     image: dashboard.aggrPreview,
     category: "charts",
     tags: ["charts", "new", "trading"],
   },
   {
-    id: 26,
-    name: "Trading View",
+    id: 201,
+    name: "TradingView Advanced Charts",
     slug: "trading-view-widget",
-    image:dashboard.tokenHistoryV2,
+    description: "Interactive financial charts for analysis and generating trading ideas on TradingView",
+    image: dashboard.tradingView,
     category: "chart",
-    tags:["chart"],
+    tags: ["chart", "new"],
   },
   // {
   //   id: 215,
@@ -601,7 +603,7 @@ export const chartsMap = {
     extra: [],
     component: (widget: LayoutType["widgets"][0]) => <TradingViewWidget widget={widget} />,
     isResizable: true,
-  }
+  },
 };
 
 export const widgetIdJoin = "@/$";
