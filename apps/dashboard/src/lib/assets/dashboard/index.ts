@@ -104,6 +104,7 @@ import hyperliquidLogo2 from "../../../../public/media/images/dashboard/hyperliq
 import telegramPreview from "../../../../public/media/images/dashboard/telegram-preview.png";
 import telegramUserIcon from "../../../../public/media/images/dashboard/telegram-user-icon.png";
 import tradingWidget from "../../../../public/media/images/dashboard/trading-widget.png";
+import aggrPreview from "../../../../public/media/images/dashboard/aggr-preview.png";
 
 const dashboard = {
   layoutPlaceholder,
@@ -209,7 +210,8 @@ const dashboard = {
   youtube,
   telegramPreview,
   telegramUserIcon,
-  tradingWidget
+  tradingWidget,
+  aggrPreview,
 };
 
 export default dashboard;
