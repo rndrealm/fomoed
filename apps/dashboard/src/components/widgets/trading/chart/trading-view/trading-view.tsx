@@ -6,6 +6,7 @@ import {
   ChartingLibraryWidgetOptions,
   IChartingLibraryWidget,
   ResolutionString,
+  TimeFrameItem,
 } from "../../../../../../public/static/charting_library/charting_library";
 import { widget } from "../../../../../../public/static/charting_library";
 import { Datafeed } from "./datafeed";
@@ -14,6 +15,17 @@ import { useAtom, useAtomValue } from "jotai";
 import { useReadHyperLiquidTokens } from "@/services/queries/hyperliquid";
 import { RenderIf, SkeletonLoader } from "@/components/shared";
 import { cn } from "@/lib/utils";
+
+const time_frames: any = [
+  // { text: "5y", resolution: "1W", description: "5 Years" },
+  { text: "1y", resolution: "1D", description: "1 year in 1 day intervals" },
+  { text: "6m", resolution: "120", description: "6 months in 2 hour intervals" },
+  { text: "3m", resolution: "60", description: "3 months in 1 hour intervals" },
+  { text: "1m", resolution: "30", description: "1 month in 30 minute intervals" },
+  { text: "5d", resolution: "5", description: "5 days in 5 minute intervals" },
+  { text: "1d", resolution: "1", description: "1 day in 1 minute intervals" },
+  // { text: "1000y", resolution: "1W", description: "All", title: "All" },
+];
 
 const initialSymbol = '{"baseTokenName":"BTC","quoteTokenName":"USDC","price":"105200.0","isSpot":false,"name":"BTC"}';
 
@@ -71,6 +83,7 @@ export function TradingViewChart() {
         "paneProperties.backgroundType": "solid",
       },
       toolbar_bg: "#121317",
+      time_frames,
     };
     const tvWidget = new widget(defaultWidgetProps);
     tvWidgetRef.current = tvWidget;
