@@ -111,8 +111,8 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
   // Check if user is trying to access protected routes without session
   useEffect(() => {
     if (!isLoading && !session) {
-      // Check if trying to access dashboard or signals routes
-      if (pathname.startsWith("/dashboard") || pathname.includes("/signals")) {
+      // Only protect signals routes - dashboard is now accessible to guests
+      if (pathname.includes("/signals")) {
         // Redirect to login page
         router.push("/auth/login");
       }

@@ -23,15 +23,18 @@ import { useGetSupportedxchangePairs, useReadCoinList } from "@/services/queries
 import { Player } from "./shared/player";
 import { ComingSoon } from "../modals/coming-soon";
 import { TermsAndConditionsModal } from "./shared/terms-and-conditions-modal";
+import { GuestSignupModal } from "../modals";
 import { updateUserOnboardingStatus } from "@/services/queries/users/server-action";
 import { useRouter } from "next/navigation";
+import { useGuestTimer } from "@/hooks/useGuestTimer";
 
 interface IProps {
   dashboardData: IDashboardData;
   showTermsModal: boolean;
+  isGuest?: boolean;
 }
 
-export default function Home({ dashboardData, showTermsModal }: IProps) {
+export default function Home({ dashboardData, showTermsModal, isGuest = false }: IProps) {
   const router = useRouter();
   const loadTabsFromApi = useSetAtom(loadTabsFromApiAtom);
   const loadLayoutsFromApi = useSetAtom(loadLayoutsFromApiAtom);
@@ -44,6 +47,9 @@ export default function Home({ dashboardData, showTermsModal }: IProps) {
 
   const [isTermsModalOpen, setIsTermsModalOpen] = useState(showTermsModal);
   const [isUpdating, setIsUpdating] = useState(false);
+
+  // Guest timer hook
+  const { hasExpired } = useGuestTimer(isGuest);
 
   useEffect(() => {
     loadTabsFromApi(dashboardData.tabs, dashboardData.settings.active_tab_id);
@@ -112,6 +118,9 @@ export default function Home({ dashboardData, showTermsModal }: IProps) {
   return (
     <Fragment>
       <TermsAndConditionsModal isOpen={isTermsModalOpen} onContinue={handleTermsContinue} isLoading={isUpdating} />
+
+      {/* Guest Signup Modal (Hard Block) */}
+      <GuestSignupModal isOpen={isGuest && hasExpired} />
 
       <div className={cn("h-full overflow-hidden bg-[#000] pb-0 md:px-0 pt-0")}>
         <div className="relative flex h-full w-full flex-col gap-0">
