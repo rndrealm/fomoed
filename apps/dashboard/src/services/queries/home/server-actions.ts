@@ -82,6 +82,54 @@ const createDefaultWidgets = () => {
   ];
 };
 
+// Guest dashboard data for unauthenticated users
+export const getGuestDashboardData = () => {
+  const guestLayoutId = "guest-layout";
+  const guestTabId = "guest-tab";
+  const widgets = createDefaultWidgets();
+
+  const layout = {
+    id: guestLayoutId,
+    name: "Guest Dashboard",
+    draft: false,
+    widgets: widgets.map((w) => ({
+      ...w,
+      layout_id: guestLayoutId,
+    })),
+  };
+
+  const tab = {
+    id: guestTabId,
+    name: "Main",
+    layout_id: guestLayoutId,
+    layouts: {
+      ...layout,
+      widgets: widgets.map((w) => ({
+        id: w.id,
+        meta: w.meta,
+        props: w.props,
+        layout_id: guestLayoutId,
+      })),
+    },
+  };
+
+  const settings = {
+    id: "guest-settings",
+    user_id: null,
+    auto_save: false,
+    active_tab_id: guestTabId,
+    favorite_widgets: [],
+    favorite_tokens: [],
+    exchange: null,
+  };
+
+  return {
+    tabs: [tab],
+    layouts: [layout],
+    settings,
+  };
+};
+
 export const getDashboardDataClient = async (userId: string) => {
   const supabase = createSupabaseBrowserClient();
 

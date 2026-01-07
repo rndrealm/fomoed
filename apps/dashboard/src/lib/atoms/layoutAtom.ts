@@ -19,6 +19,42 @@ import {
 import { SaveLayoutPayload } from "@/services/queries/widgets/types";
 import { settingAtom } from "./settingsAtom";
 
+// Helper functions for guest localStorage management
+const GUEST_STORAGE_KEY = "fomoed_guest_dashboard";
+
+const saveGuestDashboardToLocalStorage = (layouts: LayoutType[], tabs: any[], settings: any) => {
+  try {
+    const guestData = {
+      layouts,
+      tabs,
+      settings,
+      lastUpdated: new Date().toISOString(),
+    };
+    localStorage.setItem(GUEST_STORAGE_KEY, JSON.stringify(guestData));
+  } catch (error) {
+    console.error("Error saving guest data to localStorage:", error);
+  }
+};
+
+const isGuestUser = () => {
+  // Check if user is authenticated by looking for session
+  // This is a simple check - can be improved with proper auth context
+  return typeof window !== 'undefined' && !document.cookie.includes('sb-');
+};
+
+// Atom to save guest data to localStorage (called after any layout change)
+export const saveGuestDataToLocalStorageAtom = atom(
+  null,
+  (get, set) => {
+    if (isGuestUser()) {
+      const layouts = get(layoutAtom);
+      const tabs = get(tabsAtom);
+      const settings = get(settingAtom);
+      saveGuestDashboardToLocalStorage(layouts, tabs, settings);
+    }
+  }
+);
+
 export interface LayoutType {
   id: string;
   draft: boolean;
@@ -82,6 +118,9 @@ export const addWidgetToNewLayoutAtom = atom(
 
       set(tabsAtom, updatedTabs);
 
+      // Save to localStorage for guest users immediately
+      set(saveGuestDataToLocalStorageAtom);
+
       set(saveNewLayoutToDb, {
         layoutData: sendLayout,
         widgetData: newWidget,
@@ -104,6 +143,16 @@ export const saveNewLayoutToDb = atom(
       tabId,
     }: { layoutData: any; widgetData: any; tabId: string },
   ) => {
+    // Check if user is a guest
+    if (isGuestUser()) {
+      // For guest users, save to localStorage instead of database
+      const layouts = get(layoutAtom);
+      const tabs = get(tabsAtom);
+      const settings = get(settingAtom);
+      saveGuestDashboardToLocalStorage(layouts, tabs, settings);
+      return;
+    }
+
     try {
       await createLayoutAndAttachToTabAction({ layoutData, widgetData, tabId });
     } catch (error) {
@@ -161,6 +210,10 @@ export const addWidgetToExistingLayoutAtom = atom(
     // Update the layouts atom with the new state
     set(layoutAtom, updatedLayouts);
     set(layoutChangedAtom, true);
+
+    // Save to localStorage for guest users immediately
+    set(saveGuestDataToLocalStorageAtom);
+
     if (sync) {
       set(syncWidgetsToDb, {
         layoutData: {
@@ -216,7 +269,7 @@ export const syncOnLayoutChange = atom(
       const newLayoutData = newLayouts.find(
         (layout) => splitWidgetSlug(layout.i).widgetId === widget.id,
       );
-      console.log("newLayoutData check:", newLayoutData);
+            console.log("newLayoutData check:", newLayoutData);
       // If we found matching layout data, update the widget's meta
       if (newLayoutData) {
         return {
@@ -241,6 +294,9 @@ export const syncOnLayoutChange = atom(
     // Update layouts with the updated widgets
     set(layoutAtom, updatedLayouts);
     set(layoutChangedAtom, true);
+
+    // Save to localStorage for guest users immediately
+    set(saveGuestDataToLocalStorageAtom);
 
     if (sync) {
       set(syncWidgetsToDb, {
@@ -316,6 +372,9 @@ export const deleteWidgetAtom = atom(
     const syncCondition = dashboardSetting.auto_save || currentLayout?.draft;
 
     set(layoutChangedAtom, true);
+
+    // Save to localStorage for guest users immediately
+    set(saveGuestDataToLocalStorageAtom);
 
     if (syncCondition) {
       set(syncWidgetsToDb, {
@@ -404,6 +463,9 @@ export const updateWidgetPropsAtom = atom(
     const syncCondition = dashboardSetting.auto_save || currentLayout?.draft;
     set(layoutChangedAtom, true);
 
+    // Save to localStorage for guest users immediately
+    set(saveGuestDataToLocalStorageAtom);
+
     if (syncCondition) {
       set(syncWidgetsToDb, {
         layoutData: {
@@ -457,6 +519,16 @@ let currentAbortController: AbortController | null = null;
 export const syncWidgetsToDb = atom(
   null,
   async (get, set, { layoutData, widgetData }: SaveLayoutPayload) => {
+    // Check if user is a guest
+    if (isGuestUser()) {
+      // For guest users, save to localStorage instead of database
+      const layouts = get(layoutAtom);
+      const tabs = get(tabsAtom);
+      const settings = get(settingAtom);
+      saveGuestDashboardToLocalStorage(layouts, tabs, settings);
+      return;
+    }
+
     // Abort the previous request if still pending
     if (currentAbortController) {
       currentAbortController.abort();
