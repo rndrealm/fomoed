@@ -29,6 +29,7 @@ interface AscendexHeaderProps {
 
 const navLinks = [
   { label: "Trade", value: "futures" as const },
+  { label: "Portfolio", value: "balance" as const },
   // { label: "Spot", value: "spot" as const },
   // { label: "Lend", value: "lend" as const },
 ];
@@ -47,13 +48,13 @@ export default function AscendexHeader({ widget, activeView, onViewChange }: Asc
         <div className="flex items-center gap-6 relative z-10 pointer-events-auto">
           <div className="flex items-center gap-8">
             <AscendexLogo />
-            <nav className="hidden sm:flex items-center text-sm text-[#9CA3AF]">
+            <nav className="hidden sm:flex items-center gap-1 text-sm text-[#9CA3AF]">
               {navLinks.map(({ label, value }) => (
                 <button
                   key={value}
                   onClick={() => onViewChange(value)}
-                  className={`px-4 py-2 rounded-[6px] transition-colors font-medium bg-[#1A1B20] text-xs ${
-                    activeView === value ? "text-white" : "hover:text-white  hover:bg-[#1C1D21]"
+                  className={`px-4 py-2 rounded-[6px] transition-colors font-medium text-xs ${
+                    activeView === value ? "text-white bg-[#1A1B20]" : "hover:text-white  hover:bg-[#1C1D21]"
                   }`}
                 >
                   {label}
@@ -102,14 +103,14 @@ export default function AscendexHeader({ widget, activeView, onViewChange }: Asc
             <SettingsAscendexIcon />
           </button>
 
-          <button
+          {/* <button
             onClick={() => onViewChange("balance")}
             className={`flex items-center gap-2 px-3 py-2 rounded-[8px] transition-colors ${
               activeView === "balance" ? "text-white" : "text-[#A6AEB2] hover:text-white hover"
             }`}
           >
             <PieChart className="h-[16px] w-[16px]" />
-          </button>
+          </button> */}
 
           <div className="flex items-center justify-center">
             <OptionsDropdown widget={widget} />
