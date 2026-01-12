@@ -32,7 +32,17 @@ export function useGuestTimer(isGuest: boolean): UseGuestTimerReturn {
     let timerData: GuestTimerData;
 
     if (storedData) {
-      timerData = JSON.parse(storedData);
+      try {
+        timerData = JSON.parse(storedData);
+      } catch (error) {
+        // Invalid data, create fresh timer
+        console.warn('Invalid guest timer data, resetting:', error);
+        timerData = {
+          firstVisit: new Date().toISOString(),
+          timerStarted: true,
+        };
+        localStorage.setItem(GUEST_TIMER_KEY, JSON.stringify(timerData));
+      }
     } else {
       // First visit, create timer
       timerData = {
@@ -72,7 +82,17 @@ export function useGuestTimer(isGuest: boolean): UseGuestTimerReturn {
         return;
       }
 
-      const timerData: GuestTimerData = JSON.parse(storedData);
+      let timerData: GuestTimerData;
+      try {
+        timerData = JSON.parse(storedData);
+      } catch (error) {
+        // Corrupted data, clear timer
+        console.warn('Corrupted timer data:', error);
+        setHasExpired(false);
+        localStorage.removeItem(GUEST_TIMER_KEY);
+        return;
+      }
+
       const firstVisitTime = new Date(timerData.firstVisit).getTime();
       const now = Date.now();
       const elapsed = now - firstVisitTime;
