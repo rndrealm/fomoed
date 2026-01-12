@@ -14,6 +14,19 @@ import { loginUser } from "@/services/queries/auth/server-actions";
 import { toast } from "sonner";
 import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
 
+// Validate that redirect URL is an internal path
+const isValidInternalPath = (path: string): boolean => {
+  // Must start with / but not //
+  // Must not contain http/https (external URL)
+  // Must not contain @ (user info in URL)
+  return (
+    path.startsWith('/') &&
+    !path.startsWith('//') &&
+    !path.toLowerCase().includes('http') &&
+    !path.includes('@')
+  );
+};
+
 const validationSchema = Yup.object().shape({
   email: Yup.string().email("Please enter a valid email address").required("Please enter your email address"),
   password: Yup.string().required("Please enter your password"),
@@ -50,10 +63,11 @@ export function LoginForm() {
         if (fromUrl === "marketing") {
           const marketingUrl = process.env.NEXT_PUBLIC_MARKETING_APP_URL;
           window.location.href = marketingUrl || "https://marketing.fomoed.io";
-        } else if (nextUrl && nextUrl !== "/auth/login") {
+        } else if (nextUrl && nextUrl !== "/auth/login" && isValidInternalPath(nextUrl)) {
           const redirectUrl = nextUrl && nextUrl !== "/auth/login" ? nextUrl : AppRoutes.dashboard.path;
           router.push(`/${redirectUrl}`);
         } else {
+          // Fallback to dashboard if invalid redirect
           router.push(AppRoutes.dashboard.path);
         }
       } else {
