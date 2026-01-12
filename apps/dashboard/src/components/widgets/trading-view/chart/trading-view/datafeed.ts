@@ -1,22 +1,29 @@
 import { HyperliquidAPI } from "./hyperliquid/api";
-import { subscribeOnStream, unsubscribeFromStream } from "./hyperliquid/streaming";
+import { AlpacaAPI } from "@/app/api/alpaca/alpaca-api";
+import { 
+  subscribeOnStream as subscribeHyperliquid, 
+  unsubscribeFromStream as unsubscribeHyperliquid 
+} from "./hyperliquid/streaming";
+import { 
+  subscribeOnStream as subscribeAlpaca, 
+  unsubscribeFromStream as unsubscribeAlpaca 
+} from "@/app/api/alpaca/alpaca-streaming";
 import { HyperLiquidSymbol } from "./hyperliquid/types";
+import { StockSymbol } from "@/lib/atoms/tradingViewWidget";
 
-// Use a Map to store the last bar for each symbol subscription.
-// This is essential for the streaming logic to update the chart correctly.
 const lastBarsCache = new Map();
 
 function getPriceScaleAndMinmov(price: number) {
-  let tickSize = 0.000001; // default
+  let tickSize = 0.000001;
   let pricescale = 1000000;
   const minmov = 1;
 
   if (price < 0.0001) tickSize = 0.00000001;
   else if (price < 0.001) tickSize = 0.00000001;
-  else if (price < 0.01) tickSize = 0.0000001;
+  else if (price < 0.01) tickSize = 0.0001;
   else if (price < 0.1) tickSize = 0.000001;
   else if (price < 1) tickSize = 0.00001;
-  else if (price < 100) tickSize = 0.001;
+  else if (price < 100) tickSize = 0.01;
   else if (price < 10000) tickSize = 0.01;
   else tickSize = 0.1;
 
@@ -49,6 +56,7 @@ export interface LibrarySymbolInfo {
   volume_precision: number;
   data_status: string;
   variable_tick_size?: string;
+  asset_type?: "crypto" | "stock";
 }
 
 interface Bar {
@@ -75,10 +83,12 @@ interface PeriodParams {
 }
 
 export class Datafeed {
-  private api: HyperliquidAPI;
+  private hyperliquidAPI: HyperliquidAPI;
+  private alpacaAPI: AlpacaAPI;
 
   constructor() {
-    this.api = new HyperliquidAPI();
+    this.hyperliquidAPI = new HyperliquidAPI();
+    this.alpacaAPI = new AlpacaAPI();
   }
 
   onReady(callback: (configuration: DatafeedConfiguration) => void): void {
@@ -87,7 +97,7 @@ export class Datafeed {
         supports_marks: false,
         supports_timescale_marks: false,
         supports_time: true,
-        supported_resolutions: ["1", "3", "5", "15", "30", "60", "120", "240", "480", "720", "1D"],
+        supported_resolutions: ["1", "3", "5", "15", "30", "60", "120", "240", "480", "720", "1D", "1W", "1M"],
       });
     });
   }
@@ -99,10 +109,41 @@ export class Datafeed {
   async resolveSymbol(
     symbolName: string,
     onSymbolResolvedCallback: (symbolInfo: LibrarySymbolInfo) => void,
-    onResolveErrorCallback: ErrorCallback,
+    onResolveErrorCallback: ErrorCallback
   ): Promise<void> {
     try {
-      const symbol: HyperLiquidSymbol = JSON.parse(symbolName);
+      const symbolData = JSON.parse(symbolName);
+      
+      // Check if it's a stock
+      if (symbolData.type === "stock") {
+        const stock = symbolData as StockSymbol;
+        const { pricescale, minmov } = getPriceScaleAndMinmov(parseFloat(stock.price || "100"));
+
+        const symbolInfo: LibrarySymbolInfo = {
+          ticker: symbolName,
+          name: stock.symbol,
+          description: stock.name,
+          type: "stock",
+          session: "0930-1600", // NYSE hours
+          timezone: "America/New_York",
+          exchange: stock.exchange,
+          minmov,
+          pricescale,
+          has_intraday: true,
+          has_no_volume: false,
+          has_weekly_and_monthly: true,
+          supported_resolutions: ["1", "3", "5", "15", "30", "60", "120", "240", "480", "720", "1D", "1W", "1M"],
+          volume_precision: 0,
+          data_status: "streaming",
+          asset_type: "stock",
+        };
+
+        setTimeout(() => onSymbolResolvedCallback(symbolInfo));
+        return;
+      }
+
+      // Otherwise, it's crypto (existing logic)
+      const symbol: HyperLiquidSymbol = symbolData;
       const description = symbol?.isSpot
         ? `${symbol.baseTokenName}/${symbol.quoteTokenName}`
         : `${symbol.baseTokenName}${symbol.quoteTokenName}`;
@@ -121,14 +162,15 @@ export class Datafeed {
         timezone: "Etc/UTC",
         exchange: "Hyperliquid",
         minmov,
-        pricescale, // 8 decimal places for crypto
+        pricescale,
         variable_tick_size: "0.000001 1 0.00001 10 0.0001 100 0.001 1000 0.01 10000",
         has_intraday: true,
         has_no_volume: false,
         has_weekly_and_monthly: true,
-        supported_resolutions: ["1", "3", "5", "15", "30", "60", "120", "240", "480", "720", "1D"],
+        supported_resolutions: ["1", "3", "5", "15", "30", "60", "120", "240", "480", "720", "1D", "1W", "1M"],
         volume_precision: 8,
         data_status: "streaming",
+        asset_type: "crypto",
       };
 
       setTimeout(() => onSymbolResolvedCallback(symbolInfo));
@@ -142,27 +184,52 @@ export class Datafeed {
     resolution: string,
     periodParams: PeriodParams,
     onHistoryCallback: HistoryCallback,
-    onErrorCallback: ErrorCallback,
+    onErrorCallback: ErrorCallback
   ): Promise<void> {
     try {
       const { from, to, firstDataRequest } = periodParams;
 
-      const data = await this.api.getKlines(symbolInfo.name, resolution, from * 1000, to * 1000);
+      let bars: Bar[] = [];
 
-      const bars: Bar[] = data.map((item) => ({
-        time: item.time,
-        low: parseFloat(item.low),
-        high: parseFloat(item.high),
-        open: parseFloat(item.open),
-        close: parseFloat(item.close),
-        volume: parseFloat(item.volume),
-      }));
+      // Fetch from appropriate API based on asset type
+      if (symbolInfo.asset_type === "stock") {
+        const data = await this.alpacaAPI.getBars(
+          symbolInfo.name,
+          resolution,
+          from * 1000,
+          to * 1000
+        );
+        bars = data.map((item) => ({
+          time: item.time,
+          low: parseFloat(item.low as string),
+          high: parseFloat(item.high as string),
+          open: parseFloat(item.open as string),
+          close: parseFloat(item.close as string),
+          volume: parseFloat(item.volume as string),
+        }));
+      } else {
+        // Crypto - existing logic
+        const data = await this.hyperliquidAPI.getKlines(
+          symbolInfo.name,
+          resolution,
+          from * 1000,
+          to * 1000
+        );
+        bars = data.map((item) => ({
+          time: item.time,
+          low: parseFloat(item.low),
+          high: parseFloat(item.high),
+          open: parseFloat(item.open),
+          close: parseFloat(item.close),
+          volume: parseFloat(item.volume),
+        }));
+      }
 
       const meta: HistoryMetadata = {
         noData: bars.length === 0,
       };
 
-      if (firstDataRequest) {
+      if (firstDataRequest && bars.length > 0) {
         lastBarsCache.set(symbolInfo.name, { ...bars[bars.length - 1] });
       }
 
@@ -177,18 +244,33 @@ export class Datafeed {
     resolution: string,
     onRealtimeCallback: SubscribeBarsCallback,
     subscriberUID: string,
-    onResetCacheNeededCallback: () => void,
+    onResetCacheNeededCallback: () => void
   ) {
-    subscribeOnStream(
-      symbolInfo,
-      resolution,
-      onRealtimeCallback,
-      subscriberUID,
-      onResetCacheNeededCallback,
-      lastBarsCache.get(symbolInfo.name),
-    );
+    // Subscribe to appropriate stream based on asset type
+    if (symbolInfo.asset_type === "stock") {
+      subscribeAlpaca(
+        symbolInfo,
+        resolution,
+        onRealtimeCallback,
+        subscriberUID,
+        onResetCacheNeededCallback,
+        lastBarsCache.get(symbolInfo.name)
+      );
+    } else {
+      subscribeHyperliquid(
+        symbolInfo,
+        resolution,
+        onRealtimeCallback,
+        subscriberUID,
+        onResetCacheNeededCallback,
+        lastBarsCache.get(symbolInfo.name)
+      );
+    }
   }
+
   unsubscribeBars(subscriberUID: string) {
-    unsubscribeFromStream(subscriberUID);
+    // Unsubscribe from both (they handle internally if not subscribed)
+    unsubscribeHyperliquid(subscriberUID);
+    unsubscribeAlpaca(subscriberUID);
   }
 }
