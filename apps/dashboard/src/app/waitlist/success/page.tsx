@@ -13,29 +13,29 @@ export default function Page() {
   const router = useRouter();
   const entry = searchParams.get("entry");
 
-  useEffect(() => {
-    if (!entry || isNaN(Number(entry))) {
-      router.push(AppRoutes.eventPhotos.path);
-    }
-  }, [entry, router]);
+  // useEffect(() => {
+  //   if (!entry || isNaN(Number(entry))) {
+  //     router.push(AppRoutes.eventPhotos.path);
+  //   }
+  // }, [entry, router]);
 
-  if (!entry) {
-    return (
-      <div className="flex items-center justify-center pt-10">
-        <Spinner className="text-[rgb(255,59,16)]" size={36} />
-      </div>
-    );
-  }
+  // if (!entry) {
+  //   return (
+  //     <div className="flex items-center justify-center pt-10">
+  //       <Spinner className="text-[rgb(255,59,16)]" size={36} />
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="bg-[#0C0C0C] flex flex-col py-8 h-full w-full min-h-[100vh] gap-9 sm:gap-12">
       <div className="flex justify-between items-center pb-4 px-4 sm:px-8 border-b border-[rgba(255,255,255,0.12)]">
-        <Link
+        {/* <Link
           href={AppRoutes.eventPhotos.path}
           className="text-sm leading-[20px] tracking-[-0.6%] font-medium text-white invisible"
         >
           Skip
-        </Link>
+        </Link> */}
       </div>
 
       <div className="flex flex-1 flex-col items-center gap-12 px-4">
@@ -67,12 +67,12 @@ export default function Page() {
           </div>
         </div>
 
-        <Link
+        {/* <Link
           href={AppRoutes.eventPhotos.path}
           className="bg-white rounded-[12px] h-[40px] max-w-[372px] w-full flex items-center justify-center"
         >
           <p className="text-[#000] text-xs leading-[16px] tracking-[-0.4%] font-medium">Go to Dashboard</p>
-        </Link>
+        </Link> */}
       </div>
     </div>
   );
