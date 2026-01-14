@@ -18,12 +18,12 @@ export default function Page() {
 
         <FormStep />
 
-        <Link
+        {/* <Link
           href={AppRoutes.eventPhotos.path}
           className="text-sm leading-[20px] tracking-[-0.6%] font-medium text-white"
         >
           Skip
-        </Link>
+        </Link> */}
       </div>
 
       <div className="flex flex-1 flex-col items-center gap-12 px-4">
