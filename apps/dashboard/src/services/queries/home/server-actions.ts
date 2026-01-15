@@ -2,25 +2,31 @@ import { v4 as uuidv4 } from "uuid";
 import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
 import { widgetPropsDefaults } from "@/lib/static";
 
-// Guest-only default widgets with 8-4-4 layout
+// Guest-only default widgets with comprehensive layout
 const createGuestDefaultWidgets = () => {
   // Widget slugs for guest layout
   const aggrTradeSlug = "aggr-trade";
   const youtubeSlug = "youtube";
   const telegramSlug = "telegram";
   const tradingSlug = "ascendex";
+  const economicCalendarSlug = "trading-economics";
+  const liquidationHeatmapSlug = "liquidation-heat-map";
 
   // Get default props for each widget
   const aggrTradeDefaults = widgetPropsDefaults[aggrTradeSlug];
   const youtubeDefaults = widgetPropsDefaults[youtubeSlug];
   const telegramDefaults = widgetPropsDefaults[telegramSlug];
   const tradingDefaults = widgetPropsDefaults[tradingSlug];
+  const economicCalendarDefaults = widgetPropsDefaults[economicCalendarSlug];
+  const liquidationHeatmapDefaults = widgetPropsDefaults[liquidationHeatmapSlug];
 
   // Generate unique IDs for each widget
   const aggrTradeId = uuidv4();
   const youtubeId = uuidv4();
   const telegramId = uuidv4();
   const tradingId = uuidv4();
+  const economicCalendarId = uuidv4();
+  const liquidationHeatmapId = uuidv4();
 
   const widgetIdJoin = "@/$";
 
@@ -79,6 +85,34 @@ const createGuestDefaultWidgets = () => {
         y: 4,
         w: 16,
         h: 6,
+      },
+    },
+    // Row 3: Economic Calendar (50% width - 8/16 columns)
+    {
+      id: economicCalendarId,
+      token: economicCalendarSlug,
+      props: economicCalendarDefaults,
+      meta: {
+        ...economicCalendarDefaults.meta,
+        i: `${economicCalendarId}${widgetIdJoin}${economicCalendarSlug}`,
+        x: 0,
+        y: 10,
+        w: 8,
+        h: 4,
+      },
+    },
+    // Row 3: Liquidation Heatmap (50% width - 8/16 columns)
+    {
+      id: liquidationHeatmapId,
+      token: liquidationHeatmapSlug,
+      props: liquidationHeatmapDefaults,
+      meta: {
+        ...liquidationHeatmapDefaults.meta,
+        i: `${liquidationHeatmapId}${widgetIdJoin}${liquidationHeatmapSlug}`,
+        x: 8,
+        y: 10,
+        w: 8,
+        h: 4,
       },
     },
   ];
