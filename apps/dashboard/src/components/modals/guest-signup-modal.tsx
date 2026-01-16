@@ -91,7 +91,7 @@ export function GuestSignupModal({ isOpen }: GuestSignupModalProps) {
 
           {/* Footer note */}
           <p className="text-xs text-gray-500 text-center mt-6">
-            No credit card required • Free forever
+            No credit card required
           </p>
         </div>
       </div>
