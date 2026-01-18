@@ -1,7 +1,25 @@
 import { atom } from "jotai";
 import { PerpUniverse, SpotsUniverse } from "@/services/queries/hyperliquid/types";
 
-export const selectedTokenAtom = atom<PerpUniverse | SpotsUniverse | null>(null);
+export type AssetType = "crypto" | "stock";
+
+export interface StockSymbol {
+  symbol: string;
+  name: string;
+  displayName: string;
+  type: "stock";
+  exchange: string;
+  price: string;
+  sector?: string;
+  baseTokenName?: string;
+  quoteTokenName?: string;
+}
+
+export type UnifiedSymbol = (PerpUniverse | SpotsUniverse | StockSymbol) & {
+  type?: AssetType;
+};
+
+export const selectedTokenAtom = atom<UnifiedSymbol | null>(null);
 
 export const showSelectTokenModalAtom = atom(false);
 
@@ -33,15 +51,13 @@ const setToStorage = <T,>(key: string, value: T): void => {
   }
 };
 
-
-// Widget token atom with manual localStorage persistence
-const selectedTokenWidgetBaseAtom = atom<PerpUniverse | SpotsUniverse | null>(
+const selectedTokenWidgetBaseAtom = atom<UnifiedSymbol | null>(
   getFromStorage("selectedTokenWidget", null)
 );
 
 export const selectedTokenAtomWidgets = atom(
   (get) => get(selectedTokenWidgetBaseAtom),
-  (get, set, newValue: PerpUniverse | SpotsUniverse | null) => {
+  (get, set, newValue: UnifiedSymbol | null) => {
     set(selectedTokenWidgetBaseAtom, newValue);
     setToStorage("selectedTokenWidget", newValue);
   }
@@ -57,12 +73,22 @@ export const tokenSearchValueAtom = atom(
   }
 );
 
-const tokenCategoryBaseAtom = atom<string>(getFromStorage("tokenActiveCategory", "all"));
+const tokenCategoryBaseAtom = atom<string>(getFromStorage("tokenActiveCategory", "crypto"));
 
 export const tokenActiveCategoryAtom = atom(
   (get) => get(tokenCategoryBaseAtom),
   (get, set, newValue: string) => {
     set(tokenCategoryBaseAtom, newValue);
     setToStorage("tokenActiveCategory", newValue);
+  }
+);
+
+const assetTypeBaseAtom = atom<AssetType | "all">(getFromStorage("assetType", "all"));
+
+export const assetTypeAtom = atom(
+  (get) => get(assetTypeBaseAtom),
+  (get, set, newValue: AssetType | "all") => {
+    set(assetTypeBaseAtom, newValue);
+    setToStorage("assetType", newValue);
   }
 );

@@ -12,13 +12,15 @@ import { Datafeed } from "./datafeed";
 import { selectedTokenAtomWidgets } from "@/lib/atoms/tradingViewWidget";
 import { useAtom, useAtomValue } from "jotai";
 import { useReadHyperLiquidTokens } from "@/services/queries/hyperliquid";
+import { useReadAlpacaStocks } from "@/services/queries/alpaca";
 import { RenderIf, SkeletonLoader } from "@/components/shared";
 import { cn } from "@/lib/utils";
 
-const initialSymbol = '{"baseTokenName":"BTC","quoteTokenName":"USDC","price":"105200.0","isSpot":false,"name":"BTC"}';
+const initialSymbol = '{"baseTokenName":"BTC","quoteTokenName":"USDC","price":"105200.0","isSpot":false,"name":"BTC","type":"crypto"}';
 
 export function TradingViewChart() {
   const { data: tokensData } = useReadHyperLiquidTokens();
+  const { data: stocksData } = useReadAlpacaStocks();
 
   const [selectedToken, setSelectedToken] = useAtom(selectedTokenAtomWidgets);
 
@@ -84,8 +86,6 @@ export function TradingViewChart() {
       if (savedState) {
         try {
           const parsedData = JSON.parse(savedState);
-
-          // Load it into the widget
           tvWidget.load(parsedData);
         } catch (e) {
           console.error("Failed to load chart data:", e);
@@ -99,7 +99,6 @@ export function TradingViewChart() {
       });
 
       const chart = tvWidget.activeChart();
-      // Subscribe to interval changes and then clear cache
       chart.onIntervalChanged().subscribe(null, () => {
         tvWidget.resetCache();
         chart.resetData();
@@ -108,7 +107,6 @@ export function TradingViewChart() {
     });
 
     return () => {
-      // tvWidget?.unsubscribe("onAutoSaveNeeded", () => {});
       tvWidget.remove();
     };
   }, [datafeed]);
@@ -117,7 +115,8 @@ export function TradingViewChart() {
     const widget = tvWidgetRef.current;
 
     if (tokensData?.allTokens?.length && !selectedToken) {
-      setSelectedToken(tokensData.allTokens[0]);
+      const firstToken = tokensData.allTokens[0];
+      setSelectedToken({ ...firstToken, type: "crypto" });
       return;
     }
 
@@ -125,10 +124,19 @@ export function TradingViewChart() {
 
     const activeChart = widget.activeChart();
 
-    if (activeChart && activeChart.symbol() !== selectedToken.tradingViewName) {
-      widget.setSymbol(selectedToken.tradingViewName, activeChart.resolution(), () => {});
+    let symbolString: string;
+    if (selectedToken.type === "stock") {
+      symbolString = JSON.stringify(selectedToken);
+    } else {
+      symbolString = (selectedToken as any).tradingViewName || JSON.stringify(selectedToken);
     }
-  }, [tokensData?.allTokens, selectedToken, setSelectedToken, isChartReady]);
+
+    if (activeChart && activeChart.symbol() !== symbolString) {
+      widget.setSymbol(symbolString, activeChart.resolution(), () => {
+        console.log(`Symbol changed to: ${selectedToken.displayName || selectedToken.symbol}`);
+      });
+    }
+  }, [tokensData?.allTokens, stocksData?.stocks, selectedToken, setSelectedToken, isChartReady]);
 
   return (
     <div className="absolute top-0 right-0 bottom-0 left-0 flex">
