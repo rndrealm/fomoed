@@ -10,15 +10,15 @@ export function ComingSoon() {
   const [showGemach, setShowGemach] = useState(false);
   const [showAscendex, setShowAscendex] = useState(false);
 
-  useEffect(() => {
+  // useEffect(() => {
     // Check if the coming-soon modals have been shown before
-    const hasShown = localStorage.getItem(COMING_SOON_GEMACH_ASCENDEX_SHOWN_KEY);
+    // const hasShown = localStorage.getItem(COMING_SOON_GEMACH_ASCENDEX_SHOWN_KEY);
 
     // Only show the modal flow if it hasn't been shown before
-    if (!hasShown) {
-      setShowGemach(true);
-    }
-  }, []);
+    // if (!hasShown) {
+    //   setShowGemach(true);
+    // }
+  // }, []);
 
   return (
     <ModalContainer

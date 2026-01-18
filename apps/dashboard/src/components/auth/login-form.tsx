@@ -64,8 +64,7 @@ export function LoginForm() {
           const marketingUrl = process.env.NEXT_PUBLIC_MARKETING_APP_URL;
           window.location.href = marketingUrl || "https://marketing.fomoed.io";
         } else if (nextUrl && nextUrl !== "/auth/login" && isValidInternalPath(nextUrl)) {
-          const redirectUrl = nextUrl && nextUrl !== "/auth/login" ? nextUrl : AppRoutes.dashboard.path;
-          router.push(`/${redirectUrl}`);
+          router.push(nextUrl);
         } else {
           // Fallback to dashboard if invalid redirect
           router.push(AppRoutes.dashboard.path);
@@ -85,7 +84,9 @@ export function LoginForm() {
       <div className="flex h-full flex-1 items-center justify-center">
         <div className="flex w-full max-w-[418px] flex-col gap-5">
           <div className="relative flex justify-center">
-            <FormLogo />
+            <Link href="/dashboard" className="cursor-pointer">
+              <FormLogo />
+            </Link>
           </div>
 
           <div className="relative rounded-2xl">
