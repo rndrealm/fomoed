@@ -38,7 +38,6 @@ const state = globalForWs.hyperliquidState || {
   pendingSubscriptions: [],
 };
 
-// Save to global object immediately to survive Hot Reloads
 if (process.env.NODE_ENV !== "production") {
   globalForWs.hyperliquidState = state;
 }
@@ -61,13 +60,11 @@ function createSocket() {
     console.log("[socket] Connected");
     state.isReconnecting = false;
 
-    // Process Pending Subscriptions
     while (state.pendingSubscriptions.length > 0) {
       const subRequest = state.pendingSubscriptions.shift();
       state.socket?.send(JSON.stringify(subRequest));
     }
 
-    // Resubscribe to Candles
     for (const [channelString, subscriptionItem] of state.channelToSubscription.entries()) {
       subscriptionItem.handlers.forEach((handler: any) => {
         if (handler.resetCache) {
@@ -86,7 +83,6 @@ function createSocket() {
       state.socket?.send(JSON.stringify(subRequest));
     }
 
-    // Start Ping
     if (state.pingInterval) clearInterval(state.pingInterval);
     state.pingInterval = setInterval(() => {
       if (state.socket?.readyState === WebSocket.OPEN) {
@@ -97,14 +93,14 @@ function createSocket() {
 
   state.socket.addEventListener("close", (event) => {
     console.log("[socket] Disconnected", event.code, event.reason);
-    state.socket = null; // Clear the instance
+    state.socket = null; 
     if (state.pingInterval) clearInterval(state.pingInterval);
 
     attemptReconnect();
   });
 
 
-  state.socket.addEventListener("message", handleMessage); // Ensure handleMessage is used
+  state.socket.addEventListener("message", handleMessage);
   return state.socket;
 }
 function attemptReconnect() {
@@ -271,10 +267,9 @@ if (typeof window !== "undefined") {
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") {
       const socket = state.socket;
-      // If socket doesn't exist, is closed, or is closing -> Reconnect immediately
       if (!socket || socket.readyState === WebSocket.CLOSED || socket.readyState === WebSocket.CLOSING) {
         console.log("[socket] Tab visible, socket disconnected. Reconnecting...");
-        state.isReconnecting = false; // Reset flag to allow immediate reconnect
+        state.isReconnecting = false; 
         createSocket();
       }
     }

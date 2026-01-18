@@ -114,7 +114,6 @@ export class Datafeed {
     try {
       const symbolData = JSON.parse(symbolName);
       
-      // Check if it's a stock
       if (symbolData.type === "stock") {
         const stock = symbolData as StockSymbol;
         const { pricescale, minmov } = getPriceScaleAndMinmov(parseFloat(stock.price || "100"));
@@ -142,7 +141,6 @@ export class Datafeed {
         return;
       }
 
-      // Otherwise, it's crypto (existing logic)
       const symbol: HyperLiquidSymbol = symbolData;
       const description = symbol?.isSpot
         ? `${symbol.baseTokenName}/${symbol.quoteTokenName}`
@@ -191,12 +189,17 @@ export class Datafeed {
 
       let bars: Bar[] = [];
 
-      // Fetch from appropriate API based on asset type
+      let adjustedFrom = from;
+      if (firstDataRequest) {
+        const twoYearsAgo = Math.floor(Date.now() / 1000) - (365 * 2 * 24 * 60 * 60); // 2 years in seconds
+        adjustedFrom = Math.min(from, twoYearsAgo);
+      }
+
       if (symbolInfo.asset_type === "stock") {
         const data = await this.alpacaAPI.getBars(
           symbolInfo.name,
           resolution,
-          from * 1000,
+          adjustedFrom * 1000,
           to * 1000
         );
         bars = data.map((item) => ({
@@ -208,11 +211,10 @@ export class Datafeed {
           volume: parseFloat(item.volume as string),
         }));
       } else {
-        // Crypto - existing logic
         const data = await this.hyperliquidAPI.getKlines(
           symbolInfo.name,
           resolution,
-          from * 1000,
+          adjustedFrom * 1000,
           to * 1000
         );
         bars = data.map((item) => ({
@@ -246,7 +248,6 @@ export class Datafeed {
     subscriberUID: string,
     onResetCacheNeededCallback: () => void
   ) {
-    // Subscribe to appropriate stream based on asset type
     if (symbolInfo.asset_type === "stock") {
       subscribeAlpaca(
         symbolInfo,
@@ -269,7 +270,6 @@ export class Datafeed {
   }
 
   unsubscribeBars(subscriberUID: string) {
-    // Unsubscribe from both (they handle internally if not subscribed)
     unsubscribeHyperliquid(subscriberUID);
     unsubscribeAlpaca(subscriberUID);
   }

@@ -114,7 +114,6 @@ export function TradingViewChart() {
   useEffect(() => {
     const widget = tvWidgetRef.current;
 
-    // Set default to first crypto token if no selection
     if (tokensData?.allTokens?.length && !selectedToken) {
       const firstToken = tokensData.allTokens[0];
       setSelectedToken({ ...firstToken, type: "crypto" });
@@ -125,12 +124,10 @@ export function TradingViewChart() {
 
     const activeChart = widget.activeChart();
 
-    // Create symbol string for TradingView
     let symbolString: string;
     if (selectedToken.type === "stock") {
       symbolString = JSON.stringify(selectedToken);
     } else {
-      // For crypto, use existing tradingViewName if available
       symbolString = (selectedToken as any).tradingViewName || JSON.stringify(selectedToken);
     }
 

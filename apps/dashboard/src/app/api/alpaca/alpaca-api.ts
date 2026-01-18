@@ -3,7 +3,7 @@ import { AlpacaBarsResponse } from "./types";
 
 export class AlpacaAPI {
   private BASE_URL = "https://data.alpaca.markets/v2";
-  private TRADING_URL = "https://paper-api.alpaca.markets/v2"; // For assets endpoint
+  private TRADING_URL = "https://paper-api.alpaca.markets/v2"; 
   private apiKey: string;
   private secretKey: string;
 
@@ -33,17 +33,13 @@ export class AlpacaAPI {
     return timeframeMap[resolution] || "1Min";
   }
 
-  /**
-   * Get all tradeable assets (stocks) from Alpaca
-   * This is FREE and returns 10,000+ stocks
-   */
   async getAllAssets() {
     try {
       const url = `${this.TRADING_URL}/assets`;
       const response = await axios.get(url, {
         params: {
-          status: "active", // Only active stocks
-          asset_class: "us_equity", // US stocks only
+          status: "active", 
+          asset_class: "us_equity", 
         },
         headers: {
           "APCA-API-KEY-ID": this.apiKey,
@@ -58,9 +54,6 @@ export class AlpacaAPI {
     }
   }
 
-  /**
-   * Get screened/filtered stocks (popular, large cap, etc.)
-   */
   async getFilteredStocks(filter?: {
     tradable?: boolean;
     minMarketCap?: number;
@@ -70,18 +63,14 @@ export class AlpacaAPI {
       const allAssets = await this.getAllAssets();
 
       let filtered = allAssets.filter((asset: any) => {
-        // Filter out non-tradeable
         if (filter?.tradable && !asset.tradable) return false;
 
-        // Filter by exchange if specified
         if (filter?.exchanges && !filter.exchanges.includes(asset.exchange)) {
           return false;
         }
 
-        // Only include stocks (not crypto, etc.)
         if (asset.class !== "us_equity") return false;
 
-        // Filter out test/sample stocks
         if (asset.symbol.includes("TEST")) return false;
 
         return true;
@@ -98,7 +87,6 @@ export class AlpacaAPI {
     try {
       const timeframe = this.resolutionToTimeframe(resolution);
       
-      // Convert milliseconds to RFC-3339 format
       const start = new Date(startTime).toISOString();
       const end = new Date(endTime).toISOString();
 
@@ -107,9 +95,10 @@ export class AlpacaAPI {
         timeframe,
         start,
         end,
-        limit: 10000,
+        limit: 10000, 
         adjustment: "raw",
-        feed: "iex", // Use free IEX feed
+        feed: "iex", 
+        sort: "asc", 
       };
 
       const response = await axios.get<AlpacaBarsResponse>(url, {
@@ -120,7 +109,6 @@ export class AlpacaAPI {
         },
       });
 
-      // Transform to unified format
       const bars = response.data.bars?.map((bar) => ({
         time: new Date(bar.t).getTime(),
         open: bar.o.toString(),
@@ -129,6 +117,8 @@ export class AlpacaAPI {
         close: bar.c.toString(),
         volume: bar.v.toString(),
       })) || [];
+
+      console.log(`[Alpaca] Fetched ${bars.length} bars for ${symbol} (${timeframe})`);
 
       return bars;
     } catch (error) {
@@ -173,9 +163,6 @@ export class AlpacaAPI {
     }
   }
 
-  /**
-   * Get multiple snapshots at once (batch)
-   */
   async getSnapshots(symbols: string[]) {
     try {
       const symbolsParam = symbols.join(",");

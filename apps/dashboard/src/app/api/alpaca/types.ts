@@ -1,5 +1,3 @@
-// Alpaca API Types
-
 export interface AlpacaBar {
   t: string; // timestamp (RFC-3339)
   o: number; // open
@@ -17,44 +15,43 @@ export interface AlpacaBarsResponse {
   next_page_token: string | null;
 }
 
-// WebSocket message types
 export interface AlpacaWebSocketBar {
-  T: "b"; // message type: bar
-  S: string; // symbol
-  o: number; // open
-  h: number; // high
-  l: number; // low
-  c: number; // close
-  v: number; // volume
-  vw: number; // volume weighted average price
-  n: number; // number of trades
-  t: string; // timestamp (RFC-3339)
+  T: "b"; 
+  S: string; 
+  o: number; 
+  h: number; 
+  l: number; 
+  c: number; 
+  v: number; 
+  vw: number; 
+  n: number; 
+  t: string; 
 }
 
 export interface AlpacaWebSocketTrade {
-  T: "t"; // message type: trade
-  S: string; // symbol
-  i: number; // trade ID
-  x: string; // exchange
-  p: number; // price
-  s: number; // size
-  c: string[]; // conditions
-  t: string; // timestamp
-  z: string; // tape
+  T: "t"; 
+  S: string; 
+  i: number; 
+  x: string; 
+  p: number; 
+  s: number;
+  c: string[];
+  t: string; 
+  z: string; 
 }
 
 export interface AlpacaWebSocketQuote {
-  T: "q"; // message type: quote
-  S: string; // symbol
-  ax: string; // ask exchange
-  ap: number; // ask price
-  as: number; // ask size
-  bx: string; // bid exchange
-  bp: number; // bid price
-  bs: number; // bid size
-  c: string[]; // condition
-  t: string; // timestamp
-  z: string; // tape
+  T: "q"; 
+  S: string; 
+  ax: string;
+  ap: number;
+  as: number; 
+  bx: string; 
+  bp: number;
+  bs: number;
+  c: string[];
+  t: string; 
+  z: string; 
 }
 
 export type AlpacaWebSocketMessage =
@@ -72,14 +69,13 @@ export interface AlpacaStock {
   industry?: string;
 }
 
-// Alpaca Assets API response
 export interface AlpacaAsset {
   id: string;
-  class: string; // "us_equity"
-  exchange: string; // "NASDAQ", "NYSE", etc.
-  symbol: string; // "AAPL"
-  name: string; // "Apple Inc."
-  status: string; // "active"
+  class: string; 
+  exchange: string; 
+  symbol: string; 
+  name: string; 
+  status: string;
   tradable: boolean;
   marginable: boolean;
   maintenance_margin_requirement: number;
@@ -89,37 +85,36 @@ export interface AlpacaAsset {
   attributes: string[];
 }
 
-// Snapshot API response
 export interface AlpacaSnapshotData {
   latestTrade: {
-    t: string; // timestamp
-    x: string; // exchange
-    p: number; // price
-    s: number; // size
-    c: string[]; // conditions
-    i: number; // trade ID
-    z: string; // tape
+    t: string; 
+    x: string; 
+    p: number; 
+    s: number; 
+    c: string[]; 
+    i: number; 
+    z: string; 
   };
   latestQuote: {
-    t: string; // timestamp
-    ax: string; // ask exchange
-    ap: number; // ask price
-    as: number; // ask size
-    bx: string; // bid exchange
-    bp: number; // bid price
-    bs: number; // bid size
-    c: string[]; // conditions
-    z: string; // tape
+    t: string; 
+    ax: string; 
+    ap: number; 
+    as: number; 
+    bx: string; 
+    bp: number; 
+    bs: number; 
+    c: string[]; 
+    z: string; 
   };
   minuteBar: {
-    t: string; // timestamp
-    o: number; // open
-    h: number; // high
-    l: number; // low
-    c: number; // close
-    v: number; // volume
-    n: number; // number of trades
-    vw: number; // VWAP
+    t: string; 
+    o: number; 
+    h: number; 
+    l: number; 
+    c: number;
+    v: number; 
+    n: number; 
+    vw: number;
   };
   dailyBar: {
     t: string;

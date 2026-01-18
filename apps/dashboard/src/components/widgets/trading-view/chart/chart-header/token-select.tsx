@@ -115,21 +115,18 @@ export function TokenSelect(props: IProps) {
   const [searchValue, setSearchValue] = useAtom(tokenSearchValueAtom);
   const [activeCategory, setActiveCategory] = useAtom(tokenActiveCategoryAtom);
   
-  // Virtual scrolling state
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [visibleRange, setVisibleRange] = useState({ start: 0, end: 50 });
 
   const { data: tokensData } = useReadHyperLiquidTokens();
   const { data: featuredStocksData } = useReadAlpacaStocks();
-  
-  // Search stocks only when user types AND stocks tab is active
+
   const { data: searchStocksData, isLoading: stocksSearchLoading } = useSearchStocks(
     activeCategory === "stocks" && searchValue.length >= 1 ? searchValue : ""
   );
 
   const displayedAssets = useMemo(() => {
     if (activeCategory === "crypto") {
-      // Crypto assets with search filter
       let cryptoAssets = (tokensData?.allTokens || []).map(token => ({
         ...token,
         type: "crypto" as const,
@@ -147,37 +144,30 @@ export function TokenSelect(props: IProps) {
 
       return cryptoAssets;
     } else {
-      // Stocks tab
       if (searchValue.length >= 1 && searchStocksData?.stocks) {
-        // Show search results
         return searchStocksData.stocks;
       } else {
-        // Show all stocks when no search
         return featuredStocksData?.stocks || [];
       }
     }
   }, [activeCategory, searchValue, tokensData, featuredStocksData, searchStocksData]);
 
-  // Virtual scrolling - only render visible items
   const visibleAssets = useMemo(() => {
-    // For stocks, use virtual scrolling
     if (activeCategory === "stocks" && displayedAssets.length > 100) {
       return displayedAssets.slice(visibleRange.start, visibleRange.end);
     }
-    // For crypto or small lists, render all
     return displayedAssets;
   }, [displayedAssets, activeCategory, visibleRange]);
 
-  // Handle scroll for virtual rendering
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container || activeCategory !== "stocks" || displayedAssets.length <= 100) return;
 
     const handleScroll = () => {
       const scrollTop = container.scrollTop;
-      const rowHeight = 48; // Approximate row height
-      const visibleCount = 50; // Render 50 items at a time
-      const buffer = 10; // Add buffer for smooth scrolling
+      const rowHeight = 48;
+      const visibleCount = 50;
+      const buffer = 10; 
 
       const start = Math.max(0, Math.floor(scrollTop / rowHeight) - buffer);
       const end = Math.min(displayedAssets.length, start + visibleCount + buffer * 2);
@@ -189,7 +179,6 @@ export function TokenSelect(props: IProps) {
     return () => container.removeEventListener("scroll", handleScroll);
   }, [activeCategory, displayedAssets.length]);
 
-  // Reset scroll position when switching categories
   useEffect(() => {
     setVisibleRange({ start: 0, end: 50 });
     if (scrollContainerRef.current) {
@@ -224,14 +213,13 @@ export function TokenSelect(props: IProps) {
                   isActive={item.value === activeCategory}
                   onClick={() => {
                     setActiveCategory(item?.value);
-                    setSearchValue(""); // Clear search on category change
+                    setSearchValue(""); 
                   }}
                 />
               );
             })}
           </div>
           
-          {/* Results count */}
           <div className="text-[10px] text-[#737373]">
             {activeCategory === "stocks" && stocksSearchLoading ? (
               <span>Searching...</span>
@@ -246,15 +234,15 @@ export function TokenSelect(props: IProps) {
       <div className="flex-1 overflow-auto scrollbar px-2" ref={scrollContainerRef}>
         <table className="w-full table-fixed rounded-lg border border-[#262626] border-separate border-spacing-0">
           <colgroup>
-            <col style={{ width: activeCategory === "stocks" ? '70%' : 'auto' }} /> {/* Symbol/Name */}
+            <col style={{ width: activeCategory === "stocks" ? '70%' : 'auto' }} /> 
             {activeCategory === "stocks" ? (
               <col style={{ width: '30%' }} />
             ) : (
               <>
-                <col style={{ width: 'auto' }} /> {/* Last Price */}
-                <col style={{ width: 'auto' }} /> {/* 24H Change */}
-                <col style={{ width: 'auto' }} /> {/* Volume */}
-                <col style={{ width: 'auto' }} /> {/* Open Interest */}
+                <col style={{ width: 'auto' }} /> 
+                <col style={{ width: 'auto' }} /> 
+                <col style={{ width: 'auto' }} />
+                <col style={{ width: 'auto' }} />
               </>
             )}
           </colgroup>
@@ -286,7 +274,6 @@ export function TokenSelect(props: IProps) {
             </tr>
           </thead>
           <tbody>
-            {/* Spacer for virtual scrolling */}
             {activeCategory === "stocks" && displayedAssets.length > 100 && visibleRange.start > 0 && (
               <tr style={{ height: `${visibleRange.start * 48}px` }}>
                 <td colSpan={2}></td>
@@ -369,7 +356,6 @@ export function TokenSelect(props: IProps) {
               }
             })}
             
-            {/* Bottom spacer for virtual scrolling */}
             {activeCategory === "stocks" && displayedAssets.length > 100 && visibleRange.end < displayedAssets.length && (
               <tr style={{ height: `${(displayedAssets.length - visibleRange.end) * 48}px` }}>
                 <td colSpan={2}></td>

@@ -15,15 +15,14 @@ export const getCoinIconUrl = (symbol = "BTC") => {
 
 function isMarketOpen(): boolean {
   const now = new Date();
-  const day = now.getUTCDay(); // 0 = Sunday, 6 = Saturday
+  const day = now.getUTCDay(); 
   const hour = now.getUTCHours();
   const minute = now.getUTCMinutes();
   const totalMinutes = hour * 60 + minute;
 
-  // NYSE: Monday-Friday, 9:30 AM - 4:00 PM EST (14:30 - 21:00 UTC)
   const isWeekday = day >= 1 && day <= 5;
-  const marketOpen = 14 * 60 + 30; // 14:30 UTC
-  const marketClose = 21 * 60; // 21:00 UTC
+  const marketOpen = 14 * 60 + 30; 
+  const marketClose = 21 * 60; 
 
   return isWeekday && totalMinutes >= marketOpen && totalMinutes < marketClose;
 }
