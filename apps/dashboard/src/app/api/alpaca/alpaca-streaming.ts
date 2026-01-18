@@ -45,7 +45,6 @@ function createSocket() {
     console.log("[Alpaca socket] Connected");
     state.isReconnecting = false;
 
-    // Authenticate
     const authMsg = {
       action: "auth",
       key: API_KEY,
@@ -90,7 +89,6 @@ function handleMessage(event: MessageEvent) {
           console.log("[Alpaca socket] Authenticated");
           state.isAuthenticated = true;
 
-          // Subscribe to pending symbols
           if (state.pendingSubscriptions.length > 0) {
             const subscribeMsg = {
               action: "subscribe",
@@ -100,7 +98,6 @@ function handleMessage(event: MessageEvent) {
             state.pendingSubscriptions = [];
           }
 
-          // Resubscribe to existing channels
           const symbols = Array.from(state.channelToSubscription.keys());
           if (symbols.length > 0) {
             const subscribeMsg = {
@@ -176,10 +173,8 @@ export function subscribeOnStream(
 
   state.channelToSubscription.set(symbol, subscriptionItem);
 
-  // Create socket if not exists
   createSocket();
 
-  // Subscribe to bars
   if (state.isAuthenticated) {
     const subscribeMsg = {
       action: "subscribe",
@@ -187,7 +182,6 @@ export function subscribeOnStream(
     };
     state.socket?.send(JSON.stringify(subscribeMsg));
   } else {
-    // Queue subscription until authenticated
     if (!state.pendingSubscriptions.includes(symbol)) {
       state.pendingSubscriptions.push(symbol);
     }

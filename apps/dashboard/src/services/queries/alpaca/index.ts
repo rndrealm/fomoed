@@ -3,10 +3,6 @@ import { StockSymbol } from "@/lib/atoms/tradingViewWidget";
 import { AlpacaAPI } from "@/app/api/alpaca/alpaca-api";
 import { AlpacaAsset } from "@/app/api/alpaca/types";
 
-/**
- * Search stocks by symbol or name (like TradingView)
- * Only fetches when user types, returns top matches
- */
 export function useSearchStocks(searchQuery: string) {
   return useQuery({
     queryKey: ["search-stocks", searchQuery],
@@ -18,34 +14,25 @@ export function useSearchStocks(searchQuery: string) {
       const api = new AlpacaAPI();
       
       try {
-        // Get all assets and filter by search
         const allAssets = await api.getAllAssets();
         
         const query = searchQuery.toUpperCase();
         
-        // Filter and score matches
         const matches = allAssets
           .filter((asset: AlpacaAsset) => {
-            // Only tradeable US stocks
             if (!asset.tradable || asset.class !== "us_equity") return false;
             
-            // Symbol or name contains search query
             const symbolMatch = asset.symbol.includes(query);
             const nameMatch = asset.name.toUpperCase().includes(query);
             
             return symbolMatch || nameMatch;
           })
           .map((asset: AlpacaAsset) => {
-            // Calculate relevance score (for sorting)
             let score = 0;
             
-            // Exact symbol match = highest priority
             if (asset.symbol === query) score += 1000;
-            // Symbol starts with query
             else if (asset.symbol.startsWith(query)) score += 100;
-            // Symbol contains query
             else if (asset.symbol.includes(query)) score += 50;
-            // Name contains query
             else if (asset.name.toUpperCase().includes(query)) score += 10;
             
             return {
@@ -53,8 +40,8 @@ export function useSearchStocks(searchQuery: string) {
               score,
             };
           })
-          .sort((a: { asset: AlpacaAsset; score: number }, b: { asset: AlpacaAsset; score: number }) => b.score - a.score) // Sort by relevance
-          .slice(0, 50) // Top 50 results only
+          .sort((a: { asset: AlpacaAsset; score: number }, b: { asset: AlpacaAsset; score: number }) => b.score - a.score) 
+          .slice(0, 50) 
           .map(({ asset }: { asset: AlpacaAsset }) => ({
             symbol: asset.symbol,
             name: asset.name,
@@ -75,15 +62,11 @@ export function useSearchStocks(searchQuery: string) {
         return { stocks: [], total: 0 };
       }
     },
-    enabled: searchQuery.length >= 1, // Only search if there's a query
-    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    enabled: searchQuery.length >= 1, 
+    staleTime: 1000 * 60 * 5, 
   });
 }
 
-/**
- * Get featured/popular stocks to show by default
- * Returns 500+ most popular US stocks
- */
 export function useReadAlpacaStocks() {
   return useQuery({
     queryKey: ["alpaca-featured-stocks"],
@@ -91,13 +74,11 @@ export function useReadAlpacaStocks() {
       const api = new AlpacaAPI();
       
       try {
-        // Get filtered stocks from Alpaca API
         const assets = await api.getFilteredStocks({
           tradable: true,
           exchanges: ["NASDAQ", "NYSE", "ARCA"],
         });
 
-        // Popular symbols to prioritize
         const popularSymbols = [
           "AAPL", "MSFT", "GOOGL", "GOOG", "AMZN", "TSLA", "NVDA", "META", "BRK.B", "BRK.A",
           "JPM", "V", "WMT", "UNH", "JNJ", "PG", "MA", "HD", "XOM", "CVX",
@@ -131,7 +112,6 @@ export function useReadAlpacaStocks() {
           quoteTokenName: "USD",
         }));
 
-        // Sort: Popular first, then alphabetically
         const sortedStocks = stocks.sort((a, b) => {
           const aIsPopular = popularSymbols.includes(a.symbol);
           const bIsPopular = popularSymbols.includes(b.symbol);
@@ -153,7 +133,6 @@ export function useReadAlpacaStocks() {
       } catch (error) {
         console.error("Failed to fetch stocks:", error);
         
-        // Fallback to popular stocks if API fails
         const fallbackStocks: StockSymbol[] = [
           { symbol: "AAPL", name: "Apple Inc.", displayName: "AAPL", type: "stock", exchange: "NASDAQ", price: "0", baseTokenName: "AAPL", quoteTokenName: "USD" },
           { symbol: "MSFT", name: "Microsoft Corporation", displayName: "MSFT", type: "stock", exchange: "NASDAQ", price: "0", baseTokenName: "MSFT", quoteTokenName: "USD" },
@@ -170,6 +149,6 @@ export function useReadAlpacaStocks() {
         };
       }
     },
-    staleTime: 1000 * 60 * 60, // Cache for 1 hour
+    staleTime: 1000 * 60 * 60, 
   });
 }

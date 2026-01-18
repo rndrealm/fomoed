@@ -1,7 +1,6 @@
 import { atom } from "jotai";
 import { PerpUniverse, SpotsUniverse } from "@/services/queries/hyperliquid/types";
 
-// New: Unified symbol type supporting both crypto and stocks
 export type AssetType = "crypto" | "stock";
 
 export interface StockSymbol {
@@ -12,7 +11,6 @@ export interface StockSymbol {
   exchange: string;
   price: string;
   sector?: string;
-  // For compatibility with UI
   baseTokenName?: string;
   quoteTokenName?: string;
 }
@@ -53,7 +51,6 @@ const setToStorage = <T,>(key: string, value: T): void => {
   }
 };
 
-// Widget token atom with manual localStorage persistence
 const selectedTokenWidgetBaseAtom = atom<UnifiedSymbol | null>(
   getFromStorage("selectedTokenWidget", null)
 );
@@ -86,7 +83,6 @@ export const tokenActiveCategoryAtom = atom(
   }
 );
 
-// New: Asset type filter (crypto vs stock)
 const assetTypeBaseAtom = atom<AssetType | "all">(getFromStorage("assetType", "all"));
 
 export const assetTypeAtom = atom(
