@@ -103,7 +103,7 @@ export function QuickWidgetItem(props: IProps) {
   return (
     <div className="relative cursor-pointer p-6 h-full w-full flex flex-col justify-start items-start">
       <div
-        className="flex flex-col gap-x-[6px] gap-y-[6px]"
+        className={`flex flex-col gap-x-[6px] gap-y-[6px] ${widget.isMaintenance ? "opacity-50" : ""}`}
         // onClick={() => {
         //   handleWidgetClick();
         // }}
@@ -159,6 +159,7 @@ export function QuickWidgetItem(props: IProps) {
             />
           </div>
         </div>
+
         {/* <div className="flex opacity-0">
           <div className="rounded-sm bg-[#141414] px-2 py-1">
             <p className="text-xs leading-[1.35] font-medium text-white">
@@ -167,6 +168,15 @@ export function QuickWidgetItem(props: IProps) {
           </div>
         </div> */}
       </div>
+
+      {/* Under Maintenance overlay - centered on preview */}
+      <RenderIf condition={widget.isMaintenance}>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+          <div className="px-6 py-3 text-base font-bold text-center text-white bg-[#ff4d0040] rounded-lg border-2 border-[#ff4d00] shadow-[0_0_30px_#ff4d00] opacity-100">
+            UNDER MAINTENANCE
+          </div>
+        </div>
+      </RenderIf>
 
       <ModalContainer
         open={showUpgradeModal}

@@ -104,6 +104,11 @@ export function QuickWidgets(props: IProps) {
   const isClicked = useRef(false);
 
   const handleWidgetClick = (widget: LayoutOptionType[0]) => {
+    // Prevent adding widgets that are under maintenance
+    if (widget.isMaintenance) {
+      return;
+    }
+
     isClicked.current = true;
     const currLayoutId = activeTab.layout_id;
     const currLayout = layouts.find((item) => item.id === currLayoutId);
@@ -270,10 +275,11 @@ export function QuickWidgets(props: IProps) {
                       <CommandGroup className="relative min-h-fit aspect-square rounded-[24px] p-0">
                         <CommandItem
                           key={widget.name}
-                          className="min-h-fit aspect-square bg-[#28282866] data-[selected=true]:bg-[#27292E] rounded-[24px] p-0 overflow-hidden cursor-pointer"
+                          className={`min-h-fit aspect-square bg-[#28282866] data-[selected=true]:bg-[#27292E] rounded-[24px] p-0 overflow-hidden ${widget.isMaintenance ? "cursor-not-allowed" : "cursor-pointer"}`}
                           onSelect={(e) => {
                             handleWidgetClick(widget);
                           }}
+                          disabled={widget.isMaintenance}
                         >
                           <QuickWidgetItem
                             tag={selectedTag}
