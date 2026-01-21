@@ -115,7 +115,18 @@ export const layoutOptions: LayoutOptions[] = [
   },
 ];
 
+// Hardcoded list of widgets under maintenance (Coinglass API widgets)
+const MAINTENANCE_WIDGETS = [
+  "orderbook-delta",
+  "trading-economics",
+  "exchange-liquidation-map",
+  "liquidation-map",
+  "whale-transaction-tracker",
+];
+
 const disabledWgSlugs = process.env.NEXT_PUBLIC_DISABLED_WG_SLUGS?.split(",") || [];
+// Use env var if provided (override), otherwise use hardcoded default list
+const maintenanceWgSlugs = process.env.NEXT_PUBLIC_MAINTENANCE_WG_SLUGS?.split(",") || MAINTENANCE_WIDGETS;
 
 export const layoutOptionsMap = [
   {
@@ -409,7 +420,12 @@ export const layoutOptionsMap = [
     category: "charts",
     tags: ["charts", "new"],
   },
-].filter((i) => !disabledWgSlugs.includes(i.slug));
+]
+  .filter((i) => !disabledWgSlugs.includes(i.slug))
+  .map((widget) => ({
+    ...widget,
+    isMaintenance: maintenanceWgSlugs.includes(widget.slug),
+  }));
 
 export type LayoutOptionType = typeof layoutOptionsMap;
 
