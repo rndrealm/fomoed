@@ -121,6 +121,7 @@ const MAINTENANCE_WIDGETS = [
   "trading-economics",
   "exchange-liquidation-map",
   "liquidation-map",
+  "liquidation-heat-map",
   "whale-transaction-tracker",
 ];
 
