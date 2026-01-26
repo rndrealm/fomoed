@@ -52,6 +52,7 @@ import TelegramWidget from "@/components/widgets/telegram/telegram-widget";
 import Trading from "@/components/widgets/trading";
 import AggrTradeWidget from "@/components/widgets/aggr-trade/aggr-trade-widget";
 import TradingViewWidget from "@/components/widgets/trading-view";
+import NewLiquidationHeatmap from "@/components/widgets/new-liquidation-heatmap";
 
 export const layoutClassMap = {
   SinglePane: "grid-rows-1 grid-cols-1",
@@ -420,6 +421,14 @@ export const layoutOptionsMap = [
     category: "charts",
     tags: ["charts", "new"],
   },
+  {
+    id: 219,
+    name: "Liquidation Heatmap",
+    slug: "new-liq-heatmap",
+    image: dashboard.liq2,
+    category: "charts",
+    tags: ["charts", "new"],
+  },
 ]
   .filter((i) => !disabledWgSlugs.includes(i.slug))
   .map((widget) => ({
@@ -618,6 +627,12 @@ export const chartsMap = {
     name: "Trading View Widget",
     extra: [],
     component: (widget: LayoutType["widgets"][0]) => <TradingViewWidget widget={widget} />,
+    isResizable: true,
+  },
+  "new-liq-heatmap": {
+    name: "Liquidation Heatmap",
+    extra: [],
+    component: (widget: LayoutType["widgets"][0]) => <NewLiquidationHeatmap widget={widget} />,
     isResizable: true,
   },
 };
@@ -987,6 +1002,16 @@ export const widgetPropsDefaults = {
     meta: {
       w: 8,
       h: 4,
+      minW: 8,
+      minH: 4,
+      maxW: Infinity,
+      maxH: Infinity,
+    },
+  },
+  "new-liq-heatmap": {
+    meta: {
+      w: 12,
+      h: 6,
       minW: 8,
       minH: 4,
       maxW: Infinity,
