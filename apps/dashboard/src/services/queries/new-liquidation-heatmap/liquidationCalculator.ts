@@ -1,4 +1,4 @@
-import { MergedBar, LiquidationLevel, HeatmapResult, Config } from './types';
+import { MergedBar, LiquidationLevel, HeatmapResult, Config } from "./types";
 
 /**
  * Liquidation Heatmap Calculator
@@ -23,11 +23,7 @@ function createLiquidation(direction: 1 | -1): Liquidation {
   return { levels: [], prices: [], direction };
 }
 
-function addLevel(
-  liq: Liquidation,
-  level: LiquidationLevel,
-  maxLevels: number
-): void {
+function addLevel(liq: Liquidation, level: LiquidationLevel, maxLevels: number): void {
   for (let i = 0; i < liq.levels.length; i++) {
     if (level.priceTop === liq.levels[i].priceTop) {
       liq.levels[i].contracts += level.contracts;
@@ -46,20 +42,13 @@ function addLevel(
   liq.prices.push(liq.direction > 0 ? level.priceTop : level.priceBottom);
 }
 
-function squeezeLevels(
-  liq: Liquidation,
-  currentLow: number,
-  currentHigh: number
-): boolean {
+function squeezeLevels(liq: Liquidation, currentLow: number, currentHigh: number): boolean {
   let squeezed = false;
   let i = liq.levels.length - 1;
 
   while (i >= 0) {
     const price = liq.prices[i];
-    const shouldRemove =
-      liq.direction > 0
-        ? currentLow < price 
-        : currentHigh > price; 
+    const shouldRemove = liq.direction > 0 ? currentLow < price : currentHigh > price;
 
     if (shouldRemove) {
       liq.levels.splice(i, 1);
@@ -83,10 +72,20 @@ function getTickSize(price: number): number {
   return 0.0000001;
 }
 
+function getLiquidationBoost(price: number): number {
+  if (price > 20000) return 1.5; 
+  if (price > 5000) return 2;
+  if (price > 1000) return 2.5;
+  if (price > 100) return 3/5;
+  if (price > 10) return 4.5;
+  if (price > 1) return 5; 
+  return 5.5; 
+}
+
 function getLiqPrice(entryPrice: number, leverage: number, direction: 1 | -1): number {
-  // For longs: liq_price = entry * (1 - 1/leverage)
-  // For shorts: liq_price = entry * (1 + 1/leverage)
-  return entryPrice * (1 - direction * (1 / leverage));
+  const boost = getLiquidationBoost(entryPrice);
+
+  return entryPrice * (1 - direction * (1 / leverage) * boost);
 }
 
 function getPriceBucket(price: number, scale: number): [number, number] {
@@ -95,11 +94,7 @@ function getPriceBucket(price: number, scale: number): [number, number] {
   return [top, bottom];
 }
 
-export function calculateLiquidationHeatmap(
-  bars: MergedBar[],
-  config: Config,
-  currentPrice: number
-): HeatmapResult {
+export function calculateLiquidationHeatmap(bars: MergedBar[], config: Config, currentPrice: number): HeatmapResult {
   if (bars.length === 0) {
     return {
       longs: [],
@@ -159,7 +154,7 @@ export function calculateLiquidationHeatmap(
             timestamp: bar.timestamp,
             direction: 1,
           },
-          config.maxLevels
+          config.maxLevels,
         );
 
         if (disp > 0) {
@@ -176,7 +171,7 @@ export function calculateLiquidationHeatmap(
               timestamp: bar.timestamp,
               direction: -1,
             },
-            config.maxLevels
+            config.maxLevels,
           );
         }
       } else {
@@ -193,7 +188,7 @@ export function calculateLiquidationHeatmap(
             timestamp: bar.timestamp,
             direction: -1,
           },
-          config.maxLevels
+          config.maxLevels,
         );
 
         if (disp > 0) {
@@ -210,7 +205,7 @@ export function calculateLiquidationHeatmap(
               timestamp: bar.timestamp,
               direction: 1,
             },
-            config.maxLevels
+            config.maxLevels,
           );
         }
       }
@@ -229,10 +224,7 @@ export function calculateLiquidationHeatmap(
     ...bars.map((b) => b.low),
   ];
 
-  const priceRange: [number, number] = [
-    Math.min(...allPrices),
-    Math.max(...allPrices),
-  ];
+  const priceRange: [number, number] = [Math.min(...allPrices), Math.max(...allPrices)];
 
   return {
     longs: longs.levels,
