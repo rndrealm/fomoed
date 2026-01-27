@@ -25,7 +25,6 @@ function App() {
   const [config, setConfigState] = useState<Config>(DEFAULT_CONFIG);
   const { bars, result, currentPrice, loading, error, refresh, setConfig, connected } = useLiquidationData(config);
 
-  // Measure container dimensions
   useEffect(() => {
     const updateDimensions = () => {
       if (!containerRef.current) return;
@@ -43,7 +42,7 @@ function App() {
 
       const chartHeight = Math.max(
         Math.min(availableHeight - usedHeight - safetyMargin, availableHeight),
-        200, // lower than 300 prevents overflow in small widgets
+        200,
       );
 
       setDimensions({
@@ -52,10 +51,8 @@ function App() {
       });
     };
 
-    // Initial measurement with delay to ensure DOM is ready
     const timer = setTimeout(updateDimensions, 100);
 
-    // Use ResizeObserver for better performance
     const resizeObserver = new ResizeObserver(() => {
       requestAnimationFrame(updateDimensions);
     });
@@ -70,7 +67,6 @@ function App() {
     };
   }, [showControls, error, isMobile]);
 
-  // Load available symbols on mount
   useEffect(() => {
     async function loadSymbols() {
       setLoadingSymbols(true);
@@ -111,8 +107,8 @@ function App() {
         background: "#000000",
         width: "100%",
         height: "100%",
-        minHeight: 0, // 🔑 allows children to shrink
-        overflow: "hidden", // 🔒 never exceed wrapper
+        minHeight: 0, 
+        overflow: "hidden", 
         color: "#fff",
         display: "flex",
         flexDirection: "column",
@@ -199,7 +195,7 @@ function App() {
         )}
       </div>
 
-      {/* Controls - Collapsible on mobile */}
+      {/* Controls */}
       {(!isMobile || showControls) && (
         <div
           ref={controlsRef}
@@ -350,9 +346,10 @@ function App() {
         </div>
       )}
 
-      {/* Stats bar - Hidden on very small screens or scrollable */}
+      {/* Stats bar  */}
       {!isMobile && (
         <div
+        className="no-scrollbar"
           ref={statsRef}
           style={{
             padding: "8px 20px",
@@ -412,7 +409,7 @@ function App() {
             display: "flex",
           }}
         >
-          {/* CHART HOST — this is what lightweight-charts mounts into */}
+          {/* CHART HOST  */}
           <div
             style={{
               flex: 1,

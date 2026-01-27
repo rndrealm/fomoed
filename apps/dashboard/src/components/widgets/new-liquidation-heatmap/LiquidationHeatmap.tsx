@@ -32,14 +32,7 @@ interface Props {
 const LONG_COLOR = "#26a69a";
 const SHORT_COLOR = "#ef5350";
 
-export function LiquidationHeatmap({
-  bars,
-  result,
-  currentPrice,
-  width,
-  height,
-  isMobile = false,
-}: Props) {
+export function LiquidationHeatmap({ bars, result, currentPrice, width, height, isMobile = false }: Props) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const candleSeriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
@@ -57,68 +50,60 @@ export function LiquidationHeatmap({
   const sidebarWidth = isMobile ? 200 : 280;
   const mainChartWidth = showSidebar ? width - sidebarWidth : width;
 
-  const { candleData, volumeData, vwapData, vwapDeviationData } =
-    useMemo(() => {
-      const candles: CandlestickData<Time>[] = [];
-      const volumes: HistogramData<Time>[] = [];
-      const vwap: LineData<Time>[] = [];
-      const vwapDeviation: HistogramData<Time>[] = [];
+  const { candleData, volumeData, vwapData, vwapDeviationData } = useMemo(() => {
+    const candles: CandlestickData<Time>[] = [];
+    const volumes: HistogramData<Time>[] = [];
+    const vwap: LineData<Time>[] = [];
+    const vwapDeviation: HistogramData<Time>[] = [];
 
-      let cumulativePV = 0;
-      let cumulativeVolume = 0;
+    let cumulativePV = 0;
+    let cumulativeVolume = 0;
 
-      for (const bar of bars) {
-        const time = (bar.timestamp / 1000) as Time;
-        const isBullish = bar.close >= bar.open;
-        const typicalPrice = (bar.high + bar.low + bar.close) / 3;
+    for (const bar of bars) {
+      const time = (bar.timestamp / 1000) as Time;
+      const isBullish = bar.close >= bar.open;
+      const typicalPrice = (bar.high + bar.low + bar.close) / 3;
 
-        cumulativePV += typicalPrice * bar.volume;
-        cumulativeVolume += bar.volume;
-        const vwapValue =
-          cumulativeVolume > 0 ? cumulativePV / cumulativeVolume : typicalPrice;
+      cumulativePV += typicalPrice * bar.volume;
+      cumulativeVolume += bar.volume;
+      const vwapValue = cumulativeVolume > 0 ? cumulativePV / cumulativeVolume : typicalPrice;
 
-        const deviationPercent = ((bar.close - vwapValue) / vwapValue) * 100;
+      const deviationPercent = ((bar.close - vwapValue) / vwapValue) * 100;
 
-        candles.push({
-          time,
-          open: bar.open,
-          high: bar.high,
-          low: bar.low,
-          close: bar.close,
-        });
+      candles.push({
+        time,
+        open: bar.open,
+        high: bar.high,
+        low: bar.low,
+        close: bar.close,
+      });
 
-        volumes.push({
-          time,
-          value: bar.volume,
-          color: isBullish
-            ? "rgba(38, 166, 154, 0.5)"
-            : "rgba(239, 83, 80, 0.5)",
-        });
+      volumes.push({
+        time,
+        value: bar.volume,
+        color: isBullish ? "rgba(38, 166, 154, 0.5)" : "rgba(239, 83, 80, 0.5)",
+      });
 
-        vwap.push({
-          time,
-          value: vwapValue,
-        });
+      vwap.push({
+        time,
+        value: vwapValue,
+      });
 
-        vwapDeviation.push({
-          time,
-          value: deviationPercent,
-          color:
-            deviationPercent >= 0
-              ? "rgba(38, 166, 154, 0.8)"
-              : "rgba(239, 83, 80, 0.8)",
-        });
-      }
+      vwapDeviation.push({
+        time,
+        value: deviationPercent,
+        color: deviationPercent >= 0 ? "rgba(38, 166, 154, 0.8)" : "rgba(239, 83, 80, 0.8)",
+      });
+    }
 
-      return {
-        candleData: candles,
-        volumeData: volumes,
-        vwapData: vwap,
-        vwapDeviationData: vwapDeviation,
-      };
-    }, [bars]);
+    return {
+      candleData: candles,
+      volumeData: volumes,
+      vwapData: vwap,
+      vwapDeviationData: vwapDeviation,
+    };
+  }, [bars]);
 
-  // Initialize chart
   useEffect(() => {
     if (!chartContainerRef.current) return;
 
@@ -130,7 +115,7 @@ export function LiquidationHeatmap({
 
     const chart = createChart(chartContainerRef.current, {
       width: mainChartWidth,
-      autoSize:true,
+      autoSize: true,
       layout: {
         background: { color: "#000000" },
         textColor: "#737373",
@@ -194,9 +179,7 @@ export function LiquidationHeatmap({
 
     chartRef.current = chart;
     chartInstanceIdRef.current += 1;
-    console.log(
-      `[Chart] Created new chart instance, id=${chartInstanceIdRef.current}`,
-    );
+    console.log(`[Chart] Created new chart instance, id=${chartInstanceIdRef.current}`);
 
     const candleSeries = chart.addSeries(CandlestickSeries, {
       upColor: LONG_COLOR,
@@ -254,12 +237,7 @@ export function LiquidationHeatmap({
     chart.subscribeCrosshairMove((param) => {
       if (!tooltipRef.current) return;
 
-      if (
-        !param.time ||
-        !param.point ||
-        param.point.x < 0 ||
-        param.point.y < 0
-      ) {
+      if (!param.time || !param.point || param.point.x < 0 || param.point.y < 0) {
         tooltipRef.current.style.display = "none";
         return;
       }
@@ -280,17 +258,11 @@ export function LiquidationHeatmap({
       const vwapDev = vwapDevValue as HistogramData<Time>;
 
       const date = new Date((param.time as number) * 1000);
-      const dateStr = isMobile
-        ? date.toLocaleTimeString()
-        : date.toLocaleString();
+      const dateStr = isMobile ? date.toLocaleTimeString() : date.toLocaleString();
 
-      const changePercent = (
-        ((data.close - data.open) / data.open) *
-        100
-      ).toFixed(2);
+      const changePercent = (((data.close - data.open) / data.open) * 100).toFixed(2);
       const changeColor = data.close >= data.open ? LONG_COLOR : SHORT_COLOR;
-      const vwapDevColor =
-        vwapDev && vwapDev.value >= 0 ? LONG_COLOR : SHORT_COLOR;
+      const vwapDevColor = vwapDev && vwapDev.value >= 0 ? LONG_COLOR : SHORT_COLOR;
 
       tooltipRef.current.innerHTML = `
         <div style="font-size: ${isMobile ? "10px" : "11px"}; color: #737373; margin-bottom: 4px;">${dateStr}</div>
@@ -338,7 +310,7 @@ export function LiquidationHeatmap({
       liquidationLinesRef.current = [];
       currentPriceLineRef.current = null;
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -370,20 +342,50 @@ export function LiquidationHeatmap({
       }
       liquidationLinesRef.current = [];
 
+      const allLiqPrices = [
+        ...result.longs.map((l) => l.priceTop),
+        ...result.longs.map((l) => l.priceBottom),
+        ...result.shorts.map((l) => l.priceTop),
+        ...result.shorts.map((l) => l.priceBottom),
+      ];
+
+      let finalMin = 0;
+      let finalMax = 0;
+
+      if (allLiqPrices.length > 0 && bars.length > 0) {
+        const minLiqPrice = Math.min(...allLiqPrices);
+        const maxLiqPrice = Math.max(...allLiqPrices);
+
+        const barPrices = bars.flatMap((b) => [b.high, b.low]);
+        const minBarPrice = Math.min(...barPrices);
+        const maxBarPrice = Math.max(...barPrices);
+
+        finalMin = Math.min(minLiqPrice, minBarPrice);
+        finalMax = Math.max(maxLiqPrice, maxBarPrice);
+      }
+
+      if (finalMin > 0 && finalMax > 0) {
+        series.applyOptions({
+          autoscaleInfoProvider: () => ({
+            priceRange: {
+              minValue: finalMin,
+              maxValue: finalMax,
+            },
+          }),
+        });
+      } else {
+        series.applyOptions({
+          autoscaleInfoProvider: undefined,
+        });
+      }
+
       const maxLongContracts = getMaxContracts(result.longs);
       const maxShortContracts = getMaxContracts(result.shorts);
 
-      const maxLines = isMobile ? 10 : 15;
+      const allLongs = [...result.longs].sort((a, b) => b.contracts - a.contracts);
 
-      const topLongs = [...result.longs]
-        .sort((a, b) => b.contracts - a.contracts)
-        .slice(0, maxLines);
-
-      for (const level of topLongs) {
-        const intensity = getNormalizedIntensity(
-          level.contracts,
-          maxLongContracts,
-        );
+      for (const level of allLongs) {
+        const intensity = getNormalizedIntensity(level.contracts, maxLongContracts);
         const priceLine = series.createPriceLine({
           price: level.priceTop,
           color: `rgba(187, 255, 0, ${0.2 + intensity * 0.6})`,
@@ -395,15 +397,10 @@ export function LiquidationHeatmap({
         liquidationLinesRef.current.push(priceLine);
       }
 
-      const topShorts = [...result.shorts]
-        .sort((a, b) => b.contracts - a.contracts)
-        .slice(0, maxLines);
+      const allShorts = [...result.shorts].sort((a, b) => b.contracts - a.contracts);
 
-      for (const level of topShorts) {
-        const intensity = getNormalizedIntensity(
-          level.contracts,
-          maxShortContracts,
-        );
+      for (const level of allShorts) {
+        const intensity = getNormalizedIntensity(level.contracts, maxShortContracts);
         const priceLine = series.createPriceLine({
           price: level.priceBottom,
           color: `rgba(0, 102, 204, ${0.2 + intensity * 0.6})`,
@@ -414,16 +411,12 @@ export function LiquidationHeatmap({
         });
         liquidationLinesRef.current.push(priceLine);
       }
+
+      if (chartRef.current) {
+        chartRef.current.timeScale().fitContent();
+      }
     }
-  }, [
-    candleData,
-    volumeData,
-    vwapData,
-    vwapDeviationData,
-    result.longs,
-    result.shorts,
-    isMobile,
-  ]);
+  }, [candleData, volumeData, vwapData, vwapDeviationData, result.longs, result.shorts, isMobile, bars]);
 
   useEffect(() => {
     if (!candleSeriesRef.current || currentPrice <= 0) return;
@@ -435,10 +428,7 @@ export function LiquidationHeatmap({
       `[PriceLine] currentPrice=${currentPrice}, chartId=${currentChartId}, priceLineChartId=${priceLineChartIdRef.current}, hasLine=${!!currentPriceLineRef.current}`,
     );
 
-    if (
-      currentPriceLineRef.current &&
-      priceLineChartIdRef.current === currentChartId
-    ) {
+    if (currentPriceLineRef.current && priceLineChartIdRef.current === currentChartId) {
       try {
         console.log("[PriceLine] Updating existing line");
         currentPriceLineRef.current.applyOptions({
@@ -487,15 +477,12 @@ export function LiquidationHeatmap({
     } else if (priceMax < 100) {
       bucketSize = Math.max((priceMax - priceMin) * 0.02, 0.1);
     } else if (priceMax < 1000) {
-      bucketSize = Math.max((priceMax - priceMin) * 0.02, 1);
+      bucketSize = Math.max((priceMax - priceMin) * 0.02);
     } else {
       bucketSize = Math.max((priceMax - priceMin) * 0.02, 10);
     }
 
-    const buckets: Map<
-      number,
-      { longs: number; shorts: number; price: number }
-    > = new Map();
+    const buckets: Map<number, { longs: number; shorts: number; price: number }> = new Map();
 
     for (const level of result.longs) {
       const bucket = Math.floor(level.priceTop / bucketSize) * bucketSize;
@@ -539,11 +526,8 @@ export function LiquidationHeatmap({
       }}
     >
       {/* Main Chart */}
-      <div style={{ position: "relative", width: mainChartWidth, height:'100%', flexShrink: 0, overflow: "hidden" }}>
-        <div
-          ref={chartContainerRef}
-          style={{ width: "100%", height: "100%" }}
-        />
+      <div style={{ position: "relative", width: mainChartWidth, height: "100%", flexShrink: 0, overflow: "hidden" }}>
+        <div ref={chartContainerRef} style={{ width: "100%", height: "100%" }} />
 
         {/* Tooltip */}
         <div
@@ -583,11 +567,7 @@ export function LiquidationHeatmap({
               touchAction: "manipulation",
             }}
           >
-            {showSidebar ? (
-              <ChevronRight size={16} />
-            ) : (
-              <ChevronLeft size={16} />
-            )}
+            {showSidebar ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
           </button>
         )}
       </div>
@@ -595,7 +575,7 @@ export function LiquidationHeatmap({
       {/* Sidebar - Liquidation Density */}
       {showSidebar && (
         <div
-        className="no-scrollbar"
+          className="no-scrollbar"
           style={{
             width: sidebarWidth,
             flexShrink: 0,
@@ -636,7 +616,7 @@ export function LiquidationHeatmap({
 
           {/* Density bars */}
           <div
-          className="no-scrollbar"
+            className="no-scrollbar"
             style={{
               maxHeight: "100%",
               overflowY: "auto",
@@ -646,30 +626,22 @@ export function LiquidationHeatmap({
               .sort((a, b) => b[0] - a[0])
               .map(([bucket, data]) => {
                 const barWidth = isMobile ? 60 : 80;
-                const longWidth =
-                  maxDensity > 0 ? (data.longs / maxDensity) * barWidth : 0;
-                const shortWidth =
-                  maxDensity > 0 ? (data.shorts / maxDensity) * barWidth : 0;
+                const longWidth = maxDensity > 0 ? (data.longs / maxDensity) * barWidth : 0;
+                const shortWidth = maxDensity > 0 ? (data.shorts / maxDensity) * barWidth : 0;
 
                 return (
                   <div
                     key={bucket}
                     style={{
-                      display: "flex",
+                      display: "grid",
+                      gridTemplateColumns: `${barWidth}px auto ${barWidth}px`,
                       alignItems: "center",
                       height: isMobile ? "10px" : "12px",
                       marginBottom: "2px",
                       fontSize: isMobile ? "8px" : "9px",
                     }}
                   >
-                    <div
-                      style={{
-                        width: `${barWidth}px`,
-                        display: "flex",
-                        justifyContent: "flex-end",
-                        flexShrink: 0,
-                      }}
-                    >
+                    <div style={{ display: "flex", justifyContent: "flex-end" }}>
                       <div
                         style={{
                           width: `${shortWidth}px`,
@@ -682,25 +654,26 @@ export function LiquidationHeatmap({
 
                     <div
                       style={{
-                        width: isMobile ? "50px" : "70px",
+                        minWidth: isMobile ? "50px" : "70px",
                         textAlign: "center",
                         color: "#e5e5e5",
-                        fontSize: isMobile ? "8px" : "9px",
-                        fontWeight: "600",
+                        fontSize: isMobile ? "11px" : "13px",
+                        fontWeight: 500,
                         fontFamily: "monospace",
-                        flexShrink: 0,
+                        whiteSpace: "nowrap",
+                        letterSpacing: "0.3px",
                       }}
                     >
                       {data.price < 1
                         ? data.price.toFixed(4)
                         : data.price < 10
                           ? data.price.toFixed(2)
-                          : data.price < 100
+                          : data.price < 1000
                             ? data.price.toFixed(1)
                             : Math.round(data.price).toLocaleString()}
                     </div>
 
-                    <div style={{ width: `${barWidth}px`, flexShrink: 0 }}>
+                    <div>
                       <div
                         style={{
                           width: `${longWidth}px`,
