@@ -56,7 +56,7 @@ export interface Config {
 
 export const DEFAULT_CONFIG: Config = {
   symbol: 'BTCUSDT',
-  leverages: [125, 100, 50],
+  leverages: [125, 100, 50, 25],
   scaleTicks: 500,
   dispersion: 0.20,
   maxLevels: 500,

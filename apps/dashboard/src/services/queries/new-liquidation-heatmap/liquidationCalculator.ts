@@ -5,7 +5,7 @@ import { MergedBar, LiquidationLevel, HeatmapResult, Config } from "./types";
  *
  * Estimates liquidation levels based on:
  * - Open Interest changes (where new positions are being opened)
- * - Assumed leverage levels (125x, 100x, 50x)
+ * - Assumed leverage levels (125x, 100x, 50x, 25x)
  * - Liquidation price formula: liq_price = entry_price * (1 - direction/leverage)
  *
  * Logic:
