@@ -1,13 +1,3 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "crons": [
-    {
-      "path": "/api/scrape-cfgi",
-      "schedule": "0 */12 * * *"
-    },
-    {
-      "path": "/api/cron/process-payouts",
-      "schedule": "0 2 * * *"
-    }
-  ]
 }
