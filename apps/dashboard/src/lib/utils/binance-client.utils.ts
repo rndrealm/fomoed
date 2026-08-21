@@ -18,5 +18,5 @@ export function getBinanceWsServerUrl(source: BinanceSource, location: { country
 }
 
 export function throwFailedToConnectBinanceWsError() {
-  throw new Error("Failed to connect to both Binance and Proxy WebSocket servers.");
+  throw new Error("Failed to connect to both Binance and Proxy WebSocket servers111.");
 }

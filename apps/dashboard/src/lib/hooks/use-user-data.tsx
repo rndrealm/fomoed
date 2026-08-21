@@ -35,6 +35,7 @@ import { useQuery, UseQueryResult } from "@tanstack/react-query";
 
 export default function useUserData(): UseQueryResult<Database["public"]["Tables"]["users"]["Row"] | null, Error> {
   const { session } = useSupabaseAuth();
+  console.log("session:", session);
   return useQuery({
     queryKey: ["userData", session?.user?.id],
     queryFn: async () => {
@@ -45,7 +46,7 @@ export default function useUserData(): UseQueryResult<Database["public"]["Tables
       const supabase = createSupabaseBrowserClient();
 
       const { data } = await supabase.from("users").select("*").eq("user_id", session.user.id).single();
-
+      console.log("uss:", data);
       return data ?? null;
     },
     enabled: !!session?.user?.id,

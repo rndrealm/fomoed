@@ -2,201 +2,41 @@ import { v4 as uuidv4 } from "uuid";
 import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client";
 import { widgetPropsDefaults } from "@/lib/static";
 
-// Guest-only default widgets with comprehensive layout
 const createGuestDefaultWidgets = () => {
-  // Widget slugs for guest layout
-  const aggrTradeSlug = "aggr-trade";
-  const youtubeSlug = "youtube";
-  const telegramSlug = "telegram";
-  const tradingSlug = "ascendex";
-  const economicCalendarSlug = "trading-economics";
-  const liquidationHeatmapSlug = "liquidation-heat-map";
-
-  // Get default props for each widget
-  const aggrTradeDefaults = widgetPropsDefaults[aggrTradeSlug];
-  const youtubeDefaults = widgetPropsDefaults[youtubeSlug];
-  const telegramDefaults = widgetPropsDefaults[telegramSlug];
-  const tradingDefaults = widgetPropsDefaults[tradingSlug];
-  const economicCalendarDefaults = widgetPropsDefaults[economicCalendarSlug];
-  const liquidationHeatmapDefaults = widgetPropsDefaults[liquidationHeatmapSlug];
-
-  // Generate unique IDs for each widget
-  const aggrTradeId = uuidv4();
-  const youtubeId = uuidv4();
-  const telegramId = uuidv4();
-  const tradingId = uuidv4();
-  const economicCalendarId = uuidv4();
-  const liquidationHeatmapId = uuidv4();
-
-  const widgetIdJoin = "@/$";
-
-  return [
-    // Row 1: AGGR.TRADE (50% width - 8/16 columns)
-    {
-      id: aggrTradeId,
-      token: aggrTradeSlug,
-      props: aggrTradeDefaults,
-      meta: {
-        ...aggrTradeDefaults.meta,
-        i: `${aggrTradeId}${widgetIdJoin}${aggrTradeSlug}`,
-        x: 0,
-        y: 0,
-        w: 8,
-        h: 4,
-      },
-    },
-    // Row 1: YouTube (25% width - 4/16 columns)
-    {
-      id: youtubeId,
-      token: youtubeSlug,
-      props: youtubeDefaults,
-      meta: {
-        ...youtubeDefaults.meta,
-        i: `${youtubeId}${widgetIdJoin}${youtubeSlug}`,
-        x: 8,
-        y: 0,
-        w: 4,
-        h: 4,
-      },
-    },
-    // Row 1: Telegram (25% width - 4/16 columns)
-    {
-      id: telegramId,
-      token: telegramSlug,
-      props: telegramDefaults,
-      meta: {
-        ...telegramDefaults.meta,
-        i: `${telegramId}${widgetIdJoin}${telegramSlug}`,
-        x: 12,
-        y: 0,
-        w: 4,
-        h: 4,
-      },
-    },
-    // Row 2: Trade Execution (100% width - 16 columns)
-    {
-      id: tradingId,
-      token: tradingSlug,
-      props: tradingDefaults,
-      meta: {
-        ...tradingDefaults.meta,
-        i: `${tradingId}${widgetIdJoin}${tradingSlug}`,
-        x: 0,
-        y: 4,
-        w: 16,
-        h: 6,
-      },
-    },
-    // Row 3: Economic Calendar (50% width - 8/16 columns)
-    {
-      id: economicCalendarId,
-      token: economicCalendarSlug,
-      props: economicCalendarDefaults,
-      meta: {
-        ...economicCalendarDefaults.meta,
-        i: `${economicCalendarId}${widgetIdJoin}${economicCalendarSlug}`,
-        x: 0,
-        y: 10,
-        w: 8,
-        h: 4,
-      },
-    },
-    // Row 3: Liquidation Heatmap (50% width - 8/16 columns)
-    {
-      id: liquidationHeatmapId,
-      token: liquidationHeatmapSlug,
-      props: liquidationHeatmapDefaults,
-      meta: {
-        ...liquidationHeatmapDefaults.meta,
-        i: `${liquidationHeatmapId}${widgetIdJoin}${liquidationHeatmapSlug}`,
-        x: 8,
-        y: 10,
-        w: 8,
-        h: 4,
-      },
-    },
-  ];
+  return createDefaultDashboardWidgets();
 };
 
-// Default widgets for new authenticated users
-const createDefaultWidgets = () => {
-  const priceChartSlug = "new-price-history";
-  const tradingEconomicSlug = "trading-economics";
-  const liquidationHeatMapSlug = "liquidation-heat-map";
-  const cfgiSlug = "cfgi";
-  const newsSlug = "token-news";
-
-  const priceChartDefaults = widgetPropsDefaults[priceChartSlug];
-  const tradingEconomicDefaults = widgetPropsDefaults[tradingEconomicSlug];
-  const liquidationHeatMapDefaults = widgetPropsDefaults[liquidationHeatMapSlug];
-  const cfgiDefaults = widgetPropsDefaults[cfgiSlug];
-  const newsDefaults = widgetPropsDefaults[newsSlug];
-
-  const priceChartId = uuidv4();
-  const tradingEconomicId = uuidv4();
-  const liquidationHeatMapId = uuidv4();
-  const cfgiId = uuidv4();
-  const newsId = uuidv4();
-
+const createDefaultDashboardWidgets = () => {
   const widgetIdJoin = "@/$";
 
-  return [
-    {
-      id: priceChartId,
-      token: priceChartSlug,
-      props: priceChartDefaults,
-      meta: {
-        i: `${priceChartId}${widgetIdJoin}${priceChartSlug}`,
-        x: 0,
-        y: 0,
-        ...priceChartDefaults.meta,
-      },
-    },
-    {
-      id: tradingEconomicId,
-      token: tradingEconomicSlug,
-      props: tradingEconomicDefaults,
-      meta: {
-        i: `${tradingEconomicId}${widgetIdJoin}${tradingEconomicSlug}`,
-        x: 0,
-        y: 4,
-        ...tradingEconomicDefaults.meta,
-      },
-    },
-    {
-      id: liquidationHeatMapId,
-      token: liquidationHeatMapSlug,
-      props: liquidationHeatMapDefaults,
-      meta: {
-        i: `${liquidationHeatMapId}${widgetIdJoin}${liquidationHeatMapSlug}`,
-        x: 8,
-        y: 0,
-        ...liquidationHeatMapDefaults.meta,
-      },
-    },
-    {
-      id: cfgiId,
-      token: cfgiSlug,
-      props: cfgiDefaults,
-      meta: {
-        i: `${cfgiId}${widgetIdJoin}${cfgiSlug}`,
-        x: 8,
-        y: 4,
-        ...cfgiDefaults.meta,
-      },
-    },
-    {
-      id: newsId,
-      token: newsSlug,
-      props: newsDefaults,
-      meta: {
-        i: `${newsId}${widgetIdJoin}${newsSlug}`,
-        x: 12,
-        y: 4,
-        ...newsDefaults.meta,
-      },
-    },
+  const widgets = [
+    { slug: "order-book", x: 0, y: 0 },
+    { slug: "cfgi", x: 4, y: 0 },
+    { slug: "coin-stats", x: 8, y: 0 },
+    { slug: "btc-dominance", x: 12, y: 0 },
+    { slug: "new-price-history", x: 0, y: 4 },
+    { slug: "summary", x: 8, y: 4 },
   ];
+
+  return widgets.map(({ slug, x, y }) => {
+    const id = uuidv4();
+    const defaults = widgetPropsDefaults[slug as keyof typeof widgetPropsDefaults];
+    return {
+      id,
+      token: slug,
+      props: defaults,
+      meta: {
+        ...defaults.meta,
+        i: `${id}${widgetIdJoin}${slug}`,
+        x,
+        y,
+      },
+    };
+  });
+};
+
+const createDefaultWidgets = () => {
+  return createDefaultDashboardWidgets();
 };
 
 // Guest dashboard data for unauthenticated users

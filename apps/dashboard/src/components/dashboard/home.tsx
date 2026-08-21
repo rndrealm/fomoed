@@ -120,11 +120,11 @@ export default function Home({ dashboardData, showTermsModal, isGuest = false }:
       <TermsAndConditionsModal isOpen={isTermsModalOpen} onContinue={handleTermsContinue} isLoading={isUpdating} />
 
       {/* Guest Signup Modal (Hard Block) */}
-      <GuestSignupModal isOpen={isGuest && hasExpired} />
+      {/* <GuestSignupModal isOpen={isGuest && hasExpired} /> */}
 
       <div className={cn("h-full overflow-hidden bg-[#000] pb-0 md:px-0 pt-0")}>
         <div className="relative flex h-full w-full flex-col gap-0">
-          <div className="px-4 md:px-4 bg-[#0A0A0A] border-b-[1px] border-[#222222]">
+          <div className="pr-4 md:pr-4 bg-[#0A0A0A] border-b-[1px] border-[#222222]">
             <Toolbar />
           </div>
 

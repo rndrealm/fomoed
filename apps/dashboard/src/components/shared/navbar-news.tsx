@@ -99,6 +99,7 @@ export const NavbarNews = (props: IProps) => {
   // const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
   const [isSideMenuOpen, setIsSideMenuOpen] = useAtom(isSidebarOpenAtom);
   const { data: authUser, isLoading, error } = useUserData();
+
   const pathname = usePathname();
 
   // Close sidebar when pathname changes (route navigation)

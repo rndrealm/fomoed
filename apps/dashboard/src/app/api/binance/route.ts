@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Missing source or endpoint parameter." }, { status: 400 });
     }
 
-    const baseUrls = API_SOURCES["binance_us"];
+    const baseUrls = API_SOURCES[source] || API_SOURCES["binance"];
 
     if (!baseUrls || baseUrls.length === 0) {
       return NextResponse.json({ error: "Invalid source specified" }, { status: 400 });
