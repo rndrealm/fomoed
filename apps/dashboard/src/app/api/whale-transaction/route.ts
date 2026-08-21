@@ -2,19 +2,21 @@ import { NextResponse } from "next/server";
 import { getRedisInstance } from "@/lib/utils/server.utils";
 
 const TOP_COINS_KEY = "coinglass_top_10_coins_by_marketcap";
-const CACHE_TTL = 3600; // Cache for 1 hour (in seconds)
+const CACHE_TTL = 3600;
 
 async function fetchTopCoins(): Promise<Set<string>> {
   const redis = getRedisInstance();
 
   try {
-    const cachedCoins = await redis.get(TOP_COINS_KEY);
-    if (cachedCoins) {
-      console.log("Fetching top coins from Redis cache.");
-      return new Set(JSON.parse(cachedCoins));
+    if (redis) {
+      const cachedCoins = await redis.get(TOP_COINS_KEY);
+      if (cachedCoins) {
+        console.log("Fetching top coins from Redis cache.");
+        return new Set(JSON.parse(cachedCoins));
+      }
     }
 
-    console.log("Cache miss. Fetching top coins from CoinGlass API.");
+    console.log("Fetching top coins from CoinGlass API.");
     const url = "https://open-api-v4.coinglass.com/api/futures/coins-markets";
     const options = {
       method: "GET",
@@ -35,7 +37,9 @@ async function fetchTopCoins(): Promise<Set<string>> {
       .slice(0, 10)
       .map((coin: any) => coin.symbol.toUpperCase());
 
-    await redis.setex(TOP_COINS_KEY, CACHE_TTL, JSON.stringify(top10));
+    if (redis) {
+      await redis.setex(TOP_COINS_KEY, CACHE_TTL, JSON.stringify(top10));
+    }
 
     return new Set(top10);
   } catch (error) {

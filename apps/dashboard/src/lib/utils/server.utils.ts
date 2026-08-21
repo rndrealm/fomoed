@@ -36,8 +36,12 @@ export function asNextResponseData<T>(data: T) {
   return NextResponse.json({ data, success: true });
 }
 
-export function getRedisInstance(): Redis {
-  const redis = new Redis(process.env.REDIS_URL != "" ? (process.env.REDIS_URL as string) : "redis://localhost:6379", {
+export function getRedisInstance(): Redis | null {
+  if (!process.env.REDIS_URL) {
+    return null;
+  }
+
+  const redis = new Redis(process.env.REDIS_URL, {
     password: process.env.REDIS_PASSWORD || undefined,
   });
 
