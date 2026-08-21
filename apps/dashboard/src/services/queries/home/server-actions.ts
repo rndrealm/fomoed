@@ -3,7 +3,30 @@ import { createSupabaseBrowserClient } from "@/lib/utils/supabase/browser-client
 import { widgetPropsDefaults } from "@/lib/static";
 
 const createGuestDefaultWidgets = () => {
-  return createDefaultDashboardWidgets();
+  const widgetIdJoin = "@/$";
+
+  const widgets = [
+    { slug: "order-book", x: 0, y: 0 },
+    { slug: "cfgi", x: 4, y: 0 },
+    { slug: "btc-dominance", x: 8, y: 0 },
+    { slug: "summary", x: 12, y: 0 },
+  ];
+
+  return widgets.map(({ slug, x, y }) => {
+    const id = uuidv4();
+    const defaults = widgetPropsDefaults[slug as keyof typeof widgetPropsDefaults];
+    return {
+      id,
+      token: slug,
+      props: defaults,
+      meta: {
+        ...defaults.meta,
+        i: `${id}${widgetIdJoin}${slug}`,
+        x,
+        y,
+      },
+    };
+  });
 };
 
 const createDefaultDashboardWidgets = () => {
