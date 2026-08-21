@@ -101,11 +101,7 @@ export function NewsTokenDropdown(props: IProps) {
                     setValue(item.symbol);
                     setOpen(false);
                   }}
-                  disabled={
-                    !userPlans?.hasPlan &&
-                    item.symbol !== "BTC" &&
-                    item.symbol !== "ETH"
-                  }
+                  disabled={false}
                 >
                   <div className="h-[20px] w-[20px]">
                     <Image

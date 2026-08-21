@@ -184,10 +184,10 @@ export const useSubscription = () => {
     refetchOnWindowFocus: true,
   });
 
-  const isProPlanActive = userSubscriptionsQuery.data?.activePlan === "pro";
-  const isPlusPlanActive = userSubscriptionsQuery.data?.activePlan === "plus";
-  const activePlan = userSubscriptionsQuery.data?.activePlan;
-  const nextPeriodPlan = userSubscriptionsQuery.data?.nextPeriodPlan;
+  const isProPlanActive = true;
+  const isPlusPlanActive = false;
+  const activePlan = "pro" as PlanType;
+  const nextPeriodPlan = "pro" as PlanType;
 
   const isAnyUseSubscriptionHookBusy =
     !!(subscriptionActionsPending?.size) || userSubscriptionsQuery.isFetching || isRedirecting;

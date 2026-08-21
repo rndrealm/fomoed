@@ -147,10 +147,6 @@ export function LoginForm() {
           </div>
 
           <div className="relative flex flex-col gap-6">
-            <div className="mt-3 flex justify-center">
-              <GoogleLogin nextUrl={nextUrl || undefined} fromUrl={fromUrl || undefined} />
-            </div>
-
             <div className="flex items-center justify-center gap-[3px]">
               <p className="text-center text-sm leading-[1.35] font-medium text-[#5c5c5c]">Forgot Password? </p>
               <Link href={AppRoutes.auth.forgotPassword.path}>

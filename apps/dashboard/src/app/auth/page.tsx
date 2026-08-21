@@ -144,20 +144,6 @@ const SignupForm = () => {
                           onBlur={handleBlur}
                         />
 
-                        <div className="flex flex-col gap-1">
-                          <label htmlFor="referralCode" className="text-sm font-medium text-[#acacac] px-1">
-                            Referral Code
-                          </label>
-                          <TextInput
-                            name="referralCode"
-                            id="referralCode"
-                            placeholder="Optional"
-                            value={values.referralCode}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            disabled={!!referralCodeFromUrl}
-                          />
-                        </div>
                         <div className="">
                           <SubmitButton isLoading={isLoading}>
                             Continue
@@ -172,13 +158,6 @@ const SignupForm = () => {
             </div>
           </div>
 
-          <div className="relative mt-3 flex justify-center">
-            <GoogleLogin
-              fromUrl={fromUrl || undefined}
-              referralCode={referralCodeFromUrl}
-              nextUrl={nextUrl || undefined}
-            />
-          </div>
         </div>
       </div>
 

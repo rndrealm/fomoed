@@ -144,20 +144,7 @@ const ProfileBox = ({ isPlans }: { isPlans?: boolean }) => {
         {/* Avatar Upload Box */}
         <AvatarFileBox avatarFileBox={avatarFileBox} setAvatarFileBox={setAvatarFileBox} />
 
-        {/* Upgrade Banner */}
-        <div className="mt-0 lg:mt-3 max-w-[450px] px-4 lg:px-3 py-4 lg:py-3 w-fit lg:w-full mx-auto flex flex-col gap-5 lg:flex-row justify-between items-center border border-neutral-700 rounded-[12px]">
-          <p className="text-[14px] ml-1 text-white font-normal">Get more for your money</p>
-          <button
-            type="button"
-            onClick={() => {
-              upgradePricing();
-              setProfilePopoverAtom({ open: false, activeTab: profilePopover.activeTab });
-            }}
-            className="px-4 py-2 text-nowrap bg-[#db8844] rounded-[8px] text-[14px] text-black leading-[18px] font-medium"
-          >
-            {userSubscriptionQueryData?.activePlan !== "basic" ? "Manage Subscription" : "Upgrade Now"}
-          </button>
-        </div>
+        {/* Upgrade banner removed — paywall disabled */}
       </div>
       {/* Plans Popover */}
       {isPlans && <PlansBox />}

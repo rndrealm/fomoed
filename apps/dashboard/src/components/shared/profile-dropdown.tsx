@@ -120,15 +120,7 @@ export function ProfileDropdown(props: IProps) {
                 </RenderIf>
               </div>
             </div>
-            {/* view plans thing */}
-            <div className="pointer-events-auto z-[0] absolute bottom-[10px] left-1/2 translate-x-[-50%] w-full h-fit px-6 flex justify-center items-center">
-              <a
-                href="/pricing"
-                className="currsor-pointer hover:bg-[#202020] bg-[#1A1A1A] w-full rounded-b-sm px-2 py-1 flex justify-center items-center"
-              >
-                <h4 className="text-[13px] leading-[1.35] font-normal text-white">View 2+ plans</h4>
-              </a>
-            </div>
+            {/* view plans link removed — paywall disabled */}
           </div>
 
           {/* <div className="px-3 py-0">

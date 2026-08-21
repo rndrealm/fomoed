@@ -46,23 +46,13 @@ const navLinks: INavLink[] = [
     keyboardBoxes: ["command", "K"],
   },
   {
-    label: "Marketing Campaign Dashboard",
-    icon: <CommunityIcon />,
-    href: `${process.env.NEXT_PUBLIC_MARKETING_APP_URL}/kol/explore`,
-    disabled: false,
-    beta: false,
-    alpha: false,
-    comingSoon: false,
-  },
-  {
     label: "Smart Signals",
     icon: <SmartSignalsIcon />,
-    href: AppRoutes.signals.path,
-    disabled: false,
+    href: "#",
+    disabled: true,
     beta: false,
-    alpha: true,
-    comingSoon: false,
-    keyboardBoxes: ["command", "K"],
+    alpha: false,
+    comingSoon: true,
   },
   {
     label: "News",
@@ -74,60 +64,6 @@ const navLinks: INavLink[] = [
     comingSoon: false,
     keyboardBoxes: ["command", "Enter"],
   },
-
-  // {
-  //   label: "Fomoed Education",
-  //   icon: <EducationIcon />,
-  //   href: `#`,
-  //   disabled: false,
-  //   beta: false,
-  //   alpha: false,
-  //   comingSoon: true,
-  // },
-  {
-    label: "Referrals",
-    icon: <ReferAndEarnIcon />,
-    href: AppRoutes.referrals.path,
-    disabled: false,
-    beta: false,
-    alpha: false,
-  },
-  // {
-  //   label: "Trading Competition Photos",
-  //   icon: <LinkIcon />,
-  //   href: AppRoutes.eventPhotos.path,
-  //   disabled: false,
-  //   beta: false,
-  //   alpha: false,
-  // },
-  {
-    label: "News",
-    icon: <NewsIconV2 />,
-    href: AppRoutes.news.path,
-    disabled: false,
-    beta: false,
-    alpha: false,
-    comingSoon: false,
-    keyboardBoxes: ["command", "Enter"],
-  },
-
-  // {
-  //   label: "Fomoed Education",
-  //   icon: <EducationIcon />,
-  //   href: `#`,
-  //   disabled: false,
-  //   beta: false,
-  //   alpha: false,
-  //   comingSoon: true,
-  // },
-  // {
-  //   label: "Terms of Service",
-  //   icon: <Article />,
-  //   href: AppRoutes.termsOfService.path,
-  //   disabled: false,
-  //   beta: false,
-  //   alpha: false
-  // },
 ];
 
 const bottomLinks = [

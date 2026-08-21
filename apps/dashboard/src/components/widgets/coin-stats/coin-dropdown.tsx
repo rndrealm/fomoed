@@ -114,11 +114,7 @@ export default function CoinDropdown(props: IProps) {
                 setValue(item.id);
                 setOpen(false);
               }}
-              disabled={
-                !userPlans?.hasPlan &&
-                item.id !== "bitcoin" &&
-                item.id !== "ethereum"
-              }
+              disabled={false}
             >
               <div className="w-[20px] h-[20px]">
                 <Image

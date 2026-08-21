@@ -107,11 +107,7 @@ export default function PriceTokenDropdown(props: IProps) {
                 setValue(item.symbol);
                 setOpen(false);
               }}
-              disabled={
-                !userPlans?.hasPlan &&
-                item.symbol !== "BTC" &&
-                item.symbol !== "ETH"
-              }
+              disabled={false}
             >
               <div className="w-[20px] h-[20px]">
                 <Image

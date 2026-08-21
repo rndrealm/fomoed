@@ -57,11 +57,6 @@ const SignalBuilder = ({}) => {
   const handleSave = async () => {
     if (!rootGroup || !user?.user_id) return;
 
-    if (userPlanData?.hasActivePlans === "FREE" && smartSignals.length >= 2) {
-      setShowUpgradeModal(true);
-      return;
-    }
-
     const actions: Array<{
       type: string;
       subject?: string;

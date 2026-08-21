@@ -114,8 +114,8 @@ export function getChangeTextColor(change: number): string {
 }
 
 export const maxTabsByPlan = {
-  FREE: 1,
-  PLUS: 3,
+  FREE: 11,
+  PLUS: 11,
   PRO: 11,
 };
 

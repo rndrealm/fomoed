@@ -39,11 +39,7 @@ const MySignals = () => {
   const { activePlan } = useSubscription();
 
   const handleNewSignal = () => {
-    if (data?.hasActivePlans === "FREE" && smartSignals.length >= 2) {
-      setShowUpgradeModal(true);
-    } else {
-      setActiveSignalTab("signal-builder");
-    }
+    setActiveSignalTab("signal-builder");
   };
 
   if (isLoading) {

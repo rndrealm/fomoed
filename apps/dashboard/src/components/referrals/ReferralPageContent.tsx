@@ -46,7 +46,7 @@ const ReferralPageContent: FC<ReferralPageContentProps> = ({
 
   const { activePlan } = useSubscription();
   
-  const isProUser = activePlan === "pro" || activePlan === "plus";
+  const isProUser = true;
   const planLoaded = activePlan !== undefined;
 
   const handleCopy = (link: string): void => {
